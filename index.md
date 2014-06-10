@@ -7,8 +7,8 @@ tagline: .
 
 Rahul is a PhD candidate in *Software Testing*, specializing in *Mutation Analysis*. His interests include Programming Languages, Statistics, and Logic.
 
-Supervisor: Dr. Carlos Jensen \\
-Research Team: HCI \\
+Supervisor: Dr. Carlos Jensen  
+Research Team: HCI  
 
 
 ## Posts
