@@ -5,10 +5,10 @@ tagline: .
 ---
 {% include JB/setup %}
 
-Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. However, his interests range from Programming Languages, Statistics, and Logic.
+Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. His interests include Programming Languages, Statistics, and Logic.<p/>
 
-Supervisor: Dr. Carlos Jensen
-Research Team: HCI
+Supervisor: Dr. Carlos Jensen<br/>
+Research Team: HCI<br/>
 
 
 ## Posts
