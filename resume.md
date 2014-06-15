@@ -12,61 +12,66 @@ weight: 3
 * [Education](#education)
 * [Experience](#experience)
 * [Highlights](#highlights)
+* [Publications](#publications)
 * [OpenSource](#opensource)
 * [Research Interests](#research-interests)
 * [Achievements](#achievements)
 
 ## [Education]()
 
-* 2014 Ph.D. Oregon State University, USA (expected) 
+* 2015 Ph.D. Oregon State University, USA (expected) 
 * 2010 M.S. Illinois Institute of Technology, USA.
 * 2000 B.tech. Kerala University, India.
 
 ## [Experience]()
 
-### 2004-2010 Member of Technical Staff, Sun Microsystems, India.
+### 2013,7..9 Intern Puppetlabs U.S.A
 
-Integrated various Apache modules and Squid Cache for OpenSolaris
-Web Stack build-framework which enabled non-root, relocatable installations of opensource components,
-Developed common service functions library for Web Stack
-Web Server Clustering with Session Failover capability, Implemented TCL shell scripting for administration.
-Reverse Proxy feature, FTP, (SSL) CONNECT and SOCKS protocols in Webcache,
-Contributed to caching subsystem including cache manipulation tools and cache eviction,
-implementations of ICP and CARP cache coordination protocols.
+* Investigated different solutions for Postgresql streaming replication and failover, and developed initial puppet module for Postgresql clustering.
 
-### 2002-2004 Member of Technical Staff, Quark Media House, Chandigarh.
+### 2012,7..9 Intern Puppetlabs U.S.A
 
-Loadbalancer and Caching implementation for Quark Document Server farms.
-XSLT presentation, simple messaging interface for QWAF application server that used a CORBA
-based backend.
+* Developed release tasks for Solaris 11 packages for Puppet, Factor and Hiera
+* Handled preliminary release of Solaris 11 IPS Package for Puppet 3.0.0
+* Fixed Solaris specific problems in Puppet 3.x and ensured that it worked correctly for this release.
+* Worked with Q.A and Ops to enable Solaris infrastructure in Puppet Labs
 
-### 2000-2002 Developer,Research Group, SunTec Business Solutions, Thiruvananthapuram India.
+### 2004--2010 Member of Technical Staff Sun Microsystems India
 
-Worked in Transaction rating and billing engine for telephony call records, SOAP Service API design
-and implementation for TBMS, Worked in TBMS client providing domain sensitive caching and
-transaction control.
-- Prototyped a simple application hosting using Apache,
-- Prototyped an OS-KIT based standalone kernel that could be used as a rating appliance
+* Integrated various Apache modules and Squid cache for OpenSolaris. 
+* Built framework which enabled non-root, relocatable installations of opensource components
+        and developed common service functions library for Sun Web Stack. 
+* Worked in web server clustering with session-failover capability and reverse proxy, implemented TCL shell scripting for administration.
+* Contributed implementation of FTP, (SSL) CONNECT and SOCKS protocols for proxy server.
+* Contributed to caching subsystem including cache manipulation tools, cache eviction, and 
+        implementations of ICP and CARP cache coordination protocols.}
 
-### Highlights
+### 2002--2004 Member of Technical Staff Quark Media House Chandigarh
 
-- Ten years of experience working in global teams with diverse requirements
-- Designing, debugging and optimizing multi-process multithreaded servers in Unix.
-- Cache co-ordination protocols, caching, load-balancers, and web infrastructure.
-- Professional experience in C++ and Java, Have working knowledge of Perl, Python, Ruby,
-  Scheme, TCL, Erlang, Forth, Smalltalk, Haskell
-- Knowledge of OpenMP, MPI, Parallel Fortran
+* Worked in load-balancer and cache implementation for Quark Document Server farms.
+* Worked in Simple messaging and XSLT presentation layer for Quark Web Server.
+
+### 2000--2002 Developer,Research Group SunTec Business Solutions Thiruvananthapuram
+
+* Implemented rating and billing engine for telephony call records, SOAP Service API for the billing        interface, Provided domain sensitive caching and transaction control in the client for billing engine. 
+* Prototype OS-KIT based standalone kernel that could be used as a rating appliance.
+
+### Publications
+
+* ICSE 2014 Gopinath, Jensen, groce "Code Coverage for Suite Evaluation by Developers"
+* FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
 ### OpenSource
 
-- Contributed to Apache HTTPD and mod-scheme Apache module
-- Contributed X-Windows API and a window manager to Syx Smalltalk
-- Author of a concatenative programming language V
+* Contributed to Apache HTTPD and mod-scheme Apache module
+* Contributed X-Windows API and a window manager to Syx Smalltalk
+* Author of a concatenative programming language V
 
 ### Research Interests
 
-  Software Testing, Dynamic Languages, Functional Languages
+Software Testing, Dynamic Languages, Functional Languages
 
 ### Achievements
 
 Won excellence awards for two quarters in 2004 and 2005 at Sun Microsystems
+
