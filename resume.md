@@ -19,6 +19,7 @@ weight: 3
 * 2000 B.tech. Kerala University, India.
 
 ## [Experience]()
+
 ### 2004-2010 Member of Technical Staff, Sun Microsystems, India.
 
 Integrated various Apache modules and Squid Cache for OpenSolaris
