@@ -11,6 +11,10 @@ weight: 3
 
 * [Education](#education)
 * [Experience](#experience)
+* [Highlights](#highlights)
+* [OpenSource](#opensource)
+* [Research Interests](#research-interests)
+* [Achievements](#achievements)
 
 ## [Education]()
 
