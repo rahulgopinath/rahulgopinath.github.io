@@ -56,22 +56,22 @@ weight: 3
 * Implemented rating and billing engine for telephony call records, SOAP Service API for the billing        interface, Provided domain sensitive caching and transaction control in the client for billing engine. 
 * Prototype OS-KIT based standalone kernel that could be used as a rating appliance.
 
-### Publications
+### [Publications]()
 
 * ICSE 2014 Gopinath, Jensen, groce "Code Coverage for Suite Evaluation by Developers"
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
-### OpenSource
+### [OpenSource]()
 
 * Contributed to Apache HTTPD and mod-scheme Apache module
 * Contributed X-Windows API and a window manager to Syx Smalltalk
 * Author of a concatenative programming language V
 
-### Research Interests
+### [Research Interests]()
 
 Software Testing, Dynamic Languages, Functional Languages
 
-### Achievements
+### [Achievements]()
 
 Won excellence awards for two quarters in 2004 and 2005 at Sun Microsystems
 
