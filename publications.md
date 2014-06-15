@@ -7,7 +7,9 @@ weight: 3
 ---
 {% include JB/setup %}
 
-### Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014
+* [Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](le--alipour--gopinath--groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
+
+### [Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
 
 This paper presents MuCheck, a mutation testing tool for Haskell programs. This is the first tool to be published (to our knowledge) that is explicitly oriented towards mutation testing for functional programs. MuCheck is a counterpart to the widely used QuickCheck random testing tool in fuctional programs, and can be used to evaluate the efficacy of QuickCheck property definitions. The tool implements mutation operators that are specifically designed for functional programs, and makes use of the type system of Haskell to achieve a more relevant set of mutants than otherwise possible. Mutation coverage is particularly valuable for functional programs due to highly compact code, referential transparency, and clean semantics, which make augmenting a test suite or specification based on surviving mutants a practical method for improved testing.
 
