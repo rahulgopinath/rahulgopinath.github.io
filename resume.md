@@ -58,7 +58,8 @@ weight: 3
 
 ## [Publications]()
 
-* ICSE 2014 Gopinath, Jensen, groce "Code Coverage for Suite Evaluation by Developers"
+* ISSTA Tools 2014 Le, Alipour, Gopinath, Groce "MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs"
+* ICSE 2014 Gopinath, Jensen, Groce "Code Coverage for Suite Evaluation by Developers"
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
 ## [OpenSource]()
