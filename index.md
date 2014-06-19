@@ -18,7 +18,9 @@ Research Team: HCI
     {% if post.tags contains 'ta' %}
     <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
     {% else %}
+    <hr>
     {{post.tags}}
+    <hr>
     {% endif %}
   {% endfor %}
 </ul>
