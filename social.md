@@ -2,6 +2,7 @@
 layout: page
 title: Social
 tagline: .
+group: navigation
 ---
 {% include JB/setup %}
 
