@@ -19,7 +19,7 @@ Research Team: HCI
     <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
     {% else %}
     <hr>
-    {{post.tags}}
+    {{post.tags | join ','}}
     <hr>
     {% endif %}
   {% endfor %}
