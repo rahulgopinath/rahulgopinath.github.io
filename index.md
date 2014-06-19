@@ -3,6 +3,7 @@ layout: page
 title: Rahul Gopinath
 tagline: .
 ---
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 {% include JB/setup %}
 
 Rahul is a PhD candidate in *Software Testing*, specializing in *Mutation Analysis*. His interests include Programming Languages, Statistics, and Logic.
