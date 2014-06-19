@@ -11,17 +11,24 @@ Supervisor: Dr. Carlos Jensen
 Research Team: HCI  
 
 
-## Posts
+### Teaching Assistant
 
 <ul class="posts">
   {% for post in site.posts %}
     {% assign mytags = post.tags | strip_html | strip_newlines %}
     {% if mytags contains 'ta' %}
     <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
-    {% else %}
-    <hr>
-    {{mytags}}
-    <hr>
+    {% endif %}
+  {% endfor %}
+</ul>
+
+### Instructor
+
+<ul class="posts">
+  {% for post in site.posts %}
+    {% assign mytags = post.tags | strip_html | strip_newlines %}
+    {% if mytags contains 'instructor' %}
+    <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
     {% endif %}
   {% endfor %}
 </ul>
