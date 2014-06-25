@@ -1,0 +1,20 @@
+# Dependencies
+markdown:         kramdown
+pygments:         true
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            Rahul Gopinath
+tagline:          'Computer Science Researcher'
+description:      ''
+url:              http://rahul.gopinath.org
+
+paginate:         5
+
+# Custom vars
+version:          2.0.0
+
+github:
+  repo:           https://github.com/rahulgopinath/rahulgopinath.github.io

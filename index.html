@@ -1,0 +1,37 @@
+---
+layout: default
+menu: Rahul Gopinath
+---
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. His interests include Programming Languages, Statistics, and Logic.<p>
+
+Supervisor: Dr. Carlos Jensen<br/>
+Research Team: HCI<p/>
+
+
+<h3> Teaching Assistant </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'ta' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
+
+
+<h3> Instructor </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags != 'ta' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
