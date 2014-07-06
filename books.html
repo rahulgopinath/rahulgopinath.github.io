@@ -5,143 +5,49 @@ tagline: .
 group: navigation
 menu: Books
 ---
-
-      <!-- Show static HTML/CSS as a placeholder in case js is not enabled - javascript include will override this if things work -->
       <style type="text/css" media="screen">
-  .gr_custom_container_1404627820 {
-    /* customize your Goodreads widget container here*/
-    border: 0px solid gray;
-    border-radius:10px;
-    padding: 10px 5px 10px 5px;
-    background-color: #FFFFFF;
-    color: #000000;
-    width: 500px
-  }
-  .gr_custom_header_1404627820 {
-    /* customize your Goodreads header here*/
-    border-bottom: 1px solid gray;
-    width: 100%;
-    margin-bottom: 5px;
-    text-align: center;
-    font-size: 80%
-  }
-  .gr_custom_each_container_1404627820 {
-    /* customize each individual book container here */
-    width: 100%;
-    clear: both;
-    margin-bottom: 10px;
-    overflow: auto;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #aaa;
-  }
-  .gr_custom_book_container_1404627820 {
-    /* customize your book covers here */
-    overflow: hidden;
-    height: 60px;
-      float: left;
-      margin-right: 4px;
-      width: 39px;
-  }
-  .gr_custom_author_1404627820 {
-    /* customize your author names here */
-    font-size: 10px;
-  }
-  .gr_custom_tags_1404627820 {
-    /* customize your tags here */
-    font-size: 10px;
-    color: gray;
-  }
-  .gr_custom_rating_1404627820 {
-    /* customize your rating stars here */
-    float: right;
-  }
-</style>
+        .gr_grid_container {
+          /* customize grid container div here. eg: width: 500px; */
+        }
 
-      <div id="gr_custom_widget_1404627820">
-          <div class="gr_custom_container_1404627820">
-    <h2 class="gr_custom_header_1404627820">
-    <a href="https://www.goodreads.com/review/list/26467953-rahul?shelf=read&amp;utm_medium=api&amp;utm_source=custom_widget" style="text-decoration: none;">Rahul's bookshelf: read</a>
+        .gr_grid_book_container {
+          /* customize book cover container div here */
+          float: left;
+          width: 39px;
+          height: 60px;
+          padding: 0px 0px;
+          overflow: hidden;
+        }
+      </style>
+      <div id="gr_grid_widget_1404628148">
+        <!-- Show static html as a placeholder in case js is not enabled - javascript include will override this if things work -->
+            <h2>
+      <a href="https://www.goodreads.com/review/list/26467953-rahul?shelf=read&utm_medium=api&utm_source=grid_widget" style="text-decoration: none;">Rahul's bookshelf: read</a>
     </h2>
-      <div class="gr_custom_each_container_1404627820">
-          <div class="gr_custom_book_container_1404627820">
-            <a href="https://www.goodreads.com/review/show/785766194?utm_medium=api&amp;utm_source=custom_widget" title="Pride and Prejudice"><img alt="Pride and Prejudice" border="0" src="https://d.gr-assets.com/books/1320399351s/1885.jpg" /></a>
-          </div>
-          <div class="gr_custom_rating_1404627820">
-            <img alt="3 of 5 stars" class=" staticStars" src="https://www.goodreads.com/images/layout/stars/red_star_3_of_5.png" title="3 of 5 stars, liked it" />
-          </div>
-          <div class="gr_custom_title_1404627820">
-            <a href="https://www.goodreads.com/review/show/785766194?utm_medium=api&amp;utm_source=custom_widget">Pride and Prejudice</a>
-          </div>
-          <div class="gr_custom_author_1404627820">
-            by <a href="https://www.goodreads.com/author/show/1265.Jane_Austen">Jane Austen</a>
-          </div>
-      </div>
-      <div class="gr_custom_each_container_1404627820">
-          <div class="gr_custom_book_container_1404627820">
-            <a href="https://www.goodreads.com/review/show/785766587?utm_medium=api&amp;utm_source=custom_widget" title="To Kill a Mockingbird"><img alt="To Kill a Mockingbird" border="0" src="https://d.gr-assets.com/books/1361975680s/2657.jpg" /></a>
-          </div>
-          <div class="gr_custom_rating_1404627820">
-            <img alt="3 of 5 stars" class=" staticStars" src="https://www.goodreads.com/images/layout/stars/red_star_3_of_5.png" title="3 of 5 stars, liked it" />
-          </div>
-          <div class="gr_custom_title_1404627820">
-            <a href="https://www.goodreads.com/review/show/785766587?utm_medium=api&amp;utm_source=custom_widget">To Kill a Mockingbird</a>
-          </div>
-          <div class="gr_custom_author_1404627820">
-            by <a href="https://www.goodreads.com/author/show/1825.Harper_Lee">Harper Lee</a>
-          </div>
-      </div>
-      <div class="gr_custom_each_container_1404627820">
-          <div class="gr_custom_book_container_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767003?utm_medium=api&amp;utm_source=custom_widget" title="Wuthering Heights"><img alt="Wuthering Heights" border="0" src="https://d.gr-assets.com/books/1388212715s/6185.jpg" /></a>
-          </div>
-          <div class="gr_custom_rating_1404627820">
-            <img alt="2 of 5 stars" class=" staticStars" src="https://www.goodreads.com/images/layout/stars/red_star_2_of_5.png" title="2 of 5 stars, it was ok" />
-          </div>
-          <div class="gr_custom_title_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767003?utm_medium=api&amp;utm_source=custom_widget">Wuthering Heights</a>
-          </div>
-          <div class="gr_custom_author_1404627820">
-            by <a href="https://www.goodreads.com/author/show/4191.Emily_Bront_">Emily Brontë</a>
-          </div>
-      </div>
-      <div class="gr_custom_each_container_1404627820">
-          <div class="gr_custom_book_container_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767038?utm_medium=api&amp;utm_source=custom_widget" title="Anna Karenina"><img alt="Anna Karenina" border="0" src="https://d.gr-assets.com/books/1352422904s/15823480.jpg" /></a>
-          </div>
-          <div class="gr_custom_rating_1404627820">
-            <img alt="2 of 5 stars" class=" staticStars" src="https://www.goodreads.com/images/layout/stars/red_star_2_of_5.png" title="2 of 5 stars, it was ok" />
-          </div>
-          <div class="gr_custom_title_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767038?utm_medium=api&amp;utm_source=custom_widget">Anna Karenina</a>
-          </div>
-          <div class="gr_custom_author_1404627820">
-            by <a href="https://www.goodreads.com/author/show/128382.Leo_Tolstoy">Leo Tolstoy</a>
-          </div>
-      </div>
-      <div class="gr_custom_each_container_1404627820">
-          <div class="gr_custom_book_container_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767147?utm_medium=api&amp;utm_source=custom_widget" title="1984"><img alt="1984" border="0" src="https://d.gr-assets.com/books/1348990566s/5470.jpg" /></a>
-          </div>
-          <div class="gr_custom_rating_1404627820">
-            <img alt="2 of 5 stars" class=" staticStars" src="https://www.goodreads.com/images/layout/stars/red_star_2_of_5.png" title="2 of 5 stars, it was ok" />
-          </div>
-          <div class="gr_custom_title_1404627820">
-            <a href="https://www.goodreads.com/review/show/785767147?utm_medium=api&amp;utm_source=custom_widget">1984</a>
-          </div>
-          <div class="gr_custom_author_1404627820">
-            by <a href="https://www.goodreads.com/author/show/3706.George_Orwell">George Orwell</a>
-          </div>
-      </div>
-  <br style="clear: both"/>
-  <center>
-    <a href="https://www.goodreads.com/"><img alt="goodreads.com" src="https://www.goodreads.com/images/widget/widget_logo.gif" style="border:0" /></a>
-  </center>
-  <noscript>
-    Share <a href="https://www.goodreads.com/">book reviews</a> and ratings with Rahul, and even join a <a href="https://www.goodreads.com/group">book club</a> on Goodreads.
-  </noscript>
+  <div class="gr_grid_container">
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/1885.Pride_and_Prejudice" title="Pride and Prejudice"><img alt="Pride and Prejudice" border="0" src="https://d.gr-assets.com/books/1320399351s/1885.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/2657.To_Kill_a_Mockingbird" title="To Kill a Mockingbird"><img alt="To Kill a Mockingbird" border="0" src="https://d.gr-assets.com/books/1361975680s/2657.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/6185.Wuthering_Heights" title="Wuthering Heights"><img alt="Wuthering Heights" border="0" src="https://d.gr-assets.com/books/1388212715s/6185.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/15823480-anna-karenina" title="Anna Karenina"><img alt="Anna Karenina" border="0" src="https://d.gr-assets.com/books/1352422904s/15823480.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/5470.1984" title="1984"><img alt="1984" border="0" src="https://d.gr-assets.com/books/1348990566s/5470.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/7613.Animal_Farm" title="Animal Farm"><img alt="Animal Farm" border="0" src="https://d.gr-assets.com/books/1327872845s/7613.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/5907.The_Hobbit" title="The Hobbit (Middle-Earth Universe)"><img alt="The Hobbit" border="0" src="https://d.gr-assets.com/books/1372847500s/5907.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/24280.Les_Mis_rables" title="Les Misérables"><img alt="Les Misérables" border="0" src="https://d.gr-assets.com/books/1327702573s/24280.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/7144.Crime_and_Punishment" title="Crime and Punishment"><img alt="Crime and Punishment" border="0" src="https://d.gr-assets.com/books/1382846449s/7144.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/18405.Gone_with_the_Wind" title="Gone with the Wind"><img alt="Gone with the Wind" border="0" src="https://d.gr-assets.com/books/1328025229s/18405.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/5693.Selected_Stories" title="Selected Stories"><img alt="Selected Stories" border="0" src="https://d.gr-assets.com/books/1334702425s/5693.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/24213.Alice_s_Adventures_in_Wonderland_Through_the_Looking_Glass" title="Alice's Adventures in Wonderland & Through the Looking-Glass"><img alt="Alice's Adventures in Wonderland & Through the Looking-Glass" border="0" src="https://d.gr-assets.com/books/1327872220s/24213.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/168668.Catch_22" title="Catch-22"><img alt="Catch-22" border="0" src="https://d.gr-assets.com/books/1359882576s/168668.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/34.The_Fellowship_of_the_Ring" title="The Fellowship of the Ring (The Lord of the Rings, #1)"><img alt="The Fellowship of the Ring" border="0" src="https://d.gr-assets.com/books/1298411339s/34.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/13667.The_Farthest_Shore" title="The Farthest Shore (Earthsea Cycle, #3)"><img alt="The Farthest Shore" border="0" src="https://d.gr-assets.com/books/1388200537s/13667.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/656.War_and_Peace" title="War and Peace"><img alt="War and Peace" border="0" src="https://d.gr-assets.com/books/1394159768s/656.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/4934.The_Brothers_Karamazov" title="The Brothers Karamazov"><img alt="The Brothers Karamazov" border="0" src="https://d.gr-assets.com/books/1327882764s/4934.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/76620.Watership_Down" title="Watership Down"><img alt="Watership Down" border="0" src="https://d.gr-assets.com/books/1403895617s/76620.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/52036.Siddhartha" title="Siddhartha"><img alt="Siddhartha" border="0" src="https://d.gr-assets.com/books/1394861337s/52036.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a href="https://www.goodreads.com/book/show/639864.Autobiography_of_a_Yogi" title="Autobiography of a Yogi"><img alt="Autobiography of a Yogi" border="0" src="https://d.gr-assets.com/books/1347427162s/639864.jpg" /></a></div>
+    <br style="clear: both"/><br/><a href="https://www.goodreads.com/user/show/26467953-rahul" class="gr_grid_branding" style="font-size: .9em; color: #382110; text-decoration: none; float: right; clear: both">Rahul's favorite books »</a>
+  <noscript><br/>Share <a href="/">book reviews</a> and ratings with Rahul, and even join a <a href="/group">book club</a> on Goodreads.</noscript>
   </div>
 
       </div>
-      <script src="https://www.goodreads.com/review/custom_widget/26467953.Rahul's%20bookshelf:%20read?cover_position=left&cover_size=small&num_books=5&order=a&shelf=read&show_author=1&show_cover=1&show_rating=1&show_review=1&show_tags=1&show_title=1&sort=date_added&widget_bg_color=FFFFFF&widget_bg_transparent=&widget_border_width=none&widget_id=1404627820&widget_text_color=000000&widget_title_size=small&widget_width=wide" type="text/javascript" charset="utf-8"></script>
-      
-      
+      <script src="https://www.goodreads.com/review/grid_widget/26467953.Rahul's%20bookshelf:%20read?cover_size=small&hide_link=&hide_title=&num_books=200&order=a&shelf=read&sort=date_added&widget_id=1404628148" type="text/javascript" charset="utf-8"></script>
