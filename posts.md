@@ -16,9 +16,24 @@ This was the teaching materials I prepared for a course in programming languages
   <ul>
   {% for post in site.posts reversed %}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
-  {% if mytags == 'blog' %}
+  {% if mytags == 'cs381' %}
   <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
   {% endif %}
   {% endfor %}
   </ul>
 </div-->
+
+<h3> Some Haskell tricks</h3>
+
+<div class="posts">
+  <ul>
+  {% for post in site.posts reversed %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'haskelltricks' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div-->
+
+
