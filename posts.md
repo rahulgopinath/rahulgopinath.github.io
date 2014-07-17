@@ -9,6 +9,9 @@ menu: Posts
 
 
 <h3> Writing a language </h3>
+
+This was the teaching materials I prepared for a course in programming languages for which I was the instructor. These are still under construction since the classes typically had to refer back to previous sessions, and hence each post is a super set of the previous. (You will get most by just looking at the 7th installment)
+
 <div class="posts">
   <ul>
   {% for post in site.posts reversed %}
