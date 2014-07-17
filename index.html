@@ -36,14 +36,3 @@ Research Team: HCI<p/>
   </ul>
 </div>
 
-<h3> Posts </h3>
-<div class="posts">
-  <ul>
-  {% for post in site.posts %}
-  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
-  {% if mytags == 'blog' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
-  {% endif %}
-  {% endfor %}
-  </ul>
-</div>
