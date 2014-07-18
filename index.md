@@ -4,10 +4,10 @@ menu: Rahul Gopinath
 ---
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. His interests include Programming Languages, Statistics, and Logic.<p>
+Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. His interests include Programming Languages, Statistics, and Logic.
 
 Supervisor: Dr. Carlos Jensen<br/>
-Research Team: HCI<p/>
+Research Team: HCI
 
 
 <h3> Publications </h3>
