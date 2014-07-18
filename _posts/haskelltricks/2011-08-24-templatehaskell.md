@@ -6,11 +6,9 @@ tags : [haskelltricks blog haskell language]
 e: Template Haskell
 ---
 
-#### Preparation
+[Preparation](http://research.microsoft.com/en-us/um/people/simonpj/papers/meta-haskell/meta-haskell.pdf)
 
-http://research.microsoft.com/en-us/um/people/simonpj/papers/meta-haskell/meta-haskell.pdf
-
-You need the following code in the .ghci of your directory
+You need the following code in the `.ghci` of your directory
 
 ~~~
 :m +Language.Haskell.TH
@@ -18,6 +16,7 @@ You need the following code in the .ghci of your directory
 :m +Language.Haskell.TH.Lib
 ~~~
 
+Your source file
 ~~~
 {-# LANGUAGE TemplateHaskell, LANGUAGE QuasiQuotes #-}
 > module Main where
@@ -42,29 +41,29 @@ $(return $ LitE $ IntegerL 1 :: Q Exp)
 ~~~
 
 This should return 1
-The $(...) syntax expects a Q monad. This is the reason for return.
+The `$(...)` syntax expects a `Q` monad. This is the reason for return.
 
 It is somewhat hard to construct the haskell AST by hand, so Template haskell provides four shortcuts.
 
-For patterns, you can use [p| ... |] to construct values. It has type Q Pat
+For patterns, you can use `[p| ... |]` to construct values. It has type `Q Pat
 
 ~~~
 runQ [p| x |]
 ~~~
 
-For global declarations, use [d| ... |], it has type Q [Dec]
+For global declarations, use `[d| ... |]`, it has type `Q [Dec]`
 
 ~~~
 runQ [d| x = 100 |]
 ~~~
 
-For types use [t| ... |], with Q Type
+For types use `[t| ... |]`, with `Q Type`
 
 ~~~
 runQ [t| Int |]
 ~~~
 
-And to extract the AST of haskell expressions, we can use [| ... |] It has a type Q Exp
+And to extract the AST of haskell expressions, we can use `[| ... |]` It has a type `Q Exp`
 
 ~~~
 runQ [| 100 |]
@@ -72,16 +71,16 @@ runQ [| 100 |]
 
 #### Cancellation
 
-Now, remember our original expression, where we hand coded the values directly into the $(...).
+Now, remember our original expression, where we hand coded the values directly into the `$(...)`.
 This becomes easier for us now,
 
 ~~~
 $([|1|])
 ~~~
 
-Infact it is a requirement of the above quoted paper that $([?|..|]) and [?|$(..)|] be strictly cancellable.
+Infact it is a requirement of the above quoted paper that `$([?|..|])` and `[?|$(..)|]` be strictly cancellable.
 
-(The paper uses no parenthesis for cancellation too, that is $[|1|] is a valid expression as far
+(The paper uses no parenthesis for cancellation too, that is `$[|1|]` is a valid expression as far
 as the meta-haskell paper is concerned. However ghc7 requires the parenthesis for it to work.)
 
 So the following cancellation also works.
@@ -91,7 +90,7 @@ So the following cancellation also works.
 runQ [| $( return $ LitE $ IntegerL 1 ) |]
 ~~~
 
-The patterns [p| ... |] do not play nice with splicing. To illustrate, follow this deconstruction.
+The patterns `[p| ... |]` do not play nice with splicing. To illustrate, follow this deconstruction.
 
 ~~~
 runQ [| let x = 100 in x |]
