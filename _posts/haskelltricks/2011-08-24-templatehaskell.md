@@ -17,6 +17,7 @@ You need the following code in the `.ghci` of your directory
 ~~~
 
 Your source file
+
 ~~~
 {-# LANGUAGE TemplateHaskell, LANGUAGE QuasiQuotes #-}
 > module Main where
