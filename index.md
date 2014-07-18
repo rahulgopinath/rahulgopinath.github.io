@@ -16,9 +16,13 @@ Le, Alipour, Gopinath, Groce<br/>
 [_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le--alipour--gopinath--groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
 ISSTA Tools 2014
 
-[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014: 72-82, 2014](publications#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014-72-82-2014)
+Gopinath, Jensen, Groce<br/>
+[ _Code coverage for suite evaluation by developers_ ](publications#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014-72-82-2014)<br/>
+ICSE 2014 72-82
 
-[Erwig, Gopinath: _Explanations for Regular Expressions_ FASE12, LNCS 7212, 394-408, 2012](publications#erwig-gopinath-explanations-for-regular-expressions-fase12-lncs-7212-394-408-2012)
+Erwig, Gopinath<br/>
+[_Explanations for Regular Expressions_](publications#erwig-gopinath-explanations-for-regular-expressions-fase12-lncs-7212-394-408-2012)<br/>
+FASE 2012, LNCS 7212, 394-408
 
 
 
