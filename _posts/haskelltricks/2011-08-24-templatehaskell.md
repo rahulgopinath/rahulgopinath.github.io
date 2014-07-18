@@ -46,7 +46,7 @@ The `$(...)` syntax expects a `Q` monad. This is the reason for return.
 
 It is somewhat hard to construct the haskell AST by hand, so Template haskell provides four shortcuts.
 
-For patterns, you can use `[p| ... |]` to construct values. It has type `Q Pat
+For patterns, you can use `[p| ... |]` to construct values. It has type `Q Pat`
 
 ~~~
 runQ [p| x |]
