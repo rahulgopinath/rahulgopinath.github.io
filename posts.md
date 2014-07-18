@@ -21,19 +21,19 @@ This was the teaching materials I prepared for a course in programming languages
   {% endif %}
   {% endfor %}
   </ul>
-</div-->
+</div>
 
 <h3> Some Haskell tricks</h3>
 
 <div class="posts">
   <ul>
-  {% for post in site.posts reversed %}
+  {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'haskelltricks' %}
   <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
   {% endif %}
   {% endfor %}
   </ul>
-</div-->
+</div>
 
 

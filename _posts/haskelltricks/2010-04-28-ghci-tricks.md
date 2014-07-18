@@ -2,7 +2,7 @@
 layout: post
 category : blog
 tagline: "."
-tags : [blog haskell language haskelltricks]
+tags : [haskelltricks blog haskell language]
 e: GHCI tricks
 ---
 
