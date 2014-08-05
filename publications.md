@@ -7,7 +7,7 @@ weight: 3
 menu: Publications
 ---
 
-* [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations--how-close-are-they-to-real-faults-2014)
+* [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)
 
 * [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
 
