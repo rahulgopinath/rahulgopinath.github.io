@@ -7,6 +7,8 @@ weight: 3
 menu: Publications
 ---
 
+* [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations--how-close-are-they-to-real-faults-2014)
+
 * [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
 
 * [Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](#le--alipour--gopinath--groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
@@ -17,6 +19,21 @@ menu: Publications
 
 ---
 
+#### [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
+
+Mutation analysis is often used to compare the effectiveness of different test suites or testing techniques. One of 
+the main assumptions underlying this technique is the Competent Programmer Hypothesis, which proposes that programs are very 
+close to a correct version, or that the difference between current and correct code for each fault is very small. 
+Researchers have assumed on the basis of the Competent Programmer Hypothesis that the faults produced by mutation 
+analysis are similar to real faults. While there exists some evidence that supports this assumption, these studies are based 
+on analysis of a limited and potentially non-representative set of programs and are hence not conclusive. In this paper, we 
+separately investigate the characteristics of bugfixes and other changes in a very large set of randomly selected projects using 
+four different programming languages.  Our analysis suggests that a typical fault involves about three 
+to four tokens, and is seldom equivalent to any traditional mutation operator. We also find the most frequently occurring 
+syntactical patterns, and identify the factors that affect the real bug-fix change distribution. Our analysis suggests that different 
+languages have different distributions, which in turn suggests that operators optimal in one language may not be optimal 
+for others. Moreover, our results suggest that mutation analysis stands in need of better empirical support of the connection 
+between mutant detection and detection of actual program faults in a larger body of real programs. 
 
 #### [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 

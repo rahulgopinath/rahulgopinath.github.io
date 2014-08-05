@@ -12,6 +12,10 @@ Research Team: HCI
 
 <h3> Publications </h3>
 
+
+Gopinath, Jensen, Groce<br/>
+[_Mutations: How close are they to real faults?_ ](publications#gopinath-jensen-groce-mutations--how-close-are-they-to-real-faults-issre-2014)<br/>
+
 Groce, Alipour, Gopinath<br/>
 [_Coverage and Its Discontents_ ](publications#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)<br/>
 Essays 2014
