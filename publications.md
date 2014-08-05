@@ -7,7 +7,7 @@ weight: 3
 menu: Publications
 ---
 
-* [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](publications#groce--alipour--gopinath-coverage-and-its-discontents-essays-2014)
+* [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
 
 * [Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](#le--alipour--gopinath--groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
 
@@ -18,7 +18,7 @@ menu: Publications
 ---
 
 
-#### [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](publications#groce--alipour--gopinath-coverage-and-its-discontents-essays-2014)
+#### [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 
 Everyone wants to know one thing about a test suite: will it detect enough bugs? Unfortunately, in most settings that matter, answering this question directly is impractical or impossible. Software engineers and researchers therefore tend to rely on various measures of code coverage (where mutation testing is considered as a form of syntactic coverage). A long line of academic research efforts have attempted to determine whether relying on coverage as a substitute for fault detection is a reasonable solution to the problems of test suite evaluation. This essay argues that the profusion of coverage-related literature is in part a sign of an underlying uncertainty as to what exactly it is that measuring coverage should achieve, and how we would know if it can, in fact, achieve it. We propose some solutions, but the primary focus is to clarify the state of current confusions regarding this key problem for effective software testing. 
 
