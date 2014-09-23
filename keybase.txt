@@ -1,0 +1,59 @@
+==================================================================
+https://keybase.io/rahul
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://rahul.gopinath.org
+  * I am rahul (https://keybase.io/rahul) on keybase.
+  * I have a public key with fingerprint 8D60 714A 6894 FE03 BE72  E58B 89D1 0364 4E60 7A66
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "8d60714a6894fe03be72e58b89d103644e607a66",
+            "host": "keybase.io",
+            "key_id": "89d103644e607a66",
+            "uid": "cf5cae8f0e5fea6819718074ae3fed00",
+            "username": "rahul"
+        },
+        "service": {
+            "hostname": "rahul.gopinath.org",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1411499783,
+    "expire_in": 157680000,
+    "prev": "699701f562fbdaff4c8056b67b3d63a4a4f9207910327f3cc71225b409cfc1fb",
+    "seqno": 3,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG/MacGPG2 v2.0.22 (Darwin)
+Comment: GPGTools - https://gpgtools.org
+
+owFlUb2LFDEUH/dOwRPFazwtTanrksxkkpkptLMSC9F6zcfLbPCcjJnZPc/juMIr
+tBOsxVprewURC0GwtbCy8B8QLH05FATThLzf13t5z06vZZPNp1/W7M27j9yxT+9+
+6uz2xY9be0QHu0uaPXIPji7nuxZiH303koZUVlDJuBJVzR3QQoPMoax0VVtGC8E5
+IK6EIFOyCENSoI1WA8x8wBo+5t4mn//5yyPAuNIoqByF0gHGsFqyikquoHBgKU3E
+AWKn7gOyo1ost8n+lGBp5Q2khlPuv/CsDb3v1LiYhdiivI9hDCZsI74Yx75J8nG3
+T/wd0PM/TnPtO4ujo2AFcfChIw1Dphl9smacMV7XsiqmBB72PsLcJ0YpRUXxpBhY
+oaVAEmWuFLnTVjnHTUVLoYXUhRWF4oq7Oqeyxt/IpSuMkSzPS81pbZxhTpM024Mu
+kAaTRtWi5eBbHGcZgexvPLm+nm1OshPHJ2l52cbJs39XWnzPXpwn36S9cCovP5+5
+9uP5zq0rW5euZi8PXj0eLr9df33jwy/x5uD9nXOHXw9/Aw==
+=RnMq
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/rahul
+
+==================================================================
