@@ -4,11 +4,25 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Template Haskell
+review: ongoing
 ---
 
-[Preparation](http://research.microsoft.com/en-us/um/people/simonpj/papers/meta-haskell/meta-haskell.pdf)
+Here are some notes on using Template Haskell. Note that the Template
+Haskell API is still in flux and this may no longer be relevent if the
+API changes.
 
-You need the following code in the `.ghci` of your directory
+Read the original research paper for
+[preparation](http://research.microsoft.com/en-us/um/people/simonpj/papers/meta-haskell/meta-haskell.pdf).
+
+I like to use a shortcut to easily load Template Haskell modules. In the
+*~/.ghci* file, ensure that the following line exist.
+
+~~~
+:def . readFile
+~~~
+
+This will let you load often used ghci commands from a command file. Next,
+create a file *th.cmd* with the following content
 
 ~~~
 :m +Language.Haskell.TH
@@ -16,7 +30,14 @@ You need the following code in the `.ghci` of your directory
 :m +Language.Haskell.TH.Lib
 ~~~
 
-Your source file
+The *th.cmd* can be loaded into your *ghci* session as below:
+
+~~~
+ghci> :. th.cmd
+~~~
+
+The notes are in literate Haskell format. You will need the following
+initial imports at the beginning.
 
 ~~~
 {-# LANGUAGE TemplateHaskell, LANGUAGE QuasiQuotes #-}
@@ -31,67 +52,75 @@ Your source file
 
 #### Syntax
 
-A template haskell expression can be executed by marking it with $(...)
-that is, if you have an function myfn, then $myfn would cause it to be called at compile time with no arguments. and $(myfn a) would cause it to be called with argument a, and the result is added to the AST before being compiled.
+A template haskell expression can be executed by marking it with `$(...)` that
+is, if you have an function `myfn`, then `$myfn` would cause it to be called
+at compile time with no arguments. and $(myfn a) would cause it to be called
+with argument a, with the result added to AST before being compiled.
 
-The template haskell expression is nothing but AST of haskell expression to be spliced in. For example, try
-this.
+The template haskell expression is the AST of haskell expression to
+be spliced in. For example, the following expression
 
 ~~~
 $(return $ LitE $ IntegerL 1 :: Q Exp)
 ~~~
 
-This should return 1
-The `$(...)` syntax expects a `Q` monad. This is the reason for return.
+should return `1`.
 
-It is somewhat hard to construct the haskell AST by hand, so Template haskell provides four shortcuts.
+The `$(...)` syntax expects a `Q` monad. Hence we wrapped the `Q Exp` in a
+`return` to make it palatable to the monad.
 
-For patterns, you can use `[p| ... |]` to construct values. It has type `Q Pat`
+Sicne it is tedious to construct the haskell AST by hand, Template haskell
+provides the following shortcuts.
+
+*Patterns* are constructed with, `[p| ... |]` with type `Q Pat`. For example:
 
 ~~~
 runQ [p| x |]
 ~~~
 
-For global declarations, use `[d| ... |]`, it has type `Q [Dec]`
+Global declarations use `[d| ... |]`, and has type `Q [Dec]`. For example:
 
 ~~~
 runQ [d| x = 100 |]
 ~~~
 
-For types use `[t| ... |]`, with `Q Type`
+Types are constructed with `[t| ... |]`, with `Q Type`. For example:
 
 ~~~
 runQ [t| Int |]
 ~~~
 
-And to extract the AST of haskell expressions, we can use `[| ... |]` It has a type `Q Exp`
+To extract the AST of haskell expressions, we use `[| ... |]`, with type `Q Exp`
 
 ~~~
 runQ [| 100 |]
 ~~~
 
-#### Cancellation
+#### The cancellation requirement
 
-Now, remember our original expression, where we hand coded the values directly into the `$(...)`.
-This becomes easier for us now,
+Remember our original expression? we hand coded the values directly for
+`$(...)`. That expression is equivalent to:
 
 ~~~
 $([|1|])
 ~~~
 
-Infact it is a requirement of the above quoted paper that `$([?|..|])` and `[?|$(..)|]` be strictly cancellable.
+That is, `$([?|..|])` and `[?|$(..)|]` are strictly cancellable as per the
+meta-haskell paper.
 
-(The paper uses no parenthesis for cancellation too, that is `$[|1|]` is a valid expression as far
-as the meta-haskell paper is concerned. However ghc7 requires the parenthesis for it to work.)
+*(The paper uses no parenthesis for cancellation. That is `$[|1|]` is a valid expression as far
+as the meta-haskell paper is concerned. However ghc7 requires the parenthesis for it to work.)*
 
-So the following cancellation also works.
-
+For *ghc7*, the following cancellation works.
 
 ~~~
 runQ [| $( return $ LitE $ IntegerL 1 ) |]
 ~~~
 
-The patterns `[p| ... |]` do not play nice with splicing. To illustrate, follow this deconstruction.
+#### Bugs?
+
+The patterns `[p| ... |]` do not play nice with splicing. To illustrate, follow
+this deconstruction.
 
 ~~~
 runQ [| let x = 100 in x |]
@@ -100,41 +129,53 @@ runQ [| let x = $(return (LitE (IntegerL 100))) in $(return (VarE (mkName "x")))
 runQ [| let $(return (VarP (mkName "x"))) = $(return (LitE (IntegerL 100))) in $(return (VarE (mkName "x"))) |]
 ~~~
 
-Every thing except the last one works. I stumbled on it for a long time before asking in the freenode#haskell
-and according to some one there, patterns do not work well with splicing
-Apparently there is a ticket on that http://hackage.haskell.org/trac/ghc/ticket/1476 which is patched in GHC Head
+Everything except the last one works. I stumbled on it for a long time before
+asking in the freenode#haskell and according to someone there, patterns do not
+work well with splicing.
+Apparently there is a [ticket](http://hackage.haskell.org/trac/ghc/ticket/1476)
+which is patched in GHC Head.
 
-A small aside. The reason for the existence of Q monad is to make sure that capturing of variables do not happen.
-This is ensured by a construct newName which creates a new name to be used within the template body. On the other hand
-we have a capturing variable construct mkName which is a pure function. Also, we can replace mkName "x" with 'x
+#### Aside
 
-Things get interesting. Say we want a way to extract the first value out of any tuple, the expression
+The reason for the existence of `Q monad` is to avoid variable capturing.
+This is ensured by a construct `newName` which creates a new name to be used
+within the template body. On the other hand, we have a capturing variable
+construct `mkName` which is a pure function.
+
+We can also replace mkName "x" with 'x
+<!--'-->
+
+#### How do we construct these things?
+
+Say we want a way to extract the first value out of any tuple, the expression
 we want to create is something like
 
 ~~~
 $(fst n) n-tuple
 ~~~
 
-i.e
+That is, we should be able to evaluate it as follows:
 
 ~~~
 $(fst 3) (1,2,3)
+= 3
 ~~~
 
-The expression we want to construct looks like
+The expression we want to construct looks like:
 
 ~~~
 let fn (a,b,c) = a in fn
 ~~~
 
-We start by running the below expression to determine how the tuples are made.
+We start by examining how tuples are made:
 
 ~~~
 runQ [| (1,2,3) |]
 = TupE [LitE (IntegerL 1),LitE (IntegerL 2),LitE (IntegerL 3)]
 ~~~
 
-So a tuple is nothing but an array of literals wrapped with constructor LitE again wrapped in TupE
+This suggests that, a tuple is an array of literals wrapped with constructor
+`LitE` again wrapped in `TupE`
 
 How about the function we have?
 
@@ -143,8 +184,8 @@ runQ [| let fn (a,_,_) = a in fn |]
 = LetE [FunD fn_0 [Clause [TupP [VarP a_1,WildP,WildP]] (NormalB (VarE a_1)) []]] (VarE fn_0)
 ~~~
 
-So we need to construct our VarP arrays.
-We use a lambda here so that we don't have to use a staging module.
+So we need to construct our `TupP` array.
+We use a lambda here so as to avoid the staging restriction.
 
 ~~~
 > x = $((\n -> let a = mkName "a" ;
@@ -153,8 +194,7 @@ We use a lambda here so that we don't have to use a staging module.
 > 3) (10,20,30)
 ~~~
 
-Here is the same thing defined in our staging module Defs.lhs
-
+If we use a staging module, `Defs.lhs`
 
 ~~~
 module Defs where
@@ -190,6 +230,8 @@ runQ [t| Int -> Int |]
 
 > z' = $(add x'' y'')
 ~~~
+
+<!--'-->
 
 ~~~
 add x y = [| x + y |]
