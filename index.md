@@ -34,8 +34,16 @@ Erwig, Gopinath<br/>
 FASE 2012, LNCS 7212, 394-408
 
 
-<h3> Projects </h3>
+<h3> Current Projects </h3>
 
 [MuCheck](https://hackage.haskell.org/package/MuCheck): A mutation analysis framework for Haskell
 
 [XMutant](https://github.com/vrthra/xmutant.py): A mutation analysis framework for Python
+
+<h3> Past Projects </h3>
+
+[mod-scheme](https://github.com/vrthra/mod-scheme): A Scheme language plugin for Apache HTTPD
+
+[openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox): IBM Mellanox Chef Cookbook for OpenStack
+
+
