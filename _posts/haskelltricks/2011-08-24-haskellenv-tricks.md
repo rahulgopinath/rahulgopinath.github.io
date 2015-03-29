@@ -4,11 +4,23 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Haskell environment tricks
+review: done
 ---
 
-Most lisp editors have the ability to select a region of code and execute it separately. Here is how you can get the same ability using Vim as the editor for Haskell. It is especially effective with the Xmonad window manager.
+Most *lisp editors* have the ability to select a region of code and execute it
+separately. Here is how you can get the same ability using *Vim* as the editor
+for *Haskell*. It is especially effective with the *XMonad* window manager.
 
-First install vim screen plugin. Next add this file to the path `~/.vim/after/ftplugin/haskell.vim` and `~/.vim/after/plugin/lhaskell.vim`. You also need to have either Tmux or Screen installed. (I use Tmux in the tutorial.)
+First install [vim screen
+plugin](http://www.vim.org/scripts/script.php?script_id=2711). Next
+create the files
+
+`~/.vim/after/ftplugin/haskell.vim`
+
+`~/.vim/after/plugin/lhaskell.vim`
+
+with the below content. You also need to have either *Tmux* or *Screen*
+installed. (I use Tmux in the tutorial.)
 
 ~~~
 if exists("b:myhaskellplugin")
@@ -23,10 +35,10 @@ nmap <silent> <leader>t :call ScreenShellSend(':t ' . expand("<cWORD>")) <cr>
 ~~~
 
 
-Next add this section to your ~/.vimrc
+These goes in *~/.vimrc*
 
 ~~~
-' choose your own leader here.
+'' choose your own leader here.
 let mapleader = ","
 let g:ScreenShellInitialFocus='vim'
 vmap <C-c><C-c> :ScreenSend<CR>
@@ -37,8 +49,17 @@ let g:ScreenShellExternal = 1
 let g:ScreenShellTerminal = 'xterm'
 ~~~
 
-Fire up vim and edit any Haskell file. If everything went well, You will be able to fire up a second terminal with the ghci started up by typing " ,. " where "," is the leader we added in the first line. Next you can load the current file by typing ,<
+Fire up *vim* and edit any *Haskell* file. If everything went well, You will be
+able to start a second terminal with the *ghci* started up by typing " ,. "
+where "," is the leader we added in the first line. You can load the
+current file by typing ",<"
 
-You can also highlight a portion of text using the vim visual command "v" and type ctrl-c ctrl-c to evaluate it. Typing ctrl-c ctrl-t will return its type instead. You can also query the current word under cursor in hoogle by typing ,h
+Highlight a portion of text using the *vim* visual command "v"
 
-Adding more functionalities is just a matter of editing the ~/.vim/after/ftplugin/haskell.vim file.
+* Use *Ctrl-c Ctrl-c* to evaluate the selected region.
+* Use *Ctrl-c Ctrl-t* to view the type of the selection.
+
+You can also query the current word under cursor in hoogle by typing ,h
+
+Adding other functionalities is just a matter of editing the `~/.vim/after/ftplugin/l?haskell.vim` file.
+
