@@ -48,7 +48,7 @@ weight: 3
 * Worked in web server clustering with session-failover capability and reverse proxy, implemented TCL shell scripting for administration.
 * Contributed implementation of FTP, (SSL) CONNECT and SOCKS protocols for proxy server.
 * Contributed to caching subsystem including cache manipulation tools, cache eviction, and 
-        implementations of ICP and CARP cache coordination protocols.}
+        implementations of ICP and CARP cache coordination protocols.
 
 #### 2002--2004 Member of Technical Staff Quark Media House Chandigarh
 
@@ -73,6 +73,7 @@ weight: 3
 * Co-Author of mutation systems [MuCheck](https://github.com/vrthra/mucheck) for Haskell and [XMutant](https://github.com/vrthra/xmutant.py) for Python
 * Contributor to [PIT](http://pitest.org/) mutation analysis framework.
 * Contributed to Apache HTTPD and [mod-scheme](https://github.com/vrthra/mod-scheme) Apache module
+* Contributed to [IBM Openstack Mellanox Chef cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox)
 
 ### [Research Interests]()
 
