@@ -4,28 +4,49 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: GHCI tricks
+reviewe: done
 ---
 
-Here is a nifty trick you can use with ghci. (Assuming that you are using some variant of Unix)
+If you are using a variant of Unix with Haskell and GHC, here is a nifty trick
+you can use with the ghci repl to make editing your source files relatively
+painless.
 
-put the below in your ~/.ghci file
+First, notice that *ghci* allows us to define macros in the repl.
+
+~~~
+ghci > :?
+  ...
+   :def <cmd> <expr>           define command :<cmd> (later defined command has
+                               precedence, ::<cmd> is always a builtin command)
+  ...
+~~~
+
+This lets us define our own shortcut commands that can be invoked similar to
+the *ghci* builtins using *Haskell*.
+
+These should go in the *~/.ghci* file, and ensures that if you 
+are in a directory that contains Main.hs typing *:x* will open *Main.hs* in the
+editor of your choice.
 
 ~~~
 :def x (\_ -> return ":e Main.hs \n :load Main.hs")
 :def u (\_ -> return ":e UnitTest.hs \n :load UnitTest.hs")
 ~~~
 
-These rules will ensure that if you are in a directory that contains Main.hs typing : x will open up Main.hs in the editor of your choice.
-e.g
+To use it, the incantation is 
 
 ~~~
-ghci Prelude> : x
+ghci > :x
 ~~~
 
-I also use another trick, where I have a separate .ghci per project directory where another letter is redefined. Say you are in a directory "syntax" which contains Syntax.hs add a new .ghci to the syntax directory that contains
+Another trick is to have separate *.ghci* per project directory, and
+commandeer another letter for editing specific files. Say you are in a
+directory "mysyntax" which contains Syntax.hs. Add a new *.ghci* to the
+*mysyntax* directory with:
 
 ~~~
 :def v (\_ -> return ":e Syntax.hs \n :load Syntax.hs")
 ~~~
 
-This gives you a quick project specific shortcut to files from ghci prompt.
+This gets you a quick project specific shortcut to files from ghci prompt.
+
