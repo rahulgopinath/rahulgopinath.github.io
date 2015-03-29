@@ -35,19 +35,27 @@ languages have different distributions, which in turn suggests that operators op
 for others. Moreover, our results suggest that mutation analysis stands in need of better empirical support of the connection 
 between mutant detection and detection of actual program faults in a larger body of real programs. 
 
+[Publication](/resources/splash/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](http://eecs.osuosl.org/rahul/issre2014/)
 #### [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 
 Everyone wants to know one thing about a test suite: will it detect enough bugs? Unfortunately, in most settings that matter, answering this question directly is impractical or impossible. Software engineers and researchers therefore tend to rely on various measures of code coverage (where mutation testing is considered as a form of syntactic coverage). A long line of academic research efforts have attempted to determine whether relying on coverage as a substitute for fault detection is a reasonable solution to the problems of test suite evaluation. This essay argues that the profusion of coverage-related literature is in part a sign of an underlying uncertainty as to what exactly it is that measuring coverage should achieve, and how we would know if it can, in fact, achieve it. We propose some solutions, but the primary focus is to clarify the state of current confusions regarding this key problem for effective software testing. 
+
+[Publication](/resources/splash/groce2014coverage.pdf) [Bib](/resources/splash2014/groce2014coverage.bib)
 
 #### [Le, Alipour, Gopinath, Groce _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
 
 This paper presents MuCheck, a mutation testing tool for Haskell programs. This is the first tool to be published (to our knowledge) that is explicitly oriented towards mutation testing for functional programs. MuCheck is a counterpart to the widely used QuickCheck random testing tool in fuctional programs, and can be used to evaluate the efficacy of QuickCheck property definitions. The tool implements mutation operators that are specifically designed for functional programs, and makes use of the type system of Haskell to achieve a more relevant set of mutants than otherwise possible. Mutation coverage is particularly valuable for functional programs due to highly compact code, referential transparency, and clean semantics, which make augmenting a test suite or specification based on surviving mutants a practical method for improved testing.
 
+[Publication](/resources/issta2014/le2014mucheck.pdf) [Bib](/resources/issta2014/le2014mucheck.bib)
+
 #### [Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014: 72-82, 2014]()
 
 One of the key challenges of developers testing code is determining a test suite's quality -- its ability to find faults. The most common approach is to use code coverage as a measure for test suite quality, and diminishing returns in coverage or high absolute coverage as a stopping rule. In testing research, suite quality is often evaluated by a suite's ability to kill mutants (artificially seeded potential faults). Determining which criteria best predict mutation kills is critical to practical estimation of test suite quality. Previous work has only used small sets of programs, and usually compares multiple suites for a single program. Practitioners, however, seldom compare suites --- they evaluate one suite. Using suites (both manual and automatically generated) from a large set of real-world open-source projects shows that evaluation results differ from those for suite-comparison: statement (not block, branch, or path) coverage predicts mutation kills best.
+
+[Publication](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib) [Data](http://eecs.osuosl.org/rahul/icse2014/)
 
 #### [Erwig, Gopinath: _Explanations for Regular Expressions_ FASE12, LNCS 7212, 394-408, 2012]()
 
 Regular expressions are widely used, but they are inherently hard to understand and (re)use, which is primarily due to the lack of abstraction mechanisms that causes regular expressions to grow large very quickly. The problems with understandability and usability are further compounded by the viscosity, redundancy, and terseness of the notation. As a consequence, many different regular expressions for the same problem are floating around, many of them erroneous, making it quite difficult to find and use the right regular expression for a particular problem. Due to the ubiquitous use of regular expressions, the lack of understandability and usability becomes a serious software engineering problem. In this paper we present a range of independent, complementary representations that can serve as explanations of regular expressions. We provide methods to compute those representations, and we describe how these methods and the constructed explanations can be employed in a variety of usage scenarios. In addition to aiding understanding, some of the representations can also help identify faults in regular expressions. Our evaluation shows that our methods are widely applicable and can thus have a significant impact in improving the practice of software engineering.
 
+[Publication](/resources/fase2012/erwig2012explanations.pdf) [Bib](/resources/fase2012/erwig2012explanations.bib)
