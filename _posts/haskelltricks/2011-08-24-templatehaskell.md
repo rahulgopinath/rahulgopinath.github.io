@@ -4,7 +4,7 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Template Haskell
-review: ongoing
+review: done
 ---
 
 Here are some notes on using Template Haskell. Note that the Template
@@ -46,8 +46,8 @@ initial imports at the beginning.
 > import Language.Haskell.TH.Syntax
 > import Language.Haskell.TH.Lib
 
-> import Defs
-> import Str
+> -- import Defs -- to be enabled
+> -- import Str  -- later
 ~~~
 
 #### Syntax
@@ -167,6 +167,14 @@ The expression we want to construct looks like:
 let fn (a,b,c) = a in fn
 ~~~
 
+That is, we should be able to use the expression we make in place
+of the below expression in parenthesis.
+
+~~~
+ghci> (let fn (a,b,c) = a in fn) (1,2,3)
+= 1
+~~~
+
 We start by examining how tuples are made:
 
 ~~~
@@ -177,7 +185,7 @@ runQ [| (1,2,3) |]
 This suggests that, a tuple is an array of literals wrapped with constructor
 `LitE` again wrapped in `TupE`
 
-How about the function we have?
+How about the expression template we demonstrated previously deconstruct?
 
 ~~~
 runQ [| let fn (a,_,_) = a in fn |]
@@ -185,7 +193,7 @@ runQ [| let fn (a,_,_) = a in fn |]
 ~~~
 
 So we need to construct our `TupP` array.
-We use a lambda here so as to avoid the staging restriction.
+*(We use a lambda here so as to avoid the staging restriction.)*
 
 ~~~
 > x = $((\n -> let a = mkName "a" ;
@@ -215,74 +223,22 @@ Can you guess what would happen if we execute
 $(nfst 1) (10,20,30)
 ~~~
 
-Same stuff is possible with types too.
+We can do similar things with types.
 
 ~~~
 runQ [t| Int -> Int |]
 ~~~
 
-#### Comparison with scheme macros.
+#### Comparison with Scheme macros.
 
-
-~~~
-> x' = 10
-> y' = 20
-
-> z' = $(add x'' y'')
-~~~
-
-<!--'-->
-
-~~~
-add x y = [| x + y |]
-~~~
-
-GHC stage restriction: `x'' is used in a top-level splice or annotation
-
-But this works for scheme
-
-~~~
-(define-macro (add x y) `(+ ,x ,y))
-~~~
-
-... another file.
-
-~~~
-(add 3 4)
-~~~
-
-The stage restriction applies not only to the definitions but also to
-arguments.
-
-A larger macro from scheme world.
-
-~~~
-(define-macro (expand-power n x)
-(if (eq? n 0) `1
-`(* ,x ,(expand-power (- n 1) x))))
-
-(define-macro (mk-power n) `(lambda (x) ,(expand-power n 'x)))
-~~~
-
-~~~
-> expandPower :: Num a => a -> Q Exp -> Q Exp
-> expandPower n x = case n == 0 of
-> True -> [| 1 |]
-> False -> [| $(x) * $(expandPower (n - 1) x) |]
-
-> mkPower n = [| \x -> $(expandPower n [|x|]) |]
-
-$(mkPower 4) 2
-~~~
-
-Some evaluation
-
-* Lazy evaluation removes some requirement for macros
-* Thaskell has no dynamic metaprogramming (eval) possibility
-* No syntax-case like DSL for TH. The errors are caught deep inside the template code. (While type system catches a portion of the errors at compile time, it does not do that for all.)
-* Thaskell support for patterns and types is still evolving.
+* Lazy evaluation removes some of the requirements for lisp-macro expressions,
+  but is somewhat restricted where it can be used.
+* Template Haskell has no dynamic metaprogramming (eval) possibility
+* No possibility of syntax-case like DSL for TH. The errors are caught
+  deep inside the template code. (While type system catches a portion of
+  the errors at compile time, it does not do that for all.)
+* TH support for patterns and types is still evolving.
 * quasiquoting is just sugar for TH
-
 
 #### Reification
 
@@ -290,7 +246,7 @@ Some evaluation
 reify ''Int
 ~~~
 
-This gets you Q Info
+This gets you `Q Info`
 
 ~~~
 $(stringE . show =<< reify ''Int)
@@ -305,7 +261,6 @@ $(stringE . show =<< reify 'myvar)
 $(stringE . show =<< reify 'even)
 $(stringE . show =<< reify ''String)
 ~~~
-
 
 #### Now for quasiquotes.
 
