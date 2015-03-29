@@ -6,8 +6,9 @@ menu: Rahul Gopinath
 
 Rahul is a PhD candidate in <i>Software Testing</i>, specializing in <i>Mutation Analysis</i>. His interests include Programming Languages, Statistics, and Logic.
 
-Supervisor: Dr. Carlos Jensen<br/>
-Research Team: HCI
+Supervisor: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos)<br/>
+Research Team: [HCI](http://research.engr.oregonstate.edu/hci/)<br/>
+University: [Oregon State University](http://oregonstate.edu/)
 
 
 <h3> Publications </h3>
