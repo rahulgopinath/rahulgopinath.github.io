@@ -4,7 +4,7 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Using forall - RankN Types
-review: ongoing
+review: done
 ---
 
 Notes on using *forall* construct in Haskell.
@@ -26,7 +26,7 @@ Since they are lists, we would like to create a function that takes such a pair 
 If you try invoking this function with any list functions, you will get an error
 
 ~~~
-| myfn mypair reverse
+ghci> myfn mypair reverse
 Couldn't match expected type `Integer' with actual type `Bool'
 Expected type: ([Integer], [Integer])
 Actual type: ([Integer], [Bool])
@@ -35,7 +35,7 @@ Actual type: ([Integer], [Bool])
 The type of the function gives us a clue
 
 ~~~
-| :t myfn
+ghci> :t myfn
 myfn :: (t, t) -> (t -> t1) -> (t1, t1)
 ~~~
 
@@ -55,7 +55,7 @@ The way around it is to use RankNTypes and forall.
 Now our function should work as expected.
 
 ~~~
-| myfn mypair reverse
+ghci> myfn mypair reverse
 ([4,3,2,1],[True,True,False,True])
 ~~~
 
@@ -72,7 +72,7 @@ They are useful for much more than this. It is especially useful in data type de
 You can use it this way
 
 ~~~
-| [X 10 "Int" $ id, X True "Bool" $ \x -> if x then 1 else 0 ]
+ghci> [X 10 "Int" $ id, X True "Bool" $ \x -> if x then 1 else 0 ]
 [Int10,Bool1]
 ~~~
 
