@@ -4,10 +4,10 @@ category : blog
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Using forall - RankN Types
+review: ongoing
 ---
 
-
-A simple explanation of the weird looking forall construct in haskell.
+Notes on using *forall* construct in Haskell.
 
 Say you have a couple of lists, the first one being a list of integers and the second a list of booleans
 
@@ -59,7 +59,7 @@ Now our function should work as expected.
 ([4,3,2,1],[True,True,False,True])
 ~~~
 
-They are useful for much more than this. It is especially useful in data type declarations, but you need ExistentialQuantification for that. The idea is to have a heterogeneous list of elements along with functions that transforms them into a homogeneous element type.
+They are useful for much more than this. It is especially useful in data type declarations, but you need *ExistentialQuantification* for that. The idea is to have a heterogeneous list of elements along with functions that transforms them into a homogeneous element type.
 
 ~~~
 > {-#  LANGUAGE ExistentialQuantification #-}
