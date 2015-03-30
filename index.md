@@ -19,7 +19,7 @@ ISSRE 2014
 
 Groce, Alipour, Gopinath<br/>
 [_Coverage and Its Discontents_ ](publications#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)<br/>
-Essays 2014
+SPLASH 2014
 
 Le, Alipour, Gopinath, Groce<br/>
 [_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le-alipour-gopinath-groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
