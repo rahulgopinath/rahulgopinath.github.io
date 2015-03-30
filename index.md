@@ -46,4 +46,4 @@ FASE 2012, LNCS 7212, 394-408
 
 [openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox): IBM Mellanox Chef Cookbook for OpenStack
 
-
+Ruby [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd) : Simple server implementations in Ruby 
