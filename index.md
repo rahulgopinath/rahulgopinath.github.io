@@ -38,7 +38,7 @@ FASE 2012, LNCS 7212, 394-408
 
 [MuCheck](https://hackage.haskell.org/package/MuCheck): A mutation analysis framework for Haskell
 
-[XMutant](https://github.com/vrthra/xmutant.py): A mutation analysis framework for Python
+[XMutant](https://pypi.python.org/pypi/xmutant): A mutation analysis framework for Python
 
 <h3> Past Projects </h3>
 
