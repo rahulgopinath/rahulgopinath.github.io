@@ -7,8 +7,9 @@ weight: 3
 menu: Publications
 ---
 
-* [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM, 2015](#ahmed-gopinath-jensen-groce-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)
+* [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be anyway?_ ISSRE, 2015](#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)
 
+* [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM, 2015](#ahmed-gopinath-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)
 
 * [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)
 
@@ -22,7 +23,36 @@ menu: Publications
 
 ---
 
-#### [Ahmed, Gopinath, Mannan, Jensen: An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
+#### [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE 2015]()
+
+Mutation analysis is considered the best method for
+measuring the adequacy of test suites. However, the number of
+test runs required for a full mutation analysis grows faster than
+project size, which is not feasible for real-world software projects,
+which often have more than a million lines of code. It is for
+projects of this size, however, that developers most need a method
+for evaluating the efficacy of a test suite. Various strategies have
+been proposed to deal with the explosion of mutants. However,
+these strategies at best reduce the number of mutants required to
+a fraction of overall mutants, which still grows with program size.
+Running, e.g., 5% of all mutants of a 2MLOC program usually
+requires analyzing over 100,000 mutants. Similarly, while various
+approaches have been proposed to tackle equivalent mutants,
+none completely eliminate the problem, and the fraction of
+equivalent mutants remaining is hard to estimate, often requiring
+manual analysis of equivalence.
+
+In this paper, we provide both theoretical analysis and
+empirical evidence that a small constant sample of mutants yields
+statistically similar results to running a full mutation analysis,
+regardless of the size of the program or similarity between
+mutants. We show that a similar approach, using a constant
+sample of inputs can estimate the degree of stubbornness in
+mutants remaining to a high degree of statistical confidence,
+and provide a mutation analysis framework for Python that
+incorporates the analysis of stubbornness of mutants.
+
+#### [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
 projects. Systems degrade over time as design and implementation compromises
