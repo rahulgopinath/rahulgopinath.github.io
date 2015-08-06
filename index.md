@@ -16,6 +16,9 @@ Mutation analysis is a method of evaluating the quality of software test suites 
 
 My initial research towards addressing the shortcomings of mutation analysis found that <i>statement coverage</i>, rather than branch or path coverage is a better measure of mutation score, and hence quality of a test suite. This was substantiated by extensive examination of over 200 real world projects of various sizes. A second part of my research was to evaluate whether the faults produced by mutation analysis were representative of real faults. Our examination of over 5,371 projects in four different programming languages found that the faults used by mutation analysis are rather simplistic in practice compared to real world bugs (in terms of the size of code change).
 
+As an initial step towards reducing the computational requirements of mutation analysis, I analyzed the statistical properties of the mutants produced both theoretically and empirically, while considering the similarity of many mutants to each other, which defeats simple statistical sampling.
+My research suggests that theoretically, a sample of 10,000 mutants is sufficient for a single decimal approximation of the full mutation score, while practically a random sample of just 1000 mutants is sufficient irrespective of the code-base size.
+
 <h3>Implementation</h3>
 The ideas from my research have resulted in two practical implementations -- MuCheck for Haskell, and Xmutant for Python. I am also a contributor for Pit mutation analysis system for Java, and Rubocop, a static analyzer for Ruby.
 
