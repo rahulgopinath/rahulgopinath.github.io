@@ -69,7 +69,8 @@ while core contributors tend to fix design issues more often than non-core
 contributors, there is no difference once the relative quantity of commits
 is accounted for.
 
-[Publication](/resources/esem2015/ahmed2015empirical.pdf) [Bib](/resources/esem2015/ahmed2015empirical.bib)
+<!-- [Publication](/resources/esem2015/ahmed2015empirical.pdf) -->
+[Bib](/resources/esem2015/ahmed2015empirical.bib)
 
 #### [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
 
