@@ -25,6 +25,9 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 
 <h3> Publications </h3>
 
+Gopinath, Jensen, Groce<br/>
+[_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ](publications#ahmed-gopinath-jensen-groce-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)<br/>
+ESEM 2015
 
 Gopinath, Jensen, Groce<br/>
 [_Mutations: How close are they to real faults?_ ](publications#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)<br/>

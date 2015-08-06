@@ -7,6 +7,9 @@ weight: 3
 menu: Publications
 ---
 
+* [Ahmed, Gopinath, Jensen, Groce: An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015](#ahmed-gopinath-jensen-groce-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)
+
+
 * [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)
 
 * [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
