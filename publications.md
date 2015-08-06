@@ -19,6 +19,25 @@ menu: Publications
 
 ---
 
+#### [Ahmed, Gopinath, Jensen, Groce: An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
+
+Software decay is a key concern for large, long lived software
+projects. Systems degrade over time as design and implementation compromises
+and exceptions pile up. However, there has been little research quantifying
+this decay, or understanding how software projects deal with this issue. While
+the best approach to improve the quality of a project is to spend time
+on reducing both software defects (bugs) and addressing design issues
+(refactoring), we find that design issues are frequently ignored in favor of
+fixing defects. We find that design issues have a higher chance of being fixed
+in the early stages of a project, and that efforts to correct these stall as
+projects mature and code bases grow leading to a build-up of design problems.
+From studying a large set of open source projects, our research suggests that
+while core contributors tend to fix design issues more often than non-core
+contributors, there is no difference once the relative quantity of commits
+is accounted for.
+
+[Publication](/resources/esem2015/ahmed2015empirical.pdf) [Bib](/resources/esem2015/ahmed2015empirical.bib)
+
 #### [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
 
 Mutation analysis is often used to compare the effectiveness of different test suites or testing techniques. One of 
