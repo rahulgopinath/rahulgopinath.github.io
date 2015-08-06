@@ -52,6 +52,8 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
+[Bib](/resources/issre2015/gopinath2015howhard.bib)
+
 #### [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
@@ -70,7 +72,7 @@ contributors, there is no difference once the relative quantity of commits
 is accounted for.
 
 <!-- [Publication](/resources/esem2015/ahmed2015empirical.pdf) -->
-[Bib](/resources/esem2015/ahmed2015empirical.bib)
+[Bib](/resources/esem2015/ahmed2015empirical.bib) [Data](http://eecs.osuosl.org/rahul/issre2015/)
 
 #### [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
 
