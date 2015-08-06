@@ -26,7 +26,7 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 <h3> Publications </h3>
 
 Gopinath, Alipour, Ahmed, Jensen, Groce<br/>
-[_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-any-way-issre-2015)
+[_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-any-way-issre-2015)<br/>
 ISSRE2015
 
 Ahmed, Gopinath, Mannan, Jensen<br/>
