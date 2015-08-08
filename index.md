@@ -45,7 +45,7 @@ Groce, Alipour, Gopinath<br/>
 SPLASH 2014
 
 Le, Alipour, Gopinath, Groce<br/>
-[_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le-alipour-gopinath-groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
+[_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
 ISSTA Tools 2014
 
 Gopinath, Jensen, Groce<br/>
