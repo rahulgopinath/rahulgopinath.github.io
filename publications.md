@@ -15,7 +15,7 @@ menu: Publications
 
 * [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
 
-* [Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](#le--alipour--gopinath--groce-mucheck--an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
+* [Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
 
 * [Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014: 72-82, 2014](#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014-72-82-2014)
 
