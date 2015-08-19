@@ -62,10 +62,12 @@ weight: 3
 
 ### [Publications]()
 
-* ISSRE 2014 Gopinath, Jensen, Groce "Mutations: How Close are they to Real Faults?"
-* ISSTA Tools 2014 Le, Alipour, Gopinath, Groce "MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs"
-* ICSE 2014 Gopinath, Jensen, Groce "Code Coverage for Suite Evaluation by Developers"
-* SPLASH 2014 Groce, Alipour, Gopinath "Coverage and Its Discontents."
+* ISSRE 2015 Gopinath, Alipour, Ahmed, Jensen, Groce "How hard does mutation analysis have to be, anyway?"
+* ESEM 2015 Ahmed, Gopinath, Mannan, Jensen "An empirical study of design degradation: how software projects get worse over time"
+* ISSRE 2014 Gopinath, Jensen, Groce "Mutations: How close are they to real faults?"
+* ISSTA Tools 2014 Le, Alipour, Gopinath, Groce "MuCheck: An extensible tool for mutation testing of haskell programs"
+* ICSE 2014 Gopinath, Jensen, Groce "Code coverage for suite evaluation by developers"
+* SPLASH 2014 Groce, Alipour, Gopinath "Coverage and its discontents."
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
 ### [OpenSource]()
