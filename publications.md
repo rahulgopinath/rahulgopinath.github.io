@@ -52,7 +52,7 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
-[Publication](/resources/issre2014/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
+[Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
 
 #### [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
