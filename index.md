@@ -64,6 +64,8 @@ FASE 2012
 
 <h3> Past Projects </h3>
 
+[Apache HTTPD](https://httpd.apache.org): Contributor for Apache HTTPD
+
 [mod-scheme](https://github.com/vrthra/mod-scheme): A Scheme language plugin for Apache HTTPD
 
 [openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox): IBM Mellanox Chef Cookbook for OpenStack
