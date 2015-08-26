@@ -64,12 +64,16 @@ FASE 2012
 
 <h3> Past Projects </h3>
 
-[Apache HTTPD](https://httpd.apache.org): Contributor for Apache HTTPD
+Contributed patches to [Apache HTTPD](https://httpd.apache.org)
 
-[mod-scheme](https://github.com/vrthra/mod-scheme): A Scheme language plugin for Apache HTTPD
+Contributor to [PIT](https://pitest.org) mutation testing framewwork
 
-[openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox): IBM Mellanox Chef Cookbook for OpenStack
+Contributor to [Rubocop](http://batsov.com/rubocop/) Ruby static code analyzer
 
-Ruby [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd) : Simple server implementations in Ruby
+One of the Authors of [mod-scheme](https://github.com/vrthra/mod-scheme), a Scheme language plugin for Apache HTTPD
+
+Author of [openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox) (prototype) - IBM Mellanox Chef Cookbook for OpenStack
+
+Author of Ruby [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd) - Simple server implementations in Ruby
 
 My github id is [Vrthra](https://github.com/vrthra).
