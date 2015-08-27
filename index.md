@@ -66,9 +66,9 @@ FASE 2012
 
 Contributed patches to [Apache HTTPD](https://httpd.apache.org)
 
-Contributor to [PIT](https://pitest.org) mutation testing framewwork
+Contributor to [PIT](http://pitest.org) mutation testing framewwork
 
-Contributor to [Rubocop](http://batsov.com/rubocop/) Ruby static code analyzer
+Contributed patches to [Rubocop](http://batsov.com/rubocop/) Ruby static code analyzer
 
 One of the Authors of [mod-scheme](https://github.com/vrthra/mod-scheme), a Scheme language plugin for Apache HTTPD
 
