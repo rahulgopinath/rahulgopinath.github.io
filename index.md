@@ -66,6 +66,8 @@ FASE 2012
 
 Contributed patches to [Apache HTTPD](https://httpd.apache.org)
 
+Contributor to [Puppet](https://github.com/puppetlabs/puppet) and [Factor](https://github.com/puppetlabs/facter)
+
 Contributor to [PIT](http://pitest.org) mutation testing framewwork
 
 Contributed patches to [Rubocop](http://batsov.com/rubocop/) Ruby static code analyzer
