@@ -27,35 +27,35 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 
 <h3> Publications </h3>
 
-_Gopinath_, Alipour, Ahmed, Jensen, Groce<br/>
+**Gopinath**, Alipour, Ahmed, Jensen, Groce<br/>
 [_Do Mutation Reduction Strategies Matter?_](publications#gopinath-alipour-ahmed-jensen-groce-do-mutation-reduction-strategies-matter-ist-2016)<br/>
 IST Journal 2016 (accepted)
 
-Gopinath, Alipour, Ahmed, Jensen, Groce<br/>
+**Gopinath**, Alipour, Ahmed, Jensen, Groce<br/>
 [_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)<br/>
 ISSRE 2015
 
-Ahmed, Gopinath, Mannan, Jensen<br/>
+Ahmed, **Gopinath**, Mannan, Jensen<br/>
 [_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ](publications#ahmed-gopinath-mannan-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)<br/>
 ESEM 2015
 
-Gopinath, Jensen, Groce<br/>
+**Gopinath**, Jensen, Groce<br/>
 [_Mutations: How close are they to real faults?_ ](publications#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)<br/>
 ISSRE 2014
 
-Groce, Alipour, Gopinath<br/>
+Groce, Alipour, **Gopinath**<br/>
 [_Coverage and Its Discontents_ ](publications#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)<br/>
 SPLASH 2014
 
-Le, Alipour, Gopinath, Groce<br/>
+Le, Alipour, **Gopinath**, Groce<br/>
 [_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
 ISSTA Tools 2014
 
-Gopinath, Jensen, Groce<br/>
+**Gopinath**, Jensen, Groce<br/>
 [ _Code coverage for suite evaluation by developers_ ](publications#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014-72-82-2014)<br/>
 ICSE 2014
 
-Erwig, Gopinath<br/>
+Erwig, **Gopinath**<br/>
 [_Explanations for Regular Expressions_](publications#erwig-gopinath-explanations-for-regular-expressions-fase12-lncs-7212-394-408-2012)<br/>
 FASE 2012
 
