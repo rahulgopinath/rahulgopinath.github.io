@@ -27,7 +27,7 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 
 <h3> Publications </h3>
 
-*Gopinath*, Alipour, Ahmed, Jensen, Groce<br/>
+_Gopinath_, Alipour, Ahmed, Jensen, Groce<br/>
 [_Do Mutation Reduction Strategies Matter?_](publications#gopinath-alipour-ahmed-jensen-groce-do-mutation-reduction-strategies-matter-ist-2016)<br/>
 IST Journal 2016 (accepted)
 
