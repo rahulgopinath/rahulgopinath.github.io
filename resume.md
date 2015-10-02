@@ -62,6 +62,7 @@ weight: 3
 
 ### [Publications]()
 
+* IST 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "Do Mutation Reduction Strategies Matter?" (accepted for publication)
 * ISSRE 2015 Gopinath, Alipour, Ahmed, Jensen, Groce "How hard does mutation analysis have to be, anyway?"
 * ESEM 2015 Ahmed, Gopinath, Mannan, Jensen "An empirical study of design degradation: how software projects get worse over time"
 * ISSRE 2014 Gopinath, Jensen, Groce "Mutations: How close are they to real faults?"
