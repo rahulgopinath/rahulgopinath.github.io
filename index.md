@@ -29,7 +29,7 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 
 **Gopinath**, Alipour, Ahmed, Jensen, Groce<br/>
 [_Do Mutation Reduction Strategies Matter?_](publications#gopinath-alipour-ahmed-jensen-groce-do-mutation-reduction-strategies-matter-ist-2016)<br/>
-IST Journal 2016 (accepted)
+IST Journal 2016 (in review)
 
 **Gopinath**, Alipour, Ahmed, Jensen, Groce<br/>
 [_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)<br/>

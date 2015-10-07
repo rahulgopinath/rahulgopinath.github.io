@@ -45,7 +45,7 @@ Conclusion: We conclude that pure random sampling is the best approach for mutat
 performance of selection strategies, and the small advantage offered by more complex strata sampling strategies on
 operators and program elements.
 
-(Accepted for publication)
+(Under review)
 [Publication](/resources/ist2016/gopinath2016do.pdf)
 
 #### [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE 2015]()
