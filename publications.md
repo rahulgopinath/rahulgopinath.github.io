@@ -46,7 +46,6 @@ performance of selection strategies, and the small advantage offered by more com
 operators and program elements.
 
 (Under review)
-[Publication](/resources/ist2016/gopinath2016do.pdf)
 
 #### [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE 2015]()
 
