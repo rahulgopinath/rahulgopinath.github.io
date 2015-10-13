@@ -9,7 +9,7 @@ menu: Publications
 
 * [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be anyway?_ ISSRE, 2015](#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)
 
-* [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM, 2015](#ahmed-gopinath-mannan-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)
+* [Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM, 2015](#ahmed-mannan-gopinath-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)
 
 * [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)
 
@@ -54,7 +54,7 @@ incorporates the analysis of stubbornness of mutants.
 
 [Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
 
-#### [Ahmed, Gopinath, Mannan, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
+#### [Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
 projects. Systems degrade over time as design and implementation compromises

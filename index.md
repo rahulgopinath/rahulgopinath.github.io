@@ -31,8 +31,8 @@ My interest in quality of programs is informed by a wealth of practical knowledg
 [_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)<br/>
 ISSRE 2015
 
-Ahmed, **Gopinath**, Mannan, Jensen<br/>
-[_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ](publications#ahmed-gopinath-mannan-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)<br/>
+Ahmed, Mannan, **Gopinath**, Jensen<br/>
+[_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ](publications#ahmed-mannan-gopinath-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)<br/>
 ESEM 2015
 
 **Gopinath**, Jensen, Groce<br/>
