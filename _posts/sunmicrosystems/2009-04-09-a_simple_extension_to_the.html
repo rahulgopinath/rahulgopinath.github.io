@@ -1,0 +1,52 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="a_simple_extension_to_the">
+
+	<h3 class="entry-title">
+			A simple extension to the hg (mercurial) forest (fdiff fcommit and fimport)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Apr 09, 2009</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>For Sun WebStack, I have been working with multiple repositories (apache2, squid, mysql5, lighttpd etc). I often have to do the same or related changes in each of these repositories.The standard commands that I had to use to work with these repos are,</p> 
+  <ul> 
+    <li>Fetch the sources for all repos [ <b><font face="tahoma,arial,helvetica,sans-serif" size="2">for i in $mylist; do hg clone ssh://webstack-root/$i ; done </font></b>]</li> 
+    <li>Fix some stuff and verify by doing a diff <b><font face="tahoma,arial,helvetica,sans-serif" size="2">[ for i in \*; do [ -d $i/.hg ] &amp;&amp; (cd $i &amp;&amp; hg diff ); done]</font></b>
+</li> 
+    <li>Commit the fixes <b><font face="tahoma,arial,helvetica,sans-serif" size="2">[for i in \* ; do [ -d $i/.hg ] &amp;&amp; (cd $i &amp;&amp; hg commit -m "my message" ) ; done ]</font></b>
+</li> 
+    <li>And push the same way. <b><font face="tahoma,arial,helvetica,sans-serif" size="2">[for i in \* ; do [ -d $i/.hg ] &amp;&amp; (cd $i &amp;&amp; hg push) ; done]</font></b>
+</li> 
+  </ul> 
+  <p>Quite recently I found the <a href="http://www.selenic.com/mercurial/wiki/index.cgi/ForestExtension" title="forest">forest </a>extension which allowed me to do<br>- on top dir in the server<br><b><font face="tahoma,arial,helvetica,sans-serif" size="2">hg init<br></font></b> - on the client systems, clone, push and pull<br><b><font face="tahoma,arial,helvetica,sans-serif" size="2">hg fclone ssh://webstack-root<br>hg fpull<br>hg up</font></b><br><b><font face="tahoma,arial,helvetica,sans-serif" size="2">hg fpush<br></font></b></p> 
+  <p>These were very helpful, but I also wanted to review the diffs (and to request for review) and to commit related changes with the same aggregated commit message, Unfortunately the forest extension does not yet have commands for these.</p> 
+  <p> </p> 
+  <p>I have modified the forest extension slightly to provide for new commands '<b><font face="tahoma,arial,helvetica,sans-serif" size="2">fdiff</font></b>'  '<b><font face="tahoma,arial,helvetica,sans-serif" size="2">fcommit</font></b>' and <font size="2"><b>'<font face="tahoma,arial,helvetica,sans-serif">fimport</font>'</b></font>. The source is <a title="here" href="/blue/resource/forest.py">here</a>. In case you have the same need, drop this into your hgext directory (replace the forest.py if it exists) or set the extension path in your .hgrc</p> 
+  <p>Beware that this is nothing more than a hack though.<br></p> 
+  <p>Edit: added <b><font face="tahoma,arial,helvetica,sans-serif" size="2">fimport</font></b><br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: languages</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/hg" rel="tag">hg</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/mercurial" rel="tag">mercurial</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/python" rel="tag">python</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/a_simple_extension_to_the">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}

@@ -1,0 +1,92 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="sun_hpc_clustertools_for_openmpi">
+
+	<h3 class="entry-title">
+			sun hpc clustertools for openmpi
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Apr 13, 2009</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>Having migrated originally from Civil Engineering, I have always been interested in parallel programming. Quite a few (almost all?) problems in that domain are what can be called embarrassingly parallel - be it Structural Mechanics, Fluid dynamics, or Virtual Modeling.<br></p> 
+  <p>Recently I got interested in parallel programming again as part of my studies. While the <a href="http://www.cs.iit.edu/%7Escs/home/home.html">university</a> has a cluster setup, it is almost always in use, and is dead slow because of the number of users. So I tried setting up a simple OpenMP cluster locally for Ubuntu and Solaris,<br></p> 
+  <p>Setting up OpenMP on Ubuntu is treated in quite a few places in the web, so I am not listing the steps for that. How ever I found that using the <a href="http://www.sun.com/software/products/clustertools/">cluster tools</a> from Sun was much more easy than messing with the MPICH distribution in Ubuntu.</p> 
+  <p>Here are my notes on getting it to work.</p> 
+  <p>As a prerequisite, <br></p> 
+  <ul> 
+    <li>You need some machines with the same OS and ARCH, NM</li> 
+    <li>A common NFS exported directory (mounted on the same path) on each machine. I used /home/myname as the NFS mount<br>
+</li> 
+    <li>Ensure that you have password less login either using ssh or rsh.<br>
+</li> 
+    <li>You also need to  install the cluster tools on each.</li> 
+  </ul> 
+  <p>You can get the cluster tools from <a href="http://www.sun.com/software/products/clustertools/get_it.jsp">here</a>. Ungzip it to directory and execute the ctinstall binary</p> 
+  <blockquote> 
+    <p><b><font size="2" face="tahoma,arial,helvetica,sans-serif">|cat sun-hpc-ct-8.1-SunOS-sparc.tar.gz |gzip -dc | tar -xvpf -<br>|sun-hpc-ct-8.1-SunOS-sparc/Product/Install_Utilities/bin/ctinstall -l<br>|...</font></b></p> 
+  </blockquote> 
+  <p>This will install the necessary packages. You might need to check the default parameters and verify that they are to your satisfaction.<br></p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|/opt/SUNWhpc/HPC8.1/sun/bin/ompi_info --param all all</font></b><br>
+</blockquote> 
+  <p> </p> 
+  <p>In my setup, I wanted to use rsh while ssh is the default for clustertools<br></p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|/opt/SUNWhpc/HPC8.1/sun/bin/ompi_info --param all all | grep ssh</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">     MCA plm: parameter "plm_rsh_agent" (current value: "ssh : rsh", data source: default value, synonyms: pls_rsh_agent)</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">              The command used to launch executables on remote nodes (typically either "ssh" or "rsh")</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">     MCA filem: parameter "filem_rsh_rsh" (current value: "ssh", data source: default value)</font><br><b><font size="2" face="tahoma,arial,helvetica,sans-serif">|echo '</font><font size="2" face="tahoma,arial,helvetica,sans-serif">plm_rsh_agent = rsh'</font><font size="2" face="tahoma,arial,helvetica,sans-serif"> &gt;&gt; /opt/SUNWhpc/HPC8.1/sun/etc/openmpi-mca-params.conf</font></b><br>
+</blockquote> 
+  <p><b><font size="2" face="tahoma,arial,helvetica,sans-serif"> </font></b><br>Once this is done, create your machines file (my machine names are host1 host2 host3 and host4)<br></p> 
+  <blockquote> 
+    <p><b><font size="2" face="tahoma,arial,helvetica,sans-serif">|cat &gt; machines.lst<br></font></b><font size="2" face="tahoma,arial,helvetica,sans-serif">host1<br>host2<br>host3<br>host4<br>\^D</font><b><font size="2" face="tahoma,arial,helvetica,sans-serif"><br></font></b></p> 
+  </blockquote> 
+  <p>Now you are ready to verify that stuff works. Try <br></p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|/opt/SUNWhpc/HPC8.1/sun/bin/mpirun -np 4 -machinefile ./machines.lst hostname</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host1</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host2</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host3</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host4</font><br>
+</blockquote> 
+  <p>This should also work<br></p>
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|/opt/SUNWhpc/HPC8.1/sun/bin/mpirun -np 4 -host host1,host2,host3,host4 hostname</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host1</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host2</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host3</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host4</font><br>
+</blockquote>
+  <p>If you get similar output, then you have successfully completed the initial configuration. <br>If you are unable to modify the /opt/SUNWhpc/HPC8.1/sun/etc/openmpi-mca-params.conf file, then you could try the below<br></p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|/opt/SUNWhpc/HPC8.1/sun/bin/mpirun -mca pls_rsh_agent rsh -np 4 -machinefile ./machines.lst hostname</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host1</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host2</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host3</font><br><font size="2" face="tahoma,arial,helvetica,sans-serif">host4</font><br>
+</blockquote> 
+  <p>Try an example,</p> 
+  <blockquote> 
+    <p><font size="2" face="tahoma,arial,helvetica,sans-serif"><b>|cat hello.c </b><br></font><font size="2" face="tahoma,arial,helvetica,sans-serif">#include &lt;stdio.h&gt;<br>#include &lt;mpi.h&gt;<br>int main(int argc, char \*\*argv) {<br>     int my_rank;<br>     MPI_<span style="color: #1012ff;">Init</span>( &amp;argc, &amp;argv);<br>     MPI_<span style="color: #1012ff;">Comm_rank</span>(MPI_COMM_WORLD, &amp;my_rank);<br>     printf("Hello world[%d]\\n", my_rank);<br>     MPI_<span style="color: #1012ff;">Finalize</span>();<br>     return 0;<br>}</font><br></p> 
+  </blockquote> 
+  <blockquote> </blockquote> 
+  <p>Try compiling and running<br></p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">/opt/SUNWhpc/HPC8.1/sun/bin/mpicc -o hello hello.c<br>|/opt/SUNWhpc/HPC8.1/sun/bin/mpirun -np 4 -machinefile ./machines.lst ./hello<br></font></b><font size="2" face="tahoma,arial,helvetica,sans-serif">Hello world[2]<br>Hello world[3]<br>Hello world[0]<br>Hello world[1]</font><b><font size="2" face="tahoma,arial,helvetica,sans-serif"><br></font></b>
+</blockquote> 
+  <p> </p> 
+  <p>Now you are ready to try something larger. You can try with a simple scatter and gather of a matrix that is <a href="/blue/resource/scattermatrix.c">attached</a>..</p> 
+  <p>\*Many thanks to the Sun HPC team for making this setup so easy.</p> 
+  <p><br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: Technical</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/mpi" rel="tag">mpi</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/openmpi" rel="tag">openmpi</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/parallelization" rel="tag">parallelization</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/sunwhpc" rel="tag">sunwhpc</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/sun_hpc_clustertools_for_openmpi">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
