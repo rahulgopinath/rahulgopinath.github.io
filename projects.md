@@ -61,7 +61,7 @@ one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for Op
 
 
 
-<h3>Other Notable but Small Open Source Projects </h3>
+<h3>Other Notable but Small Projects </h3>
 
 [v-language](https://github.com/vrthra/v-language) is a simple stack based
 language that is very similar to Postscript and Forth. I wrote this to
@@ -118,6 +118,23 @@ servers. It allowed IRC based co-ordination of different servers with automated
 triggering of test runs corresponding to external events, reporting of test run
 results etc.
 
+[Webstack](https://bitbucket.org/webstack/) was the other very interesting project.
+The aim was to develop a relocatable packaging of opensource projects (using IPS) such as
+Apache, Squid, Ruby, Python, Perl etc. that a user could install in their home directory
+and move the location around if required after installation. The entire set of projects
+were pre-configured to work in specific ways. The interesting part was how to get the
+components work from different directories than the developers assumed, and how to let
+the programs find their configuration files and libraries. It involved figuring out the
+linking and loading mechanisms of binaries, and figuring out how different opensource
+projects managed their components and configurations. The other interesting part that
+I was involved in was to actually create and maintain the packaging framework using
+makefiles, managing dependencies and making sure that we can do parallel and distributed
+builds of components.
+
+[OpenSolaris](https://en.wikipedia.org/wiki/OpenSolaris): I was the maintainer of Apache
+modules and Squid proxy server for OpenSolaris distribution, and it involved working with
+the Architectural Review Committees to ensure that the opensource components followed
+the Sun interface guidelines.
 
 <h4>2005 Quark Media House</h4>
 Administration Interface using JScheme: While at Quark, implemented a simple
