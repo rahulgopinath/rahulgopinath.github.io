@@ -94,6 +94,7 @@ also SOCKS, and FTP proxies.
 
 <h3>Interesting projects (Non Opensource)</h3>
 
+
 <h4>2009 Sun Microsystems</h4>
 Cat, Pat, Net, Hive: Implemented the testing frameworks affectionately called
 Cat, Pat and Net for the iPlanet family web and proxy servers. The Cat
