@@ -36,4 +36,16 @@ These are the teaching materials I prepared for a course in programming language
   </ul>
 </div>
 
+<h3> Older Sun Microsystems Posts</h3>
+
+<div class="posts">
+  <ul>
+  {% for post in site.posts%}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'sunmicrosystems' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a></li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
