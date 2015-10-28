@@ -30,7 +30,7 @@ These are the teaching materials I prepared for a course in programming language
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'haskelltricks' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> { post.e }}</li>
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> </li>
   {% endif %}
   {% endfor %}
   </ul>
