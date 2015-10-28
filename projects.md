@@ -65,13 +65,15 @@ one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for Op
 
 [v-language](https://github.com/vrthra/v-language) is a simple stack based
 language that is very similar to Postscript and Forth. I wrote this to
-understand concatenative programming. I later rewrote [V in Haskell](https://github.com/vrthra/v)
+understand concatenative programming. Originally written in Java, it provides
+a simple MOP and word invocation through pattern matches. The rewrite in C also
+provides a simple reference counting GC. I later rewrote [V in Haskell](https://github.com/vrthra/v)
 
 [bibprolog](https://github.com/vrthra/bibprolog) is a simple swi-prolog based
 command line tool to query bibtex databases. It uses simple terminal based
 colouring to indicate relevant parts of bibtex entries queried.
 
-[tdlogic](https://github.com/vrthra/tdlogic) is another swi-prolog based
+[tdlogic](https://github.com/vrthra/tdlogic) is another gprolog based
 command line todo list manager. As with bibprolog, tdlogic also uses terminal
 colouring to indicate priorities and tags.
 
@@ -80,10 +82,8 @@ written in Java to query Bugster, which was used in Sun Microsystems. Bugster
 was a Java swing application that had a horrible user interface. Qbugs had
 auto-completion, filtering, piping, and other conveniences.
 
-[trans](https://github.com/vrthra/trans) is a simple command line interface
-written in Java to query Bugster, which was used in Sun Microsystems. Bugster
-was a Java swing application that had a horrible user interface. Qbugs had
-auto-completion, filtering, piping, and other conveniences.
+[trans](https://github.com/vrthra/trans) is a tiny little tcp proxy that can
+be used to debug TCP connections. I wrote it to help me with my proxy work.
 
 I have also written a few small ruby daemons that are reasonably feature
 complete in terms of the protocols they implement: [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd).
