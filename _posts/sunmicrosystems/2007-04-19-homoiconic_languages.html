@@ -1,0 +1,158 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="homoiconic_languages">
+
+	<h3 class="entry-title">
+			Homoiconic languages
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Apr 19, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>    I have been interested in <a title="wiki" href="http://en.wikipedia.org/wiki/Homoiconicity">homoiconicity</a>
+in languages for some time now. In simple terms, it means that the code
+is accessible in the same format as that of one of the fundamental data
+types in the language. Often this data type is the one that gives the
+language its character.<br></p>
+<p> (Homoiconicity is not precisely defined yet, and is subject of an ongoing <a title="c2 wiki" href="http://c2.com/cgi/wiki?HomoiconicityClassification">debate</a>. However, as far as I am concerned, the degree of Homoiconicity in a language corresponds to the degree of corelation between the expressions in the language and the datastructure used to represent them. ie, If I am using a tree to represent my program, then the language is homoiconic if all the leaves in the tree are valid tokens for the language and the token should parse the same both in the datastructure and in the language.</p>
+<p>The reason for such a definition is that, just having an 'eval(&lt;string&gt;)' function does not make a language homoiconic, since the string datatype does not have a high correlation with the program encoded in the string.</p>
+<p>ie: in a string 'a = myfunction(a,b,c)', each token in language is a valid string (ignoring the quote), but the smallest strings possible (leaves of the datastructure) does not parse the same as the corresponding program.</p>
+<p>-- myfunction is the lexical token as parsed by the language translator, while my, func, t,i,o,n are all valid strings.</p>
+<p>for a Homoiconic language like scheme,</p>
+<p>'(append (my) long (list)), represented by a tree, having leaves, append, my, long and list, each parse the same as that of the language represented with in.<br></p>
+<p>)<br></p>
+<p> This property is interesting because it immediately implies some wonderful properties in the language, notably:</p>
+<ul>
+  <li>Ability to Generate programs during runtime allowing for a higher level of abstraction.</li>
+</ul>
+<ul>
+  <li>Ability to Meta program (Allowing for hooking into and modification of language structures) during runtime.<br>
+  </li>
+</ul>
+<ul>
+  <li>And most important of all, the Syntax of language is generally very simple with very few special cases (if at all.)<br>
+  </li>
+</ul>
+<p> The last point is very special because it has a huge advantage and an equally huge disadvantage.</p>
+<p><br>The
+disadvantage is that it is hard for humans to visually parse as the
+uniformity of the language often removes any visual cues that we are
+familiar with in most of the languages. (I think one of the reasons of
+Perl's success was its abundance of visual cues.) This leads to a very
+steep learning curve for the language in question.</p>
+<p> The
+advantage on the other hand is that the uniformity of syntax makes it
+easy for us (Humans) to think about the written code as another data
+that can be manipulated. It becomes easy to think about higher order
+code (i.e. code that writes or modifies code). (This is what gives us
+the first point.) This gives us the ability to mould the language to
+the needs of specific domains at hand.<br></p>
+<p>Some of these
+languages also are the best examples of a particular way of thinking
+(what are called 'pure' languages) and very often they provide the
+'aha' moment for the particular paradigm they represent.<br></p>
+<p>Below
+are some of the homoiconic languages that I know of. (Some have examples
+of syntaxes but I will treat them more in detail in later entries.)</p>
+<p>(Most of the code is intented to show just the syntax so they are very inefficient but compact.)<br></p>
+<h4>Scheme</h4>
+<p>    Scheme is a lisp variant (Almost all lisp
+variants are homoiconic) and has the most consistent semantics in the
+lisp family. It has list as the fundamental data structure and it is
+encoded by parenthesis - ( ).</p>
+<p>It supports higher order
+programming, and is usually used in the functional programming
+paradigm. The scheme language is mostly based on lambda calculus. <br><br>Here is a fragment of Scheme (A quicksort function)<br></p>
+<blockquote>
+  <blockquote>
+    <pre><font size="3" face="courier new,courier,monospace">(require (lib "list.ss"))<br>(define (qsort lst)<br>  (cond<br>    ((null? lst) lst)<br>    (else <br>     (let ((h (car lst)) (t (cdr lst)))<br>       (append<br>        (qsort (filter (lambda (x) (&lt;= x h)) t))</font><br><font size="3" face="courier new,courier,monospace">	(list h)<br>        (qsort (filter (lambda (x) (&gt; x h)) t))))<br>       )))</font><font size="3" face="courier new,courier,monospace"><br><br>; sample use:  <br>&gt; (qsort '(3 8 5 4 8 2 4 1 9 4))</font></pre>
+  </blockquote>
+</blockquote>
+<pre><p><br></p></pre>
+<h4>Joy</h4>
+<p>     
+Joy is a stack based (concatenative seems to be the word used
+nowadays.) language that is similar to postscript and forth. It is very
+minimalist and has a very consistent syntax compared to either of them
+and supports a points-free style of programming (A style in which
+variables are not used). It is based on combinatorial calculus rather
+than lambda calculus and supports anonymous functions, higher order
+programming and others.</p>
+<p>The quote (bounded by [ and ]) is the
+most basic data structure in joy. It can act as both a store for values
+and also as definition of function.</p>
+<p>{Shameless plug: <a title="v-language" href="http://code.google.com/p/v-language/">V</a> is the variant of Joy on JVM that I developed. I changed the definition format of Joy in V so that it is more Homoiconic.}<br></p>
+<p>QuickSort in <a title="v-language" href="http://code.google.com/p/v-language/">V</a> (A variant of <a title="joy language" href="http://www.latrobe.edu.au/philosophy/phimvt/joy.html">Joy</a>) </p>
+<blockquote>
+  <blockquote>
+    <pre><font size="3" face="courier new,courier,monospace">[qsort<br>    [small?]<br>    []<br>    [uncons [&gt;] split&amp;]<br>    [[swap] dip cons concat]<br>    binrec].</font><br></pre>
+  </blockquote>
+</blockquote>
+<blockquote><blockquote>
+<pre><font size="3" face="courier new,courier,monospace">#Usage<br></font></pre>
+<pre><font size="3" face="courier new,courier,monospace">&gt; [3 1 8 5 7 9 2] qsort</font></pre>
+</blockquote></blockquote>
+<p>It can also be written using the stack shuffler in 'V' as below (which might be more understandable.)<br></p>
+<blockquote>
+  <blockquote>
+    <pre><font size="3" face="courier new,courier,monospace">[qsort<br>    [joinparts [pivot [\*list1] [\*list2] : [\*list1 pivot \*list2]] view].<br>    [split_on_first_element uncons [&gt;] split&amp;].<br>    [small?]<br>        []<br>        [split_on_first_element<br>            [list1 list2 : [list1 qsort list2 qsort joinparts]] view i]</font><br><font size="3" face="courier new,courier,monospace">    ifte].</font></pre>
+  </blockquote>
+</blockquote>
+<h4>Tcl</h4>
+<p>Tcl
+is famous as the glue language for applications. It's cardinal data
+type is the string (actually the list). Every thing including the
+arguments to functions, the bodies of functions, and other data types
+can be converted back and forth from list to their representation. The
+biggest idea in Tcl is that you do not need to provide the parsing of
+any kind of data with in the language, and can instead delegate it to
+the individual commands that receive the strings as the arguments. Thus
+all control structures are implemented in Tcl the same way, and it
+allows for a very consistent syntax. The cardinal datatype the list is
+usually bounded by braces - { }.</p>
+<p> The quick sort in tcl</p>
+<blockquote><blockquote>
+<span style="font-family: monospace;">proc lmatch {l args} {<br>    set mylst {}<br>    foreach x $l {<br>        if {[expr $x $args]} {<br>            lappend mylst $x<br>        }<br>    }<br>    return $mylst<br>}<br><br>proc qsort lst {<br>    if {![llength $lst]} {<br>        return {}<br>    }<br>    set h [lindex $lst 0]<br>    set t [lrange $lst 1 end]<br>    return [concat [qsort [lmatch $t &lt;= $h]] $h [qsort [lmatch $t &gt; $h]]]<br>}<br><br></span><pre><font size="3" face="courier new,courier,monospace">#Usage</font></pre>
+<pre><font size="3" face="courier new,courier,monospace">&gt; </font><span style="font-family: monospace;">puts [qsort {5 3 4 1 7 8 2 9 1}]</span></pre>
+</blockquote></blockquote>
+<h4>SmallTalk</h4>
+<p>SmallTalk
+(80) is possibly the purest object oriented language that you can find
+in the planet.  All things happen in SmallTalk by way of messages
+passed back and forth between objects. While the SmallTalk does not
+have a defined physical representation for the code for creating
+classes,  It does allow access to the classes as objects directly
+(Which is the fundamental datatype). This makes it eligible to be
+called a Homoiconic language.<br></p>
+<blockquote><blockquote><pre><font size="3" face="courier new,courier,monospace"></font>qsort<br>	| t h |<br>	self isEmpty<br>		ifFalse: [<br>			t := self allButFirst.<br>			h := self first.<br>			\^ (t select: [:each | each &lt; h]) qsort , <br>				{h} , <br>				(t select: [:each | each &gt;= h]) qsort].<br><font><font size="3" face="courier new,courier,monospace"></font></font>-- Usage<br><font><font size="3" face="courier new,courier,monospace">&gt; #(3 2 5 1 3 7 9 8) qsort</font></font><br><font size="3" face="courier new,courier,monospace"><span title="Comment" class="c"></span></font></pre></blockquote></blockquote>
+<p>
+<br>
+Others (From wiki)- </p>
+<p><a title="Prolog" href="http://en.wikipedia.org/wiki/Prolog">Prolog</a>, <a title="REBOL" href="http://en.wikipedia.org/wiki/REBOL">REBOL</a>, <a title="SNOBOL" href="http://en.wikipedia.org/wiki/SNOBOL">SNOBOL</a>, <a title="TRAC programming language" href="http://en.wikipedia.org/wiki/TRAC_programming_language">TRAC</a>, <a title="Io programming language" href="http://en.wikipedia.org/wiki/Io_programming_language">Io</a></p>
+<p>The purest one is ofcourse the lambda calculus (the only datatype is a function that takes one argument.) </p>
+<p>I think some variants of APL (like K or J) might fit into the Homoiconic category too, but I have not studied them yet. I will treat each of the homoiconic languages in detail in later enties.<br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: Technical</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/homoiconic" rel="tag">homoiconic</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/language" rel="tag">language</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/pure" rel="tag">pure</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/homoiconic_languages">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
