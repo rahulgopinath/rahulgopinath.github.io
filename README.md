@@ -44,3 +44,7 @@ The master and gh-pages branch do not share the same ancestry. Please treat them
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
+
+# Theme look and feel
+
+The clean look and feel was copied from https://github.com/rootkovska/rootkovska.github.io which is under CC Attribution-NonCommercial-ShareAlike 4.0 International (CC BY NC SA 4.0) license on Oct 27 2015
