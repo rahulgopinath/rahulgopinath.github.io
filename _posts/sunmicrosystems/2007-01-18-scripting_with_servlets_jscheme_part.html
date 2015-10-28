@@ -1,0 +1,65 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="scripting_with_servlets_jscheme_part">
+
+	<h3 class="entry-title">
+			Scripting with servlets [jscheme]  - part II  (Sun Java System WebServer 7.0)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Jan 15, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	Writing Jscheme servlets on Sun Java System WebServer 7.0. <br><h3>Prior work:<br>
+</h3>
+<p>Jscheme already has a good servlet <a title="jschem servlet" href="http://jscheme.sourceforge.net/jscheme/src/jschemeweb/SchemeServlet.java">implementation</a> distributed along with jscheme.jar. The ScriptServlet.java<br>that we use is very similar (Infact it was the inspiration for ScriptServlet.java) but the amount is some what<br>reduced. We also make use of their jscheme (modified) scripts to load the freestanding scripts. <br></p>
+<h3>SchemeServlet<br>
+</h3>
+<p>The ScriptServlet developed in the previous <a href="../../blue/entry/scripting_with_servlets_sun_java" target="_blank" title="Scripting servlets with Sun Java System WebServer 7.0">entry</a> is used here as the parent class.<br> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">package com.sun.servlet;<br><br>import javax.servlet.http.\*;<br>import jscheme.\*;<br><br>public class SchemeServlet extends ScriptServlet {<br><br>    public static JScheme js = new JScheme();<br><br>    public void initialize(String handler, Object code)<br>        throws Exception {<br>        js.apply((jsint.Procedure)js.eval((String)code),js.list(this));<br>    }<br><br>    public void eval(Object fn, HttpServletRequest request, HttpServletResponse response) {<br>        if (request == null)<br>            js.apply((jsint.Procedure)fn, js.list());<br>        else<br>            js.apply((jsint.Procedure)fn, js.list(request, response));<br>    }<br>}<br></font></p></td></tr></tbody></table>
+<p> </p>
+<h2>Providing the scheme handler<br>
+</h2>
+<h3>Jscheme Jvm Bindings.</h3>
+<p>The jscheme allows java access in a very 'schemish' notation. ie a call like the below<br></p>
+<p><font size="2" color="#0f11ff">       </font><font size="2" color="#0f11ff">servlet</font><font size="2" color="#0f11ff">.getServletConfig( )</font><font size="2" color="#0f11ff">.getServletContext(</font><font size="2" color="#0f11ff">)</font><font size="2" color="#0f11ff">.getRealPath(</font><font size="2" color="#0f11ff">new File(file)); </font><br>in java is transformed into</p>
+<p>      <font size="2" color="#0f11ff">(.getRealPath (.getServletContext (.getServletConfig servlet)) (File. file))</font><br>in jscheme. As you can see the constructor new File(file) looks like (File. file) when<br>it is called in Jscheme<br></p>
+<p>Using this notation in our handler<br></p>
+<p><b>docroot/WEB-INF/code/scheme.scm</b><br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">;; scheme.scm<br>;; slightly modified from the version in jscheme distribution.<br><br>(lambda (httpservlet)<br><br>  (define (doGet request response)<br>    (define (getRealPath servlet file)<br>      (.getRealPath (.getServletContext (.getServletConfig servlet)) file))<br>    (define filename (getRealPath httpservlet (.getServletPath request)))<br>    (define body (string-&gt;expr (.read httpservlet filename)))<br>    (define proc `(lambda(request response httpservlet out)<br>                    (let ((b ,body))<br>                      (if (not (equal? #null b)) (.println out b)))))<br><br>    (let ((out (.getWriter response)))<br>      (.setContentType response "text/html")<br>      (jsint.Procedure.tryCatch<br>        (lambda()<br>          ((eval proc)<br>           request response httpservlet out))<br>        (lambda(e)<br>          (display "<br>                   &lt;html&gt;&lt;body&gt;&lt;b&gt;Servlet Error&lt;/b&gt;&lt;xmp&gt; <br>                   [(.printStackTrace e out)]<br>                   &lt;/xmp&gt;&lt;/body&gt;&lt;/html&gt;<br>                   " out)))))<br><br>  ;; store scheme procedures into the httpservlet<br>  (.add httpservlet "get" doGet)<br>  (.add httpservlet "post" doGet))<br></font></p></td></tr></tbody></table>
+<p> </p>
+<p>As in the jruby, we return a proc object with an arity 1 on evaluation of this. The argument is used by the evaluator to pass in<br>the current instance of httpservlet (or rather the ScriptServlet). This larger closure contains the function that defines doGet,<br>and is added to the symbol table of the ScriptServlet by the line below on execution by <b>initialize</b><br></p>
+<p><font size="2" color="#8e2020">(.add httpservlet "get" doGet)</font> <br></p>
+<p>An example scheme script is given below. (The scheme handler can execute scripts like this.)<br></p>
+<p><b>/docroot/hello.scm</b> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center">
+<tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">{&lt;html&gt;<br>  &lt;head&gt;&lt;title&gt;abc&lt;/title&gt;&lt;/head&gt;<br>  &lt;body&gt;<br>   &lt;h1&gt; Hello at [(Date.)] from [(.getServletPath request)]&lt;/h1&gt;<br>  &lt;/body&gt;<br> &lt;/html&gt;}<br></font></p></td></tr></tbody>
+</table>
+<h3>Build  Steps. </h3>
+<p>          The complete jschem-webapp is provided <a title="jscheme-webapp" href="../../blue/resource/servlets/jscheme-webapp.tar.gz">here</a>. You can download it and extract the contents to a<br>directory called 'jscheme' inside your installation. It should be in the <b>samples/java/webapps/jscheme</b> directory<br>in your installation of webserver as it refers to the common.xml for building.<br></p>
+<p>It also contains the jscheme.jar in the WEB-INF/lib, which may not be latest.<br></p>
+<p>Your extracted directory will look like this.</p>
+<p><font size="2" color="#473f42">|cd jscheme<br>|find .<br>./docs<br>./docs/index.html<br>./src<br>./src/build.xml<br>./src/SchemeServlet.java<br>./src/docroot<br>./src/docroot/WEB-INF<br>./src/docroot/WEB-INF/lib<br>./src/docroot/WEB-INF/lib/jscheme.jar<br>./src/docroot/WEB-INF/web.xml<br>./src/docroot/WEB-INF/sun-web.xml<br>./src/docroot/WEB-INF/code<br>./src/docroot/WEB-INF/code/scheme.scm<br>./src/docroot/index.html<br>./src/docroot/hello.scm<br>./src/ScriptServlet.java<br>./deploy.tcl</font> </p>
+<p><br>You can run 'ant' from inside the src directory which will create the jscheme-webapp.war in the<br>jscheme directory. This war file can be deployed on the webserver using the wadm.<br></p>
+<p><font size="2" face="courier new,courier,monospace" color="#0f11ff">wadm </font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -u admin</font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -f deploy.tcl</font><br></p>
+<p> Once the deployment goes through, you will be able to access the scheme file using the url</p>
+<font size="2" color="#0003ff">http://yourserver:port/jscheme/hello.scm</font><br><p>  <br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: scripting</p>
+        <p class="entry-tags">Tags:  none </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/scripting_with_servlets_jscheme_part">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
