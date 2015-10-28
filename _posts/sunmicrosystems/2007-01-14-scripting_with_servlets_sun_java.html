@@ -1,0 +1,85 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="scripting_with_servlets_sun_java">
+
+	<h3 class="entry-title">
+			Scripting with servlets - prologue (Sun Java System WebServer 7.0)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Jan 14, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>In this series I am going to try and see how easily the various scripting languages<br>(jscheme, jacl, jruby, sleep, nice, jython, groovy, rhino .. to name a few) that currently runs over jvm<br>can be used with the webcontainer as a servlet --  ie exposing the request, response and servlet<br>environment to the scripting language.</p>
+<p>(This can also be accomplished very easily using JSR223 in JDK6<br>a detailed description of using JSR223 is available <a href="http://java.sun.com/developer/technicalArticles/J2SE/Desktop/scripting/" title="scripting for java">here)</a><br><br></p>
+<h3>The Why's of it.</h3>
+<p>         Often the scripting languages are much faster to develop in than java. Most provide more powerful<br>syntactic abstraction facilities. The code necessary to accomplish a given task can generally be cut down<br>quite a bit using one of these languages. It may also be the case that the developers are more familiar with<br>a particular scripting language than with java.</p>
+<p>           In the general scenario, for web development, the option the developers have when they want<br>to use one of the scripting languages is to go with the CGIs. Unfortunately the fact is that the<br>servlets are generally faster than the CGIs even when using FastCGI.<br></p>
+<p>          The other option is to allow the scripting language to be loaded and executed by a small wrapper<br>servlet. The advantage of this option is that It allows the full utilization of Webcontainer's jvm which will<br>be optimized for serving web applications. Since a servlet is persistent over a large number of requests,<br>we will also be able to cache often used resources inside the servlet.<br></p>
+<h3>Writing the wrapper servlet.<br>
+</h3>
+<p>            We provide a base servlet called ScriptServlet which will do most of the work necessary to get a<br>script to be loaded and executed. (leaving some work for a custom servlet to be able to optimize the script<br>loading and execution when possible.) There is also provide a cache for the scripts that may be manipulated<br>from the script if necessary.</p>
+<p> </p>
+<p></p>
+<table cellspacing="1" cellpadding="1" border="1" align="center" style="width: 674px; height: 1432px;"><tbody><tr><td valign="top">
+<p><font size="2" color="#8e2020">package com.sun.servlet;<br><br>import java.io.\*;<br>import java.util.\*;<br>import javax.servlet.\*;<br>import javax.servlet.http.\*;<br><br>public abstract class ScriptServlet extends GenericServlet {<br><br>    private HashMap&lt;String, Object&gt; _sym = new HashMap&lt;String, Object&gt;();<br><br>    public HashMap sym() {<br>        return _sym;<br>    }<br><br>    public void add(String sym, Object fn) {<br>        _sym.put(sym.toLowerCase(), fn);<br>    }<br><br>    public void init() throws ServletException {<br>        ServletConfig config = getServletConfig();<br>        if (config == null) return;<br>        try {<br>            String handler = config.getInitParameter("handler");<br>            if (handler != null) {<br>                ServletContext sc = config.getServletContext();<br>                InputStream stream = sc.getResourceAsStream(handler);<br>                initialize(handler, read(stream));<br>                stream.close();<br>            } else<br>                System.out.println("No handler");<br>        } catch (Exception e) {<br>            System.out.println("During ScriptServlet.init(): ");<br>            e.printStackTrace();<br>        }<br>    }<br><br>    public abstract void initialize(String handler, Object code) throws Exception;<br><br>    public abstract void eval(Object fn, HttpServletRequest request, HttpServletResponse response);<br></font></p>
+<p><font size="2" color="#8e2020">    public void service(HttpServletRequest request,  HttpServletResponse response)<br>        throws IOException, ServletException {<br>        service((HttpServletRequest)request, (HttpServletResponse)response);<br>    }<br><br></font><font size="2" color="#8e2020">    public void service(HttpServletRequest request,  HttpServletResponse response)<br>        throws IOException, ServletException {<br>        // do we have the named method?<br>        if (sym().containsKey(request.getMethod().toLowerCase()))<br>            eval(sym().get(request.getMethod().toLowerCase()), request, response);<br>        // or are we atleast overriding the service?<br>        if (sym().containsKey("service"))<br>            eval(sym().get("service"), request, response);<br>        else<br>            super.service(request, response);<br>    }<br><br>    public void destroy() {<br>        if (sym().containsKey("destroy"))<br>            eval(sym().get("destroy"), null, null);<br>        else<br>            super.destroy();<br>    }<br><br>    // Library functions that may be faster(performance) to do in java<br>    // than in our client languages.<br><br>    private static Hashtable&lt;String, Object&gt; _cache = new Hashtable&lt;String, Object&gt;();<br>    public static Hashtable&lt;String, Object&gt; cache() {<br>        return _cache;<br>    }<br>    // read all in a file and return.<br>    // If required, the client program can override this method to supply compiled<br>    // code<br>    public Object read(String name)<br>        throws IOException {<br>        if (_cache.containsKey(name))<br>            return (String)_cache.get(name);<br>        Object val = read(new FileInputStream(name));<br>        _cache.put(name, val);<br>        return val;<br>    }<br><br>    public Object read(InputStream in)<br>        throws IOException {<br>        StringBuffer sb = new StringBuffer();<br>        String line = null;<br>        DataInputStream ds = new DataInputStream(in);<br>        while ((line = ds.readLine()) != null) {<br>            sb.append(line);<br>            sb.append("\\n");<br>        }<br>        return sb.toString();<br>    }<br>}<br><br></font></p>
+</td></tr></tbody></table>
+<p> </p>
+<p> The only portion that a language specific wrapper servlet that inherits from us  need to implement is the script evaluation.The<br>custom servlet delegates the responsibility of actual implementation of HTTP method processors to the script that gets loaded.<br>Which is responsible for adding the relevant entries to our symbol table. The HTTP methods are serviced only if they are<br>present in our symbol table.<br></p>
+<p>An example language specific servlet for 'Foo' language:</p>
+<p></p>
+<table cellspacing="1" cellpadding="1" border="1" align="center" style="width: 674px; height: 475px;"><tbody><tr><td valign="top">
+<p><font size="2" color="#8e2020">package com.sun.servlet;<br><br>import java.io.\*;<br>import javax.servlet.http.\*;<br>import foo.\*;<br><br><br>public class FooServlet extends ScriptServlet {<br><br>    public static Foo foo = new Foo();<br></font></p>
+<p><font size="2" color="#8e2020">    // the handler contains the script name, and the code contains the entire script as string<br>    public void initialize(String handler, Object code)<br>        throws Exception {<br>        foo.eval(code, foo.bind("httpservlet", this));<br>    }<br><br>    public void eval(Object fn, HttpServletRequest request, HttpServletResponse response) {<br>        try {<br>            if (request == null)<br>                foo.eval(fn);<br>            else<br>                foo.eval(fn, new Object[]{request, response});<br>        } catch (Exception e) {<br>            e.printStackTrace();<br>        }<br>    }<br>}<br><br></font></p>
+</td></tr></tbody></table>
+<p>The meta info contained in web.xml and sun-web.xml will look like this<br></p>
+<p><b>sun-web.xml</b><br>  </p>
+<table cellspacing="1" cellpadding="1" border="1" align="center" style="width: 674px; height: 327px;"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br><br>&lt;!--<br> Copyright 2006 Sun Microsystems, Inc. All rights reserved.<br> Use is subject to license terms.<br>--&gt;<br><br><br>&lt;!DOCTYPE sun-web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Application Server 8.1 Servlet 2.4//EN"<br>"http://www.sun.com/software/sunone/appserver/dtds/sun-web-app_2_4-1.dtd"&gt;<br><br>&lt;sun-web-app&gt;<br>  &lt;session-config&gt;<br>    &lt;session-manager/&gt;<br>  &lt;/session-config&gt;<br>  &lt;jsp-config/&gt;<br>&lt;/sun-web-app&gt;<br></font><br></p></td></tr></tbody></table>
+<p> <b>web.xml</b></p>
+<table width="677" height="272" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;<br>&lt;!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/j2ee/dtds/web-app_2.3.dtd"&gt;<br>&lt;web-app&gt;<br>    &lt;servlet&gt;<br>        &lt;servlet-name&gt;handler&lt;/servlet-name&gt;<br>        &lt;servlet-class&gt;com.sun.servlet.FooServlet&lt;/servlet-class&gt;<br>        &lt;init-param&gt;&lt;param-name&gt;handler&lt;/param-name&gt;&lt;param-value&gt;/WEB-INF/code/foo.f&lt;/param-value&gt;&lt;/init-param&gt;<br>    &lt;/servlet&gt;<br><br>    &lt;servlet-mapping&gt;<br>        &lt;servlet-name&gt;handler&lt;/servlet-name&gt;&lt;url-pattern&gt;\*.f&lt;/url-pattern&gt;<br>    &lt;/servlet-mapping&gt;<br>&lt;/web-app&gt;<br><br><br>
+      </font><br>
+</p></td></tr></tbody></table>
+<p> </p>
+<p> </p>
+<p>As you can see in the web.xml, we pass in the main servlet handling script to the custom servlet using the<br>parameter <b>handler</b>. The custom servlet reads the handler code in and evaluates it. The handler script is<br>responsible for registering the doGet and doPost methods in the ScriptServlet symbol table. The handler<br>script will normally extract the script name that is referenced in the URI of the request, and will load and<br>evaluate the particular script, returning the result to the browser through response.<br></p>
+<p> A pseudo script for foo is given below.<br></p>
+<p><b> docroot/WEB-INF/code/foo.f</b></p>
+<table width="677" height="272" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">function doGet(request,response)<br>    spath := request.getServletpath<br>    fname := httpservlet.getServletConfig.getServletContext.getRealpath(spath)<br>    body  := httpservlet.read(fname)<br>    out   := response.getWriter<br>    response.setContentType 'text/html'<br>    out.prontln eval(body)<br>end<br><br>httpservlet.add 'get' doGet<br># use the same method for post<br>httpservlet.add 'post' doGet<br><br><br>
+      </font><br>
+</p></td></tr></tbody></table>
+<p><b>docroot/hello.f</b></p>
+<p> </p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020"><br><br>println 'This will come in the servlet error log'<br>return 'and this will come in the browser window.'<br>
+      </font><br>
+</p></td></tr></tbody></table>
+<p>The URL for accessing the script will be <font color="#0003ff">http://yourserver:port/foo/hello.f</font> assuming<br>that you deployed the webapp to /foo URL.<br></p>
+<p>Follow this series for examples of real languages.<br></p>
+<p><br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: scripting</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/java" rel="tag">java</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/jvm" rel="tag">jvm</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/scripting" rel="tag">scripting</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/servlets" rel="tag">servlets</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/sun_java_system" rel="tag">sun_java_system</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/webserver" rel="tag">webserver</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/scripting_with_servlets_sun_java">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
