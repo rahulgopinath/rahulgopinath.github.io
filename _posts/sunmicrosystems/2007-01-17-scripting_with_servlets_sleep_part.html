@@ -1,0 +1,74 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="scripting_with_servlets_sleep_part">
+
+	<h3 class="entry-title">
+			Scripting with servlets [sleep]  - part IV  (Sun Java System WebServer 7.0)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Jan 17, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>
+Using sleep (A perl like language over JVM) as servlet on Sun Java System WebServer 7.0.</p>
+<h3>About the language<br>
+</h3>
+<p><a href="http://sleep.hick.org/sleeplang.html" title="sleep homepage.">Sleep</a> is a language inspired by perl. Most of the syntax is same as that of the perl (with some<br>differences). This is the closest there is to perl on jvm and that makes this language worth<br>a better look (IMO). The language does offer higher order programming primitives like closures<br>but other stuff like exception handling feels somewhat primitive. The closures are invoked using<br>a syntax reminiscent of Objective C (with named parameters), and the Java Objects are treated<br>the same as closures. </p>
+<h3>SleepServlet<br>
+</h3>
+<p>The ScriptServlet developed in the previous <a href="../../blue/entry/scripting_with_servlets_sun_java" target="_blank" title="Scripting servlets with Sun Java System WebServer 7.0">entry</a> is used here as the parent class. <br> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">package com.sun.servlet;<br><br>import javax.servlet.http.\*;<br>import java.util.\*;<br>import sleep.interfaces.Evaluation;<br>import sleep.runtime.\*;<br>import sleep.engine.\*;<br>import sleep.bridges.\*;<br>import sleep.error.\*;<br><br>public class SleepServlet extends ScriptServlet {<br><br>    ScriptLoader loader = new ScriptLoader();<br>    ScriptInstance js = null;<br><br>    public StringBuffer err = new StringBuffer();<br><br>    public void initialize(String handler, Object code) throws Exception {<br>        js = loader.loadScript(handler, (String)code, new Hashtable());<br>        js.addWarningWatcher(new RuntimeWarningWatcher() {<br>            public void processScriptWarning(ScriptWarning w) {<br>                String message = w.getMessage();<br>                int lineNo  = w.getLineNumber();<br>                String script = w.getNameShort();<br>                err.append(message + " at " + script + ":" + lineNo + "\\n");<br>            }<br>        });<br><br>        Block blk = js.getRunnableBlock();<br>        SleepClosure sc = new SleepClosure(js, blk);<br><br>        Stack stk = new Stack();<br>        stk.push(SleepUtils.getScalar(this));<br>        sc.callClosure("&amp;main", js, stk);<br>    }<br><br>    public void eval(Object fn, HttpServletRequest request, HttpServletResponse response) {<br>        Stack stk = new Stack();<br>        stk.push(SleepUtils.getScalar(response));<br>        stk.push(SleepUtils.getScalar(request));<br>        ((SleepClosure)fn).callClosure("&amp;closure", js, stk);<br>    }<br>}<br></font></p></td></tr></tbody></table>
+<p> </p>
+<h2>Providing the handler<br>
+</h2>
+<h3>Jvm Bindings.</h3>
+<p>The  Java objects are treated as closures as mentioned above. The  syntax of accessing an object is<br>very reminiscent of Objective C. </p>
+<p>ie:  System.out.println("mystring") is written as [[$System out] println: "mystring"]</p>
+<p>(see the ':' after println.)<br></p>
+<p><b>docroot/WEB-INF/code/sleep.sl</b><br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">($httpservlet) = @_;<br>$do_get = {<br>    ($request,$response) = @_;<br>    $out = [$response getWriter];<br>    [$response setContentType: "text/html"];<br><br>    $spath = [$request getServletPath];<br>    $filename = [[[$httpservlet getServletConfig] getServletContext] getRealPath: $spath];<br>    $body = [$httpservlet read: $filename];<br>    $result = &amp;eval($body);<br>    if (checkError($error)) {<br>        [$out println: "&lt;html&gt;&lt;h1&gt;Servlet Error&lt;/h1&gt;&lt;body&gt;&lt;xmp&gt;"];<br>        [$out println: $error];<br>        [$out println: "&lt;/xmp&gt;&lt;/body&gt;&lt;/html&gt;"];<br>    } else {<br>        if (!&amp;strlen($result)) {<br>            [$out println: "&lt;html&gt;&lt;h1&gt;Servlet Error&lt;/h1&gt;&lt;body&gt;&lt;xmp&gt;"];<br>            [$out println: [$httpservlet err]];<br>            [$out println: "&lt;/xmp&gt;&lt;/body&gt;&lt;/html&gt;"];<br>        } else {<br>            [$out println: $result];<br>        }<br>    }<br>};<br>[$httpservlet add: "get", $do_get];<br>[$httpservlet add: "post", $do_get];<br><br></font></p></td></tr></tbody></table>
+<br><p>The current instance of ScriptServlet is available as an argument in the local stack for the main closure. The 'get' and 'post'<br>symbols are also set to the '$do_get' closure so that both doGet and doPost gets redirected to $do_get.<br><br></p>
+<p>An example js script that can get executed:<br></p>
+<p><b>/docroot/hello.sl</b> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center">
+<tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">$date = [new java.util.Date];<br>$script = [$request getServletPath];<br>return
+"&lt;html&gt; &lt;head&gt;&lt;title&gt;abc&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt; &lt;h1&gt; Hello at $date from $script";<br></font></p></td></tr></tbody>
+</table>
+<h3>Build  Steps. </h3>
+<p>          The complete sleep-webapp can be downloaded <a title="sleep-webapp" href="../../blue/resource/servlets/sleep-webapp.tar.gz">here</a>. Extract the contents to a directory called 'rhino'<br>inside samples in your installation <span style="font-weight: bold;">(</span><b>samples/java/webapps/rhino</b>). It has to be in that directory to make use<br>of the common.xml during ant build.<br></p>
+<p>Update the js.jar if required. </p>
+<p>Your extracted directory will look like this.</p>
+<p><font size="2" color="#473f42">|cd sleep<br>|find .<br>./docs<br>./docs/index.html<br>./src<br>./src/build.xml<br>./src/SleepServlet.java<br>./src/docroot<br>./src/docroot/WEB-INF<br>./src/docroot/WEB-INF/lib<br>./src/docroot/WEB-INF/lib/sleep.jar<br>./src/docroot/WEB-INF/web.xml<br>./src/docroot/WEB-INF/sun-web.xml<br>./src/docroot/WEB-INF/code<br>./src/docroot/WEB-INF/code/sleep.sl<br>./src/docroot/index.html<br>./src/docroot/hello.sl<br>./src/ScriptServlet.java<br>./deploy.tcl</font> </p>
+<p>The sleep-webapp.war will be created in the sleep directory when you run ant from inside<br>the src. This war file can be deployed on the webserver using the wadm.<br></p>
+<p><font size="2" face="courier new,courier,monospace" color="#0f11ff">wadm </font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -u admin</font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -f deploy.tcl</font><br></p>
+<p> Once the deployment goes through, you will be able to access the js file using the url</p>
+<font size="2" color="#0003ff">http://yourserver:port/sleep/hello.sl</font>  <p>  </p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: scripting</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/java" rel="tag">java</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/jvm" rel="tag">jvm</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/language" rel="tag">language</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/scripting" rel="tag">scripting</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/servlet" rel="tag">servlet</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/sleep" rel="tag">sleep</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/scripting_with_servlets_sleep_part">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
