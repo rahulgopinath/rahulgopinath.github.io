@@ -10,10 +10,10 @@ permalink:        pretty
 title:            Rahul Gopinath
 tagline:          'Computer Science Researcher'
 description:      ''
-url:              http://www.vrtra.net
+url:              http://rahul.gopinath.org
 
 # Custom vars
 version:          2.0.0
 
 github:
-  repo:           https://github.com/vrthra/vrthra.github.io
+  repo:           https://github.com/rahulgopinath/rahulgopinath.github.io
