@@ -29,7 +29,7 @@ with some cleverness such as reservoir sampling to avoid having to generate the
 entire set of mutants before sampling. This does not have other authors.
 
 
-<h3> Notable Past Projects </h3>
+<h3> Notable Past Projects (Open Source) </h3>
 
 [PIT](http://pitest.org): As part of my research in mutation analysis, I have
 contributed newer operators and other fixes for Pit. My empirical studies
@@ -61,7 +61,7 @@ one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for Op
 
 
 
-<h3>Other Notable but Small Projects </h3>
+<h3>Other Notable but Small Open Source Projects </h3>
 
 [v-language](https://github.com/vrthra/v-language) is a simple stack based
 language that is very similar to Postscript and Forth. I wrote this to
@@ -91,4 +91,44 @@ These were written to help with [ruby-hive](https://github.com/vrthra/ruby-hive)
 wrote to orchestrate the testing process in multiple machines. It was
 especially useful for testing the cache protocol implementations CARP, ICP, and
 also SOCKS, and FTP proxies.
+
+<h3>Interesting projects (Non Opensource)</h3>
+
+<h4>2009 Sun Microsystems</h4>
+Cat, Pat, Net, Hive: Implemented the testing frameworks affectionately called
+Cat, Pat and Net for the iPlanet family web and proxy servers. The Cat
+framework was written to test the wadm command line framework, which had two
+modes: stand alone, and TCL (Jacl) scripting. Consequently Cat was implemented
+in both Perl, and TCL (Jacl),
+exposing similar functionalities. It allowed a testing engineer to specify the
+particular command line, and the pattern of output expected as a regular
+expression based on the parameters given in the corresponding command line.
+Pat framework was written in Ruby, and was used to test the iPlanet proxy
+server. It consisted of a program with two threads, one thread the server, and
+the other client, and they communicated to each other through the proxy, and
+verified that the responses from proxy, and the caching subsystem was as
+specified in the HTTP 2616 RFC. The Net library was written in Perl, and was a
+rewrite of CAT to allow it to test the protocol portion of the iPlanet
+webserver itself using similar request-response style test cases. Finally,
+since testing often involved specific machines due to licensing issues of GUI
+testing tools, and also because of the different operating systems, and network
+components such as webserver, proxy, and load balancers, I implemented
+[Hive](https://github.com/vrthra/ruby-hive), an orchestration framework for
+servers. It allowed IRC based co-ordination of different servers with automated
+triggering of test runs corresponding to external events, reporting of test run
+results etc.
+
+
+<h4>2005 Quark Media House</h4>
+Administration Interface using JScheme: While at Quark, implemented a simple
+administration interface for QWAF (Quark Web Application Framework) as
+a personal project at learning Scheme language. It was sufficiently successful
+to be included in the product release.
+
+<h4>2002 SunTec Business Solutions</h4>
+Rating Appliance using OSKit: While at SunTec, prototyped a simple rating
+appliance using [OSKit](https://www.cs.utah.edu/flux/oskit). The OSKit provided
+all the underlying libraries to build the appliance as a kernel, running
+directly on the machine. While the project never went beyond the prototype
+stage, it could boot up, accept rating requests over TCP, and do minimal processing.
 
