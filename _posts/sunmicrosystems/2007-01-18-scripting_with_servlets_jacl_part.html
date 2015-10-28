@@ -1,0 +1,70 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="scripting_with_servlets_jacl_part">
+
+	<h3 class="entry-title">
+			Scripting with servlets [jacl]  - part V  (Sun Java System WebServer 7.0)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Jan 18, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>Scripting with servlets [jacl]  - part V  (Sun Java System WebServer 7.0)<br> </p>
+<h3>About the language<br>
+</h3>
+<p><a href="http://tcljava.sourceforge.net/docs/website/index.html" title="jacl homepage."></a><a href="http://tcljava.sourceforge.net/docs/website/index.html" title="jacl homepage.">Jacl</a> is the implementation of TCL over jvm. It supports interaction with the java objects<br>using the same command notation. While originally a procedural language, extensions like<br>incrTcl can be used provide object orientation to the language.<br><br></p>
+<h3>JaclServlet<br>
+</h3>
+<p>The ScriptServlet developed in the previous <a href="../../blue/entry/scripting_with_servlets_sun_java" target="_blank" title="Scripting servlets with Sun Java System WebServer 7.0">entry</a> is used here as the parent class. <br> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">package com.sun.servlet;<br><br>import java.io.\*;<br>import java.util.\*;<br>import tcl.lang.\*;<br><br>import javax.servlet.http.\*;<br><br>public class JaclServlet extends ScriptServlet {<br><br>    public static Interp jt = new Interp();<br><br>    public void initialize(String handler, Object code) throws Exception {<br>        jt.setVar("httpservlet",ReflectObject.newInstance(jt, JaclServlet.class, this),<br>              TCL.GLOBAL_ONLY);<br>        jt.eval((String)code);<br>    }<br><br>    public void eval(Object fn, HttpServletRequest request, HttpServletResponse response) {<br>        try {<br>            jt.setVar("request",ReflectObject.newInstance(jt, HttpServletRequest.class, request),<br>                  TCL.NAMESPACE_ONLY);<br>            jt.setVar("response",ReflectObject.newInstance(jt, HttpServletResponse.class, response),<br>                  TCL.NAMESPACE_ONLY);<br>            jt.eval((String)fn);<br>        } catch (Exception e) {<br>            e.printStackTrace();<br>        }<br>    }<br>}<br></font></p></td></tr></tbody></table>
+<p> </p>
+<h2>Providing the handler<br>
+</h2>
+<h3>Jvm Bindings.</h3>
+<p>The Java objects are treated as commands with in jacl, allowing to interact with them by<br>using parameters instead of method names. It also provides convenience commands to access<br>fields, create new objects, calling static methods etc.<br></p>
+<p>ie:  System.out.println("mystring") is written as [java::field System out] println "Mystring"<br></p>
+<p><b>docroot/WEB-INF/code/jacl.tcl</b><br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center"><tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">package require java<br><br>set do_get {<br>    set out [$response getWriter]<br>    $response setContentType {text/html}<br>    set spath [$request getServletPath]<br>    set filename [[[$httpservlet getServletConfig] getServletContext] getRealPath $spath]<br>    set e [catch {eval [[$httpservlet read $filename] toString]} o]<br>    if {$e == 1} {<br>        $out println "&lt;html&gt;&lt;body&gt;&lt;h1&gt; ServletError ($o)&lt;/h1&gt;&lt;xmp&gt;"<br>        $out println $errorInfo<br>        $out println {&lt;/xmp&gt;&lt;body&gt;&lt;/html&gt;}<br>    } else {<br>        $out println $o<br>    }<br>}<br><br>$httpservlet add get $do_get<br>$httpservlet add post $do_get<br></font></p></td></tr></tbody></table>
+<br><p>The current instance of ScriptServlet is available as the variable 'httpservlet' inside the script. Since jacl<br>does not have the concept of lexical closures, we are stuck with binding to a variable of our choice, rather than<br>allow the end user to specify it in jacl.<br>Due tothe same reason, rather than setting the symbols 'get' and 'post' to executable functions, we associate<br>them with just strings containing scripts to execute.<br><br></p>
+<p>An example js script that can get executed:<br></p>
+<p><b>/docroot/hello.tcl</b> <br></p>
+<table width="675" height="88" cellspacing="1" cellpadding="1" border="1" align="center">
+<tbody><tr><td style="width: 100%;"><p><font size="2" color="#8e2020">set at [[java::new java.util.Date] toString]<br>set from [$request getServletPath]<br>return "&lt;html&gt; &lt;head&gt;&lt;title&gt;abc&lt;/title&gt;&lt;/head&gt; &lt;body&gt; &lt;h1&gt; Hello at $at from $from &lt;/h1&gt; &lt;/body&gt; &lt;/html&gt;"<br></font></p></td></tr></tbody>
+</table>
+<h3>Build  Steps. </h3>
+<p>          The complete jacl-webapp can be downloaded <a title="jacl-webapp" href="../../blue/resource/servlets/jacl-webapp.tar.gz">here</a>. Extract the contents to a directory called 'jacl'<br>inside samples in your installation <span style="font-weight: bold;">(</span><b>samples/java/webapps/jacl</b>). It has to be in that directory to make use<br>of the common.xml during ant build.<br></p>
+<p>Update the js.jar if required. </p>
+<p>Your extracted directory will look like this.</p>
+<p><font size="2" color="#473f42">|cd jacl<br>|find .<br>./docs<br>./docs/index.html<br>./src<br>./src/build.xml<br>./src/JaclServlet.java<br>./src/docroot<br>./src/docroot/WEB-INF<br>./src/docroot/WEB-INF/lib<br>./src/docroot/WEB-INF/lib/jacl.jar<br>./src/docroot/WEB-INF/lib/tcljava.jar</font><br><font size="2" color="#473f42">./src/docroot/WEB-INF/web.xml<br>./src/docroot/WEB-INF/sun-web.xml<br>./src/docroot/WEB-INF/code<br>./src/docroot/WEB-INF/code/jacl.tcl<br>./src/docroot/index.html<br>./src/docroot/hello.tcl<br>./src/ScriptServlet.java<br>./deploy.tcl</font> </p>
+<p>Please note that the jacl used here is 1.3.3 which is superseeded by Jacl 1.4. If you are using Jacl 1.4, then the number of jars<br>are more. Make sure that you have all the jars from the Jacl 1.4 distribution in your lib directory.<br></p>
+<p>The jacl-webapp.war will be created in the jacl directory when you run ant from inside<br>the src. This war file can be deployed on the webserver using the wadm.<br></p>
+<p><font size="2" face="courier new,courier,monospace" color="#0f11ff">wadm </font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -u admin</font><font size="2" face="courier new,courier,monospace" color="#0f11ff"> -f deploy.tcl</font><br></p>
+<p> Once the deployment goes through, you will be able to access the js file using the url</p>
+<font size="2" color="#0003ff">http://yourserver:port/jacl/hello.tcl</font>  <p><br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: scripting</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/jacl" rel="tag">jacl</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/jvm" rel="tag">jvm</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/scripting" rel="tag">scripting</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/servlets" rel="tag">servlets</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/tcl" rel="tag">tcl</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/scripting_with_servlets_jacl_part">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
