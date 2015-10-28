@@ -1,11 +1,12 @@
 ---
 layout: default
 menu: Rahul Gopinath
+weight: 1
 ---
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 Rahul Gopinath is a PhD candidate in the School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU). He received his B-Tech  from Kerala University, India, and  MCS from Illinois Institute of Technology in 2010.
 
-Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos)  [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
+Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
 Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Mutation Analysis of software test suites, programming languages, and distributed and parallel systems.<br/>
 
@@ -25,59 +26,4 @@ The ideas from my research have resulted in two practical implementations -- MuC
 My interest in quality of programs is informed by a wealth of practical knowledge from the Industry. Before joining the PhD program, I worked in the software industry as a developer for ten years, where I was part of web and proxy server development teams at Quark Media House, and Sun Microsystems. My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the OpenSolaris effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my PhD, I worked at Puppet  Labs where I contributed extensively towards the functionalities in the Solaris Operating system.
 
 
-<h3> Publications </h3>
-
-**Gopinath**, Alipour, Ahmed, Jensen, Groce<br/>
-[_How hard does mutation analysis have to be anyway?_](publications#gopinath-alipour-ahmed-jensen-groce-how-hard-does-mutation-analysis-have-to-be-anyway-issre-2015)<br/>
-ISSRE 2015
-
-Ahmed, Mannan, **Gopinath**, Jensen<br/>
-[_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ](publications#ahmed-mannan-gopinath-jensen-an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time-esem-2015)<br/>
-ESEM 2015
-
-**Gopinath**, Jensen, Groce<br/>
-[_Mutations: How close are they to real faults?_ ](publications#gopinath-jensen-groce-mutations-how-close-are-they-to-real-faults-issre-2014)<br/>
-ISSRE 2014
-
-Groce, Alipour, **Gopinath**<br/>
-[_Coverage and Its Discontents_ ](publications#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)<br/>
-SPLASH 2014
-
-Le, Alipour, **Gopinath**, Groce<br/>
-[_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ](publications#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)<br/>
-ISSTA Tools 2014
-
-**Gopinath**, Jensen, Groce<br/>
-[ _Code coverage for suite evaluation by developers_ ](publications#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014-72-82-2014)<br/>
-ICSE 2014
-
-Erwig, **Gopinath**<br/>
-[_Explanations for Regular Expressions_](publications#erwig-gopinath-explanations-for-regular-expressions-fase12-lncs-7212-394-408-2012)<br/>
-FASE 2012
-
-<h3> Current Projects </h3>
-
-[MuCheck](https://hackage.haskell.org/package/MuCheck): A mutation analysis framework for Haskell
-
-[XMutant](https://pypi.python.org/pypi/xmutant): A mutation analysis framework for Python
-
-<h3> Past Projects </h3>
-
-Contributed patches to [Apache HTTPD](https://httpd.apache.org)
-
-Contributor to [Puppet](https://github.com/puppetlabs/puppet) and [Factor](https://github.com/puppetlabs/facter)
-
-Contributor to [PIT](http://pitest.org) mutation testing framewwork
-
-Contributed patches to [Rubocop](http://batsov.com/rubocop/) Ruby static code analyzer
-
-One of the Authors of [mod-scheme](https://github.com/vrthra/mod-scheme), a Scheme language plugin for Apache HTTPD
-
-Author of [openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox) (prototype) - IBM Mellanox Chef Cookbook for OpenStack
-
-Author of Ruby [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd) - Simple server implementations in Ruby
-
-My github id is [Vrthra](https://github.com/vrthra).
-
-My stackexchange profile for code review is [here](http://codereview.stackexchange.com/users/12593/rahul).
 

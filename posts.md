@@ -3,7 +3,7 @@ layout: page
 title : Posts
 header : Posts
 group: navigation
-weight: 3
+weight: 5
 menu: Posts
 ---
 

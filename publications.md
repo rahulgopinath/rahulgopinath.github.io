@@ -3,7 +3,7 @@ layout: page
 title : Publications
 header : Publications
 group: navigation
-weight: 3
+weight: 2
 menu: Publications
 ---
 

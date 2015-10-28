@@ -1,6 +1,7 @@
 # Dependencies
-markdown:         kramdown
-pygments:         true
+markdown:         redcarpet
+redcarpet:
+  extensions: ["tables", "autolink", "strikethrough", "fenced_code_blocks"]
 
 # Permalinks
 permalink:        pretty
@@ -9,12 +10,10 @@ permalink:        pretty
 title:            Rahul Gopinath
 tagline:          'Computer Science Researcher'
 description:      ''
-url:              http://rahul.gopinath.org
-
-paginate:         5
+url:              http://www.vrtra.net
 
 # Custom vars
 version:          2.0.0
 
 github:
-  repo:           https://github.com/rahulgopinath/rahulgopinath.github.io
+  repo:           https://github.com/vrthra/vrthra.github.io

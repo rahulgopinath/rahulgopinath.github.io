@@ -1,10 +1,10 @@
 ---
 layout: page
-title : Rahul Gopinath
+title : Resume
 header : Rahul Gopinath
 menu: Vita
 group: navigation
-weight: 3
+weight: 4
 ---
 
 * [Education](#education)
