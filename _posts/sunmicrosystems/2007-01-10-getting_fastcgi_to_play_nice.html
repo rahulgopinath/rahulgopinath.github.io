@@ -1,0 +1,91 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="getting_fastcgi_to_play_nice">
+
+	<h3 class="entry-title">
+			Getting FastCGI to play nice with ruby  (Sun Java System Web Server 7.0 )
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Jan 10, 2007</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>I have been trying to get the FastCGI to run ruby using the Sun Java System Web Server 7.0. Since<br>there are some steps involved (albeit simple) I am documenting them here.</p>
+<p>There are two options that you have:</p>
+<p>1) Very minimal with very few packages and minimum configuration. (Pure ruby FastCGI server)<br></p>
+<p>2) More faster and industrial strength with more packages. (FastCGI with Native component)<br></p>
+<p>If you are just interested in getting the FastCGI for ruby to work go with the First option, Incase<br>what you need is more than just that (due to performance considerations) then the Second option<br>is a better choice.<br></p>
+<h2>Option I (minimal configurations)  <br>
+</h2>
+<h3>Prerequesites:</h3>
+<p><a title="fcgi distribution" href="http://www.fastcgi.com/dist/fcgi.tar.gz"></a><a title="RAA" href="http://raa.ruby-lang.org/project/fcgi/">ruby-fcgi</a> (0.8.7)<br><a title="webserver" href="http://www.sun.com/download/products.xml?id=446518d5">Sun Java System Web Server</a> <br></p>
+<h3>Installation: </h3>
+<p><font color="#ff0000">Install the ruby-fcgi (You can also do a </font><font color="#ff0000">gem install of ruby-fcgi)</font><br><b>gzcat
+ruby-fcgi-0.8.7.tar.gz | tar -xvpf -;cd ruby-fcgi-0.8.7;ruby install.rb
+config&amp;&amp;ruby install.rb setup&amp;&amp;sudo ruby install.rb
+install</b><br></p>
+<p>If you are doing a gem install, then this is the command line:<br><b>gem install ruby-fcgi-0.8.7.gem</b></p>
+<h3>Configuring our webserver.</h3>
+<p><font color="#ff0000">Enable fastcgi. </font></p>
+<p>(Editing config files by hand -- you can also do this by using the wadm console.)<br>These files are found under https-xxx/config in the webserver installation directory.<br><br>Open the <b>magnus.conf</b> and add</p>
+<p><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">Init fn="load-modules" shlib="libfastcgi.so" shlib_flags="(global|now)"</font><br><br></p>
+<p>Open <b>mime.types</b> and add this line to the end (If it is not already present).</p>
+<p> </p>
+<p><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">type=application/ruby                            exts=rb<br><br></font></p>
+<p>Open <b>obj.conf</b> and add this line to the default object (Assuming /space/store/fcgi contains<br>your dispatcher.rb script)</p>
+<p><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">&lt;Object name="default"&gt;<br>...<br></font><font color="#0003ff"><font size="2" face="arial,helvetica,sans-serif">Service fn="responder-fastcgi" type="application/ruby" app-path="/usr/local/bin/ruby" app-args="/space/store/fcgi/dispatcher.rb"</font></font><br><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">&lt;/Object&gt; </font></p>
+<p><font color="#0003ff"><font size="2" face="arial,helvetica,sans-serif"></font></font><br><b>dispatcher.rb</b><br><font size="2" face="courier new,courier,monospace" color="#0003ff">===============================<br>#!/usr/local/bin/ruby<br>require "fcgi"<br><br>def getBinding(cgi,env)<br>  return binding<br>end<br><br>FCGI.each_cgi do |cgi|<br>    begin<br>        script = cgi.env_table['PATH_TRANSLATED']<br>        eval File.open(script).read, getBinding(cgi,cgi.env_table)<br>    rescue Exception =&gt; e<br>        puts "Content-type: text/plain\\r\\n\\r\\n"<br>        puts e.message<br>        puts e.backtrace<br>    end<br>end<br>=============================== </font></p>
+<pre><p>Now, once you have done all this, start your webserver, and access </p><p><font color="#0003ff">http://yourwebserver.com:port/hello.rb</font></p><p>You should see this error. Do not worry. this is expected.</p><p><font color="#ff0005">No such file or directory - /space/store/https-agneyam/docs/hello.rb<br>/space/store/fcgi/dispatcher.rb:11:in `initialize'<br>/space/store/fcgi/dispatcher.rb:11<br>/usr/local/lib/ruby/site_ruby/1.9/fcgi.rb:612:in `each_cgi'<br>/usr/local/lib/ruby/site_ruby/1.9/fcgi.rb:609:in `each_cgi'<br>/space/store/fcgi/dispatcher.rb:8<br></font></p><br></pre>
+<p>Now provide the hello.rb in the directory indicated. (The docroot of the installed<br>instance)</p>
+<p><b>hello.rb</b><font size="2" face="courier new,courier,monospace" color="#0003ff"><br>=============================== <br></font><font size="2" face="courier new,courier,monospace" color="#0003ff">puts "Content-type: text/plain\\r\\n\\r\\n"<br>puts "Hi from ruby."<br>=============================== </font></p>
+<pre><p>Now access the same url</p><p><font><font color="#0003ff">http://yourwebserver.com:port/hello.rb</font></font></p></pre>
+<p>This should give you</p>
+<p><font color="#ff0005">Hi from ruby.</font><br></p>
+<pre><font><font color="#0003ff">http://yourwebserver.com:port/hello.rb</font></font></pre>
+<p><br>As you may be already aware, the FastCGI is persistant across requests. So you can<br>set and access persistant ruby global variables. Which also means that you should be<br>careful in doing so as they can lead to unplesent side effects.<br><br>In case your script had any errors they are logged in the webserver temp directory.<br>For unix systems, it is usually in /tmp/http-yourserver-randomchars/FastCgiStub.log</p>
+<p> </p>
+<h2>Option II (Industrial Strength) <br>
+</h2>
+<h3>Prerequesites:</h3>
+<p><a title="fcgi distribution" href="http://www.fastcgi.com/dist/fcgi.tar.gz">fcgi</a> (2.4.0)   (You dont need to install this if you just want to run pure ruby fcgi)<br><a title="RAA" href="http://raa.ruby-lang.org/project/fcgi/">ruby-fcgi</a> (0.8.7)<br><a title="RAA" href="http://raa.ruby-lang.org/project/mmap">ruby-mmap</a> (0.26)</p>
+<p><a title="webserver" href="http://www.sun.com/download/products.xml?id=446518d5">Sun Java System Web Server </a></p>
+<h3>Installation: </h3>
+<p><font color="#ff0f13"> Install the fcgi to your system. (I used Solaris 10.)-- optional.<br></font></p>
+<p>gzcat fcgi.tar.gz | tar -xvpf -<br>cd fcgi-2.4.0<br>./configure<br>make<br>sudo make install</p>
+<p><font color="#ff0000">Install the ruby-mmap (You can also do a </font><font color="#ff0000">gem install of ruby-mmap)</font><br>gzcat mmap.tar.gz | tar -xvpf -;cd mmap-0.2.6;ruby extconf.rb &amp;&amp; make &amp;&amp; sudo make install<br></p>
+<p><font color="#ff0000">Install the ruby-fcgi (You can also do a </font><font color="#ff0000">gem install of ruby-fcgi)</font><br>gzcat ruby-fcgi-0.8.7.tar.gz | tar -xvpf -;cd ruby-fcgi-0.8.7;ruby install.rb config&amp;&amp;ruby install.rb setup&amp;&amp;sudo ruby install.rb install<br></p>
+<p><br>Also download the ruby fastcgi dispatcher written by http://pallas.telperion.info/ruby-cgi/ (Available <a title="local" href="http://blogs.sun.com/blue/resource/ruby-cgi">here </a>too.)</p>
+<h3>Configuring our webserver.</h3>
+<p><font color="#ff0000">Enable fastcgi. </font></p>
+<p>(Editing config files by hand -- you can also do this by using the wadm console.) <br>Open the magnus.conf and add</p>
+<p><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">Init fn="load-modules" shlib="libfastcgi.so" shlib_flags="(global|now)"</font><br><br>Open obj.conf and add this line to the default object</p>
+<p>(Assuming /space/store/fcgi is the place where you are going to store your scripts)</p>
+<p> You can also do it the way I demonstrated earlier (by adding a mimetype of type application/ruby and using<br>Nametrans fn="assign-name". The only change from the above will be in the value of app-args. Ie it should<br>change from <b>dispatcher.rb</b> to the <b>ruby-cgi</b> used here.)<br></p>
+<p><font size="2" face="arial,helvetica,sans-serif" color="#0003ff">&lt;Object name="default"&gt;<br>...<br>NameTrans fn="pfx2dir" from="/fcgi" dir="/space/store/fcgi" name="ruby"<br>&lt;/Object&gt; </font></p>
+<p>Provide the fastcgi object as below. (Assuming /space/store/fcgi contains the ruby fastcgi dispatcher ruby-cgi.)<br></p>
+<p><font color="#0003ff"><font size="2" face="arial,helvetica,sans-serif">&lt;Object name="ruby"&gt;<br>Service fn="responder-fastcgi" app-path="/usr/local/bin/ruby" app-args="/space/store/fcgi/ruby-cgi"<br>&lt;/Object&gt;</font><br></font><br>Now, edit the ruby-cgi dispatcher, and change the line</p>
+<pre><font color="#ff0005">script = cgi.env_table['<b>SCRIPT_FILENAME</b>']</font><br><p>to read </p><pre><font color="#ff0005">script = cgi.env_table['<b>PATH_TRANSLATED</b>'] </font></pre><p>Be sure to place an example script in the same directory<br>ie hello.rb</p><p><font color="#ff0005">puts "Content-type: text/plain\\r\\n\\r\\n"<br>puts "Hello there...\\n" </font></p><p>Be sure to give execute permissions to ruby-cgi and hello.rb</p><p>chmod 755 ruby-cgi<br>chmod 755 hello.rb </p><p>Now, once you have done all this, start your webserver, and access </p><p><font color="#0003ff">http://yourwebserver.com:port/fcgi/hello.rb</font></p><p>You should see</p><p><font color="#ff0005">Hello there...</font></p><p>In case your script had any errors they are logged in the webserver temp directory.<br>For unix systems, it is usually in /tmp/http-yourserver-randomchars/FastCgiStub.log<br></p><p><br></p></pre>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: Sun</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/fastcgi" rel="tag">fastcgi</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/ruby" rel="tag">ruby</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/webserver" rel="tag">webserver</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/getting_fastcgi_to_play_nice">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
