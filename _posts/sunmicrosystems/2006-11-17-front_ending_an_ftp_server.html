@@ -1,0 +1,92 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="front_ending_an_ftp_server">
+
+	<h3 class="entry-title">
+			Front ending an ftp server - Using SunJavaSystem Web Proxy Server to boost Ftp Server performance.
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Nov 17, 2006</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>        Ftp is the storage protocol of the web.<br>by that statement I mean that when ever there is content to be served that is large enough (say more than a 100 MB), Ftp is the protocol of choice in serving it. The reason has to do with the very little amount of configuration you have to do to get a secure Ftp server up and running, and with the fact that the navigation is very easy and intuitive since it mirrors a filesystem. (Some times I tend to think that FTP took over the functions that the Gopher protocol was meant for.). Since the commands provided by Ftp are very restrictive, securing it does not take much effort either.<br></p>
+<p>But this is a protocol with significant communication overhead. Given below is the normal path you have to go through inorder to fetch a file or to list the contents of a directory.</p>
+<p><font size="2" color="#0003ff">&lt;[<br>220 agneyam.india.sun.com FTP server (Version wu-2.6.2+Sun) ready.<br>]<br><font color="#ff0000">&gt;[<br>USER myuser<br>]</font><br>&lt;[<br>331 Password required for myuser.<br>]<br><font color="#ff0000">&gt;[<br>PASS xxxxxxx<br>]</font><br>&lt;[<br>230 User myuser logged in.<br>]<br><font color="#ff0000">&gt;[<br>SYST<br>]</font><br>&lt;[<br>215 UNIX Type: L8 Version: SUNOS<br>]<br><font color="#ff0000">&gt;[<br>PWD<br>]</font><br>&lt;[<br>257 "/home/myuser" is current directory.<br>]<br><font color="#ff0000">&gt;[<br>EPSV<br>]</font><br>&lt;[<br>229 Entering Extended Passive Mode (|||58605|)<br>]<br><font color="#ff0000">&gt;[<br>RETR myfile<br>]</font><br>&lt;[<br>200 PORT command successful.<br>] <br>&lt;[<br>150 Opening BINARY mode data connection for 'myfile' (3 bytes).<br>]<br>&lt;[<br>226 Transfer complete.<br>]</font>
+
+
+</p>
+<p> As you can see, it took 6 commands to actualy transfer a 3 byts long file. This introduces a large overhead when there are a large number of users. For this reason most Ftp servers limit the number of simultaneous users to a small number. (You might be familiar with the 'You are user 101 or 100 users allowed. Please wait a little time and try again' message when there is a new OS release). <br></p>
+<p> Ftp has another trouble, it requires two connections to operate on, the Contol connection and the Data connection. This is different from the way Http operates. This also introduces some hinderance for users who are behind firewalls.<br></p>
+<p> Here is where the webproxy server comes into picture. The webproxy server acts as a gateway between the ftp and the http. ie, it can be configured in such a fashion that the http requests that comes to it are translated to ftp requests by it, and the result of this ftp request is translated back into the http protocol.<br></p>
+<p>Here is how it will operate.</p>
+<p>-&gt;request from client to the proxy: </p>
+<p><font size="2" color="#0003ff">&gt;[GET / HTTP/1.0<br>]</font></p>
+<p>=======From proxy to ftp server======<br><font color="#ff0000">Login with username/passwd (anonymous)<br>send sys and retrieve system type<br>setup data connection<br>retrieve the LIST for directory '/'<br>encode the result of LIST in html</font><br>==============================</p>
+<p>&lt;-response from proxy to client.,<br><font color="#0003ff">&lt;[<br>file1<br>file2<br>] </font></p>
+<p>What you will gain out of this setup, <br>1)  The SunJavaSystem WebproxyServer is multi threaded rather than multi process, which allows it to reuse a single ftp connection for multiple HTTP requests. Which means that this is how the communication will be.</p>
+<p><font size="2">===================================<br></font></p>
+<p><font size="2" color="#0003ff">-&gt;client1 request for /file1</font></p>
+<p><font size="2" color="#ff0000">[proxy logs into ftpserver,</font></p>
+<p><font size="2" color="#ff0000">sends &amp; retrieves sys, </font></p>
+<p><font size="2" color="#ff0000">changes to correct directory</font></p>
+<p><font size="2" color="#ff0000">sets up the data connection</font></p>
+<p><font size="2" color="#ff0000">retrieves the file1.<br></font></p>
+<p><font size="2" color="#ff0000"> ]</font></p>
+<p><font size="2"><font color="#0003ff">&lt;-response to client1  with /file1</font><br></font></p>
+<p><font size="2">=================================== <br></font></p>
+<p><font size="2" color="#0003ff">-&gt;client2 request for /file1</font></p>
+<p><font size="2"><font color="#0003ff">&lt;-response to client2 with cached /file1</font> (note that there is no ftp connection involved.)</font></p>
+<p><font size="2">=================================== <br></font></p>
+<p><font size="2" color="#5200ff">-&gt;client3 request for /file2 </font></p>
+<p><font size="2" color="#ff0000">[use the previous connection</font></p>
+<p><font size="2" color="#ff0000">retrieves file2 </font></p>
+<p><font size="2" color="#ff0000">] </font></p>
+<p><font size="2" color="#0003ff">&lt;-response to client3 with /file2 </font></p>
+<p><font size="2">===================================</font></p>
+<p><font size="2" color="#0003ff">-&gt;client4 request for /dir1/file2 </font></p>
+<p><font size="2" color="#ff0000">[use the previous connection</font></p>
+<p><font size="2" color="#ff0000">change to directory dir1 </font></p>
+<p><font size="2" color="#ff0000">retrieves file2 </font></p>
+<p><font size="2" color="#ff0000">] </font></p>
+<p><font size="2"><font color="#0003ff">&lt;-response to client3 with /file2 </font><br></font></p>
+<p><font size="2"> ===================================</font></p>
+<p> As you can see, there is significant saving in doing this. The number of messages have been cut down drastically.<br></p>
+<h4>Configuring your WebProxy Server:</h4>
+<p>1) download the SunJavaSystem Web Proxy Server <br></p>
+<p>2) Install the server in a directory you wish to,</p>
+<p>3) Edit the obj.conf and add this entry:</p>
+<p>(Add only the entry in <b>bold</b> letters. the rest of the entries are there just to show you where to add this.)</p>
+<p>(change agneyam.india.sun.com to the name of your 'ftpserver')<br></p>
+<p><font size="2">&lt;Object name="default"&gt;<br>AuthTrans fn="match-browser" browser=".\*MSIE.\*" ssl-unclean-shutdown="true"<br><b>NameTrans fn="map" from="/" to="ftp://agneyam.india.sun.com" rewrite-host="true"</b><br>PathCheck fn="url-check"<br>Service fn="deny-service"<br>AddLog fn="flex-log" name="access"<br>&lt;/Object&gt;<br></font></p>
+<p>4) startup the server.<br>5) Access the server from your browser and make sure that everything is alright.<br>ie, in the browser address bar, type (substitute myproxy for your own server name)<br> </p>
+<p><font color="#0003ff">http://myproxy.sun.com</font></p>
+<p>and make sure that you get the listing if anonymous user is supported in your ftp server. If anonymous listing is not supported, you should get a password prompt as a dialog.</p>
+<p>With this configuration, the proxy at myproxy.india.sun.com will act as a front end for the ftpserver that you have configured in obj.conf. (From a user point of view the http://myproxy.sun.com will look like a webserver.)</p>
+<p> </p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: webproxy</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/ftp" rel="tag">ftp</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/proxy" rel="tag">proxy</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/reverse" rel="tag">reverse</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/server" rel="tag">server</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/webproxy" rel="tag">webproxy</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/front_ending_an_ftp_server">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}

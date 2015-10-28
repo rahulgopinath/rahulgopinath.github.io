@@ -1,0 +1,252 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="wadm_in_sjswebserver_7_0">
+
+	<h3 class="entry-title">
+			wadm in  Sun Java System Web Server 7.0 (part II)
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Oct 13, 2006</a>
+</h4>
+
+    <div class="entry-body">
+                                        	
+<b>:Log in to your wadm shell</b>
+<br>The rest of the tutorial assumes that you are on the wadm shell. <br><span style="color: rgb(204, 0, 0); font-weight: bold;"><br>Assume the wadm prompt is "|" so that </span><br style="color: rgb(204, 0, 0); font-weight: bold;"><span style="color: rgb(204, 0, 0); font-weight: bold;">|puts new</span><br style="color: rgb(204, 0, 0); font-weight: bold;"><span style="color: rgb(204, 0, 0); font-weight: bold;">is the wadm command "puts new"</span>
+
+<h2>Global Variables</h2>
+
+The wadm shell behaves differently depending on the values of a few wadm variables. <br>(They all start with 'wadm_' by the way)
+
+<h3>A little exploring with tcl</h3>
+
+Try typing these into the wadm shell
+
+<br><br><span style="font-family: Verdana,Arial,Helvetica,sans-serif; color: rgb(0, 0, 153);">|info vars wadm_\*
+</span><br><span style="font-style: italic;">wadm_histfile wadm_script wadm_debug wadm_savehist wadm_mode wadm_prompt
+
+</span><br><br>These are the variables that are defined by default when you enter the wadm. <br>Let us see the values of each,
+<br><h4>first try:
+
+</h4>
+<span style="color: rgb(0, 0, 153);">|foreach i [info vars wadm_\*] {puts $i}
+</span><br><span style="font-style: italic;">wadm_histfile
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_script
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_debug
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_savehist
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_mode
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_prompt
+
+
+</span><br style="font-style: italic;"><br>This gave you the variables in a pretty printed format. Now to get the values..
+
+<br><br><span style="color: rgb(0, 0, 153);">|foreach i [info vars wadm_\*] { puts $i=[set $i] }
+</span><br><span style="font-style: italic;">wadm_histfile=/home/myhome/.wadm_history
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_script=false
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_debug=false
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_savehist=false
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_mode=shell
+</span><br style="font-style: italic;"><span style="font-style: italic;">wadm_prompt=true
+
+</span><br style="font-style: italic;"><br>We wont bother with the debug, here. but here are the explanations for rest of variables.
+
+<br><br><span style="font-weight: bold;">wadm_script </span>allows you to return tcl lists from the administration commands (By default they do not return any thing) <br>so it is a good habit to set this to true before you do any thing. We will deal with setting up a good rc file later, <br>where you can set it to true by default. Now for the purposes of this tutorial, set it to true like this:
+
+<br><br><span style="color: rgb(0, 0, 153);">|set wadm_script true
+
+</span><br><br><span style="font-weight: bold;">wadm_histfile </span>tells us where the history file will be stored and under what name.
+<br><br><span style="font-weight: bold;">wadm_savehist </span>controlls whether the history will be saved at all. This is also disabled by default due to security <br>considerations. But if you are not logging in to the wadm shell from a public terminal, it is better to leave it on.
+
+<br><br><span style="color: rgb(0, 0, 153);">|set wadm_savehist true
+
+</span><br><br><span style="font-weight: bold;">wadm_mode </span>is a variable that tells us a little about how we were invoked. It can have these values:
+<br>(single | file | shell)
+When a wadm command is invoked directly with out using the shell the mode is set to single.
+<br>ie: 
+<br><div style="margin-left: 40px;">
+<span style="color: rgb(204, 0, 0);">#</span>wadm create-config --config=test1
+
+
+<br>
+</div>
+<br>It is set to file when we invoke the script using the -f option to wadm 
+<br><br>ie: 
+<br><div style="margin-left: 40px;">
+<span style="color: rgb(204, 0, 0);">#</span>wadm -f create-mime.tcl newspiffymime mime.ext
+<br>
+</div>
+<span style="color: rgb(102, 102, 102);">:-assuming create-mime.tcl is a script file that you have written, and it is present in the current directory.
+
+
+</span><br>It is set to shell mode, when we are on the wadm shell (as we are on now.)
+
+<br><br><span style="font-weight: bold;">wadm_prompt </span>is used by some of the commands to decide if the user should be prompted for any confirmation. <br>You will find this info in the help for those commands.
+
+<h3>Setting up the .wadmrc file with some nice entries</h3>
+
+Since we are on with it, let us do that through wadm.
+The file name is .wadmrc, and it is to be placed in your home <br>directory. The wadm knows about the home directory as much as you do. It is stored in an array variable called env. <br>Try:
+
+<br><span style="color: rgb(0, 0, 153);"><br>|array names env
+
+</span><br><br>This will give you all the environmental variables that wadm knows about. To get the value of home, <br>try
+
+<br><span style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 153);"><br>|puts $env(HOME)
+<br><span style="color: rgb(0, 0, 0); font-style: italic;">/home/myhome
+
+</span></span><br><br>Now to open your .wadmrc file:
+
+<br><span style="color: rgb(0, 0, 153);"><br>|set file [open "$env(HOME)/.wadmrc" w]
+
+</span><br><br>Here you are asking the jacl to open the .wadmrc file in 'w' mode (which is 'write') and assign the result <br>to a variable called file.
+
+<br>Now to write some thing to it:
+
+<br><span style="color: rgb(0, 0, 153);"><br>|puts $file "set wadm_script true"</span>
+<br><span style="color: rgb(0, 0, 153);">|puts $file "set wadm_savehist true"
+
+</span><br><br>As you can see, the $file contains the file object (channel in tcl land), on to which we are writing our strings.
+
+<br>I also like to set the user, password and the port to which I will connect to.
+
+<br><span style="color: rgb(0, 0, 153);"><br>|puts $file "set wadm_user admin"
+</span><br><span style="color: rgb(0, 0, 153);">|puts $file "set wadm_password adminadmin"
+</span><br><br>yes you noticed it correctly, there is no need to use a password file so long as you are inside the wadm shell, <br>it will take the wadm_password as a wadm_ variable. This is one of the few brownies you get when using wadm shell.
+<br><br><span style="color: rgb(0, 0, 153);">|puts $file "set wadm_port 1893"
+
+</span><br><br>It is nice to have a default config on which all commands are run. (That way I dont have to specify the --config option)
+
+<br><br><span style="color: rgb(0, 0, 153);">|puts $file "set wadm_config myconfig"
+
+</span><br><br>And ofcource, no shell is complete with out some ability to customize the prompt!
+
+<br>first a tiny procedure to get the prompt string dynamically.
+<br><br><span style="color: rgb(0, 0, 153);">|puts $file {proc var {var} {return $var}}
+
+
+</span><br><span style="color: rgb(0, 0, 153);">|puts $file {set tcl_prompt1 "var |"}
+</span><br style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">|puts $file {set tcl_prompt2 "var :"}
+
+</span><br style="color: rgb(0, 0, 153);"><br>As you can see, using '{}' is another way of quoting a string, which is in effect telling the jacl to leave the contents alone.
+
+<br>We are mostly set. so let us release the file (channel)
+
+<br><br><span style="color: rgb(0, 0, 153);">|close $file
+
+</span><br><br>Just to verify we have done it correctly, (assuming you are on a unix system,) let us ask the system to print it out.
+<br><br><span style="color: rgb(0, 0, 153);">|cat $env(HOME)/.wadmrc
+
+</span><br><span style="font-style: italic;">set wadm_script true</span><br style="font-style: italic;"><span style="font-style: italic;">set wadm_savehist true</span><br style="font-style: italic;"><span style="font-style: italic;">set wadm_user admin</span><br style="font-style: italic;"><span style="font-style: italic;">set wadm_password adminadmin</span><br style="font-style: italic;"><span style="font-style: italic;">set wadm_port 1893</span><br style="font-style: italic;"><span style="font-style: italic;">set wadm_config myconfig</span><br style="font-style: italic;"><span style="font-style: italic;">proc var {var} {return $var}</span><br style="font-style: italic;"><span style="font-style: italic;">set tcl_prompt1 "var |"</span><br style="font-style: italic;"><span style="font-style: italic;">set tcl_prompt2 "var :"</span><br style="font-style: italic;"><br>As you can see, tcl allows you to execute the system commands also from with in.
+
+But we can also go about it in a slightly <br>different fashion:
+
+<br><br><span style="color: rgb(0, 0, 153);">|set f [open $env(HOME)/.wadmrc r]
+</span><br style="color: rgb(0, 0, 153);"><span style="color: rgb(0, 0, 153);">|read -nonewline $f
+<br><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_script true</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_savehist true</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_user admin</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_password adminadmin</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_port 1893</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set wadm_config myconfig</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">proc var {var} {return $var}</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set tcl_prompt1 "var |"</span><br style="font-style: italic; color: rgb(0, 0, 0);"><span style="font-style: italic; color: rgb(0, 0, 0);">set tcl_prompt2 "var :"</span><br style="font-style: italic; color: rgb(0, 0, 0);"></span><span style="color: rgb(0, 0, 153);">|close $f
+</span><br style="color: rgb(0, 0, 153);"><br>This should have printed your current .wadmrc to the screen.
+
+If you want, you can make this into a procedure and place it inside <br>your .wadmrc
+
+<br><br><span style="color: rgb(102, 0, 0);">proc wcat {fname} {
+    </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     set f [open $fname "r"]
+    </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     set data [read -nonewline $f]
+    </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     close $f
+    return $data
+</span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">}
+
+</span><br style="color: rgb(102, 0, 0);"><br>which can be invoked as 
+<br><br><span style="color: rgb(0, 0, 153);">|wcat $env(HOME)/.wadmrc</span>
+
+
+<h2>Looking at what else is available </h2>
+
+the info command comes to our help again.
+<br>try this:
+
+<br><br><span style="color: rgb(0, 0, 153);">|info help
+
+</span><br><span style="font-style: italic;">bad option "help": must be args, body, cmdcount, commands, complete, default, exists, globals, hostname, level, <br>library, loaded, locals, nameofexecutable, patchlevel, procs, script, sharedlibextension, tclversion, or vars</span><br style="font-style: italic;"><br>There is no subcommand named help for info, but it does print what are the allowed subcommands.
+We are interested in the <br>'commands' right now, so let us see what it contains.
+
+<br><br><span style="color: rgb(0, 0, 153);">|info commands
+
+</span><br><br>there! it gives us all the commands that the wadm supports. This is useful in many ways. Suppose you want to do an operation <br>related to mime, here is how you find what operations are supported with mime.
+
+<br><br><span style="color: rgb(0, 0, 153);">|info commands \*mime\*
+</span><br style="color: rgb(0, 0, 153);"><span style="font-style: italic;">delete-mime-type create-mime-type list-mime-types
+
+</span><br><br>You can explore further to see what else the info command will give you.
+
+<h2>Implementing a filter for mimes. </h2>
+
+The mime operations that are provided are pretty nice, but there is a small functionality missing, There is no direct way <br>for the user to see if the particular mime alone that he is interested in. But since we have the wadm in our hands, we can <br>always add this on our own.
+
+<br>Open a file called filtermime.tcl and add this.
+<br><span style="color: rgb(102, 0, 0);">proc filter-mime {filter config vs} {
+   </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(153, 153, 153);">     #incantation to the wadm deity.
+   </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     set ::wadm_script true
+   </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     <span style="color: rgb(102, 102, 102);">#get the list of mimes
+   </span></span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">     set mimes [list-mime-types --config $config --vs $vs]
+   </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 102, 102);">     #the actual engine. Iterate the list $mimes, with each mime in $mime.
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #The $mime variable is a list that contains two parts. The first part
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #has the mime definition, and the second part has extension.
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #eg {application/pdf pdf}
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #eg {application/postscript ai,eps,ps}
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #so we extract just the first portion alone with the [lindex $mime 0]
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 102, 102);">     #and match that against the $filter using the regexp command.
+   </span><br style="color: rgb(102, 102, 102);"><span style="color: rgb(102, 0, 0);">     foreach mime $mimes {
+        </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">          if {[regexp $filter [lindex $mime 0]]} {
+            </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">               puts $mime
+        </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">          }
+    </span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">      }
+</span><br style="color: rgb(102, 0, 0);"><span style="color: rgb(102, 0, 0);">}
+</span><br style="color: rgb(102, 0, 0);"><br style="color: rgb(102, 0, 0);">You can load it into the current environment like this:
+<br><br><span style="color: rgb(0, 0, 153);">|source filtermime.tcl
+
+</span><br><br>and invoke it this way:
+
+<br><br><span style="color: rgb(0, 0, 153);">|filter-mime "text" myconfig myvs
+
+</span><br><br>with the myconfig and myvs replaced with appropriate values, you should be seeing a list of all mimes that has 'text' in them.
+
+
+<h3>Default options</h3>
+wadm shell supports setting options in variables which gets used by default.
+<br>ie,
+type this on the wadm shell, ('tab' for completion)
+
+<br><br><span style="color: rgb(0, 0, 153);">|create-virtual-server --document-root=/ myvs
+</span><br style="color: rgb(0, 0, 153);"><span style="font-style: italic;">Usage: create-virtual-server ... --config=name --document-root=path virtual-server-name
+</span><br style="font-style: italic;"><span style="font-style: italic;">CLI014 config is a required option.
+
+</span><br><br>now, try doing this.
+<br><br><span style="color: rgb(0, 0, 153);">|set wadm_config test
+
+</span><br><br>and try again
+<br><br><span style="color: rgb(0, 0, 153);">|create-virtual-server --document-root=/ myvs
+<br><span style="font-style: italic; color: rgb(0, 0, 0);">CLI201 </span></span><span style="font-style: italic; color: rgb(0, 0, 0);">Command 'create-virtual-server' ran successfully
+
+</span><br><br>As you can see, the wadm_config corresponds to --config. It is the same with all the options passed to the wadm commands. <br>You can convert an option to its corresponding wadm variable by appending 'wadm_' to it and changing any hyphens '-' to <br>underscores '_'.
+
+<br><br>This should have given you an idea about what can be done with wadm. 
+I will explore more advanced topics next time.<br>
+
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: wadm</p>
+        <p class="entry-tags">Tags:  none </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/wadm_in_sjswebserver_7_0">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}

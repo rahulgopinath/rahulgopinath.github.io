@@ -1,0 +1,67 @@
+---
+layout: post
+category : blog
+tagline: "."
+tags : [sunmicrosystems blog sun]
+---
+{% raw %}
+<div class="entry" id="using_openmp_on_a_64">
+
+	<h3 class="entry-title">
+			using openmp on a 64 threads system
+	    </h3>
+
+    <h4 class="entry-meta">By blue on <a href="#">Apr 14, 2009</a>
+</h4>
+
+    <div class="entry-body">
+                                        	<p>What do you do when you get a <a href="http://www.sun.com/servers/coolthreads/t5120/">64 threads machine</a>? I mean other than trying to find the hidden messages in <a href="http://en.wikipedia.org/wiki/Contact_%28novel%29%20">Pi</a>?<br>Our group recently acquired a T5120 behemoth for builds, and I wanted to see what it was capable of.<br></p> 
+  <p> </p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|uname -a</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">
+SunOS hypernova 5.10 Generic_127127-11 sun4v sparc SUNW,SPARC-Enterprise-T5120</font><br><b><font size="2" face="tahoma,arial,helvetica,sans-serif">
+|psrinfo | wc -l</font></b><br><font size="2" face="tahoma,arial,helvetica,sans-serif">
+
+      64</font><br>
+</blockquote> 
+  <p>
+
+In my case I settled a slightly less ambitious endeavor. I recently had to implement Gaussian elimination as part of a university course work, I converted it to use the <a href="http://openmp.org/wp/">OpenMP</a> and compiled with <a href="http://developers.sun.com/solaris/articles/studio_openmp.html">SunStudio</a>.</p> 
+  <blockquote>
+<b><font size="2" face="tahoma,arial,helvetica,sans-serif">|cat Makefile<br></font></b><font size="2" face="tahoma,arial,helvetica,sans-serif">gauss: gauss.omp.c<br>               /opt/SUNWspro/bin/cc -xopenmp=parallel gauss.omp.c -o gauss<br></font>
+</blockquote> 
+  <blockquote><font size="2" face="tahoma,arial,helvetica,sans-serif"><b>|diff -u gauss.single.c gauss.omp.c </b><br><font size="2">--- gauss.single.c      Tue Apr 14 14:32:57 2009<br>+++ gauss.omp.c Tue Apr 14 14:44:48 2009<br>@@ -7,6 +7,7 @@<br> #include &lt;sys/times.h&gt;<br> #include &lt;sys/time.h&gt;<br> #include &lt;limits.h&gt;<br>+#include &lt;omp.h&gt;<br> <br> #define MAXN 10000  /\* Max value of N \*/<br> int N;  /\* Matrix size \*/<br>@@ -35,7 +36,7 @@<br>     char uid[L_cuserid + 2]; /\*User name \*/<br> <br>     seed = time_seed();<br>-    procs = 1;<br>+    procs = <span style="color: #1012ff;">omp_get_num_threads</span>();<br> <br>     /\* Read command-line arguments \*/<br>     switch(argc) {<br>@@ -63,7 +64,7 @@<br>                 exit(0);<br>             }<br>     }<br>-<br>+    <span style="color: #1012ff;">omp_set_num_threads</span>(procs);<br>     srand(seed);  /\* Randomize \*/<br>     /\* Print parameters \*/<br>     printf("Matrix dimension N = %i.\\n", N);<br>@@ -170,6 +171,7 @@<br> <br> }<br> <br>+#define CHUNKSIZE 5<br> void gauss() {<br>     int row, col;  /\* Normalization row, and zeroing<br>                     \* element row and col \*/<br>@@ -178,7 +180,9 @@<br> <br>     /\* Gaussian elimination \*/<br>     for (norm = 0; norm &lt; N - 1; norm++) {<br>+        #<span style="color: #1012ff;">pragma omp parallel shared</span>(A,B) <span style="color: #1012ff;">private</span>(multiplier,col, row)<br>         {<br>+            #<span style="color: #1012ff;">pragma omp for schedule</span>(dynamic, CHUNKSIZE)<br>             for (row = norm + 1; row &lt; N; row++) {<br>                 multiplier = A[row][norm] / A[norm][norm];<br>                 for (col = norm; col &lt; N; col++) {<br></font><br></font></blockquote> 
+  <p>As you can see, the changes are very simple, and requires very little modification to the code. Below was my result running it in a single thread and next using all 64 threads.</p> 
+  <p> First the single threaded version.<br></p> 
+  <blockquote><font size="2" face="tahoma,arial,helvetica,sans-serif"><b>|time ./gauss 10000 1 4 </b><br>Random seed = 4<br>Matrix dimension N = 10000.<br>Number of processors = 1.<br>Initializing...<br>Starting clock.<br>Stopped clock.<br>Elapsed time = 1.11523e+07 ms.<br>(CPU times are accurate to the nearest 10 ms)<br>My total CPU time for parent = 1.11523e+07 ms.<br>My system CPU time for parent = 1080 ms.<br>My total CPU time for child processes = 0 ms.<br>--------------------------------------------<br>./gauss 10000 1 4  11163.06s user 1.64s system <b>99</b>% cpu 3:06:04.96 total<br></font></blockquote> 
+  <p>And now using all threads.<br></p> 
+  <blockquote><font size="2" face="tahoma,arial,helvetica,sans-serif"><b>|time ./gauss 10000 64 4</b><br>
+Random seed = 4<br>Matrix dimension N = 10000.<br>
+Number of processors = 64.<br>Initializing...<br>Starting clock.<br>
+Stopped clock.<br>Elapsed time = 254993 ms.<br>
+(CPU times are accurate to the nearest 10 ms)<br>
+My total CPU time for parent = 1.53976e+07 ms.<br>
+My system CPU time for parent = 37960 ms.<br>
+My total CPU time for child processes = 0 ms.<br>
+--------------------------------------------<br>./gauss 10000 64 4  15371.53s user 38.51s system <b>5757</b>% cpu 4:27.65 total<br></font></blockquote> 
+  <p>     Now I am all set to look for my name in <a href="http://www.cs.berkeley.edu/~ejr/GSI/2000-spring/cs267/assignments/assignment1-results/flab/">Pi</a>. :)</p> 
+  <p>\*the gaussian elimination source is <a href="/blue/resource/gauss.omp.c">here</a>.<br></p>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: Technical</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/blue/tags/multicore" rel="tag">multicore</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/openmp" rel="tag">openmp</a> 
+  	    <a href="https://blogs.oracle.com/blue/tags/parallelization" rel="tag">parallelization</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/blue/entry/using_openmp_on_a_64">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+{% endraw %}
