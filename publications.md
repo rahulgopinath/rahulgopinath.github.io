@@ -15,15 +15,15 @@ menu: Publications
 
 * [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce-alipour-gopinath-coverage-and-its-discontents-essays-2014)
 
-* [Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014](#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
+* [Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools, 2014](#le-alipour-gopinath-groce-mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs-issta-tools-2014)
 
-* [Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014](#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014)
+* [Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE, 2014](#gopinath-jensen-groce-code-coverage-for-suite-evaluation-by-developers-icse-2014)
 
-* [Erwig, Gopinath: _Explanations for Regular Expressions_ FASE 2012](#erwig-gopinath-explanations-for-regular-expressions-fase-2012)
+* [Erwig, Gopinath: _Explanations for Regular Expressions_ FASE, 2012](#erwig-gopinath-explanations-for-regular-expressions-fase-2012)
 
 ---
 
-#### [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE 2015]()
+#### [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
 
 Mutation analysis is considered the best method for
 measuring the adequacy of test suites. However, the number of
