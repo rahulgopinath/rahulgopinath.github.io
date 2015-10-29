@@ -27,7 +27,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 #### 2014,7..9 Intern Puppetlabs U.S.A
 
 * Contributed Solaris 10 and 11 support for [Native Factor](https://docs.puppetlabs.com/puppet/latest/reference/experiments_cfacter.html) bringing parity with the [Ruby Factor](https://puppetlabs.com/facter).
-* Implemented a common build environment for Solaris, Windows, and FreeBSD Native Factor, buld toolchain and its dependencies.
+* Implemented a common build environment for Solaris, Windows, and FreeBSD Native Factor, build toolchain and its dependencies.
 * Investigated utility of different static analysis tools for Ruby code in Puppet, and implemented custom cops for puppet code for using Rubocop.
 
 #### 2013,7..9 Intern Puppetlabs U.S.A

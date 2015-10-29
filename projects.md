@@ -38,7 +38,7 @@ feature parity between Pit and other academic mutation analysis frameworks.
 
 [Apache HTTPD](https://httpd.apache.org): I contributed patches to the Apache
 Httpd project, which includes contributions for mod_proxy, and HTTPD core.
-I have also implemented a small apache module [mod-scheme](https://github.com/vrthra/mod-scheme), a
+I have also implemented a small Apache module [mod-scheme](https://github.com/vrthra/mod-scheme), a
 Scheme language plugin for Apache HTTPD.
 
 
@@ -52,9 +52,9 @@ functionalities for Solaris 10 and Solaris 11.
 I contributed fixes to Rubocop as part of my internship, which included
 studying the feasibility of applying Rubocop to the Puppet codebase.
 
-[Syx](http://github.com/vrthra/syx) Syx was a command line smalltalk originally
+[Syx](http://github.com/vrthra/syx) Syx was a command line Smalltalk originally
 hosted at [googlecode](http://code.google.com/p/syx).  I contributed the
-XWindows API, and also a small window manager in smalltalk for Syx.
+XWindows API, and also a small window manager in Smalltalk for Syx.
 
 [openstack-mellanox-cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox): I was
 one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for OpenStack.
@@ -69,20 +69,20 @@ understand concatenative programming. Originally written in Java, it provides
 a simple MOP and word invocation through pattern matches. The rewrite in C also
 provides a simple reference counting GC. I later rewrote [V in Haskell](https://github.com/vrthra/v)
 
-[bibprolog](https://github.com/vrthra/bibprolog) is a simple swi-prolog based
-command line tool to query bibtex databases. It uses simple terminal based
-colouring to indicate relevant parts of bibtex entries queried.
+[bibprolog](https://github.com/vrthra/bibprolog) is a simple SWI-Prolog based
+command line tool to query Bibtex databases. It uses simple terminal based
+coloring to indicate relevant parts of Bibtex entries queried.
 
-[tdlogic](https://github.com/vrthra/tdlogic) is another gprolog based
+[tdlogic](https://github.com/vrthra/tdlogic) is another GNU-Prolog based
 command line todo list manager. As with bibprolog, tdlogic also uses terminal
-colouring to indicate priorities and tags.
+coloring to indicate priorities and tags.
 
 [qbugs](https://github.com/vrthra/qbugs) is a simple command line interface
 written in Java to query Bugster, which was used in Sun Microsystems. Bugster
 was a Java swing application that had a horrible user interface. Qbugs had
 auto-completion, filtering, piping, and other conveniences.
 
-[trans](https://github.com/vrthra/trans) is a tiny little tcp proxy that can
+[trans](https://github.com/vrthra/trans) is a tiny little TCP proxy that can
 be used to debug TCP connections. I wrote it to help me with my proxy work.
 
 I have also written a few small ruby daemons that are reasonably feature
@@ -143,8 +143,8 @@ administration interface for QWAF (Quark Web Application Framework) as
 a personal project at learning Scheme language. It was sufficiently successful
 to be included in the product release.
 
-<h4>2002 SunTec Business Solutions</h4>
-Rating Appliance using OSKit: While at SunTec, prototyped a simple rating
+<h4>2002 Suntec Business Solutions</h4>
+Rating Appliance using OSKit: While at Suntec, prototyped a simple rating
 appliance using [OSKit](https://www.cs.utah.edu/flux/oskit). The OSKit provided
 all the underlying libraries to build the appliance as a kernel, running
 directly on the machine. While the project never went beyond the prototype
