@@ -7,19 +7,26 @@ weight: 2
 menu: Publications
 ---
 
-* [Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be anyway?_ ISSRE, 2015](#gopinath2015how)
+* [_How hard does mutation analysis have to be anyway?_](#gopinath2015how)<br/>
+  Gopinath, Alipour, Ahmed, Jensen, Groce - ISSRE, 2015
 
-* [Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM, 2015](#ahmed2015an)
+* [_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_](#ahmed2015an)<br/>
+  Ahmed, Mannan, Gopinath, Jensen - ESEM, 2015
 
-* [Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE, 2014](#gopinath2014mutations)
+* [_Mutations: How close are they to real faults?_](#gopinath2014mutations)<br/>
+  Gopinath, Jensen, Groce - ISSRE, 2014
 
-* [Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014](#groce2014coverage)
+* [_Coverage and Its Discontents_](#groce2014coverage)<br/>
+  Groce, Alipour, Gopinath - Essays 2014
 
-* [Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools, 2014](#le2014mucheck)
+* [_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_](#le2014mucheck)<br/>
+  Le, Alipour, Gopinath, Groce -  ISSTA Tools, 2014
 
-* [Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE, 2014](#gopinath2014code)
+* [_Code coverage for suite evaluation by developers_](#gopinath2014code)<br/>
+  Gopinath, Jensen, Groce - ICSE, 2014
 
-* [Erwig, Gopinath: _Explanations for Regular Expressions_ FASE, 2012](#erwig2012explanations)
+* [_Explanations for Regular Expressions_](#erwig2012explanations)<br/>
+  Erwig, Gopinath - FASE, 2012
 
 ---
 
