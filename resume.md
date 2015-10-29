@@ -50,6 +50,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * Contributed implementation of FTP, (SSL) CONNECT and SOCKS protocols for proxy server.
 * Contributed to caching subsystem including cache manipulation tools, cache eviction, and 
         implementations of ICP and CARP cache coordination protocols.
+* Contributed to light-weight session failover -- a clustering framework for Web Server.
 
 #### 2002--2004 Member of Technical Staff Quark Media House Chandigarh
 
