@@ -6,7 +6,7 @@ menu: Vita
 group: navigation
 weight: 4
 ---
-
+<!--
 You can find my resume in pdf format [here](/resources/resume.pdf).
 
 * [Education](#education)
@@ -15,7 +15,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * [OpenSource](#opensource)
 * [Research Interests](#research-interests)
 * [Achievements](#achievements)
-
+-->
 ### [Education]()
 
 * 2016 Ph.D. Oregon State University, USA (expected) 
