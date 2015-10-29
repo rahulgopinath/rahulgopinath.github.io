@@ -11,7 +11,6 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 * [Education](#education)
 * [Experience](#experience)
-* [Highlights](#highlights)
 * [Publications](#publications)
 * [OpenSource](#opensource)
 * [Research Interests](#research-interests)
