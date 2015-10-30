@@ -6,6 +6,7 @@ tags: [post]
 categories: [blog]
 ---
 The main idea was investigate static analysis tools for ruby, keeping in mind the following concerns.
+
 * It should be more useful than being just a linter
 * The idea is to incorporate it to the CI, and invoke it before a commit. 
 * It should be configurable and extensible (And not be too opinionated)
@@ -31,6 +32,7 @@ The main idea was investigate static analysis tools for ruby, keeping in mind th
 [Recommendations](#recommendations)
 
 ## [Rubocop](https://github.com/bbatsov/rubocop)
+
 Of the tools investigated, rubocop seems to be the most mature and featured static analysis tool available. However, it does not really do a full static analysis of ruby code as much as Diamondback Ruby or Laser attempts to do, for example, arity of methods, non termination detection, double inclusion, whether block arguments are used etc, or typing errors.
 
 ### Features
@@ -42,6 +44,7 @@ A large number of checkers are provided, which are divided into two groups
 The reasoning behind each checker is provided in the [ruby style guide](https://github.com/bbatsov/ruby-style-guide) maintained by the author. Of the given checkers, I found the following to be the most useful
 
 * Lint/ConditionPosition
+
 ```
 if cond()
 elsif   # this should probably be else
@@ -49,13 +52,16 @@ elsif   # this should probably be else
  z = othermethod
 end
 ```
+
 * Lint/ElseLayout
+
 ```
 if cond()
 else y = mymethod  # this should probably be elsif
  z = othermethod
 end
 ```
+
 * Lint/UnreachableCode
 
 ```
@@ -64,11 +70,15 @@ def mymethod(a)
   return x + 1
   y = x + 2
 ```
+
 * Lint/UselessComparision
+
 ```
 mycollection.sort{|a,b| a <=> a} # should probably be a <=> b
 ```
+
 * Lint/LiteralInterpolation
+
 ```
 x = "Here is #{'Some code'}"
 ```
@@ -76,6 +86,7 @@ x = "Here is #{'Some code'}"
 Other than these checkers that actually found existing problems, there are a few checkers that I think would be nice to enable
 
 * Lint/EnsureReturn
+
 ```
 def mymethod
    if mycond() throw MyException
@@ -84,32 +95,42 @@ ensure
   return nil  # silently eats the MyException
 end
 ```
+
 * Lint/HandleException
+
 ```
 def mymethod
   myothermethod()
 rescue Exception => e # eats all exceptions
 end
 ```
+
 * Lint/LiteralInCondition
+
 ```
 if (1 + 2 > 3)  # unintentional?
 end
 ```
+
 * Lint/ShadowingOuterVariable
+
 ```
 def mymethod(mycoll)
   x = 100
   mycoll.collect{|x| x + 2} # which x? 
 end
 ```
+
 * Lint/AssignmentInCondition
+
 ```
 unless x = mymethod()    # should indicate intention with: unless (x = mymethod()); x.another(); end
   x.another()
 end
 ```
+
 * Lint/AndOr
+
 ```
 if (a and b)  # restrict _and_ and _or_ to control flow :  
   dofoo
@@ -118,6 +139,7 @@ end
 Suggested by [sharpie](https://github.com/Sharpie)
 
 ### Limitations
+
 * Restricted to > 1.9.2
 * Requires native code (parser)
 * Really hard to add more complicated cops due to the way the application is structured. For example, I tried to add a cop that would warn on assignment in condition only if the variable being assigned to, already had a value. However, the callbacks are such that, the information about variable scopes are not available at the time assignment in condition is called.
@@ -161,6 +183,7 @@ Simple linter. Supports a very limited subset of rubocop.
 ## [Excellent](https://github.com/simplabs/excellent/wiki)
 
 ### Features
+
 * AbcMetricMethodCheck – reports methods with an ABC metric score that is higher than the threshold.
 * AssignmentInConditionalCheck – reports conditionals that test an assignment.
 * CaseMissingElseCheck – reports case statements that don’t have an else clause.
@@ -206,12 +229,14 @@ Unfortunately, for the two ruby versions (1.9.3, 2.1.0) tried, ruby-lint exits w
 ### Uses rubocop 0.22 (latest rubocop is 0.24.1)
 
 This means that a few important features (for us) are missing. It includes
+
 * Ability to configure directories separately (Include|Exclude) (for enabling strict lib/puppet/pops )
 * Or inheritance (another way to do the above) (There can be only one .hound.yml file per project)
 * Configuration style is some what different between 0.22 and 0.24.1 rubocop, so we cant reuse our configuration directly on newer rubocop.
 
 
 Some cops may be missing, however, the coops we are initially interested in were there
+
 * AndOr
 * ElseLayout
 * ConditionPosition
