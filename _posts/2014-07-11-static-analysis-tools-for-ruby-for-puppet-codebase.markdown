@@ -69,6 +69,7 @@ def mymethod(a)
   x = a
   return x + 1
   y = x + 2
+end
 ```
 
 * Lint/UselessComparision
