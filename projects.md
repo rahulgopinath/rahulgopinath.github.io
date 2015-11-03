@@ -87,8 +87,12 @@ be used to debug TCP connections. I wrote it to help me with my proxy work.
 
 I have also written a few small ruby daemons that are reasonably feature
 complete in terms of the protocols they implement: [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd).
-These were written to help with [ruby-hive](https://github.com/vrthra/ruby-hive) which I
-wrote to orchestrate the testing process in multiple machines. It was
+These were written to help with [ruby-hive](https://github.com/vrthra/ruby-hive)
+([docs](https://code.google.com/p/ruby-hive/)) which I
+wrote to help with distributed testing.
+
+[ruby-hive](https://code.google.com/p/ruby-hive/) A framework for machine orchestration
+that I wrote to orchestrate the testing process in multiple machines. It was
 especially useful for testing the cache protocol implementations CARP, ICP, and
 also SOCKS, and FTP proxies.
 
