@@ -60,7 +60,7 @@ and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
 [Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
-
+[Presentation](/resources/issre2015/gopinath2015howhard.pptx) 
 #### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
