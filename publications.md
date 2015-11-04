@@ -97,6 +97,7 @@ for others. Moreover, our results suggest that mutation analysis stands in need 
 between mutant detection and detection of actual program faults in a larger body of real programs. 
 
 [Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](http://eecs.osuosl.org/rahul/issre2014/)
+[Presentation](/resources/issre2014/gopinath2014mutations.pptx) 
 
 #### <a name='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 
