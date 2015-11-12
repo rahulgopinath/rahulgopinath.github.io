@@ -37,7 +37,7 @@ suggest that these added operators are sufficient to bring mutation operator
 feature parity between Pit and other academic mutation analysis frameworks.
 
 [Apache HTTPD](https://httpd.apache.org): I contributed patches to the Apache
-Httpd project, which includes contributions for mod_proxy, and HTTPD core.
+HTTPd project, which includes contributions for mod_proxy, and HTTPD core.
 I have also implemented a small Apache module [mod-scheme](https://github.com/vrthra/mod-scheme), a
 Scheme language plugin for Apache HTTPD.
 
@@ -96,7 +96,7 @@ that I wrote to orchestrate the testing process in multiple machines. It was
 especially useful for testing the cache protocol implementations CARP, ICP, and
 also SOCKS, and FTP proxies.
 
-[ps-fun](https://github.com/vrthra/trans) A concatenative and functional
+[ps-fun](https://github.com/vrthra/ps-fun) A concatenative and functional
 library for the postscript language.
 
 <h3>Interesting projects (Non Opensource)</h3>
