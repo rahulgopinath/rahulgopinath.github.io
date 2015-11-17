@@ -12,7 +12,7 @@ img.aligncenter {display: block; margin-left: auto; margin-right: auto; }
 
 .alignright {float: right;}
 .alignleft {float: left;}
-.wp-caption { margin: 5px; padding: 5px; border: solid 1px black; background: #ffffff; font-size: 90%; color: gray}
+.wp-caption { margin: 5px; padding: 5px; border: solid 1px gray; background: #ffffff; font-size: 90%; color: gray}
 </style>
 This is an expansion on the implications of our [recent publication](http://rahul.gopinath.org/publications/#gopinath2014mutations) on the Competent Programmer Hypothesis.
 
