@@ -53,14 +53,14 @@ it can result in a range of results. For example, the resulting failure can beco
 
 <div class="wp-caption alignleft" style='float:left'>
 <img  style="float: left;"  src="/resources/posts/circle-interacting-large.png"/><br/>
-Fig.5 Interacting faults resulting a larger semantic footprint.
+Fig.5 Complex fault with a larger semantic footprint.
 </div>
 
 Similarly, the faults may even interact with each other, curtailing the propagation of error, such that the final failure is only detectable by a subset of test cases that were able to detect the constituent faults (Fig.6).
 
 <div class="wp-caption alignleft" style="float: left;"  >
 <img  style="float: left;"  src="/resources/posts/circle-interacting-small.png"/><br/>
-Fig.6 Interacting faults resulting in a smaller semantic footprint.
+Fig.6 Complex fault with a smaller semantic footprint.
 </div>
 
 The *Coupling Effect* suggests that the former is more probable than the later. That is, the complex faults are generally more easier to detect than simple faults.
