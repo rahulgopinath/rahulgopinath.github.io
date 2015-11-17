@@ -51,7 +51,7 @@ Fig.4 Interacting faults.
 
 it can result in a range of results, between a large encompassing fault  (Fig.5)
 
-<div class="wp-caption aligncenter" style='float:left'>
+<div class="wp-caption alignleft" style='float:left'>
 <img  style="float: left;"  src="/resources/posts/circle-interacting-large.png"/><br/>
 Fig.5 Interacting faults resulting a larger semantic footprint.
 </div>
@@ -59,7 +59,7 @@ Fig.5 Interacting faults resulting a larger semantic footprint.
 or faults to cancel each other out completely (Fig.6).
 
 <div class="wp-caption alignleft" style="float: left;"  >
-<img src="/resources/posts/circle-interacting-small.png"/><br/>
+<img  style="float: left;"  src="/resources/posts/circle-interacting-small.png"/><br/>
 Fig.6 Interacting faults resulting in a smaller semantic footprint.
 </div>
 
