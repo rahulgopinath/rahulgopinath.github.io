@@ -30,13 +30,13 @@ Fig.1 A perfect program.
 Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface, as we see in (Fig.2).
 
 <div class="wp-caption aligncenter" style='float:left'>
-<img src="/resources/posts/1bug-circle.png"/>
+<img src="/resources/posts/1bug-circle.png"/><br/>
 Fig.2 A program with a simple fault.
 </div>
 It can be found by an appropriate test case that checks for imperfection at that point. Of course, in real world, the situation is more complex, with multiple faults (Fig.3)
 
 <div class="wp-caption aligncenter" style='float:right'>
-<img style="float: right;" src="/resources/posts/multibug-circle.png"/>
+<img style="float: right;" src="/resources/posts/multibug-circle.png"/><br/>
 Fig.3 A program with multiple faults.
 </div>
 
@@ -45,21 +45,21 @@ Remember that a test suite is a specification for the behavior of a system. The 
 So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact such as in (Fig.4)
 
 <div class="wp-caption aligncenter" style='float:right'>
-<img src="/resources/posts/circle-interacting.png"/>
+<img src="/resources/posts/circle-interacting.png"/><br/>
 Fig.4 Interacting faults.
 </div>
 
 it can result in a range of results, between a large encompassing fault 
 
 <div class="wp-caption aligncenter" style='float:left'>
-<img src="/resources/posts/circle-interacting-large.png"/>
+<img src="/resources/posts/circle-interacting-large.png"/><br/>
 Fig.4 Interacting faults resulting a larger semantic footprint.
 </div>
 
 or faults to cancel each other out completely (Fig.4).
 
 <div class="wp-caption aligncenter" style='float:left'>
-<img src="/resources/posts/circle-interacting-small.png"/>
+<img src="/resources/posts/circle-interacting-small.png"/><br/>
 Fig.4 Interacting faults resulting in a smaller semantic footprint.
 </div>
 
