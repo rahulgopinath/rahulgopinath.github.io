@@ -42,6 +42,8 @@ Fig.3 A program with multiple faults.
 
 Remember that a test suite is a specification for the behavior of a system. The question that mutation analysis seeks to answer is, how closely do the tests specify behavior of the system. For this, we start with the assumption (irrespective of the actual condition) that the program as it is written is the correct one. The question is how much variation of this program is permitted by the test suite. The more variation a test suite permits, the worse it is, as a specification.
 
+The percentage of mutants that is thus detected is taken as a measure of the effectiveness of the test suite in question (in that the specification allows only that much room for variation).
+
 So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact such as in (Fig.4)
 
 <div class="wp-caption aligncenter" style='float:right'>
