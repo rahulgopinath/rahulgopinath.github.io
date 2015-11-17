@@ -8,6 +8,7 @@ categories: [post]
 <style>
 img.alignright {padding: 4px; margin: 0 0 2px 7px; display inline; }
 img.alignleft {padding: 4px; margin: 0 7px 2px 0; display inline; }
+img.aligncenter {display: block; margin-left: auto; margin-right: auto; }
 
 .alignright {float: right;}
 .alignleft {float: left;}
@@ -22,7 +23,7 @@ Mutation analysis relies on two fundamental assumptions --- *The Competent Progr
 For some intuition about what this means, consider a perfect program as a perfect sphere. 
 
 <div class="wp-caption">
-<img style="float: right;" src="/resources/posts/circle.png"/><br/>
+<img src="/resources/posts/circle.png"/><br/>
 Fig.1 A perfect program.
 </div>
 
