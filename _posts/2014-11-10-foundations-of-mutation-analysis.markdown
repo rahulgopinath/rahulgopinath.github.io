@@ -58,8 +58,8 @@ Fig.5 Complex fault with a larger semantic footprint.
 
 Similarly, the faults may even interact with each other, curtailing the propagation of error, such that the final failure is only detectable by a subset of test cases that were able to detect the constituent faults (Fig.6).
 
-<div class="wp-caption alignleft" style="float: left;"  >
-<img  style="float: left;"  src="/resources/posts/circle-interacting-small.png"/><br/>
+<div class="wp-caption alignright" style="float: right;"  >
+<img  style="float: right;"  src="/resources/posts/circle-interacting-small.png"/><br/>
 Fig.6 Complex fault with a smaller semantic footprint.
 </div>
 
