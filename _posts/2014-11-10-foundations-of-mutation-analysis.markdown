@@ -2,6 +2,8 @@
 published: true
 title: Foundations of Mutation Analysis
 layout: post
+tags: [mutation]
+categories: [post]
 ---
 This is an expansion on the implications of our [recent publication](http://rahul.gopinath.org/publications/#gopinath2014mutations) on the Competent Programmer Hypothesis.
 
