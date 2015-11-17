@@ -1,3 +1,11 @@
+---
+published: true
+title: Foundations of Mutation Analysis
+layout: post
+tags: [mutation]
+categories: [post]
+---
+
 This is an expansion on the implications of our [recent publication](http://rahul.gopinath.org/publications/#gopinath2014mutations) on the Competent Programmer Hypothesis.
 
 A few definitions: A *mistake* is a problem in the logical conceptualization of the program in the programmers mind. A *fault* is a lexical problem within a program, which can lead to compilation error if the compiler catches it, or can lead to incorrect program if the compiler fails to catch it. An *error* is an incorrect state during the execution of a program which happens due to the execution passing through a *fault* (for our purposes -- there can be other causes of errors). When the *error* manifests in a detectable deviation in behavior of the program, we call the deviation a *failure*.
