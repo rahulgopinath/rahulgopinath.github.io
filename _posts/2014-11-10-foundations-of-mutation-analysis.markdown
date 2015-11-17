@@ -58,7 +58,7 @@ Fig.5 Interacting faults resulting a larger semantic footprint.
 
 or faults to cancel each other out completely (Fig.6).
 
-<div class="wp-caption alignleft" style='float:left'>
+<div class="wp-caption alignleft">
 <img style="float: left;"  src="/resources/posts/circle-interacting-small.png"/><br/>
 Fig.6 Interacting faults resulting in a smaller semantic footprint.
 </div>
