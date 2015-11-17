@@ -49,18 +49,18 @@ So, now we can see why we need the *Competent Programmer Hypothesis*. We need it
 Fig.4 Interacting faults.
 </div>
 
-it can result in a range of results, between a large encompassing fault 
+it can result in a range of results, between a large encompassing fault  (Fig.5)
 
 <div class="wp-caption aligncenter" style='float:left'>
-<img src="/resources/posts/circle-interacting-large.png"/><br/>
-Fig.4 Interacting faults resulting a larger semantic footprint.
+<img  style="float: left;"  src="/resources/posts/circle-interacting-large.png"/><br/>
+Fig.5 Interacting faults resulting a larger semantic footprint.
 </div>
 
-or faults to cancel each other out completely (Fig.4).
+or faults to cancel each other out completely (Fig.6).
 
 <div class="wp-caption aligncenter" style='float:left'>
-<img src="/resources/posts/circle-interacting-small.png"/><br/>
-Fig.4 Interacting faults resulting in a smaller semantic footprint.
+<img style="float: right;"  src="/resources/posts/circle-interacting-small.png"/><br/>
+Fig.6 Interacting faults resulting in a smaller semantic footprint.
 </div>
 
 The *Coupling Effect* suggests that the former is more probable than the later. That is, the complex faults are generally more easier to detect than simple faults.
