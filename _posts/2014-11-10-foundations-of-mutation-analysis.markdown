@@ -22,9 +22,8 @@ Mutation analysis relies on two fundamental assumptions --- *The Competent Progr
 For some intuition about what this means, consider a perfect program as a perfect sphere. 
 
 <div class="wp-caption alignright">
-<img style="float: right;" src="/resources/posts/circle.png"/>
-A perfect program.
-</div>
+<img style="float: right;" src="/resources/posts/circle.png"/><br/>
+A perfect program.</div>
 
 Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface, as we see below.
 
