@@ -20,34 +20,48 @@ A few definitions: A *mistake* is a problem in the logical conceptualization of 
 
 Mutation analysis relies on two fundamental assumptions --- *The Competent Programmer Hypothesis* and *The Coupling Effect*. The *Competent Programmer Hypothesis* states that programmers make simple mistakes, such that the new fixed program is not completely different, but within the neighborhood of the original. The *Coupling Effect* states that if a test case is able to identify faults in isolation, it will overwhelmingly be able to identify it even in the presence of other faults.
 
-For some intuition about what this means, consider a perfect program as a perfect sphere. 
+For some intuition about what this means, consider a perfect program as a perfect sphere (Fig.1). 
 
 <div class="wp-caption aligncenter" style='float:right'>
 <img src="/resources/posts/circle.png"/><br/>
 Fig.1 A perfect program.
 </div>
 
-Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface, as we see below.
+Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface, as we see in (Fig.2).
 
-<img style="float: left;" src="/resources/posts/1bug-circle.png"/>
+<div class="wp-caption aligncenter" style='float:left'>
+<img src="/resources/posts/1bug-circle.png"/>
+Fig.2 A program with a simple fault.
+</div>
+It can be found by an appropriate test case that checks for imperfection at that point. Of course, in real world, the situation is more complex, with multiple faults (Fig.3)
 
-It can be found by an appropriate test case that checks for imperfection at that point. Of course, in real world, the situation is more complex, with multiple faults
-
+<div class="wp-caption aligncenter" style='float:right'>
 <img style="float: right;" src="/resources/posts/multibug-circle.png"/>
+Fig.3 A program with multiple faults.
+</div>
 
 Remember that a test suite is a specification for the behavior of a system. The question that mutation analysis seeks to answer is, how closely do the tests specify behavior of the system. For this, we start with the assumption (irrespective of the actual condition) that the program as it is written is the correct one. The question is how much variation of this program is permitted by the test suite. The more variation a test suite permits, the worse it is, as a specification.
 
-So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact such as below
+So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact such as in (Fig.4)
 
-<img style="float: right;" src="/resources/posts/circle-interacting.png"/>
+<div class="wp-caption aligncenter" style='float:right'>
+<img src="/resources/posts/circle-interacting.png"/>
+Fig.4 Interacting faults.
+</div>
 
 it can result in a range of results, between a large encompassing fault 
 
-<img style="float: left;" src="/resources/posts/circle-interacting-large.png"/>
+<div class="wp-caption aligncenter" style='float:left'>
+<img src="/resources/posts/circle-interacting-large.png"/>
+Fig.4 Interacting faults resulting a larger semantic footprint.
+</div>
 
-or faults to cancel each other out completely.
+or faults to cancel each other out completely (Fig.4).
 
-<img style="float: left;" src="/resources/posts/circle-interacting-small.png"/>
+<div class="wp-caption aligncenter" style='float:left'>
+<img src="/resources/posts/circle-interacting-small.png"/>
+Fig.4 Interacting faults resulting in a smaller semantic footprint.
+</div>
 
 The *Coupling Effect* suggests that the former is more probable than the later. That is, the complex faults are generally more easier to detect than simple faults.
 
