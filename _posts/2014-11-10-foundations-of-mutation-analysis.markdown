@@ -1,21 +1,36 @@
----
-published: true
-title: Foundations of Mutation Analysis
-layout: post
-tags: [mutation]
-categories: [post]
----
 This is an expansion on the implications of our [recent publication](http://rahul.gopinath.org/publications/#gopinath2014mutations) on the Competent Programmer Hypothesis.
 
 A few definitions: A *mistake* is a problem in the logical conceptualization of the program in the programmers mind. A *fault* is a lexical problem within a program, which can lead to compilation error if the compiler catches it, or can lead to incorrect program if the compiler fails to catch it. An *error* is an incorrect state during the execution of a program which happens due to the execution passing through a *fault* (for our purposes -- there can be other causes of errors). When the *error* manifests in a detectable deviation in behavior of the program, we call the deviation a *failure*.
 
 Mutation analysis relies on two fundamental assumptions --- *The Competent Programmer Hypothesis* and *The Coupling Effect*. The *Competent Programmer Hypothesis* states that programmers make simple mistakes, such that the new fixed program is not completely different, but within the neighborhood of the original. The *Coupling Effect* states that if a test case is able to identify faults in isolation, it will overwhelmingly be able to identify it even in the presence of other faults.
 
-For some intuition about what this means, consider a perfect program as a perfect sphere. ![Circle](/resources/posts/circle.png). Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface ![1bug](/resources/posts/1bug-circle.png), and can be found by an appropriate test case that checks for imperfection at that point. Of course, in real world, the situation is more complex, with multiple faults  ![multibug](/resources/posts/multibug-circle.png).
+For some intuition about what this means, consider a perfect program as a perfect sphere. 
+
+<img style="float: right;" src="/resources/posts/circle.png"/>
+
+Any bugs (faults) that cause a failure in this program can be represented as a dimple in the sphere surface, as we see below.
+
+<img style="float: left;" src="/resources/posts/1bug-circle.png"/>
+
+It can be found by an appropriate test case that checks for imperfection at that point. Of course, in real world, the situation is more complex, with multiple faults
+
+<img style="float: right;" src="/resources/posts/multibug-circle.png"/>
 
 Remember that a test suite is a specification for the behavior of a system. The question that mutation analysis seeks to answer is, how closely do the tests specify behavior of the system. For this, we start with the assumption (irrespective of the actual condition) that the program as it is written is the correct one. The question is how much variation of this program is permitted by the test suite. The more variation a test suite permits, the worse it is, as a specification.
 
-So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact![circle-interacting](/resources/posts/circle-interacting.png), it can result in a range of results, between a large encompassing fault ![large fault](/resources/posts/circle-interacting-large.png), or faults to cancel each other out completely ![small fault](/resources/posts/circle-interacting-small.png). The *Coupling Effect* suggests that the former is more probable than the later. That is, the complex faults are generally more easier to detect than simple faults.
+So, now we can see why we need the *Competent Programmer Hypothesis*. We need it because we are trying to determine how many variants of the program within the *neighborhood* is allowed, and CPH allows us to discount the programs that are lexically distant. The *Coupling Effect* is necessary because it specifies the outcome of interactions. For example, when two faults interact such as below
+
+<img style="float: right;" src="/resources/posts/circle-interacting.png"/>
+
+it can result in a range of results, between a large encompassing fault 
+
+<img style="float: left;" src="/resources/posts/circle-interacting-large.png"/>
+
+or faults to cancel each other out completely.
+
+<img style="float: left;" src="/resources/posts/circle-interacting-small.png"/>
+
+The *Coupling Effect* suggests that the former is more probable than the later. That is, the complex faults are generally more easier to detect than simple faults.
 
 However, we can immediately see that there are multiple problems with this definition. The first is the question of neighborhood. What exactly is a simple fault?, and what is a complex fault? Secondly, how do we incorporate features in this definition? Remember that the dividing line between features and bugs change as the levels of abstraction change. For example, an unimplemented, stubbed sort function is a missing feature at the function level. However, if it is relied on by another class, it becomes a bug.
 
