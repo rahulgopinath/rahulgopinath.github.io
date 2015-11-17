@@ -49,14 +49,14 @@ So, now we can see why we need the *Competent Programmer Hypothesis*. We need it
 Fig.4 Interacting faults.
 </div>
 
-it can result in a range of results, between a large encompassing fault  (Fig.5)
+it can result in a range of results. For example, the resulting failure can become easier to find, and trigger the test cases for both constituent faults  (Fig.5).
 
 <div class="wp-caption alignleft" style='float:left'>
 <img  style="float: left;"  src="/resources/posts/circle-interacting-large.png"/><br/>
 Fig.5 Interacting faults resulting a larger semantic footprint.
 </div>
 
-or faults to cancel each other out completely (Fig.6).
+Similarly, the faults may even interact with each other, curtailing the propagation of error, such that the final failure is only detectable by a subset of test cases that were able to detect the constituent faults (Fig.6).
 
 <div class="wp-caption alignleft" style="float: left;"  >
 <img  style="float: left;"  src="/resources/posts/circle-interacting-small.png"/><br/>
