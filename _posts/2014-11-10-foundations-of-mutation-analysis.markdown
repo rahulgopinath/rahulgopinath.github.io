@@ -22,7 +22,7 @@ Mutation analysis relies on two fundamental assumptions --- *The Competent Progr
 
 For some intuition about what this means, consider a perfect program as a perfect sphere. 
 
-<div class="wp-caption">
+<div class="wp-caption aligncenter">
 <img src="/resources/posts/circle.png"/><br/>
 Fig.1 A perfect program.
 </div>
