@@ -2,8 +2,8 @@
 published: true
 title: Weak, Firm, and Strong Mutation
 layout: post
-tags: [[mutation]]
-categories: [[post]]
+tags: [mutation]
+categories: [post]
 ---
 In general, methods for evaluating a test suite have focused on two measures, the extent of testing (commonly called coverage), and the strength of test cases in enforcing specifications.
 
@@ -17,6 +17,6 @@ What weak mutation analysis does is different. For a weak killing of a mutant, t
 
 The difference that such a change can make is enormous. That is we no longer need to execute each mutant in full. Rather, all we need to do is, at the site of the mutation, note which of the mutants would have resulted in a change to the internal state, mark them as killed, and proceed with the execution. That is, a single test run is sufficient for evaluation of the weak mutation score. Unfortunately, it also means that weak mutation analysis no longer belongs under the second category. Rather, it is just another coverage measure, albeit a rather strong one (similarly firm mutation is also just another coverage measure).
 
-If you are confused between the two different kinds of measures, there is an easy test. Say you have a test suite with assertions, and you have some value computed by the measure under computation for its effectiveness. Say you change all assertions in the test suite to `assert(true)`. Does the value of the effectiveness computed by the measure change? If it changes, then the measure under consideration does evaluate the strength of test case specifications too.
+If you are confused between the two different kinds of measures, there is an easy test. Say you have a test suite with assertions, and you have some value computed by the measure under computation for its effectiveness. Say you change all assertions such as `assert(expression)` in the test suite to `assert(expression || true)`. Does the value of the effectiveness computed by the measure change? If it changes, then the measure under consideration does evaluate the strength of test case specifications too.
 
 A coverage measure that actually manages to check assertions to some extent is [checked coverage](www.computer.org/csdl/proceedings/icst/2011/4342/00/4342a090-abs.html), which was proposed by Schuler in his [PhD. thesis](d-nb.info/1051432480/34). Checked coverage, as defined by Schuler is a dynamic slice of statements that actually flow into any of the assertions in the test suite. Unfortunately while it is more effective than other methods, it still does not measure the strength of specifications, and hence still a coverage measure.
