@@ -2,9 +2,10 @@
 published: true
 title: Mutation Selection Approaches
 layout: post
-categories: [post]
 tags: [mutation]
+categories: [post]
 ---
+
 According to [Offutt et al.](http://dl.acm.org/citation.cfm?id=571305.571314), mutation selection approaches can be categorized into three orthogonal techniques: Do fewer, Do faster, and Do smarter.
 
 ![Selective Mutation](/resources/posts/do-x.png)
