@@ -115,3 +115,40 @@ Table 1: Comparison of Version Control Systems
 | Mercurial       | Modify - Merge - Commit    | Changeset      | Tree             |
 | Darcs           | Modify - Merge - Commit    | Patches        | Tree             |
 | Monticello      | Modify - Merge - Commit    | Changeset      | Semantic elements|
+
+## References
+
+[1] L. Allen, G. Fernandez, K. Kane, D. Leblang, D. Minard, and J. Posner. Clearcase multisite: Supporting geographically-distributed software development. Software Configuration Management, pages 194–214, 1995.
+[2] U. Asklund and B. Magnusson. A case-study of configuration management with clearcase in an industrial environment. Software Configuration Manage- ment, pages 201–221, 1997.
+[3] A. Bieniusa, P. Thiemann, and S. Wehr. The relation of version control to concurrent programming. In Computer Science and Software Engineering, 2008 International Conference on, volume 3, pages 461–464. IEEE, 2008.
+[4] Andrew Black, Ste ́phane Ducasse, Oscar Nierstrasz, Damien Pollet, Damien Cassou, and Marcus Denker. Pharo by Example. Square Bracket Associates, 2009.
+[5] P. Bo ̈rjesson and A. Karlsson. Focal project a conflict free version control system. Unpublished, 2008.
+[6] H.B Brown. The clear/caster system. In The clear/caster system., 1970.
+[7] Avi Bryant, Damien Cassou, Julian Fitzell, and Colin Putney. Monticello.
+[8] Henrik B. Christensen. Configuration Management. Flexible, Reliable Soft- ware: Using Patterns and Agile Development. Boca Raton, FL: Chapman & Hall/CRC, 2010.
+[9] A. Cicchetti, D. Di Ruscio, and A. Pierantonio. A metamodel independent approach to difference representation. Technology, 6(9):165–185, 2007.
+[10] Darcs exponential merge.
+[11] M. Erwig. A language for software variation research. In Proceedings of the ninth international conference on Generative programming and component engineering, pages 3–12. ACM, 2010.
+[12] Dick Grune. Concurrent versions system, a method for independent coopera- tion. Technical report, IR 113, Vrije Universiteit, 1986.
+[13] V. Henson and J. Garzik. Bitkeeper for kernel developers. In Ottawa Linux Symposium, pages 197–212. Citeseer, 2002.
+[14] V. Henson and J. Garzik. Bitkeeper for kernel developers. In Ottawa Linux Symposium, pages 197–212. Citeseer, 2002.
+[15] Liyang Hu and Graham Hutton. Towards a Verified Implementation of Soft- ware Transactional Memory. In Peter Achten, Pieter Koopman, and Marco Morazan, editors, Trends in Functional Programming volume 9. Intellect, july 2009. Selected papers from the Ninth Symposium on Trends in Functional Programming, Nijmegen, The Netherlands, May 2008.
+[16] V. Innocente, C. Onions, and T. P. shah. Code management systems. ECFA Large Hadron Collider (LHC) Workshop: Physics and Instrumentation, Aachen, Germany, 1990.
+[17] J. Jacobson. A formalization of darcs patch theory using inverse semigroups. Technical report, Technical Report CAM report 09-83, UCLA, 2009.
+[18] Simon Peyton Jones. GHC Repository.
+[19] A. Lo ̈h, W. Swierstra, and D. Leijen. A principled approach to version control.
+Relation, 10(1.39):8342, 2008.
+[20] I. Lynagh. Camp patch theory. Available from http://projects.haskell.org/camp/files/theory.pdf, 2009.
+[21] B. Milewski. Distributed source control system. Software Configuration Management, pages 98–107, 1997.
+[22] B. OSullivan. Distributed revision control with mercurial. Mercurial project, 2007.
+[23] J. Pelrine, A. Knight, and A. Cho. Mastering ENVY/Developer, volume 22. Cambridge Univ Pr, 2001.
+[24] C. Michael Pilato, Ben Collins-Sussman, and Brian W. Fitzpatrick. Version Control With Subversion. O’Reilly & Associates, Inc., Sebastopol, CA, USA, 2 edition, 2008.
+[25] Marc J. Rochkind. The source code control system. IEEE Trans. Software Eng., 1(4):364–370, 1975.
+[26] David Roundy. Darcs: distributed version management in haskell. In Proceed- ings of the 2005 ACM SIGPLAN workshop on Haskell, Haskell ’05, pages 1–4, New York, NY, USA, 2005. ACM.
+[27] N.B. Ruparelia. The history of version control. ACM SIGSOFT Software Engineering Notes, 35(1):5–9, 2010.
+[28] T. Swicegood. Pragmatic version control using Git. Pragmatic Bookshelf, 2008.
+[29] Walter F. Tichy and Walter F. Tichy. Rcs: a system for version control. SoftwarePractice & Experience, 1985.
+[30] Linus Torvalds. Linux Kernel Repository.
+[31] Vero ́nica Uquillas-Gomez, Ste ́phane Ducasse, and Theo D’Hondt. Meta- models and Infrastructure for Smalltalk Omnipresent History. In Smalltalks’2010, Buenos Ares, Argentine, November 2010.
+[32] T. Users’Guide. Sunpro manual set. Sun Micro Systems, Mountain View, 1994.
+[33] Alexander Yip, Benjie Chen, and Robert Morris. Pastwatch: A Distributed Version Control System. In Pastwatch: A Distributed Version Control System, pages 381–394, 2006.
