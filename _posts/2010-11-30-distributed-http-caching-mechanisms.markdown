@@ -2,8 +2,8 @@
 published: true
 title: Distributed HTTP Caching Mechanisms
 layout: post
-tags: [[post]]
-categories: [[post]]
+tags: [post]
+categories: [post]
 ---
 This was a project report I produced for the distributed computing class during my masters. I asked for this topic since I was already working on distributed HTTP cache protocols ICP and CARP at Sun Microsystems.
 

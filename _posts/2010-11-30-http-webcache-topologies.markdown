@@ -2,8 +2,8 @@
 published: true
 title: HTTP WebCache Topologies
 layout: post
-tags: [[posts]]
-categories: [[posts]]
+tags: [posts]
+categories: [posts]
 ---
 (Second part of the previous posting on Distributed Web Caching)
 
