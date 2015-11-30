@@ -2,9 +2,23 @@
 published: false
 title: Clone Detection Tools
 layout: post
-tags: [[posts]]
-categories: [[posts]]
+tags: [posts]
+categories: [posts]
 ---
+FOSS
+-----
+Uses Protine alignment Matrix (the agent is called bSAM) for
+matching source code. A later algo is called Program Alignment Matrix
+
+Effectively it determines the percentage of symbols in A that aligns
+with symbols in B and vice versa. It is somewhat similar to diff
+
+The matching of licenses itself is a more mundane affair. It uses
+a set of trigger words to determine if the source code contains a
+license. If it does, then the questionable section is extracted and is
+matched against a secondary list of confirmation words. If both match,
+then it flags the source file as very likely to contain a license.
+
 ----------------------------------------------------------------
 I looked at clone detection, plagiarism detection and origiin analysis
 ----------------------------------------------------------------
