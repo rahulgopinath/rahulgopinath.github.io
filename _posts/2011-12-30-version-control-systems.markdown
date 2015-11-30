@@ -17,6 +17,26 @@ The introduction of networking which enabled concurrent development crossing mac
 
 Development of Version Control Systems from this point on are characterized by different solutions to move away from a centralized architecture to a more distributed approach. The rise of Internet and the popularity of large open source projects which involved coordination between geographically separated individuals with different requirements of features and stability was a major contributor to this change. A obvious approach is represented by systems such as ClearCase[2] and Code Co-Op[21] which make use of distributed commit protocols to provide the feeling of a central system to the user and maintain sequential consistency while still providing benefits of a distributed architecture such as division of labour across machines. Another direction is represented by distributed version control systems such as Mercurial[22] and Git[28] guaranteeing only eventual consistency. They do not synchronize between distant repositories automatically, instead opting to let the degree and frequency of synchronization be decided by the user. Another line of research is using peer to peer network overlays exemplified by PastWatch[33] which uses distributed hash table as the underlying network. Semantics aware version control systems like Monticello[31] and Envy[23] represent a new dimension of research, which are capable of tracking changes to classes, modules methods and variables, thus providing more intelligent merge facilities.
 
+Table 1: Comparison of Version Control Systems
+
+| VCS             | Conflict Resolution        | History Model  | Unit of Change   |
+|-----------------|----------------------------|----------------|------------------|
+| SCCS            | Lock - Modify - Unlock     | File           | File             |
+| RCS             | Lock - Modify - Unlock     | File           | File             |
+| CVS             | Modify - Merge - Commit    | Changeset      | File             |
+| Subversion      | Modify - Merge - Commit    | Changeset      | Tree             |
+| Clearcase       | Lock - Modify - Unlock     | Changeset      | File             |
+| Code Co-Op      | Lock - Modify - Unlock     | Changeset      | Tree             |
+| PastWatch       | Lock - Modify - Unlock     | Snapshot       | File             |
+| Teamware        | Modify - Commit - Merge    | Changeset      | File             |
+| Bitkeeper       | Modify - Commit - Merge    | Changeset      | Tree             |
+| Arch            | Modify - Merge - Commit    | Changeset      | Tree             |
+| Git             | Modify - Commit - Merge    | Snapshot       | Tree             |
+| Mercurial       | Modify - Merge - Commit    | Changeset      | Tree             |
+| Darcs           | Modify - Merge - Commit    | Patches        | Tree             |
+| Monticello      | Modify - Merge - Commit    | Changeset      | Semantic elements|
+
+
 ## Early Version Control Systems
 
 The initial version control systems were developed for the strongly centralized architecture in time sharing systems characterized by local storage and no access across machine boundaries. Due to the environment in which they developed, these systems did not feature the ability to network, nor did they support concurrent development. We look at two of these systems - SCCS and RCS that can be considered representatives of this era. They also illustrate a major design decision in the development of version control systems. That is, how the changes are stored. The SCCS system uses a technique called interleaved deltas where all the versions of a document are interleaved together along with a few control structures detailing which version uses what. This means that the time for look up of any version is same and is proportional to the length of document. On the other hand RCS uses reverse deltas from the latest version to store the entire history. This lets the access of the last version to be fast, but access of earlier versions becomes progressively harder. Both systems are analyzed in detail next.
@@ -97,58 +117,72 @@ Syntax aware Version Control Systems are those systems that understand the struc
 
 Monticello[7] is a version control system that is focused on Smalltalk language, and understands the elements in the Smalltalk such as Classes, Methods, Class comments, Instance variables, Class variables, Class instance variables, and Pool Imports. That is, the meta model that is kept by the version control system is same as the meta model of the language. It keeps a version history of each of these elements, along with its properties. For example, it keeps the name of the super class as a property of the class element. Each of the elements have different properties that are tracked along with the source code. A version in this context is just a variant of the properties for a particular element[4]. Another interesting feature is the concept of slices which aggregates groups of elements and makes tracking of such groups easier. Snapshots capture the state of a slice. These are advantageous in multiple aspects. For example, Monticello is able to keep track of renaming and moving around of variables, imports etc. , And is able to provide a better picture of change history. The second advantage is that, merges become much more intelligent, and conflict free.
 
-Table 1: Comparison of Version Control Systems
-
-| VCS             | Conflict Resolution        | History Model  | Unit of Change   |
-|-----------------|----------------------------|----------------|------------------|
-| SCCS            | Lock - Modify - Unlock     | File           | File             |
-| RCS             | Lock - Modify - Unlock     | File           | File             |
-| CVS             | Modify - Merge - Commit    | Changeset      | File             |
-| Subversion      | Modify - Merge - Commit    | Changeset      | Tree             |
-| Clearcase       | Lock - Modify - Unlock     | Changeset      | File             |
-| Code Co-Op      | Lock - Modify - Unlock     | Changeset      | Tree             |
-| PastWatch       | Lock - Modify - Unlock     | Snapshot       | File             |
-| Teamware        | Modify - Commit - Merge    | Changeset      | File             |
-| Bitkeeper       | Modify - Commit - Merge    | Changeset      | Tree             |
-| Arch            | Modify - Merge - Commit    | Changeset      | Tree             |
-| Git             | Modify - Commit - Merge    | Snapshot       | Tree             |
-| Mercurial       | Modify - Merge - Commit    | Changeset      | Tree             |
-| Darcs           | Modify - Merge - Commit    | Patches        | Tree             |
-| Monticello      | Modify - Merge - Commit    | Changeset      | Semantic elements|
 
 ## References
 
 [1] L. Allen, G. Fernandez, K. Kane, D. Leblang, D. Minard, and J. Posner. Clearcase multisite: Supporting geographically-distributed software development. Software Configuration Management, pages 194–214, 1995.
+
 [2] U. Asklund and B. Magnusson. A case-study of configuration management with clearcase in an industrial environment. Software Configuration Manage- ment, pages 201–221, 1997.
+
 [3] A. Bieniusa, P. Thiemann, and S. Wehr. The relation of version control to concurrent programming. In Computer Science and Software Engineering, 2008 International Conference on, volume 3, pages 461–464. IEEE, 2008.
+
 [4] Andrew Black, Ste ́phane Ducasse, Oscar Nierstrasz, Damien Pollet, Damien Cassou, and Marcus Denker. Pharo by Example. Square Bracket Associates, 2009.
+
 [5] P. Bo ̈rjesson and A. Karlsson. Focal project a conflict free version control system. Unpublished, 2008.
+
 [6] H.B Brown. The clear/caster system. In The clear/caster system., 1970.
+
 [7] Avi Bryant, Damien Cassou, Julian Fitzell, and Colin Putney. Monticello.
+
 [8] Henrik B. Christensen. Configuration Management. Flexible, Reliable Soft- ware: Using Patterns and Agile Development. Boca Raton, FL: Chapman & Hall/CRC, 2010.
+
 [9] A. Cicchetti, D. Di Ruscio, and A. Pierantonio. A metamodel independent approach to difference representation. Technology, 6(9):165–185, 2007.
+
 [10] Darcs exponential merge.
+
 [11] M. Erwig. A language for software variation research. In Proceedings of the ninth international conference on Generative programming and component engineering, pages 3–12. ACM, 2010.
+
 [12] Dick Grune. Concurrent versions system, a method for independent coopera- tion. Technical report, IR 113, Vrije Universiteit, 1986.
+
 [13] V. Henson and J. Garzik. Bitkeeper for kernel developers. In Ottawa Linux Symposium, pages 197–212. Citeseer, 2002.
+
 [14] V. Henson and J. Garzik. Bitkeeper for kernel developers. In Ottawa Linux Symposium, pages 197–212. Citeseer, 2002.
+
 [15] Liyang Hu and Graham Hutton. Towards a Verified Implementation of Soft- ware Transactional Memory. In Peter Achten, Pieter Koopman, and Marco Morazan, editors, Trends in Functional Programming volume 9. Intellect, july 2009. Selected papers from the Ninth Symposium on Trends in Functional Programming, Nijmegen, The Netherlands, May 2008.
+
 [16] V. Innocente, C. Onions, and T. P. shah. Code management systems. ECFA Large Hadron Collider (LHC) Workshop: Physics and Instrumentation, Aachen, Germany, 1990.
+
 [17] J. Jacobson. A formalization of darcs patch theory using inverse semigroups. Technical report, Technical Report CAM report 09-83, UCLA, 2009.
+
 [18] Simon Peyton Jones. GHC Repository.
+
 [19] A. Lo ̈h, W. Swierstra, and D. Leijen. A principled approach to version control.
 Relation, 10(1.39):8342, 2008.
+
 [20] I. Lynagh. Camp patch theory. Available from http://projects.haskell.org/camp/files/theory.pdf, 2009.
+
 [21] B. Milewski. Distributed source control system. Software Configuration Management, pages 98–107, 1997.
+
 [22] B. OSullivan. Distributed revision control with mercurial. Mercurial project, 2007.
+
 [23] J. Pelrine, A. Knight, and A. Cho. Mastering ENVY/Developer, volume 22. Cambridge Univ Pr, 2001.
+
 [24] C. Michael Pilato, Ben Collins-Sussman, and Brian W. Fitzpatrick. Version Control With Subversion. O’Reilly & Associates, Inc., Sebastopol, CA, USA, 2 edition, 2008.
+
 [25] Marc J. Rochkind. The source code control system. IEEE Trans. Software Eng., 1(4):364–370, 1975.
+
 [26] David Roundy. Darcs: distributed version management in haskell. In Proceed- ings of the 2005 ACM SIGPLAN workshop on Haskell, Haskell ’05, pages 1–4, New York, NY, USA, 2005. ACM.
+
 [27] N.B. Ruparelia. The history of version control. ACM SIGSOFT Software Engineering Notes, 35(1):5–9, 2010.
+
 [28] T. Swicegood. Pragmatic version control using Git. Pragmatic Bookshelf, 2008.
+
 [29] Walter F. Tichy and Walter F. Tichy. Rcs: a system for version control. SoftwarePractice & Experience, 1985.
+
 [30] Linus Torvalds. Linux Kernel Repository.
+
 [31] Vero ́nica Uquillas-Gomez, Ste ́phane Ducasse, and Theo D’Hondt. Meta- models and Infrastructure for Smalltalk Omnipresent History. In Smalltalks’2010, Buenos Ares, Argentine, November 2010.
+
 [32] T. Users’Guide. Sunpro manual set. Sun Micro Systems, Mountain View, 1994.
+
 [33] Alexander Yip, Benjie Chen, and Robert Morris. Pastwatch: A Distributed Version Control System. In Pastwatch: A Distributed Version Control System, pages 381–394, 2006.
