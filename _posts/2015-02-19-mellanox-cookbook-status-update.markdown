@@ -2,7 +2,8 @@
 published: true
 title: Mellanox cookbook status update
 layout: post
-tags: [post]
+tags: [mellanox]
+categories: [post]
 ---
 Our challenge was to develop a Mellanox openstack  chef plugin for the Mellanox CloudX platform. According to Mellanox, it brings the following benefits to the openstack.
 

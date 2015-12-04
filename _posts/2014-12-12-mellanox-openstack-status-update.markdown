@@ -2,7 +2,8 @@
 published: true
 title: Mellanox Openstack status update
 layout: post
-tags: [blog]
+tags: [mellanox]
+categories: [post]
 ---
 This IBM challenge is to develop a Chef cookbook that supports the Mellanox Openstack plugin on their CloudX platform.
 

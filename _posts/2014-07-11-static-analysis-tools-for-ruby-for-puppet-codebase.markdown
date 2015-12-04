@@ -2,8 +2,8 @@
 published: true
 title: Static analysis tools for Ruby (for Puppet Codebase)
 layout: post
-tags: [post]
-categories: [blog]
+tags: [puppet,staticanalysis]
+categories: [post]
 ---
 The main idea was investigate static analysis tools for ruby, keeping in mind the following concerns.
 

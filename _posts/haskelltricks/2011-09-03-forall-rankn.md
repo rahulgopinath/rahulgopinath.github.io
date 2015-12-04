@@ -1,6 +1,6 @@
 ---
 layout: post
-category : blog
+categories : [post]
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Using forall - RankN Types
