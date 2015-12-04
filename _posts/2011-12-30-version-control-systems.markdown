@@ -2,7 +2,7 @@
 published: true
 title: Version Control Systems
 layout: post
-category: [post]
+categories: [post]
 tag: [vcs]
 ---
 ## Introduction
