@@ -72,6 +72,10 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * SPLASH 2014 Groce, Alipour, Gopinath "Coverage and its discontents."
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
+### [Professional Service]()
+
+* [Mutation 2016 Workshop](https://sites.google.com/site/mutation2016/mutation-2016) Program committee member
+
 ### [OpenSource]()
 
 * Co-Author of mutation systems [MuCheck](https://github.com/vrthra/mucheck) for Haskell and [XMutant](https://github.com/vrthra/xmutant.py) for Python
