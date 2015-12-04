@@ -3,7 +3,7 @@ published: true
 title: Foundations of Mutation Analysis
 layout: post
 tags: [mutation]
-categories: [post]
+categories : post
 ---
 <style>
 img.alignright {padding: 4px; margin: 0 0 2px 7px; display inline; }

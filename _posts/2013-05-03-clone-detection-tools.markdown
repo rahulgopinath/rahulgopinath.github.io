@@ -3,7 +3,7 @@ published: false
 title: Clone Detection Tools
 layout: post
 tags: [clones]
-categories: [posts]
+categories : post
 ---
 FOSS
 -----

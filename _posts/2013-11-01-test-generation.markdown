@@ -3,7 +3,7 @@ published: false
 title: Test Generation
 layout: post
 tags: [testgen]
-categories: [post]
+categories : post
 ---
 
 Generally speaking, there are four different techniques for generating test data.

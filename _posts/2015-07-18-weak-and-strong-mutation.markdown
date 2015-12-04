@@ -3,7 +3,7 @@ published: true
 title: Weak, Firm, and Strong Mutation
 layout: post
 tags: [mutation]
-categories: [post]
+categories : post
 ---
 In general, methods for evaluating a test suite have focused on two measures, the extent of testing (commonly called coverage), and the strength of test cases in enforcing specifications.
 

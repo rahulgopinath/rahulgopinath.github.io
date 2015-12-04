@@ -1,6 +1,6 @@
 ---
 layout: post
-categories : [post]
+categories : post
 tagline: "."
 tags : [haskelltricks blog haskell language]
 e: Applicatives
