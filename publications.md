@@ -60,7 +60,7 @@ more effort should be focused on enhancing mutations than
 removing operators in the name of selective mutation for
 questionable benefit.
 
-[Publication](/resources/issre2015/gopinath2016on.pdf) [Bib](/resources/issre2015/gopinath2016on.bib) [Data](http://eecs.osuosl.org/rahul/icse16/)
+[Publication](/resources/icse16/gopinath2016on.pdf) [Bib](/resources/icse16/gopinath2016on.bib) [Data](http://eecs.osuosl.org/rahul/icse16/)
 
 #### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
 
