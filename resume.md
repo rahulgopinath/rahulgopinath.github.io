@@ -60,7 +60,6 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 #### 2000--2002 Developer,Research Group SunTec Business Solutions Thiruvananthapuram
 
 * Implemented rating and billing engine for telephony call records, SOAP Service API for the billing interface, provided domain sensitive caching and transaction control in the client for billing engine. 
-<!-- * Prototype OS-KIT based standalone kernel that could be used as a rating appliance. -->
 
 ### [Publications]()
 
