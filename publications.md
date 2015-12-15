@@ -6,6 +6,8 @@ group: navigation
 weight: 2
 menu: Publications
 ---
+* [_On The Limits Of Mutation Reduction Strategies_](#gopinath2016on)<br/>
+  Gopinath, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
 
 * [_How hard does mutation analysis have to be anyway?_](#gopinath2015how)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ISSRE, 2015
@@ -29,6 +31,36 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+
+#### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
+
+Although mutation analysis is considered the best way to
+evaluate the effectiveness of a test suite, hefty computational
+cost often limits its use. To address this problem, various
+mutation reduction strategies have been proposed, all seeking
+to gain efficiency by reducing the number of mutants
+while maintaining the representativeness of an exhaustive
+mutation analysis. While research has focused on the
+efficiency of reduction, the effectiveness of these strategies in
+selecting representative mutants, and the limits in doing so
+has not been investigated.
+
+We investigate the practical limits to the effectiveness of
+mutation reduction strategies, and provide a simple theoretical
+framework for thinking about the absolute limits.
+Our results show that the limit in effectiveness over random
+sampling for real-world open source programs is 13.078%
+(mean). Interestingly, there is no limit to the improvement
+that can be made by addition of new mutation operators.
+
+Given that this is the maximum that can be achieved with
+perfect advance knowledge of mutation kills, what can be
+practically achieved may be much worse. We conclude that
+more effort should be focused on enhancing mutations than
+removing operators in the name of selective mutation for
+questionable benefit.
+
+[Publication](/resources/issre2015/gopinath2016on.pdf) [Bib](/resources/issre2015/gopinath2016on.bib) [Data](http://eecs.osuosl.org/rahul/icse16/)
 
 #### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
 
@@ -61,6 +93,7 @@ incorporates the analysis of stubbornness of mutants.
 
 [Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
 [Presentation](/resources/issre2015/gopinath2015howhard.pptx) 
+
 #### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
