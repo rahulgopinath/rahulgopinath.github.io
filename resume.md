@@ -64,6 +64,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* ICSE 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "On the limits of mutaion reduction strategies"
 * ISSRE 2015 Gopinath, Alipour, Ahmed, Jensen, Groce "How hard does mutation analysis have to be, anyway?"
 * ESEM 2015 Ahmed, Gopinath, Mannan, Jensen "An empirical study of design degradation: how software projects get worse over time"
 * ISSRE 2014 Gopinath, Jensen, Groce "Mutations: How close are they to real faults?"
