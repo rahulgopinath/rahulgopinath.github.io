@@ -13,7 +13,7 @@ menu: Posts
   <ul>
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
-  {% if mytags != 'sunmicrosystems' and mytags != 'haskelltricks' and mytags != 'cs381' and  mytags != 'ta'  %}
+  {% if mytags != 'sunmicrosystems' and mytags != 'haskelltricks' and mytags != 'cs381' and  mytags != 'ta' and  mytags != 'instructor'  %}
   <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a></li>
   {% endif %}
   {% endfor %}
