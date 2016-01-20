@@ -6,6 +6,9 @@ group: navigation
 weight: 2
 menu: Publications
 ---
+* [_Does The Choice of Mutation Tool Matter?_](#gopinath2016does)<br/>
+  Gopinath, Ahmed, Alipour, Jensen, Groce - Software Quality Journal, 2016
+
 * [_On The Limits Of Mutation Reduction Strategies_](#gopinath2016on)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
 
@@ -31,6 +34,32 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+
+#### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
+
+Mutation analysis is the primary means of evaluating the quality of
+test suites, though it suffers from inadequate standardization. Mutation
+analysis tools vary based on language, when mutants are generated (phase
+of compilation), and target audience. Mutation tools rarely implement the
+complete set of operators proposed in the literature, and most implement at
+least a few domain-specific mutation operators. Thus different tools may not
+always agree on the mutant kills of a test suite, and few criteria exist
+to guide a practitioner in choosing a tool, or a researcher in comparing
+previous results. We investigate an ensemble of measures such as traditional
+difficulty of detection, strength of minimal sets, diversity of mutants,
+as well as the information carried by the mutants produced , to evaluate
+the efficacy of mutant sets. By these measures, mutation tools rarely agree,
+often with large differences, and the variation due to project, even after
+accounting for difference due to test suites, is significant. However,
+the mean difference between tools is very small indicating that no single
+tool consistently skews mutation scores high or low for all projects. These
+results suggest that research using a single tool, a small number of projects,
+or small increments in mutation score may not yield reliable results. There
+is a clear need for greater standardization of mutation analysis; we propose
+one approach for such a standardization.
+
+
+[Publication](/resources/icse2016/sqj2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
