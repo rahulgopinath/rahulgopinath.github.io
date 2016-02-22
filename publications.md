@@ -49,6 +49,7 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+
 #### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
 Redundant mutants, where multiple mutants end 
 up producing same the semantic variant of the program is a major 
