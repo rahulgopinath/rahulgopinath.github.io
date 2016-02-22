@@ -16,10 +16,10 @@ menu: Publications
   Gopinath, Jensen, Groce - ICSE (Extended Abstract), 2016
 
 * [_Do Mutation Reduction Strategies Matter?_](#gopinath2016do)<br/>
-  Gopinath, Alipour, Ahmed, Jensen, Groce - (in submission) Information and Software Technology Journal, 2016
+  Gopinath, Alipour, Ahmed, Jensen, Groce - (in submission) IST Journal, 2016
 
 * [_Does The Choice of Mutation Tool Matter?_](#gopinath2016does)<br/>
-  Gopinath, Ahmed, Alipour, Jensen, Groce - Software Quality Journal, 2016
+  Gopinath, Ahmed, Alipour, Jensen, Groce - SQJournal, 2016
 
 * [_On The Limits Of Mutation Reduction Strategies_](#gopinath2016on)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
