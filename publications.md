@@ -6,6 +6,13 @@ group: navigation
 weight: 2
 menu: Publications
 ---
+
+* [_Measuring Effectiveness of Mutant Sets_](#gopinath2016measuring)<br/>
+  Gopinath, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
+
+* [_Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_](#gopinath2016topsy)<br/>
+  Gopinath, Jensen, Groce - ICSE (Extended Abstract), 2016
+
 * [_Does The Choice of Mutation Tool Matter?_](#gopinath2016does)<br/>
   Gopinath, Ahmed, Alipour, Jensen, Groce - Software Quality Journal, 2016
 
@@ -34,6 +41,55 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+#### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
+Redundant mutants, where multiple mutants end 
+up producing same the semantic variant of the program is a major 
+problem in mutation analysis, and a measure of effectiveness is 
+an essential tool for evaluating mutation tools, new operators, 
+and reduction techniques. Previous research suggests using size 
+of disjoint mutant set as an effectiveness measure. 
+
+We start from a simple premise: That test suites need to be 
+judged on both the number of unique variations in specifications 
+they detect (as variation measure), and also on how good they 
+are in detecting harder to find bugs (as a measure of subtlety). 
+Hence, any set of mutants should to be judged on how best they 
+allow these measurements. 
+
+We show that the disjoint mutant set has two major inadequacies 
+— the single variant assumption and the large test suite 
+assumption when used as a measure of effectiveness in variation, 
+which stems from its reliance on minimal test suites, and we show 
+that when used to emulate hard to find bugs (as a measure of 
+subtlety), it discards useful mutants. 
+
+We propose two alternative measures, one oriented toward 
+the measure of effectiveness in variation and not vulnerable to 
+either single variant assumption, or to large test suite assumption 
+and the other towards effectiveness in subtlety, and provide a 
+benchmark of these measures using diverse tools.
+
+[Publication](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
+
+
+#### <a name='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
+
+Mutation analysis is an effective, if computationally expensive, technique
+that allows practitioners to accurately evaluate the quality of their test
+suites.  To reduce the time and cost of mutation analysis, researchers have
+looked at parallelizing mutation runs --- running multiple mutated versions of
+the program in parallel, and running through the tests in sequence on each mutated program
+until a bug is found. While an improvement over sequential execution
+of mutants and tests, this technique carries a significant
+overhead cost due to its redundant execution of unchanged code paths. In this
+paper we propose a novel technique (and its implementation) which
+parallelizes the test runs rather than the mutants, forking mutants from a
+single program execution at the point of invocation, which reduces 
+redundancy. We show that our
+technique can lead to significant efficiency improvements and cost
+reductions.
+
+[Publication](/resources/icse2016/icse2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
 
 #### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
 
@@ -59,7 +115,7 @@ is a clear need for greater standardization of mutation analysis; we propose
 one approach for such a standardization.
 
 
-[Publication](/resources/icse2016/sqj2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
+[Publication](/resources/sqj2016/sqj2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
