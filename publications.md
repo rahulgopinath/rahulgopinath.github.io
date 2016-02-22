@@ -7,6 +7,8 @@ weight: 2
 menu: Publications
 ---
 
+##### 2016
+
 * [_Measuring Effectiveness of Mutant Sets_](#gopinath2016measuring)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
 
@@ -19,11 +21,15 @@ menu: Publications
 * [_On The Limits Of Mutation Reduction Strategies_](#gopinath2016on)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
 
+##### 2015
+
 * [_How hard does mutation analysis have to be anyway?_](#gopinath2015how)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ISSRE, 2015
 
 * [_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_](#ahmed2015an)<br/>
   Ahmed, Mannan, Gopinath, Jensen - ESEM, 2015
+
+##### 2014
 
 * [_Mutations: How close are they to real faults?_](#gopinath2014mutations)<br/>
   Gopinath, Jensen, Groce - ISSRE, 2014
@@ -36,6 +42,8 @@ menu: Publications
 
 * [_Code coverage for suite evaluation by developers_](#gopinath2014code)<br/>
   Gopinath, Jensen, Groce - ICSE, 2014
+
+##### 2012
 
 * [_Explanations for Regular Expressions_](#erwig2012explanations)<br/>
   Erwig, Gopinath - FASE, 2012
