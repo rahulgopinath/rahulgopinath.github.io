@@ -16,6 +16,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * [Research Interests](#research-interests)
 * [Achievements](#achievements)
 -->
+
 ### [Education]()
 
 * 2016 Ph.D. Oregon State University, USA (expected) 
