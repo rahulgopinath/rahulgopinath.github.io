@@ -63,6 +63,9 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* ICSTW Mutation 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "Measuring Effectiveness of Mutant Sets"
+* SQJ 2016 Gopinath, Ahmed, Alipour, Jensen, Groce "Does the choice of mutation tool matter?"
+* ICSE (Abstract) 2016 Gopinath, Jensen, Groce "Topsy-Turvy: A smarter and faster parallelization of mutation analysis"
 * ICSE 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "On the limits of mutaion reduction strategies"
 * ISSRE 2015 Gopinath, Alipour, Ahmed, Jensen, Groce "How hard does mutation analysis have to be, anyway?"
 * ESEM 2015 Ahmed, Gopinath, Mannan, Jensen "An empirical study of design degradation: how software projects get worse over time"
