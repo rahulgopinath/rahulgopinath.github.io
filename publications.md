@@ -8,6 +8,8 @@ menu: Publications
 ---
 
 ##### 2016
+* [_Generating Focused Random Tests Using Directed Swarm Testing_](#alipour2016focused)<br/>
+  Alipour, Groce, Gopinath, Christi - ISSTA, 2016
 
 * [_Measuring Effectiveness of Mutant Sets_](#gopinath2016measuring)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
@@ -52,6 +54,29 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+#### <a name='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
+
+Random testing can be a powerful and scalable method for finding faults
+in software. However, sophisticated random testers usually test a whole
+program, not individual components. Writing random testers for individual
+components of complex programs may require unreasonable effort. In this paper
+we present a novel method, directed swarm testing, that uses statistics and
+a variation of random testing to produce random tests that focus on only
+part of a program, increasing the frequency with which tests cover the
+targeted code. We demonstrate the effectiveness of this technique using
+real-world programs and test systems (the YAFFS2 file system, GCC, and
+Mozilla SpiderMonkey JavaScript engine), and discuss various strategies for
+directed swarm testing. The best strategies can improve coverage frequency for
+targeted code by a factor ranging from 1.1-4.5x on average, and from nearly
+3x to nearly 9x in the best case. For YAFFS2, directed swarm testing never
+decreased coverage, and for GCC and SpiderMonkey coverage increased for over
+99% and 73% of targets, respectively, using the best strategies. Directed
+swarm testing improves detection rates for real SpiderMonkey faults, when
+the code in the introducing commit is targeted. This lightweight technique
+is applicable to existing industrial-strength random testers.
+
+[Publication](/resources/issta2016/isssta2016focused.pdf) [Bib](/resources/issta2016/alipour2016focused.bib)
+
 
 #### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
 
