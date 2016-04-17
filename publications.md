@@ -108,6 +108,10 @@ either single variant assumption, or to large test suite assumption
 and the other towards effectiveness in subtlety, and provide a 
 benchmark of these measures using diverse tools.
 
+*Updates*: The terminology used in this paper is not completely correct.
+The *minimal mutants* are different from *disjoint mutants*. The
+*disjoint mutants* are actually *surface mutants*.
+
 [Publication](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
 
 
@@ -127,6 +131,9 @@ single program execution at the point of invocation, which reduces
 redundancy. We show that our
 technique can lead to significant efficiency improvements and cost
 reductions.
+
+*Updates*: Part of our concept is similar to the split-stream execution of
+mutants mentioned by Offutt et. al.
 
 [Publication](/resources/icse2016/icse2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
 
