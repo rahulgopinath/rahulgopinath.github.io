@@ -54,6 +54,7 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+
 #### <a name='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
 
 Random testing can be a powerful and scalable method for finding faults
