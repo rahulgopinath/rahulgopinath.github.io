@@ -64,6 +64,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* ISSTA 2016 Alipour, Groce, Gopinath, Christi "Generating Focused Random Tests Using Directed Swarm Testing"
 * ICSTW Mutation 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "Measuring Effectiveness of Mutant Sets"
 * SQJ 2016 Gopinath, Ahmed, Alipour, Jensen, Groce "Does the choice of mutation tool matter?"
 * ICSE (Abstract) 2016 Gopinath, Jensen, Groce "Topsy-Turvy: A smarter and faster parallelization of mutation analysis"
