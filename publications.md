@@ -112,7 +112,7 @@ benchmark of these measures using diverse tools.
 The *minimal mutants* are different from *disjoint mutants*. The
 *disjoint mutants* are actually *surface mutants*.
 
-[Publication](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)[Presentation](/resources/icst2016/gopinath2016measuring.pptx)
+[Publication](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/) [Presentation](/resources/icst2016/2016measuring.pptx)
 
 #### <a name='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
 
