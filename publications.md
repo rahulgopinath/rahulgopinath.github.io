@@ -253,7 +253,7 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
-[Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](http://eecs.osuosl.org/rahul/issre15/)
+[Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [Presentation](/resources/issre2015/gopinath2015howhard.pptx) 
 
 #### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
@@ -291,7 +291,7 @@ languages have different distributions, which in turn suggests that operators op
 for others. Moreover, our results suggest that mutation analysis stands in need of better empirical support of the connection 
 between mutant detection and detection of actual program faults in a larger body of real programs. 
 
-[Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](http://eecs.osuosl.org/rahul/issre2014/)
+[Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [Presentation](/resources/issre2014/gopinath2014mutations.pptx) 
 
 #### <a name='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
