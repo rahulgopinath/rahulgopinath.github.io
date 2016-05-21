@@ -15,7 +15,7 @@ menu: Publications
   Gopinath, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
 
 * [_Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_](#gopinath2016topsy)<br/>
-  Gopinath, Jensen, Groce - ICSE (Extended Abstract), 2016
+  Gopinath, Jensen, Groce - ICSE (Extended Abstract - Distinguished Award), 2016
 
 * [_Do Mutation Reduction Strategies Matter?_](#gopinath2016do)<br/>
   Gopinath, Alipour, Ahmed, Jensen, Groce - (in submission) IST Journal, 2016
