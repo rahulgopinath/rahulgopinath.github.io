@@ -134,7 +134,8 @@ reductions.
 *Updates*: Part of our concept is similar to the split-stream execution of
 mutants mentioned by Offutt et. al.
 
-[Publication](/resources/icse2016/icse2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
+[Publication](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
+ [Presentation](/resources/icse2016/gopinath2016topsy.pptx) 
 
 #### <a name='gopinath2016do'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Do Mutation Reduction Strategies Matter?_ (in submission) IST Journal, 2016]()
 
@@ -223,7 +224,7 @@ removing operators in the name of selective mutation for
 questionable benefit.
 
 [Publication](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
-[Presentation](/resources/icse2016/gopinath2016on.pptx) 
+ [Presentation](/resources/icse2016/gopinath2016on.pptx) 
 
 #### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
 
