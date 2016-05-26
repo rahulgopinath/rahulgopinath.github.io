@@ -8,6 +8,9 @@ menu: Publications
 ---
 
 ##### 2016
+* [_Can Testedness be Effectively Measured?_](#ahmed2016can)<br/>
+  Ahmed, Gopinath, Brindescu, Groce, Jensen - FSE, 2016
+
 * [_Generating Focused Random Tests Using Directed Swarm Testing_](#alipour2016focused)<br/>
   Alipour, Groce, Gopinath, Christi - ISSTA, 2016
 
@@ -54,6 +57,34 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+#### <a name='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
+
+Among the major questions that a practicing tester faces are deciding where to
+focus additional testing effort, and deciding when to stop testing. Test the
+least-tested code, and stop when all code is well-tested, is a reasonable
+answer. Many measures of "testedness" have been proposed; unfortunately, we do
+not know whether these are truly effective.
+
+In this paper we propose a novel evaluation of two of the most important and
+widely-used measures of test suite quality. The first measure is statement
+coverage, the simplest and best-known code coverage measure. The second measure
+is mutation score, a supposedly more powerful, though expensive, measure.
+
+We evaluate these measures using the actual criteria of interest: if a program
+element is (by these measures) well tested at a given point in time, it should
+require fewer future bug-fixes than a "poorly tested" element. If not, then it
+seems likely that we are not effectively measuring testedness. Using a large
+number of open source Java programs from Github and Apache, we show that both
+statement coverage and mutation score have only a weak negative correlation with
+bug-fixes. Despite the lack of strong correlation, there are statistically and
+practically significant differences between program elements for various binary
+criteria. Program elements (other than classes) covered by any test case see
+about half as many bug-fixes as those not covered, and a similar line can be
+drawn for mutation score thresholds. Our results have important implications for
+both software engineering practice and research evaluation.
+
+[Publication](/resources/fse2016/ahmed2016can.pdf) [Bib](/resources/fse2016/ahmed2016can.bib)
+
 
 #### <a name='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
 
@@ -76,7 +107,7 @@ swarm testing improves detection rates for real SpiderMonkey faults, when
 the code in the introducing commit is targeted. This lightweight technique
 is applicable to existing industrial-strength random testers.
 
-[Publication](/resources/issta2016/isssta2016focused.pdf) [Bib](/resources/issta2016/alipour2016focused.bib)
+[Publication](/resources/issta2016/alipour2016focused.pdf) [Bib](/resources/issta2016/alipour2016focused.bib)
 
 
 #### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
