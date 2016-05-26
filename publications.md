@@ -57,6 +57,7 @@ menu: Publications
   Erwig, Gopinath - FASE, 2012
 
 ---
+
 #### <a name='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
 
 Among the major questions that a practicing tester faces are deciding where to
