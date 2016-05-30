@@ -225,7 +225,7 @@ is a clear need for greater standardization of mutation analysis; we propose
 one approach for such a standardization.
 
 
-[Publication](/resources/sqj2016/sqj2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
+[Publication](/resources/sqj2016/gopinath2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
