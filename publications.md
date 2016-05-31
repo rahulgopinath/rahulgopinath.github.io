@@ -20,9 +20,6 @@ menu: Publications
 * [_Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_](#gopinath2016topsy)<br/>
   Gopinath, Jensen, Groce - ICSE (Extended Abstract - Distinguished Award), 2016
 
-* [_Do Mutation Reduction Strategies Matter?_](#gopinath2016do)<br/>
-  Gopinath, Alipour, Ahmed, Jensen, Groce - (in submission) IST Journal, 2016
-
 * [_Does The Choice of Mutation Tool Matter?_](#gopinath2016does)<br/>
   Gopinath, Ahmed, Alipour, Jensen, Groce - SQJournal, 2016
 
@@ -168,38 +165,6 @@ mutants mentioned by Offutt et. al.
 
 [Publication](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
  [Presentation](/resources/icse2016/gopinath2016topsy.pptx) 
-
-#### <a name='gopinath2016do'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Do Mutation Reduction Strategies Matter?_ (in submission) IST Journal, 2016]()
-
-Context: Mutation analysis is a well-known, but computationally
-intensive, method for measuring test suite quality. While multiple strategies
-have been proposed to reduce the number of mutants, there is inconclusive
-evidence for their utility due to the limited number and size of programs used
-for validation, and a lack of comprehensive comparative studies.
-Traditional evaluation criteria for mutation reduction also rely on
-mutation-adequate suites, which are rare in practice.
-
-Objective: This paper evaluates the effectiveness of multiple
-mutation reduction strategies in comparison to random sampling using
-both a traditional effectiveness criterion, and also more recently proposed criteria
-that are directly linked to how mutation analysis is used during development \textemdash to ensure that tests check for many different possible faults.
-
-Method: We evaluate the effectiveness of mutation reduction
-strategies with 201 real-world projects.
-
-Results: None of the strategies evaluated \textemdash many forms of operator
-selection, and stratified sampling (on operators or program elements) \textemdash produced
-an effectiveness advantage larger than 10\% in comparison with random sampling.
-That is, the strategies evaluated are at best marginally better than
-random sampling, and are often worse.
-
-Conclusion: We conclude that pure random sampling is the best approach
-for mutation reduction, given the bad performance of selection strategies, and
-the small advantage offered by more complex strata sampling strategies on operators
-and program elements.
-
-[Publication](/resources/ist2016/ist2016do.pdf) [Bib](/resources/ist2016/gopinath2016do.bib) [Data](http://eecs.osuosl.org/rahul/ist2016/)
-
 
 #### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
 
