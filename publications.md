@@ -9,49 +9,49 @@ menu: Publications
 
 ##### 2016
 * [_Can Testedness be Effectively Measured?_](#ahmed2016can)<br/>
-  Ahmed, Gopinath, Brindescu, Groce, Jensen - FSE, 2016
+  Ahmed, *Gopinath*, Brindescu, Groce, Jensen - FSE, 2016
 
 * [_Generating Focused Random Tests Using Directed Swarm Testing_](#alipour2016focused)<br/>
-  Alipour, Groce, Gopinath, Christi - ISSTA, 2016
+  Alipour, Groce, *Gopinath*, Christi - ISSTA, 2016
 
 * [_Measuring Effectiveness of Mutant Sets_](#gopinath2016measuring)<br/>
-  Gopinath, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
+  *Gopinath*, Alipour, Ahmed, Jensen, Groce - ICSTW Mutation, 2016
 
 * [_Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_](#gopinath2016topsy)<br/>
-  Gopinath, Jensen, Groce - ICSE (Extended Abstract - Distinguished Award), 2016
+  *Gopinath*, Jensen, Groce - ICSE (Extended Abstract - Distinguished Award), 2016
 
 * [_Does The Choice of Mutation Tool Matter?_](#gopinath2016does)<br/>
-  Gopinath, Ahmed, Alipour, Jensen, Groce - SQJournal, 2016
+  *Gopinath*, Ahmed, Alipour, Jensen, Groce - SQJournal, 2016
 
 * [_On The Limits Of Mutation Reduction Strategies_](#gopinath2016on)<br/>
-  Gopinath, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
+  *Gopinath*, Alipour, Ahmed, Jensen, Groce - ICSE, 2016
 
 ##### 2015
 
 * [_How hard does mutation analysis have to be anyway?_](#gopinath2015how)<br/>
-  Gopinath, Alipour, Ahmed, Jensen, Groce - ISSRE, 2015
+  *Gopinath*, Alipour, Ahmed, Jensen, Groce - ISSRE, 2015
 
 * [_An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_](#ahmed2015an)<br/>
-  Ahmed, Mannan, Gopinath, Jensen - ESEM, 2015
+  Ahmed, Mannan, *Gopinath*, Jensen - ESEM, 2015
 
 ##### 2014
 
 * [_Mutations: How close are they to real faults?_](#gopinath2014mutations)<br/>
-  Gopinath, Jensen, Groce - ISSRE, 2014
+  *Gopinath*, Jensen, Groce - ISSRE, 2014
 
 * [_Coverage and Its Discontents_](#groce2014coverage)<br/>
-  Groce, Alipour, Gopinath - Essays 2014
+  Groce, Alipour, *Gopinath* - Essays 2014
 
 * [_MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_](#le2014mucheck)<br/>
-  Le, Alipour, Gopinath, Groce -  ISSTA Tools, 2014
+  Le, Alipour, *Gopinath*, Groce -  ISSTA Tools, 2014
 
 * [_Code coverage for suite evaluation by developers_](#gopinath2014code)<br/>
-  Gopinath, Jensen, Groce - ICSE, 2014
+  *Gopinath*, Jensen, Groce - ICSE, 2014
 
 ##### 2012
 
 * [_Explanations for Regular Expressions_](#erwig2012explanations)<br/>
-  Erwig, Gopinath - FASE, 2012
+  Erwig, *Gopinath* - FASE, 2012
 
 ---
 
