@@ -64,6 +64,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* ASE 2016 Alipour, Gopinath, Shi, Marinov, Groce "Evaluating Non-Adequate Test-Case Reduction"
 * FSE 2016 Ahmed, Gopinath, Brindescu, Groce, Jensen "Can Testedness be Effectively Measured?"
 * ISSTA 2016 Alipour, Groce, Gopinath, Christi "Generating Focused Random Tests Using Directed Swarm Testing"
 * ICSTW Mutation 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "Measuring Effectiveness of Mutant Sets"
