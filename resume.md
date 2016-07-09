@@ -92,7 +92,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Research Interests]()
 
-Software Testing, Programming Languages
+Software Testing, Programming Languages, Parallel, Concurrent and Distributed Systems
 
 ### [Achievements]()
 
