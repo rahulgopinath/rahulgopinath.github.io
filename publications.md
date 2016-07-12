@@ -266,6 +266,8 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
+<script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
 [Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [Presentation](/resources/issre2015/gopinath2015howhard.pptx) 
 
