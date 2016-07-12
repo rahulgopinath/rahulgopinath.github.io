@@ -304,6 +304,8 @@ languages have different distributions, which in turn suggests that operators op
 for others. Moreover, our results suggest that mutation analysis stands in need of better empirical support of the connection 
 between mutant detection and detection of actual program faults in a larger body of real programs. 
 
+<script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
 [Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [Presentation](/resources/issre2014/gopinath2014mutations.pptx) 
 
