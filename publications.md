@@ -232,6 +232,8 @@ more effort should be focused on enhancing mutations than
 removing operators in the name of selective mutation for
 questionable benefit.
 
+<script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
 [Publication](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
  [Presentation](/resources/icse2016/gopinath2016on.pptx) 
 
