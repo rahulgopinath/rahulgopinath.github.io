@@ -65,7 +65,7 @@ one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for Op
 
 [v-language](https://github.com/vrthra/v-language) is a simple stack based
 language that is very similar to Postscript and Forth. I wrote this to
-understand concatenative programming. Originally written in Java, it provides
+understand concatenative programming. Originally written in Java, and then ported to C, it provides
 a simple MOP and word invocation through pattern matches. The rewrite in C also
 provides green threads and a simple reference counting GC. I later rewrote [V in Haskell](https://github.com/vrthra/v)
 
