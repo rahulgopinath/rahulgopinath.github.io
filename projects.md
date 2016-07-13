@@ -67,7 +67,7 @@ one of the authors of the initial prototype of IBM Mellanox Chef Cookbook for Op
 language that is very similar to Postscript and Forth. I wrote this to
 understand concatenative programming. Originally written in Java, it provides
 a simple MOP and word invocation through pattern matches. The rewrite in C also
-provides a simple reference counting GC. I later rewrote [V in Haskell](https://github.com/vrthra/v)
+provides green threads and a simple reference counting GC. I later rewrote [V in Haskell](https://github.com/vrthra/v)
 
 [bibprolog](https://github.com/vrthra/bibprolog) is a simple SWI-Prolog based
 command line tool to query Bibtex databases. It uses simple terminal based
