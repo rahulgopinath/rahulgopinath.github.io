@@ -232,7 +232,7 @@ more effort should be focused on enhancing mutations than
 removing operators in the name of selective mutation for
 questionable benefit.
 
-<script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [Publication](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
  [Presentation](/resources/icse2016/gopinath2016on.pptx) 
@@ -266,7 +266,7 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
-<script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [Presentation](/resources/issre2015/gopinath2015howhard.pptx) 
@@ -306,7 +306,7 @@ languages have different distributions, which in turn suggests that operators op
 for others. Moreover, our results suggest that mutation analysis stands in need of better empirical support of the connection 
 between mutant detection and detection of actual program faults in a larger body of real programs. 
 
-<script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<!--script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [Presentation](/resources/issre2014/gopinath2014mutations.pptx) 
@@ -327,7 +327,7 @@ This paper presents MuCheck, a mutation testing tool for Haskell programs. This 
 
 One of the key challenges of developers testing code is determining a test suite's quality -- its ability to find faults. The most common approach is to use code coverage as a measure for test suite quality, and diminishing returns in coverage or high absolute coverage as a stopping rule. In testing research, suite quality is often evaluated by a suite's ability to kill mutants (artificially seeded potential faults). Determining which criteria best predict mutation kills is critical to practical estimation of test suite quality. Previous work has only used small sets of programs, and usually compares multiple suites for a single program. Practitioners, however, seldom compare suites --- they evaluate one suite. Using suites (both manual and automatically generated) from a large set of real-world open-source projects shows that evaluation results differ from those for suite-comparison: statement (not block, branch, or path) coverage predicts mutation kills best.
 
-<script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<!--script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [Publication](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
 [Presentation](/resources/icse2014/gopinath2014code.pptx) 
