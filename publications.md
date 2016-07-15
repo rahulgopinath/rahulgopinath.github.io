@@ -93,7 +93,7 @@ about half as many bug-fixes as those not covered, and a similar line can be
 drawn for mutation score thresholds. Our results have important implications for
 both software engineering practice and research evaluation.
 
-[Publication](/resources/fse2016/ahmed2016can.pdf) [Bib](/resources/fse2016/ahmed2016can.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/fse2016/ahmed2016can.pdf) [Bib](/resources/fse2016/ahmed2016can.bib)
 
 
 #### <a name='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
@@ -117,7 +117,7 @@ swarm testing improves detection rates for real SpiderMonkey faults, when
 the code in the introducing commit is targeted. This lightweight technique
 is applicable to existing industrial-strength random testers.
 
-[Publication](/resources/issta2016/alipour2016focused.pdf) [Bib](/resources/issta2016/alipour2016focused.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issta2016/alipour2016focused.pdf) [Bib](/resources/issta2016/alipour2016focused.bib)
 
 
 #### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
@@ -152,8 +152,7 @@ benchmark of these measures using diverse tools.
 *Updates*: The terminology used in this paper is not completely correct.
 The *minimal mutants* are different from *disjoint mutants*. The
 *disjoint mutants* are actually *surface mutants*.
-
-[Publication](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
 [Presentation](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
 
 #### <a name='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
@@ -175,8 +174,7 @@ reductions.
 
 *Updates*: Part of our concept is similar to the split-stream execution of
 mutants mentioned by Offutt et. al.
-
-[Publication](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
 [Presentation](https://speakerdeck.com/rahulgopinath/topsy-turvy-a-smarter-and-faster-parallelization-of-mutation-analysis)
 
 #### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
@@ -202,8 +200,7 @@ or small increments in mutation score may not yield reliable results. There
 is a clear need for greater standardization of mutation analysis; we propose
 one approach for such a standardization.
 
-
-[Publication](/resources/sqj2016/gopinath2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/sqj2016/gopinath2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
@@ -234,8 +231,7 @@ removing operators in the name of selective mutation for
 questionable benefit.
 
 <!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
-
-[Publication](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
 [Presentation](https://speakerdeck.com/rahulgopinath/on-the-limits-of-mutation-reduction-strategies)
 
 #### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
@@ -268,8 +264,7 @@ and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
 <!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
-
-[Publication](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [Presentation](https://speakerdeck.com/rahulgopinath/how-hard-does-mutation-analysis-have-to-be-anyway)
 
 #### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
@@ -289,7 +284,7 @@ while core contributors tend to fix design issues more often than non-core
 contributors, there is no difference once the relative quantity of commits
 is accounted for.
 
-[Publication](/resources/esem2015/ahmed2015empirical.pdf) [Bib](/resources/esem2015/ahmed2015empirical.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/esem2015/ahmed2015empirical.pdf) [Bib](/resources/esem2015/ahmed2015empirical.bib)
 [Presentation](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time) 
 
 #### <a name='gopinath2014mutations'></a>[Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
@@ -310,20 +305,20 @@ between mutant detection and detection of actual program faults in a larger body
 
 <!--script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[Publication](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [Presentation](https://speakerdeck.com/rahulgopinath/mutations-how-close-are-they-to-real-faults)
 
 #### <a name='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 
 Everyone wants to know one thing about a test suite: will it detect enough bugs? Unfortunately, in most settings that matter, answering this question directly is impractical or impossible. Software engineers and researchers therefore tend to rely on various measures of code coverage (where mutation testing is considered as a form of syntactic coverage). A long line of academic research efforts have attempted to determine whether relying on coverage as a substitute for fault detection is a reasonable solution to the problems of test suite evaluation. This essay argues that the profusion of coverage-related literature is in part a sign of an underlying uncertainty as to what exactly it is that measuring coverage should achieve, and how we would know if it can, in fact, achieve it. We propose some solutions, but the primary focus is to clarify the state of current confusions regarding this key problem for effective software testing. 
 
-[Publication](/resources/splash2014/groce2014coverage.pdf) [Bib](/resources/splash2014/groce2014coverage.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/splash2014/groce2014coverage.pdf) [Bib](/resources/splash2014/groce2014coverage.bib)
 
 #### <a name='le2014mucheck'></a>[Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
 
 This paper presents MuCheck, a mutation testing tool for Haskell programs. This is the first tool to be published (to our knowledge) that is explicitly oriented towards mutation testing for functional programs. MuCheck is a counterpart to the widely used QuickCheck random testing tool in fuctional programs, and can be used to evaluate the efficacy of QuickCheck property definitions. The tool implements mutation operators that are specifically designed for functional programs, and makes use of the type system of Haskell to achieve a more relevant set of mutants than otherwise possible. Mutation coverage is particularly valuable for functional programs due to highly compact code, referential transparency, and clean semantics, which make augmenting a test suite or specification based on surviving mutants a practical method for improved testing.
 
-[Publication](/resources/issta2014/le2014mucheck.pdf) [Bib](/resources/issta2014/le2014mucheck.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issta2014/le2014mucheck.pdf) [Bib](/resources/issta2014/le2014mucheck.bib)
 
 #### <a name='gopinath2014code'></a>[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014]()
 
@@ -331,14 +326,14 @@ One of the key challenges of developers testing code is determining a test suite
 
 <!--script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[Publication](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
 [Presentation](https://speakerdeck.com/rahulgopinath/test-suite-evaluation-for-fun-and-profit)
 
 #### <a name='erwig2012explanations'></a>[Erwig, Gopinath: _Explanations for Regular Expressions_ FASE 2012]()
 
 Regular expressions are widely used, but they are inherently hard to understand and (re)use, which is primarily due to the lack of abstraction mechanisms that causes regular expressions to grow large very quickly. The problems with understandability and usability are further compounded by the viscosity, redundancy, and terseness of the notation. As a consequence, many different regular expressions for the same problem are floating around, many of them erroneous, making it quite difficult to find and use the right regular expression for a particular problem. Due to the ubiquitous use of regular expressions, the lack of understandability and usability becomes a serious software engineering problem. In this paper we present a range of independent, complementary representations that can serve as explanations of regular expressions. We provide methods to compute those representations, and we describe how these methods and the constructed explanations can be employed in a variety of usage scenarios. In addition to aiding understanding, some of the representations can also help identify faults in regular expressions. Our evaluation shows that our methods are widely applicable and can thus have a significant impact in improving the practice of software engineering.
 
-[Publication](/resources/fase2012/erwig2012explanations.pdf) [Bib](/resources/fase2012/erwig2012explanations.bib)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/fase2012/erwig2012explanations.pdf) [Bib](/resources/fase2012/erwig2012explanations.bib)
 
 
 <script>
