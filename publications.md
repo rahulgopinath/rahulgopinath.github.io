@@ -341,6 +341,7 @@ This paper presents MuCheck, a mutation testing tool for Haskell programs. This 
 
 [<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/issta2014/le2014mucheck.pdf)
 [<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/issta2014/le2014mucheck.bib)
+[<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/alipourm/mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs)
 
 #### <a name='gopinath2014code'></a>[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014]()
 
