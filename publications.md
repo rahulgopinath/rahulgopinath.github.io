@@ -152,6 +152,7 @@ benchmark of these measures using diverse tools.
 *Updates*: The terminology used in this paper is not completely correct.
 The *minimal mutants* are different from *disjoint mutants*. The
 *disjoint mutants* are actually *surface mutants*.
+
 [<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
 [Presentation](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
 
@@ -174,6 +175,7 @@ reductions.
 
 *Updates*: Part of our concept is similar to the split-stream execution of
 mutants mentioned by Offutt et. al.
+
 [<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
 [Presentation](https://speakerdeck.com/rahulgopinath/topsy-turvy-a-smarter-and-faster-parallelization-of-mutation-analysis)
 
@@ -231,6 +233,7 @@ removing operators in the name of selective mutation for
 questionable benefit.
 
 <!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
+
 [<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
 [Presentation](https://speakerdeck.com/rahulgopinath/on-the-limits-of-mutation-reduction-strategies)
 
@@ -264,6 +267,7 @@ and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
 <!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
+
 [<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [Presentation](https://speakerdeck.com/rahulgopinath/how-hard-does-mutation-analysis-have-to-be-anyway)
 
