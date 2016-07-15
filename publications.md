@@ -153,7 +153,8 @@ benchmark of these measures using diverse tools.
 The *minimal mutants* are different from *disjoint mutants*. The
 *disjoint mutants* are actually *surface mutants*.
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib) [Data](http://eecs.osuosl.org/rahul/icst2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icst2016/icst2016measuring.pdf) [Bib](/resources/icst2016/gopinath2016measuring.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](http://eecs.osuosl.org/rahul/icst2016/)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
 
 #### <a name='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
@@ -176,7 +177,8 @@ reductions.
 *Updates*: Part of our concept is similar to the split-stream execution of
 mutants mentioned by Offutt et. al.
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib) [Data](http://eecs.osuosl.org/rahul/icse2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016topsy.pdf) [Bib](/resources/icse2016/gopinath2016topsy.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](http://eecs.osuosl.org/rahul/icse2016/)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/topsy-turvy-a-smarter-and-faster-parallelization-of-mutation-analysis)
 
 #### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
@@ -202,7 +204,8 @@ or small increments in mutation score may not yield reliable results. There
 is a clear need for greater standardization of mutation analysis; we propose
 one approach for such a standardization.
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/sqj2016/gopinath2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib) [Data](http://eecs.osuosl.org/rahul/sqj2016/)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/sqj2016/gopinath2016does.pdf) [Bib](/resources/sqj2016/gopinath2016does.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
@@ -234,7 +237,8 @@ questionable benefit.
 
 <!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2016/gopinath2016on.pdf) [Bib](/resources/icse2016/gopinath2016on.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/on-the-limits-of-mutation-reduction-strategies)
 
 #### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
@@ -268,7 +272,8 @@ incorporates the analysis of stubbornness of mutants.
 
 <!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2015/gopinath2015howhard.pdf) [Bib](/resources/issre2015/gopinath2015howhard.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/how-hard-does-mutation-analysis-have-to-be-anyway)
 
 #### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
@@ -309,7 +314,8 @@ between mutant detection and detection of actual program faults in a larger body
 
 <!--script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/issre2014/gopinath2014mutations.pdf) [Bib](/resources/issre2014/gopinath2014mutations.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/mutations-how-close-are-they-to-real-faults)
 
 #### <a name='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
@@ -330,7 +336,8 @@ One of the key challenges of developers testing code is determining a test suite
 
 <!--script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
-[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib) [Data](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
+[<i class="fa fa-download fa-lg" aria-hidden="true"></i>](/resources/icse2014/gopinath2014code.pdf) [Bib](/resources/icse2014/gopinath2014code.bib)
+[<i class="fa fa-database fa-lg" aria-hidden="true"></i>](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/test-suite-evaluation-for-fun-and-profit)
 
 #### <a name='erwig2012explanations'></a>[Erwig, Gopinath: _Explanations for Regular Expressions_ FASE 2012]()
