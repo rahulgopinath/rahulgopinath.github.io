@@ -157,6 +157,14 @@ all the underlying libraries to build the appliance as a kernel, running
 directly on the machine. While the project never went beyond the prototype
 stage, it could boot up, accept rating requests over TCP, and do minimal processing.
 
+Wsadm installer: While at Suntec, we built a fairly complex web application using
+IBM WebSphere. This being WebSphere, and installation of our application was quite
+time consuming, taking in excess of 30 minutes, and required manual interaction
+for deployment. Since IBM WebSphere provided wsadmin, a command line tool that
+provided TCL ([Jacl](http://tcljava.sourceforge.net/docs/website/index.html))
+interface, I wrote an installer that automated the whole
+procedure in Jacl. Later provided a custom user interface using [Swank](https://swank.kenai.com/).
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
