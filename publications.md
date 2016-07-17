@@ -156,7 +156,7 @@ benchmark of these measures using diverse tools.
 The *minimal mutants* are different from *disjoint mutants*. The
 *disjoint mutants* are actually *surface mutants*.
 
-[<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/icst2016/icst2016measuring.pdf)
+[<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/icst2016/gopinath2016measuring.pdf)
 [<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/icst2016/gopinath2016measuring.bib)
 [<i class="fa fa-database fa-lg" aria-hidden="true"></i>](http://eecs.osuosl.org/rahul/icst2016/)
 [<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
