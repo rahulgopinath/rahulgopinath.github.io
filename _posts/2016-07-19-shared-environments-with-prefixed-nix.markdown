@@ -129,6 +129,6 @@ nix-instantiate . --indirect --add-root $.gcroots/default.drv
 nix-shell . --pure --indirect --add-root .gcroots/dep
 ```
 
-Which will land you in a *nix-shell* containing the required tools. The `--add-root` incantations ensure that your environment will not be garbage collected on `nix-collect-garbage` invocations.
+Which will land you in a *nix-shell* containing the required tools. The `add-root` incantations ensure that your environment will not be garbage collected on `nix-collect-garbage` invocations. The first `nix-instantiate ... --add-root ...` creates a reference to the derivation of *default.nix*, and the second `nix-shell ... --add-root ...` creates references to all the build dependencies.
 
 With this recipe, you should have a shared prefixed nix installation suitable for academic environments under *$base/nix*. Ping me if you face any troubles, and I will see if I can help.
