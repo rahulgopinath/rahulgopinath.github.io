@@ -127,16 +127,16 @@ $ make nixprofile nixpkgs nixconfig
 * Remember that you need at least these environment variables
 
 ```
-export PATH=$HOME/.nix-profile/bin:$PATH
-export NIXDIR=$HOME/.nix-defexpr
-export NIXPKGS=$NIXDIR/nixpkgs/
-export NIX_PATH=$NIXPKGS:nixpkgs=$NIXPKGS
+$ export PATH=$HOME/.nix-profile/bin:$PATH
+$ export NIXDIR=$HOME/.nix-defexpr
+$ export NIXPKGS=$NIXDIR/nixpkgs/
+$ export NIX_PATH=$NIXPKGS:nixpkgs=$NIXPKGS
 ```
 
 * Also, switch to the correct group as the second user before touching *nix*.
 
 ```
-newgrp myteam
+$ newgrp myteam
 ```
 
 * Finally, if you update *nix* as any user, always run update permissions.
