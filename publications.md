@@ -6,6 +6,16 @@ group: navigation
 weight: 2
 menu: Publications
 ---
+<style type="text/css">
+/*
+My name.
+*/
+ul>li>p>em,ul>li>em {
+  font-weight: 500;
+  font-style: normal;
+}
+</style>
+
 
 ##### 2016
 
