@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Shared Environments with Prefixed Nix
 layout: post
 tags: nixos
