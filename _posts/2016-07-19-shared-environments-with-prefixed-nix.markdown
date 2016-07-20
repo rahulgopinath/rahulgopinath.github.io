@@ -49,16 +49,10 @@ $ make
 
 * Note that due to [512](https://github.com/NixOS/nix/issues/512) we have to modify the Nix packages slightly. We need a non-released version of Nix (see [here](https://github.com/vrthra/nix-prefix/blob/master/etc/non-nix.patch)), which is fetched automatically.
 
-* You will also require to create/update your *~/.nixpkgs/config.nix*. If you don't have one, it can be created automatically by using *nixpkgs* target. Remember to use *base=* argument here if you have not changed it in the makefile.
+* You will also require to create/update your *~/.nixpkgs/config.nix*. If you don't have one, it can be created automatically by using *nixpkgs* target. Remember to use *base=* argument here if you have not changed it in the makefile. Update your profile *~/.nix-profile* and the Nix Packages checkout link at *~/.nix-defexpr/nixpkgs*.
 
 ```
-$ make nixpkgs
-```
-
-* Remember to link your profile too
-
-```
-$ make nixprofile
+$ make nixpkgs nixprofile nixconfig
 ```
 
 * At the end of these steps, you should have the nix installation under *$base/nix*, *~/.nix-profile* linked to *$base/nix/var/nix/profiles/default*, and *~/.nixpkgs/config.nix* containing entries from *nix-prefix/etc/config.nix* with BASE replaced with $base.
@@ -73,6 +67,7 @@ nix-1.12.x
 * Remember to garbage collect, if you would like some space back.
 
 ```
+nix> nix-collect-garbage -d
 nix> nix-collect-garbage -d
 ```
 
@@ -106,6 +101,7 @@ $ ./bin/update-perms.sh
 
 ```
 nix> nix-collect-garbage -d
+nix> nix-collect-garbage -d
 ```
 For some reason, I have to do `nix-collect-garbage -d` two times to actually delete all garbage.
 
@@ -121,12 +117,41 @@ $ du -ksh nix.tar.gz
 
 The *nix.tar.gz* can now be copied to other machines to get a base nix package installation. Once you have the `nix>` prompt in another machine, you could use `copy-closure` to copy packages back and forth.
 
+* For another user who wants to use the same *$base/nix* installation in the same machine, login as that user, and cd to directory where you checked out *nix-prefix*, and invoke targets *nixpkgs* and *nixprofile*. These will create the necessary links in their home directory.
+
+```
+$ cd $base/nix-prefix
+$ make nixprofile nixpkgs nixconfig
+```
+
+* Remember that you need at least these environment variables
+
+```
+export PATH=$HOME/.nix-profile/bin:$PATH
+export NIXDIR=$HOME/.nix-defexpr
+export NIXPKGS=$NIXDIR/nixpkgs/
+export NIX_PATH=$NIXPKGS:nixpkgs=$NIXPKGS
+```
+
+* Also, switch to the correct group as the second user before touching *nix*.
+
+```
+newgrp myteam
+```
+
+* Finally, if you update *nix* as any user, always run update permissions.
+
+```
+$ ./bin/update-perms.sh
+```
+
+
 * The *default.nix* in the [nix-prefix](https://github.com/vrthra/nix-prefix) should get you started for an academic research paper using basic *IEEE* latex style, and *R* using *ggplot* and a number of other packages. You can instantiate it using
 
 ```
-mkdir -p .gcroots
-nix-instantiate . --indirect --add-root $.gcroots/default.drv
-nix-shell . --pure --indirect --add-root .gcroots/dep
+$ mkdir -p .gcroots
+$ nix-instantiate . --indirect --add-root $.gcroots/default.drv
+$ nix-shell . --pure --indirect --add-root .gcroots/dep
 ```
 
 Which will land you in a *nix-shell* containing the required tools. The `add-root` incantations ensure that your environment will not be garbage collected on `nix-collect-garbage` invocations. The first `nix-instantiate ... --add-root ...` creates a reference to the derivation of *default.nix*, and the second `nix-shell ... --add-root ...` creates references to all the build dependencies.
