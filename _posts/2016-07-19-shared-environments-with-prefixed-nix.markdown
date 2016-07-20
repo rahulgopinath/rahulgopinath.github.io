@@ -4,11 +4,11 @@ title: Shared Environments with Prefixed Nix
 layout: post
 tags: nixos
 ---
-*tl;dr* Recipe for Nix installation on a non `/nix` location, which can be shared across multiple users
+*tl;dr*: Recipe for Nix installation on a non `/nix` location, which can be shared across multiple users
 
-*caveats* Very hacky
+*caveats*: Very hacky
 
-*requirements* Every one in your group should at least be a member of the same unix group.
+*requirements*: Every one in your group should at least be a member of the same unix group.
 
 As a researcher working on software empirical research, one of the *pain points* in my research is the creation and maintenance of an environment that can be reproduced easily. Ideally, I would like to switch environments easily, according to which project I am working on, and even experiment on new programs without affecting my old environments.
 
@@ -25,54 +25,78 @@ While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on
 ## Recipe
 
 * Fork [Nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in `https://github.com/vrthra/nix-prefix/blob/master/Makefile` and checkout to a location of your choice (I assume `/scratch/nix-prefix`).
+
 ```
 $ git clone https://github.com/vrthra/nix-prefix /scratch/nix-prefix
 ```
+
 * Especially verify that you require all packages that are specified in the checked out [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile). You can change which packages get installed by modifying the `$src` variable. By default, these packages are built
 `src=nix bzip2 curl sqlite dbi dbd wwwcurl bison flex gcc coreutils`. See the _#@ _ lines for where they are fetched from.
+
 * Change to the unix group that you share with other team members (I assume that `myteam` is the unix group).
+
 ```
 newgrp myteam
 ```
+
 * Initiate `make` (If you have not changed the Makefile, please provide a reasonable value for `base` while making). Nix will be installed at `$base/nix`
+
 ```
 $ make -f etc/Makefile.nix link
 $ make base=/scratch/
 ```
+
 * Note that due to [512](https://github.com/NixOS/nix/issues/512) we have to modify the Nix packages slightly. We need a non-released version of Nix (see [here](https://github.com/vrthra/nix-prefix/blob/master/etc/non-nix.patch)), which is fetched automatically.
+
 * You will also require to create/update your `~/.nixpkgs/config.nix`. If you don't have one, it can be created automatically by using `nixpkgs` target. Remember to use `base=` argument here if you have not changed it in the makefile.
+
 ```
 $ make nixpkgs
 ```
+
 * Remember to link your profile too
+
 ```
 $ make nixprofile
 ```
+
 * At the end of these steps, you should have the nix installation under `$base/nix`, `~/.nix-profile` linked to `$base/nix/var/nix/profiles/default`, and `~/.nixpkgs/config.nix` containing entries from `nix-prefix/etc/config.nix` with BASE replaced with $base.
+
 * Make sure that you can access your nix commands by executing `./bin/nix.sh` You should get a prompt `|`.
+
 ```
 $ ./bin/nix.sh 
 | nix-env -q
 nix-1.12.x
 ```
 * Remember to garbage collect, if you would like some space back.
+
 ```
 | nix-collect-garbage -d
 ```
+
 * Exit out of the `nix` prompt, and you may now safely cleanup
+
 ```
 $ make clean
 ```
+
 * We are almost there. Unfortunately due to [554](https://github.com/NixOS/nix/issues/554), LDAP will not work right now. You can check you need to hack to make it work by
+
 ```
 $ ./bin/check-nss.py
 ```
+
 If it throws an exception, execute the next command, if not skip it.
+
 * It does not work: we hack it temporarily by installing `sssd`, which is in [PR 14697](https://github.com/NixOS/nixpkgs/pull/14697) right now, and copying over `libnss_sss` to the `glibc plugins` folder. WARNING: GROSS HACK  _If you are a Nix purist, please hold your nose (or help me fix)_.
+
 ```
 $ ./bin/update-glibc-hack.sh
 ```
+
 * A final issue is that of sharing with others. Due to [324](https://github.com/NixOS/nix/issues/324), one cant yet share an installation with the members in the same group. A hack is to update the permissions under `$base/nix` so that any file that has user write becomes group write. This can be done by below. Remember to do this each time any of the members have added a new package.
+
 ```
 $ ./bin/update-perms.sh
 ```
