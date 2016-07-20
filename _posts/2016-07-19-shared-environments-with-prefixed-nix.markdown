@@ -24,10 +24,11 @@ While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on
 
 ## Recipe
 
-* Fork [Nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch/nix-prefix*).
+* Fork [Nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch*).
 
 ```
-$ git clone https://github.com/vrthra/nix-prefix /scratch/nix-prefix
+export base=/scratch
+$ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 ```
 
 * Especially verify that you require all packages that are specified in the checked out [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile). You can change which packages get installed by modifying the *$src* variable. By default, these packages are built
@@ -43,7 +44,7 @@ newgrp myteam
 
 ```
 $ make -f etc/Makefile.nix link
-$ make base=/scratch/
+$ make
 ```
 
 * Note that due to [512](https://github.com/NixOS/nix/issues/512) we have to modify the Nix packages slightly. We need a non-released version of Nix (see [here](https://github.com/vrthra/nix-prefix/blob/master/etc/non-nix.patch)), which is fetched automatically.
