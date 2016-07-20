@@ -20,7 +20,7 @@ There are still some pieces missing, such as *sssd* support. These are implement
 
 Our environment at [Oregon State](http://eecs.oregonstate.edu/) consists of two separate groups of machines. The first ones consists of our personal desktops (fairly week, 4G RAM, and 40G space), and about 15 machines with about 512G RAM in each, and 1000G space under */scratch* (No common NFS share). The second ones consist of about 1000 machines in a [Univa cluster](http://engineering.oregonstate.edu/computing/cluster/using.html) with varying capabilities. We also have an NFS mount accessible from each machine in the cluster. So I had to build my recipe to be applicable in both kinds of machines. Each user gets a home environment mounted using NFS, that is accessible in both groups of machines.
 
-While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29) multiple ways to install Nix on non */nix* locations, most of them did not work for me. For example, *PRoot* does not work in the cluster machines, and where it works, it is too slow. The *chroot* also had problems on cluster. The manual install only works with the below changes.
+While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29) multiple ways to install Nix on non */nix* locations, most of them did not work for me. For example, *PRoot* does not work in the cluster machines, and where it works, it is too slow. The *chroot* also had problems on cluster. The manual install only works with the below changes. Finally, LDAP is a *must have* for almost everyone in an academic setting, since we usually have to login to multiple machines. So we really need the *glibc* hack if we are to use Nix.
 
 ## Recipe
 
@@ -88,7 +88,7 @@ $ make clean
 $ ./bin/check-nss.py
 ```
 
-If it throws an exception, execute the next command, if not skip it.
+If it throws an exception, execute the next command, if not, skip it.
 
 * It does not work: we hack it temporarily by installing *sssd*, which is in [PR 14697](https://github.com/NixOS/nixpkgs/pull/14697) right now, and copying over *libnss_sss* to the *glibc plugins* folder. WARNING: GROSS HACK  _If you are a Nix purist, please hold your nose (or help me fix)_.
 
