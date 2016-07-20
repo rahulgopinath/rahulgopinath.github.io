@@ -157,3 +157,9 @@ $ nix-shell . --pure --indirect --add-root .gcroots/dep
 Which will land you in a *nix-shell* containing the required tools. The `add-root` incantations ensure that your environment will not be garbage collected on `nix-collect-garbage` invocations. The first `nix-instantiate ... --add-root ...` creates a reference to the derivation of *default.nix*, and the second `nix-shell ... --add-root ...` creates references to all the build dependencies.
 
 With this recipe, you should have a shared prefixed nix installation suitable for academic environments under *$base/nix*. Ping me if you face any troubles, and I will see if I can help.
+
+## Still to be solved.
+
+Because we have multiple kinds of environments, all of which mounts the same *$HOME*, we dont have a way to switch the directories *~/.nixpkgs/config.nix* and *~/.nix-defexpr*. There is this issue [817](https://github.com/NixOS/nix/issues/817) still open about it, and it seems there was a *NIXPKGS_CONFIG* variable at one point of time, but seems to have been removed. See [829](https://github.com/NixOS/nix/issues/829).
+
+This can be worked around by using some shell scripting to switch the variables. However, it is very error-prone, and does not let you use different environments simultaneously.
