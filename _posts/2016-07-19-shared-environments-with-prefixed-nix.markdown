@@ -27,7 +27,7 @@ While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on
 * Fork [nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch*).
 
 ```
-export base=/scratch
+$ export base=/scratch
 $ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 ```
 
@@ -37,7 +37,7 @@ $ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 * Change to the unix group that you share with other team members (I assume that *myteam* is the unix group).
 
 ```
-newgrp myteam
+$ newgrp myteam
 ```
 
 * Initiate *make* (If you have not changed the Makefile, please provide a reasonable value for *base* while making). Nix will be installed at *$base/nix*
