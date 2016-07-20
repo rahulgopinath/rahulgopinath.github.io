@@ -24,7 +24,7 @@ While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on
 
 ## Recipe
 
-* Fork [Nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch*).
+* Fork [nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch*).
 
 ```
 export base=/scratch
@@ -66,7 +66,7 @@ $ make nixprofile
 * Make sure that you can access your nix commands by executing *./bin/nix.sh* You should get a prompt `nix>`.
 
 ```
-$ ./bin/nix.sh 
+$ ./bin/nix.sh
 nix> nix-env -q
 nix-1.12.x
 ```
@@ -76,7 +76,7 @@ nix-1.12.x
 nix> nix-collect-garbage -d
 ```
 
-* Exit out of the *nix* `nix>` prompt, and you may now safely cleanup
+* Exit out of the `nix>` prompt, and you may now safely cleanup
 
 ```
 $ make clean
@@ -101,5 +101,34 @@ $ ./bin/update-glibc-hack.sh
 ```
 $ ./bin/update-perms.sh
 ```
+
+* Once you have built *$base/nix*, you can compress it and transport it to other machines with same operating system. After a gc, the size is really small.
+
+```
+nix> nix-collect-garbage -d
+```
+For some reason, I have to do `nix-collect-garbage -d` two times to actually delete all garbage.
+
+Now, Exit out of the shell, and check the size of installation.
+
+```
+$ cd $base
+$ tar -cf nix.tar nix
+$ gzip nix.tar
+$ du -ksh nix.tar.gz
+36M     nix.tar.gz
+```
+
+The *nix.tar.gz* can now be copied to other machines to get a base nix package installation. Once you have the `nix>` prompt in another machine, you could use `copy-closure` to copy packages back and forth.
+
+* The *default.nix* in the [nix-prefix](https://github.com/vrthra/nix-prefix) should get you started for an academic research paper using basic *IEEE* latex style, and *R* using *ggplot* and a number of other packages. You can instantiate it using
+
+```
+mkdir -p .gcroots
+nix-instantiate . --indirect --add-root $.gcroots/default.drv
+nix-shell . --pure --indirect --add-root .gcroots/dep
+```
+
+Which will land you in a *nix-shell* containing the required tools. The `--add-root` incantations ensure that your environment will not be garbage collected on `nix-collect-garbage` invocations.
 
 With this recipe, you should have a shared prefixed nix installation suitable for academic environments under *$base/nix*. Ping me if you face any troubles, and I will see if I can help.
