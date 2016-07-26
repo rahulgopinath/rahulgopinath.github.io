@@ -14,7 +14,7 @@ menu: Posts
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags != 'sunmicrosystems' and mytags != 'haskelltricks' and mytags != 'cs381' and  mytags != 'ta' and  mytags != 'instructor'  %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a></li>
+  <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a></li>
   {% endif %}
   {% endfor %}
   </ul>
@@ -29,7 +29,7 @@ These are the teaching materials I prepared for a course in programming language
   {% for post in site.posts reversed %}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'cs381' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> </li>
+  <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> </li>
   {% endif %}
   {% endfor %}
   </ul>
@@ -42,7 +42,7 @@ These are the teaching materials I prepared for a course in programming language
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'haskelltricks' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> </li>
+  <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a> </li>
   {% endif %}
   {% endfor %}
   </ul>
@@ -55,7 +55,7 @@ These are the teaching materials I prepared for a course in programming language
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'sunmicrosystems' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a></li>
+  <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a></li>
   {% endif %}
   {% endfor %}
   </ul>
