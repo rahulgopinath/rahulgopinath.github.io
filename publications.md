@@ -65,8 +65,8 @@ Given two test cases, one larger and one smaller, the smaller test case is prefe
 
 Our study introduces and evaluates C%-coverage reduction (where a test case is reduced to retain at least C% of its original coverage) and N-mutant reduction (where a test case is reduced to kill at least N of the mutants it originally killed). We evaluate the reduction trade-offs with varying values of C and N for four real-world C projects: Mozilla’s SpiderMonkey JavaScript engine, the YAFFS2 flash file system, Grep, and Gzip. The results show that it is possible to greatly reduce the size of many test cases while still preserving much of their fault-detection capability.
 
-[<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/fse2016/alipour2016evaluating.pdf)
-[<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/fse2016/alipour2016evaluating.bib)
+[<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/ase2016/alipour2016evaluating.pdf)
+[<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/ase2016/alipour2016evaluating.bib)
 
 #### <a name='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
 
