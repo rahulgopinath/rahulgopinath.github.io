@@ -121,6 +121,7 @@ is applicable to existing industrial-strength random testers.
 
 [<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/issta2016/alipour2016focused.pdf)
 [<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/issta2016/alipour2016focused.bib)
+[<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/arpitchristi/issta-2016-generating-focused-random-tests-using-directed-swarm-testing)
 
 
 #### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
