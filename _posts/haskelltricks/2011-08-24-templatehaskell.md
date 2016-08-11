@@ -39,7 +39,7 @@ ghci> :. th.cmd
 The notes are in literate Haskell format. You will need the following
 initial imports at the beginning.
 
-~~~
+~~~ haskell
 {-# LANGUAGE TemplateHaskell, LANGUAGE QuasiQuotes #-}
 > module Main where
 > import Language.Haskell.TH
