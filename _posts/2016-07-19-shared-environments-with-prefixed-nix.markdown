@@ -26,7 +26,7 @@ While Nix wiki [details](https://nixos.org/wiki/How_to_install_nix_in_home_%28on
 
 * Fork [nix-prefix](https://github.com/vrthra/nix-prefix), change any variables you want in [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile) and checkout to a location of your choice (I assume */scratch*).
 
-```
+```bash
 $ export base=/scratch
 $ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 ```
@@ -36,13 +36,13 @@ $ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 
 * Change to the unix group that you share with other team members (I assume that *myteam* is the unix group).
 
-```
+```bash
 $ newgrp myteam
 ```
 
 * Initiate *make* (If you have not changed the Makefile, please provide a reasonable value for *base* while making). Nix will be installed at *$base/nix*
 
-```
+```bash
 $ make -f etc/Makefile.nix link
 $ make
 ```
@@ -51,7 +51,7 @@ $ make
 
 * You will also require to create/update your *~/.nixpkgs/config.nix*. If you don't have one, it can be created automatically by using *nixpkgs* target. Remember to use *base=* argument here if you have not changed it in the makefile. Update your profile *~/.nix-profile* and the Nix Packages checkout link at *~/.nix-defexpr/nixpkgs*.
 
-```
+```bash
 $ make nixpkgs nixprofile nixconfig
 ```
 
@@ -59,27 +59,27 @@ $ make nixpkgs nixprofile nixconfig
 
 * Make sure that you can access your nix commands by executing *./bin/nix.sh* You should get a prompt `nix>`.
 
-```
+```bash
 $ ./bin/nix.sh
 nix> nix-env -q
 nix-1.12.x
 ```
 * Remember to garbage collect, if you would like some space back.
 
-```
+```bash
 nix> nix-collect-garbage -d
 nix> nix-collect-garbage -d
 ```
 
 * Exit out of the `nix>` prompt, and you may now safely cleanup
 
-```
+```bash
 $ make clean
 ```
 
 * We are almost there. Unfortunately due to [554](https://github.com/NixOS/nix/issues/554), LDAP will not work right now. You can check you need to hack to make it work by
 
-```
+```bash
 $ ./bin/check-nss.py
 ```
 
@@ -87,19 +87,19 @@ If it throws an exception, execute the next command, if not, skip it.
 
 * It does not work: we hack it temporarily by installing *sssd*, which is in [PR 14697](https://github.com/NixOS/nixpkgs/pull/14697) right now, and copying over *libnss_sss* to the *glibc plugins* folder. WARNING: GROSS HACK  _If you are a Nix purist, please hold your nose (or help me fix)_.
 
-```
+```bash
 $ ./bin/update-glibc-hack.sh
 ```
 
 * A final issue is that of sharing with others. Due to [324](https://github.com/NixOS/nix/issues/324), one cant yet share an installation with the members in the same group. A hack is to update the permissions under *$base/nix* so that any file that has user write becomes group write. This can be done by below. Remember to do this each time any of the members have added a new package.
 
-```
+```bash
 $ ./bin/update-perms.sh
 ```
 
 * Once you have built *$base/nix*, you can compress it and transport it to other machines with same operating system. After a gc, the size is really small.
 
-```
+```bash
 nix> nix-collect-garbage -d
 nix> nix-collect-garbage -d
 ```
@@ -107,7 +107,7 @@ For some reason, I have to do `nix-collect-garbage -d` two times to actually del
 
 Now, Exit out of the shell, and check the size of installation.
 
-```
+```bash
 $ cd $base
 $ tar -cf nix.tar nix
 $ gzip nix.tar
@@ -119,14 +119,14 @@ The *nix.tar.gz* can now be copied to other machines to get a base nix package i
 
 * For another user who wants to use the same *$base/nix* installation in the same machine, login as that user, and cd to directory where you checked out *nix-prefix*, and invoke targets *nixpkgs* and *nixprofile*. These will create the necessary links in their home directory.
 
-```
+```bash
 $ cd $base/nix-prefix
 $ make nixprofile nixpkgs nixconfig
 ```
 
 * Remember that you need at least these environment variables
 
-```
+```bash
 $ export PATH=$HOME/.nix-profile/bin:$PATH
 $ export NIXDIR=$HOME/.nix-defexpr
 $ export NIXPKGS=$NIXDIR/nixpkgs/
@@ -135,20 +135,20 @@ $ export NIX_PATH=$NIXPKGS:nixpkgs=$NIXPKGS
 
 * Also, switch to the correct group as the second user before touching *nix*.
 
-```
+```bash
 $ newgrp myteam
 ```
 
 * Finally, if you update *nix* as any user, always run update permissions.
 
-```
+```bash
 $ ./bin/update-perms.sh
 ```
 
 
 * The *default.nix* in the [nix-prefix](https://github.com/vrthra/nix-prefix) should get you started for an academic research paper using basic *IEEE* latex style, and *R* using *ggplot* and a number of other packages. You can instantiate it using
 
-```
+```bash
 $ mkdir -p .gcroots
 $ nix-instantiate . --indirect --add-root $.gcroots/default.drv
 $ nix-shell . --pure --indirect --add-root .gcroots/dep
