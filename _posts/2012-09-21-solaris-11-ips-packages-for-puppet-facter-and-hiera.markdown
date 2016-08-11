@@ -5,8 +5,8 @@ layout: post
 tags: [puppet]
 categories : post
 ---
-Experimental Solaris 11 IPS packages for Puppet 
-3.0.0-rc7, Facter 1.6.12 and Hiera 1.0.0 are available under 
+Experimental Solaris 11 IPS packages for `Puppet 
+3.0.0-rc7`, `Facter 1.6.12` and `Hiera 1.0.0` are available under 
 
 ```
 http://downloads.puppetlabs.com/solaris 
