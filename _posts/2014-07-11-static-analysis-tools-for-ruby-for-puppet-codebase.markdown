@@ -45,7 +45,7 @@ The reasoning behind each checker is provided in the [ruby style guide](https://
 
 * Lint/ConditionPosition
 
-```
+```ruby
 if cond()
 elsif   # this should probably be else
  y = mymethod 
@@ -55,7 +55,7 @@ end
 
 * Lint/ElseLayout
 
-```
+```ruby
 if cond()
 else y = mymethod  # this should probably be elsif
  z = othermethod
@@ -64,7 +64,7 @@ end
 
 * Lint/UnreachableCode
 
-```
+```ruby
 def mymethod(a)
   x = a
   return x + 1
@@ -74,13 +74,13 @@ end
 
 * Lint/UselessComparision
 
-```
+```ruby
 mycollection.sort{|a,b| a <=> a} # should probably be a <=> b
 ```
 
 * Lint/LiteralInterpolation
 
-```
+```ruby
 x = "Here is #{'Some code'}"
 ```
 
@@ -88,7 +88,7 @@ Other than these checkers that actually found existing problems, there are a few
 
 * Lint/EnsureReturn
 
-```
+```ruby
 def mymethod
    if mycond() throw MyException
 ensure
@@ -99,7 +99,7 @@ end
 
 * Lint/HandleException
 
-```
+```ruby
 def mymethod
   myothermethod()
 rescue Exception => e # eats all exceptions
@@ -108,14 +108,14 @@ end
 
 * Lint/LiteralInCondition
 
-```
+```ruby
 if (1 + 2 > 3)  # unintentional?
 end
 ```
 
 * Lint/ShadowingOuterVariable
 
-```
+```ruby
 def mymethod(mycoll)
   x = 100
   mycoll.collect{|x| x + 2} # which x? 
@@ -124,7 +124,7 @@ end
 
 * Lint/AssignmentInCondition
 
-```
+```ruby
 unless x = mymethod()    # should indicate intention with: unless (x = mymethod()); x.another(); end
   x.another()
 end
@@ -132,7 +132,7 @@ end
 
 * Lint/AndOr
 
-```
+```ruby
 if (a and b)  # restrict _and_ and _or_ to control flow :  
   dofoo
 end
