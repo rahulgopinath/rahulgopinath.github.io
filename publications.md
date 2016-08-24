@@ -10,7 +10,7 @@ menu: Publications
 ##### 2016
 
 * [_Evaluating Non-Adequate Test-Case Reduction_](#alipour2016evaluating)<br/>
-  Alipour, Shi, *Gopinath*, Marinov, Groce, Jensen - ASE, 2016
+  Alipour, Shi, *Gopinath*, Marinov, Groce - ASE, 2016
 
 * [_Can Testedness be Effectively Measured?_](#ahmed2016can)<br/>
   Ahmed, *Gopinath*, Brindescu, Groce, Jensen - FSE, 2016
