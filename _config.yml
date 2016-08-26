@@ -10,7 +10,8 @@ permalink:        pretty
 title:            Rahul Gopinath
 tagline:          'Computer Science Researcher'
 description:      ''
-url:              http://rahul.gopinath.org
+url:              https://rahul.gopinath.org
+enforce_ssl:      rahul.gopinath.org
 
 # Custom vars
 version:          2.0.0
