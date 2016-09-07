@@ -67,6 +67,7 @@ Our study introduces and evaluates C%-coverage reduction (where a test case is r
 
 [<i class="fa fa-book fa-lg" aria-hidden="true"></i>](/resources/ase2016/alipour2016evaluating.pdf)
 [<i class="fa fa-bookmark-o fa-lg" aria-hidden="true"></i>](/resources/ase2016/alipour2016evaluating.bib)
+[<i class="fa fa-desktop" aria-hidden="true"></i>](https://speakerdeck.com/rahulgopinath/evaluating-non-adequate-test-case-reduction)
 
 #### <a name='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
 
