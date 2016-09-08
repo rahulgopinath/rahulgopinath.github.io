@@ -86,7 +86,8 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 ### [OpenSource]()
 
 * Co-Author of mutation systems [MuCheck](https://github.com/vrthra/mucheck) for Haskell and [XMutant](https://github.com/vrthra/xmutant.py) for Python
-* Contributor to [PIT](http://pitest.org/) mutation analysis framework.
+* [Contributor](https://github.com/hcoles/pitest/blob/master/pom.xml) for [PIT](http://pitest.org/) mutation analysis framework.
+* Contributed to [rubocop](https://github.com/bbatsov/rubocop) Ruby static analysis framework.
 * Contributed to Apache HTTPD and [mod-scheme](https://github.com/vrthra/mod-scheme) Apache module
 * Contributed to [IBM Openstack Mellanox Chef cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox)
 * [Commit rights](https://github.com/orgs/NixOS/teams/nixpkgs-committers) for [NixOS](https://nixos.org/), the purely functional Linux distribution.
