@@ -19,7 +19,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Education]()
 
-* 2016 Ph.D. Oregon State University, USA (expected) 
+* 2017 Ph.D. Oregon State University, USA (expected) 
 * 2010 M.S. Illinois Institute of Technology, USA.
 * 2000 B.tech. Kerala University, India.
 
