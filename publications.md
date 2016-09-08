@@ -59,7 +59,7 @@ menu: Publications
 
 ---
 
-#### <a name='alipour2016evaluating'></a>[Alipour, Shi, Gopinath, Marinov, Groce: _Evaluating Non-Adequate Test-Case Reduction_ ASE, 2016]()
+#### <a id='alipour2016evaluating'></a>[Alipour, Shi, Gopinath, Marinov, Groce: _Evaluating Non-Adequate Test-Case Reduction_ ASE, 2016]()
 
 Given two test cases, one larger and one smaller, the smaller test case is preferred for many purposes. A smaller test case usually runs faster, is easier to understand, and is more convenient for debugging. However, smaller test cases also tend to cover less code and detect fewer faults than larger test cases. Whereas traditional research focused on reducing test suites while preserving code coverage, one line of recent work has introduced the idea of reducing individual test cases, rather than test suites, while still preserving code coverage. Another line of recent work has proposed non-adequately reducing test suites by not even preserving all the code coverage. This paper empirically evaluates a new combination of these ideas: non-adequate reduction of test cases, which allows for a wide range of trade-offs between test case size and fault detection.
 
@@ -69,7 +69,7 @@ Our study introduces and evaluates C%-coverage reduction (where a test case is r
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/ase2016/alipour2016evaluating.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/evaluating-non-adequate-test-case-reduction)
 
-#### <a name='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
+#### <a id='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
 
 Among the major questions that a practicing tester faces are deciding where to
 focus additional testing effort, and deciding when to stop testing. Test the
@@ -99,7 +99,7 @@ both software engineering practice and research evaluation.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.bib)
 
 
-#### <a name='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
+#### <a id='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
 
 Random testing can be a powerful and scalable method for finding faults
 in software. However, sophisticated random testers usually test a whole
@@ -125,7 +125,7 @@ is applicable to existing industrial-strength random testers.
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/arpitchristi/issta-2016-generating-focused-random-tests-using-directed-swarm-testing)
 
 
-#### <a name='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
+#### <a id='gopinath2016measuring'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _Measuring Effectiveness of Mutant Sets_ ICSTW, 2016]()
 
 Redundant mutants, where multiple mutants end 
 up producing same the semantic variant of the program is a major 
@@ -163,7 +163,7 @@ The *minimal mutants* are different from *disjoint mutants*. The
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/icst2016/)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
 
-#### <a name='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
+#### <a id='gopinath2016topsy'></a>[Gopinath, Jensen, Groce: _Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis_ ICSE (Extended Abstract), 2016]()
 
 Mutation analysis is an effective, if computationally expensive, technique
 that allows practitioners to accurately evaluate the quality of their test
@@ -188,7 +188,7 @@ mutants mentioned by Offutt et. al.
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/icse2016/)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/topsy-turvy-a-smarter-and-faster-parallelization-of-mutation-analysis)
 
-#### <a name='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
+#### <a id='gopinath2016does'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Does the Choice of Mutation Tool Matter?_ Software Quality Journal, 2016]()
 
 Mutation analysis is the primary means of evaluating the quality of
 test suites, though it suffers from inadequate standardization. Mutation
@@ -215,7 +215,7 @@ one approach for such a standardization.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/sqj2016/)
 
-#### <a name='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
+#### <a id='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
 
 Although mutation analysis is considered the best way to
 evaluate the effectiveness of a test suite, hefty computational
@@ -240,7 +240,7 @@ Given that this is the maximum that can be achieved with
 perfect advance knowledge of mutation kills, what can be
 practically achieved may be much worse. We conclude that
 more effort should be focused on enhancing mutations than
-removing operators in the name of selective mutation for
+removing operators in the id of selective mutation for
 questionable benefit.
 
 <!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
@@ -250,7 +250,7 @@ questionable benefit.
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/on-the-limits-of-mutation-reduction-strategies)
 
-#### <a name='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
+#### <a id='gopinath2015how'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _How hard does mutation analysis have to be, anyway?_ ISSRE, 2015]()
 
 Mutation analysis is considered the best method for
 measuring the adequacy of test suites. However, the number of
@@ -286,7 +286,7 @@ incorporates the analysis of stubbornness of mutants.
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-hard-does-mutation-analysis-have-to-be-anyway)
 
-#### <a name='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
+#### <a id='ahmed2015an'></a>[Ahmed, Mannan, Gopinath, Jensen: _An Empirical Study of Design Degradation: How Software Projects Get Worse Over Time_ ESEM 2015]()
 
 Software decay is a key concern for large, long lived software
 projects. Systems degrade over time as design and implementation compromises
@@ -307,7 +307,7 @@ is accounted for.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/esem2015/ahmed2015empirical.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time) 
 
-#### <a name='gopinath2014mutations'></a>[Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
+#### <a id='gopinath2014mutations'></a>[Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
 
 Mutation analysis is often used to compare the effectiveness of different test suites or testing techniques. One of 
 the main assumptions underlying this technique is the Competent Programmer Hypothesis, which proposes that programs are very 
@@ -330,14 +330,14 @@ between mutant detection and detection of actual program faults in a larger body
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/mutations-how-close-are-they-to-real-faults)
 
-#### <a name='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
+#### <a id='groce2014coverage'></a>[Groce, Alipour, Gopinath: _Coverage and Its Discontents_ Essays 2014]()
 
 Everyone wants to know one thing about a test suite: will it detect enough bugs? Unfortunately, in most settings that matter, answering this question directly is impractical or impossible. Software engineers and researchers therefore tend to rely on various measures of code coverage (where mutation testing is considered as a form of syntactic coverage). A long line of academic research efforts have attempted to determine whether relying on coverage as a substitute for fault detection is a reasonable solution to the problems of test suite evaluation. This essay argues that the profusion of coverage-related literature is in part a sign of an underlying uncertainty as to what exactly it is that measuring coverage should achieve, and how we would know if it can, in fact, achieve it. We propose some solutions, but the primary focus is to clarify the state of current confusions regarding this key problem for effective software testing. 
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/splash2014/groce2014coverage.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/splash2014/groce2014coverage.bib)
 
-#### <a name='le2014mucheck'></a>[Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
+#### <a id='le2014mucheck'></a>[Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
 
 This paper presents MuCheck, a mutation testing tool for Haskell programs. This is the first tool to be published (to our knowledge) that is explicitly oriented towards mutation testing for functional programs. MuCheck is a counterpart to the widely used QuickCheck random testing tool in fuctional programs, and can be used to evaluate the efficacy of QuickCheck property definitions. The tool implements mutation operators that are specifically designed for functional programs, and makes use of the type system of Haskell to achieve a more relevant set of mutants than otherwise possible. Mutation coverage is particularly valuable for functional programs due to highly compact code, referential transparency, and clean semantics, which make augmenting a test suite or specification based on surviving mutants a practical method for improved testing.
 
@@ -345,7 +345,7 @@ This paper presents MuCheck, a mutation testing tool for Haskell programs. This 
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/issta2014/le2014mucheck.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/alipourm/mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs)
 
-#### <a name='gopinath2014code'></a>[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014]()
+#### <a id='gopinath2014code'></a>[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014]()
 
 One of the key challenges of developers testing code is determining a test suite's quality -- its ability to find faults. The most common approach is to use code coverage as a measure for test suite quality, and diminishing returns in coverage or high absolute coverage as a stopping rule. In testing research, suite quality is often evaluated by a suite's ability to kill mutants (artificially seeded potential faults). Determining which criteria best predict mutation kills is critical to practical estimation of test suite quality. Previous work has only used small sets of programs, and usually compares multiple suites for a single program. Practitioners, however, seldom compare suites --- they evaluate one suite. Using suites (both manual and automatically generated) from a large set of real-world open-source projects shows that evaluation results differ from those for suite-comparison: statement (not block, branch, or path) coverage predicts mutation kills best.
 
@@ -356,7 +356,7 @@ One of the key challenges of developers testing code is determining a test suite
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/test-suite-evaluation-for-fun-and-profit)
 
-#### <a name='erwig2012explanations'></a>[Erwig, Gopinath: _Explanations for Regular Expressions_ FASE 2012]()
+#### <a id='erwig2012explanations'></a>[Erwig, Gopinath: _Explanations for Regular Expressions_ FASE 2012]()
 
 Regular expressions are widely used, but they are inherently hard to understand and (re)use, which is primarily due to the lack of abstraction mechanisms that causes regular expressions to grow large very quickly. The problems with understandability and usability are further compounded by the viscosity, redundancy, and terseness of the notation. As a consequence, many different regular expressions for the same problem are floating around, many of them erroneous, making it quite difficult to find and use the right regular expression for a particular problem. Due to the ubiquitous use of regular expressions, the lack of understandability and usability becomes a serious software engineering problem. In this paper we present a range of independent, complementary representations that can serve as explanations of regular expressions. We provide methods to compute those representations, and we describe how these methods and the constructed explanations can be employed in a variety of usage scenarios. In addition to aiding understanding, some of the representations can also help identify faults in regular expressions. Our evaluation shows that our methods are widely applicable and can thus have a significant impact in improving the practice of software engineering.
 
