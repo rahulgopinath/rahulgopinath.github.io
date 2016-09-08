@@ -3,7 +3,6 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
 Rahul Gopinath is a PhD candidate in the School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU). He received his B-Tech  from Kerala University, India, and  MCS from Illinois Institute of Technology in 2010.
 
 Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
