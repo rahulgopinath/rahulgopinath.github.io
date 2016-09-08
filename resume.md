@@ -89,6 +89,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * Contributor to [PIT](http://pitest.org/) mutation analysis framework.
 * Contributed to Apache HTTPD and [mod-scheme](https://github.com/vrthra/mod-scheme) Apache module
 * Contributed to [IBM Openstack Mellanox Chef cookbook](https://github.com/osuosl-cookbooks/cookbook-openstack-mellanox)
+* Committer to [NixOS](https://nixos.org/), the purely functional Linux distribution.
 
 ### [Research Interests]()
 
