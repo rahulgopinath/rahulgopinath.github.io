@@ -5,6 +5,7 @@ tagline: "."
 tags : [sunmicrosystems blog sun]
 categories : sunblog
 e: (wadm I) Using wadm in  Sun Java System Web Server 7.0
+title: Using wadm in SJSWebServer 7
 ---
 
 # Using wadm in SJSWebServer 7
