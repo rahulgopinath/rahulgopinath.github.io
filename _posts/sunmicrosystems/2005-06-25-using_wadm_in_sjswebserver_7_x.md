@@ -8,8 +8,6 @@ e: (wadm I) Using wadm in  Sun Java System Web Server 7.0
 title: Using wadm in SJSWebServer 7
 ---
 
-# Using wadm in SJSWebServer 7
-
 As you may have noticed, the Sun Java System Web Server 7.0 came out with a revamped command-line interface that incorporates a scripting
 framework.
 This scripting framework is based on JACL a java-vm implementation of the TCL language. During the start of 7.0 effort, multiple
