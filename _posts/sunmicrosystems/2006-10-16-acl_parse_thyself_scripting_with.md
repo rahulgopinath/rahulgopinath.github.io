@@ -317,18 +317,18 @@ dns = "machine1,machine2,machine3";
 
 ```tcl
 proc user {args} {  
-    set cur [lindex $Acl::acl($Acl::curacl) end]  
-    set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur user $args[ts $args]\\n"]  
+  set cur [lindex $Acl::acl($Acl::curacl) end]  
+  set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur user $args[ts $args]\\n"]  
 }  
   
 proc ip {args} {  
-    set cur [lindex $Acl::acl($Acl::curacl) end]  
-    set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur ip $args[ts $args]\\n"]  
+  set cur [lindex $Acl::acl($Acl::curacl) end]  
+  set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur ip $args[ts $args]\\n"]  
 }  
   
 proc dns {args} {  
-    set cur [lindex $Acl::acl($Acl::curacl) end]  
-    set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur dns $args[ts $args]\\n"]  
+  set cur [lindex $Acl::acl($Acl::curacl) end]  
+  set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur dns $args[ts $args]\\n"]  
 }  
 ```
 
