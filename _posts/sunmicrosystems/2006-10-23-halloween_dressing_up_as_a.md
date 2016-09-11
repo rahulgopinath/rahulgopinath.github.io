@@ -691,7 +691,7 @@ proc pwd {} {
 ```
 {% endraw %}
 
-### The ls
+#### The ls
 
 We need to know if we are currently in an option or in a value.
 option_folder will return true if we are on an option. ie
