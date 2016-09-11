@@ -175,7 +175,7 @@ namespace eval Fs {
         array set Fs::commands {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-            set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z]+} {\^ +}}]
+            set line [replace [lindex [split $err "\\n"] 1] {\{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z]+} {\^ +}}]
             #handle the either or.
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
@@ -265,7 +265,7 @@ namespace eval Fs {
         array set Fs::options {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-            set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
+            set line [replace [lindex [split $err "\\n"] 1] {\{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -345,7 +345,7 @@ namespace eval Fs {
         array set Fs::options {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-            set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
+            set line [replace [lindex [split $err "\\n"] 1] {\{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -369,7 +369,7 @@ namespace eval Fs {
         #if option is xxxx then command is list-yyyy-'xxxxs'$
         foreach {cmd} [info commands list-\*[set c]s] {
             if {![catch {set req $Fs::commands($cmd)} err]} {
-                set Fs::options($c) [replace $cmd {{list-} {s$}}]
+                set Fs::options($c) [replace $cmd {\{list-} {s$}}]
                 return
             }
         }
@@ -502,7 +502,7 @@ namespace eval Fs {
 
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-            set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
+            set line [replace [lindex [split $err "\\n"] 1] {\{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -527,7 +527,7 @@ namespace eval Fs {
         #check if the following is true
         #if option is xxxx then command is list-yyyy-'xxxxs'$
         foreach {cm} [info commands list-\*[set c]s] {
-            set Fs::options($c) [replace $cm {{list-} {s$}}]
+            set Fs::options($c) [replace $cm {\{list-} {s$}}]
             return
         }
         error "$c does not match for $cmd."
@@ -557,7 +557,7 @@ namespace eval Fs {
             if {[string length $opt]} {
                 error "$c:$cmd fourth opt bags more than one."
             }
-            set opt [replace $cmd {{list-} {s$}}]
+            set opt [replace $cmd {\{list-} {s$}}]
         }
         if {![string length $opt]} {
             error "$c:$cmd not even one option"
@@ -683,7 +683,7 @@ proc cmd_name cmd {
 }
 
 proc sane_cmd_name c {
-    return [replace $c {{\^list-} {s$}}]
+    return [replace $c {\{\^list-} {s$}}]
 }
 
 proc get_opt opt {
