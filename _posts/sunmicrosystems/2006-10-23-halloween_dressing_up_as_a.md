@@ -18,6 +18,7 @@ let me illustrate what I mean.
 
 type the below commands and tab once.
 
+{% raw %}
 ```
 > list-config --
 ...nothing
@@ -37,6 +38,7 @@ type the below commands and tab once.
 > list-ciphers --
 --config\*          --http-listener\*
 ```
+{% endraw %}
 
 What we see above means that even though we see all the commands as a flat namespace
 they are in reality members of a hierarchy as below. 
@@ -55,24 +57,33 @@ and so forth
 A filesystem is one of the better ways to represent hierarchical data. More so because users are 
 familiar with filesystems.  To provide an fs view of our commands and data, this is what we will do.
 
-1) Simplest case: We are at the root of hierarchy
-      ls :           Show all the applicable list commands (commands that can be executed straight away with out 
+* Simplest case: We are at the root of hierarchy
+
+{% raw %}
+     ls :           Show all the applicable list commands (commands that can be executed straight away with out 
                      any other required option)
 
      cd <dir>:  The dir will be the name of a command.that was listed in the ls. 
                       Save the dir in an internal variable $pwd.
+{% endraw %}
 
-2) We are one level up and the pwd now contains the name of a command.
+* We are one level up and the pwd now contains the name of a command.
+
+{% raw %}
       ls :           Show the results of executing that command.
       cd <dir>:  The dir will be the name of one of the result elements. that was listed in the ls.
                      Save the dir in the $pwd.
+{% endraw %}
 
-3) We are two levels up and the pwd now contains the name of a command and one element of its result
+* We are two levels up and the pwd now contains the name of a command and one element of its result
+
+{% raw %}
       ls :           Show all the applicable list commands (commands that can be executed straight away with out 
                      any other required option other than what is there in $pwd)
 
      cd <dir>:  The dir will be the name of a command.that was listed in the ls. 
                       Save the dir in an internal variable $pwd.
+{% endraw %}
 
 This an be continued for any levels with pwd contains alternate command names and one of its results.
 eg: {list-configs test list-http-listeners http-listener-1 list-ciphers}
@@ -85,14 +96,17 @@ The list commands supported, their required options, how the arguments map to th
 
 let us see if we can get wadm to describe itself..
 
+{% raw %}
 ```
 > info commands list-\*
 list-http-listeners list-jvm-profilers list-external-jndi-resources list-mail-resource-userprops ...
 ```
+{% endraw %}
 
 now to get them to describe themselves.
 let us try executing one.
 
+{% raw %}
 ```
 > list-http-listeners
 Usage: list-http-listeners --help|-?
@@ -104,11 +118,13 @@ Usage: list-jvm-profilers --help|-?
   or   list-jvm-profilers [--echo] [--no-prompt] [--verbose] [--all] --config=name
 CLI014 config is a required option.
 ```
+{% endraw %}
 
 
 This is pretty nice, the commands second line in the tcl error output gives us the information we need.
 let us try and extract the info.
 
+{% raw %}
 ```
 > foreach {l} [info commands list-\*] {
       if [catch $l err] {
@@ -161,6 +177,7 @@ let us try and extract the info.
   or   list-search-collections [--echo] [--no-prompt] [--verbose] [--all] --config=name --vs=name
   or   list-auth-realm-userprops [--echo] [--no-prompt] [--verbose] --config=name --realm=name
 ```
+{% endraw %}
 
 yes it does seem to help. 
 The things in [--xxx] are optional, so let us strip them away, also the starting 'or cmd-name' 
@@ -168,6 +185,7 @@ since we do not really have any need for those.
 
 fs.tcl
 
+{% raw %}
 ```
 namespace eval Fs {
     variable commands
@@ -175,9 +193,7 @@ namespace eval Fs {
         array set Fs::commands {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-{% raw %}
             set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z]+} {\^ +}}]
-{% endraw %}
             #handle the either or.
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
@@ -197,10 +213,12 @@ namespace eval Fs {
     }
 }
 ```
+{% endraw %}
 
 
 #### Using it
 
+{% raw %}
 ```
 > source fs.tcl                 
 > Fs::init                      
@@ -252,12 +270,14 @@ list-external-jndi-resources: --config
 list-acls: --config
 list-dav-collections: --config --vs
 ```
+{% endraw %}
 
 Now the next thing that remains is to figure out how we can extract the mandatory options 
 (an oxymoron if there was one.) 
 let us see how much we can do with wadm itself.
 
 
+{% raw %}
 ```
 namespace eval Fs {
     variable commands
@@ -267,9 +287,7 @@ namespace eval Fs {
         array set Fs::options {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-{% raw %}
             set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
-{% endraw %}
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -310,10 +328,12 @@ namespace eval Fs {
     }
 }
 ```
+{% endraw %}
 
 
 #### Using It
 
+{% raw %}
 ```
 > source fs.tcl            
 > Fs::init                 
@@ -334,12 +354,14 @@ provider => soap-auth-provider
 group => group
 authdb => authdb
 ```
+{% endraw %}
 
 Looking at the  things that are not there, there seems to be a pattern,
 if the option is xxxx, then there seems to be a command list-yyy-xxxxs.
 that is if option is module, the command is list-lifecycle-modules. So adding 
 that also to our script.
 
+{% raw %}
 ```
 namespace eval Fs {
     variable commands
@@ -349,9 +371,7 @@ namespace eval Fs {
         array set Fs::options {}
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-{% raw %}
             set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
-{% endraw %}
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -375,9 +395,7 @@ namespace eval Fs {
         #if option is xxxx then command is list-yyyy-'xxxxs'$
         foreach {cmd} [info commands list-\*[set c]s] {
             if {![catch {set req $Fs::commands($cmd)} err]} {
-{% raw %}
                 set Fs::options($c) [replace $cmd {{list-} {s$}}]
-{% endraw %}
                 return
             }
         }
@@ -412,6 +430,7 @@ namespace eval Fs {
     }
 }
 ```
+{% endraw %}
 
 Here We are trying to use three methods, default_opts second_ops, final_opts in an attempt
 to match the options. The default_opts and second_opts tries to find a corresponding list command
@@ -421,6 +440,7 @@ The reason for such a scheme is that it makes it easy to add new procedures.
 
 #### Using It
 
+{% raw %}
 ```
 > source fs.tcl
 > Fs::init     
@@ -438,6 +458,7 @@ provider => soap-auth-provider
 group => group
 authdb => authdb
 ```
+{% endraw %}
 
 Of the four remaining, we notice more patterns,
 if an option is of the form --firstword-secondword, then there is a good chance
@@ -446,6 +467,7 @@ Including this heuristics again in our engine.
 
 The modification to fs.tcl will be:
 
+{% raw %}
 ```
 proc third_opts {c cmd} {
     #extract the first word eg: 
@@ -459,10 +481,12 @@ proc parseopts {} {
  ....
 }
 ```
+{% endraw %}
 
 
 #### Using It.
 
+{% raw %}
 ```
 > source fs.tcl
 > Fs::init     
@@ -478,26 +502,32 @@ provider => soap-auth-provider
 group => group
 authdb => authdb
 ```
+{% endraw %}
 
 Of the remaining the jndi-name can be included with one more rule.
 
+{% raw %}
 ```
 > info commands list-\*jndi\*
 list-external-jndi-resources list-external-jndi-resource-userprops
 ```
+{% endraw %}
 
 ie, if a command starts with list- and is not the same command that missed it,
 and contains the first word of option and does not end in userprops, and the remaining
 is just one then it is a good candidate. Adding this logic results in just one option left out.
 
+{% raw %}
 ```
 --vs => list-virtual-servers
 ```
+{% endraw %}
 
 since there does not seem to be any connection between the option and the corresponding 
 list, we will simply add an option to override the associated commands when needed, and
 add this.
 
+{% raw %}
 ```
 namespace eval Fs {
     variable commands
@@ -510,9 +540,7 @@ namespace eval Fs {
 
         foreach {cmd} [info commands list-\*] {
             catch {$cmd} err
-{% raw %}
             set line [replace [lindex [split $err "\\n"] 1] {{\^ +or +[a-z-]+} {\\[.+\\]} {=[a-z-]+} {\^ +}}]
-{% endraw %}
             regsub -all -- {\\( \*([a-z=-]+) \*\\| \*([a-z=-]+) \*\\)} $line {\\1} line
             set Fs::commands($cmd) $line
         }
@@ -537,9 +565,7 @@ namespace eval Fs {
         #check if the following is true
         #if option is xxxx then command is list-yyyy-'xxxxs'$
         foreach {cm} [info commands list-\*[set c]s] {
-{% raw %}
             set Fs::options($c) [replace $cm {{list-} {s$}}]
-{% endraw %}
             return
         }
         error "$c does not match for $cmd."
@@ -569,9 +595,7 @@ namespace eval Fs {
             if {[string length $opt]} {
                 error "$c:$cmd fourth opt bags more than one."
             }
-{% raw %}
             set opt [replace $cmd {{list-} {s$}}]
-{% endraw %}
         }
         if {![string length $opt]} {
             error "$c:$cmd not even one option"
@@ -610,10 +634,12 @@ namespace eval Fs {
     }
 }
 ```
+{% endraw %}
 
 
 ##### Using it
 
+{% raw %}
 ```
 > source fs.tcl
 > Fs::init     
@@ -629,6 +655,7 @@ group => group
 authdb => authdb
 vs => virtual-server
 ```
+{% endraw %}
 
 
 The hard work is mostly over, all we need to do now is to implement the commands
@@ -640,9 +667,11 @@ for a reasonable approximation of a filesystem.
 
 We will use the following for path.
 
+{% raw %}
 ```
 > <option-commandname>:<option-value>|<option-commandname>:option-value| etc....>
 ```
+{% endraw %}
 
 in EBNF, it will be
 ("|" <option-commandname> ":" <option-value> )\* ">"
@@ -652,6 +681,7 @@ and convert to the representation when the need arises.
 
 #### The pwd
 
+{% raw %}
 ```
 proc pwd {} {
     set p ""
@@ -659,6 +689,7 @@ proc pwd {} {
     return $p
 }
 ```
+{% endraw %}
 
 ### The ls
 
@@ -671,6 +702,7 @@ belongs to this folder (if all the required options are defined, and also that 
 the command really needs all the options defined now. if either of conditions is
 false then it is not in current folder.)
 
+{% raw %}
 ```
 proc in_current_folder {c} {
    set params $Fs::commands($c)
@@ -734,12 +766,14 @@ proc ls args {
     foreach {l} [lsort $out] { puts $l }
 }
 ```
+{% endraw %}
 
 We also need cd to check it out
 
 
 ##### The cd
 
+{% raw %}
 ```
 proc cd {arg} {
     #config:test
@@ -760,12 +794,14 @@ proc cd {arg} {
     return
 }
 ```
+{% endraw %}
 
 
 The complete implementation is available [here](http://rahul.gopinath.org/sunblog/2006/10/blue/resource/fs.tcl)
 
 ##### Using It
 
+{% raw %}
 ```
 > source fs.tcl
 > Fs::init     
@@ -820,6 +856,7 @@ wadm_histfile wadm_user wadm_config wadm_password wadm_savehist wadm_mode wadm_p
 > config:test>
 > config:>
 ```
+{% endraw %}
 
 As you can see you can even list by the properties (where get-xxx-prop is available for the option xxx
 if it is not available you will get an error.)
