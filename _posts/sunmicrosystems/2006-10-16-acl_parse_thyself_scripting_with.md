@@ -315,7 +315,7 @@ ip = "129.158.223.\*,129.158.224.\*" or
 dns = "machine1,machine2,machine3";
 ```
 
-```
+```tcl
 proc user {args} {
   set cur [lindex $Acl::acl($Acl::curacl) end]
   set Acl::acl($Acl::curacl) [lreplace $Acl::acl($Acl::curacl) end end "$cur user $args[ts $args]\\n"]
