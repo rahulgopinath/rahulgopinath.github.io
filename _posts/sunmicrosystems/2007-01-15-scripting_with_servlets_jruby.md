@@ -17,17 +17,17 @@ It has these features:
 * Loosely based on PyServlet (servlet implementation for jython)
 * Mimics RailsControllers
 * Offers three kinds of servlets
-** StatefullServlet that behaves like Rails controller (if instantiated every request)
-** StatelessServlet that behaves like standard stateless Java servlet
-** SessionServlet - is kept transparently in session (is its instance variables are not shared between sessions) 
+  * StatefullServlet that behaves like Rails controller (if instantiated every request)
+  * StatelessServlet that behaves like standard stateless Java servlet
+  * SessionServlet - is kept transparently in session (is its instance variables are not shared between sessions) 
 
  However it also has these features that I did not like 
 
 * Too Rails oriented.         
-** Servlets in ruby should be preferably similar to java servlets rather than look like Rails
+  * Servlets in ruby should be preferably similar to java servlets rather than look like Rails
 
 * Does too many things in java.
-** We should do only the basic framework in java and delegate the rest to the ruby world. This way a programmer who
+  * We should do only the basic framework in java and delegate the rest to the ruby world. This way a programmer who
 is more comfortable in ruby will be able to implement any feature that he wants with out being impeded by 
 the implementation of our servlet code in java. More over, the code in java generally becomes immutable once it 
 gets compiled and added into a jar.
