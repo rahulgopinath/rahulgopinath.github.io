@@ -7,44 +7,29 @@ e: (wadm X) The mists of time - implementing cron
 title: (wadm X) The mists of time - implementing cron
 ---
 
-There are many times when you would want to do some sequence of
-actions periodically. - like renewing your certificates, rotating the logs
-bring up and bringing down instances and virtual servers based on day
-and time etc.
+There are many times when you would want to do some sequence of actions periodically. Such as renewing your certificates, rotating the logs bring up and bringing down instances and virtual servers based on day and time etc.
 
-Most people run the Webserver in some kind of unix which means 
-that they already have and are familiar with a utility that will help them do
-just that, the crontab.
+Most people run the Webserver in some kind of unix which means  that they already have and are familiar with a utility that will help them do just that, the crontab.
 
-The Sun Java System Web Server 7.0 also ships with
-an event scheduler that will help you set up these actions that will be 
-repeated in the time frame that you specify. One of the reasons for the 
-scheduler getting integrated into the Webserver was that we wanted to
-provide an administrative interface to the scheduling facility. 
+The Sun Java System Web Server 7.0 also ships with an event scheduler that will help you set up these actions that will be  repeated in the time frame that you specify. One of the reasons for the  scheduler getting integrated into the Webserver was that we wanted to provide an administrative interface to the scheduling facility. 
 
-Since sometimes the Webserver administrators may not be the sysadmins
-for the machine in which the server runs on, and also because the setting
-up of cron in unix required access to the machine itself, It was better to 
-provide a scheduler that was different from the machine cron that was 
-specific to the Webserver alone. 
+Since sometimes the Webserver administrators may not be the sysadmins for the machine in which the server runs on, and also because the setting up of cron in unix required access to the machine itself, It was better to  provide a scheduler that was different from the machine cron that was  specific to the Webserver alone. 
 
-Though the current Scheduler in Webserver does have an administrative
-remote interface now, a small short coming is that inorder to allow any
-kind of complex action (Any thing that requires a condition or a dependecy)
-you still need access to the machine in which the Webserver runs (over and 
-above administrative access to the Webserver). This is because the only 
-way you can do such things is to write it in shell script and then schedule
+Though the current Scheduler in Webserver does have an administrative remote interface now, a small short coming is that inorder to allow any kind of complex action (Any thing that requires a condition or a dependecy) you still need access to the machine in which the Webserver runs (over and  above administrative access to the Webserver). This is because the only  way you can do such things is to write it in shell script and then schedule
 that shell script to run.
 
-While it would have been a great idea to provide callbacks from the 
-Scheduler to the wadm, it is not there currently (Unfortunately). 
+While it would have been a great idea to provide callbacks from the  Scheduler to the wadm, it is not there currently (Unfortunately). 
 
-Moreover, you can not schedule events across the cluster but are restricted
-to a particular configuration for each event.
+Moreover, you can not schedule events across the cluster but are restricted to a particular configuration for each event.
 
 {% raw %}
 ```
-> create-event __Usage: create-event --help|-?__    or create-event [--echo] [--no-prompt] [--verbose] [--no-enabled] --config=name      --command=restart|reconfig|rotate-log|rotate-access-log|update-crl|commandline     ( (--time=hh:mm [--month=1-12] [--day-of-week=sun/mon/tue/wed/thu/fri/sat]      [--day-of-month=1-31]) | --interval=60-86400(seconds) )__   CLI014 config is a required option._
+> create-event __Usage: create-event --help|-?
+  or create-event [--echo] [--no-prompt] [--verbose] [--no-enabled] --config=name
+  --command=restart|reconfig|rotate-log|rotate-access-log|update-crl|commandline
+  ( (--time=hh:mm [--month=1-12] [--day-of-week=sun/mon/tue/wed/thu/fri/sat]
+  [--day-of-month=1-31]) | --interval=60-86400(seconds) )
+  CLI014 config is a required option.
 ```
 {% endraw %}
 
@@ -145,18 +130,18 @@ to run after that wait. so adding the after command to our script,
 
 {% raw %}
 ```
-    variable id
-    proc start {} {
-        run [clock seconds]
-        catch {after cancel $Cron::id} err
-        set Cron::id [after 1000 Cron::start]
-    }
+variable id
+proc start {} {
+    run [clock seconds]
+    catch {after cancel $Cron::id} err
+    set Cron::id [after 1000 Cron::start]
+}
 
-    proc run {now} {
-        foreach id [array names Cron::schedule] {
-            puts "$id $now"
-        }
+proc run {now} {
+    foreach id [array names Cron::schedule] {
+        puts "$id $now"
     }
+}
 ```
 {% endraw %}
 
@@ -291,15 +276,15 @@ namespace eval Cron {
 ```
 {% endraw %}
 
-##### Some shortcuts.
+#### Some shortcuts.
 
 ##### You may have noticed this line
 
 {% raw %}
 ```
-    foreach u $Cron::units f $Cron::fmt {
-        eval "proc $u {time} { clock format \\$time -format $f }"
-    }
+foreach u $Cron::units f $Cron::fmt {
+    eval "proc $u {time} { clock format \\$time -format $f }"
+}
 ```
 {% endraw %}
 
@@ -339,20 +324,20 @@ is
 
 {% raw %}
 ```
-    proc persist {} {
-        set f [open $Cron::ifile w]
-        puts $f [array get Cron::schedule]
+proc persist {} {
+    set f [open $Cron::ifile w]
+    puts $f [array get Cron::schedule]
+    close $f
+}
+proc init {} {
+   catch {
+        set f [open $Cron::ifile r]
+        array set Cron::schedule [read -nonewline $f]
         close $f
-    }
-    proc init {} {
-       catch {
-            set f [open $Cron::ifile r]
-            array set Cron::schedule [read -nonewline $f]
-            close $f
-        } err 
-        start
-        return {}
-    }
+    } err 
+    start
+    return {}
+}
 ```
 {% endraw %}
 
@@ -414,4 +399,4 @@ here
 ```
 {% endraw %}
 
-The completed cron is available [here](http://rahul.gopinath.org/sunblog/2006/10/blue/resource/cron.tcl)
+The completed cron is available [here](/resources/sunmicrosystems/cron.tcl)
