@@ -661,8 +661,8 @@ We will use the following for path.
 {% endraw %}
 
 in EBNF, it will be
-("|" <option-commandname> ":" <option-value> )\* ">"
-For this, it is easier to just save the path as a list containing <optcmdname>, <value> multiple times
+`("|" <option-commandname> ":" <option-value> )\* ">"`
+For this, it is easier to just save the path as a list containing `<optcmdname>, <value>` multiple times
 and convert to the representation when the need arises.
 
 
@@ -788,6 +788,9 @@ The complete implementation is available [here](http://rahul.gopinath.org/sunbl
 
 ##### Using It
 
+Note that after each `cd` command, the just next prompt will continue to display the previous prompt. This is unfortunately
+a consequence of evaluating the prompt.
+
 {% raw %}
 ```
 > source fs.tcl
@@ -801,13 +804,14 @@ config
 node
 >cd config
 >
-> config:>ls
+|config:>ls
 apache-temp
 emxico
 security
 test
-> config:>cd test
-> config:>ls
+|config:>cd test
+|config:>
+|config:test>ls
 acl
 auth-realm
 authdb
@@ -829,19 +833,20 @@ mime-type
 soap-auth-provider
 token
 virtual-server
-> config:test>cd http-listener
-> config:test>ls
+|config:test>cd http-listener
+|config:test>
+|config:test|http-listener:>ls
 http-listener-1
 newlist
-> config:test|http-listener:>ls port=\*99
+|config:test|http-listener:>ls port=\*99
 newlist
-> config:test|http-listener:>info vars wadm_\*
+|config:test|http-listener:>info vars wadm_\*
 wadm_histfile wadm_user wadm_config wadm_password wadm_savehist wadm_mode wadm_prompt
-> config:test|http-listener:>cd ..
-> config:test|http-listener:>
-> config:test>cd ..
-> config:test>
-> config:>
+|config:test|http-listener:>cd ..
+|config:test|http-listener:>
+|config:test>cd ..
+|config:test>
+|config:>
 ```
 {% endraw %}
 
