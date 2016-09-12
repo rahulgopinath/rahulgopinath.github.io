@@ -59,31 +59,18 @@ familiar with filesystems.  To provide an fs view of our commands and data, thi
 
 * Simplest case: We are at the root of hierarchy
 
-{% raw %}
-     ls :           Show all the applicable list commands (commands that can be executed straight away with out 
-                     any other required option)
-
-     cd <dir>:  The dir will be the name of a command.that was listed in the ls. 
-                      Save the dir in an internal variable $pwd.
-{% endraw %}
+** ls : Show all the applicable list commands (commands that can be executed straight away with out                       any other required option)
+** cd <dir> : The dir will be the name of a command.that was listed in the ls. Save the dir in an internal variable $pwd.
 
 * We are one level up and the pwd now contains the name of a command.
 
-{% raw %}
-      ls :           Show the results of executing that command.
-      cd <dir>:  The dir will be the name of one of the result elements. that was listed in the ls.
-                     Save the dir in the $pwd.
-{% endraw %}
+** ls : Show the results of executing that command.
+** cd <dir>: The dir will be the name of one of the result elements. that was listed in the ls.                       Save the dir in the $pwd.
 
 * We are two levels up and the pwd now contains the name of a command and one element of its result
 
-{% raw %}
-      ls :           Show all the applicable list commands (commands that can be executed straight away with out 
-                     any other required option other than what is there in $pwd)
-
-     cd <dir>:  The dir will be the name of a command.that was listed in the ls. 
-                      Save the dir in an internal variable $pwd.
-{% endraw %}
+** ls : Show all the applicable list commands (commands that can be executed straight away with out                       any other required option other than what is there in $pwd)
+** cd <dir>: The dir will be the name of a command.that was listed in the ls.                        Save the dir in an internal variable $pwd.
 
 This an be continued for any levels with pwd contains alternate command names and one of its results.
 eg: {list-configs test list-http-listeners http-listener-1 list-ciphers}
