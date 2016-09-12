@@ -20,9 +20,7 @@ Hugs> :version
 
 ##### Some conventions
 
-The interactive prompt of Hugs is assumed to be '|', the output from Hugs is shown with a leading '=', :e switches to edit mode (as it does in Hugs) and :t shows the type of the expressions.
-
-The markers '<[ and ]>' denote the source code.
+The interactive prompt of Hugs is assumed to be '>', the output from Hugs is shown with a leading '=', :e switches to edit mode (as it does in Hugs) and :t shows the type of the expressions.
 
 ##### Arithmetic and Lists
 
