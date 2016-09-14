@@ -79,6 +79,12 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * SPLASH 2014 Groce, Alipour, Gopinath "Coverage and its discontents."
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
+
+### [Invited Talks]()
+
+* GTAC 2016 Gopinath, Ahmed "Code Coverage is a Strong Predictor of Test Suite Effectiveness in the Real World"
+
+
 ### [Professional Service]()
 
 * [Mutation 2016 Workshop](https://sites.google.com/site/mutation2016/mutation-2016) Program committee member
