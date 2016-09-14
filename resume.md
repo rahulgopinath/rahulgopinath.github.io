@@ -82,7 +82,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Invited Talks]()
 
-* GTAC 2016 Gopinath, Ahmed "Code Coverage is a Strong Predictor of Test Suite Effectiveness in the Real World"
+* [GTAC 2016](https://developers.google.com/google-test-automation-conference/2016/) Gopinath, Ahmed "Code Coverage is a Strong Predictor of Test Suite Effectiveness in the Real World"
 
 
 ### [Professional Service]()
