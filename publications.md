@@ -181,7 +181,7 @@ technique can lead to significant efficiency improvements and cost
 reductions.
 
 *Updates*: Part of our concept is similar to the split-stream execution of
-mutants mentioned by King & Offutt ([King1991](/references#king1991a)).
+mutants mentioned by King & Offutt ([King 1991](/references#king1991a)).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.bib)
