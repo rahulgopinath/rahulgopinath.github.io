@@ -181,7 +181,7 @@ technique can lead to significant efficiency improvements and cost
 reductions.
 
 *Updates*: Part of our concept is similar to the split-stream execution of
-mutants mentioned by Offutt et. al.
+mutants mentioned by Offutt et al.[1](#king1991a)
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.bib)
@@ -363,6 +363,9 @@ Regular expressions are widely used, but they are inherently hard to understand 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.bib)
 
+___
+
+<a id='king1991a'>King, K. N.; Offutt, J. A Fortran Language System for Mutation-based Software Testing. Software-Practice and Experience, volume 21, number 7, pages 685–718, 1991.</a>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
