@@ -3,7 +3,7 @@ layout: publications
 title : References
 header : References
 group: navigation
-menu:
+exclude: true
 weight: 2
 ---
 
