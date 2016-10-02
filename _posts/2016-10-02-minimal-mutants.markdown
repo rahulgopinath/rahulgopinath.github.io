@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Various Definitions of Minimal Mutant Sets. 
 layout: post
 tags: [mutation]
