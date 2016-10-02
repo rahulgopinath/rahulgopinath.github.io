@@ -108,7 +108,7 @@ then one ends up with the theoretical minimal mutant set.
 
 ### <a id='#disjoint'></a> Disjoint Mutants
 
-Disjoint mutants were proposed in ([Kintis 2010](kintis2010evaluating)).
+Disjoint mutants were proposed in ([Kintis 2010](/references#kintis2010evaluating)).
 According to Kintis et al. *Two mutants are considered disjoint if the test sets
 that kill them are as disjoint as possible*. The procedure give is, choose the
 mutants that are hardest to kill, and also ensure minimal overlap in terms of
