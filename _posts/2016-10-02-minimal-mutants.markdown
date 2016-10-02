@@ -18,8 +18,8 @@ There are three common mutant sets that are *minimal* in some respect:
 
 * [Theoretical minimal sets of mutants](#minimal) (commonly called *minimal mutants*)
 * [Disjoint mutants](#disjoint)
-* Surface Mutants
-* Distinguished or Unique Mutants
+* [Surface Mutants](#surface)
+* [Distinguished or Unique Mutants](#distinguished)
 
 To understand each, we have to start with a few definitions.
 
