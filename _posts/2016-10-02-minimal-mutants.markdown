@@ -16,10 +16,10 @@ of the common definitions.
 
 There are three common mutant sets that are *minimal* in some respect:
 
-* [Theoretical minimal sets of mutants](#minimal) (commonly called *minimal mutants*)
-* [Disjoint mutants](#disjoint)
-* [Surface Mutants](#surface)
-* [Distinguished or Unique Mutants](#distinguished)
+* [Theoretical minimal sets of mutants](#theoreticalminimal) (commonly called *minimal mutants*)
+* [Disjoint mutants](#disjointmutants)
+* [Surface Mutants](#surfacemutants)
+* [Distinguished or Unique Mutants](#distinguishedmutants)
 
 To understand each, we have to start with a few definitions.
 
@@ -51,7 +51,7 @@ end
 
 See ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)) for further details.
 
-### <a id='#distinguished'>Distinguished or Unique Mutants </a>
+### <a id='distinguishedmutants'>Distinguished or Unique Mutants </a>
 
 Any mutant is identified by the tests that kill it. Hence, a mutant is
 distinguished from another if the specific tests that kill that mutant is
@@ -70,7 +70,7 @@ subsumed by m3. A mutant dynamically subsumes another with respect to a test sui
 if both the mutants are killed by T, and the test cases in T that kills the former
 are guaranteed to kill the later.
 
-### <a id='#surface'>Surface Mutants </a>
+### <a id='surfacemutants'>Surface Mutants </a>
 
 If one removes all subsumed mutants with respect to the entire test suite T,
 then one ends up with the [surface mutants](http://rahul.gopinath.org/publications/#gopinath2016measuring).
@@ -101,12 +101,12 @@ end
 
 The details can be found in ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)).
 
-### <a id='#minimal'>Theoretical Minimal Mutants (aka Minimal Mutants) </a> 
+### <a id='theoreticalminimal'>Theoretical Minimal Mutants (aka Minimal Mutants) </a> 
 
 If one applies removal of subsumed mutants with respect to a minimal test suite, T_min
 then one ends up with the theoretical minimal mutant set.
 
-### <a id='#disjoint'> Disjoint Mutants </a>
+### <a id='disjointmutants'> Disjoint Mutants </a>
 
 Disjoint mutants were proposed in ([Kintis 2010](/references#kintis2010evaluating)).
 According to Kintis et al. *Two mutants are considered disjoint if the test sets
