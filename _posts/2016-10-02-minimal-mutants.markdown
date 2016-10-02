@@ -51,7 +51,7 @@ end
 
 See ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)) for further details.
 
-### <a id='#distinguished'></a>Distinguished or Unique Mutants
+### <a id='#distinguished'>Distinguished or Unique Mutants </a>
 
 Any mutant is identified by the tests that kill it. Hence, a mutant is
 distinguished from another if the specific tests that kill that mutant is
@@ -70,7 +70,7 @@ subsumed by m3. A mutant dynamically subsumes another with respect to a test sui
 if both the mutants are killed by T, and the test cases in T that kills the former
 are guaranteed to kill the later.
 
-### <a id='#surface'></a>Surface Mutants
+### <a id='#surface'>Surface Mutants </a>
 
 If one removes all subsumed mutants with respect to the entire test suite T,
 then one ends up with the [surface mutants](http://rahul.gopinath.org/publications/#gopinath2016measuring).
@@ -101,12 +101,12 @@ end
 
 The details can be found in ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)).
 
-### <a id='#minimal'></a> Theoretical Minimal Mutants (aka Minimal Mutants)
+### <a id='#minimal'>Theoretical Minimal Mutants (aka Minimal Mutants) </a> 
 
 If one applies removal of subsumed mutants with respect to a minimal test suite, T_min
 then one ends up with the theoretical minimal mutant set.
 
-### <a id='#disjoint'></a> Disjoint Mutants
+### <a id='#disjoint'> Disjoint Mutants </a>
 
 Disjoint mutants were proposed in ([Kintis 2010](/references#kintis2010evaluating)).
 According to Kintis et al. *Two mutants are considered disjoint if the test sets
