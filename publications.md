@@ -295,6 +295,16 @@ mutants remaining to a high degree of statistical confidence,
 and provide a mutation analysis framework for Python that
 incorporates the analysis of stubbornness of mutants.
 
+##### Updates:
+
+* One can simplify, and reach our conclusions in this paper by noting
+that, theory of random sampling only requires randomness in the sample
+selection, and not in the population. That is, even if the population
+contains strongly correlated variables, so long as the sampling procedure
+is random, one can expect the sample to obey statistical laws.
+* Further, we recommend that one should sample at least 9,604 mutants
+for 99% precision 95% of the time, as suggested by theory.
+
 <!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2015/gopinath2015howhard.pdf)
