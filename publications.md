@@ -154,9 +154,12 @@ either single variant assumption, or to large test suite assumption
 and the other towards effectiveness in subtlety, and provide a 
 benchmark of these measures using diverse tools.
 
-*Updates*: The terminology used in this paper is not completely correct.
-The *minimal mutants* are different from *disjoint mutants*. The
-*disjoint mutants* are actually *surface mutants*.
+##### Updates: (Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/) and his team)
+
+* The *minimal mutants* from ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
+* The definition of *mutation subsumption* in the paper is flipped. That is, a
+mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
+to kill the *later*, and the mutant is killed by the test suite.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2016/gopinath2016measuring.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icst2016/gopinath2016measuring.bib)
