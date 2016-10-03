@@ -154,9 +154,11 @@ either single variant assumption, or to large test suite assumption
 and the other towards effectiveness in subtlety, and provide a 
 benchmark of these measures using diverse tools.
 
-##### Updates: (Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/) and his team)
+##### Updates:
 
-* The *minimal mutants* from ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
+(Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/) and his team)
+
+* The *minimal mutants* from Ammann et al. ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from Kintis et al. ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
 * The definition of *mutation subsumption* in the paper is flipped. That is, a
 mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
 to kill the *later*, and the mutant is killed by the test suite.
@@ -183,7 +185,9 @@ redundancy. We show that our
 technique can lead to significant efficiency improvements and cost
 reductions.
 
-*Updates*: Part of our concept is similar to the split-stream execution of
+##### Updates:
+
+Part of our concept is similar to the split-stream execution of
 mutants mentioned by King & Offutt ([King 1991](/references#king1991a)).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.pdf)
