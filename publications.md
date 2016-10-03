@@ -158,7 +158,6 @@ benchmark of these measures using diverse tools.
 
 (Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/), [Farah Hariri](http://mir.cs.illinois.edu/farah/), [August Shi](http://mir.cs.illinois.edu/awshi2/), Muhammad Mahmood, and Warnakulasuriya Fernando)
 
-* The *minimal mutants* from Ammann et al. ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from Kintis et al. ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
 * The definition of *mutation subsumption* in the paper is flipped. That is, a
 mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
 to kill the *later*, and the mutant is killed by the test suite.
@@ -217,6 +216,16 @@ results suggest that research using a single tool, a small number of projects,
 or small increments in mutation score may not yield reliable results. There
 is a clear need for greater standardization of mutation analysis; we propose
 one approach for such a standardization.
+
+##### Updates:
+
+(Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/), [Farah Hariri](http://mir.cs.illinois.edu/farah/), [August Shi](http://mir.cs.illinois.edu/awshi2/), Muhammad Mahmood, and Warnakulasuriya Fernando)
+
+* The *surface mutants* in this paper is actually the *minimal mutants* from Ammann et al. ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from Kintis et al. ([Kintis 2010](/references#kintis2010evaluating)). The *minimal mutants* in this paper
+starts by minimizing the test suite, and hence different from *minimal mutants* from Ammann et al.
+* The definition of *mutation subsumption* in the paper is flipped. That is, a
+mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
+to kill the *later*, and the mutant is killed by the test suite.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.bib)
