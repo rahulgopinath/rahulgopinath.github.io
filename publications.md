@@ -156,7 +156,7 @@ benchmark of these measures using diverse tools.
 
 ##### Updates:
 
-(Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/) and his team)
+(Thanks to [Darko Marinov](http://mir.cs.illinois.edu/marinov/), [Farah Hariri](http://mir.cs.illinois.edu/farah/), [August Shi](http://mir.cs.illinois.edu/awshi2/), Muhammad Mahmood, and Warnakulasuriya Fernando)
 
 * The *minimal mutants* from Ammann et al. ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from Kintis et al. ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
 * The definition of *mutation subsumption* in the paper is flipped. That is, a
