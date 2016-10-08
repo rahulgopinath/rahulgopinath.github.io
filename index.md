@@ -29,7 +29,7 @@ operators in the name of effectiveness.
 
 <h3>Overview of publications</h3>
 
-<img src="/resources/mindmap.jpg" width="100px">
+<img src="/resources/mindmap.jpg" width="550px">
 
 <h3>Implementation</h3>
 The ideas from my research have resulted in two practical implementations -- [MuCheck](https://hackage.haskell.org/package/MuCheck) for Haskell, and [Xmutant](https://pypi.python.org/pypi/xmutant) for Python. I am also a contributor for [PIT](http://pitest.org/) mutation analysis system for Java, and [Rubocop](https://github.com/bbatsov/rubocop), a static analyzer for Ruby.
