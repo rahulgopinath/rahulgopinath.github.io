@@ -7,7 +7,7 @@ Rahul Gopinath is a PhD candidate in the School of Electrical Engineering and Co
 
 Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
 Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
-Areas of Interest: Mutation Analysis of software test suites, programming languages, and distributed and parallel systems.<br/>
+Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
 <h3>Research</h3>
 My primary area of research is mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
