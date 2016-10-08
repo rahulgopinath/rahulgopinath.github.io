@@ -12,6 +12,9 @@ Areas of Interest: Software analysis and verification, programming languages, an
 <h3>Research</h3>
 My primary area of research is mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
+<h4>Overview of publications</h4>
+<img src="/resources/mindmap.jpg" width="550px">
+
 Mutation analysis is a method of evaluating the quality of software test suites by introducing simple faults into a program. A test suite's ability to detect these mutants, or artificial faults, is a reasonable proxy for the effectiveness of the test suite. While mutation analysis is the best technique for test suite evaluation we have, it is also rather computationally and time intensive, requiring millions of test suite runs for even a moderately large software project.  This also means that mutation analysis is effectively impossible to use by developers and practicing testers working on real-world problems, and who need to evaluate whether their current test suites are adequate. Unfortunately, most of the research done in mutation analysis has been done on a small number of subject programs, small in size, and that have test suites with high coverage and adequacy -- something that is a rarity in real-world development (at least at early development stages).
 
 My [initial research](/publications/#gopinath2014code) towards addressing the shortcomings of mutation analysis found that <em>statement coverage</em>, rather than branch or path coverage is a better measure of mutation score, and hence quality of a test suite. This was substantiated by extensive examination of over 200 real world projects of various sizes. The [second part](/publications/#gopinath2014mutations) of my research was to evaluate whether the faults produced by mutation analysis were representative of real faults. Our examination of over 5,371 projects in four different programming languages found that the faults used by mutation analysis are rather simplistic in practice compared to real world bugs (in terms of the size of code change).
@@ -26,10 +29,6 @@ is no such limit on how the amount of efficiency that can be achieved by
 addition of new operators. This discovery suggests that effort should be spent
 on finding newer and relevant mutation operators rather than removing the
 operators in the name of effectiveness.
-
-<h3>Overview of publications</h3>
-
-<img src="/resources/mindmap.jpg" width="550px">
 
 <h3>Implementation</h3>
 The ideas from my research have resulted in two practical implementations -- [MuCheck](https://hackage.haskell.org/package/MuCheck) for Haskell, and [Xmutant](https://pypi.python.org/pypi/xmutant) for Python. I am also a contributor for [PIT](http://pitest.org/) mutation analysis system for Java, and [Rubocop](https://github.com/bbatsov/rubocop), a static analyzer for Ruby.
