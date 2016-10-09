@@ -13,7 +13,7 @@ Areas of Interest: Software analysis and verification, programming languages, an
 My primary area of research is mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
 <h5>Overview of publications</h5>
-[<img src="/resources/mindmap.jpg" width="550px" align='center'>](/publications)
+[<img src="/resources/img-publications.jpg" alt="Publications" title="Publications" width="550px" align='center'>](/publications)
 
 Mutation analysis is a method of evaluating the quality of software test suites by introducing simple faults into a program. A test suite's ability to detect these mutants, or artificial faults, is a reasonable proxy for the effectiveness of the test suite. While mutation analysis is the best technique for test suite evaluation we have, it is also rather computationally and time intensive, requiring millions of test suite runs for even a moderately large software project.  This also means that mutation analysis is effectively impossible to use by developers and practicing testers working on real-world problems, and who need to evaluate whether their current test suites are adequate. Unfortunately, most of the research done in mutation analysis has been done on a small number of subject programs, small in size, and that have test suites with high coverage and adequacy -- something that is a rarity in real-world development (at least at early development stages).
 
