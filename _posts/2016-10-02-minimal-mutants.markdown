@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Various Definitions of Minimal Mutant Sets. 
 layout: post
 tags: [mutation]
@@ -14,8 +14,9 @@ A recent conversation convinced me that a number of misunderstandings exist on
 the various minimal mutant set definitions. Here is an attempt to clarify some
 of the common definitions.
 
-There are three common mutant sets that are *minimal* in some respect:
+There are five common mutant selection techniques that produce sets *minimal* in some respect:
 
+* [Absolute minimal sets of mutants](#absoluteminimal)
 * [Theoretical minimal sets of mutants](#theoreticalminimal) (commonly called *minimal mutants*)
 * [Disjoint mutants](#disjointmutants)
 * [Surface Mutants](#surfacemutants)
@@ -48,6 +49,8 @@ function MinTest(Mutants, Tests)
   return T_min
 end
 ```
+
+Note that according to the order in which tests are removed, one can end up with different minimal test suites.
 
 See ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)) for further details.
 
@@ -101,10 +104,19 @@ end
 
 The details can be found in ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)).
 
-### <a id='theoreticalminimal'>Theoretical Minimal Mutants (aka Minimal Mutants) </a> 
+### <a id='absoluteminimal'>Absolute Minimal Mutants</a> 
 
 If one applies removal of subsumed mutants with respect to a minimal test suite, T_min
-then one ends up with the theoretical minimal mutant set.
+then one ends up with the absolute minimal mutant set.
+
+### <a id='theoreticalminimal'>Theoretical Minimal Mutants (aka Minimal Mutants) </a> 
+
+According to the order in which different tests are removed, one can end up with different minimal test suites. The
+idea of theoretical minimal mutants is that we can remove a mutant as redundant if removing that mutant does not
+result in a change in the *set* of minimal test suites.
+
+As I mentioned in my update ([Gopinath 2016](http://rahul.gopinath.org/publications/#gopinath2016measuring)), the surface
+mutants are actually theoretical minimal mutants.
 
 ### <a id='disjointmutants'> Disjoint Mutants </a>
 
@@ -114,13 +126,9 @@ that kill them are as disjoint as possible*. The procedure give is, choose the
 mutants that are hardest to kill, and also ensure minimal overlap in terms of
 tests with any other mutant thus selected.
 
-What exactly is the relation of disjoint mutants to other minimal sets? While
+What exactly is the relation of disjoint mutants to other minimal sets? The
 authors of the disjoint mutants [suggests](https://arxiv.org/pdf/1601.02351.pdf)
-that it is equivalent to theoretical minimal mutant sets,
+that it is equivalent to theoretical minimal mutant sets, and
 [the algorithm given by them](https://arxiv.org/pdf/1601.02351.pdf) seems to
-only remove the subsumed mutants using a full test suite. Hence, I believe
-that disjoint mutants are actually equivalent to the surface mutants.
+remove the subsumed mutants using a full test suite. Hence, all the three: *surface*, *disjoint* and *theoretical minimal* mutant sets are equivalent.
 
-Due to the existing confusion of the term *disjoint mutants* I recommend either
-*theoretical minimal set of mutant* or *surface mutant set* based on the
-minimization applied.
