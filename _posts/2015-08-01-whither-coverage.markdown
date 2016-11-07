@@ -97,8 +97,13 @@ Finally, can we assume that two test suites with 50% coverage is similar
 in effectiveness? That again is problematic because it assumes that mutants
 are similar in ease of detection. However, there is sufficient evidence
 that some mutants are hard to kill ([Papadakis 2015](/references#papadakis2015trivial))
-while others are extremely easy. So, mutation score does not even facilitate
-a comparison between test suites.
+while others are extremely easy. So given a test suite that is
+optimized for killing stubborn mutants, and another which
+kills a few sets of redundant and trivial mutants, the measure will
+favor the test suite that kills trivial and redundant mutants, while
+the effectiveness of the test suite targeting stubborn mutants may be
+larger.  Hence, mutation score does not even facilitate
+an unbiased comparison between test suites.
 
 ![Hierarchical](/resources/posts/spherical-cow.png)
 
