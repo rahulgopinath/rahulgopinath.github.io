@@ -16,8 +16,8 @@ which suggests that coverage provides little additional benefit over simply coun
 the test size. Inozemtseva et al. further suggests that we all should
 use mutation score instead.
 
-The main result in the paper is that they found coverage to have a strong
-relation with the test suite size. They found that if one looks only at
+The main result in the paper is that they found raw coverage to have a strong
+relation with the mutation score. However, they found that if one looks only at
 test suites of the same size; say 10 test cases each, 100 test cases
 each etc. then there is little correlation between the effectiveness of
 test suite (as measured by its mutation score), and the coverage.
