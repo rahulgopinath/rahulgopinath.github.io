@@ -22,6 +22,8 @@ test suites of the same size; say 10 test cases each, 100 test cases
 each etc. then there is little correlation between the effectiveness of
 test suite (as measured by its mutation score), and the coverage.
 
+### Coverage
+
 The author tries very hard ([GTAC 2015](https://www.youtube.com/watch?v=sAfROROGujU)) to point out
 that correlation does not imply causation, and to point out that once
 the test suite size is controlled, that correlation vanishes. However,
@@ -40,6 +42,22 @@ test cases in specific programs, and not in terms of general programs,
 (for example, N test cases equates X% coverage). Given this, I do not
 see why one should consider the correlation between suite size and
 coverage to be harmful, or why one should control for test suite size.
+
+Author's point is that the correlation between coverage and effectiveness
+is not a real causative correlation. That both are caused by the increase
+in the number of tests. However, consider a test suite. Say we improve
+the test cases without increasing the number; say by fixing some bugs.
+Say the improved test cases resulted in a larger coverage.
+We could expect the improved test cases to have better coverage because
+it covers more lines, and so long as our oracles are sufficient, the
+bugs (or mutants) in the newly covered lines can be detected without
+a corresponding increase in the number of test cases in the test suite.
+Similarly, a doubling of test cases by just duplicating them increases
+the test suite size without an increase in either coverage or
+effectiveness. Hence, I believe that authors insistence that the
+correlation is not due to a causative relationship is incorrect.
+
+### Mutation Score
 
 The next problem is that mutation analysis is pushed forward as the *silver
 bullet*. However, mutation analysis is again beset with a number of problems.
