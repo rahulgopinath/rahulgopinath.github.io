@@ -11,7 +11,7 @@ concerned by the recent discussions in
 [Hackernews](https://news.ycombinator.com/item?id=10644987) and
 [Reddit](https://www.reddit.com/r/programming/comments/3uvcf2/coverage_is_not_strongly_correlated_with_test/).
 These discussions are based on a publication from
-Laura Inozemtseva et al. ([Inozemtseva 2014](/references#inozemtseva2014coverage]))
+Laura Inozemtseva et al. ([Inozemtseva 2014](/references#inozemtseva2014coverage))
 which suggests that coverage provides little additional benefit over simply counting
 the test size. Inozemtseva et al. further suggests that we all should
 use mutation score instead.
@@ -58,7 +58,7 @@ are versions of the original with syntactic mutation, but no semantic
 impact. For example, deletion of a print statement or an initialization
 statement may not have an impact in the program behavior observable by
 the test cases. So, given a set of mutants of which 50% is equivalent
-(50% is not an extreme estimate. A previous study ([Papadakis 2015](/references#papadakis2015trivial]))
+(50% is not an extreme estimate. A previous study ([Papadakis 2015](/references#papadakis2015trivial))
 found that up to 17% mutants were trivially equivalent -- that is, these
 mutants result in no difference in object code once optimizations are applied),
 not even the best test suite will have greater than 50% mutation score.
@@ -78,7 +78,7 @@ test suite*.
 Finally, can we assume that two test suites with 50% coverage is similar
 in effectiveness? That again is problematic because it assumes that mutants
 are similar in ease of detection. However, there is sufficient evidence
-that some mutants are hard to kill ([Papadakis 2015](/references#papadakis2015trivial]))
+that some mutants are hard to kill ([Papadakis 2015](/references#papadakis2015trivial))
 while others are extremely easy. So, mutation score does not even facilitate
 a comparison between test suites.
 
