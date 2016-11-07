@@ -39,11 +39,7 @@ run in terms of absolute numbers (i.e. run only 100 tests).
 One usually decides to stop testing when one reaches some sort of
 adequacy. Say 100% statement coverage. Unfortunately, test suite size
 has no equivalent notion. So test suite size can not supplant coverage
-as an adequacy measure. Notice that the paper talks about number of
-test cases in specific programs, and not in terms of general programs,
-(for example, N test cases equates X% coverage). Given this, I do not
-see why one should consider the correlation between suite size and
-coverage to be harmful, or why one should control for test suite size.
+as an adequacy measure. Hence, I do not see why one should control for test suite size.
 
 Author's point is that the correlation between coverage and effectiveness
 is not a real causative correlation. That both are caused by the increase
