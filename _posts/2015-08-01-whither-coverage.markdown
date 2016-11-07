@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Whither Coverage?
 layout: post
 tags: [coverage]
