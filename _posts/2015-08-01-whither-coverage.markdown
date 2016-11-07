@@ -11,7 +11,7 @@ concerned by the recent discussions in
 [Hackernews](https://news.ycombinator.com/item?id=10644987) and
 [Reddit](https://www.reddit.com/r/programming/comments/3uvcf2/coverage_is_not_strongly_correlated_with_test/).
 These discussions are based on a publication from
-[Laura Inozemtseva et al.](http://www.linozemtseva.com/research/2014/icse/coverage/)
+Laura Inozemtseva et al. ([Inozemtseva 2014](/references#inozemtseva2014coverage]))
 which suggests that coverage provides little additional benefit over simply counting
 the test size. Inozemtseva et al. further suggests that we all should
 use mutation score instead.

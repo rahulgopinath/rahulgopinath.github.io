@@ -11,10 +11,11 @@ weight: 2
 * <a id='harrold1993a' href='#harrold1993a'> M. J. Harrold, R. Gupta, M. L. Soffa, *A Methodology for Controlling the Size of a Test Suite*, ACM Transactions on Software Engineering and Methodology, vol. 2, no. 3, pp. 270–285, 1993.</a>
 * <a id='ammann2014establishing' href='#ammann2014establishing'> P. Ammann, M. E. Delamaro, J. Offutt, *Establishing Theoretical Minimal Sets of Mutants*, ICST 2014.</a>
 * <a id='kintis2010evaluating' href='#kintis2010evaluating'>Kintis, Marinos, Mike Papadakis, and Nicos Malevris. *Evaluating mutation testing alternatives: A collateral experiment.* 2010 Asia Pacific Software Engineering Conference. IEEE, 2010.</a>
-* <a id='kintis2016analysing' href='#kintis2016analysing'> Marinos Kintis, Mike Papadakis, Andreas Papadopoulos, Evangelos Valvis, Nicos Malevris, *Analysing and Comparing the Effectiveness of Mutation Testing Tools: A Manual Study* SCAM 2016.</a>
-* <a id='papadakis2016threats' href='#papadakis2016threats'> Papadakis, M., Henard, C., Harman, M., Jia, Y. and Le Traon, Y., *Threats to the validity of mutation-based test assessment*, ISSTA 2016.</a>
-* <a id='wah2001theoretical' href='#wah2001theoretical'> K.S. How Tai Wah *Theoretical Insights into the Coupling Effect*, Mutation Testing for the New Century 2001.</a>
-* <a id='papadakis2015trivial' href='#papadakis2015trivial'>Mike Papadakis ;  Yue Jia ;  Mark Harman ;  Yves Le Traon *Trivial Compiler Equivalence: A Large Scale Empirical Study of a Simple, Fast and Effective Equivalent Mutant Detection Technique* ICSE 2015.</a>
+* <a id='kintis2016analysing' href='#kintis2016analysing'>Marinos Kintis, Mike Papadakis, Andreas Papadopoulos, Evangelos Valvis, Nicos Malevris, *Analysing and Comparing the Effectiveness of Mutation Testing Tools: A Manual Study* SCAM 2016.</a>
+* <a id='papadakis2016threats' href='#papadakis2016threats'>Papadakis, M., Henard, C., Harman, M., Jia, Y. and Le Traon, Y., *Threats to the validity of mutation-based test assessment*, ISSTA 2016.</a>
+* <a id='wah2001theoretical' href='#wah2001theoretical'>K.S. How Tai Wah *Theoretical Insights into the Coupling Effect*, Mutation Testing for the New Century 2001.</a>
+* <a id='papadakis2015trivial' href='#papadakis2015trivial'>Papadakis M.,  Jia Y.,  Harman M.,  Le Traon Y., *Trivial Compiler Equivalence: A Large Scale Empirical Study of a Simple, Fast and Effective Equivalent Mutant Detection Technique*, ICSE 2015.</a>
+* <a id='inozemtseva2014coverage' href='#inozemtseva2014coverage'>Inozemtseva L., R Holmes R., *Coverage is not strongly correlated with test suite effectiveness*, ICSE 2014.</a>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
