@@ -26,7 +26,9 @@ test suite (as measured by its mutation score), and the coverage.
 
 The author tries very hard ([GTAC 2015](https://www.youtube.com/watch?v=sAfROROGujU)) to point out
 that correlation does not imply causation, and to point out that once
-the test suite size is controlled, that correlation vanishes. However,
+the test suite size is controlled, that correlation between coverage and
+mutation score vanishes, and hence avoid using coverage as a measure of
+effectiveness. However,
 this assumes that test suite size (in absolute numbers -- say 10 test cases, or
 100 test cases) is some thing that people care about. Usually, when we
 decides to test, we have a budget. But that budget is defined in terms
