@@ -2,6 +2,7 @@
 published: true
 title: Mutation 2017 at Tokyo
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---
