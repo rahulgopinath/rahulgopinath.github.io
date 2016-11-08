@@ -1,5 +1,6 @@
 ---
 layout: default
+comments: true
 ---
 <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 <div class="post">
@@ -18,5 +19,7 @@ layout: default
   <article class="post-content">
     {{ content }}
   </article>
+
+  {% include disqus.html %}
 
 </div>
