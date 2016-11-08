@@ -41,7 +41,7 @@ chance you will be able to eliminate equivalent mutants as they occur.
 
 ## Use statement deletion operator exclusively to obtain mutation score
 
-Use statement deletion mutation as the primary means to
+Use statement deletion ([Offutt 2013](/references#offutt2013empirical)) mutation as the primary means to
 *measure* quality of test suite. The interesting thing about statement
 deletion is that if a statement (or an expression) can be deleted to
 create a semantic clone, then we can argue that the clone
