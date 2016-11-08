@@ -38,16 +38,17 @@ when compared to running a test case without assertion.
 Because you are evaluating mutants in much smaller units, there is a better
 chance you will be able to eliminate equivalent mutants as they occur.
 
-## Use statement or expression deletion operators exclusively to obtain mutation score
+## Use statement deletion operator exclusively to obtain mutation score
 
-Use statement or expression deletion mutation as the primary means to
+Use statement deletion mutation as the primary means to
 *measure* quality of test suite. The interesting thing about statement
-or expression deletion is that if a statement or expression can be
-deleted to create a semantic clone, then we can argue that the clone
+deletion is that if a statement (or an expression) can be deleted to
+create a semantic clone, then we can argue that the clone
 is *better* compared to the actual program because it is more
-concise. (If the deleted expression is an optimization, and the semantic
-clone results in a worse program, it suggests that the tests should
-have included a performance metric for distinguishing the optimization).
+concise. (If the deleted statement (or expression) is an optimization,
+and the semantic clone results in a worse program, it suggests that
+the tests should have included a performance metric for distinguishing
+the optimization).
 
 Thus, if one is using deletion mutation exclusively, then 100% mutation
 score does mean something, and is achievable for a perfect program. If
@@ -55,7 +56,8 @@ you are unable to obtain 100% with deletion mutation operators, it
 suggests that either your program is not perfect, or your test suite is
 not adequate.
 
-The other important benefit of statement or expression deletion mutation
-is that there is a consistent and standard definition. That is, you
+The other important benefit of statement deletion mutation
+is that there is a consistent and standard definition (unfortunately,
+expression deletion operators are inconsistent in this regard). That is, you
 can expect tools that implement statement or expression deletion
 mutation to provide similar scores (although not across translation stages).
