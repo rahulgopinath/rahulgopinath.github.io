@@ -18,7 +18,10 @@ weight: 2
 * <a id='jia2011an' href='#jia2011an'>Jia Y.,  Harman M., *An Analysis and Survey of the Development of Mutation Testing*, IEEE TSE 2011.</a>
 * <a id='inozemtseva2014coverage' href='#inozemtseva2014coverage'>Inozemtseva L., R Holmes R., *Coverage is not strongly correlated with test suite effectiveness*, ICSE 2014.</a>
 * <a id='just2014are' href='#just2014are'>Just R., Jalali D., Inozemtseva L., Ernst. M. D., Holmes R., Fraser G., *Are mutants a valid substitute for real faults in software testing?*, FSE 2014.</a>
-* <a id='offutt2001uniting' href='#offutt2001uniting'>Offutt A.J., Untch R. H., *Mutation 2000: Uniting the Orthogonal*, Mutation testing for the new century 2001.</a>
+* <a id='offutt2001uniting' href='#offutt2001uniting'>Offutt A. J., Untch R. H., *Mutation 2000: Uniting the Orthogonal*, Mutation testing for the new century 2001.</a>
+* <a id='howden1982completeness' href='#howden1982completeness'>Howden W. E, *Weak Mutation Testing and Completeness of Test Sets*, IEEE TSE 1982.</a>
+* <a id='schuler2013assessing' href='#schuler2013assessing'>Schuler D., Zeller A., *Assessing Oracle Quality with Checked Coverage*, ICST 2013.</a>
+* <a id='murugesan2015are' href='#murugesan2015are'>Murugesan A, Whalen M. W. , Rungta N, Tkachuk O, Person S, Heimdahl M. P. E., You D, *Are We There Yet? Determining the Adequacy of Formalized Requirements and Test Suites*, NFM 2015.</a>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
