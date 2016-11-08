@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Clone Detection Tools
 layout: post
 comments: true
