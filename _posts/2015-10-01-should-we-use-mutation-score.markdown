@@ -1,6 +1,6 @@
 ---
 published: true
-title: Should we use mutation score instead of coverage for measuring test suite effectiveness?
+title: Should We Use Mutation Score Instead of Coverage for Measuring Test Suite Effectiveness?
 layout: post
 tags: [coverage]
 categories: post

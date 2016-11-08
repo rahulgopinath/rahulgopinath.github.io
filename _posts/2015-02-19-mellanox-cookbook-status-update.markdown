@@ -1,6 +1,6 @@
 ---
 published: true
-title: Mellanox cookbook status update
+title: Mellanox Cookbook Status Update
 layout: post
 tags: [mellanox]
 categories : post

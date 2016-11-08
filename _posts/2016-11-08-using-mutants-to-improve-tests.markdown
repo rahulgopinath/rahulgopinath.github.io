@@ -1,6 +1,6 @@
 ---
 published: true
-title: Using mutants to improve test suites.
+title: Using Mutants to Improve Test Suites.
 layout: post
 tags: [mutation]
 categories: post
