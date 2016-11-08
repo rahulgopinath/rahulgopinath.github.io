@@ -2,6 +2,7 @@
 published: true
 title: Mellanox Openstack status update
 layout: post
+comments: true
 tags: [mellanox]
 categories : post
 ---

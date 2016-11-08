@@ -2,6 +2,7 @@
 published: true
 title: Foundations of Mutation Analysis
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---

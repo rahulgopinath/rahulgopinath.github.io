@@ -2,6 +2,7 @@
 published: false
 title: Test Generation
 layout: post
+comments: true
 tags: [testgen]
 categories : post
 ---

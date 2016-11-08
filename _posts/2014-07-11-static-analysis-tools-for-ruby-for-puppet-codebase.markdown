@@ -2,6 +2,7 @@
 published: true
 title: Static analysis tools for Ruby (for Puppet Codebase)
 layout: post
+comments: true
 tags: [puppet,staticanalysis]
 categories : post
 ---

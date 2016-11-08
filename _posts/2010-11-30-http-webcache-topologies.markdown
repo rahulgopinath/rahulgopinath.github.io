@@ -1,6 +1,7 @@
 ---
 published: true
 title: HTTP WebCache Topologies
+comments: true
 layout: post
 tags: [cache]
 categories : post

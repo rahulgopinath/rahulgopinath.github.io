@@ -2,6 +2,7 @@
 published: true
 title: Various Definitions of Minimal Mutant Sets. 
 layout: post
+comments: true
 tags: [mutation]
 categories: post
 ---

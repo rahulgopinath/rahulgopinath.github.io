@@ -2,6 +2,7 @@
 published: true
 title: Is Code Coverage Effective in Preventing Bugs?
 layout: post
+comments: true
 tags: [coverage]
 categories: post
 ---

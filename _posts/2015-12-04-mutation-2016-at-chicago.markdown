@@ -2,6 +2,7 @@
 published: true
 title: Mutation 2016 at Chicago
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---

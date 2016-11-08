@@ -2,6 +2,7 @@
 published: false
 title: Clone Detection Tools
 layout: post
+comments: true
 tags: [clones]
 categories : post
 ---

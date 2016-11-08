@@ -2,6 +2,7 @@
 published: true
 title: Weak, Firm, and Strong Mutation
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---

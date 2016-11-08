@@ -2,6 +2,7 @@
 published: true
 title: Distributed HTTP Caching Mechanisms
 layout: post
+comments: true
 tags: [caching]
 categories : post
 ---

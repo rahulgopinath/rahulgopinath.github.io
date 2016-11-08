@@ -2,6 +2,7 @@
 published: true
 title: Mutation Selection Approaches
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---

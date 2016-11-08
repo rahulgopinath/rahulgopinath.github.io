@@ -2,6 +2,7 @@
 published: true
 title: The Mutation Analysis Landscape
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---

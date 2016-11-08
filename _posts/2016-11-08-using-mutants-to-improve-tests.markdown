@@ -2,6 +2,7 @@
 published: true
 title: Using Mutants to Improve Test Suites.
 layout: post
+comments: true
 tags: [mutation]
 categories: post
 ---

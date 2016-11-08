@@ -2,6 +2,7 @@
 published: true
 title: Fault, Error, Failure, and Mutants
 layout: post
+comments: true
 tags: [mutation]
 categories : post
 ---
