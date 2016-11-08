@@ -38,7 +38,7 @@ Pure Text based:  (No tokenization)
 - Use Latent semantic indexing - comments and identifier matching.
   Linguistic analysis
 
-Toekn based: parsed into sequence of toekns
+Token based: parsed into sequence of tokens
 -----------
 - CCFinder (remove uninteresting elements, normalize,
   relate each token to type/identifier/var/const)
