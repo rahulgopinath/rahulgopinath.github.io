@@ -15,6 +15,7 @@ weight: 2
 * <a id='papadakis2016threats' href='#papadakis2016threats'>Papadakis, M., Henard, C., Harman, M., Jia, Y. and Le Traon, Y., *Threats to the validity of mutation-based test assessment*, ISSTA 2016.</a>
 * <a id='wah2001theoretical' href='#wah2001theoretical'>K.S. How Tai Wah *Theoretical Insights into the Coupling Effect*, Mutation Testing for the New Century 2001.</a>
 * <a id='papadakis2015trivial' href='#papadakis2015trivial'>Papadakis M.,  Jia Y.,  Harman M.,  Le Traon Y., *Trivial Compiler Equivalence: A Large Scale Empirical Study of a Simple, Fast and Effective Equivalent Mutant Detection Technique*, ICSE 2015.</a>
+* <a id='jia2011an' href='#jia2011an'>Jia Y.,  Harman M., *An Analysis and Survey of the Development of Mutation Testing*, IEEE TSE 2011.</a>
 * <a id='inozemtseva2014coverage' href='#inozemtseva2014coverage'>Inozemtseva L., R Holmes R., *Coverage is not strongly correlated with test suite effectiveness*, ICSE 2014.</a>
 * <a id='just2014are' href='#just2014are'>Just R., Jalali D., Inozemtseva L., Ernst. M. D., Holmes R., Fraser G., *Are mutants a valid substitute for real faults in software testing?*, FSE 2014.</a>
 * <a id='offutt2001uniting' href='#offutt2001uniting'>Offutt A.J., Untch R. H., *Mutation 2000: Uniting the Orthogonal*, Mutation testing for the new century 2001.</a>
