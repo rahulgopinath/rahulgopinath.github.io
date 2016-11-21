@@ -3,7 +3,7 @@ layout: page
 title : Projects
 header : Projects
 group: navigation
-weight: 3
+weight: 4
 menu: Publications
 ---
 <h3> Current Projects </h3>
