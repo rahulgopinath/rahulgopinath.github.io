@@ -103,6 +103,7 @@ both software engineering practice and research evaluation.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.bib)
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/can-testedness-be-effectively-measured)
 
 
 #### <a id='alipour2016focused'></a>[Alipour, Groce, Gopinath, Christi: _Generating Focused Random Tests Using Directed Swarm Testing_ ISSTA, 2016]()
