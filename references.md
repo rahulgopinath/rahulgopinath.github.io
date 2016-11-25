@@ -23,6 +23,10 @@ weight: 2
 * <a id='harrold1993a' href='#harrold1993a'> M. J. Harrold, R. Gupta, M. L. Soffa, *A Methodology for Controlling the Size of a Test Suite*, ACM Transactions on Software Engineering and Methodology, vol. 2, no. 3, pp. 270–285, 1993.</a>
 * <a id='king1991a' href='#king1991a'>K. N. King, J. Offutt, *A Fortran language system for mutation-based software testing.*, Software-Practice and Experience, 21(7):685–718, July 1991.</a>
 * <a id='howden1982completeness' href='#howden1982completeness'>Howden W. E, *Weak Mutation Testing and Completeness of Test Sets*, IEEE TSE 1982.</a>
+* <a id='rice1953classes' href='#rice1953classes'>Rice, H. G. *Classes of Recursively Enumerable Sets and Their Decision Problems.* Transactions of American Mathematical Society 74, 358-366, 1953.</a>
+* <a id='demillo1979program' href='#demillo1979program'> R. A. Demillo, R J Lipton, F. G. Sayward, *Program mutation: A new approach to program testing* Software Testing vol. 2 pp.107-126 1979.</a>
+* <a id='budd1982two' href='#budd1982two'> T. Budd, D. Angluin, *Two Notions of Correctness and Their Relation to Testing* Acta Informatica vol. 18, no. 1, pp. 21-45 1982.</a>
+* <a id='visser2016what' href='#visser2016what'> W. Visser, *What makes killing a mutant hard?* ASE pp. 39-44 2016.</a>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
