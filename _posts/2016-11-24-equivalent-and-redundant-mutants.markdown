@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Equivalent, Redundant, Trivial and Stubborn Mutants
 layout: post
 comments: true
