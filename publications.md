@@ -7,6 +7,10 @@ weight: 2
 menu: Publications
 ---
 
+##### 2017
+* [_The Theory of Composite Faults_](#gopinath2017the)<br/>
+  *Gopinath*, Jensen, Groce - ICST, 2017
+
 ##### 2016
 
 * [_Evaluating Non-Adequate Test-Case Reduction_](#alipour2016evaluating)<br/>
@@ -64,6 +68,12 @@ menu: Publications
 My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
 ---
+
+#### <a id='gopinath2017the'></a>[Gopinath, Jensen, Groce: _The Theory of Fault Coupling_ ICST, 2017]()
+Fault masking happens when the effect of one fault serves to mask that of another fault for particular test inputs. The coupling effect is relied upon by testing practitioners to ensure that fault masking is rare. It states that complex faults are coupled to simple faults in such a way that a test data set that detects all simple faults in a program will detect a high percentage of the complex faults..
+
+While this effect has been empirically evaluated, our theoretical understanding of the coupling effect is as yet incomplete. Wah proposed a theory of the coupling effect on finite bijective (or near bijective) functions with the same domain and co-domain, and assuming uniform distribution for candidate functions. This model however, was criticized as being too simple to model real systems, as it did not account for differing domain and co-domain in real programs, or for syntactic neighborhood.
+We propose a new theory of fault coupling for general functions (with certain constraints). We show that there are two kinds of fault interactions, of which only the weak interaction can be modeled by the theory of the coupling effect. The strong interaction can produce faults that are semantically different from the original faults. These faults should hence be considered as independent atomic faults. Our analysis show that the theory holds even when the effect of syntactical neighborhood of the program is considered. We analyze numerous real-world programs with real faults to validate our hypothesis.
 
 #### <a id='alipour2016evaluating'></a>[Alipour, Shi, Gopinath, Marinov, Groce: _Evaluating Non-Adequate Test-Case Reduction_ ASE, 2016]()
 
