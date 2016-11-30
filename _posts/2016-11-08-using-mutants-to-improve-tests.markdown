@@ -46,7 +46,7 @@ Use statement deletion ([Offutt 2013](/references#offutt2013empirical)) mutation
 deletion is that if a statement (or an expression) can be deleted to
 create a semantic clone, then we can argue that the clone
 is *better* compared to the actual program because it is more
-concise. (If the deleted statement (or expression) is an optimization,
+[concise](http://programmingisterrible.com/post/139222674273/write-code-that-is-easy-to-delete-not-easy-to). (If the deleted statement (or expression) is an optimization,
 and the semantic clone results in a worse program, it suggests that
 the tests should have included a performance metric for distinguishing
 the optimization).
