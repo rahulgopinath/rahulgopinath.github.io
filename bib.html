@@ -31,8 +31,8 @@ $(document).ready(function(){
         document.getElementById("mutationbib").innerHTML += "<ul>";
         for (b of bibs) {
           //b.citationKey + " "
-          txt = (b.entryTags.Author + "<br/>" + b.entryTags.Title.replace(/[{}]+/g,''));
-          document.getElementById("mutationbib").innerHTML += "<li>" + txt + "</li>";
+          txt = (b.entryTags.Author + "<br/>" + b.entryTags.Title);
+          document.getElementById("mutationbib").innerHTML += "<li>" + txt.replace(/[{}\/\\]+/g,'') + "</li>";
         }
         document.getElementById("mutationbib").innerHTML += "</ul>";
         document.getElementById("mutationbib").innerHTML += "</p>";
