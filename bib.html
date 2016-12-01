@@ -1,0 +1,46 @@
+---
+layout: page
+title: Bibliography
+tagline: .
+group: navigation
+menu: Links
+weight: 9
+exclude: true
+---
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="/resources/bibtexParse.js"></script>
+<script>
+$(document).ready(function(){
+  years = {}
+  $.ajax({
+    url : "/resources/references.bib",
+    async:false,
+    success : function(result){
+      bibliography = bibtexParse.toJSON(result);
+      for(b of bibliography) {
+        years[b.entryTags.Year] = years[b.entryTags.Year] || []
+        years[b.entryTags.Year].push(b)
+      }
+      document.getElementById("mutationbib").innerHTML = "";
+      for (y of Object.keys(years).reverse()) {
+        bibs = years[y]
+        //console.log(y);
+        document.getElementById("mutationbib").innerHTML += "<p>";
+        document.getElementById("mutationbib").innerHTML += "<h4>" + y + "</h4>";
+        document.getElementById("mutationbib").innerHTML += "<ul>";
+        for (b of bibs) {
+          //b.citationKey + " "
+          txt = (b.entryTags.Author + ": " + b.entryTags.Title.replace(/[{}]+/,'') + ", " + b.entryTags.Year);
+          document.getElementById("mutationbib").innerHTML += "<li>" + txt + "</li>";
+        }
+        document.getElementById("mutationbib").innerHTML += "</ul>";
+        document.getElementById("mutationbib").innerHTML += "</p>";
+      }
+    } 
+  });
+});
+</script>
+<h2>Mutation Publications</h2>
+<div id="mutationbib">
+</div>
