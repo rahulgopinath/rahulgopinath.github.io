@@ -15,7 +15,8 @@ rahul@gopinath.org<hr/>
 
 <h4>Address</h4>
 3405 NW Orchard Ave, Apt #171 <br/>
-Corvallis, OR, US
+Corvallis, OR 97330<br/>
+U.S<p/>
 
 Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
 
