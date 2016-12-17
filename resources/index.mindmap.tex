@@ -1,4 +1,3 @@
-
 \documentclass[border=10pt]{standalone}
 %%%<
 \usepackage{verbatim}
@@ -8,6 +7,7 @@
 \usepackage{tikz}
 \usetikzlibrary{mindmap,shadows}
 \usepackage[hidelinks,pdfencoding=auto]{hyperref}
+\title{Mindmap}
 % Information boxes
 \newcommand*{\info}[4][16.3]{%
   \node [ annotation, #3, scale=0.65, text width = #1em,color=white,fill=none,inner sep = 2mm ] at (#2) {%
@@ -20,49 +20,49 @@
 }
 \begin{document}
 \begin{tikzpicture}[ every annotation/.style = {draw, fill = white, font = \Large}]
-  \path[mindmap,concept color=black!40,text=white,
-    every node/.style={concept},
+  \path[mindmap,concept color=,
+    every node/.style={concept,fill=white},
     root/.style    = {concept color=black!80,font=\large\bfseries,text width=18em},
-    level 1 concept/.append style={font=\Large\bfseries,sibling angle=50,text width=10.7em,level distance=20em,inner sep=2pt},
-    level 2 concept/.append style={font=\bfseries,sibling angle=50,level distance=18em, text width=10em},
-    level 3 concept/.append style={font=\bfseries,sibling angle=50,level distance=16em, text width=10em},
+    level 1 concept/.append style={color=black!80,font=\Large\bfseries,sibling angle=90,text width=10.7em,level distance=20em},
+    level 2 concept/.append style={color=black!80,font=\bfseries,sibling angle=50,level distance=18em, text width=10em},
+    level 3 concept/.append style={color=black!80,font=\bfseries,sibling angle=50,level distance=16em, text width=10em},
   ]
-  node[root] {Software Testing} [clockwise from=30]
-    child[concept color=green!20!black] {
-      node[concept] {Coverage} [clockwise from=90]
-    	child[concept color=green!20!black] { node (predictionN) {Prediction} }
-    	child[concept color=green!20!black] { node (testednessN) {Testedness} }
+  node[root] {Software Testing} [clockwise from=0]
+    child[concept] {
+      node[concept] {Coverage} [clockwise from=30]
+    	child[concept] { node (predictionN) {Prediction} }
+    	child[concept] { node (testednessN) {Testedness} }
     }
-    child[concept color=orange!20!black] {
-      node[concept] {Test suites} [clockwise from=50]
-    	child[concept color=orange!20!black] { node (swarmN) {Swarm Testing} }
-    	child[concept color=orange!20!black] { node (reductionN) {Reduction} }
-    }
-    child[concept color=blue!20!black] {
+    child[concept] {
       node[concept] {Mutation Analysis} [clockwise from=0]
-    	child[concept color=blue!40!black] {
+    	child[concept] {
           node {Theory} [clockwise from=0]
         	child { node (couplingN) {Coupling Effect} }
-        	child { node [scale=1,text width=8em] (competentN) {Competent Programmer}  }
+        	child { node (competentN) {Competent Programmer}  }
       }
-      child[concept color=blue] {
+      child[concept] {
         node[concept] {Representativeness} [clockwise from=320]
         child { node[concept] (syntacticN) {Syntactic} }
         child { node[concept] (semanticN) {Semantic} }
       }
-      child[concept color=green!40!black] {
+      child[concept] {
         node[concept] {Duplicates} [clockwise from=280]
         child { node[concept] (equivalentsN) {Equivalent Mutants} }
         child { node[concept] (redundantN) {Redundant Mutants} }
       }
-      child[concept color=yellow!60!black] {
+      child[concept] {
         node[concept] (Computation) {Computation} [clockwise from=239]
         child { node[concept] (smarterN) {Smarter} }
         child { node[concept] (fasterN) {Faster} }
         child { node[concept] (fewerN) {Fewer} }
       }
+    }
+    child[concept] {
+      node[concept] {Test suites} [clockwise from=210]
+    	child[concept] { node (swarmN) {Swarm Testing} }
+    	child[concept] { node (reductionN) {Reduction} }
     };
-    \info{swarmN.north east}{above,anchor=west,xshift=1em}{%
+    \info[10]{swarmN.north east}{above,anchor=west,xshift=-15em}{%
       \item 2016 ISSTA
     }
     \info{reductionN.north east}{above,anchor=west,xshift=1em}{%
@@ -75,6 +75,7 @@
       \item 2016 FSE
     }
     \info{couplingN.north east}{above,anchor=west,xshift=1em}{%
+      \item 2017 ICST
       \item 2014 ISSRE
     }
     \info{competentN.south}{below,anchor=west,xshift=4em,yshift=2em}{%
@@ -86,16 +87,16 @@
     \info[15]{redundantN.south}{below,anchor=west,xshift=-3em,yshift=-2em}{%
       \item 2016~Mutation
     }
-    \info[14]{syntacticN.east}{anchor=west,xshift = 0.5em}{%
+    \info[10]{syntacticN.east}{anchor=west,xshift = 0.5em}{%
       \item 2014 ISSRE
     }
-    \info[8]{smarterN.east}{anchor=north,xshift = -8em,yshift=-5em}{%
+    \info[8]{smarterN.east}{anchor=north,xshift = -14em,yshift=1em}{%
       \item 2016 ICSE
     }
-    \info[10]{fasterN.east}{anchor=south,xshift = -6em,yshift=5em}{%
+    \info[10]{fasterN.east}{anchor=south,xshift = -12em,yshift=1em}{%
       \item 2016 ICSE
     }
-    \info[14]{fewerN.east}{anchor=south,xshift = -5em,yshift=5em}{%
+    \info[8]{fewerN.east}{anchor=south,xshift = -14em,yshift=-2em}{%
       \item 2016 ICSE
     }
 \end{tikzpicture}
