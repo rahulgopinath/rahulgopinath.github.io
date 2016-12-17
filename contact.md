@@ -1,16 +1,22 @@
 ---
 layout: page
-title : Contact Me
-header : Contact Me
+title : Contact
+header : Contact
 group: navigation
 weight: 8
 menu: Contact
 ---
 <h4>Phone</h4>
 +1 (724) 856-0067
+
 <h4>Address</h4>
 3405 NW Orchard Ave, Apt #171 <br/>
 Corvallis, OR, US
+
+<h4>Email</h4>
+rahul@gopinath.org<hr/>
+
+Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
