@@ -76,7 +76,7 @@ While this effect has been empirically evaluated, our theoretical understanding 
 We propose a new theory of fault coupling for general functions (with certain constraints). We show that there are two kinds of fault interactions, of which only the weak interaction can be modeled by the theory of the coupling effect. The strong interaction can produce faults that are semantically different from the original faults. These faults should hence be considered as independent atomic faults. Our analysis show that the theory holds even when the effect of syntactical neighborhood of the program is considered. We analyze numerous real-world programs with real faults to validate our hypothesis.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017the.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017the.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icst2017/gopinath2017the.bib)
 
 #### <a id='alipour2016evaluating'></a>[Alipour, Shi, Gopinath, Marinov, Groce: _Evaluating Non-Adequate Test-Case Reduction_ ASE, 2016]()
 
@@ -85,7 +85,7 @@ Given two test cases, one larger and one smaller, the smaller test case is prefe
 Our study introduces and evaluates C%-coverage reduction (where a test case is reduced to retain at least C% of its original coverage) and N-mutant reduction (where a test case is reduced to kill at least N of the mutants it originally killed). We evaluate the reduction trade-offs with varying values of C and N for four real-world C projects: Mozilla’s SpiderMonkey JavaScript engine, the YAFFS2 flash file system, Grep, and Gzip. The results show that it is possible to greatly reduce the size of many test cases while still preserving much of their fault-detection capability.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ase2016/alipour2016evaluating.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/ase2016/alipour2016evaluating.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/ase2016/alipour2016evaluating.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/evaluating-non-adequate-test-case-reduction)
 
 #### <a id='ahmed2016can'></a>[Ahmed, Gopinath, Brindescu, Groce, Jensen: _Can Testedness be Effectively Measured_ FSE, 2016]()
@@ -115,7 +115,7 @@ drawn for mutation score thresholds. Our results have important implications for
 both software engineering practice and research evaluation.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2016/ahmed2016can.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/can-testedness-be-effectively-measured)
 
 
@@ -141,7 +141,7 @@ the code in the introducing commit is targeted. This lightweight technique
 is applicable to existing industrial-strength random testers.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2016/alipour2016focused.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/issta2016/alipour2016focused.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2016/alipour2016focused.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/arpitchristi/issta-2016-generating-focused-random-tests-using-directed-swarm-testing)
 
 
@@ -181,7 +181,7 @@ benchmark of these measures using diverse tools.
 * The *minimal mutants* from Ammann et al. ([Ammann 2014](/references#ammann2014establishing)), and the *disjoint mutants* from Kintis et al. ([Kintis 2010](/references#kintis2010evaluating)) is same as the *surface mutants* in this paper. Hence, the *surface mutants* are not an alternative. However, the two measures provided: The *volume ratio*, and the *surface correction* are the right interpretations for disjoint/minimal/surface mutants.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2016/gopinath2016measuring.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icst2016/gopinath2016measuring.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icst2016/gopinath2016measuring.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/icst2016/)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/measuring-effectiveness-of-mutant-sets)
 
@@ -208,7 +208,7 @@ reductions.
 mutants mentioned by King & Offutt ([King 1991](/references#king1991a)).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016topsy.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2016/gopinath2016topsy.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/icse2016/)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/topsy-turvy-a-smarter-and-faster-parallelization-of-mutation-analysis)
 
@@ -246,7 +246,7 @@ mutant dynamically subsumes another if all test cases that kills the *former* is
 to kill the *later*, and the mutant is killed by the test suite.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/sqj2016/gopinath2016does.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/sqj2016/)
 
 #### <a id='gopinath2016on'></a>[Gopinath, Alipour, Ahmed, Jensen, Groce: _On The Limits Of Mutation Reduction Strategies_ ICSE, 2016]()
@@ -280,7 +280,7 @@ questionable benefit.
 <!--script async class="speakerdeck-embed" data-id="6c0a81985e9c4f1cbd153b5a7ae60603" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016on.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icse2016/gopinath2016on.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2016/gopinath2016on.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/H5DCY)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/on-the-limits-of-mutation-reduction-strategies)
 
@@ -326,7 +326,7 @@ for 99% precision 95% of the time, as suggested by theory.
 <!--script async class="speakerdeck-embed" data-id="3a16618236ad4f91b253a9f70b3cbe9b" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2015/gopinath2015howhard.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/issre2015/gopinath2015howhard.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issre2015/gopinath2015howhard.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/MYDH2)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-hard-does-mutation-analysis-have-to-be-anyway)
 
@@ -348,7 +348,7 @@ contributors, there is no difference once the relative quantity of commits
 is accounted for.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/esem2015/ahmed2015empirical.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/esem2015/ahmed2015empirical.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/esem2015/ahmed2015empirical.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time) 
 
 #### <a id='gopinath2014mutations'></a>[Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
@@ -370,7 +370,7 @@ between mutant detection and detection of actual program faults in a larger body
 <!--script async class="speakerdeck-embed" data-id="5da07deb69d7421995908f629c055ace" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2014/gopinath2014mutations.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/issre2014/gopinath2014mutations.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issre2014/gopinath2014mutations.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/ENZQK)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/mutations-how-close-are-they-to-real-faults)
 
@@ -379,14 +379,14 @@ between mutant detection and detection of actual program faults in a larger body
 Everyone wants to know one thing about a test suite: will it detect enough bugs? Unfortunately, in most settings that matter, answering this question directly is impractical or impossible. Software engineers and researchers therefore tend to rely on various measures of code coverage (where mutation testing is considered as a form of syntactic coverage). A long line of academic research efforts have attempted to determine whether relying on coverage as a substitute for fault detection is a reasonable solution to the problems of test suite evaluation. This essay argues that the profusion of coverage-related literature is in part a sign of an underlying uncertainty as to what exactly it is that measuring coverage should achieve, and how we would know if it can, in fact, achieve it. We propose some solutions, but the primary focus is to clarify the state of current confusions regarding this key problem for effective software testing. 
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/splash2014/groce2014coverage.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/splash2014/groce2014coverage.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/splash2014/groce2014coverage.bib)
 
 #### <a id='le2014mucheck'></a>[Le, Alipour, Gopinath, Groce: _MuCheck: An Extensible Tool for Mutation Testing of Haskell Programs_ ISSTA Tools 2014]()
 
 This paper presents MuCheck, a mutation testing tool for Haskell programs. This is the first tool to be published (to our knowledge) that is explicitly oriented towards mutation testing for functional programs. MuCheck is a counterpart to the widely used QuickCheck random testing tool in fuctional programs, and can be used to evaluate the efficacy of QuickCheck property definitions. The tool implements mutation operators that are specifically designed for functional programs, and makes use of the type system of Haskell to achieve a more relevant set of mutants than otherwise possible. Mutation coverage is particularly valuable for functional programs due to highly compact code, referential transparency, and clean semantics, which make augmenting a test suite or specification based on surviving mutants a practical method for improved testing.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2014/le2014mucheck.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/issta2014/le2014mucheck.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2014/le2014mucheck.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/alipourm/mucheck-an-extensible-tool-for-mutation-testing-of-haskell-programs)
 
 #### <a id='gopinath2014code'></a>[Gopinath, Jensen, Groce: _Code coverage for suite evaluation by developers_ ICSE 2014]()
@@ -396,7 +396,7 @@ One of the key challenges of developers testing code is determining a test suite
 <!--script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2014/gopinath2014code.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/icse2014/gopinath2014code.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2014/gopinath2014code.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/test-suite-evaluation-for-fun-and-profit)
 
@@ -405,7 +405,7 @@ One of the key challenges of developers testing code is determining a test suite
 Regular expressions are widely used, but they are inherently hard to understand and (re)use, which is primarily due to the lack of abstraction mechanisms that causes regular expressions to grow large very quickly. The problems with understandability and usability are further compounded by the viscosity, redundancy, and terseness of the notation. As a consequence, many different regular expressions for the same problem are floating around, many of them erroneous, making it quite difficult to find and use the right regular expression for a particular problem. Due to the ubiquitous use of regular expressions, the lack of understandability and usability becomes a serious software engineering problem. In this paper we present a range of independent, complementary representations that can serve as explanations of regular expressions. We provide methods to compute those representations, and we describe how these methods and the constructed explanations can be employed in a variety of usage scenarios. In addition to aiding understanding, some of the representations can also help identify faults in regular expressions. Our evaluation shows that our methods are widely applicable and can thus have a significant impact in improving the practice of software engineering.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.pdf)
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.bib)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fase2012/erwig2012explanations.bib)
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
