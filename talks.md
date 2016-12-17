@@ -18,7 +18,7 @@ menu: Talks
 
 This talk is about the effectiveness of coverage as a technique for evaluating quality of test suite. We show the utility of coverage by considering its correlation with mutation score, and also show that coverage is a significant defence against bugs. Further, we also critique effectiveness of mutation score as a criteria for test suite quality.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/hbocBqOpuAo" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/NKEptA3KP08" frameborder="0" allowfullscreen></iframe>
 
 <!-- script async class="speakerdeck-embed" data-id="fc3fde8ea9d948f496ea79378c45161f" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script -->
 
