@@ -8,6 +8,10 @@ menu: Publications
 ---
 
 ##### 2017
+
+* [_How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations_](#gopinath2017how)<br/>
+  *Gopinath*, Walkingshaw, ICSTW Mutation, 2017
+
 * [_The Theory of Composite Faults_](#gopinath2017the)<br/>
   *Gopinath*, Jensen, Groce - ICST, 2017
 
@@ -68,6 +72,23 @@ menu: Publications
 My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
 ---
+
+#### <a id='gopinath2017how'></a>[Gopinath, Walkingshaw: _How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations_ ICSTW Mutation, 2017]()
+
+Software engineers primarily use two orthogonal means to reduce susceptibility to faults: software
+testing and static type checking. While many strategies exist to evaluate the effectiveness of a
+test suite in catching bugs, there are few that evaluate the effectiveness of type annotations in a
+program. This problem is most relevant in the context of gradual or optional typing, where
+programmers are free to choose which parts of a program to annotate and in what detail. Mutation
+analysis is one strategy that has proven useful for measuring test suite effectiveness by emulating
+potential software faults. We propose that mutation analysis can be used to evaluate the
+effectiveness of type annotations too. We analyze mutants produced by the MutPy mutation framework
+against both a test suite and against type-annotated programs. We show that, while mutation analysis
+can be useful for evaluating the effectiveness of type annotations, we require stronger mutation
+operators that target type information in programs to be an effective mutation analysis tool.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017how.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2017/gopinath2017how.bib)
 
 #### <a id='gopinath2017the'></a>[Gopinath, Jensen, Groce: _The Theory of Composite Faults_ ICST, 2017]()
 Fault masking happens when the effect of one fault serves to mask that of another fault for particular test inputs. The coupling effect is relied upon by testing practitioners to ensure that fault masking is rare. It states that complex faults are coupled to simple faults in such a way that a test data set that detects all simple faults in a program will detect a high percentage of the complex faults..
