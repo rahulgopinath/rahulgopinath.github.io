@@ -64,6 +64,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* ICSTW Mutation 2017 Gopinath, Walkingshaw, "How Good Are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations"
 * ICST 2017 Gopinath, Jensen, Groce "Evaluating Non-Adequate Test-Case Reduction"
 * ASE 2016 Alipour, Gopinath, Shi, Marinov, Groce "Evaluating Non-Adequate Test-Case Reduction"
 * FSE 2016 Ahmed, Gopinath, Brindescu, Groce, Jensen "Can Testedness be Effectively Measured?"
