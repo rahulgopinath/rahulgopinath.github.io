@@ -58,10 +58,3 @@ ggplot(cve) +
   ggtitle("Vulnerabilities in Linux kernel") +
   labs(x="Found",y="Introduced")
 
-l.cve <- cve %>% group_by(v.introduced) %>% 
-  summarize(nbugs = length(loc), loc=mean(loc), d.introduced = mean(d.introduced))
-
-ggplot(l.cve, aes(x=d.introduced, y=loc, color=nbugs)) +
-  geom_jitter(shape=1, alpha=0.7) + 
-  geom_smooth(method='lm')
-
