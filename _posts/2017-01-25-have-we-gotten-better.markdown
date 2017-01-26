@@ -41,5 +41,7 @@ divergence is almost completely explained by the change in size of the kernel.
 
 What does this mean? It means that the Linux developers are neither getting
 better nor getting worse at writing bug free code as the releases go by.
+Indeed, if we instead look at the regression $$ Introduced = \beta_1 \times LOC + C $$ we get $$R^2 = 0.9876$$, which suggests that just the size of the code base explains most the vulnerabilities we see.
+
 
 The source for analysis can be found [here](/resources/posts/2017/vulnerabilities-lifetime.R) and the data can be found [here](/resources/posts/2017/linux-cve-lifetime.csv).
