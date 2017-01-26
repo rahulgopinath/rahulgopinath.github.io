@@ -32,7 +32,7 @@ $$R^2 = 0.2564$$ which says that our model is not a very strong fit.
 
 But wait. There is more to it. We ignored the impact of LOC. What if the number
 of bugs is actually related to the size of the code base? Incorporating that
-into our regression, we get the blue regression line given by:
+into our regression:
 
 $$ Introduced = \beta_1 \times Found \times LOC + \beta_2 \times Found + \beta_3  \times LOC + C $$
 
