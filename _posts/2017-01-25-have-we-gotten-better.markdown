@@ -42,4 +42,4 @@ divergence is almost completely explained by the change in size of the kernel.
 What does this mean? It means that the Linux developers are neither getting
 better nor getting worse at writing bug free code as the releases go by.
 
-The source for analysis can be found [here](/resources/posts/2017/vulnerabilities-lifetime.R) and the data can be found [here](/resources/posts/2017/apache-cve-lifetime.csv).
+The source for analysis can be found [here](/resources/posts/2017/vulnerabilities-lifetime.R) and the data can be found [here](/resources/posts/2017/linux-cve-lifetime.csv).
