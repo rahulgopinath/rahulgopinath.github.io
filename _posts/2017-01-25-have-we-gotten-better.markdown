@@ -1,6 +1,6 @@
 ---
 published: true
-title: Have we gotten better at writing code?
+title: Have We Gotten Better at Writing Code?
 layout: post
 comments: true
 tags: bugs
