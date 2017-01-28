@@ -1,6 +1,8 @@
 library(ggplot2)
 library(magrittr)
 library(dplyr)
+library(plotly)
+
 
 toI<- function(x) as.numeric(x, origin = "1970-01-01")
 toD <- function(x) as.Date(x, origin = "1970-01-01")
@@ -52,9 +54,16 @@ ggplot(cve) +
               shape=1, alpha=0.7) +
   geom_smooth(aes(x=d.found, y=toD(predicted)), 
               method='lm', formula=y~x, color="darkblue", fill="blue") +
-  geom_smooth(aes(x=d.found, y=d.introduced), method='lm', formula=y~x,
-              color="darkred", fill="red") +
+  #geom_smooth(aes(x=d.found, y=d.introduced), method='lm', formula=y~x,
+  #            color="darkred", fill="red") +
   geom_abline(slope=1, color='red', intercept=20) +
   ggtitle("Vulnerabilities in Linux kernel") +
-  labs(x="Found",y="Introduced")
+  labs(x="Found",y="Introduced") -> p
 
+
+x.cve <- cve %>% group_by(d.introduced) %>% summarize(nbugs = n_distinct(cve))
+
+ggplot(x.cve) +
+  geom_point(aes(x=d.introduced, y=nbugs, shape="o", color=1))
+
+quantile(cve.x$d.found - cve.x$d.introduced, probs=c(0.95))

@@ -41,7 +41,16 @@ divergence is almost completely explained by the change in size of the kernel.
 
 What does this mean? It means that the Linux developers are neither getting
 better nor getting worse at writing bug free code as the releases go by.
-Indeed, if we instead look at the regression $$ Introduced = \beta_1 \times LOC + C $$ we get $$R^2 = 0.9876$$, which suggests that just the size of the code base explains most the vulnerabilities we see.
+Indeed, if we instead look at the regression
+$$ Introduced = \beta_1 \times LOC + C $$ we get $$R^2 = 0.9876$$, which
+suggests that just the size of the code base explains most the vulnerabilities we see.
 
+Here is a graph of the number of vulnerabilities introduced in each year.
+![Linux kernel vulnerabilities per introduced year](/resources/posts/2017/vulnerabilities-increase.png)
+The interesting thing to note here is that the nubmer of new introduced
+vulnerabilities seem to peek at about 2011. Does it mean that the new versions
+are much less vulnerable? Probably not. This seems to suggest that a
+vulnerability typically requires about 6 years before most of the bugs
+(about 95% quantile from the current data) are flushed out.
 
 The source for analysis can be found [here](/resources/posts/2017/vulnerabilities-lifetime.R) and the data can be found [here](/resources/posts/2017/linux-cve-lifetime.csv).
