@@ -87,11 +87,10 @@ be used to debug TCP connections. I wrote it to help me with my proxy work.
 
 I have also written a few small ruby daemons that are reasonably feature
 complete in terms of the protocols they implement: [ircd](https://github.com/vrthra/ruby-ircd) [nntpd](https://github.com/vrthra/ruby-nntpd) [imapd](https://github.com/vrthra/ruby-imapd).
-These were written to help with [ruby-hive](https://github.com/vrthra/ruby-hive)
-([docs](https://code.google.com/p/ruby-hive/)) which I
-wrote to help with distributed testing.
+These were written to help with [ruby-hive](http://vrthra.github.io/ruby-hive/Hive.html)
+which I wrote to help with distributed testing.
 
-[ruby-hive](https://code.google.com/p/ruby-hive/) A framework for machine orchestration
+[ruby-hive](http://vrthra.github.io/ruby-hive/Hive.html) A framework for machine orchestration
 that I wrote to orchestrate the testing process in multiple machines. It was
 especially useful for testing the cache protocol implementations CARP, ICP, and
 also SOCKS, and FTP proxies.
@@ -121,7 +120,7 @@ webserver itself using similar request-response style test cases. Finally,
 since testing often involved specific machines due to licensing issues of GUI
 testing tools, and also because of the different operating systems, and network
 components such as webserver, proxy, and load balancers, I implemented
-[Hive](https://github.com/vrthra/ruby-hive), an orchestration framework for
+[Hive](http://vrthra.github.io/ruby-hive/Hive.html), an orchestration framework for
 servers. It allowed IRC based co-ordination of different servers with automated
 triggering of test runs corresponding to external events, reporting of test run
 results etc.
