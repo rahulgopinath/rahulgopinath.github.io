@@ -25,6 +25,10 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Experience]()
 
+#### 2017,1..4 Intern Galois Inc. U.S.A
+
+* Working on Darpa's CFAR (Cyber Fault-tolerant Attack Recovery)
+
 #### 2014,7..9 Intern Puppetlabs U.S.A
 
 * Contributed Solaris 10 and 11 support for [Native Factor](https://docs.puppetlabs.com/puppet/latest/reference/experiments_cfacter.html) bringing parity with the [Ruby Factor](https://puppetlabs.com/facter).
