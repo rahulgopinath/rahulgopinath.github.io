@@ -25,7 +25,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Experience]()
 
-#### 2017,1..4 Intern Galois Inc. U.S.A
+#### 2017,1..3 Intern Galois Inc. U.S.A
 
 * Working on Darpa's CFAR (Cyber Fault-tolerant Attack Recovery)
 
