@@ -12,9 +12,6 @@ menu: Publications
 * [_How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations_](#gopinath2017how)<br/>
   *Gopinath*, Walkingshaw, ICSTW Mutation, 2017
 
-* [_Applying Mutation Analysis On Kernel Test Suites: An Experience Report_](#ahmed2017applying)<br/>
-  Ahmed, Jensen, Groce, McKenney, *Gopinath*, ICSTW Mutation, 2017
-
 * [_The Theory of Composite Faults_](#gopinath2017the)<br/>
   *Gopinath*, Jensen, Groce - ICST, 2017
 
