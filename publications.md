@@ -116,7 +116,7 @@ We propose a new theory of fault coupling for general functions (with certain co
 * Updates to Impact of Syntax.
 
 Let us call the original input $h$, $g(i_0) = j_0$, and the changed value $g_a(i_0) = j_0$.
-Similarly, let $f(i_0) = k_0, f_a(i_0) = k_a, f_b(i_0)=k_b$, and $f_{ab}(i_0) = k_{ab}$. Given two
+Similarly, let $f(i_0) = k_0$, $f_a(i_0) = k_a$, $f_b(i_0)=k_b$, and $f_{ab}(i_0) = k_{ab}$. Given two
 inputs $i_0$, and $i_1$ for a function $f$, we call $i_0$, and $i_1$ semantically close if
 their execution paths in f follow equivalent profiles, e.g taking the same
 branches and conditionals. We call i0 and i1 semanticall far in terms of f if
