@@ -122,7 +122,7 @@ their execution paths in f follow equivalent profiles, e.g taking the same
 branches and conditionals. We call i0 and i1 semanticall far in terms of f if
 their execution profiles are different.
 
-Consider the possibility of masking the output of $ga$ by $h_b$ ($h_{b'}$ in Figure 3).
+Consider the possibility of masking the output of $g_a$ by $h_b$ ($h_{b'}$ in Figure 3).
 We already know that $h(j_a) = k_a$ was detected. That is, we know that $j_a$ was
 sufficiently different from $j_0$, that it propagated through $h$ to be caught
 by a test case. Say ja was semantically far from $j_0$, and the difference (i.e
