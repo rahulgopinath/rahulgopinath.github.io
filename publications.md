@@ -115,21 +115,22 @@ We propose a new theory of fault coupling for general functions (with certain co
 
 * Updates to Impact of Syntax.
 
-Let us call the original input $h$, $g(i_0) = j_0$, and the changed value $g_a(i_0) = j_0$.
+
+Let us call the original input $h$, $g(i_0) = j_0$, and the changed value $g_a(i_0) = j_a$.
 Similarly, let $f(i_0) = k_0$, $f_a(i_0) = k_a$, $f_b(i_0)=k_b$, and $f_{ab}(i_0) = k_{ab}$. Given two
 inputs $i_0$, and $i_1$ for a function $f$, we call $i_0$, and $i_1$ semantically close if
 their execution paths in f follow equivalent profiles, e.g taking the same
-branches and conditionals. We call i0 and i1 semanticall far in terms of f if
+branches and conditionals. We call $i_0$ and $i_1$ semantically far in terms of f if
 their execution profiles are different.
 
-Consider the possibility of masking the output of $g_a$ by $h_b$ ($h_{b'}$ in Figure 3).
+Consider the possibility of masking the output of $g_a$ by $h_b$ ($h_{b'}$ in Figure 3)).
 We already know that $h(j_a) = k_a$ was detected. That is, we know that $j_a$ was
 sufficiently different from $j_0$, that it propagated through $h$ to be caught
-by a test case. Say ja was semantically far from $j_0$, and the difference (i.e
+by a test case. Say $j_a$ was semantically far from $j_0$, and the difference (i.e
 the skipped part) contained the fault $\hat{b}$. In that case, the fault $\hat{b}$
-would not have been executed, and since $k_{ab} = k_a$, it will allways be detected.
+would not have been executed, and since $k_{ab} = k_a$, it will always be detected.
 
-On the other hand, say ja was semantically close to $j_0$ in terms of $g$ and the
+On the other hand, say $j_a$ was semantically close to $j_0$ in terms of $g$ and the
 fault $\hat{b}$ was executed. There are again three possibilities. The first is
 that $\hat{b}$ had no impact, in which case the analysis is the same as before.
 The second is that $\hat{b}$ caused a change in the output. It is possible that
@@ -140,7 +141,6 @@ $k_{ab}$ to be equal to $k_0$.
 Even if we assume that the function $h_b$ is close syntactically to $h$, and that
 this implies semantic closeness of functions $h$ and $h_b$, we expect the value $k_{ab}$
 to be near $k_a$, and not $k_0$.
-
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017the.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icst2017/gopinath2017the.bib)
