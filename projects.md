@@ -8,6 +8,8 @@ menu: Publications
 ---
 <h3> Current Projects </h3>
 
+[NixOS](https://github.com/NixOS/nixpkgs/): NixOS has a completely declarative approach to configuration management: you write a specification of the desired configuration of your system in NixOS's modular language, and NixOS takes care of making it happen (From [NixOS](https://nixos.org)). I am a contributor and one of the committers for the NixOS project.
+
 [MuCheck](https://hackage.haskell.org/package/MuCheck): MuCheck is a mutation
 analysis framework for Haskell. We investigated the different fault patterns
 that occur in Haskell, and implemented these as mutation operators. I was one
