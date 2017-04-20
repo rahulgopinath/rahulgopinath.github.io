@@ -27,7 +27,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 #### 2017,1..3 Intern Galois Inc. U.S.A
 
-* Working on Darpa's CFAR (Cyber Fault-tolerant Attack Recovery)
+* Worked on Darpa's CFAR (Cyber Fault-tolerant Attack Recovery)
 
 #### 2014,7..9 Intern Puppetlabs U.S.A
 
@@ -69,7 +69,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 ### [Publications]()
 
 * ICSTW Mutation 2017, Gopinath, Walkingshaw, "How Good Are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations"
-* ICST 2017 Gopinath, Jensen, Groce "Evaluating Non-Adequate Test-Case Reduction"
+* ICST 2017 Gopinath, Jensen, Groce "The Theory of Composite Faults"
 * ASE 2016 Alipour, Gopinath, Shi, Marinov, Groce "Evaluating Non-Adequate Test-Case Reduction"
 * FSE 2016 Ahmed, Gopinath, Brindescu, Groce, Jensen "Can Testedness be Effectively Measured?"
 * ISSTA 2016 Alipour, Groce, Gopinath, Christi "Generating Focused Random Tests Using Directed Swarm Testing"
