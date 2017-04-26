@@ -89,21 +89,8 @@ operators that target type information in programs to be an effective mutation a
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017how.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2017/gopinath2017how.bib)
-
-
-#### <a id='ahmed2017applying'></a>[Ahmed, Jensen, Groce, McKenney, *Gopinath*: _Applying Mutation Analysis On Kernel Test Suites: An Experience Report_ ICSTW Mutation, 2017]()
-Mutation analysis is an established technique for measuring the completeness
-and quality of a test suite. Despite four decades of research on this
-technique, its use in large systems is still rare, in part due to
-computational requirements and high numbers of false positives. We
-present our experiences using mutation analysis on the Linux kernel's
-RCU (Read Copy Update) module, where we adapt existing techniques to
-constrain the complexity and computation requirements. We show that
-mutation analysis can be a useful tool, uncovering gaps in even well-tested
-modules like RCU. This experiment has so far led to the identification of
-3 gaps in the RCU test harness, and 2 bugs in the RCU module masked by
-those gaps. We argue that mutation testing can and should be more
-extensively used in practice.
+[<em class="fa fa-desktop"
+aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-good-are-your-types)
 
 #### <a id='gopinath2017the'></a>[Gopinath, Jensen, Groce: _The Theory of Composite Faults_ ICST, 2017]()
 Fault masking happens when the effect of one fault serves to mask that of another fault for particular test inputs. The coupling effect is relied upon by testing practitioners to ensure that fault masking is rare. It states that complex faults are coupled to simple faults in such a way that a test data set that detects all simple faults in a program will detect a high percentage of the complex faults..
@@ -144,6 +131,7 @@ to be near $k_a$, and not $k_0$.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017the.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icst2017/gopinath2017the.bib)
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/the-theory-of-composite-faults)
 
 #### <a id='alipour2016evaluating'></a>[Alipour, Shi, Gopinath, Marinov, Groce: _Evaluating Non-Adequate Test-Case Reduction_ ASE, 2016]()
 
