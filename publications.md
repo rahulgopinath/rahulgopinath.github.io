@@ -11,7 +11,7 @@ menu: Publications
 * [_Mutation Reduction Strategies Considered Harmful_](#gopinath2017mutation)<br/>
   *Gopinath*, Ahmed, Alipour, Jensen, Groce, IEEE Transactions on Reliability, 2017
 
-* [_How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations_](#gopinath2017how)<br/>
+* [_How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations (Best Presentation Award)_](#gopinath2017how)<br/>
   *Gopinath*, Walkingshaw, ICSTW Mutation, 2017
 
 * [_The Theory of Composite Faults_](#gopinath2017the)<br/>
