@@ -75,7 +75,7 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 
 ---
 
-#### <a id='gopinath2017mutation'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Mutation Reduction Strategies Considered Harmful_  IEEE Transactions on Reliability 2017)
+#### <a id='gopinath2017mutation'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Mutation Reduction Strategies Considered Harmful_  IEEE Transactions on Reliability 2017]()
 
 Mutation analysis is a well-known yet unfortunately costly method for measuring
 test
