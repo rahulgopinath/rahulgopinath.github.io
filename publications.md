@@ -106,7 +106,7 @@ we caution practicing testers against applying mutation reduction
 strategies without adequate justification.
 
 
-<!-- [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ieeetr2017/gopinath2017mutation.pdf) -->
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ieeetr2017/gopinath2017mutation.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/ieeetr2017/gopinath2017mutation.bib)
 
 
