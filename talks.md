@@ -9,6 +9,9 @@ menu: Talks
 
 ##### 2017
 
+* [_Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_](http://cse.ucsd.edu/about/who-tests-our-tests-overview-mutation-analysis-its-caveats-and-pitfalls)<br/>
+  *Gopinath* - UC San Diego , 2017
+
 * [_Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_](#gopinath2017who)<br/>
   *Gopinath* - McGill University, 2017
 
