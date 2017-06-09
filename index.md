@@ -3,9 +3,9 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a PhD candidate in the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/). He received his B-Tech  from [Kerala University, India](http://www.keralauniversity.ac.in/), and  MCS from [Illinois Institute of Technology](http://iit.edu) in 2010.
+Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
 
-Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
+PhD Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
 Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
