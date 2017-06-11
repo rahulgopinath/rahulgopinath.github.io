@@ -14,7 +14,7 @@ rahul@gopinath.org<br/>
 +1 (724) 856-0067
 
 <h4>Address</h4>
-3405 NW Orchard Ave, Apt #171 <br/>
+3405 NW Orchard Ave, Apt #128 <br/>
 Corvallis, OR 97330<br/>
 U.S<br/>
 
