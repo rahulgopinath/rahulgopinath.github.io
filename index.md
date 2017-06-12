@@ -3,7 +3,7 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD in 2017 from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
 
 PhD Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
 Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
