@@ -5,7 +5,7 @@ weight: 1
 ---
 Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD in 2017 from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
 
-PhD Supervisors: [Dr. Carlos Jensen](http://eecs.oregonstate.edu/people/jensen-carlos) and [Dr. Alex Groce](http://eecs.oregonstate.edu/people/groce-alex)<br/>
+PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
