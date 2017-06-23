@@ -8,6 +8,10 @@ menu: Publications
 ---
 
 ##### 2017
+* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
+  *Gopinath*, PhD Thesis, 2017
+
+
 * [_Mutation Reduction Strategies Considered Harmful_](#gopinath2017mutation)<br/>
   *Gopinath*, Ahmed, Alipour, Jensen, Groce, IEEE Transactions on Reliability, 2017
 
@@ -74,6 +78,52 @@ menu: Publications
 My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
 ---
+
+#### <a id='gopinath2017on'></a>[Gopinath: _On the Limits of Mutation Analysis_ Ph.D. Thesis , 2017]()
+
+Mutation analysis is the gold standard for evaluating test-suite adequacy. It
+involves exhaustive seeding of all small faults in a program and evaluating the
+effectiveness of test suites in detecting these faults. Mutation analysis
+subsumes numerous structural coverage criteria, approximates fault detection
+capability of test suites, and the faults produced by mutation have been shown
+to be similar to the real faults. This dissertation looks at the effectiveness
+of mutation analysis in terms of its ability to evaluate the quality of test
+suites, and how well the mutants generated emulate real faults. The
+effectiveness of mutation analysis hinges on its two fundamental hypotheses:
+The competent programmer hypothesis, and the coupling effect. The competent
+programmer hypothesis provides the model for the kinds of faults that mutation
+operators emulate, and the coupling effect provides guarantees on the ratio of
+faults prevented by a test suite that detects all simple faults to the complete
+set of possible faults. These foundational hypotheses determine the limits of
+mutation analysis in terms of the faults that can be prevented by a mutation
+adequate test suite. Hence, it is important to understand what factors affect
+these assumptions, what kinds of faults escape mutation analysis, and what
+impact interference between faults (coupling and masking) have. A secondary
+concern is the computational footprint of mutation analysis. Mutation analysis
+requires the evaluation of numerous mutants, each of which potentially requires
+complete test runs to evaluate. Numerous heuristic methods exist to reduce the
+number of mutants that need to be evaluated. However, we do not know the effect
+of these heuristics on the quality of mutants thus selected. Similarly, whether
+the possible improvement in representation using these heuristics are subject
+to any limits have also not been studied in detail. Our research investigates
+these fundamental questions in mutation analysis both empirically and
+theoretically. We show that while a majority of faults are indeed small, and
+hence within a finite neighborhood of the correct version, their size is larger
+than typical mutation operators. We show that strong interactions between
+simple faults can produce complex faults that are semantically unrelated to the
+component faults, and hence escape first order mutation analysis. We further
+validate the coupling effect for a large number of real-world faults, provide
+theoretical support for fault coupling, and evaluate its theoretical and
+empirical limits. Finally, we investigate the limits of heuristic mutation
+reduction strategies in comparison with random sampling in representativeness
+and find that they provide at most limited improvement. These investigations
+underscore the importance of research into new mutation operators and show that
+the potential benefit far outweighs the perceived drawbacks in terms of
+computational cost.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/phd2017/gopinath2017on.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/phd2017/gopinath2017on.bib)
+
 
 #### <a id='gopinath2017mutation'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Mutation Reduction Strategies Considered Harmful_  IEEE Transactions on Reliability, 2017]()
 
