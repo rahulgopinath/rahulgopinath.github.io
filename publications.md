@@ -10,7 +10,7 @@ menu: Publications
 ##### 2017
 
 * [_Resource Adaptation via Test-Based Software Minimization_](#christi2017resource)<br/>
-  Christi, *Gopinath*, Groce, SASO, 2017
+  Christi, Groce, *Gopinath*, SASO, 2017
 
 * [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
   *Gopinath*, PhD Thesis, 2017
@@ -83,7 +83,7 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 ---
 
 
-#### <a id='christi2017resource'></a>[Christi, Gopinath, Groce: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
+#### <a id='christi2017resource'></a>[Christi, Groce, Gopinath: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
 
 Building software systems that adapt to changing resource environments
 is challenging: developers cannot anticipate all future situations
