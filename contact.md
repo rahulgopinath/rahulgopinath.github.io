@@ -14,9 +14,9 @@ rahul@gopinath.org<br/>
 +1 (724) 856-0067
 
 <h4>Address</h4>
-3405 NW Orchard Ave, Apt #128 <br/>
-Corvallis, OR 97330<br/>
-U.S<br/>
+Naduvani Veedu 4/334 <br/>
+Perumbavoor, Kerala 683543<br/>
+India<br/>
 
 Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
 
