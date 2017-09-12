@@ -3,11 +3,9 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He received his PhD in 2017 from the [School of EECS at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He received his PhD in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
 
 PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
-
-(http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
 <h3>Research</h3>
