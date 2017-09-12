@@ -3,14 +3,15 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD in 2017 from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He received his PhD in 2017 from the [School of EECS at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
 
 PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
-Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
+
+(http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
 <h3>Research</h3>
-My primary area of research is mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
+My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
 <!--h5>Overview of publications</h5>
 [<img src="/resources/img-publications.svg" alt="Publications" title="Publications" width="550px" align='center'>](/publications) -->
