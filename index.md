@@ -3,14 +3,13 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a computer science researcher working on mutation analysis of software test suites. He received his PhD in 2017 from the [School of Electrical Engineering and Computer Science (EECS) at Oregon State University (OSU)](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He received his PhD in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
 
 PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
-Research Team: [HCI](http://research.engr.oregonstate.edu/hci/) and [Testing](http://web.engr.oregonstate.edu/~alex/testing/) at [Oregon State University](http://oregonstate.edu/)<br/>
 Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
 
 <h3>Research</h3>
-My primary area of research is mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
+My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
 <!--h5>Overview of publications</h5>
 [<img src="/resources/img-publications.svg" alt="Publications" title="Publications" width="550px" align='center'>](/publications) -->
@@ -39,13 +38,3 @@ The ideas from my research have resulted in two practical implementations -- [Mu
 My interest in quality of programs is informed by a wealth of practical knowledge from the Industry. Before joining the PhD program, I worked in the software industry as a developer for ten years, where I was part of web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the OpenSolaris effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my PhD, I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionalities in the Solaris Operating system.
 
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-74302125-1', 'auto');
-  ga('send', 'pageview');
-
-</script>

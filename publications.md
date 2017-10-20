@@ -8,6 +8,13 @@ menu: Publications
 ---
 
 ##### 2017
+
+* [_Resource Adaptation via Test-Based Software Minimization_](#christi2017resource)<br/>
+  Christi, Groce, *Gopinath*, SASO, 2017
+
+* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
+  *Gopinath*, PhD Thesis, 2017
+
 * [_Mutation Reduction Strategies Considered Harmful_](#gopinath2017mutation)<br/>
   *Gopinath*, Ahmed, Alipour, Jensen, Groce, IEEE Transactions on Reliability, 2017
 
@@ -74,6 +81,78 @@ menu: Publications
 My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
 ---
+
+
+#### <a id='christi2017resource'></a>[Christi, Groce, Gopinath: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
+
+Building software systems that adapt to changing resource environments
+is challenging: developers cannot anticipate all future situations
+that a software system may face, and even if they could, the effort
+required to handle such situations would often be too onerous for
+practical purposes. We propose a novel approach to allow a system to
+generate resource usage adaptations: use delta-debugging to generate
+versions of software systems that are reduced in size because they no
+longer have to satisfy all tests in the software's test suite. Many
+such variations will, while retaining core system functionality, use
+fewer resources. We describe an tool for computing such adaptations,
+based on our notion that labeled subsets of a test suite can be used
+to conveniently describe possible relaxations of system
+specifications. Using the NetBeans IDE, we demonstrate that even
+without additional infrastructure or heuristics, our approach is
+capable of quickly and cleanly removing a program's undo
+functionality, significantly reducing its memory use, with no more
+effort than simply labeling three test cases as undo-related.
+
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/saso2017/christi2017resource.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/saso2017/christi2017resource.bib)
+
+
+#### <a id='gopinath2017on'></a>[Gopinath: _On the Limits of Mutation Analysis_ Ph.D. Thesis , 2017]()
+
+Mutation analysis is the gold standard for evaluating test-suite adequacy. It
+involves exhaustive seeding of all small faults in a program and evaluating the
+effectiveness of test suites in detecting these faults. Mutation analysis
+subsumes numerous structural coverage criteria, approximates fault detection
+capability of test suites, and the faults produced by mutation have been shown
+to be similar to the real faults. This dissertation looks at the effectiveness
+of mutation analysis in terms of its ability to evaluate the quality of test
+suites, and how well the mutants generated emulate real faults. The
+effectiveness of mutation analysis hinges on its two fundamental hypotheses:
+The competent programmer hypothesis, and the coupling effect. The competent
+programmer hypothesis provides the model for the kinds of faults that mutation
+operators emulate, and the coupling effect provides guarantees on the ratio of
+faults prevented by a test suite that detects all simple faults to the complete
+set of possible faults. These foundational hypotheses determine the limits of
+mutation analysis in terms of the faults that can be prevented by a mutation
+adequate test suite. Hence, it is important to understand what factors affect
+these assumptions, what kinds of faults escape mutation analysis, and what
+impact interference between faults (coupling and masking) have. A secondary
+concern is the computational footprint of mutation analysis. Mutation analysis
+requires the evaluation of numerous mutants, each of which potentially requires
+complete test runs to evaluate. Numerous heuristic methods exist to reduce the
+number of mutants that need to be evaluated. However, we do not know the effect
+of these heuristics on the quality of mutants thus selected. Similarly, whether
+the possible improvement in representation using these heuristics are subject
+to any limits have also not been studied in detail. Our research investigates
+these fundamental questions in mutation analysis both empirically and
+theoretically. We show that while a majority of faults are indeed small, and
+hence within a finite neighborhood of the correct version, their size is larger
+than typical mutation operators. We show that strong interactions between
+simple faults can produce complex faults that are semantically unrelated to the
+component faults, and hence escape first order mutation analysis. We further
+validate the coupling effect for a large number of real-world faults, provide
+theoretical support for fault coupling, and evaluate its theoretical and
+empirical limits. Finally, we investigate the limits of heuristic mutation
+reduction strategies in comparison with random sampling in representativeness
+and find that they provide at most limited improvement. These investigations
+underscore the importance of research into new mutation operators and show that
+the potential benefit far outweighs the perceived drawbacks in terms of
+computational cost.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/phd2017/gopinath2017on.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/phd2017/gopinath2017on.bib)
+
 
 #### <a id='gopinath2017mutation'></a>[Gopinath, Ahmed, Alipour, Jensen, Groce: _Mutation Reduction Strategies Considered Harmful_  IEEE Transactions on Reliability, 2017]()
 
@@ -337,7 +416,8 @@ starts by minimizing the test suite, and hence different from *minimal mutants* 
 mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
 to kill the *later*, and the mutant is killed by the test suite.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.pdf)
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](http://rdcu.be/ut76)
+<!-- /resources/sqj2016/gopinath2016does.pdf-->
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/sqj2016/gopinath2016does.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/sqj2016/)
 
@@ -499,13 +579,4 @@ Regular expressions are widely used, but they are inherently hard to understand 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fase2012/erwig2012explanations.bib)
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-74302125-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
