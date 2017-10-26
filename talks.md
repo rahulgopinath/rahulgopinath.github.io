@@ -9,6 +9,15 @@ menu: Talks
 
 ##### 2017
 
+* [_Pygram: Learning input grammars for Python programs_]()<br/>
+  *Gopinath* - TU Darmstadt (software group retreat), 2017
+
+AUTOGRAM is a method to infer human-readable input grammars from observing
+program behavior on test runs. The resulting grammars can be used for fuzzing,
+secondary or parallel validation of new inputs, and identifying the essence of
+a program in a language agnostic manner. I will present my current work in
+AUTOGRAM, and discuss my research in taking AUTOGRAM forward.
+
 * [_Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_](http://cse.ucsd.edu/about/who-tests-our-tests-overview-mutation-analysis-its-caveats-and-pitfalls)<br/>
   *Gopinath* - UC San Diego , 2017
 
