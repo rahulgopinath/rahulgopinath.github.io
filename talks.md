@@ -9,20 +9,14 @@ menu: Talks
 
 ##### 2017
 
-* [_Pygram: Learning input grammars for Python programs_]()<br/>
-  *Gopinath* - TU Darmstadt (software group retreat), 2017
-
-AUTOGRAM is a method to infer human-readable input grammars from observing
-program behavior on test runs. The resulting grammars can be used for fuzzing,
-secondary or parallel validation of new inputs, and identifying the essence of
-a program in a language agnostic manner. I will present my current work in
-AUTOGRAM, and discuss my research in taking AUTOGRAM forward.
+* [_Pygram: Learning input grammars for Python programs_](#gopinath2017pygram)<br/>
+  *Gopinath* - TU Darmstadt, Germany, 2017
 
 * [_Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_](http://cse.ucsd.edu/about/who-tests-our-tests-overview-mutation-analysis-its-caveats-and-pitfalls)<br/>
-  *Gopinath* - UC San Diego , 2017
+  *Gopinath* - UC San Diego, US, 2017
 
 * [_Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_](#gopinath2017who)<br/>
-  *Gopinath* - McGill University, 2017
+  *Gopinath* - McGill University, Canada, 2017
 
 ##### 2016
 
@@ -30,6 +24,15 @@ AUTOGRAM, and discuss my research in taking AUTOGRAM forward.
   *Gopinath* - GTAC, 2016
 
 ---
+
+#### <a id='gopinath2017pygram'></a>[Gopinath: _Pygram: Learning input grammars for Python programs_ TU Darmstadt, Germany (software group retreat), 2017]()
+
+AUTOGRAM is a method to infer human-readable input grammars from observing
+program behavior on test runs. The resulting grammars can be used for fuzzing,
+secondary or parallel validation of new inputs, and identifying the essence of
+a program in a language agnostic manner. I will present my current work in
+AUTOGRAM, and discuss my research in taking AUTOGRAM forward.
+
 
 #### <a id='gopinath2017who'></a>[Gopinath: _Who tests our tests: An overview of mutation analysis, its caveats, and pitfalls_ McGill University, Canada, 2017]()
 
