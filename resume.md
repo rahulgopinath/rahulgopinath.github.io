@@ -83,6 +83,7 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * ICSE 2016 Gopinath, Alipour, Ahmed, Jensen, Groce "On the limits of mutaion reduction strategies"
 * ISSRE 2015 Gopinath, Alipour, Ahmed, Jensen, Groce "How hard does mutation analysis have to be, anyway?"
 * ESEM 2015 Ahmed, Gopinath, Mannan, Jensen "An empirical study of design degradation: how software projects get worse over time"
+* ICSTW Mutation 2014 Le, Alipour, Gopinath, Groce "Mutation Testing of Functional Programming Languages"
 * ISSRE 2014 Gopinath, Jensen, Groce "Mutations: How close are they to real faults?"
 * ISSTA Tools 2014 Le, Alipour, Gopinath, Groce "MuCheck: An extensible tool for mutation testing of haskell programs"
 * ICSE 2014 Gopinath, Jensen, Groce "Code coverage for suite evaluation by developers"
