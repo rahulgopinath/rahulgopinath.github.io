@@ -3,7 +3,7 @@ layout: page
 title : Silly little idioms that should never be used
 header : Silly little idioms that should never be used
 group: navigation
-weight: 8
+exclude: true
 ---
 
 ## Python
