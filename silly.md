@@ -23,3 +23,8 @@ This is better than the first level unwrapping
 ls.sort(key=lambda x: (lambda value, frequency: frequency)(*x))
 ```
 
+### Perl like IFs at the end.
+
+```
+{print('My condition is true') for _ in [''] if 1 > 0}
+```
