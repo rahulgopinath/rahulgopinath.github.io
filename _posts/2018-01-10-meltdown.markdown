@@ -15,7 +15,7 @@ Meltdown is a fairly simple but very effective attack using out-of-order executi
 
 #### out-of-order execution
   
-When executing program instructions, CPUs are often faced with having to wait for portions of memory to be loaded so that some of the operations can be performed. Modern CPUs often look ahead to the instructions queued to execute, and execute those instructions that do not have a dependence on the result of the operation waiting for the memory to be loaded. This ahead-of-time execution of certain portions of code is called out-of-order execution. In the below example, the call to myfn dpes not depend on the result of memofy fetch of `*myaddr`. Hence, myfn may be executed out-of-order (i.e before *myaddr memory fetch completes).
+When executing program instructions, CPUs are often faced with having to wait for portions of memory to be loaded so that some of the operations can be performed. Modern CPUs often look ahead to the instructions queued to execute, and execute those instructions that do not have a dependence on the result of the operation waiting for the memory to be loaded. This ahead-of-time execution of certain portions of code is called out-of-order execution. In the below example, the call to `myfn` does not depend on the result of memofy fetch of `*myaddr`. Hence, myfn may be executed out-of-order (i.e before `*myaddr` memory fetch completes).
   
      ```
      var_a = *myaddr;
