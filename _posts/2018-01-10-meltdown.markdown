@@ -20,7 +20,7 @@ When executing program instructions, CPUs are often faced with having to wait fo
      ```
      var_a = *myaddr;
      myfn(var_c, var_d);
-  ```
+     ```
 
 ## Building blocks
 
