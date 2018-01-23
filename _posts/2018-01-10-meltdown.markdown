@@ -24,9 +24,16 @@ When executing program instructions, CPUs are often faced with having to wait fo
 
 ## Building blocks
 
-### Idea
-
 The main idea in meltdown is that modern CPUs that use out-of-order execution leaves traces of the transient (micro-architectural) effects such as loaded cache-lines even when the out-of-order execution is later rolled back.
+
+The second observation is that in current unpatched systems such as Linux, for performance reasons, the entire kernel memory is mapped to the memory space of the user program. This mapped memory is only accessible when executing in the kernel mode. The kernel memory also mapps the entire physical memory. So, if there was no kernel access protection, any user program would have access to the entire physical memory (that may contain parts of currently executing processes), and the kernel memory.
+
+The third observation is that during out-of-order execution, the CPUs have no concept of protected memory when executing in out-of-order mode.
+
+The final observation is that the transient (micro-architectural) effects such as loaded cache-lines are visible to the executing program eventhough the out-of-order instructions that caused the cache-lines to be loaded was never committed (retired), which can be checked by timing the time taken to load any given data from a given cache line. Hence, an operation that was carried out out-of-order but never committed can transmit the result in a bit-by-bit fashion by accessing different cache lines. (The other end -- which may be the same process or a child process with access to same locations -- has to first flush all cache lines, and then just check which cache lines were loaded by checking the time difference in access.)
+
+
+## A toy example
 
 Say one has a program as below (from ([Lipp et al. 2018](https://arxiv.org/abs/1801.01207)))
 
@@ -36,12 +43,6 @@ access(probe_array[data * 4096])
 ```
 
 The `access` call has no dependence on `raise_exception`. Hence, the `access` can get executed earlier through out-of-order execution. However, it will never get committed because `raise_exception` will always drive the execution to the exception handler.  What happens when the `data*4096` is referring to a kernel location? Due to out-of-order execution not actually verifying the permissions, the data is actually fetched, which means that the cache line containing that location is fetched into the cache. Once the `raise_exception` finish executing, the out-of-order execution results of `access` which may be stored in a register is thrown away. However, the fetched cache remains. The particular cachelines that remains can be checked later to determine what the value inside `data` was.
-
-The second observation is that in current unpatched systems such as Linux, for performance reasons, the entire kernel memory is mapped to the memory space of the user program. This mapped memory is only accessible when executing in the kernel mode. The kernel memory also mapps the entire physical memory. So, if there was no kernel access protection, any user program would have access to the entire physical memory (that may contain parts of currently executing processes), and the kernel memory.
-
-The third observation is that during out-of-order execution, the CPUs have no concept of protected memory when executing in out-of-order mode.
-
-The final observation is that the transient (micro-architectural) effects such as loaded cache-lines are visible to the executing program eventhough the out-of-order instructions that caused the cache-lines to be loaded was never committed (retired), which can be checked by timing the time taken to load any given data from a given cache line. Hence, an operation that was carried out out-of-order but never committed can transmit the result in a bit-by-bit fashion by accessing different cache lines. (The other end -- which may be the same process or a child process with access to same locations -- has to first flush all cache lines, and then just check which cache lines were loaded by checking the time difference in access.)
 
 ## The attack
 
