@@ -91,7 +91,7 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 ---
 
 
-#### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem	_ ICSTW Mutation, 2018]()
+#### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem_ ICSTW Mutation, 2018]()
 
 Quality of software test suites can be effectively and accurately measured using mutation analysis. Traditional mutation involves seeding first and sometimes higher order faults into the program, and evaluating each for detection. However, traditional mutants are often heavily redundant, and it is often desirable to produce the complete matrix of test cases vs mutants detected by each. Unfortunately, even the traditional mutation analysis has a heavy computational footprint due to the requirement of independent evaluation of each mutant by the complete test suite, and consequently the cost of evaluation of complete kill matrix is exorbitant.
 
