@@ -9,7 +9,7 @@ menu: Publications
 
 ##### 2018
 
-* [_If You Can't Kill a Supermutant, You Have a Problem	](#gopinath2018if)<br/>
+* [_If You Can't Kill a Supermutant, You Have a Problem_](#gopinath2018if)<br/>
   *Gopinath*, Mathis, Zeller, ICSTW Mutation, 2018
 
 ##### 2017
