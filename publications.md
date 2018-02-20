@@ -7,6 +7,11 @@ weight: 2
 menu: Publications
 ---
 
+##### 2018
+
+* [_If You Can't Kill a Supermutant, You Have a Problem	_](#gopinath2018if)<br/>
+  *Gopinath*, Mathis, Zeller, ICSTW Mutation, 2018
+
 ##### 2017
 
 * [_Resource Adaptation via Test-Based Software Minimization_](#christi2017resource)<br/>
@@ -85,6 +90,17 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 
 ---
 
+
+#### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem	_ ICSTW Mutation, 2018]()
+
+Quality of software test suites can be effectively and accurately measured using mutation analysis. Traditional mutation involves seeding first and sometimes higher order faults into the program, and evaluating each for detection. However, traditional mutants are often heavily redundant, and it is often desirable to produce the complete matrix of test cases vs mutants detected by each. Unfortunately, even the traditional mutation analysis has a heavy computational footprint due to the requirement of independent evaluation of each mutant by the complete test suite, and consequently the cost of evaluation of complete kill matrix is exorbitant.
+
+We present a novel approach of combinatorial evaluation of multiple mutants at the same time that can generate the complete mutant kill matrix with lower computational requirements.
+
+Our approach also has the potential to reduce the cost of execution of traditional mutation analysis especially for test suites with weak oracles such as machine-generated test suites, while at the same time liable to only a linear increase in the time taken for mutation analysis in the worst case.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2018/gopinath2018if.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2018/gopinath2018if.bib)
 
 #### <a id='christi2017resource'></a>[Christi, Groce, Gopinath: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
 
