@@ -99,7 +99,7 @@ We present a novel approach of combinatorial evaluation of multiple mutants at t
 
 Our approach also has the potential to reduce the cost of execution of traditional mutation analysis especially for test suites with weak oracles such as machine-generated test suites, while at the same time liable to only a linear increase in the time taken for mutation analysis in the worst case.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2018/gopinath2018if.pdf)
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icstw2018/gopinath2018if.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2018/gopinath2018if.bib)
 
 #### <a id='christi2017resource'></a>[Christi, Groce, Gopinath: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
