@@ -101,6 +101,8 @@ Our approach also has the potential to reduce the cost of execution of tradition
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icstw2018/gopinath2018if.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2018/gopinath2018if.bib)
+[<em class="fa fa-desktop"
+aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/if-you-cant-kill-a-supermutant-you-have-a-problem)
 
 #### <a id='christi2017resource'></a>[Christi, Groce, Gopinath: _Resource Adaptation via Test-Based Software Minimization_  SASO, 2017]()
 
