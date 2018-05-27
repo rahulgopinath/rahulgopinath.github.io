@@ -97,7 +97,8 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 
 ### [Professional Service]()
-
+* [ISSRE 2018](http://2018.issre.net/research-pc) Program committee member
+* [Mutation 2018 Workshop](https://mutation-workshop.github.io/#organisation) Program committee member
 * [Mutation 2017 Workshop](https://sites.google.com/site/mutation2017/) Program committee member
 * [Mutation 2016 Workshop](https://sites.google.com/site/mutation2016/mutation-2016) Program committee member
 
