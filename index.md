@@ -3,11 +3,16 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He received his PhD in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He works with [Prof. Dr. Andreas Zeller](https://www.st.cs.uni-saarland.de/zeller/). He received his PhD in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
+
+
+<h2>Research at CISPA</h2>
+
+At CISPA, I work in _Grammar Mining_, and _Grammar Based Fuzzing_. Stay tuned for our recent results ...
+
+<h2>Research until Ph.D.</h2>
 
 PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
-Areas of Interest: Software analysis and verification, programming languages, and distributed and parallel systems.<br/>
-
 <h3>Research</h3>
 My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
