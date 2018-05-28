@@ -101,6 +101,9 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * [Mutation 2018 Workshop](https://mutation-workshop.github.io/#organisation) Program committee member
 * [Mutation 2017 Workshop](https://sites.google.com/site/mutation2017/) Program committee member
 * [Mutation 2016 Workshop](https://sites.google.com/site/mutation2016/mutation-2016) Program committee member
+* [TSE](https://www.computer.org/web/tse) reviewer
+* [STVR](https://onlinelibrary.wiley.com/journal/10991689) reviewer
+* [JSS](https://www.journals.elsevier.com/journal-of-systems-and-software/) reviewer
 
 ### [OpenSource]()
 
