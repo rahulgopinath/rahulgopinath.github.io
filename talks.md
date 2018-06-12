@@ -7,6 +7,11 @@ weight: 3
 menu: Talks
 ---
 
+##### 2018
+
+* [_Look Ma No Hands: Learning Input Grammar without Inputs_](https://speakerdeck.com/rahulgopinath/look-ma-no-hands-learning-input-grammar-without-inputs)<br/>
+  *Gopinath* - Lorentz center, Leiden University, Netherlands, 2018
+
 ##### 2017
 
 * [_Pygram: Learning input grammars for Python programs_](#gopinath2017pygram)<br/>
