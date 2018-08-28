@@ -16,6 +16,9 @@ enforce_ssl:      rahul.gopinath.org
 # Custom vars
 version:          2.0.0
 
+plugins:
+   - jekyll-feed
+
 github:
   repo:           https://github.com/rahulgopinath/rahulgopinath.github.io
 
