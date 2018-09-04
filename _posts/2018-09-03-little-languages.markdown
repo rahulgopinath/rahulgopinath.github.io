@@ -6,7 +6,7 @@ comments: true
 tags: sun
 ---
 
-This particular post was prompted by reading two papers. One, [a programming perl by Bentley](http://staff.um.edu.mt/afra1/seminar/little-languages.pdf) which recommends writing independent programs that accept their own little languages, and another by [Shivers](https://3e8.org/pub/scheme/doc/Universal%20Scripting%20Framework%20(Lambda%20as%20little%20language).pdf) which suggests that independent little languages are flawed, and one should instead go for embedding them in a larger general purpose language. What follows is experience in this matter.
+This particular post was prompted by reading two papers. One, [a programming perl by Bentley](http://staff.um.edu.mt/afra1/seminar/little-languages.pdf) which recommends writing independent programs that accept their own little languages, and another by [Shivers](https://3e8.org/pub/scheme/doc/Universal%20Scripting%20Framework%20(Lambda%20as%20little%20language).pdf) which suggests that independent little languages are flawed, and one should instead go for embedding them in a larger general purpose language. What follows is my experience in designing and developing two different languages, in different styles.
 
 ## CAT
 
