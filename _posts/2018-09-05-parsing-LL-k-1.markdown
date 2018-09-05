@@ -1,6 +1,6 @@
 ---
 published: true
-title: How hard is parsing a context-free language? LL(k) - top-down recursive descent parsing by hand
+title: How hard is parsing a context-free language? LL(k) - recursive descent parsing by hand
 layout: post
 comments: true
 tags: parsing
