@@ -108,7 +108,7 @@ def T_2():
     return match('0')
 ```
 The only thing that remains is `PLUS`, which is again simple enough
-```
+```python
 def PLUS():
     return match('+')
 ```
