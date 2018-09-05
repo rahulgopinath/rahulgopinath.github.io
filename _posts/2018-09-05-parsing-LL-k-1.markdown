@@ -194,10 +194,11 @@ grammar = {
         "digits": [["digit", "digits"], ["digit"]],
         "digit": [[str(i)] for i in list(range(10))],
         "add_op": [["+"], ["-"]],
-        "mul_op": [["*"], ["/"]]}
+        "mul_op": [["*"], ["/"]]
+}
 ```
 Using the grammar just means that we have to slightly modify our core procedures.
-```
+```python
 def do_sequential(seq_terms):
    for t in seq_terms:
        if not do_alternatives(t): return False
