@@ -1,13 +1,13 @@
 ---
 published: true
-title: How hard is parsing a context-free language? LL(k) - recursive descent parsing by hand
+title: How hard is parsing a context-free language? - recursive descent parsing by hand
 layout: post
 comments: true
 tags: parsing
 ---
 
 How hard is parsing a context-free language? In this post, I will try to provide
-an overview of one of the simplest parsing techniques of all -- LL(k).
+an overview of one of the simplest parsing techniques of all -- recusrive descent parsing by hand.
 
 This type of parsing uses mutually recursive procedures to parse a subset of context-free languages
 using a top-down approach. Hence, this kind of parsing is also called a top-down recursive descent
@@ -131,9 +131,9 @@ def parse(i):
 
 Using it:
 ```pycon
->>> import llk
->>> llk.parse('1+1')
->>> llk.parse('1+(1+1)+1')
+>>> import tdrd
+>>> tdrd.parse('1+1')
+>>> tdrd.parse('1+(1+1)+1')
 ```
 The interesting part is that, our infrastructure can be readily turned to
 parse much more complex grammars, with almost one-to-one rewriting of each rule. For example,
@@ -179,8 +179,8 @@ def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
 
 Using it:
 ```pycon
->>> import llk
->>> llk.parse('12*3+(12/13)')
+>>> import tdrd
+>>> tdrd.parse('12*3+(12/13)')
 ```
 
 Indeed, it is close enough to automatic, that we can make it fully automatic. We first define the
@@ -221,7 +221,7 @@ def parse(i):
 ```
 Using it is same as before:
 ```pycon
->>> import llk
->>> llk.parse('12*3+(12/13)')
+>>> import tdrd
+>>> tdrd.parse('12*3+(12/13)')
 ```
 Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
