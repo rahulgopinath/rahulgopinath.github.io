@@ -182,3 +182,4 @@ Using it:
 >>> import llk
 >>> llk.parse('12*3+(12/13)')
 ```
+Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
