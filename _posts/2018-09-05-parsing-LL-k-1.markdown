@@ -182,4 +182,45 @@ Using it:
 >>> import llk
 >>> llk.parse('12*3+(12/13)')
 ```
+
+Indeed, it is close enough to automatic, that we can make it fully automatic. We first define the
+grammar as a datastructure for convenience. I hope I dont need to convince you that I could have
+easily loaded it as a `JSON` file, or even parsed the BNF myself if necessary from an external file.
+```python
+grammar = {
+        "expr": [["term", "add_op", "expr"], ["term"]],
+        "term": [["fact", "mul_op", "term"], ["fact"]],
+        "fact": [["digits"], ["(", "expr", ")"]],
+        "digits": [["digit", "digits"], ["digit"]],
+        "digit": [[str(i)] for i in list(range(10))],
+        "add_op": [["+"], ["-"]],
+        "mul_op": [["*"], ["/"]]}
+```
+Using the grammar just means that we have to slightly modify our core procedures.
+```
+def do_sequential(seq_terms):
+   for t in seq_terms:
+       if not do_alternatives(t): return False
+   return True
+
+def do_alternatives(key):
+    if key not in grammar: return match(key)
+    alt_terms = grammar[key]
+    for ts in alt_terms:
+        o_pos = pos_cur()
+        if do_sequential(ts): return True
+        pos_set(o_pos)
+    return False
+
+def parse(i):
+    global my_input
+    my_input = i
+    do_alternatives('expr')
+    assert pos_eof()
+```
+Using it is same as before:
+```pycon
+>>> import llk
+>>> llk.parse('12*3+(12/13)')
+```
 Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
