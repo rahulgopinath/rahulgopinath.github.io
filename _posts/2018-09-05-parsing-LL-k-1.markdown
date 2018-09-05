@@ -133,4 +133,5 @@ Using it:
 ```pycon
 >>> import llk
 >>> llk.parse('1+1')
+>>> llk.parse('1+(1+1)+1')
 ```
