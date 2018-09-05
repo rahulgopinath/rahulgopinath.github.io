@@ -199,24 +199,24 @@ grammar = {
 ```
 Using the grammar just means that we have to slightly modify our core procedures.
 ```python
-def do_sequential(seq_terms):
+def do_seq(seq_terms):
    for t in seq_terms:
-       if not do_alternatives(t): return False
+       if not do_alt(t): return False
    return True
 
-def do_alternatives(key):
+def do_alt(key):
     if key not in grammar: return match(key)
     alt_terms = grammar[key]
     for ts in alt_terms:
         o_pos = pos_cur()
-        if do_sequential(ts): return True
+        if do_seq(ts): return True
         pos_set(o_pos)
     return False
 
 def parse(i):
     global my_input
     my_input = i
-    do_alternatives('expr')
+    do_alt('expr')
     assert pos_eof()
 ```
 Using it is same as before:
