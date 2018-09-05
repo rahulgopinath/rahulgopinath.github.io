@@ -135,3 +135,51 @@ Using it:
 >>> llk.parse('1+1')
 >>> llk.parse('1+(1+1)+1')
 ```
+The interesting part is that, our infrastructure can be readily turned to
+parse much more complex grammars, with almost one-to-one rewriting of each rule. For example,
+here is a slightly more complex grammar:
+```ebnf
+term = fact mul_op term
+     | fact
+
+fact =  digits
+     | "(" expr ")"
+
+digits = digit digits
+      | digit
+
+digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+add_op = "+" | "-"
+mul_op = "*" | "/"
+```
+Its conversion is almost automatic
+```python
+def expr():     return do_alt([expr_1, expr_2])
+def expr_1():   return do_seq([term, add_op, expr])
+def expr_2():   return do_seq([term])
+
+def term():     return do_alt([term_1, term_2])
+def term_1():   return do_seq([fact, mul_op, term])
+def term_2():   return do_seq([fact])
+
+def fact():     return do_alt([fact_1, fact_2])
+def fact_1():   return do_seq([digits])
+def fact_2():   return do_seq([lambda: match('('), expr, lambda: match(')')])
+
+def digits():   return do_alt([digits_1, digits_2])
+def digits_1(): return do_seq([digit, digits])
+def digits_2(): return do_seq([digit])
+
+def add_op():   return do_alt([lambda: match('+'), lambda: match('-')])
+def mul_op():   return do_alt([lambda: match('*'), lambda: match('/')])
+
+# note that list comprehensions will not work here due to closure of i
+def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
+```
+
+Using it:
+```pycon
+>>> import llk
+>>> llk.parse('1+1')
+>>> llk.parse('1+(1+1)+1')
+```
