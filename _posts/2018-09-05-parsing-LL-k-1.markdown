@@ -130,7 +130,7 @@ def parse(i):
 ```
 
 Using it:
-```
+```pycon
 >>> import llk
 >>> llk.parse('1+1')
 ```
