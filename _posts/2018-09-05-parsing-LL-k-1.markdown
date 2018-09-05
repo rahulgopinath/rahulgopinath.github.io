@@ -33,6 +33,7 @@ to commit too much to _Python_ syntax and semantics. Use the mechanisms availabl
 modularize your parser.
 
 ```python
+my_input = None
 cur_position = 0
 
 def pos_cur():
@@ -43,14 +44,15 @@ def pos_set(i):
     cur_position = i
 
 def pos_eof():
-    return pos_cur() == len(input)
+    return pos_cur() == len(my_input)
 ```
 We also need the ability to extract the `next token` (in this case, the next element in the input array).
 ```python
 def next_token():
     i = pos_cur()
+    if i+1 > len(my_input): return None
     pos_set(i+1)
-    return input[i]
+    return my_input[i]
 ```
 Another convenience we use is the ability to `match` a token to a given symbol.
 ```python
@@ -63,8 +65,8 @@ of terms one by one. If the match succeeds, then we return success. If not, then
 ```python
 def do_seq(seq_terms):
    for t in seq_terms:
-       if not t(): return false
-   return true
+       if not t(): return False
+   return True
 ```
 
 The other corresponds to the alternatives for each production. If any alternative succeeds, then the parsing succeeds.
@@ -72,9 +74,9 @@ The other corresponds to the alternatives for each production. If any alternativ
 def do_alt(alt_terms):
     for t in alt_terms:
         o_pos = pos_cur()
-        if t(): return true
+        if t(): return True
         pos_set(o_pos)
-    return false
+    return False
 ```
 With this, we are now ready to write our parser. Since we are writing a top-down recursive descent parser, we
 start with the axiom rule `E` which contains two alternatives.
@@ -86,11 +88,11 @@ def E():
 ```
 Both `E_1` and `E_2` are simple sequential rules
 ```python
-# E = T "+" E
+# E = T + E
 def E_1():
     return do_seq([T, PLUS, E])
 # E = T
-def E_1():
+def E_2():
     return do_seq([T])
 ```
 Defining `T` is similar
@@ -102,13 +104,33 @@ def T():
 ```
 And each alternative in `T` gets defined correspondingly.
 ```python
+# T = 1
 def T_1():
     return match('1')
+# T = ( E )
 def T_2():
-    return match('0')
+    return do_seq([P_OPEN,E,P_CLOSE])
 ```
-The only thing that remains is `PLUS`, which is again simple enough
+We also need terminals, which is again simple enough
 ```python
 def PLUS():
     return match('+')
+def P_OPEN():
+    return match('(')
+def P_CLOSE():
+    return match(')')
+```
+The only thing that remains is to define the parser
+```python
+def parse(i):
+    global my_input
+    my_input = i
+    assert E()
+    assert pos_eof()
+```
+
+Using it:
+```
+>>> import llk
+>>> llk.parse('1+1')
 ```
