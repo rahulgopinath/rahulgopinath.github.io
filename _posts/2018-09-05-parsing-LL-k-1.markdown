@@ -180,6 +180,5 @@ def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
 Using it:
 ```pycon
 >>> import llk
->>> llk.parse('1+1')
->>> llk.parse('1+(1+1)+1')
+>>> llk.parse('12*3+(12/13)')
 ```
