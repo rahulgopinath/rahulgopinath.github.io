@@ -224,7 +224,7 @@ Using it is same as before:
 >>> import tdrd
 >>> tdrd.parse('12*3+(12/13)')
 ```
-Briging it all together
+Briging it all together, place these in `tdrd.py`
 ```python
 class g_parse:
     def __init__(self, g): self._grammar = g 
