@@ -224,4 +224,59 @@ Using it is same as before:
 >>> import tdrd
 >>> tdrd.parse('12*3+(12/13)')
 ```
+Briging it all together
+```python
+class g_parse:
+  2     def __init__(self, g): self._grammar = g
+  3 
+  4     def remain(self): return self._len - self._i
+  5 
+  6     def next_token(self):
+  7         try: return None if self._i + 1 > len(self._str) else self._str[self._i]
+  8         finally: self._i += 1 
+  9 
+ 10     def match(self, t): return self.next_token() == t
+ 11 
+ 12     def is_nt(self, key): return key in self._grammar
+ 13 
+ 14     def do_seq(self, seq_terms): return all(self.do_alt(t) for t in seq_terms)
+ 15 
+ 16     def do_alt(self, key):
+ 17         if not self.is_nt(key): return self.match(key)
+ 18         for ts in self._grammar[key]:
+ 19             o_pos = self._i
+ 20             if self.do_seq(ts): return True
+ 21             self._i = o_pos
+ 22         return False
+ 23 
+ 24     def parse(self, i):
+ 25         self._str, self._len, self._i = i, len(i), 0
+ 26         self.do_alt('expr')
+ 27         assert self.remain() == 0
+ 28 
+ 29 if __name__ == '__main__':
+ 30     my_grammar = {
+ 31             "expr": [
+ 32                 ["term", "add_op", "expr"],
+ 33                 ["term"]],
+ 34             "term": [
+ 35                 ["fact", "mul_op", "term"],
+ 36                 ["fact"]],
+ 37             "fact": [
+ 38                 ["digits"],
+ 39                 ["(", "expr", ")"]],
+ 40             "digits": [
+ 41                 ["digit", "digits"],
+ 42                 ["digit"]],
+ 43             "digit": [[str(i)] for i in list(range(10))],
+ 44             "add_op": [["+"], ["-"]],
+ 45             "mul_op": [["*"], ["/"]]}
+ 46 
+ 47     import sys
+ 48     g_parse(my_grammar).parse(sys.argv[1])
+```
+Which can be used as
+```bash
+$ python3 tdrd.py '123+11+(3*(2))+1'
+```
 Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
