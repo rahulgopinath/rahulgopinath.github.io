@@ -232,7 +232,7 @@ class g_parse:
     def remain(self): return self._len - self._i
 
     def next_token(self):
-        try: return None if self._i + 1 > len(self._str) else self._str[self._i]
+        try: return None if self._i + 1 > self._len else self._str[self._i]
         finally: self._i += 1
 
     def match(self, t): return self.next_token() == t
