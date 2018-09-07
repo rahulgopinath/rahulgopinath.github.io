@@ -6,7 +6,7 @@ comments: true
 tags: parsing
 ---
 
-How hard is parsing a context-free[1] language? In this post, I will try to provide
+How hard is parsing a context-free<sup>1</sup> language? In this post, I will try to provide
 an overview of one of the simplest parsing techniques of all -- recusrive descent parsing by hand.
 
 This type of parsing uses mutually recursive procedures to parse a subset of context-free languages
@@ -283,4 +283,4 @@ $ python3 tdrd.py '123+11+(3*(2))+1'
 Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
 
 
-[1]: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.
+1: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.
