@@ -6,13 +6,13 @@ comments: true
 tags: parsing
 ---
 
-In the [previous](/2018/09/05/top-down-parsing/), I showed how to write a simple context-free language parser by hand using recursive descent -- that is using a set of mutually recursive procedures. Actually, I lied when I said context-free. The common hand-written parsers are usually an encoding of a kind of grammar called _Parsing Expression Grammar_ or _PEG_ for short.
+In the [previous](/2018/09/05/top-down-parsing/) post, I showed how to write a simple context-free language parser by hand using recursive descent -- that is using a set of mutually recursive procedures. Actually, I lied when I said context-free. The common hand-written parsers are usually an encoding of a kind of grammar called _Parsing Expression Grammar_ or _PEG_ for short.
 
 The difference between _PEG_ and a _CFG_ is that
 * _PEG_ does not admit ambiguity. In particular, _PEG_ uses ordered choice in its alternatives.
 * _PEG_ 
 
-An interesting part about _PEG_ is that, we do not know if _L(PEG)_ is a subset of _CFL_, while we do know that _L(PEG)_ is at least as large as deterministic _CFL_. We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an LL(1) grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language.
+An interesting part about _PEG_ is that, while we know that _L(PEG)_ is not a subset of _L(CFG)_ (There are [languages](https://stackoverflow.com/a/46743864/1420407) that can be expressed with a _PEG_ that can not be expressed with a _CFG_),  we do not know if _L(PEG)_ is a superset of _CFL_. We do know that _L(PEG)_ is at least as large as deterministic _CFL_. We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will be true only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
 
 
 ```python
