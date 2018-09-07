@@ -113,7 +113,7 @@ $(GENERATED)/%.cpp: $(GENERATED)/.generated;
 
 dirs:; mkdir -p $(OUTPUT) $(GENERATED) 
 clean:; rm -rf $(OUTPUT) $(GENERATED)
-``
+```
 You can use it as follows
 ```bash
 $ make
