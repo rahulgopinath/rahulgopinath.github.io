@@ -21,7 +21,7 @@ The problem with what we did in the previous post is that it is a rather naive i
 The idea behind a simple _PEG_ parser is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
 If the key is present in the grammar, get the corresponding productions (rules) for that key,  and start unifying each rule one by one on the string to be matched.
 
-```
+```python
 def unify_key(key, text, at):
    if key not in grammar: return (text[at:].starts_with(key), len(rule))
    rules = grammar[key]
@@ -31,7 +31,7 @@ def unify_key(key, text, at):
     return (False, 0)
 ```
 For unifying rules, the idea is similar. We take each token in the rule, and try to unify that token with the string to be matched. We rely on `unify_key` for doing the unification of the token. if the unification fails, we return empty handed.
-```
+```python
 def unify_rule(rule, text, at):
   for token in rule:
       result, l = unify_key(token, text, at)
@@ -53,7 +53,7 @@ ifmatch = IF (expr) THEN stmts ELSE stmts
 ```
 <!-- It is also at this place that we have the big question. Are there two rules such that given two strings, such that the order of strings by longest match is different depending on the rule chosen? If no such conflicting orders can be found given any two rules, then _PEG_s are a superset of _CFG_. On the other hand, if there exist such a pair, then _CFG_s are not a strict subset of _PEG_s.-->
 If we now parse an `if` statement without else using the above grammar, such a `IF (a=b) THEN return 0`, the first rule will fail, and the parse will start for the second rule again at `IF`. This backtracking is unnecessary as one can see that `IF (a=b) THEN return 0` is already parserd by all terms in the second rule. What we want is to save the old parses so that we can simply return the already parsed result. That is,
-```
+```python
    if seen((token, text, at)):
        return old_result
 ```
