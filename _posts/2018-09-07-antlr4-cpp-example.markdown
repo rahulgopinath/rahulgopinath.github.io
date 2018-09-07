@@ -146,8 +146,7 @@ options
     pANTLR3_COMMON_TOKEN_STREAM tokens;
     pExprParser  parser;
 
-    input  = antlr3StringStreamNew((pANTLR3_UINT8)argv[1], ANTLR3_ENC_8BIT, strlen(argv[1]), "_x_");
-    //input  = antlr3FileStreamNew((pANTLR3_UINT8)argv[1], ANTLR3_ENC_8BIT);
+    input  = antlr3StringStreamNew((pANTLR3_UINT8)argv[1], ANTLR3_ENC_8BIT, strlen(argv[1]), "_");
     lex    = ExprLexerNew(input);
     tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lex));
     parser = ExprParserNew(tokens);
