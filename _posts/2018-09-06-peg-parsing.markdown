@@ -10,9 +10,13 @@ In the [previous](/2018/09/05/top-down-parsing/) post, I showed how to write a s
 
 The difference between _PEG_ and a _CFG_ is that
 * _PEG_ does not admit ambiguity. In particular, _PEG_ uses ordered choice in its alternatives.
-* _PEG_ 
+* Due to the ordered choice, the ordering of alternatives is important.
 
-An interesting part about _PEG_ is that, while we know that _L(PEG)_ is not a subset of _L(CFG)_ (There are [languages](https://stackoverflow.com/a/46743864/1420407) that can be expressed with a _PEG_ that can not be expressed with a _CFG_),  we do not know if _L(PEG)_ is a superset of _CFL_. We do know that _L(PEG)_ is at least as large as deterministic _CFL_. We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will be true only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
+A few interesting things about _PEG_:
+* We know that _L(PEG)_ is not a subset of _L(CFG)_ (There are [languages](https://stackoverflow.com/a/46743864/1420407) that can be expressed with a _PEG_ that can not be expressed with a _CFG_).
+* We do not know if _L(PEG)_ is a superset of _CFL_. However, given that all [PEGs can be parsed in O(n)](https://en.wikipedia.org/wiki/Parsing_expression_grammar), and the best general _CFG_ parsers can only reach _O(n^2.31)_ due to the equivalance to boolean matrix multiplication[1](/references#lee2002fast)[2](/references#valiant1975general). 
+* We do know that _L(PEG)_ is at least as large as deterministic _CFL_.
+* We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will work only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
 
 
 ```python
