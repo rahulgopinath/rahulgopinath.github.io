@@ -284,5 +284,5 @@ Of course, one usually wants to do something with the parsed output. However, gi
 
 
 <b id="f1">1</b> 1: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.
-[$\hookleftarrow$](#a1)
+[$$\hookleftarrow$$](#a1)
 
