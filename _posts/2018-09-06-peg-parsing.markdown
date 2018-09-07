@@ -123,4 +123,4 @@ What we have here is only a subset of _PEG_ grammar. A _PEG_ grammar can contain
 * And-predicate: &e -- match `e` but do not consume any input
 * Not-predicate: !e
 
-We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, even without the predicates, our _PEG_ can be useful for parsing a pretty large category of programs.
+We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, the lack of predicates does not change ([Ford 2004](https://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf)) the class of languages that such grammars can match, and even without the predicates, our _PEG_ can be useful for easily representing a large category of programs.
