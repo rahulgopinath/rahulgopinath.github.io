@@ -23,21 +23,24 @@ If the key is present in the grammar, get the corresponding productions (rules) 
 
 ```python
 def unify_key(key, text, at):
-   if key not in grammar: return (text[at:].starts_with(key), len(rule))
+   if key not in grammar:
+       if text[at:].startswith(key):
+           return (text[at:].startswith(key), at + len(key))
+       else:
+           return (None, at)
    rules = grammar[key]
    for rule in rules:
-      res, l = unify_rule(rule, text, at)
-      if res: return (res, l)
-    return (False, 0)
+       res, l = unify_rule(rule, text, at)
+       if res: return (res, l)
+   return (False, 0)
 ```
 For unifying rules, the idea is similar. We take each token in the rule, and try to unify that token with the string to be matched. We rely on `unify_key` for doing the unification of the token. if the unification fails, we return empty handed.
 ```python
 def unify_rule(rule, text, at):
-  for token in rule:
-      result, l = unify_key(token, text, at)
-      if not result: return False
-      at += l
- return (True, len)
+    for token in rule:
+          result, at = unify_key(token, text, at)
+          if not result: return (False, at)
+    return (True, at)
  ```
 When we implemented the `unify_key`, we made an important decision, which was that, we return as soon as a match was found. This is what distinguishes a `PEG` parser from a general `CFG` parser. In particular it means that rules have to be ordered.
 That is, the following grammar wont work:
