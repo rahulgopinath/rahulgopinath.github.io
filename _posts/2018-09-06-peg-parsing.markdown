@@ -27,7 +27,7 @@ def unify_key(key, text, at):
        if text[at:].startswith(key):
            return (text[at:].startswith(key), at + len(key))
        else:
-           return (None, at)
+           return (False, at)
    rules = grammar[key]
    for rule in rules:
        res, l = unify_rule(rule, text, at)
