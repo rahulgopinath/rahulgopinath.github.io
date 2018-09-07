@@ -114,6 +114,7 @@ if __name__ == '__main__': main(sys.argv[1])
 ```
 
 What we have here is only a subset of _PEG_ grammar. A _PEG_ grammar can contain
+
 * Sequence: e1 e2
 * Ordered choice: e1 / e2
 * Zero-or-more: e*
@@ -121,4 +122,5 @@ What we have here is only a subset of _PEG_ grammar. A _PEG_ grammar can contain
 * Optional: e?
 * And-predicate: &e -- match `e` but do not consume any input
 * Not-predicate: !e
+
 We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, even without the predicates, our _PEG_ can be useful for parsing a pretty large category of programs.
