@@ -5,8 +5,11 @@ layout: post
 comments: true
 tags: parsing
 ---
+
+# Using ANTLR4 for C++ target
+
 For my research, I often need to produce recognizers of languages using different kinds of parsers.
-`ANTLR4` produces _LL(*)_ parsers ([Parr 2011](/references#parr2011ll)), and here is a bare-bones example of how to produce a `c++` implmenentation from an [ANTLR4](http://www.antlr4.org/) grammar.
+`ANTLR4` produces _Adaptive LL(*)_ parsers ([Parr 2011](/references#parr2011ll)), and here is a bare-bones example of how to produce a `c++` implmenentation from an [ANTLR4](http://www.antlr4.org/) grammar.
 
 First, the grammar, to be placed in a file `Expr.g4`. This is a simple expression grammar. Note that the filename is important and should match the `grammar`. Secondly, the EOF at the end of main rule is important. Otherwise the parser will not signal an error if there are unparsed characters.
 
@@ -118,4 +121,71 @@ You can use it as follows
 ```bash
 $ make
 $ ./parser '1+(2*3)'
+```
+
+# Using ANTLR3 for C target
+
+If you are looking to produce `C` rather than `C++`, ANTLR4 no longer fits the bill, and we have to use `ANTLR3`. Further, the grammar accepted by `ANTLR3` is slightly more restrictive than that accepted by `ANTLR4`. Here is the grammar for `ANTLR3`, with its embedded C code to accept the same language as before.
+```ebnf
+grammar Expr;
+
+options
+{
+  language=C;
+}
+
+@members
+{
+ #include "antlr3defs.h"
+ #include "ExprLexer.h"
+
+ int main(int argc, char * argv[]) {
+
+    pANTLR3_INPUT_STREAM input;
+    pExprLexer  lex;
+    pANTLR3_COMMON_TOKEN_STREAM tokens;
+    pExprParser  parser;
+
+    input  = antlr3StringStreamNew((pANTLR3_UINT8)argv[1], ANTLR3_ENC_8BIT, strlen(argv[1]), "_x_");
+    //input  = antlr3FileStreamNew((pANTLR3_UINT8)argv[1], ANTLR3_ENC_8BIT);
+    lex    = ExprLexerNew(input);
+    tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lex));
+    parser = ExprParserNew(tokens);
+
+    parser->program(parser);
+
+    parser->free(parser);
+    tokens->free(tokens);
+    lex->free(lex);
+    input->close(input);
+
+    return 0;
+ }
+}
+
+program: expr EOF;
+expr: term  ( (PLUS|MINUS) term)*;
+term: factor ( (MULT|DIV) factor)*;
+factor: INT
+    | OP expr CP;
+INT  : (DIGIT)+;
+OP: '(';
+CP: ')';
+PLUS: '+';
+MINUS: '-';
+MULT: '*';
+DIV: '/';
+
+WHITESPACE  : ( '\t' | ' ' | '\r' | '\n'| '\u000C' )+
+{
+    $channel = HIDDEN;
+};
+
+fragment
+DIGIT: '0'..'9';
+```
+As before, compiling requires the runtime. Once you have that, you can generate and compile as below:
+```shell
+$ java -cp $ANTLR3COMPLETEJAR org.antlr.Tool -o output Expr.g
+$ gcc -o expr output/*.c -I $LIBANTLR3C/ -I $LIBANTLR3C/include $LIBANTLR3C/.libs/libantlr3c.a
 ```
