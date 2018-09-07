@@ -24,10 +24,7 @@ If the key is present in the grammar, get the corresponding productions (rules) 
 ```python
 def unify_key(key, text, at):
    if key not in grammar:
-       if text[at:].startswith(key):
-           return (text[at:].startswith(key), at + len(key))
-       else:
-           return (False, at)
+       return (True, at + len(key)) if text[at:].startswith(key) else (False, at)
    rules = grammar[key]
    for rule in rules:
        res, l = unify_rule(rule, text, at)
