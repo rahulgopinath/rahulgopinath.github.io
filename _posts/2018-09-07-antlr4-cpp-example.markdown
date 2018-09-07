@@ -6,7 +6,7 @@ comments: true
 tags: parsing
 ---
 
-# Using ANTLR4 for C++ target
+## Using ANTLR4 for C++ target
 
 For my research, I often need to produce recognizers of languages using different kinds of parsers.
 `ANTLR4` produces _Adaptive LL(*)_ parsers ([Parr 2011](/references#parr2011ll)), and here is a bare-bones example of how to produce a `c++` implmenentation from an [ANTLR4](http://www.antlr4.org/) grammar.
@@ -123,7 +123,7 @@ $ make
 $ ./parser '1+(2*3)'
 ```
 
-# Using ANTLR3 for C target
+## Using ANTLR3 for C target
 
 If you are looking to produce `C` rather than `C++`, ANTLR4 no longer fits the bill, and we have to use `ANTLR3`. Further, the grammar accepted by `ANTLR3` is slightly more restrictive than that accepted by `ANTLR4` (It is _LL(*)_ rather than _ALL(*)_). Here is the grammar for `ANTLR3`, with its embedded C code to accept the same language as before.
 ```ebnf
