@@ -46,7 +46,7 @@ def nonterminals(production):
 But is there a better way? Ideally, one would like to define the grammar like one defines the class, so that it feels part of the language.
 
 One mechanism we can (ab)use is the type annotations. Specifically in `Python 3.7` one can use the postponed evaluation of annotations to accomplish a DSL as below, with grammar keys as attributes of the grammar class:
-```
+```python
 from __future__ import annotations
 
 class expr(grammar):
@@ -58,7 +58,7 @@ class expr(grammar):
     digit: '0' | '1' | '2'
 ```
 The annotations lets us access the types of each class as a string, that can be evaluated separately. The `grammar` class is defined as follows:
-```
+```python
 import string
 import ast
 
@@ -78,7 +78,7 @@ class grammar:
         return self.__annotations__.keys()
 ```
 Given all this, to print the grammar in a readable form is simply:
-```
+```python
 e = expr()
 for i in e.keys():
     print(i, "::= ")
@@ -86,7 +86,7 @@ for i in e.keys():
         print("\t| %s\t\t # %s" % (alt.strip(), e.nonterminals(alt)))
 ```
 Which results in
-```
+```ebnf
 start ::= 
 	| {expr}		 # {'expr'}
 expr ::= 
