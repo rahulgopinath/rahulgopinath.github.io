@@ -73,4 +73,4 @@ The whole problem is due to the implicit variable capture. Map forces us to bind
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 ```
 
-Indeed, here, `map` conforms to the `[zen of python](https://www.python.org/dev/peps/pep-0020/)` compared to the behavior of comprehensions. Unfortunately, I lost quite a bit of time that I did not have, debugging this, and I think that the implicit closing over behavior that comprehensions exhibit is actitvely harmful.
+Indeed, here, `map` conforms to the [zen of python](https://www.python.org/dev/peps/pep-0020/) compared to the behavior of comprehensions. Unfortunately, I lost quite a bit of time that I did not have, debugging this, and I think that the implicit closing over behavior that comprehensions exhibit is actitvely harmful.
