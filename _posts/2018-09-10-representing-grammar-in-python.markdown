@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Representing a Grammar in Python
 layout: post
 comments: true
