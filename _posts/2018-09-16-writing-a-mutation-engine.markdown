@@ -6,7 +6,7 @@ comments: true
 tags: parsing
 ---
 
-Based on our paper [Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis](/publications#gopinath2016topsy)
+This post describes the implementation of a simple forking mutation-testing engine in Python. It is based on our paper [Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis](/publications#gopinath2016topsy).
 
 For those who are wondering what _program-mutation_ or _mutation-analysis_ or _mutation-testing_ is all about, the idea is really simple. Given a simple program -- such as the triangle program given below.
 ```python
