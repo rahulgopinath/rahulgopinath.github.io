@@ -1,6 +1,6 @@
 ---
 published: true
-title: A simple split-stream forking mutation engine in Python
+title: A simple split-stream mutation engine in Python
 layout: post
 comments: true
 tags: parsing
