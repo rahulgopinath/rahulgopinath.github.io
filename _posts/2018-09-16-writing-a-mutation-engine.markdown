@@ -199,7 +199,7 @@ $ for i in .pids/*; do echo $i; cat $i; echo; done
 Here, we can see that each `PID` has at least one (in many cases more than one) difference from the parent. Hence we have `100%` mutation score.
 
 Now, all that remains is to see how to transform our `triangle.py` to `mutated.triangle.py`. In Python, it is relatively simple using the `astunparse` and `astmonkey` modules.
-```
+```python
 import sys
 from textwrap import dedent
 import ast
