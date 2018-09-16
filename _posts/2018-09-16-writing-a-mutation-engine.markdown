@@ -243,4 +243,15 @@ All that we are doing here is transforming _If_ nodes and _Assert_ nodes, which 
 This code should be easy enough to understand. If you would like to extend it, the [greentreesnakes](https://greentreesnakes.readthedocs.io/en/latest/) is a great resource for documentation of the AST module in python.
 (The `astunparse` module uses `async` as an argument, and hence is not python 3.7 ready. You may need to apply [this patch](https://github.com/simonpercivall/astunparse/commit/72bcac2fc408408c7cd07043c392fd9932714604.patch) if you are using Python 3.7)
 
+### Advantages compared to traditional tools
+* Easy to implement: Can be implemented on non-traditional environments.
+  
+  Since it is based on simple text transformations, all you need is a simple grammar based tool to implement them..
+* Better parallelization than traditional implementations.
+* Coverage based optimization is inbuilt -- mutations do not become active unless execution path includes them.
+* No separate interpretor (as in some of the mutation frameworks). It hijacks the ordinary program execution.
+
+### Limitations
+* Limited to Unix like environments where _forking_ is cheap
+* We assume that order of execution of test cases is not important. However, it may not be correct.
 I note that this was simply an example on how to implement a split-stream execution environment. Python does have a number of program-mutation tools, which includes [cosmic-ray](https://cosmic-ray.readthedocs.io/en/latest/), [mutpy](https://github.com/mutpy/mutpy), and [mutmut](https://pypi.org/project/mutmut/). Another is [xmutant](https://github.com/vrthra/xmutant.py) -- a rather researchy, but plain vanila mutation engine that mutates bytecodes that I wrote some time back. `xmutant.py` incorporates checking for `immortal-mutants` using random sampling. (Immortal, or equivalent mutants are mutants where the syntactic difference we injected did not result in an actual fault).
