@@ -1,11 +1,13 @@
 ---
-published: false
+published: true
 title: Clone Detection Tools
 layout: post
 comments: true
 tags: [clones]
 categories : post
 ---
+
+Here is a summary of clone detection tools, state of the art.
 
 ## FOSS
 
