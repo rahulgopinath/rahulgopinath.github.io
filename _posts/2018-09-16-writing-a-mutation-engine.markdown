@@ -58,7 +58,7 @@ However, writing a full-featured program mutation test suite is not an easy unde
 
 A simple technique called _split-stream execution_ can greatly simplify and speed up mutant execution. The idea is that, rather than startup each mutant separately, and run the entire test suite against them, execute the common (non-mutated) portion of the code first on any test case until the program execution comes to a mutation site. When the execution traverses a site of mutation, fork the execution into a different process, and continue the execution in the child process such that the child process behaves as if the mutation has happened in that particular site. The parent process on the other hand, behaves as if the mutation has not happened, and proceeds to the next mutation site. Each mutation site is one-shot. That is, the forking happens only on the first traversal.
 
-So, how do we achieve that? A relatively easy solution is to wrap any potential mutation site in a function call, and within that function, decide whether we want to fork or not. That is, we want to transform our triangle program as below. The function is called `mutate` in the execution context `f` and takes two parameters. The first parameter is a unique id for the mutation. Here, I pass in a tuple corresponding to the line number and column offset of the mutation site. The second parameter is the result of operation. Here I let the operation proceed on the common portion. However, if needed, we can wrap the operation in a _lambda_, and decide whether to execute it or not in the child. The `verify` is again similar. It takes the assertion result, and the line number as parameters.
+So, how do we achieve that? A relatively easy solution is to wrap any potential mutation site in a function call, and within that function, decide whether we want to fork or not. That is, we want to transform our triangle program as below. The function is called `mutate` in the execution context `forking_context` and takes two parameters. The first parameter is a unique id for the mutation. Here, I pass in a tuple corresponding to the line number and column offset of the mutation site. The second parameter is the result of operation. Here I let the operation proceed on the common portion. However, if needed, we can wrap the operation in a _lambda_, and decide whether to execute it or not in the child. The `verify` is again similar. It takes the assertion result, and the line number as parameters.
 
 ```python
 # mutated.triangle.py
@@ -69,7 +69,7 @@ forking_context = mu.Forker()
 import sys
 
 def triangle(a, b, c):
-    if f.mutate((4, 7), (a == b)):
+    if forking_context.mutate((4, 7), (a == b)):
         if forking_context.mutate((5, 11), (b == c)):
             return 'Equilateral'
         else:
