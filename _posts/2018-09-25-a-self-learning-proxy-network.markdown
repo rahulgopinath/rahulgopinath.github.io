@@ -103,7 +103,7 @@ class Reward:
     def get_reward(self, status):
         # if we are not the end point, just return -1 * load
         # if we are, then return (100 - load)
-        if status == 'MidWay': return -1 * self._proxy.load()
+        if status == 'MidWay': return -1
         if status == 'EndPoint': return 500
         if status == 'CacheHit': return 500
         if status == 'NoService': return -500
