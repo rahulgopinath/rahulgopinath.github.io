@@ -158,8 +158,8 @@ class Policy:
     def update(self, domain,proxy,last_max_q, reward): pass
     def max_a_val(self, domain): pass
 
-Alpha = 0.1
-Beta = 1
+Alpha = 0.1 # Learning rate
+Beta = 1    # Discounting factor
 
 class QPolicy(Policy):
     def __init__(self, proxy, q):
