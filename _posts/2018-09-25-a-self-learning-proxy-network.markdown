@@ -144,7 +144,7 @@ class Q:
         return srv
 
     def to_key(self, s_url_domain, a_parent):
-        return 'url[%s]: parent[%d]' % (s_url_domain,a_parent.name())
+        return 'domain[%s]: proxy[%d]' % (s_url_domain,a_parent.name())
 ```
 
 ### Our policy
