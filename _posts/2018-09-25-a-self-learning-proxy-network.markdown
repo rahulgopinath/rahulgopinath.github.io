@@ -47,7 +47,23 @@ class Cache:
         if len(self._data) > self._max_size: self._delete_oldest()
 ```
 
-### The _HTTPServer_ and the corresponding request and response classes
+### The _Origin_ server
+
+The proxy servers at the end forward a request to the corresponding origin servers. These servers (typically HTTP Servers) are identified by their domain and are responsible for processing the request, and crafting the appropriate response. Hence, here we simulate an origin serveer with a simple object that is responsible for a domain and contains a list of paths it can serve.
+
+```python
+class HTTPServer:
+    def domain(self): return self._domain
+    def __init__(self, domain, pages):
+        self._domain = domain
+        self._page = {path:HTTPResponse(domain,path, "< A page from %s/%s >"
+            % (domain, path),{}) for path in pages}
+    def get(self, path): return self._page[path]
+```
+
+#### The request
+
+The supporting classes for _HTTPServer_. First is the _HTTPRequest_ which knows which _origin_ server can serve this request.
 
 ```python
 class HTTPRequest:
@@ -56,9 +72,13 @@ class HTTPRequest:
         self._url = 'http://%s/%s' % (domain, page)
     def domain(self): return self._domain
     def page(self): return self._page
-    def header(self): return None
+    def header(self): return []
     def url(self): return self._url
+```
+#### The response
+The response also does some work in propagating the _Q_ value and _Reward_.
 
+```python
 class HTTPResponse:
     def __init__(self, domain, url, content, header, status=200):
         self._page = {'domain': domain, 'url': url, 'content': content, 'header': header}
@@ -71,16 +91,11 @@ class HTTPResponse:
     def set_q_header(self, value): self._page['header']['Q'] = value
     def status(self): return self._status
 
-class HTTPServer:
-    def domain(self): return self._domain
-    def __init__(self, domain, pages):
-        self._domain = domain
-        self._page = {path:HTTPResponse(domain,path, "< A page from %s/%s >"
-            % (domain, path),{}) for path in pages}
-    def get(self, path): return self._page[path]
 ```
 
-### We need to specify different rewards for different accomplishments
+### The _Reward_ for different results.
+
+We need to specify different rewards for different accomplishments. These values can be tuned to produce different learning rates.
 
 ```python
 class Reward:
@@ -134,6 +149,8 @@ class Q:
 
 ### Our policy
 
+The policy is essentially a mechanism to produce an action given a state.
+
 ```python
 class Policy:
     def __init__(self, proxy, q): self._proxy, self._q = proxy, q
@@ -185,7 +202,7 @@ class QPolicy(Policy):
         self._q.put_q(s_url_domain, a_parent, q_new)
 ```
 
-### Proxy Servers
+### The Proxy Node
 
 Each proxy node maintains its own _q(s,a)_ value and each proxy is able to reach a fixed set of domains. for others, it has to rely on parents.
 
