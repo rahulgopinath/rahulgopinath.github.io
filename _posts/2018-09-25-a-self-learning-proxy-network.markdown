@@ -7,10 +7,17 @@ tags: proxy
 ---
 
 
+## Some prerequisites
+
 ```python
 import re, random
 random.seed(0)
+```
 
+### An LRU cache
+
+A proxy server needs to store the contents of the URLs that it fetched once (subject to some constraints). We use a simple LRU cache for that purpose.
+```python
 class Cache:
     def __init__(self, max_size=4):
         self._data, self._max_size = {}, max_size
@@ -38,7 +45,11 @@ class Cache:
 
     def _prune(self):
         if len(self._data) > self._max_size: self._delete_oldest()
+```
 
+### The _HTTPServer_ and the corresponding request and response classes
+
+```python
 class HTTPRequest:
     def __init__(self, domain, page):
         self._domain, self._page = domain, page
@@ -67,7 +78,11 @@ class HTTPServer:
         self._page = {path:HTTPResponse(domain,path, "< A page from %s/%s >"
             % (domain, path),{}) for path in pages}
     def get(self, path): return self._page[path]
+```
 
+### We need to specify different rewards for different accomplishments
+
+```python
 class Reward:
     def __init__(self, proxy): self._proxy = proxy
     def get_reward(self, status):
@@ -78,7 +93,16 @@ class Reward:
         if status == 'CacheHit': return 500
         if status == 'NoService': return -500
         assert False
+```
 
+### Q containers
+
+Each proxy server maintains a list of upstream servers. It also maintains
+a dynamic list of _Q_ values for each of those servers corresponding to the
+_domain_ names of _URLs_ that it encounters. The decision to route a URL to
+a particular proxy server is taken based on its _Q_ value for that domain.
+
+```
 class Q:
     def __init__(self, parents):
         self._parents, self._q = list(parents.values()), {}
@@ -106,7 +130,11 @@ class Q:
 
     def to_key(self, s_url_domain, a_parent):
         return 'url[%s]: parent[%d]' % (s_url_domain,a_parent.name())
+```
 
+### Our policy
+
+```python
 class Policy:
     def __init__(self, proxy, q): self._proxy, self._q = proxy, q
     def next(self, req): pass
@@ -156,10 +184,13 @@ class QPolicy(Policy):
         q_now = self._q.get_q(s_url_domain, a_parent)
         q_new = (1 - self._alpha) * q_now + self._alpha*(reward + self._beta*last_max_q)
         self._q.put_q(s_url_domain, a_parent, q_new)
+```
 
-# each proxy node maintains its own q(s,a) value
-# each proxy is able to reach a fixed set of domains. for others, it has to
-# rely on parents.
+### Proxy Servers
+
+Each proxy node maintains its own _q(s,a)_ value and each proxy is able to reach a fixed set of domains. for others, it has to rely on parents.
+
+```python
 class ProxyNode:
     def __init__(self, name, domains, parents, load):
         self._name = name
@@ -257,9 +288,17 @@ class ProxyNode:
         next_q = self._policy.max_a_val(req.domain())
         res.set_q_header(next_q)
         return res
+```
 
+### Network
+
+Our proxy network. For ease of use, we initialize the links at once place.
+In the real world, the network is formed as the proxy servers initialize
+themselves with its parent and peer names. Further, the network would be a lot
+more dynamic in the real world with proxies joining and departing the network.
+
+```python
 class Network:
-
     def __init__(self, lvl_const, num_origin, num_pages):
         self._lvl_const = lvl_const
         self._num_origin = num_origin
@@ -343,8 +382,11 @@ class Network:
         # print(req.url())
         res = self._db[proxy].request(req)
         return res
+```
 
+### Simulation of the network traffic.
 
+```python
 g_path = []
 g_reward = []
 # LEVEL_CONST is the maximum number of proxy servers in a level, so that
