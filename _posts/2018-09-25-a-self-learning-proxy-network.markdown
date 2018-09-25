@@ -422,7 +422,8 @@ for i in range(iter_total):
         server_id = random.randint(1,10)
         req = HTTPRequest(server_id, page)
         res = My_Network.user_req(req)
-        trejectory = ''.join([str(j) + '>' for j in g_path]) + ("*" if res.status() == 200 else "X") + "  " + str(req.domain())
+        trejectory = ''.join([str(j) + '>' for j in g_path]) + \
+              ("*" if res.status() == 200 else "X") + "  " + str(req.domain())
         print(trejectory)
         g_path = []
         g_reward = []
