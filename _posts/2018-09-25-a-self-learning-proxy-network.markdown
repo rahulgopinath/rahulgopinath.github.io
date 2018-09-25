@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: A self-learning proxy-network with reinforment learning (Q-Learning)
 layout: post
 comments: true
@@ -49,9 +49,9 @@ Q[a,s]  = (1-alpha)*Q[a,s] + alpha*(reward(s) + beta*max_a(Q(_,s_)))
 ```
 Here, $$\alpha$$ is the learning rate.
 
-### Q-Learing for proxy servers
+### Q-Learning for proxy servers
 
-The main intuitiion for using _Q-Learning_ for proxy servers is that each hop from one proxy to another can be considered to be an action, and the state is the state of the proxy server when it receives a URL to forward. The point here is that the hierarchy of proxy servers form the _Q_ table, with corresponding states and actions. The domain of the URLs received is considered here as a state, so that we have _Q(domain, parent_proxy)_ as the reward for choosing _parent_proxy_ for the particular URL. The nice thing here is that a proxy server need to only keep track of rewards for routing seen domains to its direct upstream proxy servers, and take care of updating the table when it gets responses for the routed requests.
+The main intuition for using _Q-Learning_ for proxy servers is that each hop from one proxy to another can be considered to be an action, and the state is the state of the proxy server when it receives a URL to forward. The point here is that the hierarchy of proxy servers form the _Q_ table, with corresponding states and actions. The domain of the URLs received is considered here as a state, so that we have _Q(domain, parent_proxy)_ as the reward for choosing _parent_proxy_ for the particular URL. The nice thing here is that a proxy server need to only keep track of rewards for routing seen domains to its direct upstream proxy servers, and take care of updating the table when it gets responses for the routed requests.
 
 ##  The implementation
 
