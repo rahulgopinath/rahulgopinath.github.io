@@ -33,11 +33,11 @@ $$ R_{n} = r_0 \times \beta + r_1 \times \beta^2 + r_2 \times \beta^3 ... r_n \t
 
 Where $$ r_i$$ is the reward at step _i_ and $$\beta$$ is the discounting ratio for future rewards, and $$R_n$$ is the total reward after _n_ steps. We define a function _Q_ such that it represents the maximum possible future reward (discounted) for performing an action _a_ in state _s_.
 
-$$ Q(a_i,s_i) = max R_{i+1}$$
+$$ Q(a_i,s_i) = max R_{i+1} $$
 
 This can be rewritten as
 
-$$ Q(a,s) = r + \beta max_{a^'} Q(a^', s^')$$
+$$ Q(a,s) = r + \beta max_{a^{'}} Q(a^{'}, s^{'}) $$
 
 That is, the optimal reward from performing some action _a_ at current state (resulting in _s'_) is the reward for action _a_ in this state in addition to performing optimally from the next step onwards. This equation is called the [Bellman equation](https://en.wikipedia.org/wiki/Bellman_equation). The interesting thing about Bellman equation is that it can be iteratively approximated, and this is what reinforcement learning is doing.
 
