@@ -102,7 +102,7 @@ a dynamic list of _Q_ values for each of those servers corresponding to the
 _domain_ names of _URLs_ that it encounters. The decision to route a URL to
 a particular proxy server is taken based on its _Q_ value for that domain.
 
-```
+```python
 class Q:
     def __init__(self, parents):
         self._parents, self._q = list(parents.values()), {}
@@ -140,7 +140,6 @@ class Policy:
     def next(self, req): pass
     def update(self, domain,proxy,last_max_q, reward): pass
     def max_a_val(self, domain): pass
-
 
 Alpha = 0.1
 Beta = 1
