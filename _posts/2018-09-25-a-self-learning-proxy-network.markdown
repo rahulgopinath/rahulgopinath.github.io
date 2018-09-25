@@ -18,9 +18,9 @@ random.seed(0)
 
 A proxy server needs to store the contents of the URLs that it fetched once (subject to some constraints). We use a simple LRU cache for that purpose.
 ```python
+
 class Cache:
-    def __init__(self, max_size=4):
-        self._data, self._max_size = {}, max_size
+    def __init__(self, max_size=4): self._data, self._max_size = {}, max_size
 
     def __setitem__(self, key, value):
         self._data[key] = [0, value]
@@ -54,11 +54,11 @@ The proxy servers at the end forward a request to the corresponding origin serve
 ```python
 class HTTPServer:
     def domain(self): return self._domain
-    def __init__(self, domain, pages):
+    def __init__(self, domain, paths):
         self._domain = domain
-        self._page = {path:HTTPResponse(domain,path, "< A page from %s/%s >"
-            % (domain, path),{}) for path in pages}
-    def get(self, path): return self._page[path]
+        self._pages = {path:HTTPResponse(domain,path,
+            "< A page from %s/%s >" % (domain, path),{}) for path in paths}
+    def get(self, path): return self._pages[path]
 ```
 
 #### The request
@@ -72,7 +72,7 @@ class HTTPRequest:
         self._url = 'http://%s/%s' % (domain, page)
     def domain(self): return self._domain
     def page(self): return self._page
-    def header(self): return []
+    def header(self): return None
     def url(self): return self._url
 ```
 #### The response
@@ -85,8 +85,8 @@ class HTTPResponse:
         self._status = status
         self._page['header']['Q'] = 0
     def __str__(self): return self._page['url']
-    def set_reward(self, r): self._page['header']['QReward'] = str(r)
-    def get_reward(self): return int(self._page['header']['QReward'])
+    def set_reward_header(self, r): self._page['header']['QReward'] = str(r)
+    def get_reward_header(self): return int(self._page['header']['QReward'])
     def get_q_header(self): return self._page['header']['Q']
     def set_q_header(self, value): self._page['header']['Q'] = value
     def status(self): return self._status
@@ -114,29 +114,27 @@ a particular proxy server is taken based on its _Q_ value for that domain.
 
 ```python
 class Q:
-    def __init__(self, parents):
-        self._parents, self._q = list(parents.values()), {}
+    def __init__(self, parents): self.parents, self._q = parents, {}
 
-    def get_q(self, s_url_domain,a_parent):
-        key = self.to_key(s_url_domain,a_parent)
+    def __getitem__(self, val):
+        key = self.to_key(val)
         if key not in self._q: self._q[key] = 0
         return self._q[key]
 
-    def put_q(self, s_url_domain, a_parent, value):
-        key = self.to_key(s_url_domain,a_parent)
-        self._q[key] = value
+    def __setitem__(self, val, value): self._q[self.to_key(val)] = value
+
+    def to_key(self, val): return 'domain[%s]: proxy[%d]' % val
+
+    def explore(self): return random.choice(self.parents)
 
     def max_a(self,s_url_domain):
         # best next server for this state.
-        srv = self._parents[0]
-        maxq = self.get_q(s_url_domain, srv)
-        for a_p in self._parents:
-           q = self.get_q(s_url_domain, a_p)
-           if q > maxq: maxq, srv = q, a_p
+        srv = self.parents[0]
+        maxq = self[(s_url_domain, srv)]
+        for parent in self.parents:
+           q = self[(s_url_domain, parent)]
+           if q > maxq: maxq, srv = q, parent
         return srv
-
-    def to_key(self, s_url_domain, a_parent):
-        return 'domain[%s]: proxy[%d]' % (s_url_domain,a_parent.name())
 ```
 
 ### Our policy
@@ -147,44 +145,29 @@ The policy is essentially a mechanism to produce an action given a state. Our po
 * In the limit, the learning policy is greedy with respect to the learned Q function with probability 1
 
 ```python
-class Policy:
-    def __init__(self, proxy, q): self._proxy, self._q = proxy, q
-    def next_hop(self, req): pass
-    def update(self, domain,proxy,last_max_q, reward): pass
-    def max_a_val(self, domain): pass
-
 Alpha = 0.1 # Learning rate
 Beta = 1    # Discounting factor
 
-class QPolicy(Policy):
-    def __init__(self, proxy, q):
-        self._proxy = proxy
-        self._alpha, self._beta = Alpha, Beta
-
-        # Action is the next server to choose from
-        self._q = q
-        self._time_step = 0
+class QPolicy:
+    def __init__(self, q): self._q, self._time_step = q, 0
 
     def q(self): return self._q
 
     def next_hop(self, req):
         s = random.randint(0, self._time_step)
         self._time_step += 1
-        if s == 0: # Exploration
-            return random.choice(list(self._proxy._parents.values()))
-        else: # Greedy
-            return self._q.max_a(req.domain())
+        if s == 0: return self._q.explore()
+        else: return self._q.max_a(req.domain())
 
     def max_a_val(self, s_url_domain):
         a_parent = self._q.max_a(s_url_domain)
-        return self._q.get_q(s_url_domain, a_parent)
+        return self._q[(s_url_domain, a_parent)]
 
     def update(self, s_url_domain, a_parent, last_max_q, reward):
         # Q(a,s)  = (1-alpha)*Q(a,s) + alpha(R(s) + beta*max_a(Q(a_,s_)))
-        # the a is self here.
-        q_now = self._q.get_q(s_url_domain, a_parent)
-        q_new = (1 - self._alpha) * q_now + self._alpha*(reward + self._beta*last_max_q)
-        self._q.put_q(s_url_domain, a_parent, q_new)
+        q_now = self._q[(s_url_domain, a_parent)]
+        q_new = (1 - Alpha) * q_now + Alpha*(reward + Beta*last_max_q)
+        self._q[(s_url_domain, a_parent)] = q_new
 ```
 
 ### The Proxy Node
@@ -194,17 +177,12 @@ Each proxy node maintains its own _q(s,a)_ value and each proxy is able to reach
 ```python
 class ProxyNode:
     def __init__(self, name, domains, parents):
-        self._name = name
-        self._parents = parents
-        self._domains = domains
-        self._q = Q(parents)
-        self._policy = QPolicy(self, self._q)
+        self._name, self._parents, self._domains = name, parents, domains
+        self._q = Q(list(parents.keys()))
+        self._policy = QPolicy(self._q)
         self._reward = Reward()
         self._cache = Cache()
 
-    def policy(self): return self._policy
-
-    def name(self): return self._name
     # use this proxy to send request.
     # it returns back a hashmap that contains the body of response
     # and a few headers.
@@ -225,7 +203,6 @@ class ProxyNode:
     def fetch(self, req): return self._domains[req.domain()].get(req.page())
 
     def _request(self, req):
-        res = None
         # is this one of the domains we can serve?
         if self.knows_origin(req.domain()):
            res = self.fetch(req)
@@ -243,7 +220,7 @@ class ProxyNode:
 
     def forward(self, req):
         proxy = self._policy.next_hop(req)
-        res =  proxy.request(req)
+        res =  self._parents[proxy].request(req)
         # update q
         last_max_q = int(res.get_q_header())
 
@@ -265,10 +242,12 @@ more dynamic in the real world with proxies joining and departing the network.
 
 ```python
 class Network:
-
     def __init__(self, lvl_const, num_origin, num_pages, num_parents, network_width, network_levels):
+        # the maximum limit for network_width
         self._lvl_const = lvl_const
+        # the numbeer of origin servers
         self._num_origin = num_origin
+        # the number of pages per origin server
         self._num_pages = num_pages
         # The number of parent servers per proxy
         self._num_parents = num_parents
@@ -277,12 +256,10 @@ class Network:
         # The average number of hops for a request before reaching origin
         self.network_levels = network_levels
 
-        # construct the initial topology
-        self.servers = self.populate_origin_servers()
-        self.proxies = self.populate_proxy_servers()
+        servers = self.populate_origin_servers()
+        proxies = self.populate_proxy_servers() # keys are in insert order
         self._db = {}
-        for p in sorted(self.proxies.keys()):
-            self.create_proxy(p, self.proxies[p])
+        for p in proxies.keys(): self.create_proxy(p, proxies[p], servers)
 
     def proxy_name(self, lvl, rank): return lvl*self._lvl_const + rank
     # an edge proxy. That is, servers
@@ -310,19 +287,17 @@ class Network:
         return server
 
     def populate_proxy_servers(self):
-        # Links between proxies
         proxies = {}
-
         for lvl in range(1,self.network_levels+1):
             for rank in range(1,self.network_width+1):
                 p_id = self.proxy_name(lvl, rank)
                 proxies[p_id] = self.parents(p_id,lvl,rank,self.network_width)
         return proxies
 
-    def create_proxy(self, p, parents):
+    def create_proxy(self, p, parents, servers):
         if p not in self._db:
             if self.is_edge(p):
-                domains, parents = {p:self.servers[p] for p in parents}, {}
+                domains, parents = {p:servers[p] for p in parents}, {}
             else:
                 domains, parents = {}, {p:self._db[p] for p in parents}
             proxy = ProxyNode(p, domains, parents)
@@ -330,7 +305,8 @@ class Network:
         return self._db[p]
 
     def user_req(self, req):
-        proxy = self.proxy_name(self.network_levels, random.randint(1, self.network_width))
+        proxy = self.proxy_name(self.network_levels,
+                random.randint(1, self.network_width))
         # print("req starting at %s for %s" % (proxy, req.domain()))
         # print(req.url())
         res = self._db[proxy].request(req)
@@ -346,8 +322,7 @@ class Network:
 * Network_Levels is the maximum number of hops that a request has to travel in the network.
 
 ```python
-Level_Const, Num_Origin, Num_Pages, Num_Parents, Network_Width, Network_Levels = 100, 10, 10, 2, 10, 10
-My_Network = Network(Level_Const, Num_Origin, Num_Pages, Num_Parents, Network_Width, Network_Levels)
+My_Network = Network(100, 10, 10, 2, 10, 10)
 iter_total, total = 100, 100
 max_count = 0
 for i in range(iter_total):
