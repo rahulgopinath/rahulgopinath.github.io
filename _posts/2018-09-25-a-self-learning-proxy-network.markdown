@@ -9,12 +9,7 @@ tags: proxy
 
 ```python
 import re, random
-#random.seed(0)
-
-Alpha = 0.1
-Beta = 1
-
-def unique(lst): return list(set(lst))
+random.seed(0)
 
 class Cache:
     def __init__(self, max_size=4):
@@ -117,6 +112,10 @@ class Policy:
     def next(self, req): pass
     def update(self, domain,proxy,last_max_q, reward): pass
     def max_a_val(self, domain): pass
+
+
+Alpha = 0.1
+Beta = 1
 
 class QPolicy(Policy):
     def __init__(self, proxy, q):
