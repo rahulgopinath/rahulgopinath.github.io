@@ -208,9 +208,8 @@ Each proxy node maintains its own _q(s,a)_ value and each proxy is able to reach
 
 ```python
 class ProxyNode:
-    def __init__(self, name, domains, parents, load):
+    def __init__(self, name, domains, parents):
         self._name = name
-        self._load = load
         self._parents = parents
         self._domains = domains
         self._q = Q(parents)
@@ -220,40 +219,20 @@ class ProxyNode:
 
     def policy(self): return self._policy
 
-    def load(self):
-        v = random.randint(0, 1)
-        if v == 0:
-            self._load += 1
-        else:
-            self._load -= 1
-        if self._load < 0 :
-            self._load = 0
-        return self._load
     def name(self): return self._name
     # use this proxy to send request.
     # it returns back a hashmap that contains the body of response
     # and a few headers.
     def request(self, req):
         global g_path, g_reward
-        # if the load is too high, decline the request.
-        if self._load >= 100:
-            # reset the load now because after denying the requests the load
-            # should be lower.
-            self._load = random.randint(1, 100)
-            res = HTTPResponse(req.domain(),req.url(),
-                    "Can't service", {'last_proxy': self._name}, 501)
-            my_reward = self._reward.get_reward('NoService')
-            res.set_reward(my_reward)
-            g_reward.append(my_reward)
-            return res
-        s = self._cache[req.url()]
-        if s is not None:
+        res = self._cache[req.url()]
+        if res is not None:
             g_path.append(self._name)
             g_path.append("+")
             my_reward = self._reward.get_reward('CacheHit')
-            s.set_reward(my_reward)
+            res.set_reward_header(my_reward)
             g_reward.append(my_reward)
-            return s
+            return res
         res = self._request(req)
         if res.status() == 200:
             self._cache[req.url()] = res
@@ -271,20 +250,20 @@ class ProxyNode:
         if self.knows_origin(req.domain()):
            res = self.fetch(req)
            my_reward = self._reward.get_reward('EndPoint')
-           res.set_reward(my_reward)
+           res.set_reward_header(my_reward)
            g_reward.append(my_reward)
            return res
         elif self.is_edge():
             res = HTTPResponse(req.domain(),req.url(),
                     "Can't service", {'last_proxy':  self._name}, 501)
             my_reward = self._reward.get_reward('NoService')
-            res.set_reward(my_reward)
+            res.set_reward_header(my_reward)
             g_reward.append(my_reward)
             return res
         else:
             res = self.forward(req)
             my_reward = self._reward.get_reward('MidWay')
-            res.set_reward(my_reward)
+            res.set_reward_header(my_reward)
             g_reward.append(my_reward)
             return res
 
@@ -297,7 +276,7 @@ class ProxyNode:
         # updaate q
         last_max_q = int(res.get_q_header())
 
-        reward = res.get_reward()
+        reward = res.get_reward_header()
         self._policy.update(req.domain(),proxy,last_max_q, reward)
 
         # find the q value for the next best server for domain
@@ -314,7 +293,9 @@ themselves with its parent and peer names. Further, the network would be a lot
 more dynamic in the real world with proxies joining and departing the network.
 
 ```python
+
 class Network:
+
     def __init__(self, lvl_const, num_origin, num_pages):
         self._lvl_const = lvl_const
         self._num_origin = num_origin
@@ -323,9 +304,9 @@ class Network:
         # The number of parent servers per proxy
         self._num_parents = 2
         # The average number of proxy servers at each level
-        self._max_width = 10
+        self.network_width = 10
         # The average number of hops for a request before reaching origin
-        self._max_level = 10
+        self.network_levels = 10
 
         # construct the initial topology
         self.servers = self.populate_origin_servers()
@@ -347,28 +328,23 @@ class Network:
         direct_parent = p_id - self._lvl_const
         parent_proxies = {direct_parent}
         for i in range(1,self._num_parents+1):
-            another_rank = (rank + random.randint(0, self._num_parents-1)) % network_width + 1
-            another_id = another_rank + (lvl-1)*self._lvl_const
-            parent_proxies.add(another_id)
+            another_rank = (rank + random.randint(0, self._num_parents-1)) % self.network_width + 1
+            parent_proxies.add(self.proxy_name(lvl-1, another_rank))
         return list(parent_proxies)
 
     def populate_origin_servers(self):
         # construct the origin servers
         server = {}
         for i in range(1,self._num_origin+1):
-            pages = ["path-%d/page.html" % page for page in range(1,self._num_pages+1)]
-            server[i] = HTTPServer("domain%d.com" % i, pages)
+            paths = ["path-%d/page.html" % page for page in range(1,self._num_pages+1)]
+            server[i] = HTTPServer("domain%d.com" % i, paths)
         return server
 
     def populate_proxy_servers(self):
-        # Links between proxies
         proxies = {}
 
-        network_levels = self._max_level
-        network_width = self._max_width
-
-        for lvl in range(1,network_levels+1):
-            for rank in range(1,network_width+1):
+        for lvl in range(1,self.network_levels+1):
+            for rank in range(1,self.network_width+1):
                 p_id = self.proxy_name(lvl, rank)
                 proxies[p_id] = self.parents(p_id,lvl,rank,network_width)
         return proxies
@@ -376,28 +352,18 @@ class Network:
     def create_proxy(self, p, parents):
         if p not in self._db:
             if self.is_edge(p):
-                # We no longer have parents.
                 domains = {p:self.servers[p] for p in parents}
                 parents = {}
             else:
                 domains = {}
                 parents = {p:self._db[p] for p in parents}
-            proxy = ProxyNode(p, domains, parents, self.gen_load())
+            proxy = ProxyNode(p, domains, parents)
             self._db[p] = proxy
         return self._db[p]
 
-    def gen_load(self): return random.randint(1,100)
-
     def user_req(self, req):
-        #---------------------------------------
-        # Modify here for first level proxy
-        # get our first level proxy. Here it is 10X
-        #---------------------------------------
-        proxy = self.proxy_name(self._max_level, random.randint(1, self._max_width))
-        # print("req starting at %s for %s" % (proxy, req.domain()))
-        # print(req.url())
-        res = self._db[proxy].request(req)
-        return res
+        proxy = self.proxy_name(self.network_levels, random.randint(1, self.network_width))
+        return self._db[proxy].request(req)
 ```
 
 ### Simulation of the network traffic.
