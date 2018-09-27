@@ -257,3 +257,6 @@ This code should be easy enough to understand. If you would like to extend it, t
 * We assume that order of execution of test cases is not important. However, it may not be correct.
 
 I note that this was simply an example on how to implement a split-stream execution environment. Python does have a number of program-mutation tools, which includes [cosmic-ray](https://cosmic-ray.readthedocs.io/en/latest/), [mutpy](https://github.com/mutpy/mutpy), and [mutmut](https://pypi.org/project/mutmut/). Another is [xmutant](https://github.com/vrthra/xmutant.py) -- a rather researchy, but plain vanila mutation engine that mutates bytecodes that I wrote some time back. `xmutant.py` incorporates checking for `immortal-mutants` using random sampling. (Immortal, or equivalent mutants are mutants where the syntactic difference we injected did not result in an actual fault).
+
+
+Comments at {% gist 76e328c07bc7518f8330969959befa67 %}
