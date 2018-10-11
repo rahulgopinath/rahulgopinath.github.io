@@ -1,3 +1,10 @@
+---
+published: false
+title: Parsing with table parsers
+layout: post
+comments: true
+tags: parsing
+---
 ```python
 def rules(g): return [(k,e) for k,a in g.items() for e in a]
 
