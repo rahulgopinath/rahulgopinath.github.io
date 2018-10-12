@@ -6,72 +6,127 @@ comments: true
 tags: parsing
 ---
 ```python
+import sys
 def rules(g): return [(k,e) for k,a in g.items() for e in a]
 
 def terminals(g):
-    return set(s for _,a in g.items() for e in a for s in e if s not in g)
+    return set(token for k,expr in rules(g) for token in expr if token not in g)
 
 def fixpoint(f):
-    def helper(farg, *args):
-        x = [farg] + list(args)
+    def helper(*args):
         while True:
-            hx = repr(x)
-            newx = f(*x)
-            hn = repr(newx)
-            if hn == hx: return x
-            x = newx
-        assert False
+            sargs = repr(args)
+            args_ = f(*args)
+            if repr(args_) == sargs: return args
+            args = args_
     return helper
 
 @fixpoint
-def process(grammar, first, follow, epsilon):
-    for nonterm, expression in rules(grammar):
+def compute_ff(grammar, first, follow, epsilon):
+    for A, expression in rules(grammar):
         nullable = True
-        for symbol in expression:
-            first[nonterm] |= first[symbol]
+        for token in expression:
+            first[A] |= first[token]
 
-            # update until the first symbol that is not nullable
-            if symbol not in epsilon:
-                nullable = False
-                break
+            # update until the first token that is not nullable
+            if token not in epsilon: nullable = False; break
+
         if nullable:
-            epsilon.add(nonterm)
+            epsilon |= {A}
+            first[A] |= {''}
 
-        nt_follow = follow[nonterm]
-        for symbol in reversed(expression):
-            if symbol in follow: follow[symbol] |= nt_follow
-            # if the symbol was nullable, then we simply append
-            # to the previous symbols follow. If not, the actual
-            # follow is the current follow
-            nt_follow = nt_follow | first[symbol] if symbol in epsilon else first[symbol]
+        # https://www.cs.uaf.edu/~cs331/notes/FirstFollow.pdf
+        # essentially, we start from the end of the expression. Then:
+        # (3) if there is a production A -> aB, then every thing in
+        # FOLLOW(A) is in FOLLOW(B)
+        follow_B = follow[A]
+        for t in reversed(expression):
+            if not t: continue
+            # update the follow for the current token. If this is the
+            # first iteration, then here is the assignment
+            if t in grammar: follow[t] |= follow_B #only bother with nt
+
+            # computing the last follow symbols for each token t. This
+            # will be used in the next iteration. If current token is
+            # nullable, then previous follows can be a legal follow for
+            # next. Else, only the first of current token is legal follow
+            # essentially
+
+            # (2) if there is a production A -> aBb then everything in FIRST(B)
+            # except for epsilon is added to FOLLOW(B)
+            follow_B = follow_B | (first[t] - {''}) if t in epsilon else first[t]
 
     return (grammar, first, follow, epsilon)
 
+def process(grammar):
+    # first initialize the first for non terminals.
+    first = {i: set() for i in grammar}
+    follow = {i: set() for i in grammar}
+
+    # If X is a terminal, then First(X) is just X
+    first.update((i,{i}) for i in terminals(grammar))
+    epsilon = {''}
+    return compute_ff(grammar, first, follow, epsilon)
+
+def rnullable(rule, epsilon):
+    return all(token in epsilon for token in rule)
+
+def rfirst(rule, first, epsilon):
+    tokens = set()
+    for token in rule:
+        tokens |= first[token]
+        if token not in epsilon: break # not nullable
+    return tokens
+
+def predict(rulepair, first, follow, epsilon):
+    A, rule = rulepair
+    rf = rfirst(rule, first, epsilon)
+    if rnullable(rule, epsilon): rf |= follow[A] - {''}
+    return rf
+
+def parse_table(grammar, my_rules):
+    _, first, follow, epsilon = process(grammar)
+
+    ptable = [(rule,predict(rule, first, follow, epsilon)) for rule in my_rules]
+
+    parse_tbl = {k:{} for k in grammar}
+
+    for (k,expr),pvals in ptable:
+        parse_tbl[k].update({v:(k,expr) for v in pvals})
+    return parse_tbl
+
+def parse_helper(grammar, tbl, stack, inplst):
+    inp,*inplst = inplst
+    while stack:
+        val,*stack = stack
+        if val not in grammar: # terminal
+            if val == '': continue
+            if val != inp: raise Exception("%s != %s" % (val, inp))
+            inp,*inplst = inplst if inplst else ['']
+        else:
+            k,rhs = tbl[val][inp]
+            assert k == val
+            stack = rhs + stack
+
+def parse(grammar, inp):
+    my_rules =  rules(grammar)
+    parse_tbl = parse_table(grammar, my_rules)
+    k,_ = my_rules[0]
+    stack = [k]
+    return parse_helper(grammar, parse_tbl, stack, list(inp))
+
+
 grammar = {
-        'start': [['E','$']],
-        'E': [['E','+','T'], ['T']],
-        'T': [['T','*','F'], ['F']],
-        'F': [['(','E',')'], ['x']],
+        'S': [['E']],
+        'E': [['T','X']],
+        'X': [
+            ['+', 'T', 'X'],
+            ['']],
+        'T': [['F', 'Y']],
+        'Y': [
+            ['*', 'F', 'Y'],
+            ['']],
+        'F': [['(', 'E', ')'], ['x']]
         }
-
-# first initialize the first for non terminals.
-first = {i: set() for i in grammar.keys()}
-follow = {i: set() for i in grammar.keys()}
-
-# If X is a terminal, then First(X) is just X
-ft = {i:{i} for i in terminals(grammar)}
-first.update(ft)
-epsilon = set()
-p = fixpoint(process)
-g, first, follow, e = p(grammar, first, follow, epsilon)
-print('first')
-for k in first:
-    print(k, first[k])
-print()
-
-print('follow')
-for k in follow:
-    print(k, follow[k])
-
-print(e)
+parse(grammar, sys.argv[1] if len(sys.argv) > 1 else '(x+x)')
 ```
