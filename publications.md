@@ -513,6 +513,7 @@ that, theory of random sampling only requires randomness in the sample
 selection, and not in the population. That is, even if the population
 contains strongly correlated variables, so long as the sampling procedure
 is random, one can expect the sample to obey statistical laws.
+<!-- need to check _Extension of the law of large numbers to quantities, depending on each other_ by (Markov 1906) --> 
 * Further, we recommend that one should sample at least 9,604 mutants
 for 99% precision 95% of the time, as suggested by theory.
 
