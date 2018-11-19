@@ -43,7 +43,7 @@ A common reason for a large number of immortal mutants is duplicated code in the
 
 ### Estimating the number of equivalent mutants
 
-There seems to be few research papers regarding equivalent mutants. The only ones I have been able to find is from Ayad et al. [3] that tries to relate program redundancy to the number of equivalent mutants, and another from me [4] that applies simple statistical estimation using random sampling. A third approach (that I have not seen used so far) can be to make use of the [lincoln index](https://www.johndcook.com/blog/2010/07/13/lincoln-index/).
+There seems to be few research papers regarding equivalent mutants. The only ones I have been able to find is from Ayad et al. [3] that tries to relate program redundancy to the number of equivalent mutants, and another from me [4] that applies simple statistical estimation using random sampling. A third approach (that I have not seen used so far) can be to make use of the [lincoln index](https://www.johndcook.com/blog/2010/07/13/lincoln-index/) from the capture-recapture ecological statistics literature.
 
 #### Lincoln Index
 
@@ -65,6 +65,8 @@ $$ |K| = \frac{ |K_1 + 1| \times |K_2 + 1| }{ |K_1 \cap K_2| + 1 } - 1 $$
 
 The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2 $$ mutants, then the above formula can be applied to get an estimate of K.
 
+The main assumption we made here is that all mutants are equally hard to catch. However, that can be overcome by using more complex estimators. See Accettura et al.[5] for details.
+
 ### References
 
 * [1] Jorge López, Natalia Kushik, Nina Yevtushenko [Source Code Optimization using Equivalent Mutants
@@ -72,5 +74,7 @@ The interesting thing here is that the mutation testers need not be human. Given
 * [2] Paolo Arcaini, Angelo Gargantini, Elvinia Riccobene, Paolo Vavassori [A novel use of equivalent mutants for static anomaly detection in software artifacts](https://www.sciencedirect.com/science/article/abs/pii/S0950584916300180) Published at Information & Software Technology 2017
 * [3] Amani Ayad, Imen Marsit, Nazih Mohamed Omri, JiMeng Loh, Ali Mili [Redundancy: The Mutants’ Elixir of Immortality](https://web.njit.edu/~mili/ist.pdf) Unpublished.
 * [4] Gopinath, Alipour, Ahmed, Jensen, Groce [How hard does mutation analysis have to be, anyway?](http://rahul.gopinath.org/publications/#gopinath2015how) ISSRE, 2015
+* [5] Nicola Accettura, Giovanni Neglia, Luigi Alfredo Grieco [The Capture-Recapture Approach for Population
+Estimation in Computer Networks](https://telematics.poliba.it/publications/2015/COMNET-accettura.pdf) in Computer Networks 2015
 
 Please comment [here](https://gist.github.com/vrthra/aa7527ee5c6085bb9124d06a7f24c662)
