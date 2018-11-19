@@ -12,7 +12,7 @@ One often hears the claim that mutation analysis is unreliable because of the pr
 
 Further, live mutants are often used by practitioners to determine how to enhance their test cases so that it covers more specification by killing them. Immortal mutants, by definition can not help here because they can not be killed. Hence, human effort spent on analyzing these mutants is often considered a waste.
 
-## Useful Immortal Patterns
+## Useful immortal patterns
 
 Our thesis is that one needs to consider the issue from a more holistic perspective. Mutation analysis should not be considered as a way to improve tests alone, rather, it should be regarded as an opportunity to improve both the test cases, and the code that it tests. We present several patterns where code that produced equivalent mutants were improved by refactoring or rewriting that eliminated equivalent mutants, which resulted in better code. Our experience suggests that these patterns are common enough that human analysis of live mutants -- whether they are immortal or not -- can be worth the investment for a practitioner. We study several patterns below
 
@@ -36,16 +36,35 @@ One often finds that one of the ways to eliminate immortal mutants is to rewrite
 
 Number of mutants represent the complexity of a piece of code. A reduction in the number of mutants represent a reduction in the complexity because there is less opportunity to go wrong (vague -- needs to rethink).
 
-### Code Duplication
+### Code duplication
 
 A common reason for a large number of immortal mutants is duplicated code in the code base. If the original code contained immortal mutants, duplication of it will multiply the number of immortals. Since duplicated code is often indicative of poor code, immortals can often serve as a powerful signal for code quality.
 
 
-### Useful References
+### Estimating the number of equivalent mutants
 
-* Jorge López, Natalia Kushik, Nina Yevtushenko [Source Code Optimization using Equivalent Mutants
+There seems to be few research papers regarding equivalent mutants. The only ones I have been able to find is from Ayad et al. [3] that tries to relate program redundancy to the number of equivalent mutants, and another from me [4] that applies simple statistical estimation using random sampling. A third approach (that I have not seen used so far) can be to make use of the [lincoln index](https://www.johndcook.com/blog/2010/07/13/lincoln-index/).
+
+#### Lincoln Index
+
+The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide $$K_1$$ (from the first), and $$K_2$$ (from the second) as the estimate of total killable mutants (equvalent mutants $$ E = M - K_{actual}$$ ), then the actual K can be estimated as below
+
+$$ |K| = \frac{ \( |K_1| \times |K_2| \) }{ |K_1 \cap K_2| } $$
+
+That is, say $$p_1$$ is the effectiveness of first tester and $$p_2$$ is the effectiveness of second tester ($$Effectiveness  = \frac{K_{Found}}{K_{Actual}}$$), then 
+
+$$ \frac{ (K_{A} p_1 \times K_{A} p_2) }{K_{A} p_1 p_2} = K_{A} $$
+
+If both testers are independent, and each mutant has similar probability of being detectd. That is, $$  |K_1 \cap K_2| = K_{A} p_1 p_2 $$.
+
+The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2$$ mutants, then the above formula can be applied to get an estimate of $$ |K| $$.
+
+### References
+
+* [1] Jorge López, Natalia Kushik, Nina Yevtushenko [Source Code Optimization using Equivalent Mutants
 ](https://arxiv.org/abs/1803.09571) published at Information and Software Technology Volume 103, November 2018, Pages 138-141
-* Paolo Arcaini, Angelo Gargantini, Elvinia Riccobene, Paolo Vavassori [A novel use of equivalent mutants for static anomaly detection in software artifacts](https://www.sciencedirect.com/science/article/abs/pii/S0950584916300180) Published at Information & Software Technology 2017
-* Amani Ayad, Imen Marsit, Nazih Mohamed Omri, JiMeng Loh, Ali Mili [Redundancy: The Mutants’ Elixir of Immortality](https://web.njit.edu/~mili/ist.pdf) Unpublished.
+* [2] Paolo Arcaini, Angelo Gargantini, Elvinia Riccobene, Paolo Vavassori [A novel use of equivalent mutants for static anomaly detection in software artifacts](https://www.sciencedirect.com/science/article/abs/pii/S0950584916300180) Published at Information & Software Technology 2017
+* [3] Amani Ayad, Imen Marsit, Nazih Mohamed Omri, JiMeng Loh, Ali Mili [Redundancy: The Mutants’ Elixir of Immortality](https://web.njit.edu/~mili/ist.pdf) Unpublished.
+* [4] Gopinath, Alipour, Ahmed, Jensen, Groce [How hard does mutation analysis have to be, anyway?](http://rahul.gopinath.org/publications/#gopinath2015how) ISSRE, 2015
 
 Please comment [here](https://gist.github.com/vrthra/aa7527ee5c6085bb9124d06a7f24c662)
