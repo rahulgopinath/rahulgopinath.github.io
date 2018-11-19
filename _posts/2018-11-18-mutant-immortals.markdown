@@ -57,7 +57,7 @@ $$ \frac{ (K_{A} p_1 \times K_{A} p_2) }{K_{A} p_1 p_2} = K_{A} $$
 
 If both testers are independent, and each mutant has similar probability of being detectd. That is, $$  |K_1 \cap K_2| = K_{A} p_1 p_2 $$.
 
-The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2$$ mutants, then the above formula can be applied to get an estimate of $$ |K| $$.
+The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2$$ mutants, then the above formula can be applied to get an estimate of $$ |K| $$. Once you have found K,  $$ |Immortals| = |M| - |K|$$.
 
 ### References
 
