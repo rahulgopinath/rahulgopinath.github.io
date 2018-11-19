@@ -72,9 +72,10 @@ The main assumption we made here is that all mutants are equally hard to catch. 
 * [1] Jorge López, Natalia Kushik, Nina Yevtushenko [Source Code Optimization using Equivalent Mutants
 ](https://arxiv.org/abs/1803.09571) published at Information and Software Technology Volume 103, November 2018, Pages 138-141
 * [2] Paolo Arcaini, Angelo Gargantini, Elvinia Riccobene, Paolo Vavassori [A novel use of equivalent mutants for static anomaly detection in software artifacts](https://www.sciencedirect.com/science/article/abs/pii/S0950584916300180) Published at Information & Software Technology 2017
-* [3] Amani Ayad, Imen Marsit, Nazih Mohamed Omri, JiMeng Loh, Ali Mili [Redundancy: The Mutants’ Elixir of Immortality](https://web.njit.edu/~mili/ist.pdf) Unpublished.
+* [3] Imen Marsit, Nazih Mohamed Omri, Ali Mili [Estimating the Survival Rates of Mutants](https://web.njit.edu/~mili/mad.pdf) 2017 in ICSOFT.
 * [4] Gopinath, Alipour, Ahmed, Jensen, Groce [How hard does mutation analysis have to be, anyway?](http://rahul.gopinath.org/publications/#gopinath2015how) ISSRE, 2015
 * [5] Nicola Accettura, Giovanni Neglia, Luigi Alfredo Grieco [The Capture-Recapture Approach for Population
 Estimation in Computer Networks](https://telematics.poliba.it/publications/2015/COMNET-accettura.pdf) in Computer Networks 2015
+* [6] Marsit ImenMarsit ImenMohamed Nazih OmriMohamed Nazih OmriJi Meng LohAli MiliAli Mili [Impact of Mutation Operators on the Ratio of Equivalent Mutants]() SOMET 2018
 
 Please comment [here](https://gist.github.com/vrthra/aa7527ee5c6085bb9124d06a7f24c662)
