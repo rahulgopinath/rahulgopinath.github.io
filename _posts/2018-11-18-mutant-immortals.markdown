@@ -59,6 +59,10 @@ If both testers are independent, and each mutant has similar probability of bein
 
 $$  |K_1 \cap K_2| = K_{A} p_1 p_2 $$
 
+A slightly better technique for the estimation is given by [Seber](http://ag.unr.edu/sedinger/Courses/ERS488-688/lectures/openjolly-seber.pdf)
+
+$$ |K| = \frac{ |K_1 + 1| \times |K_2 + 1| }{ |K_1 \cap K_2| + 1 } - 1 $$
+
 The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2 $$ mutants, then the above formula can be applied to get an estimate of K.
 
 ### References
