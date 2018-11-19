@@ -47,7 +47,7 @@ There seems to be few research papers regarding equivalent mutants. The only one
 
 #### Lincoln Index
 
-The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide $$K_1$$ (from the first), and $$K_2$$ (from the second) as the estimate of total killable mutants (equvalent mutants $$ E = M - K_{actual}$$ ), then the actual K can be estimated as below
+The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide \(K_1\) (from the first), and \(K_2\) (from the second) as the estimate of total killable mutants (equvalent mutants \( E = M - K_{actual} \) ), then the actual \(K\) can be estimated as below
 
 $$ |K| = \frac{ |K_1| \times |K_2| }{ |K_1 \cap K_2| } $$
 
