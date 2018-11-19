@@ -47,11 +47,11 @@ There seems to be few research papers regarding equivalent mutants. The only one
 
 #### Lincoln Index
 
-The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide \(K_1\) (from the first), and \(K_2\) (from the second) as the estimate of total killable mutants (equvalent mutants \( E = M - K_{actual} \) ), then the actual \(K\) can be estimated as below
+The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide $$ K_1 $$ (from the first), and $$ K_2 $$ (from the second) as the estimate of total killable mutants (equvalent mutants $$ E = M - K_{actual} $$ ), then the actual $$ K $$ can be estimated as below
 
 $$ |K| = \frac{ |K_1| \times |K_2| }{ |K_1 \cap K_2| } $$
 
-That is, say $$p_1$$ is the effectiveness of first tester and $$p_2$$ is the effectiveness of second tester ($$Effectiveness  = \frac{K_{Found}}{K_{Actual}}$$), then 
+That is, say $$p_1$$ is the effectiveness of first tester and $$p_2$$ is the effectiveness of second tester ( $$ Effectiveness  = \frac{K_{Found}}{K_{Actual}} $$ ), then 
 
 $$ \frac{ (K_{A} p_1 \times K_{A} p_2) }{K_{A} p_1 p_2} = K_{A} $$
 
@@ -59,7 +59,7 @@ If both testers are independent, and each mutant has similar probability of bein
 
 $$  |K_1 \cap K_2| = K_{A} p_1 p_2 $$
 
-The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2 $$ mutants, then the above formula can be applied to get an estimate of $$ |K| $$. Once you have found K,  $$ |Immortals| = |M| - |K|$$.
+The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2 $$ mutants, then the above formula can be applied to get an estimate of $$ |K| $$. Once you have found K,  $$ |Immortals| = |M| - |K| $$
 
 ### References
 
