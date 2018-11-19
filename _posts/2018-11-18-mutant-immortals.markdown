@@ -65,7 +65,7 @@ $$ |K| = \frac{ |K_1 + 1| \times |K_2 + 1| }{ |K_1 \cap K_2| + 1 } - 1 $$
 
 The interesting thing here is that the mutation testers need not be human. Given a simple sample space explorer as in [xmutant.py](https://github.com/vrthra/xmutant.py) [4], one can turn it loose on the complete set of mutants, and let it kill $$ K_1 $$, and let your own test suite that you are evaluating kill $$ K_2 $$ mutants, then the above formula can be applied to get an estimate of K.
 
-The main assumption we made here is that all mutants are equally hard to catch. However, that can be overcome by using more complex estimators. See Accettura et al.[5] for details.
+The main assumption we made here is that all mutants are equally hard to catch. However, that can be overcome by using more complex estimators. The nice thing about mutation analysis is that one can quite accurately estimate the probability distribution for difficulty of killing by looking at the kill matrix from both methods. Further, one can refine the population estimate further by using better or more varied fuzzers. See Accettura et al.[5] for details on capture-recapture models.
 
 ### References
 
