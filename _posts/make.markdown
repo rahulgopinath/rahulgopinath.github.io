@@ -1,24 +1,53 @@
 ### Makefiles best practices
 
-Here is one of the best practices that we followed at Sun, that does not seem to have been documented elsewhere, but made life simpler.
 
-The idea is to thread dependencies, with entry targets treated as leaves. For example
+#### Automatic variables are your friends.
+
+* `$@` is the name of the target. Make it a habit to `touch $@` at the end of the make rule for timestamps, or if it is the name of a useful target, generate `.$@` or `$@~` if `$@` includes a path, and finally `mv .$@ $@` as the last step.
+* `$*` is the matched portion represented by `%` in makefile targets. Confusingly `$%` is used for another purpose.
+* `$<` is the name of the first prerequisite.
+* Attaching parenthesis and `D` and `F` respectively gets you file and directory parts of these variabls. For example, `$(@D)` is the directory part of the target while `$(@F)` is the file part.
+
+#### Thread dependencies, with entry targets treated as leaves
 
 ```
 extract: project/.extracted
 
 project/.extracted: project.tar.gz
-    $(EXTRACT) project.tar.gz
-    touch project/.extracted
+    $(EXTRACT) $<
+    touch $@
 
 preprocess: project/.preprocessed
 
 project/.preprocessed: project/.extracted
-    $(preprocess) proj/*.c
-    touch project/.preprocessed
+    $(preprocess) project/*.c
+    touch $@
 ```
 
 This lets you make use of shorter names for invoking in-between stages, and to ensure that you don't do more work than necessary.
+
+#### Specify the targets as makevariables which is translated to makefile pattern rules
+
+```
+extract: project-$(target)/.extracted
+
+project-%/.extracted: project-%.tar.gz
+    $(EXTRACT) $<
+    touch $@
+
+preprocess: project-$(target)/.preprocessed
+
+project-%/.preprocessed: project-%/.extracted
+    $(preprocess) project-$*/*.c
+    touch $@
+```
+
+This will be invoked as
+
+```
+make preprocess target=A
+```
+
 
 Another best practice is to use the make sure it exists, but don't check the timestamp dependency rule for directories, and similar targets.
 
