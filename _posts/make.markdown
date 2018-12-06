@@ -76,6 +76,6 @@ c: b
     touch c
 ```
 
-If not, you will come to grief when some poor programmer decides to use make -j <n> or uses one of the parallel makes. Make use of the tools such as gvmake to ensure that the dependencies are correctly ordered.
+If not, you will come to grief when some poor programmer decides to use make -j <n> or uses one of the parallel makes. Make use of the tools such as [gvmake](https://metacpan.org/pod/release/AGENT/Makefile-GraphViz-0.18/script/gvmake) to ensure that the dependencies are correctly ordered. Use `-o make.dot` to make a dotfile and inspect the dotfile directly. It has human readable syntax.
 
 Use `--debug=basic -n` to view which files need to be remade, and GNU [remake](http://bashdb.sourceforge.net/remake/) for debugging.
