@@ -109,6 +109,14 @@ If not, you will come to grief when some poor programmer decides to use make -j 
 
 Use `--debug=basic -n` to view which files need to be remade, and GNU [remake](http://bashdb.sourceforge.net/remake/) for debugging.
 
+#### Make it a practice to explicitly use .PHONY
+
+```
+.PHONY: all clean extract preprocess
+```
+
+Phony targets are those target that are for providing entry points to make invocations, and not file based.
+
 #### Remove implicit rules
 
 ```
