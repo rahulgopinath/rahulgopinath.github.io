@@ -98,7 +98,6 @@ class peg_parse:
             if res is not None: return l, (key, res)
         return (0, None)
 
-    @functools.lru_cache(maxsize=None)
     def unify_rule(self, parts, text, tfrom):
         results = []
         for part in parts:
