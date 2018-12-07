@@ -89,15 +89,17 @@ class peg_parse:
         return (tfrom + len(part), (part, [])) if text[tfrom:].startswith(part) else (tfrom, None)
 
     @functools.lru_cache(maxsize=None)
-    def unify_key(self, key, text, tfrom=0):
-        if key not in self.grammar: return self.literal_match(key, text, tfrom)
+    def unify_key(self, key, text, at=0):
+        if key not in self.grammar:
+            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
         rules = self.grammar[key]
-        rets = (self.unify_line(rule, text, tfrom) for rule in rules)
-        tfrom, res = next((ret for ret in rets if ret[1] is not None), (tfrom, None))
-        return (tfrom, (key, res) if res is not None else None)
+        for rule in rules:
+            l, res = self.unify_rule(rule, text, at)
+            if res is not None: return l, (key, res)
+        return (0, None)
 
     @functools.lru_cache(maxsize=None)
-    def unify_line(self, parts, text, tfrom):
+    def unify_rule(self, parts, text, tfrom):
         results = []
         for part in parts:
             tfrom, res = self.unify_key(part, text, tfrom)
