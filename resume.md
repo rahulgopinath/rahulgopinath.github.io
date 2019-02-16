@@ -95,8 +95,8 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Talks]()
 
-* [Lorentz center, Leiden University, Netherlands, 2018](https://www.lorentzcenter.nl/lc/web/2018/968/participants.php3?wsid=968&venue=Oort) "Look Ma No Hands: Learning Input Grammar without Inputs"
-* Gopinath - TU Darmstadt, Germany, 2017 "Pygram: Learning input grammars for Python programs"
+* [Lorentz center, Leiden University, Netherlands, 2018](https://www.lorentzcenter.nl/lc/web/2018/968/participants.php3?wsid=968&venue=Oort) Gopinath "Look Ma No Hands: Learning Input Grammar without Inputs"
+* TU Darmstadt, Germany, 2017 Gopinath "Pygram: Learning input grammars for Python programs"
 * [GTAC 2016](https://developers.google.com/google-test-automation-conference/2016/) Gopinath, Ahmed "Code Coverage is a Strong Predictor of Test Suite Effectiveness in the Real World"
 
 
