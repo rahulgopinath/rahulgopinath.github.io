@@ -101,6 +101,8 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 
 ### [Professional Service]()
+* [ICST 2020](http://www.icst2020.info/) Program committee member
+* [ISSRE 2019](http://2019.issre.net/node/56) Program committee member
 * [ISSRE 2018](http://2018.issre.net/research-pc) Program committee member
 * [Mutation 2019 Workshop]() Program chair
 * [Mutation 2018 Workshop](https://mutation-workshop.github.io/#organisation) Program committee member
