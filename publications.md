@@ -7,6 +7,12 @@ weight: 2
 menu: Publications
 ---
 
+
+##### 2019
+
+* [_Parser-Directed Fuzzing_](#mathis2019parser)<br/>
+  Mathis, *Gopinath*, Mera, Kampmann, Höschele, Zeller, PLDI, 2019
+
 ##### 2018
 
 * [_If You Can't Kill a Supermutant, You Have a Problem_](#gopinath2018if)<br/>
@@ -90,6 +96,11 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 
 ---
 
+#### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
+
+To be effective, software test generation needs to well cover the space of possible inputs. Traditional fuzzing generates large numbers of random inputs, which however are unlikely to contain keywords and other specific inputs of non-trivial input languages. Constraint-based test generation solves conditions of paths leading to uncovered code, but fails on programs with complex input conditions because of path explosion.
+
+In this paper, we present a test generation technique specifically directed at input parsers. We systematically produce inputs for the parser and track comparisons made; after every rejection, we satisfy the comparisons leading to rejection. This approach effectively covers the input space: Evaluated on five subjects, from CSV files to JavaScript, our pFuzzer prototype covers more tokens than both random-based and constraint-based approaches, while requiring no symbolic analysis and far fewer tests than random fuzzers.
 
 #### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem_ ICSTW Mutation, 2018]()
 
