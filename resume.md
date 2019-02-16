@@ -71,6 +71,8 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 
 ### [Publications]()
 
+* PLDI 2019, Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller, "Parser-Directed Fuzzing"
+* ICSTW Mutation 2018, Gopinath, Mathis, Zeller, "If You Can’t Kill a Supermutant, You Have a Problem"
 * IEEE Transactions on Reliability 2017, Gopinath, Ahmed, Alipour, Jensen, Groce, "Mutation Reduction Strategies Considered Harmful"
 * ICSTW Mutation 2017, Gopinath, Walkingshaw, "How Good Are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations"
 * ICST 2017 Gopinath, Jensen, Groce "The Theory of Composite Faults"
@@ -91,8 +93,10 @@ You can find my resume in pdf format [here](/resources/resume.pdf).
 * FASE 2012 Erwig, Gopinath "Explanations for regular expressions"
 
 
-### [Invited Talks]()
+### [Talks]()
 
+* [Lorentz center, Leiden University, Netherlands, 2018](https://www.lorentzcenter.nl/lc/web/2018/968/participants.php3?wsid=968&venue=Oort) "Look Ma No Hands: Learning Input Grammar without Inputs"
+* Gopinath - TU Darmstadt, Germany, 2017 "Pygram: Learning input grammars for Python programs"
 * [GTAC 2016](https://developers.google.com/google-test-automation-conference/2016/) Gopinath, Ahmed "Code Coverage is a Strong Predictor of Test Suite Effectiveness in the Real World"
 
 
