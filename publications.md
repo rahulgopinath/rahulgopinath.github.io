@@ -102,6 +102,8 @@ To be effective, software test generation needs to well cover the space of possi
 
 In this paper, we present a test generation technique specifically directed at input parsers. We systematically produce inputs for the parser and track comparisons made; after every rejection, we satisfy the comparisons leading to rejection. This approach effectively covers the input space: Evaluated on five subjects, from CSV files to JavaScript, our pFuzzer prototype covers more tokens than both random-based and constraint-based approaches, while requiring no symbolic analysis and far fewer tests than random fuzzers.
 
+This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
+
 #### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem_ ICSTW Mutation, 2018]()
 
 Quality of software test suites can be effectively and accurately measured using mutation analysis. Traditional mutation involves seeding first and sometimes higher order faults into the program, and evaluating each for detection. However, traditional mutants are often heavily redundant, and it is often desirable to produce the complete matrix of test cases vs mutants detected by each. Unfortunately, even the traditional mutation analysis has a heavy computational footprint due to the requirement of independent evaluation of each mutant by the complete test suite, and consequently the cost of evaluation of complete kill matrix is exorbitant.
