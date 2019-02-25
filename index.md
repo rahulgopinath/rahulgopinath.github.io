@@ -8,7 +8,9 @@ Rahul Gopinath is a postdoctoral researcher working on static and dynamic analys
 
 <h2>Research at CISPA</h2>
 
-At CISPA, I work in _Grammar Mining_, and _Grammar Based Fuzzing_. Stay tuned for our recent results ...
+At CISPA, I work in _Grammar Mining_, and _Grammar Based Fuzzing_.
+Currently working on [the fuzzing book](https://www.fuzzingbook.org/).
+Stay tuned for our recent results ...
 
 <h2>Research until Ph.D.</h2>
 
