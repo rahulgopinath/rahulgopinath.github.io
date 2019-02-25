@@ -7,19 +7,6 @@ weight: 7
 menu: Teaching
 ---
 
-<h3> Teaching Assistant </h3>
-<div class="posts">
-  <ul>
-  {% for post in site.posts %}
-  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
-  {% if mytags == 'ta' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
-  {% endif %}
-  {% endfor %}
-  </ul>
-</div>
-
-
 <h3> Instructor </h3>
 <div class="posts">
   <ul>
@@ -32,3 +19,14 @@ menu: Teaching
   </ul>
 </div>
 
+<h3> Teaching Assistant </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'ta' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
