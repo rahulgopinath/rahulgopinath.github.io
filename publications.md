@@ -23,9 +23,6 @@ menu: Publications
 * [_Resource Adaptation via Test-Based Software Minimization_](#christi2017resource)<br/>
   Christi, Groce, *Gopinath*, SASO, 2017
 
-* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
-  *Gopinath*, PhD Thesis, 2017
-
 * [_Mutation Reduction Strategies Considered Harmful_](#gopinath2017mutation)<br/>
   *Gopinath*, Ahmed, Alipour, Jensen, Groce, IEEE Transactions on Reliability, 2017
 
@@ -94,6 +91,13 @@ menu: Publications
 
 My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
+---
+
+##### Thesis
+
+* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
+  *Gopinath*, PhD Thesis, 2017
+  
 ---
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
