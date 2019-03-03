@@ -85,11 +85,6 @@ menu: Publications
 * [_Explanations for Regular Expressions_](#erwig2012explanations)<br/>
   Erwig, *Gopinath* - FASE, 2012
 
----
-
-##### Technical Reports
-
-My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
 ---
 
@@ -97,7 +92,13 @@ My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui
 
 * [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
   *Gopinath*, PhD Thesis, 2017
-  
+
+---
+
+##### Technical Reports
+
+My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
+
 ---
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
