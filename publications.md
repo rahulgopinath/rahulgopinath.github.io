@@ -7,6 +7,17 @@ weight: 2
 menu: Publications
 ---
 
+## Thesis
+
+* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
+  *Gopinath*, PhD Thesis, 2017
+
+## Books
+
+[Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
+  Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, Christian Holler, 2019
+
+## Peer Reviewed Publications
 
 ##### 2019
 
@@ -86,16 +97,6 @@ menu: Publications
   Erwig, *Gopinath* - FASE, 2012
 
 
-
-## Thesis
-
-* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
-  *Gopinath*, PhD Thesis, 2017
-
-## Books
-
-[Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
-  Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, Christian Holler, 2019
 
 ## Technical Reports
 
