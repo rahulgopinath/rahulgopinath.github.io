@@ -87,19 +87,20 @@ menu: Publications
 
 
 
-### Thesis
+## Thesis
 
 * [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
   *Gopinath*, PhD Thesis, 2017
 
-### Technical Reports
-
-My technical reports can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
-
-### Books
+## Books
 
 [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
   Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, Christian Holler, 2019
+
+## Technical Reports
+
+* [_Sample-Free Learning of Input Grammars for Comprehensive Software Fuzzing_](#gopinath2018sample)<br/>
+  *Gopinath*, Mathis, Hoschele, Kampmann, Zeller, 2014
 
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
@@ -109,6 +110,17 @@ To be effective, software test generation needs to well cover the space of possi
 In this paper, we present a test generation technique specifically directed at input parsers. We systematically produce inputs for the parser and track comparisons made; after every rejection, we satisfy the comparisons leading to rejection. This approach effectively covers the input space: Evaluated on five subjects, from CSV files to JavaScript, our pFuzzer prototype covers more tokens than both random-based and constraint-based approaches, while requiring no symbolic analysis and far fewer tests than random fuzzers.
 
 This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
+
+#### <a id='gopinath2018sample'></a>[Gopinath, Mathis, Hoschele, Kampmann, Zeller: _Sample-Free Learning of Input Grammars for Comprehensive Software Fuzzing_ 2018]()
+
+Quality of software test suites can be effectively and accurately measured using mutation analysis. Traditional mutation involves seeding first and sometimes higher order faults into the program, and evaluating each for detection. However, traditional mutants are often heavily redundant, and it is often desirable to produce the complete matrix of test cases vs mutants detected by each. Unfortunately, even the traditional mutation analysis has a heavy computational footprint due to the requirement of independent evaluation of each mutant by the complete test suite, and consequently the cost of evaluation of complete kill matrix is exorbitant.
+
+We present a novel approach of combinatorial evaluation of multiple mutants at the same time that can generate the complete mutant kill matrix with lower computational requirements.
+
+Our approach also has the potential to reduce the cost of execution of traditional mutation analysis especially for test suites with weak oracles such as machine-generated test suites, while at the same time liable to only a linear increase in the time taken for mutation analysis in the worst case.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/1810.08289)
+
 
 #### <a id='gopinath2018if'></a>[Gopinath, Mathis, Zeller: _If You Can't Kill a Supermutant, You Have a Problem_ ICSTW Mutation, 2018]()
 
@@ -634,4 +646,10 @@ Regular expressions are widely used, but they are inherently hard to understand 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fase2012/erwig2012explanations.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fase2012/erwig2012explanations.bib)
 
+
+## Technical Reports
+
+
+
+My technical reports at Oregon State can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
