@@ -6,8 +6,6 @@ tags : [student kevindenk 2018]
 e: Evaluating the Robustness of Ethereum Virtual Machines
 ---
 
-### Advised Masters Students
-
 Kevin Denk<br/>
 
 #### Thesis
