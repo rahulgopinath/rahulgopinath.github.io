@@ -649,7 +649,5 @@ Regular expressions are widely used, but they are inherently hard to understand 
 
 ## Technical Reports
 
-
-
 My technical reports at Oregon State can be found [here](http://ir.library.oregonstate.edu/xmlui/handle/1957/7302/discover?query=Rahul+Gopinath&filtertype=author&filter_relational_operator=equals&filter=Gopinath%2C+Rahul).
 
