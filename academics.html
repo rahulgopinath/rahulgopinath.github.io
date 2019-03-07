@@ -37,7 +37,7 @@ menu: Academics
   {% for post in site.posts %}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
   {% if mytags == 'student' %}
-  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; {{ post.title }} <br/> Thesis: <a href="{{ BASE_PATH }}{{ post.url  }}"> {{ post.e }} </a></li>
   {% endif %}
   {% endfor %}
   </ul>
