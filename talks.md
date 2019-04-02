@@ -7,6 +7,11 @@ weight: 3
 menu: Talks
 ---
 
+##### 2019
+* [](https://speakerdeck.com/rahulgopinath/learning-grammars-without-samples)<br/>
+  *Gopinath* - Università degli Studi di Napoli Federico II, Italy, (Remote presentation), 2019
+
+
 ##### 2018
 
 * [_Look Ma No Hands: Learning Input Grammar without Inputs_](https://speakerdeck.com/rahulgopinath/look-ma-no-hands-learning-input-grammar-without-inputs)<br/>
