@@ -8,7 +8,7 @@ menu: Talks
 ---
 
 ##### 2019
-* [](https://speakerdeck.com/rahulgopinath/learning-grammars-without-samples)<br/>
+* [_Learning Grammars without Samples_](https://speakerdeck.com/rahulgopinath/learning-grammars-without-samples)<br/>
   *Gopinath* - Università degli Studi di Napoli Federico II, Italy, (Remote presentation), 2019
 
 
