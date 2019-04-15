@@ -112,6 +112,10 @@ In this paper, we present a test generation technique specifically directed at i
 
 This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
 
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2019/mathis2019parser.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/pldi2019/mathis2019parser.bib)
+
 #### <a id='gopinath2018sample'></a>[Gopinath, Mathis, Hoschele, Kampmann, Zeller: _Sample-Free Learning of Input Grammars for Comprehensive Software Fuzzing_ 2018]()
 
 Quality of software test suites can be effectively and accurately measured using mutation analysis. Traditional mutation involves seeding first and sometimes higher order faults into the program, and evaluating each for detection. However, traditional mutants are often heavily redundant, and it is often desirable to produce the complete matrix of test cases vs mutants detected by each. Unfortunately, even the traditional mutation analysis has a heavy computational footprint due to the requirement of independent evaluation of each mutant by the complete test suite, and consequently the cost of evaluation of complete kill matrix is exorbitant.
