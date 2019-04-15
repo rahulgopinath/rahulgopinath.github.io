@@ -15,7 +15,7 @@ menu: Publications
 ## Books
 
 * [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
-  Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, Christian Holler, 2019
+  Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
 
 ## Peer Reviewed Publications
 
