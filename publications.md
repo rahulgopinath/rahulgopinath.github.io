@@ -24,6 +24,10 @@ menu: Publications
 * [_Parser-Directed Fuzzing_](#mathis2019parser)<br/>
   Mathis, *Gopinath*, Mera, Kampmann, Höschele, Zeller, PLDI, 2019
 
+* [_Evaluating Fault Localization for Resource Adaptation via Test-based
+Software Modification_](#christi2019evaluating)<br/>
+  Christi, Groce, *Gopinath*, QRS, 2019
+
 ##### 2018
 
 * [_If You Can't Kill a Supermutant, You Have a Problem_](#gopinath2018if)<br/>
@@ -101,7 +105,7 @@ menu: Publications
 ## Technical Reports
 
 * [_Sample-Free Learning of Input Grammars for Comprehensive Software Fuzzing_](#gopinath2018sample)<br/>
-  *Gopinath*, Mathis, Hoschele, Kampmann, Zeller, 2014
+  *Gopinath*, Mathis, Hoschele, Kampmann, Zeller, 2018
 
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
@@ -115,6 +119,31 @@ This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2019/mathis2019parser.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/pldi2019/mathis2019parser.bib)
+
+#### <a id='christi2019evaluating'></a>[Christi, Groce, Gopinath: _Evaluating Fault Localization for Resource Adaptation via Test-based Software Modification_  QRS, 2019]()
+
+Building software systems that adapt to changing resource environments
+is challenging: developers cannot anticipate all future situations
+that a software system may face, and even if they could, the effort
+required to handle such situations would often be too onerous for
+practical purposes. We propose a novel approach to allow a system to
+generate resource usage adaptations: use delta-debugging to generate
+versions of software systems that are reduced in size because they no
+longer have to satisfy all tests in the software's test suite. Many
+such variations will, while retaining core system functionality, use
+fewer resources. We describe an tool for computing such adaptations,
+based on our notion that labeled subsets of a test suite can be used
+to conveniently describe possible relaxations of system
+specifications. Using the NetBeans IDE, we demonstrate that even
+without additional infrastructure or heuristics, our approach is
+capable of quickly and cleanly removing a program's undo
+functionality, significantly reducing its memory use, with no more
+effort than simply labeling three test cases as undo-related.
+
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/qrs2019/christi2019evaluating.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/qrs2019/christi2019evaluating.bib)
+
 
 #### <a id='gopinath2018sample'></a>[Gopinath, Mathis, Hoschele, Kampmann, Zeller: _Sample-Free Learning of Input Grammars for Comprehensive Software Fuzzing_ 2018]()
 
