@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: The simplest grammar fuzzer in the world
 layout: post
 comments: true
