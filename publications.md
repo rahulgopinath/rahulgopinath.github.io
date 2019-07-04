@@ -7,16 +7,6 @@ weight: 2
 menu: Publications
 ---
 
-## Thesis
-
-* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
-  *Gopinath*, PhD Thesis, 2017
-
-## Books
-
-* [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
-  Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
-
 ## Peer Reviewed Publications
 
 ##### 2019
@@ -108,6 +98,17 @@ Software Modification_](#christi2019evaluating)<br/>
   *Gopinath*, Mathis, Hoschele, Kampmann, Zeller, 2018
 
 
+## Thesis
+
+* [_On the Limits of Mutation Analysis_](#gopinath2017on)<br/>
+  *Gopinath*, PhD Thesis, 2017
+
+## Books
+
+* [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
+  Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
+
+
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
 
 To be effective, software test generation needs to well cover the space of possible inputs. Traditional fuzzing generates large numbers of random inputs, which however are unlikely to contain keywords and other specific inputs of non-trivial input languages. Constraint-based test generation solves conditions of paths leading to uncovered code, but fails on programs with complex input conditions because of path explosion.
@@ -119,6 +120,7 @@ This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2019/mathis2019parser.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/pldi2019/mathis2019parser.bib)
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://www.slideshare.net/secret/iCJtAe8yn1EQ0g)
 
 #### <a id='christi2019evaluating'></a>[Christi, Groce, Gopinath: _Evaluating Fault Localization for Resource Adaptation via Test-based Software Modification_  QRS, 2019]()
 
