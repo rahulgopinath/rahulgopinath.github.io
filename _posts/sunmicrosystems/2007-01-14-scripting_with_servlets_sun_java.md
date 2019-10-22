@@ -18,31 +18,29 @@ a detailed description of using JSR223 is available [here)](http://java.sun.com
 
 #### The Why's of it.
 
-         Often the scripting languages are much faster to develop in than java. Most provide more powerful  
+Often the scripting languages are much faster to develop in than java. Most provide more powerful  
 syntactic abstraction facilities. The code necessary to accomplish a given task can generally be cut down  
 quite a bit using one of these languages. It may also be the case that the developers are more familiar with  
 a particular scripting language than with java.
 
-           In the general scenario, for web development, the option the developers have when they want  
+In the general scenario, for web development, the option the developers have when they want  
 to use one of the scripting languages is to go with the CGIs. Unfortunately the fact is that the  
 servlets are generally faster than the CGIs even when using FastCGI.  
 
-          The other option is to allow the scripting language to be loaded and executed by a small wrapper  
+The other option is to allow the scripting language to be loaded and executed by a small wrapper  
 servlet. The advantage of this option is that It allows the full utilization of Webcontainer's jvm which will  
 be optimized for serving web applications. Since a servlet is persistent over a large number of requests,  
 we will also be able to cache often used resources inside the servlet.  
 
 #### Writing the wrapper servlet.  
 
-            We provide a base servlet called ScriptServlet which will do most of the work necessary to get a  
+We provide a base servlet called ScriptServlet which will do most of the work necessary to get a  
 script to be loaded and executed. (leaving some work for a custom servlet to be able to optimize the script  
 loading and execution when possible.) There is also provide a cache for the scripts that may be manipulated  
 from the script if necessary.
 
- 
-
  
-```
+```java
 package com.sun.servlet;  
   
 import java.io.*;  
@@ -142,8 +140,6 @@ public abstract class ScriptServlet extends GenericServlet {
   
 ```
 
- 
-
 The only portion that a language specific wrapper servlet that inherits from us  need to implement is the script evaluation.The  
 custom servlet delegates the responsibility of actual implementation of HTTP method processors to the script that gets loaded.  
 Which is responsible for adding the relevant entries to our symbol table. The HTTP methods are serviced only if they are  
@@ -151,9 +147,7 @@ present in our symbol table.
 
 An example language specific servlet for 'Foo' language:
 
- 
-
-```
+```java
 package com.sun.servlet;  
   
 import java.io.*;  
@@ -188,11 +182,9 @@ public class FooServlet extends ScriptServlet {
 The meta info contained in web.xml and sun-web.xml will look like this  
 
 **sun-web.xml**  
- 
-
  
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>  
   
 <!--  
@@ -213,11 +205,11 @@ The meta info contained in web.xml and sun-web.xml will look like this
 ```
   
 
- **web.xml**
+**web.xml**
 
  
 
-```
+```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>  
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/j2ee/dtds/web-app_2.3.dtd">  
 <web-app>  
@@ -232,13 +224,6 @@ The meta info contained in web.xml and sun-web.xml will look like this
     </servlet-mapping>  
 </web-app>  
 ```
-  
-  
-  
-
- 
-
- 
 
 As you can see in the web.xml, we pass in the main servlet handling script to the custom servlet using the  
 parameter **handler**. The custom servlet reads the handler code in and evaluates it. The handler script is  
@@ -250,9 +235,7 @@ evaluate the particular script, returning the result to the browser through resp
 
 ** docroot/WEB-INF/code/foo.f**
 
- 
-
-```
+```foo
 function doGet(request,response)  
     spath := request.getServletpath  
     fname := httpservlet.getServletConfig.getServletContext.getRealpath(spath)  
@@ -266,23 +249,13 @@ httpservlet.add 'get' doGet
 # use the same method for post  
 httpservlet.add 'post' doGet  
 ```
-  
-  
-  
 
 **docroot/hello.f**
 
- 
-
- 
-
-  
-  
-```
+```foo
 println 'This will come in the servlet error log'  
 return 'and this will come in the browser window.'  
 ```
-  
 
 The URL for accessing the script will be http://yourserver:port/foo/hello.f assuming  
 that you deployed the webapp to /foo URL.  

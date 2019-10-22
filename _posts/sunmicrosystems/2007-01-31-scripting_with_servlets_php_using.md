@@ -47,20 +47,20 @@ Steps involved for the Users.
 * [parser-resin.jar](http://rahul.gopinath.org/sunblog/2007/01/blue/resource/php-jars/parser-resin.jar) 
 * [server-resin.jar](http://rahul.gopinath.org/sunblog/2007/01/blue/resource/php-jars/server-resin.jar) 
 
-compile the PhpServlet by invoking Ant from your quercus/src directory. 
+Compile the PhpServlet by invoking Ant from your quercus/src directory. 
 
 - (This will create quercus-webapp.war in your quercus directory)
 
-deploy it by invoking the deploy.tcl in your quercus directory.
+Deploy it by invoking the deploy.tcl in your quercus directory.
 
-```
+```bash
 wadm  -u admin -f deploy.tcl
 ```
 
 The directory should look like the following after the jars are downloaded.
 
 
-```
+```bash
 > cd quercus
 > find .
 .
@@ -103,11 +103,9 @@ than 3.0 MB at once.)
 
  
 
- The **HelloModule.java** contains a simple implementation of a php function. hello_test. (The class name does not matter.)
+The **HelloModule.java** contains a simple implementation of a php function. hello_test. (The class name does not matter.)
 
-
-
-```
+```java
 package example;
 import com.caucho.quercus.module.AbstractQuercusModule;
 
@@ -118,22 +116,12 @@ public class HelloModule extends AbstractQuercusModule {
 }
 ```
 
- 
-
-and the **com.caucho.quercus.QuercusModule** contains a single string that tells the Quercus what class to load
-
- 
-
-
-
-example.HelloModule
+And the **com.caucho.quercus.QuercusModule** contains a single string that tells the Quercus what class to load **example.HelloModule**
 
 The **hello.php** file below invokes the php function we have thus defined.
- 
 
 
-
-```
+```xml
 <html>
 <body>
 <?php echo "Hello, "; ?>
@@ -144,8 +132,4 @@ The **hello.php** file below invokes the php function we have thus defined.
 </html>
 ```
 
-You will be able to invoke your application as
-
-         http://yourserver:port/quercus/hello.php 
-
-once you have deployed the webapp.
+You will be able to invoke your application as http://yourserver:port/quercus/hello.php  once you have deployed the webapp.
