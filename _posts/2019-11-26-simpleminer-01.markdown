@@ -147,6 +147,8 @@ We use the `to_tree()` in the following fashion.
     ('<path>', ['/release/7.8'])])])
 ```
 
+### Grammar Extraction
+
 Once we have this tree, extracting the grammar is as simple as recursively
 traversing the tree, and collecting the alternative expansions of the rules.
 This is accomplished by the `to_grammar()` function.
