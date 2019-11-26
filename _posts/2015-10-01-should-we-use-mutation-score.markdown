@@ -83,16 +83,22 @@ not even the best test suite will have greater than 50% mutation score.
 This means that *a low mutation score is not indicative of low quality
 test suite*.
 
-*Redundant mutants* on the other hand are mutants that are semantically
+*Duplicate mutants* on the other hand are mutants that are semantically
 equivalent to each other. So if you catch one, you catch all in that
-set. As you can imagine, redundant mutants can increase the mutation
-score artificially without a corresponding increase in the actual
-effectiveness.
+set.
+
+*Redundant mutants* are similar to duplicate mutants except that they
+are strictly weaker than another mutant. That is, the inputs that
+detect a redundant mutant is a strict superset of the inputs that detect
+the stronger mutant that made it redundant.  As you can imagine, duplicate
+and redundant mutants can increase the mutation score artificially without
+a corresponding increase in the actual effectiveness.
+
 
 This means that *a high mutation score is not indicative of high quality
 test suite*.
 
-Finally, can we assume that two test suites with 50% coverage is similar
+Finally, can we assume that two test suites with 50% mutation score is similar
 in effectiveness? That again is problematic because it assumes that mutants
 are similar in ease of detection. However, there is sufficient evidence
 that some mutants are hard to kill ([Papadakis 2015](/references#papadakis2015trivial))
