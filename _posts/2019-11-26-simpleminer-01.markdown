@@ -157,7 +157,7 @@ This is accomplished by the `to_grammar()` function.
 def refine_grammar(g, tree):
     node, children = tree
 
-    rule = ''.join([c[0] if isinstance(c, tuple) else c for c in children])
+    rule = [c[0] if isinstance(c, tuple) else c for c in children]
 
     if node not in g: g[node] = set()
     g[node].add(rule)
@@ -174,17 +174,63 @@ It is used as follows:
 >>> for tree in trees:
 >>>    refine_grammar(url_grammar, tree)
 >>> url_grammar
-{'<START>': {'<url>'},
- '<url>': {'<scheme>://<netloc><path>',
-  '<scheme>://<netloc><path>?<query>#<fragment>'},
- '<scheme>': {'http', 'https'},
- '<netloc>': {'user:pass@www.freebsd.com:80',
-  'www.fuzzing.info:8080',
-  'www.microsoft.com'},
- '<path>': {'/app', '/release/7.8', '/windows/2000'},
- '<query>': {'search=newterm'},
- '<fragment>': {'ref2'}}
+{'<START>': {('<url>',)},
+ '<url>': {('<scheme>', '://', '<netloc>', '<path>'),
+  ('<scheme>',
+   '://',
+   '<netloc>',
+   '<path>',
+   '?',
+   '<query>',
+   '#',
+   '<fragment>')},
+ '<scheme>': {('http',), ('https',)},
+ '<netloc>': {('user:pass@www.freebsd.com:80',),
+  ('www.fuzzing.info:8080',),
+  ('www.microsoft.com',)},
+ '<path>': {('/app',), ('/release/7.8',), ('/windows/2000',)},
+ '<query>': {('search=newterm',)},
+ '<fragment>': {('ref2',)}}
 ```
 
 This represents the input grammar of the function `urlparse()`.
 
+All together:
+
+```python
+def to_grammar(inputs, fn):
+    tvars = [trace_function(fn, i) for i in inputs]
+    trees = [to_tree(('<START>', [inpt]), tvars[i])
+             for i,inpt in enumerate(inputs)]
+    my_grammar = {}
+    for tree in trees:
+        refine_grammar(my_grammar, tree)
+    return {k:[r for r in my_grammar[k]] for k in my_grammar}
+```
+
+The function can be used as follows:
+
+```python
+grammar = to_grammar(INPUTS, urlparse)
+```
+
+### Fuzzing
+
+Let us see if our [simple fuzzer](/2019/05/28/simplefuzzer-01/) is able
+to work with this grammar.
+
+```python
+import random
+def unify_key(key):
+    return unify_rule(random.choice(grammar[key])) if key in grammar else [key]
+
+def unify_rule(rule):
+    return sum([unify_key(token) for token in rule], [])
+```
+
+Using it to fuzz:
+
+```python
+>>> ''.join(unify_key('<START>'))
+'http://user:pass@www.freebsd.com:80/windows/2000?search=newterm#ref2'
+```
