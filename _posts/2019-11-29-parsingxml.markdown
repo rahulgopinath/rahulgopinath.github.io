@@ -79,7 +79,29 @@ def tree_to_string(tree, g):
         return '' if (symbol in g) else symbol
 ```
 
-Next, we define our parser
+One thing we want to take care of is to translate
+our derivations trees to actual XML DOM. So, we define a translator for the tree
+as below.
+
+```python
+def translate(tree, g, translations):
+    symbol, children = tree
+    if symbol in translations:
+        return translations[symbol](tree, g, translations)
+    return symbol, [translate(c, g, translations) for c in children]
+
+def to_s(tree, g, translations):
+    return (tree_to_string(tree, g), [])
+
+translations = {
+    '{opentag}': to_s,
+    '{closetag}': to_s,
+    '{emptytag}': to_s,
+    '{text}': to_s
+}
+```
+
+Now, all that is left to validate the tags.
 
 ```python
 def validate_key(key, tree, validate_fn):
@@ -90,16 +112,19 @@ def validate_key(key, tree, validate_fn):
         validate_key(key, child, validate_fn)
 
 def validate_tags(nodes, g):
-    first, last = (tree_to_string(nodes[0], g), tree_to_string(nodes[-1], g))
+    (first, _), (last, _) = (tree_to_string(nodes[0], g), tree_to_string(nodes[-1], g))
     assert first[1:-2] == last[2:-2]
+```
+Finally, we define our parser. 
 
+```python
 def parse_xml(to_parse):
     till, tree = pegparser.peg_parse(xmlgrammar.grammar).unify_key('{.}', to_parse)
     assert (len(to_parse) - till) == 0
     assert tree_to_string(tree, xml_grammar) == to_parse
-    my_register = {}
-    validate_key('{ntag}', tree, lambda nodes: validate_tags(nodes, xml_grammar))
-    print(tree)
+    new_tree = translate(tree, xml_grammar, translations)
+    validate_key('{ntag}', new_tree, lambda nodes: validate_tags(nodes, xml_grammar))
+    print(new_tree)
 
 if __name__ == '__main__':
   parse_xml(sys.argv[1])
@@ -108,8 +133,9 @@ if __name__ == '__main__':
 We can use this parser as follows:
 
 ```python
-$ python3   parse_xml.py '<t><c/></t>'
-('{.}', [('{xml}', [('{ntag}', [('{opentag}', [('<', []), ('{tag}', [('{alphanum}', [('{letter}', [('t', [])])]), ('{alphanums}', [('', [])])]), ('>', [])]), ('{xmlfragment}', [('{xml}', [('{emptytag}', [('<', []), ('{tag}', [('{alphanum}', [('{letter}', [('c', [])])]), ('{alphanums}', [('', [])])]), ('/>', [])])]), ('{xmlfragment}', [('', [])])]), ('{closetag}', [('</', []), ('{tag}', [('{alphanum}', [('{letter}', [('t', [])])]), ('{alphanums}', [('', [])])]), ('>', [])])])])])
+$ python3 parse_xml.py '<t><c/>my text</t>'
+<t> </t>
+('{.}', [('{xml}', [('{ntag}', [('<t>', []), ('{xmlfragment}', [('{xml}', [('<c/>', [])]), ('{xmlfragment}', [('my text', []), ('{xmlfragment}', [('', [])])])]), ('</t>', [])])])])
 
 $ python3   parse_xml.py '<t><c></t>' 
 AssertionError
