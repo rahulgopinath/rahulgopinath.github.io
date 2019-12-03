@@ -29,6 +29,14 @@ length by two, and do the same process again. This obtains us the
 *1-minimal* failure causing string where removal of even a single
 character will remove the observed failure.
 
+Given a causal function as below,
+
+```python
+def test(s):
+    print("%s %d" % (s, len(s)))
+    return re.match("<SELECT.*>", s)
+```
+
 Here is an example run:
 
 ```shell
