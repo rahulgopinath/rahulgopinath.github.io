@@ -34,10 +34,10 @@ string, and check if for any of them, the `causal()` succeeds. If it
 succeeds for any, then return that part.
 
 ```python
-def check_each_fragment(instr, partition_length, causal):
+def remove_check_each_fragment(instr, partition_length, causal):
     for i in range(0, len(instr), partition_length):
-        c = remove_part(instr, i, partition_length)
-        if causal(c): return c
+        stitched = remove_part(instr, i, partition_length)
+        if causal(stitched): return stitched
     return None
 ```
 
@@ -51,22 +51,21 @@ length, we do not know if we can remove other parts of the string. So,
 we want to redo with the same fragment length, so we keep the current
 partition length.
 
-If none of the fragments could be removed, then time to decrease the
+If none of the fragments could be removed, then it is time to decrease the
 partition length. We reduce the partition length by half.
 
 If the partition length is now single chars, then we break and return.
 
 ```python
-def ddmin(input_str, causal_fn):
-    cur_str = input_str
+def ddmin(cur_str, causal_fn):
     part_len = len(cur_str) // 2
-    while cur_str:
-        fragment = check_each_fragment(cur_str, part_len, causal_fn)
-        if fragment is not None:
-            cur_str = fragment
+    while part_len >= 1
+        stitched = remove_check_each_fragment(cur_str, part_len, causal_fn)
+        if stitched is not None:
+            if not stitched: return ''
+            cur_str = stitched
         else:
             part_len = part_len // 2
-            if part_len == 1: break
     return cur_str
 ```
 
