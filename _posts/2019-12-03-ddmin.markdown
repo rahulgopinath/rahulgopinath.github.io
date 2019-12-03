@@ -31,7 +31,7 @@ def remove_part(s, i, l):
 We given a partition length, we want to split the string into
 that many partitions, and remove each partition one at a time from the
 string, and check if for any of them, the `causal()` succeeds. If it
-succeeds for any, then return that part.
+succeeds for any, then return the succeeding string.
 
 ```python
 def remove_check_each_fragment(instr, partition_length, causal):
