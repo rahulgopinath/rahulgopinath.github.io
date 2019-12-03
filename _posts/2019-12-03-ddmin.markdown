@@ -11,6 +11,85 @@ Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.
 I like to implement things to ensure that I understand the basic idea. This is
 my attempt to ensure that I have understood the *ddmin* algorithm.
 
+## About Delta Debugging
+
+Delta Debugging is a method to reduce failure inducing inputs to their
+smallest required size that still induces the same failure. It was
+first formally introduced in the paper
+[*Simplifying and Isolating Failure-Inducing Input*](https://www.st.cs.uni-saarland.de/papers/tse2002/tse2002.pdf)
+by Zeller and Hildebrandt.
+
+The idea of delta debugging is fairly simple. We start by partitioning
+the given input string, starting with two partitions -- which have a
+given partition length. Then, we check if any of these parts can be
+removed without removing the observed failure. If any of these can be
+removed, we remove all such parts of the given length. Once no such
+parts of the given length can be removed, we reduce the partition
+length by two, and do the same process again. This obtains us the
+*1-minimal* failure causing string where removal of even a single
+character will remove the observed failure.
+
+Here is an example run:
+
+```shell
+$ python ddmin.py ''<SELECT NAME="priority" MULTIPLE SIZE=7>'
+ty" MULTIPLE SIZE=7> 20
+<SELECT NAME="priori 20
+ME="priority" MULTIPLE SIZE=7> 30
+<SELECT NAty" MULTIPLE SIZE=7> 30
+ty" MULTIPLE SIZE=7> 20
+<SELECT NALE SIZE=7> 20
+LE SIZE=7> 10
+<SELECT NA 10
+CT NALE SIZE=7> 15
+<SELELE SIZE=7> 15
+<SELECT NAZE=7> 15
+CT NAZE=7> 10
+<SELEZE=7> 10
+<SELECT NA 10
+ELECT NAZE=7> 13
+<SECT NAZE=7> 13
+<SELT NAZE=7> 13
+<SELECNAZE=7> 13
+<SELECT ZE=7> 13
+ELECT ZE=7> 11
+<SECT ZE=7> 11
+<SELT ZE=7> 11
+<SELECZE=7> 11
+<SELECT =7> 11
+ELECT =7> 9
+<SECT =7> 9
+<SELT =7> 9
+<SELEC=7> 9
+<SELECT > 9
+ELECT > 7
+<SECT > 7
+<SELT > 7
+<SELEC> 7
+<SELECT  8
+SELECT > 8
+<ELECT > 8
+<SLECT > 8
+<SEECT > 8
+<SELCT > 8
+<SELET > 8
+<SELEC > 8
+<SELECT> 8
+SELECT> 7
+<ELECT> 7
+<SLECT> 7
+<SEECT> 7
+<SELCT> 7
+<SELET> 7
+<SELEC> 7
+<SELECT 7
+
+result: <SELECT>
+```
+
+## Implementation
+
+How do we implement this?
 
 First, the prerequisites:
 
@@ -19,7 +98,9 @@ import random
 import string
 ```
 
-Next, we want a way to get the complement of a string when given the index.
+### remove_part()
+
+We want a way to remove a piece of a string from a given index.
 Essentially, given a string, we want to cut out a piece of length `l` from
 index `i` in the string.
 
@@ -27,6 +108,8 @@ index `i` in the string.
 def remove_part(s, i, l):
     return s[:i] + s[i + l:]
 ```
+
+### remove_check_each_fragment()
 
 We given a partition length, we want to split the string into
 that many partitions, and remove each partition one at a time from the
