@@ -1,0 +1,91 @@
+---
+published: true
+title: Delta Debugging
+layout: post
+comments: true
+tags: reducing
+---
+
+Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).
+
+I like to implement things to ensure that I understand the basic idea. This is
+my attempt to ensure that I have understood the *ddmin* algorithm.
+
+
+First, the prerequisites:
+
+```python
+import random
+import string
+
+```
+
+Next, we want a way to get the complement of a string when given the index.
+Essentially, given a string, we want to cut out a piece of length `l` from
+index `i` in the string.
+
+```python
+def remove_part(s, i, l):
+    return s[:i] + s[i + l:]
+```
+
+We given a partition length, we want to split the string into
+that many partitions, and remove each partition one at a time from the
+string, and check if for any of them, the `causal()` succeeds. If it
+succeeds for any, then return that part.
+
+```python
+def check_each_fragment(instr, partition_length, causal):
+    for i in range(0, len(instr), partition_length):
+        c = remove_part(instr, i, partition_length)
+        if causal(c): return c
+    return None
+```
+
+### ddmin()
+
+The main function. We start by the smallest number of partitions -- 2.
+Then, we check by removing each fragment for success. If removing one
+fragment succeeds, we change the current string to the string without that
+fragment. Since we succeeded in removing one fragment at this partition
+length, we do not know if we can remove other parts of the string. So,
+we want to redo with the same fragment length, so we keep the current
+partition length.
+
+If none of the fragments could be removed, then time to decrease the
+partition length. We reduce the partition length by half.
+
+If the partition length is now single chars, then we break and return.
+
+```python
+def ddmin(input_str, causal_fn):
+    cur_str = input_str
+    part_len = len(cur_str) // 2
+    while cur_str:
+        fragment = check_each_fragment(cur_str, part_len, causal_fn)
+        if fragment is not None:
+            cur_str = fragment
+        else:
+            part_len = part_len // 2
+            if part_len == 1: break
+    return cur_str
+```
+
+The driver.
+
+```python
+if __name__ == "__main__":
+    import re
+    s = '<SELECT NAME="priority" MULTIPLE SIZE=7>'
+    predicate = lambda x: re.match("<SELECT.*>", x)
+    solution = ddmin(s, predicate)
+    print(solution)
+```
+
+Usage:
+
+```shell
+$ python3 py.py
+
+<SELECT >
+```
