@@ -41,7 +41,7 @@ def test(s):
 Here is an example run:
 
 ```shell
-$ python ddmin.py ''<SELECT NAME="priority" MULTIPLE SIZE=7>'
+$ python ddmin.py '<SELECT NAME="priority" MULTIPLE SIZE=7>'
 ty" MULTIPLE SIZE=7> 20    .
 <SELECT NAME="priori 20    .
 ME="priority" MULTIPLE SIZE=7> 30    .
