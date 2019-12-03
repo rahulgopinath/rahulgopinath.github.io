@@ -17,7 +17,6 @@ First, the prerequisites:
 ```python
 import random
 import string
-
 ```
 
 Next, we want a way to get the complement of a string when given the index.
