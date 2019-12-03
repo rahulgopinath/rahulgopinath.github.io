@@ -41,56 +41,56 @@ Here is an example run:
 
 ```shell
 $ python ddmin.py ''<SELECT NAME="priority" MULTIPLE SIZE=7>'
-ty" MULTIPLE SIZE=7> 20
-<SELECT NAME="priori 20
-ME="priority" MULTIPLE SIZE=7> 30
-<SELECT NAty" MULTIPLE SIZE=7> 30
-ty" MULTIPLE SIZE=7> 20
-<SELECT NALE SIZE=7> 20
-LE SIZE=7> 10
-<SELECT NA 10
-CT NALE SIZE=7> 15
-<SELELE SIZE=7> 15
-<SELECT NAZE=7> 15
-CT NAZE=7> 10
-<SELEZE=7> 10
-<SELECT NA 10
-ELECT NAZE=7> 13
-<SECT NAZE=7> 13
-<SELT NAZE=7> 13
-<SELECNAZE=7> 13
-<SELECT ZE=7> 13
-ELECT ZE=7> 11
-<SECT ZE=7> 11
-<SELT ZE=7> 11
-<SELECZE=7> 11
-<SELECT =7> 11
-ELECT =7> 9
-<SECT =7> 9
-<SELT =7> 9
-<SELEC=7> 9
-<SELECT > 9
-ELECT > 7
-<SECT > 7
-<SELT > 7
-<SELEC> 7
-<SELECT  8
-SELECT > 8
-<ELECT > 8
-<SLECT > 8
-<SEECT > 8
-<SELCT > 8
-<SELET > 8
-<SELEC > 8
-<SELECT> 8
-SELECT> 7
-<ELECT> 7
-<SLECT> 7
-<SEECT> 7
-<SELCT> 7
-<SELET> 7
-<SELEC> 7
-<SELECT 7
+ty" MULTIPLE SIZE=7> 20    .
+<SELECT NAME="priori 20    .
+ME="priority" MULTIPLE SIZE=7> 30    .
+<SELECT NAty" MULTIPLE SIZE=7> 30    +
+ty" MULTIPLE SIZE=7> 20    .
+<SELECT NALE SIZE=7> 20    +
+LE SIZE=7> 10    .
+<SELECT NA 10    .
+CT NALE SIZE=7> 15    .
+<SELELE SIZE=7> 15    .
+<SELECT NAZE=7> 15    +
+CT NAZE=7> 10    .
+<SELEZE=7> 10    .
+<SELECT NA 10    .
+ELECT NAZE=7> 13    .
+<SECT NAZE=7> 13    .
+<SELT NAZE=7> 13    .
+<SELECNAZE=7> 13    .
+<SELECT ZE=7> 13    +
+ELECT ZE=7> 11    .
+<SECT ZE=7> 11    .
+<SELT ZE=7> 11    .
+<SELECZE=7> 11    .
+<SELECT =7> 11    +
+ELECT =7> 9    .
+<SECT =7> 9    .
+<SELT =7> 9    .
+<SELEC=7> 9    .
+<SELECT > 9    +
+ELECT > 7    .
+<SECT > 7    .
+<SELT > 7    .
+<SELEC> 7    .
+<SELECT  8    .
+SELECT > 8    .
+<ELECT > 8    .
+<SLECT > 8    .
+<SEECT > 8    .
+<SELCT > 8    .
+<SELET > 8    .
+<SELEC > 8    .
+<SELECT> 8    +
+SELECT> 7    .
+<ELECT> 7    .
+<SLECT> 7    .
+<SEECT> 7    .
+<SELCT> 7    .
+<SELET> 7    .
+<SELEC> 7    .
+<SELECT 7    .
 
 result: <SELECT>
 ```
