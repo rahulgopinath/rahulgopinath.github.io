@@ -8,10 +8,7 @@ tags: reducing
 
 Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).
 
-I like to implement things to ensure that I understand the basic idea. This is
-my attempt to ensure that I have understood the *ddmin* algorithm.
-
-## About Delta Debugging
+### About Delta Debugging
 
 Delta Debugging is a method to reduce failure inducing inputs to their
 smallest required size that still induces the same failure. It was
