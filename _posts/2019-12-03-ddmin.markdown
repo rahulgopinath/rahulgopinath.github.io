@@ -33,8 +33,9 @@ Given a causal function as below,
 
 ```python
 def test(s):
-    print("%s %d" % (s, len(s)))
-    return re.match("<SELECT.*>", s)
+    v = re.match("<SELECT.*>", s)
+    print("%s %d\t%s" % (s, len(s), ('+' if v else '.')))
+    return v
 ```
 
 Here is an example run:
