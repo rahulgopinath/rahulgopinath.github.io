@@ -37,8 +37,8 @@ succeeds for any, then return the succeeding string.
 def remove_check_each_fragment(instr, partition_length, causal):
     for i in range(0, len(instr), partition_length):
         stitched = remove_part(instr, i, partition_length)
-        if causal(stitched): return stitched
-    return None
+        if causal(stitched): return stitched, True
+    return instr, False
 ```
 
 ### ddmin()
@@ -60,10 +60,9 @@ If the partition length is now single chars, then we break and return.
 def ddmin(cur_str, causal_fn):
     part_len = len(cur_str) // 2
     while part_len >= 1
-        stitched = remove_check_each_fragment(cur_str, part_len, causal_fn)
-        if stitched is not None:
-            if not stitched: return ''
-            cur_str = stitched
+        cur_str, success = remove_check_each_fragment(cur_str, part_len, causal_fn)
+        if success:
+            if not cur_str: return ''
         else:
             part_len = part_len // 2
     return cur_str
@@ -72,11 +71,16 @@ def ddmin(cur_str, causal_fn):
 The driver.
 
 ```python
+def test(s):
+    print("%s %d" % (s, len(s)))
+    return set('()') <= set(s)
+
+inputstring = ''.join(random.choices(string.digits +
+                      string.ascii_letters +
+                      string.punctuation, k=1024))
+
 if __name__ == "__main__":
-    import re
-    s = '<SELECT NAME="priority" MULTIPLE SIZE=7>'
-    predicate = lambda x: re.match("<SELECT.*>", x)
-    solution = ddmin(s, predicate)
+    solution = ddmin(inputstring, test)
     print(solution)
 ```
 
@@ -84,6 +88,10 @@ Usage:
 
 ```shell
 $ python3 py.py
-
-<SELECT >
+...
+)(
 ```
+
+The nice thing is that, if you invoke the driver, you can see the reduction in
+input length in action. Note that our driver is essentially a best case
+scenario. In the worst case, the complexity is $$O(n^2)$$
