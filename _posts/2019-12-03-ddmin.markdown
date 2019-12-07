@@ -149,3 +149,46 @@ $ python3 py.py
 The nice thing is that, if you invoke the driver, you can see the reduction in
 input length in action. Note that our driver is essentially a best case
 scenario. In the worst case, the complexity is $$O(n^2)$$
+
+That was ofcourse illuminating. However, is that the only way to implement this?
+*delta-debug* at its heart, is a divide and conquer algorithm. Can we implement it
+recursively?
+
+#### Recursive Delta Debug `ddrmin()`
+
+The basic idea is that given a string, we can split it into parts, and check if either
+part reproduces the failure. If either one does, then call `ddrmin()` on the part that
+reproduced the failure.
+
+If neither one did, then it means that there is some part in the first partition that
+is required for failure, and there is some part in the second partition too that is required
+for failure. All that we need to do now, is to isolate these parts. How should we do that?
+
+Call `ddrmin()` but with an updated check. For example, for the first part, rather than
+checking if some portion of the first part alone produces the failure, check if some part of
+first, when combined with the second will cause the failure.
+
+All we have left to do, is to define the base case. In our case, a character of length one
+can not be partitioned to strictly smaller parts. So, we handle it separately.
+
+Here is the implementation.
+
+```python
+def ddrmin(cur_str, causal_fn, pre, post):
+    if not cur_str: return ''
+    if len(cur_str) == 1:
+        if causal_fn(pre + '' + post):
+            return ''
+        else:
+            return cur_str
+    part_i = len(cur_str) // 2
+    string1, string2 = cur_str[:part_i], cur_str[part_i:]
+    if causal_fn(pre + string1 + post):
+        return ddrmin(string1, causal_fn, pre, post)
+    elif causal_fn(pre + string2 + post):
+        return ddrmin(string2, causal_fn, pre, post)
+    return ddrmin(string1, causal_fn, pre, string2 + post) +  ddrmin(string2, causal_fn, pre+string1, post)
+    
+ddmin = ddrmin
+```
+
