@@ -19,105 +19,23 @@ from functools import reduce
 import importlib
 ```
 
-### The scope and symbol table
 
-```python
-class Sym:
-    def __init__(self, table):
-        self.table = [table]
-
-    def push(self, v):
-        self.table.append(v)
-        return v
-
-    def pop(self):
-        return self.table.pop()
-
-    def __getitem__(self, i):
-        for t in reversed(self.table):
-            if i in t:
-                return t[i]
-        return None
-
-    def __setitem__(self, i, v):
-        self.table[-1][i] = v
-
-```
-
-### Some of the control flow statements are modelled as exceptions.
-
-```python
-class Return(Exception):
-    def __init__(self, val): self.__dict__.update(locals())
-class Break(Exception):
-    def __init__(self): pass
-class Continue(Exception):
-    def __init__(self): pass
-```
+### The MCI class
 
 ```python
 class ExprInterpreter:
-    def __init__(self, symtable, args):
-        # unaryop = Invert | Not | UAdd | USub
-        self.unaryop = {
-          ast.Invert: lambda a: ~a,
-          ast.Not: lambda a: not a,
-          ast.UAdd: lambda a: +a,
-          ast.USub: lambda a: -a
-        }
-
-        # operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift | RShift | BitOr | BitXor | BitAnd | FloorDiv
-        self.binop = {
-          ast.Add: lambda a, b: a + b,
-          ast.Sub: lambda a, b: a - b,
-          ast.Mult:  lambda a, b: a * b,
-          ast.MatMult:  lambda a, b: a @ b,
-          ast.Div: lambda a, b: a / b,
-          ast.Mod: lambda a, b: a % b,
-          ast.Pow: lambda a, b: a ** b,
-          ast.LShift:  lambda a, b: a << b,
-          ast.RShift: lambda a, b: a >> b,
-          ast.BitOr: lambda a, b: a | b,
-          ast.BitXor: lambda a, b: a ^ b,
-          ast.BitAnd: lambda a, b: a & b,
-          ast.FloorDiv: lambda a, b: a // b
-        }
-
-        # cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
-        self.cmpop = {
-          ast.Eq: lambda a, b: a == b,
-          ast.NotEq: lambda a, b: a != b,
-          ast.Lt: lambda a, b: a < b,
-          ast.LtE: lambda a, b: a <= b,
-          ast.Gt: lambda a, b: a > b,
-          ast.GtE: lambda a, b: a >= b,
-          ast.Is: lambda a, b: a is b,
-          ast.IsNot: lambda a, b: a is not b,
-          ast.In: lambda a, b: a in b,
-          ast.NotIn: lambda a, b: a not in b
-        }
-
-        # boolop = And | Or
-        self.boolop = {
-          ast.And: lambda a, b: a and b,
-          ast.Or: lambda a, b: a or b
-        }
-
-        self.symtable = Sym(builtins.__dict__)
-        self.symtable['sys'] = ast.Module(ast.Pass())
-        setattr(self.symtable['sys'], 'argv', args)
-
-        self.symtable.push(symtable)
-```
-
-```python
     def walk(self, node):
         if node is None: return
         res = "on_%s" % node.__class__.__name__.lower()
         if hasattr(self, res):
             return getattr(self,res)(node)
         raise Exception('walk: Not Implemented %s' % type(node))
+```
 
+### Implementations of various statements.
+
+```python
+class ExprInterpreter(ExprInterpreter):
     def on_module(self, node):
         """
         Module(stmt* body)
@@ -232,27 +150,23 @@ class ExprInterpreter:
         3
         """
         return self.binop[type(node.op)](self.walk(node.left), self.walk(node.right))
+```
 
-    def on_call(self, node):
-        func = self.walk(node.func)
-        args = [self.walk(a) for a in node.args]
-        if str(type(func)) == "<class 'builtin_function_or_method'>":
-            return func(*args)
-        elif str(type(func)) == "<class 'type'>":
-            return func(*args)
-        else:
-            [fname, argument, returns, fbody] = func
-            argnames = [a.arg for a in argument.args]
-            self.symtable.push(dict(zip(argnames, args)))
-            try:
-                for i in fbody:
-                    res = self.walk(i)
-                return res
-            except Return as e:
-                return e.val
-            finally:
-                self.symtable.pop()
+### Some of the control flow statements are modelled as exceptions.
 
+```python
+class Return(Exception):
+    def __init__(self, val): self.__dict__.update(locals())
+class Break(Exception):
+    def __init__(self): pass
+class Continue(Exception):
+    def __init__(self): pass
+```
+
+#### Using them
+
+```python
+class ExprInterpreter(ExprInterpreter):
     def on_return(self, node):
         raise Return(self.walk(node.value))
 
@@ -265,6 +179,93 @@ class ExprInterpreter:
 
     def on_pass(self, node):
         pass
+```
+
+### The assignment
+
+
+#### The scope and symbol table
+
+```python
+class Sym:
+    def __init__(self, table):
+        self.table = [table]
+
+    def push(self, v):
+        self.table.append(v)
+        return v
+
+    def pop(self):
+        return self.table.pop()
+
+    def __getitem__(self, i):
+        for t in reversed(self.table):
+            if i in t:
+                return t[i]
+        return None
+
+    def __setitem__(self, i, v):
+        self.table[-1][i] = v
+
+```
+
+### Hooking up the symbol table
+
+```python
+class ExprInterpreter(ExprInterpreter):
+    def __init__(self, symtable, args):
+        self.unaryop = {
+          ast.Invert: lambda a: ~a,
+          ast.Not: lambda a: not a,
+          ast.UAdd: lambda a: +a,
+          ast.USub: lambda a: -a
+        }
+
+        self.binop = {
+          ast.Add: lambda a, b: a + b,
+          ast.Sub: lambda a, b: a - b,
+          ast.Mult:  lambda a, b: a * b,
+          ast.MatMult:  lambda a, b: a @ b,
+          ast.Div: lambda a, b: a / b,
+          ast.Mod: lambda a, b: a % b,
+          ast.Pow: lambda a, b: a ** b,
+          ast.LShift:  lambda a, b: a << b,
+          ast.RShift: lambda a, b: a >> b,
+          ast.BitOr: lambda a, b: a | b,
+          ast.BitXor: lambda a, b: a ^ b,
+          ast.BitAnd: lambda a, b: a & b,
+          ast.FloorDiv: lambda a, b: a // b
+        }
+
+        self.cmpop = {
+          ast.Eq: lambda a, b: a == b,
+          ast.NotEq: lambda a, b: a != b,
+          ast.Lt: lambda a, b: a < b,
+          ast.LtE: lambda a, b: a <= b,
+          ast.Gt: lambda a, b: a > b,
+          ast.GtE: lambda a, b: a >= b,
+          ast.Is: lambda a, b: a is b,
+          ast.IsNot: lambda a, b: a is not b,
+          ast.In: lambda a, b: a in b,
+          ast.NotIn: lambda a, b: a not in b
+        }
+
+        self.boolop = {
+          ast.And: lambda a, b: a and b,
+          ast.Or: lambda a, b: a or b
+        }
+
+        self.symtable = Sym(builtins.__dict__)
+        self.symtable['sys'] = ast.Module(ast.Pass())
+        setattr(self.symtable['sys'], 'argv', args)
+
+        self.symtable.push(symtable)
+```
+
+#### Using it.
+
+```python
+class ExprInterpreter(ExprInterpreter):
 
     def on_assign(self, node):
         """
@@ -286,7 +287,30 @@ class ExprInterpreter:
             if im.name == 'sys': continue
             v = importlib.import_module(im.name)
             self.symtable[im.name] = v
+            
+    def on_call(self, node):
+        func = self.walk(node.func)
+        args = [self.walk(a) for a in node.args]
+        if str(type(func)) == "<class 'builtin_function_or_method'>":
+            return func(*args)
+        elif str(type(func)) == "<class 'type'>":
+            return func(*args)
+        else:
+            [fname, argument, returns, fbody] = func
+            argnames = [a.arg for a in argument.args]
+            self.symtable.push(dict(zip(argnames, args)))
+            try:
+                for i in fbody:
+                    res = self.walk(i)
+                return res
+            except Return as e:
+                return e.val
+            finally:
+                self.symtable.pop()
+```
 
+```python
+class ExprInterpreter(ExprInterpreter):
     def on_while(self, node):
         """
         While(expr test, stmt* body, stmt* orelse)
