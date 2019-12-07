@@ -6,7 +6,25 @@ comments: true
 tags: mci
 ---
 
-### A Python Meta Circular Interpreter
+A meta-circular interpreter is an interpteter for a language that is written in that language itself. The
+MCI can implement a subset or superset of the host language.
+
+### Uses of a Meta Circular Interpreter
+
+Why should one want to write a meta-circular interpteter? Writing such an interpteter gives you
+a large amount of control over how the code is executed. Further, it also gives you a way to track
+the execution as it proceeds. Using a meta-circular interpteter, one can:
+
+* Write a concolic interpteter that tracks the concrete execution
+* Extract coverage
+* Extract the control flow graph, and execution path through the graph
+* Extract the call graph of execution
+* Write a symbolc execution engine
+* Write a taint tracker that will not be confused by indirect control flow
+* Extend the host language with new features
+* Reduce the capabilities exposed by the host language (e.g. no system calls).
+
+I will be showing how to do these things in the upcoming posts. 
 
 ```python
 import string
