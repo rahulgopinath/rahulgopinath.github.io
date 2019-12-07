@@ -9,6 +9,7 @@ tags: mci
 I had previously [discussed](/post/2011/07/20/language7/) how one can implement
 a programming language using big step semantics. In this post, I want to so
 something similar. Here, we implement a meta-circular interpreter over Python.
+The code is available [here](/resources/posts/mci.py).
 
 A meta-circular interpreter is an interpreter for a language that is written
 in that language itself. The MCI can implement a subset or superset of the host
