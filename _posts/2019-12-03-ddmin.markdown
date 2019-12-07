@@ -169,7 +169,9 @@ checking if some portion of the first part alone produces the failure, check if 
 first, when combined with the second will cause the failure.
 
 All we have left to do, is to define the base case. In our case, a character of length one
-can not be partitioned to strictly smaller parts. So, we handle it separately.
+can not be partitioned to strictly smaller parts. Further, we already know that any string
+passed into `ddrmin()` was required for reproducing the failure. So, we do not have to
+worry about empty string. Hence, we can return it as is.
 
 Here is the implementation.
 
@@ -177,12 +179,8 @@ Here is the implementation.
 
 ```python
 def ddrmin(cur_str, causal_fn, pre, post):
-    if not cur_str: return ''
-    if len(cur_str) == 1:
-        if causal_fn(pre + '' + post):
-            return ''
-        else:
-            return cur_str
+    if len(cur_str) == 1: return cur_str
+    
     part_i = len(cur_str) // 2
     string1, string2 = cur_str[:part_i], cur_str[part_i:]
     if causal_fn(pre + string1 + post):
