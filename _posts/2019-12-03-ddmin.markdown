@@ -209,7 +209,7 @@ actually reach the testing function. This, however, may not be a reasonable assu
 especially in the case of structured inputs. The problem is that if you have a JSON
 `[{"a": null}]`
 that produces an error because the key value is `null`, `ddmin()` will try to partition it
-as `[{"a":` followed by ` null}]` neither of which are valid. Further, any chunk removed from
+as `[{"a":` followed by `null}]` neither of which are valid. Further, any chunk removed from
 either parts are also likely to be invalid. Hence, `ddmin()` will not be able to proceed.
 
 The solution here is to go for a variant called `Hierarchical Delta Debugging` described
