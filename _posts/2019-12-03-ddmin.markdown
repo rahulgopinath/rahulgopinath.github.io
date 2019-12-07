@@ -196,4 +196,4 @@ ddmin = ddrmin
 Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 in languages such as Python which allocates just the bare minimum stack by default. The
 nice thing here is that, since we split the string by half again and again, the maximum
-stack size required is $log(N)$ of the input size. So there is no danger of exhaustion.
+stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
