@@ -61,7 +61,7 @@ class PyMCInterpreter:
         res = "on_%s" % node.__class__.__name__.lower()
         if hasattr(self, res):
             return getattr(self,res)(node)
-        raise SynErr('walk: Not Implemented %s' % type(node))
+        raise SynErr('interpret: Not Implemented in %s' % type(node))
 ```
 
 We provide `eval()` which converts a given string to its AST, and calls
@@ -75,7 +75,10 @@ class PyMCInterpreter(PyMCInterpreter):
 
 #### The Pythonic data structures.
 
-We reuse all Python data structures as below.
+Essentially, we want to be able to make use of all pythonic
+container data structures such as lists, tuples, sets and
+dictionaries For demonstration, however, we have implemented
+only list and tuple.
 
 ##### List(elts)
 
@@ -100,6 +103,8 @@ class PyMCInterpreter(PyMCInterpreter):
             res.append(v)
         return res
 ```
+
+Similarly, we only implement `string` and `number` for now.
 
 ##### Str(string s)
 
@@ -177,8 +182,13 @@ class PyMCInterpreter(PyMCInterpreter):
 
 #### The scope and symbol table
 
+Now we come to a more complex part. We want to define a symbol table. The reason
+this is complicated is that the symbol table interacts with the scope, which is a
+nested data structrue, and we need to provide a way to look up symbols in enclosing
+scopes.
+
 ```python
-class Sym:
+class Scope:
     def __init__(self, table):
         self.table = [table]
 
@@ -202,51 +212,25 @@ class Sym:
 
 #### Hooking up the symbol table
 
+We allow the user to load a pre-defined symbol table. We
+have a choice to make here. Should we allow access to the
+Python default symbol table? and if we do, what should form
+the root? The Python symbol table or what the user supplied?
+
+Here, we assume that the default Python symbol table is the
+root.
+
+We will discuss the OP statements later.
+
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def __init__(self, symtable, args):
-        self.unaryop = {
-          ast.Invert: lambda a: ~a,
-          ast.Not: lambda a: not a,
-          ast.UAdd: lambda a: +a,
-          ast.USub: lambda a: -a
-        }
+        self.unaryop = UnaryOP
+        self.binop = BinOP
+        self.cmpop = CmpOP
+        self.boolop = BoolOP
 
-        self.binop = {
-          ast.Add: lambda a, b: a + b,
-          ast.Sub: lambda a, b: a - b,
-          ast.Mult:  lambda a, b: a * b,
-          ast.MatMult:  lambda a, b: a @ b,
-          ast.Div: lambda a, b: a / b,
-          ast.Mod: lambda a, b: a % b,
-          ast.Pow: lambda a, b: a ** b,
-          ast.LShift:  lambda a, b: a << b,
-          ast.RShift: lambda a, b: a >> b,
-          ast.BitOr: lambda a, b: a | b,
-          ast.BitXor: lambda a, b: a ^ b,
-          ast.BitAnd: lambda a, b: a & b,
-          ast.FloorDiv: lambda a, b: a // b
-        }
-
-        self.cmpop = {
-          ast.Eq: lambda a, b: a == b,
-          ast.NotEq: lambda a, b: a != b,
-          ast.Lt: lambda a, b: a < b,
-          ast.LtE: lambda a, b: a <= b,
-          ast.Gt: lambda a, b: a > b,
-          ast.GtE: lambda a, b: a >= b,
-          ast.Is: lambda a, b: a is b,
-          ast.IsNot: lambda a, b: a is not b,
-          ast.In: lambda a, b: a in b,
-          ast.NotIn: lambda a, b: a not in b
-        }
-
-        self.boolop = {
-          ast.And: lambda a, b: a and b,
-          ast.Or: lambda a, b: a or b
-        }
-
-        self.symtable = Sym(builtins.__dict__)
+        self.symtable = Scope(builtins.__dict__)
         self.symtable['sys'] = ast.Module(ast.Pass())
         setattr(self.symtable['sys'], 'argv', args)
 
@@ -257,12 +241,16 @@ class PyMCInterpreter(PyMCInterpreter):
 
 ##### Name(identifier id, expr_context ctx)
 
+Retrieving a referenced symbol is simple enough.
+
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_name(self, node):
         return self.symtable[node.id]
 ```
 ##### Assign(expr* targets, expr value)
+
+Python allows multi-target assignments.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -277,6 +265,12 @@ class PyMCInterpreter(PyMCInterpreter):
 ```
 
 ##### Call(expr func, expr* args, keyword* keywords)
+
+During function calls, we need to make sure that the functions that
+are implemented in C are proxied directly.
+
+For others, we want to correctly bind the arguments and create a
+new scope.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -303,6 +297,8 @@ class PyMCInterpreter(PyMCInterpreter):
 
 ##### FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)
 
+The function definition itself is quite simple. We simply update the symbol table with the given values.
+
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_functiondef(self, node):
@@ -314,6 +310,9 @@ class PyMCInterpreter(PyMCInterpreter):
 
 ##### Import(alias* names)
 
+Import is similar to a definition except that we want to update the symbol table
+with predefined values.
+
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_import(self, node):
@@ -323,10 +322,53 @@ class PyMCInterpreter(PyMCInterpreter):
             self.symtable[im.name] = v
 ```
 
-#### Arithmetics
+#### Arithmetic Expressions
+
+The arithmetic expressions are proxied directly to corresponding Python operators.
 
 ##### Expr(expr value)
 ```python
+UnaryOP = {
+          ast.Invert: lambda a: ~a,
+          ast.Not: lambda a: not a,
+          ast.UAdd: lambda a: +a,
+          ast.USub: lambda a: -a
+}
+
+BinOP = {
+          ast.Add: lambda a, b: a + b,
+          ast.Sub: lambda a, b: a - b,
+          ast.Mult:  lambda a, b: a * b,
+          ast.MatMult:  lambda a, b: a @ b,
+          ast.Div: lambda a, b: a / b,
+          ast.Mod: lambda a, b: a % b,
+          ast.Pow: lambda a, b: a ** b,
+          ast.LShift:  lambda a, b: a << b,
+          ast.RShift: lambda a, b: a >> b,
+          ast.BitOr: lambda a, b: a | b,
+          ast.BitXor: lambda a, b: a ^ b,
+          ast.BitAnd: lambda a, b: a & b,
+          ast.FloorDiv: lambda a, b: a // b
+}
+
+CmpOP = {
+          ast.Eq: lambda a, b: a == b,
+          ast.NotEq: lambda a, b: a != b,
+          ast.Lt: lambda a, b: a < b,
+          ast.LtE: lambda a, b: a <= b,
+          ast.Gt: lambda a, b: a > b,
+          ast.GtE: lambda a, b: a >= b,
+          ast.Is: lambda a, b: a is b,
+          ast.IsNot: lambda a, b: a is not b,
+          ast.In: lambda a, b: a in b,
+          ast.NotIn: lambda a, b: a not in b
+}
+
+BoolOP = {
+          ast.And: lambda a, b: a and b,
+          ast.Or: lambda a, b: a or b
+}
+
 class PyMCInterpreter(PyMCInterpreter):
     def on_expr(self, node):
         return self.interpret(node.value)
@@ -347,7 +389,7 @@ class PyMCInterpreter(PyMCInterpreter):
         return self.binop[type(node.op)](self.interpret(node.left), self.interpret(node.right))
 ```
 
-#### Other control flow operators
+#### Major control flow statements
 
 Only basic loops and conditionals -- `while()` and `if()` are implemented.
 
