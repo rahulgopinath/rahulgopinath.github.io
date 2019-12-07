@@ -199,3 +199,29 @@ nice thing here is that, since we split the string by half again and again, the 
 stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
 
 The recursive algorithm is given in *Yesterday, my program worked.Today, it does not. Why?* by Zeller in 1999.
+
+### Is this Enough?
+
+One of the problems with the unstructured version of `ddmin()` above is that it assumes
+that parts of the inputs can be cut away, while still retaining validity in that it will
+actually reach the testing function. This, however, may not be a reasonable assumption
+especially in the case of structured inputs. The problem is that if you have a JSON
+`[{"a": null}]`
+that produces an error because the key value is `null`, `ddmin()` will try to partition it
+as `[{"a":` followed by ` null}]` neither of which are valid. Further, any chunk removed from
+either parts are also likely to be invalid. Hence, `ddmin()` will not be able to proceed.
+
+The solution here is to go for a variant called `Hierarchical Delta Debugging` described
+in *HDD: hierarchical delta debugging* by Misherghi et al. in 2006. The basic idea is to
+first parse the input using a grammar, and then try and apply `ddmin()` on each level
+of the derivation tree. Another notable improvement is
+*Automatically Reducing Tree-Structured Test Inputs* by Herfert et al. in 2017. In this
+paper, the authors describe a simple strategy: Try and replace a given node by one of
+its child nodes. This works reasonably well for inputs that are context sensitive such
+as programs that can trigger bugs in compilers.
+
+The problem in the above approach is that, it assumes that there exist a child node that
+is of same type as the parent node. This need not be the case. Hence an even better idea
+might be to simply do a breadth first search of the first node that
+has the same symbol as that of the current node, and try replacing with that node,
+continuing with the next symbol of the same kind if it fails.
