@@ -175,7 +175,7 @@ worry about empty string. Hence, we can return it as is.
 
 Here is the implementation.
 
-#### `ddrmin()`
+### ddrmin()
 
 ```python
 def ddrmin(cur_str, causal_fn, pre, post):
