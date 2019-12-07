@@ -197,3 +197,5 @@ Given that it is a recursive procedure, one may worry about stack exhaustion, es
 in languages such as Python which allocates just the bare minimum stack by default. The
 nice thing here is that, since we split the string by half again and again, the maximum
 stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
+
+The recursive algorithm is given in *Yesterday, my program worked.Today, it does not. Why?* by Zeller in 1999.
