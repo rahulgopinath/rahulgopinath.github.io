@@ -187,8 +187,9 @@ def ddrmin(cur_str, causal_fn, pre, post):
         return ddrmin(string1, causal_fn, pre, post)
     elif causal_fn(pre + string2 + post):
         return ddrmin(string2, causal_fn, pre, post)
-    return ddrmin(string1, causal_fn, pre, string2 + post) + \
-           ddrmin(string2, causal_fn, pre+string1, post)
+    s1 = ddmin(string1, causal_fn, pre, string2 + post)
+    s2 = ddmin(string2, causal_fn, pre + s1, post)
+    return s1 + s2
     
 ddmin = ddrmin
 ```
