@@ -37,7 +37,7 @@ import astunparse
 
 We define a simple viewing function for visualization
 
-```
+```python
 import graphviz
 def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'oval', get_peripheries=lambda n: '1'):
     graph = Digraph(comment=comment)
