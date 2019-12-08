@@ -676,12 +676,14 @@ of the exits.
 
 ```python
     def on_while(self, node, myparents):
-        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % CFGNode.counter)
+        loop_id = CFGNode.counter
+        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % loop_id)
         p = self.walk(node.test, [lbl1_node])
 
-        lbl2_node = [CFGNode(parents=p, ast=node.test, label='while:test', annot='if: %s' % astunparse.unparse(node.test).strip())]
-        g_false = CFGNode(parents=lbl2_node, ast=None, label="if:False", annot='')
-        g_true = CFGNode(parents=lbl2_node, ast=None, label="if:True", annot='')
+        lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test',
+               annot='if: %s' % astunparse.unparse(node.test).strip())
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -1102,29 +1104,399 @@ lbl3: ...
 class PyCFGExtractor(PyCFGExtractor):
     def on_for(self, node, myparents):
         #node.target in node.iter: node.body
-        _test_node = CFGNode(parents=myparents, ast=ast.parse(
-               '_for: True if %s else False' % astunparse.unparse(node.iter).strip()).body[0])
-        ast.copy_location(_test_node.ast_node, node)
+        loop_id = CFGNode.counter
 
-        # we attach the label node here so that break can find it.
-        _test_node.exit_nodes = []
-        test_node = self.walk(node.iter, [_test_node])
+        for_pre = CFGNode(parents=myparents, ast=None, label='for_pre', annot='')
 
-        extract_node = CFGNode(parents=[_test_node], ast=ast.parse('%s = %s.shift()' % (
-                astunparse.unparse(node.target).strip(),
-                astunparse.unparse(node.iter).strip())).body[0])
-        ast.copy_location(extract_node.ast_node, _test_node.ast_node)
+        init_node = ast.parse('__iv_%d = iter(%s)' % (loop_id, astunparse.unparse(node.iter).strip())).body[0]
+        p = self.walk(init_node, [for_pre])
+
+        lbl1_node = CFGNode(parents=p, ast=node, label='loop_entry', annot='%s: for' % loop_id)
+        _test_node = ast.parse('__iv_%d.__length__hint__() > 0' % loop_id).body[0].value
+        p = self.walk(_test_node, [lbl1_node])
+
+        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % astunparse.unparse(_test_node).strip())
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
+        lbl1_node.exit_nodes = [g_false]
+
+        p = [g_true]
 
         # now we evaluate the body, one at a time.
-        p1 = extract_node
         for n in node.body:
-            p1 = self.walk(n, p1)
+            p = self.walk(n, p)
 
         # the test node is looped back at the end of processing.
-        _test_node.add_parent(p1)
+        lbl1_node.add_parents(p)
 
-        return _test_node.exit_nodes + test_node
+        return lbl1_node.exit_nodes
 ```
+
+Example
+
+```
+x = 1
+for i in val:
+    x = x -1
+y = x
+```
+
+<svg width="263pt" height="412pt"
+ viewBox="0.00 0.00 262.50 412.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 408)">
+<title>%3</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-408 258.5,-408 258.5,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>0</title>
+<ellipse fill="none" stroke="#000000" cx="77" cy="-382" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="77" cy="-382" rx="31" ry="22"/>
+<text text-anchor="start" x="65" y="-378.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+</g>
+<!-- 1 -->
+<g id="node2" class="node">
+<title>1</title>
+<polygon fill="none" stroke="#000000" points="104,-324 50,-324 50,-288 104,-288 104,-324"/>
+<text text-anchor="middle" x="77" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = 1</text>
+</g>
+<!-- 0&#45;&gt;1 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;1</title>
+<path fill="none" stroke="#000000" d="M77,-359.6086C77,-351.7272 77,-342.7616 77,-334.4482"/>
+<polygon fill="#000000" stroke="#000000" points="80.5001,-334.3974 77,-324.3975 73.5001,-334.3975 80.5001,-334.3974"/>
+</g>
+<!-- 4 -->
+<g id="node3" class="node">
+<title>4</title>
+<polygon fill="none" stroke="#000000" points="133.5,-252 20.5,-252 20.5,-216 133.5,-216 133.5,-252"/>
+<text text-anchor="middle" x="77" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">__iv_3 = iter(val)</text>
+</g>
+<!-- 1&#45;&gt;4 -->
+<g id="edge2" class="edge">
+<title>1&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M77,-287.8314C77,-280.131 77,-270.9743 77,-262.4166"/>
+<polygon fill="#000000" stroke="#000000" points="80.5001,-262.4132 77,-252.4133 73.5001,-262.4133 80.5001,-262.4132"/>
+</g>
+<!-- 6 -->
+<g id="node4" class="node">
+<title>6</title>
+<polygon fill="none" stroke="#000000" points="104,-180 50,-180 50,-144 104,-144 104,-180"/>
+<text text-anchor="middle" x="77" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">3: for</text>
+</g>
+<!-- 4&#45;&gt;6 -->
+<g id="edge3" class="edge">
+<title>4&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M77,-215.8314C77,-208.131 77,-198.9743 77,-190.4166"/>
+<polygon fill="#000000" stroke="#000000" points="80.5001,-190.4132 77,-180.4133 73.5001,-190.4133 80.5001,-190.4132"/>
+</g>
+<!-- 9 -->
+<g id="node6" class="node">
+<title>9</title>
+<polygon fill="none" stroke="#000000" points="254.5,-108 37.5,-108 37.5,-72 254.5,-72 254.5,-108"/>
+<text text-anchor="middle" x="146" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">for: (__iv_3.__length__hint__() &gt; 0)</text>
+</g>
+<!-- 6&#45;&gt;9 -->
+<g id="edge5" class="edge">
+<title>6&#45;&gt;9</title>
+<path fill="none" stroke="#000000" d="M94.4116,-143.8314C102.521,-135.3694 112.3156,-125.1489 121.182,-115.8971"/>
+<polygon fill="#000000" stroke="#000000" points="123.9618,-118.0549 128.354,-108.4133 118.9079,-113.2115 123.9618,-118.0549"/>
+</g>
+<!-- 12 -->
+<g id="node5" class="node">
+<title>12</title>
+<polygon fill="none" stroke="#000000" points="74,-36 0,-36 0,0 74,0 74,-36"/>
+<text text-anchor="middle" x="37" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = (x &#45; 1)</text>
+</g>
+<!-- 12&#45;&gt;6 -->
+<g id="edge4" class="edge">
+<title>12&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M30.4399,-36.2395C24.8016,-54.8984 18.8944,-84.415 28,-108 32.1192,-118.6694 39.4336,-128.5335 47.1749,-136.8319"/>
+<polygon fill="#000000" stroke="#000000" points="44.7819,-139.3887 54.325,-143.9909 49.7348,-134.442 44.7819,-139.3887"/>
+</g>
+<!-- 9&#45;&gt;12 -->
+<g id="edge6" class="edge">
+<title>9&#45;&gt;12</title>
+<path fill="none" stroke="#0000ff" d="M118.4947,-71.8314C104.682,-62.7074 87.7744,-51.539 72.9471,-41.7449"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="74.7696,-38.7541 64.4965,-36.1628 70.9114,-44.5949 74.7696,-38.7541"/>
+</g>
+<!-- 16 -->
+<g id="node7" class="node">
+<title>16</title>
+<polygon fill="none" stroke="#000000" points="173,-36 119,-36 119,0 173,0 173,-36"/>
+<text text-anchor="middle" x="146" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">y = x</text>
+</g>
+<!-- 9&#45;&gt;16 -->
+<g id="edge7" class="edge">
+<title>9&#45;&gt;16</title>
+<path fill="none" stroke="#ff0000" d="M146,-71.8314C146,-64.131 146,-54.9743 146,-46.4166"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.5001,-46.4132 146,-36.4133 142.5001,-46.4133 149.5001,-46.4132"/>
+</g>
+</g>
+</svg>
+
+```
+x = 1
+for i in val:
+    if x > 1:
+        break
+    x = x -1
+y = x
+```
+<svg width="276pt" height="556pt"
+ viewBox="0.00 0.00 275.50 556.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 552)">
+<title>%3</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-552 271.5,-552 271.5,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>0</title>
+<ellipse fill="none" stroke="#000000" cx="176.5" cy="-526" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="176.5" cy="-526" rx="31" ry="22"/>
+<text text-anchor="start" x="164.5" y="-522.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+</g>
+<!-- 1 -->
+<g id="node2" class="node">
+<title>1</title>
+<polygon fill="none" stroke="#000000" points="203.5,-468 149.5,-468 149.5,-432 203.5,-432 203.5,-468"/>
+<text text-anchor="middle" x="176.5" y="-446.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = 1</text>
+</g>
+<!-- 0&#45;&gt;1 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;1</title>
+<path fill="none" stroke="#000000" d="M176.5,-503.6086C176.5,-495.7272 176.5,-486.7616 176.5,-478.4482"/>
+<polygon fill="#000000" stroke="#000000" points="180.0001,-478.3974 176.5,-468.3975 173.0001,-478.3975 180.0001,-478.3974"/>
+</g>
+<!-- 4 -->
+<g id="node3" class="node">
+<title>4</title>
+<polygon fill="none" stroke="#000000" points="233,-396 120,-396 120,-360 233,-360 233,-396"/>
+<text text-anchor="middle" x="176.5" y="-374.3" font-family="Times,serif" font-size="14.00" fill="#000000">__iv_3 = iter(val)</text>
+</g>
+<!-- 1&#45;&gt;4 -->
+<g id="edge2" class="edge">
+<title>1&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M176.5,-431.8314C176.5,-424.131 176.5,-414.9743 176.5,-406.4166"/>
+<polygon fill="#000000" stroke="#000000" points="180.0001,-406.4132 176.5,-396.4133 173.0001,-406.4133 180.0001,-406.4132"/>
+</g>
+<!-- 6 -->
+<g id="node4" class="node">
+<title>6</title>
+<polygon fill="none" stroke="#000000" points="203.5,-324 149.5,-324 149.5,-288 203.5,-288 203.5,-324"/>
+<text text-anchor="middle" x="176.5" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">3: for</text>
+</g>
+<!-- 4&#45;&gt;6 -->
+<g id="edge3" class="edge">
+<title>4&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M176.5,-359.8314C176.5,-352.131 176.5,-342.9743 176.5,-334.4166"/>
+<polygon fill="#000000" stroke="#000000" points="180.0001,-334.4132 176.5,-324.4133 173.0001,-334.4133 180.0001,-334.4132"/>
+</g>
+<!-- 9 -->
+<g id="node6" class="node">
+<title>9</title>
+<polygon fill="none" stroke="#000000" points="217,-252 0,-252 0,-216 217,-216 217,-252"/>
+<text text-anchor="middle" x="108.5" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">for: (__iv_3.__length__hint__() &gt; 0)</text>
+</g>
+<!-- 6&#45;&gt;9 -->
+<g id="edge5" class="edge">
+<title>6&#45;&gt;9</title>
+<path fill="none" stroke="#000000" d="M159.3407,-287.8314C151.3489,-279.3694 141.6962,-269.1489 132.9584,-259.8971"/>
+<polygon fill="#000000" stroke="#000000" points="135.3011,-257.2802 125.8903,-252.4133 130.212,-262.0866 135.3011,-257.2802"/>
+</g>
+<!-- 19 -->
+<g id="node5" class="node">
+<title>19</title>
+<polygon fill="none" stroke="#000000" points="267.5,-108 193.5,-108 193.5,-72 267.5,-72 267.5,-108"/>
+<text text-anchor="middle" x="230.5" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = (x &#45; 1)</text>
+</g>
+<!-- 19&#45;&gt;6 -->
+<g id="edge4" class="edge">
+<title>19&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M234.0997,-108.3394C239.3068,-139.2841 246.2981,-203.2576 226.5,-252 222.193,-262.6037 214.7781,-272.3985 206.9578,-280.652"/>
+<polygon fill="#000000" stroke="#000000" points="204.3973,-278.2615 199.7393,-287.7775 209.3149,-283.2432 204.3973,-278.2615"/>
+</g>
+<!-- 15 -->
+<g id="node7" class="node">
+<title>15</title>
+<polygon fill="none" stroke="#000000" points="152.5,-180 87.4788,-162 152.5,-144 217.5212,-162 152.5,-180"/>
+<text text-anchor="middle" x="152.5" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">if: (x &gt; 1)</text>
+</g>
+<!-- 9&#45;&gt;15 -->
+<g id="edge6" class="edge">
+<title>9&#45;&gt;15</title>
+<path fill="none" stroke="#0000ff" d="M119.6031,-215.8314C125.0822,-206.8656 131.7677,-195.9257 137.6772,-186.2555"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="140.8126,-187.8369 143.0406,-177.479 134.8396,-184.1867 140.8126,-187.8369"/>
+</g>
+<!-- 23 -->
+<g id="node9" class="node">
+<title>23</title>
+<polygon fill="none" stroke="#000000" points="113.5,-36 59.5,-36 59.5,0 113.5,0 113.5,-36"/>
+<text text-anchor="middle" x="86.5" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">y = x</text>
+</g>
+<!-- 9&#45;&gt;23 -->
+<g id="edge9" class="edge">
+<title>9&#45;&gt;23</title>
+<path fill="none" stroke="#ff0000" d="M95.1438,-215.5137C88.7492,-205.5235 81.782,-192.6657 78.5,-180 66.6962,-134.4477 73.7116,-79.336 80.0067,-46.5554"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="83.5209,-46.8379 82.0857,-36.3407 76.6616,-45.4417 83.5209,-46.8379"/>
+</g>
+<!-- 15&#45;&gt;19 -->
+<g id="edge8" class="edge">
+<title>15&#45;&gt;19</title>
+<path fill="none" stroke="#ff0000" d="M167.5392,-148.1177C177.6347,-138.7988 191.2275,-126.2516 203.1994,-115.2006"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.8054,-117.5582 210.7795,-108.2035 201.0575,-112.4145 205.8054,-117.5582"/>
+</g>
+<!-- 17 -->
+<g id="node8" class="node">
+<title>17</title>
+<polygon fill="none" stroke="#000000" points="160.5,-108 106.5,-108 106.5,-72 160.5,-72 160.5,-108"/>
+<text text-anchor="middle" x="133.5" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">break</text>
+</g>
+<!-- 15&#45;&gt;17 -->
+<g id="edge7" class="edge">
+<title>15&#45;&gt;17</title>
+<path fill="none" stroke="#0000ff" d="M147.9973,-144.937C145.8764,-136.9001 143.291,-127.1029 140.894,-118.0195"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="144.2383,-116.9751 138.3026,-108.1992 137.47,-118.7612 144.2383,-116.9751"/>
+</g>
+<!-- 17&#45;&gt;23 -->
+<g id="edge10" class="edge">
+<title>17&#45;&gt;23</title>
+<path fill="none" stroke="#000000" d="M121.6399,-71.8314C116.3371,-63.7079 109.9763,-53.9637 104.1327,-45.0118"/>
+<polygon fill="#000000" stroke="#000000" points="106.9169,-42.8739 98.5198,-36.4133 101.0552,-46.7003 106.9169,-42.8739"/>
+</g>
+</g>
+</svg>
+
+```
+x = 1
+for i in val:
+    if x > 1:
+        continue
+    x = x -1
+y = x
+```
+
+<svg width="261pt" height="484pt"
+ viewBox="0.00 0.00 261.15 484.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 480)">
+<title>%3</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-480 257.1485,-480 257.1485,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>0</title>
+<ellipse fill="none" stroke="#000000" cx="122.9739" cy="-454" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="122.9739" cy="-454" rx="31" ry="22"/>
+<text text-anchor="start" x="110.9739" y="-450.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+</g>
+<!-- 1 -->
+<g id="node2" class="node">
+<title>1</title>
+<polygon fill="none" stroke="#000000" points="149.9739,-396 95.9739,-396 95.9739,-360 149.9739,-360 149.9739,-396"/>
+<text text-anchor="middle" x="122.9739" y="-374.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = 1</text>
+</g>
+<!-- 0&#45;&gt;1 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;1</title>
+<path fill="none" stroke="#000000" d="M122.9739,-431.6086C122.9739,-423.7272 122.9739,-414.7616 122.9739,-406.4482"/>
+<polygon fill="#000000" stroke="#000000" points="126.474,-406.3974 122.9739,-396.3975 119.474,-406.3975 126.474,-406.3974"/>
+</g>
+<!-- 4 -->
+<g id="node3" class="node">
+<title>4</title>
+<polygon fill="none" stroke="#000000" points="179.4739,-324 66.4739,-324 66.4739,-288 179.4739,-288 179.4739,-324"/>
+<text text-anchor="middle" x="122.9739" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">__iv_3 = iter(val)</text>
+</g>
+<!-- 1&#45;&gt;4 -->
+<g id="edge2" class="edge">
+<title>1&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M122.9739,-359.8314C122.9739,-352.131 122.9739,-342.9743 122.9739,-334.4166"/>
+<polygon fill="#000000" stroke="#000000" points="126.474,-334.4132 122.9739,-324.4133 119.474,-334.4133 126.474,-334.4132"/>
+</g>
+<!-- 6 -->
+<g id="node4" class="node">
+<title>6</title>
+<polygon fill="none" stroke="#000000" points="149.9739,-252 95.9739,-252 95.9739,-216 149.9739,-216 149.9739,-252"/>
+<text text-anchor="middle" x="122.9739" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">3: for</text>
+</g>
+<!-- 4&#45;&gt;6 -->
+<g id="edge3" class="edge">
+<title>4&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M122.9739,-287.8314C122.9739,-280.131 122.9739,-270.9743 122.9739,-262.4166"/>
+<polygon fill="#000000" stroke="#000000" points="126.474,-262.4132 122.9739,-252.4133 119.474,-262.4133 126.474,-262.4132"/>
+</g>
+<!-- 9 -->
+<g id="node7" class="node">
+<title>9</title>
+<polygon fill="none" stroke="#000000" points="231.4739,-180 14.4739,-180 14.4739,-144 231.4739,-144 231.4739,-180"/>
+<text text-anchor="middle" x="122.9739" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">for: (__iv_3.__length__hint__() &gt; 0)</text>
+</g>
+<!-- 6&#45;&gt;9 -->
+<g id="edge6" class="edge">
+<title>6&#45;&gt;9</title>
+<path fill="none" stroke="#000000" d="M122.9739,-215.8314C122.9739,-208.131 122.9739,-198.9743 122.9739,-190.4166"/>
+<polygon fill="#000000" stroke="#000000" points="126.474,-190.4132 122.9739,-180.4133 119.474,-190.4133 126.474,-190.4132"/>
+</g>
+<!-- 17 -->
+<g id="node5" class="node">
+<title>17</title>
+<polygon fill="none" stroke="#000000" points="114.4739,-36 51.4739,-36 51.4739,0 114.4739,0 114.4739,-36"/>
+<text text-anchor="middle" x="82.9739" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">continue</text>
+</g>
+<!-- 17&#45;&gt;6 -->
+<g id="edge4" class="edge">
+<title>17&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M51.2572,-34.6273C37.1526,-43.722 21.7748,-56.3466 12.9739,-72 3.9465,-88.0562 -5.691,-163.3909 4.9739,-180 22.6759,-207.5686 58.3434,-221.2413 85.8535,-227.9093"/>
+<polygon fill="#000000" stroke="#000000" points="85.4238,-231.3987 95.9431,-230.1363 86.9326,-224.5632 85.4238,-231.3987"/>
+</g>
+<!-- 19 -->
+<g id="node6" class="node">
+<title>19</title>
+<polygon fill="none" stroke="#000000" points="245.9739,-36 171.9739,-36 171.9739,0 245.9739,0 245.9739,-36"/>
+<text text-anchor="middle" x="208.9739" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = (x &#45; 1)</text>
+</g>
+<!-- 19&#45;&gt;6 -->
+<g id="edge5" class="edge">
+<title>19&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M220.4182,-36.1121C238.8561,-67.8351 270.2499,-134.4066 240.9739,-180 223.2718,-207.5686 187.6043,-221.2413 160.0943,-227.9093"/>
+<polygon fill="#000000" stroke="#000000" points="159.0152,-224.5632 150.0047,-230.1363 160.524,-231.3987 159.0152,-224.5632"/>
+</g>
+<!-- 15 -->
+<g id="node8" class="node">
+<title>15</title>
+<polygon fill="none" stroke="#000000" points="158.9739,-108 93.9527,-90 158.9739,-72 223.9951,-90 158.9739,-108"/>
+<text text-anchor="middle" x="158.9739" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">if: (x &gt; 1)</text>
+</g>
+<!-- 9&#45;&gt;15 -->
+<g id="edge7" class="edge">
+<title>9&#45;&gt;15</title>
+<path fill="none" stroke="#0000ff" d="M132.0582,-143.8314C136.4324,-135.083 141.7464,-124.455 146.4933,-114.9611"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="149.6538,-116.4663 150.9955,-105.9568 143.3928,-113.3358 149.6538,-116.4663"/>
+</g>
+<!-- 23 -->
+<g id="node9" class="node">
+<title>23</title>
+<polygon fill="none" stroke="#000000" points="75.9739,-108 21.9739,-108 21.9739,-72 75.9739,-72 75.9739,-108"/>
+<text text-anchor="middle" x="48.9739" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">y = x</text>
+</g>
+<!-- 9&#45;&gt;23 -->
+<g id="edge10" class="edge">
+<title>9&#45;&gt;23</title>
+<path fill="none" stroke="#ff0000" d="M104.3006,-143.8314C95.449,-135.219 84.7253,-124.7851 75.0844,-115.4048"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="77.2493,-112.6279 67.6412,-108.1628 72.3678,-117.645 77.2493,-112.6279"/>
+</g>
+<!-- 15&#45;&gt;17 -->
+<g id="edge8" class="edge">
+<title>15&#45;&gt;17</title>
+<path fill="none" stroke="#0000ff" d="M143.9587,-75.7751C134.0936,-66.4292 120.9179,-53.947 109.3379,-42.9764"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="111.6761,-40.3703 102.0094,-36.0336 106.8618,-45.452 111.6761,-40.3703"/>
+</g>
+<!-- 15&#45;&gt;19 -->
+<g id="edge9" class="edge">
+<title>15&#45;&gt;19</title>
+<path fill="none" stroke="#ff0000" d="M169.5776,-74.7307C175.7139,-65.8943 183.6057,-54.5303 190.7123,-44.2967"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="193.6123,-46.2568 196.4415,-36.0467 187.8627,-42.264 193.6123,-46.2568"/>
+</g>
+</g>
+</svg>
+
 
 ```python
 class PyCFGExtractor(PyCFGExtractor):  
