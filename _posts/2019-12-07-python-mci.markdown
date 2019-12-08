@@ -258,7 +258,8 @@ scopes. We have a choice to make here. Essentially, what variables do the callin
 program have access to? Historically, the most common conventions are [lexical and
 dynamic scoping](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scoping_vs._dynamic_scoping).
 Python follows the lexical scoping convention. But it is harder to implement. Hence,
-we do only `dynamic` scoping.
+we do only `dynamic` scoping. When the scoping is not `dynamic`, we simply disallow
+access to outer scopes. This is *not* lexical scoping however.
 
 ```python
 SCOPE_RESOLUTION = 'dynamic'
@@ -274,7 +275,7 @@ class Scope:
         return self.table.pop()
 
     def __getitem__(self, i):
-        if scope_resolution == 'lexical':
+        if SCOPE_RESOLUTION != 'dynamic':
            if i in self.table[-1]:
                 return self.table[-1][i]
            else:
