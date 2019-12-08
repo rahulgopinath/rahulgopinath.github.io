@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: The Python Control Flow Graph
 layout: post
 comments: true
@@ -39,13 +39,43 @@ We define a simple viewing function for visualization
 
 ```python
 import graphviz
-def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'oval', get_peripheries=lambda n: '1'):
+
+def get_color(p, cp):
+    color='black'
+    while not p.annotation():
+        if p.label == 'if:True':
+            return 'blue'
+        elif p.label == 'if:False':
+            return 'red'
+        p = p.parents[0]
+    return color
+
+def get_peripheries(p):
+    if p.annotation() == '<start>':
+        return '2'
+    else:
+        return '1'
+
+def get_shape(p):
+    if p.annotation() == '<start>':
+        return 'oval'
+
+    if p.annotation().startswith('if:'):
+        return 'diamond'
+    else:
+        return 'rectangle'
+
+def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
     graph = Digraph(comment=comment)
     for nid, cnode in registry.items():
-        sn = cnode.name()
+        if not cnode.annotation():
+            continue
+        sn = cnode.annotation()
         graph.node(cnode.name(), sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode))
         for pn in cnode.parents:
-            graph.edge(str(pn.rid), str(cnode.rid), color='black')
+            gp = pn.get_gparent_id()
+            color = get_color(pn, cnode)
+            graph.edge(gp, str(cnode.rid), color=color)
     return graph
 ```
 
@@ -59,12 +89,14 @@ of this node, the children of this node, and register itself in the registery.
 class CFGNode:
     counter = 0
     registry = {}
-    def __init__(self, parents=[], ast=None, label=None):
+    stack = []
+    def __init__(self, parents=[], ast=None, label=None, annot=None):
         self.parents = parents
         self.calls = []
         self.children = []
         self.ast_node = ast
         self.label = label
+        self.annot = annot
         self.rid  = CFGNode.counter
         CFGNode.registry[self.rid] = self
         CFGNode.counter += 1
@@ -119,31 +151,43 @@ class CFGNode(CFGNode):
     def source(self):
         return astunparse.unparse(self.ast_node).strip()
 
+    def annotation(self):
+        if self.annot is not None:
+            return self.annot
+        return self.source()
+
     def to_json(self):
         return {'id':self.rid, 'parents': [p.rid for p in self.parents],
                'children': [c.rid for c in self.children],
                'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
+               
+    def get_gparent_id(self):
+        p = CFGNode.registry[self.rid]
+        while not p.annotation():
+            p = p.parents[0]
+        return str(p.rid)
 ```
 
 The usage is as below:
 
 ```python
 start = CFGNode(parents=[], ast=ast.parse('start').body)
-g = to_graph(CFGNode.registry)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 g.format = 'svg'
 print(g.pipe().decode())
 ```
 
-<svg width="63pt" height="44pt"
- viewBox="0.00 0.00 63.32 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
-<title>%0</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-40 59.3219,-40 59.3219,4 -4,4"/>
+<svg width="70pt" height="52pt"
+ viewBox="0.00 0.00 70.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
+<title>%3</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-48 66,-48 66,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="27.6609" cy="-18" rx="27.8228" ry="18"/>
-<text text-anchor="middle" x="27.6609" y="-13.8" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-22" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-22" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-18.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 </g>
 </svg>
@@ -200,28 +244,33 @@ class PyCFGExtractor(PyCFGExtractor):
 
 Here is the CFG from a single pass statement.
 
-<svg width="62pt" height="116pt"
- viewBox="0.00 0.00 62.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+```
+pass
+```
+
+<svg width="70pt" height="124pt"
+ viewBox="0.00 0.00 70.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-112 58,-112 58,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-120 66,-120 66,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-90" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-94" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-94" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-90.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 1 -->
 <g id="node2" class="node">
 <title>1</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-18" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
+<polygon fill="none" stroke="#000000" points="58,-36 4,-36 4,0 58,0 58,-36"/>
+<text text-anchor="middle" x="31" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
 </g>
 <!-- 0&#45;&gt;1 -->
 <g id="edge1" class="edge">
 <title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M27,-71.8314C27,-64.131 27,-54.9743 27,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-46.4132 27,-36.4133 23.5001,-46.4133 30.5001,-46.4132"/>
+<path fill="none" stroke="#000000" d="M31,-71.6086C31,-63.7272 31,-54.7616 31,-46.4482"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-46.3974 31,-36.3975 27.5001,-46.3975 34.5001,-46.3974"/>
 </g>
 </g>
 </svg>
@@ -249,43 +298,45 @@ pass
 pass
 ```
 
-<svg width="62pt" height="188pt"
- viewBox="0.00 0.00 62.00 188.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 184)">
+<svg width="70pt" height="196pt"
+ viewBox="0.00 0.00 70.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-184 58,-184 58,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-192 66,-192 66,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-162" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-162.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 1 -->
 <g id="node2" class="node">
 <title>1</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-90" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
+<polygon fill="none" stroke="#000000" points="58,-108 4,-108 4,-72 58,-72 58,-108"/>
+<text text-anchor="middle" x="31" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
 </g>
 <!-- 0&#45;&gt;1 -->
 <g id="edge1" class="edge">
 <title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M27,-143.8314C27,-136.131 27,-126.9743 27,-118.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-118.4132 27,-108.4133 23.5001,-118.4133 30.5001,-118.4132"/>
+<path fill="none" stroke="#000000" d="M31,-143.6086C31,-135.7272 31,-126.7616 31,-118.4482"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-118.3974 31,-108.3975 27.5001,-118.3975 34.5001,-118.3974"/>
 </g>
 <!-- 2 -->
 <g id="node3" class="node">
 <title>2</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-18" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
+<polygon fill="none" stroke="#000000" points="58,-36 4,-36 4,0 58,0 58,-36"/>
+<text text-anchor="middle" x="31" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">pass</text>
 </g>
 <!-- 1&#45;&gt;2 -->
 <g id="edge2" class="edge">
 <title>1&#45;&gt;2</title>
-<path fill="none" stroke="#000000" d="M27,-71.8314C27,-64.131 27,-54.9743 27,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-46.4132 27,-36.4133 23.5001,-46.4133 30.5001,-46.4132"/>
+<path fill="none" stroke="#000000" d="M31,-71.8314C31,-64.131 31,-54.9743 31,-46.4166"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-46.4132 31,-36.4133 27.5001,-46.4133 34.5001,-46.4132"/>
 </g>
 </g>
 </svg>
+
 
 #### Expressions
 
@@ -296,11 +347,11 @@ How should we handle primitives? Since they are simply interpreted as is, they c
 ```python
 class PyCFGExtractor(PyCFGExtractor):
     def on_str(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
         
     def on_num(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
 ```
 
@@ -320,68 +371,45 @@ Generating the following CFG
 10
 'a'
 ```
-
-<svg width="62pt" height="332pt"
- viewBox="0.00 0.00 62.00 332.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
+<svg width="70pt" height="196pt"
+ viewBox="0.00 0.00 70.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-328 58,-328 58,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-192 66,-192 66,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-306" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
-</g>
-<!-- 1 -->
-<g id="node2" class="node">
-<title>1</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-234" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
-</g>
-<!-- 0&#45;&gt;1 -->
-<g id="edge1" class="edge">
-<title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M27,-287.8314C27,-280.131 27,-270.9743 27,-262.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-262.4132 27,-252.4133 23.5001,-262.4133 30.5001,-262.4132"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-162.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 2 -->
-<g id="node3" class="node">
+<g id="node2" class="node">
 <title>2</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-162" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
+<polygon fill="none" stroke="#000000" points="58,-108 4,-108 4,-72 58,-72 58,-108"/>
+<text text-anchor="middle" x="31" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
 </g>
-<!-- 1&#45;&gt;2 -->
-<g id="edge2" class="edge">
-<title>1&#45;&gt;2</title>
-<path fill="none" stroke="#000000" d="M27,-215.8314C27,-208.131 27,-198.9743 27,-190.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-190.4132 27,-180.4133 23.5001,-190.4133 30.5001,-190.4132"/>
-</g>
-<!-- 3 -->
-<g id="node4" class="node">
-<title>3</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-90" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">&#39;a&#39;</text>
-</g>
-<!-- 2&#45;&gt;3 -->
-<g id="edge3" class="edge">
-<title>2&#45;&gt;3</title>
-<path fill="none" stroke="#000000" d="M27,-143.8314C27,-136.131 27,-126.9743 27,-118.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-118.4132 27,-108.4133 23.5001,-118.4133 30.5001,-118.4132"/>
+<!-- 0&#45;&gt;2 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;2</title>
+<path fill="none" stroke="#000000" d="M31,-143.6086C31,-135.7272 31,-126.7616 31,-118.4482"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-118.3974 31,-108.3975 27.5001,-118.3975 34.5001,-118.3974"/>
 </g>
 <!-- 4 -->
-<g id="node5" class="node">
+<g id="node3" class="node">
 <title>4</title>
-<ellipse fill="none" stroke="#000000" cx="27" cy="-18" rx="27" ry="18"/>
-<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">&#39;a&#39;</text>
+<polygon fill="none" stroke="#000000" points="58,-36 4,-36 4,0 58,0 58,-36"/>
+<text text-anchor="middle" x="31" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">&#39;a&#39;</text>
 </g>
-<!-- 3&#45;&gt;4 -->
-<g id="edge4" class="edge">
-<title>3&#45;&gt;4</title>
-<path fill="none" stroke="#000000" d="M27,-71.8314C27,-64.131 27,-54.9743 27,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="30.5001,-46.4132 27,-36.4133 23.5001,-46.4133 30.5001,-46.4132"/>
+<!-- 2&#45;&gt;4 -->
+<g id="edge2" class="edge">
+<title>2&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M31,-71.8314C31,-64.131 31,-54.9743 31,-46.4166"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-46.4132 31,-36.4133 27.5001,-46.4133 34.5001,-46.4132"/>
 </g>
 </g>
 </svg>
+
 
 ### Arithmetic expressions
 
@@ -394,19 +422,19 @@ only one argument to walk, and one node out of it.
 ```python
 class PyCFGExtractor(PyCFGExtractor):
     def on_unaryop(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, annot='')]
         return self.walk(node.operand, p)
 
     def on_binop(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.right, left)
-        p = [CFGNode(parents=right, ast=node)]
+        p = [CFGNode(parents=right, ast=node, annot='')]
         return p
 
     def on_compare(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.comparators[0], left)
-        p = [CFGNode(parents=right, ast=node)]
+        p = [CFGNode(parents=right, ast=node, annot='')]
         return p
 ```
 
@@ -415,64 +443,30 @@ CFG for this expression
 ```
 10+1
 ```
-<svg width="89pt" height="332pt"
- viewBox="0.00 0.00 88.59 332.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
+
+<svg width="70pt" height="124pt"
+ viewBox="0.00 0.00 70.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-328 84.5928,-328 84.5928,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-120 66,-120 66,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="40.2964" cy="-306" rx="27" ry="18"/>
-<text text-anchor="middle" x="40.2964" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
-</g>
-<!-- 1 -->
-<g id="node2" class="node">
-<title>1</title>
-<ellipse fill="none" stroke="#000000" cx="40.2964" cy="-234" rx="27" ry="18"/>
-<text text-anchor="middle" x="40.2964" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
-</g>
-<!-- 0&#45;&gt;1 -->
-<g id="edge1" class="edge">
-<title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M40.2964,-287.8314C40.2964,-280.131 40.2964,-270.9743 40.2964,-262.4166"/>
-<polygon fill="#000000" stroke="#000000" points="43.7965,-262.4132 40.2964,-252.4133 36.7965,-262.4133 43.7965,-262.4132"/>
-</g>
-<!-- 2 -->
-<g id="node3" class="node">
-<title>2</title>
-<ellipse fill="none" stroke="#000000" cx="40.2964" cy="-162" rx="27" ry="18"/>
-<text text-anchor="middle" x="40.2964" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">1</text>
-</g>
-<!-- 1&#45;&gt;2 -->
-<g id="edge2" class="edge">
-<title>1&#45;&gt;2</title>
-<path fill="none" stroke="#000000" d="M40.2964,-215.8314C40.2964,-208.131 40.2964,-198.9743 40.2964,-190.4166"/>
-<polygon fill="#000000" stroke="#000000" points="43.7965,-190.4132 40.2964,-180.4133 36.7965,-190.4133 43.7965,-190.4132"/>
-</g>
-<!-- 3 -->
-<g id="node4" class="node">
-<title>3</title>
-<ellipse fill="none" stroke="#000000" cx="40.2964" cy="-90" rx="40.0939" ry="18"/>
-<text text-anchor="middle" x="40.2964" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">(10 + 1)</text>
-</g>
-<!-- 2&#45;&gt;3 -->
-<g id="edge3" class="edge">
-<title>2&#45;&gt;3</title>
-<path fill="none" stroke="#000000" d="M40.2964,-143.8314C40.2964,-136.131 40.2964,-126.9743 40.2964,-118.4166"/>
-<polygon fill="#000000" stroke="#000000" points="43.7965,-118.4132 40.2964,-108.4133 36.7965,-118.4133 43.7965,-118.4132"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-94" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-94" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-90.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 4 -->
-<g id="node5" class="node">
+<g id="node2" class="node">
 <title>4</title>
-<ellipse fill="none" stroke="#000000" cx="40.2964" cy="-18" rx="40.0939" ry="18"/>
-<text text-anchor="middle" x="40.2964" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">(10 + 1)</text>
+<polygon fill="none" stroke="#000000" points="62,-36 0,-36 0,0 62,0 62,-36"/>
+<text text-anchor="middle" x="31" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">(10 + 1)</text>
 </g>
-<!-- 3&#45;&gt;4 -->
-<g id="edge4" class="edge">
-<title>3&#45;&gt;4</title>
-<path fill="none" stroke="#000000" d="M40.2964,-71.8314C40.2964,-64.131 40.2964,-54.9743 40.2964,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="43.7965,-46.4132 40.2964,-36.4133 36.7965,-46.4133 43.7965,-46.4132"/>
+<!-- 0&#45;&gt;4 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M31,-71.6086C31,-63.7272 31,-54.7616 31,-46.4482"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-46.3974 31,-36.3975 27.5001,-46.3975 34.5001,-46.3974"/>
 </g>
 </g>
 </svg>
@@ -504,64 +498,29 @@ Example
 a = 10+1
 ```
 
-<svg width="116pt" height="332pt"
- viewBox="0.00 0.00 115.89 332.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
+<svg width="91pt" height="124pt"
+ viewBox="0.00 0.00 91.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-328 111.8904,-328 111.8904,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-120 87,-120 87,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="53.9452" cy="-306" rx="27" ry="18"/>
-<text text-anchor="middle" x="53.9452" y="-302.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+<ellipse fill="none" stroke="#000000" cx="41.5" cy="-94" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="41.5" cy="-94" rx="31" ry="22"/>
+<text text-anchor="start" x="29.5" y="-90.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 1 -->
 <g id="node2" class="node">
 <title>1</title>
-<ellipse fill="none" stroke="#000000" cx="53.9452" cy="-234" rx="53.8905" ry="18"/>
-<text text-anchor="middle" x="53.9452" y="-230.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = (10 + 1)</text>
+<polygon fill="none" stroke="#000000" points="83,-36 0,-36 0,0 83,0 83,-36"/>
+<text text-anchor="middle" x="41.5" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = (10 + 1)</text>
 </g>
 <!-- 0&#45;&gt;1 -->
 <g id="edge1" class="edge">
 <title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M53.9452,-287.8314C53.9452,-280.131 53.9452,-270.9743 53.9452,-262.4166"/>
-<polygon fill="#000000" stroke="#000000" points="57.4453,-262.4132 53.9452,-252.4133 50.4453,-262.4133 57.4453,-262.4132"/>
-</g>
-<!-- 2 -->
-<g id="node3" class="node">
-<title>2</title>
-<ellipse fill="none" stroke="#000000" cx="53.9452" cy="-162" rx="27" ry="18"/>
-<text text-anchor="middle" x="53.9452" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
-</g>
-<!-- 1&#45;&gt;2 -->
-<g id="edge2" class="edge">
-<title>1&#45;&gt;2</title>
-<path fill="none" stroke="#000000" d="M53.9452,-215.8314C53.9452,-208.131 53.9452,-198.9743 53.9452,-190.4166"/>
-<polygon fill="#000000" stroke="#000000" points="57.4453,-190.4132 53.9452,-180.4133 50.4453,-190.4133 57.4453,-190.4132"/>
-</g>
-<!-- 3 -->
-<g id="node4" class="node">
-<title>3</title>
-<ellipse fill="none" stroke="#000000" cx="53.9452" cy="-90" rx="27" ry="18"/>
-<text text-anchor="middle" x="53.9452" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">1</text>
-</g>
-<!-- 2&#45;&gt;3 -->
-<g id="edge3" class="edge">
-<title>2&#45;&gt;3</title>
-<path fill="none" stroke="#000000" d="M53.9452,-143.8314C53.9452,-136.131 53.9452,-126.9743 53.9452,-118.4166"/>
-<polygon fill="#000000" stroke="#000000" points="57.4453,-118.4132 53.9452,-108.4133 50.4453,-118.4133 57.4453,-118.4132"/>
-</g>
-<!-- 4 -->
-<g id="node5" class="node">
-<title>4</title>
-<ellipse fill="none" stroke="#000000" cx="53.9452" cy="-18" rx="40.0939" ry="18"/>
-<text text-anchor="middle" x="53.9452" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">(10 + 1)</text>
-</g>
-<!-- 3&#45;&gt;4 -->
-<g id="edge4" class="edge">
-<title>3&#45;&gt;4</title>
-<path fill="none" stroke="#000000" d="M53.9452,-71.8314C53.9452,-64.131 53.9452,-54.9743 53.9452,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="57.4453,-46.4132 53.9452,-36.4133 50.4453,-46.4133 57.4453,-46.4132"/>
+<path fill="none" stroke="#000000" d="M41.5,-71.6086C41.5,-63.7272 41.5,-54.7616 41.5,-46.4482"/>
+<polygon fill="#000000" stroke="#000000" points="45.0001,-46.3974 41.5,-36.3975 38.0001,-46.3975 45.0001,-46.3974"/>
 </g>
 </g>
 </svg>
@@ -571,7 +530,7 @@ a = 10+1
 ```python
 class PyCFGExtractor(PyCFGExtractor):
     def on_name(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
 ```
 
@@ -588,13 +547,15 @@ and `if.orelse`.
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node)]
+        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % astunparse.unparse(node.test).strip())]
         g1 = test_node
+        g_true = [CFGNode(parents=g1, ast=None, label="if:True", annot='')]
         for n in node.body:
-            g1 = self.walk(n, g1)
+            g1 = self.walk(n, g_true)
         g2 = test_node
+        g_false = [CFGNode(parents=g2, ast=None, label="if: False", annot='')]
         for n in node.orelse:
-            g2 = self.walk(n, g2)
+            g2 = self.walk(n, g_false)
         return g1 + g2
 ```
 
@@ -608,139 +569,65 @@ else:
     a = 0
 ```
 
-<svg width="142pt" height="680pt"
- viewBox="0.00 0.00 142.49 680.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 676.1665)">
+<svg width="137pt" height="268pt"
+ viewBox="0.00 0.00 136.68 268.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 264)">
 <title>%3</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-676.1665 138.4948,-676.1665 138.4948,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-264 132.682,-264 132.682,4 -4,4"/>
 <!-- 0 -->
 <g id="node1" class="node">
 <title>0</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-654.1665" rx="27" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-650.4665" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+<ellipse fill="none" stroke="#000000" cx="64.341" cy="-238" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="64.341" cy="-238" rx="31" ry="22"/>
+<text text-anchor="start" x="52.341" y="-234.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
 </g>
 <!-- 1 -->
 <g id="node2" class="node">
 <title>1</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-582.1665" rx="29.4969" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-578.4665" font-family="Times,serif" font-size="14.00" fill="#000000">a = 1</text>
+<polygon fill="none" stroke="#000000" points="91.341,-180 37.341,-180 37.341,-144 91.341,-144 91.341,-180"/>
+<text text-anchor="middle" x="64.341" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = 1</text>
 </g>
 <!-- 0&#45;&gt;1 -->
 <g id="edge1" class="edge">
 <title>0&#45;&gt;1</title>
-<path fill="none" stroke="#000000" d="M67.2474,-635.9979C67.2474,-628.2975 67.2474,-619.1409 67.2474,-610.5832"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-610.5798 67.2474,-600.5798 63.7475,-610.5798 70.7475,-610.5798"/>
-</g>
-<!-- 2 -->
-<g id="node3" class="node">
-<title>2</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-510.1665" rx="27" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-506.4665" font-family="Times,serif" font-size="14.00" fill="#000000">1</text>
-</g>
-<!-- 1&#45;&gt;2 -->
-<g id="edge2" class="edge">
-<title>1&#45;&gt;2</title>
-<path fill="none" stroke="#000000" d="M67.2474,-563.9979C67.2474,-556.2975 67.2474,-547.1409 67.2474,-538.5832"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-538.5798 67.2474,-528.5798 63.7475,-538.5798 70.7475,-538.5798"/>
-</g>
-<!-- 3 -->
-<g id="node4" class="node">
-<title>3</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-438.1665" rx="27" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-434.4665" font-family="Times,serif" font-size="14.00" fill="#000000">a</text>
-</g>
-<!-- 2&#45;&gt;3 -->
-<g id="edge3" class="edge">
-<title>2&#45;&gt;3</title>
-<path fill="none" stroke="#000000" d="M67.2474,-491.9979C67.2474,-484.2975 67.2474,-475.1409 67.2474,-466.5832"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-466.5798 67.2474,-456.5798 63.7475,-466.5798 70.7475,-466.5798"/>
-</g>
-<!-- 4 -->
-<g id="node5" class="node">
-<title>4</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-366.1665" rx="27" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-362.4665" font-family="Times,serif" font-size="14.00" fill="#000000">1</text>
-</g>
-<!-- 3&#45;&gt;4 -->
-<g id="edge4" class="edge">
-<title>3&#45;&gt;4</title>
-<path fill="none" stroke="#000000" d="M67.2474,-419.9979C67.2474,-412.2975 67.2474,-403.1409 67.2474,-394.5832"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-394.5798 67.2474,-384.5798 63.7475,-394.5798 70.7475,-394.5798"/>
-</g>
-<!-- 5 -->
-<g id="node6" class="node">
-<title>5</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-294.1665" rx="35.194" ry="18"/>
-<text text-anchor="middle" x="67.2474" y="-290.4665" font-family="Times,serif" font-size="14.00" fill="#000000">(a &gt; 1)</text>
-</g>
-<!-- 4&#45;&gt;5 -->
-<g id="edge5" class="edge">
-<title>4&#45;&gt;5</title>
-<path fill="none" stroke="#000000" d="M67.2474,-347.9979C67.2474,-340.2975 67.2474,-331.1409 67.2474,-322.5832"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-322.5798 67.2474,-312.5798 63.7475,-322.5798 70.7475,-322.5798"/>
+<path fill="none" stroke="#000000" d="M64.341,-215.6086C64.341,-207.7272 64.341,-198.7616 64.341,-190.4482"/>
+<polygon fill="#000000" stroke="#000000" points="67.8411,-190.3974 64.341,-180.3975 60.8411,-190.3975 67.8411,-190.3974"/>
 </g>
 <!-- 6 -->
-<g id="node7" class="node">
+<g id="node3" class="node">
 <title>6</title>
-<ellipse fill="none" stroke="#000000" cx="67.2474" cy="-192.0833" rx="49.4949" ry="48.1667"/>
-<text text-anchor="middle" x="67.2474" y="-210.8833" font-family="Times,serif" font-size="14.00" fill="#000000">if (a &gt; 1):</text>
-<text text-anchor="middle" x="67.2474" y="-195.8833" font-family="Times,serif" font-size="14.00" fill="#000000"> &#160;&#160;&#160;a = 1</text>
-<text text-anchor="middle" x="67.2474" y="-180.8833" font-family="Times,serif" font-size="14.00" fill="#000000">else:</text>
-<text text-anchor="middle" x="67.2474" y="-165.8833" font-family="Times,serif" font-size="14.00" fill="#000000"> &#160;&#160;&#160;a = 0</text>
+<polygon fill="none" stroke="#000000" points="64.341,-108 .1586,-90 64.341,-72 128.5234,-90 64.341,-108"/>
+<text text-anchor="middle" x="64.341" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">if: (a &gt; 1)</text>
 </g>
-<!-- 5&#45;&gt;6 -->
-<g id="edge6" class="edge">
-<title>5&#45;&gt;6</title>
-<path fill="none" stroke="#000000" d="M67.2474,-275.9161C67.2474,-268.5879 67.2474,-259.6959 67.2474,-250.4771"/>
-<polygon fill="#000000" stroke="#000000" points="70.7475,-250.404 67.2474,-240.404 63.7475,-250.4041 70.7475,-250.404"/>
-</g>
-<!-- 7 -->
-<g id="node8" class="node">
-<title>7</title>
-<ellipse fill="none" stroke="#000000" cx="29.2474" cy="-90" rx="29.4969" ry="18"/>
-<text text-anchor="middle" x="29.2474" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = 1</text>
-</g>
-<!-- 6&#45;&gt;7 -->
-<g id="edge7" class="edge">
-<title>6&#45;&gt;7</title>
-<path fill="none" stroke="#000000" d="M50.3588,-146.7136C46.6143,-136.6543 42.759,-126.2976 39.3844,-117.2322"/>
-<polygon fill="#000000" stroke="#000000" points="42.579,-115.7812 35.8103,-107.6305 36.0188,-118.2232 42.579,-115.7812"/>
-</g>
-<!-- 9 -->
-<g id="node10" class="node">
-<title>9</title>
-<ellipse fill="none" stroke="#000000" cx="105.2474" cy="-90" rx="29.4969" ry="18"/>
-<text text-anchor="middle" x="105.2474" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = 0</text>
-</g>
-<!-- 6&#45;&gt;9 -->
-<g id="edge9" class="edge">
-<title>6&#45;&gt;9</title>
-<path fill="none" stroke="#000000" d="M84.1361,-146.7136C87.8806,-136.6543 91.7358,-126.2976 95.1104,-117.2322"/>
-<polygon fill="#000000" stroke="#000000" points="98.476,-118.2232 98.6846,-107.6305 91.9158,-115.7812 98.476,-118.2232"/>
+<!-- 1&#45;&gt;6 -->
+<g id="edge2" class="edge">
+<title>1&#45;&gt;6</title>
+<path fill="none" stroke="#000000" d="M64.341,-143.8314C64.341,-136.131 64.341,-126.9743 64.341,-118.4166"/>
+<polygon fill="#000000" stroke="#000000" points="67.8411,-118.4132 64.341,-108.4133 60.8411,-118.4133 67.8411,-118.4132"/>
 </g>
 <!-- 8 -->
-<g id="node9" class="node">
+<g id="node4" class="node">
 <title>8</title>
-<ellipse fill="none" stroke="#000000" cx="29.2474" cy="-18" rx="27" ry="18"/>
-<text text-anchor="middle" x="29.2474" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">1</text>
+<polygon fill="none" stroke="#000000" points="55.341,-36 1.341,-36 1.341,0 55.341,0 55.341,-36"/>
+<text text-anchor="middle" x="28.341" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = 1</text>
 </g>
-<!-- 7&#45;&gt;8 -->
-<g id="edge8" class="edge">
-<title>7&#45;&gt;8</title>
-<path fill="none" stroke="#000000" d="M29.2474,-71.8314C29.2474,-64.131 29.2474,-54.9743 29.2474,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="32.7475,-46.4132 29.2474,-36.4133 25.7475,-46.4133 32.7475,-46.4132"/>
+<!-- 6&#45;&gt;8 -->
+<g id="edge3" class="edge">
+<title>6&#45;&gt;8</title>
+<path fill="none" stroke="#0000ff" d="M56.3514,-74.0209C52.113,-65.5441 46.7889,-54.8957 41.9236,-45.1652"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="45.0527,-43.5971 37.45,-36.2181 38.7917,-46.7276 45.0527,-43.5971"/>
 </g>
-<!-- 10 -->
-<g id="node11" class="node">
-<title>10</title>
-<ellipse fill="none" stroke="#000000" cx="105.2474" cy="-18" rx="27" ry="18"/>
-<text text-anchor="middle" x="105.2474" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">0</text>
+<!-- 11 -->
+<g id="node5" class="node">
+<title>11</title>
+<polygon fill="none" stroke="#000000" points="127.341,-36 73.341,-36 73.341,0 127.341,0 127.341,-36"/>
+<text text-anchor="middle" x="100.341" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">a = 0</text>
 </g>
-<!-- 9&#45;&gt;10 -->
-<g id="edge10" class="edge">
-<title>9&#45;&gt;10</title>
-<path fill="none" stroke="#000000" d="M105.2474,-71.8314C105.2474,-64.131 105.2474,-54.9743 105.2474,-46.4166"/>
-<polygon fill="#000000" stroke="#000000" points="108.7475,-46.4132 105.2474,-36.4133 101.7475,-46.4133 108.7475,-46.4132"/>
+<!-- 6&#45;&gt;11 -->
+<g id="edge4" class="edge">
+<title>6&#45;&gt;11</title>
+<path fill="none" stroke="#ff0000" d="M72.3306,-74.0209C76.569,-65.5441 81.8932,-54.8957 86.7584,-45.1652"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="89.8903,-46.7276 91.232,-36.2181 83.6293,-43.5971 89.8903,-46.7276"/>
 </g>
 </g>
 </svg>
