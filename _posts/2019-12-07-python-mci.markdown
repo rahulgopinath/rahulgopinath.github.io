@@ -60,10 +60,11 @@ Once we have the AST, we simply walk the tree, and interpret the statements as w
 ### The meta-circular-interpreter class
 
 The `walk()` method is at the heart of our interpreter. Given the AST,
-It iterates through the statements, and evaluates each.
+It iterates through the statements, and evaluates each by invoking the corresponding method.
+If the method is not implemented, it raises a `SynErr` which is derived from `SyntaxError`.
 
 ```python
-class SynErr(Exception): pass
+class SynErr(SyntaxError): pass
 
 class PyMCInterpreter:
     def walk(self, node):
@@ -75,7 +76,8 @@ class PyMCInterpreter:
 ```
 
 We provide `eval()` which converts a given string to its AST, and calls
-`walk()`
+`walk()`. It is possible to write a parser of our own, as I have [shown before](/2018/09/06/peg-parsing/)
+which can get us the AST. However, as I mentioned earlier, we use the Python infrastructure where possible.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -85,10 +87,35 @@ class PyMCInterpreter(PyMCInterpreter):
 
 #### The Pythonic data structures.
 
+We need to define data. For the primitive data types, we only implement `string` and `number` for now.
+These are trivial as it is a direct translation of the AST values.
+
+##### Str(string s)
+
+```python
+class PyMCInterpreter(PyMCInterpreter):
+    def on_str(self, node):
+        return node.s
+```
+
+##### Number(object n)
+
+```python
+class PyMCInterpreter(PyMCInterpreter):
+    def on_num(self, node):
+        return node.n
+```
+
+#### Containers
+
 Essentially, we want to be able to make use of all pythonic
 container data structures such as lists, tuples, sets and
-dictionaries For demonstration, however, we have implemented
+dictionaries. For demonstration, however, we have implemented
 only list and tuple.
+
+Unlike the primitives, the containers may be defined such that
+the values inside them are result of evaluating some expression.
+Hence, we first `walk()` the elements, and add the results.
 
 ##### List(elts)
 
@@ -113,29 +140,12 @@ class PyMCInterpreter(PyMCInterpreter):
             res.append(v)
         return res
 ```
-
-Similarly, we only implement `string` and `number` for now.
-
-##### Str(string s)
-
-```python
-class PyMCInterpreter(PyMCInterpreter):
-    def on_str(self, node):
-        return node.s
-```
-
-##### Number(object n)
-
-```python
-class PyMCInterpreter(PyMCInterpreter):
-    def on_num(self, node):
-        return node.n
-```
+Containers provide the ability to access their contained items via `Subscript`.
 
 ##### Subscript(expr value, slice slice, expr_context ctx)
 
 The tuple and list provide a means to access its elements via
-subscript.
+subscript. The subscript requires a special `Index` value as input, which is also defined below.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -167,8 +177,10 @@ The `return`, `break` and `continue` are implemented as exceptions.
 ```python
 class Return(Exception):
     def __init__(self, val): self.__dict__.update(locals())
+    
 class Break(Exception):
     def __init__(self): pass
+
 class Continue(Exception):
     def __init__(self): pass
 ```
@@ -190,9 +202,56 @@ class PyMCInterpreter(PyMCInterpreter):
         pass
 ```
 
+The difference between `break` and `continue` is in how they are handled in the
+loop statemens as in `While` below. The `return` is handled in the `Call` part.
+
+#### Major control flow statements
+
+Only basic loops and conditionals -- `while()` and `if()` are implemented.
+
+##### While(expr test, stmt* body, stmt* orelse)
+
+Implementing the `While` loop is fairly straight forward. The `while.body` is
+a list of statements that need to be interpreted if the `while.test` is `True`.
+The `break` and `continue` statements provide a way to either stop the execution
+or to restart it.
+
+As can be seen, these are *statements* rather than *expressions*, which means that
+their return value is not important. Hence, we do not return anything.
+
+```python
+class PyMCInterpreter(PyMCInterpreter):
+    def on_while(self, node):
+        while self.walk(node.test):
+            try:
+                for b in node.body:
+                    self.walk(b)
+            except Break:
+                break
+            except Continue:
+                continue
+```
+
+##### If(expr test, stmt* body, stmt* orelse)
+
+The `If` statement is similar to `While`. We check `if.test` and if `True`,
+execute the `if.body`. If `False`, we execute the `if.orelse`.
+
+```python
+class PyMCInterpreter(PyMCInterpreter):
+
+    def on_if(self, node):
+        v = self.walk(node.test)
+        body = node.body if v else node.orelse
+        if body:
+            res = None
+            for b in body:
+                res = self.walk(b)
+```
+
 #### The scope and symbol table
 
-Now we come to a more complex part. We want to define a symbol table. The reason
+Now we come to a slightly more complex part. We want to define a symbol table. The reason
 this is complicated is that the symbol table interacts with the scope, which is a
 nested data structrue, and we need to provide a way to look up symbols in enclosing
 scopes.
@@ -260,7 +319,8 @@ class PyMCInterpreter(PyMCInterpreter):
 ```
 ##### Assign(expr* targets, expr value)
 
-Python allows multi-target assignments.
+Python allows multi-target assignments. The problem is that, the type of the `value` received may be different based on
+whether the statement is multi-target or single-target. Hence, we split both kinds.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -281,6 +341,8 @@ are implemented in C are proxied directly.
 
 For others, we want to correctly bind the arguments and create a
 new scope.
+
+Note that we handle the `return` exception here.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -397,39 +459,6 @@ class PyMCInterpreter(PyMCInterpreter):
 
     def on_binop(self, node):
         return self.binop[type(node.op)](self.walk(node.left), self.walk(node.right))
-```
-
-#### Major control flow statements
-
-Only basic loops and conditionals -- `while()` and `if()` are implemented.
-
-##### While(expr test, stmt* body, stmt* orelse)
-
-```python
-class PyMCInterpreter(PyMCInterpreter):
-    def on_while(self, node):
-        while self.walk(node.test):
-            try:
-                for b in node.body:
-                    self.walk(b)
-            except Break:
-                break
-            except Continue:
-                continue
-```
-
-##### If(expr test, stmt* body, stmt* orelse)
-
-```python
-class PyMCInterpreter(PyMCInterpreter):
-
-    def on_if(self, node):
-        v = self.walk(node.test)
-        body = node.body if v else node.orelse
-        if body:
-            res = None
-            for b in body:
-                res = self.walk(b)
 ```
 
 #### Modules
