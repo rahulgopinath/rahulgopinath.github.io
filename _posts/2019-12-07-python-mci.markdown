@@ -1,4 +1,3 @@
-
 ---
 published: true
 title: Python Meta Circular Interpreter
