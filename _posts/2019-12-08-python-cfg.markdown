@@ -7,18 +7,20 @@ tags: controlflow
 ---
 
 We [previously discussed](/2019/12/07/python-mci/) how one can write an interpreter for
-Python. We hinted at that time that it could be used for a variety of other applications,
-including exctracting the call and control flow graph. In this post, we will show how one
-can extract the control flow graph using such an interpteter.
+Python. We hinted at that time that the machinery could be used for a variety of
+other applications, including exctracting the call and control flow graph. In this
+post, we will show how one can extract the control flow graph using such an interpteter.
 
 A [control flow graph](https://en.wikipedia.org/wiki/Control-flow_graph) is a directed graph
 data structure that encodes all paths that may be traversed through a program. That is, in some
 sense, it is an abstract view of the interpreter as a whole.
 
+This implementation is based on the [fuzzingbook CFG appendix](https://www.fuzzingbook.org/html/ControlFlow.html)
+
 Control flow graphs are useful for a variety of tasks. They are one of the most frequently
 used tools for visualization. But more imporatntly it is the starting point for further
 analysis of the program including code generation, optimizations, and other static analysis
-techniques. For this post, I will focus on the visualization aspect.
+techniques.
 
 ### Prerequisites
 
@@ -28,7 +30,6 @@ As before, we start with the prerequisite imports.
 import ast
 import re
 import astunparse
-import pygraphviz
 ```
 
 ### The CFGNode
@@ -39,11 +40,12 @@ class CFGNode(dict):
     registry = 0
     cache = {}
     stack = []
-    def __init__(self, parents=[], ast=None):
+    def __init__(self, parents=[], ast=None, label=None):
         self.parents = parents
         self.calls = []
         self.children = []
         self.ast_node = ast
+        self.label = label
         self.rid  = CFGNode.registry
         CFGNode.cache[self.rid] = self
         CFGNode.registry += 1
@@ -98,94 +100,215 @@ class CFGNode(CFGNode):
                'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
 ```
 
-We also hook up `to_graph()` which turns the graph data structure to
-*graphviz* *dot* format.
+### Extracting the control flow
+
+The control flow graph is essentially a source code walker, and shares the basic
+structure with our interpreter. It can indeed inherit from the interpreter, but
+given that we override all functions in it, we chose not to inherit.
 
 ```python
-class CFGNode(CFGNode):
-    @classmethod
-    def to_graph(cls, arcs=[]):
-        def unhack(v):
-            for i in ['if', 'while', 'for', 'elif']:
-                v = re.sub(r'^_%s:' % i, '%s:' % i, v)
-            return v
-        G = pygraphviz.AGraph(directed=True)
-        cov_lines = [i for i,j in arcs]
-        for nid, cnode in CFGNode.cache.items():
-            G.add_node(cnode.rid)
-            n = G.get_node(cnode.rid)
-            lineno = cnode.lineno()
-            n.attr['label'] = "%d: %s" % (lineno, unhack(cnode.source()))
-            for pn in cnode.parents:
-                plineno = pn.lineno()
-                if arcs:
-                    if  (plineno, lineno) in arcs:
-                        G.add_edge(pn.rid, cnode.rid, color='blue')
-                    elif plineno == lineno and lineno in cov_lines:
-                        G.add_edge(pn.rid, cnode.rid, color='blue')
-                    else:
-                        G.add_edge(pn.rid, cnode.rid, color='red')
-                else:
-                    G.add_edge(pn.rid, cnode.rid)
-        return G
-```
-
-### The control flow graph extractor.
-
-```python
-class PyCFG:
+class PyCFGExtractor:
     def __init__(self):
         self.founder = CFGNode(parents=[], ast=ast.parse('start').body[0]) # sentinel
         self.founder.ast_node.lineno = 0
         self.functions = {}
         self.functions_node = {}
+```
 
-    def parse(self, src):
-        return ast.parse(src)
+As before, we define `walk()` that walks a given AST node.
 
+A major difference from MCI is in the functions that handle each node. Since it is a directed
+graph traversal, our `walk()` accepts a list of parent nodes that point to this node, and also
+invokes the various `on_*()` functions with the same list. These functions in turn return a list
+of nodes that exit them.
+
+While expressions, and single statements only have one node that comes out of them, control flow
+structures and function calls can have multiple nodes that come out of them going into the next
+node. For example, an `If` statement will have a node from both the `if.body` and `if.orelse`
+going into the next one.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def walk(self, node, myparents):
         if node is None: return
         fname = "on_%s" % node.__class__.__name__.lower()
         if hasattr(self, fname):
-            fn = getattr(self, fname)
-            v = fn(node, myparents)
-            return v
-        else:
-            return myparents
+            return getattr(self, fname)(node, myparents)
+        raise SyntaxError('walk: Not Implemented in %s' % type(node))
+```
 
+#### Module(stmt* body)
+
+We start by defining the `Module`. A python module is composed of a sequence of statements,
+and the graph is a linear path through these statements. That is, each time a statement
+is executed, we make a link from it to the next statement.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def on_module(self, node, myparents):
-        """
-        Module(stmt* body)
-        """
-        # each time a statement is executed unconditionally, make a link from
-        # the result to next statement
         p = myparents
         for n in node.body:
             p = self.walk(n, p)
         return p
+```
 
+#### Assign(expr* targets, expr value)
+
+Unlike MCI, assignment is simple as it has only a single node coming out of it.
+
+The following are not yet implemented:
+
+* AugAssign(expr target, operator op, expr value)
+* AnnAssign(expr target, expr annotation, expr? value, int simple)
+
+Further, we do not yet implement parallel assignments.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def on_assign(self, node, myparents):
-        """
-        Assign(expr* targets, expr value)
-        TODO: AugAssign(expr target, operator op, expr value)
-        -- 'simple' indicates that we annotate simple name without parens
-        TODO: AnnAssign(expr target, expr annotation, expr? value, int simple)
-        """
         if len(node.targets) > 1: raise NotImplemented('Parallel assignments')
-
         p = [CFGNode(parents=myparents, ast=node)]
         p = self.walk(node.value, p)
+        return p
+```
 
+#### Pass
+
+The pass statement is trivial. It simply adds one more node.
+
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
+    def on_pass(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node)]
+        return p
+```
+
+### Arithmetic expressions
+
+The following implements the arithmetic expressions. The `unaryop()` simply walks
+the arguments and adds the current node to the chain. The `binop()` has to walk
+the left argument, then walk the right argument, and finally insert the current
+node in the chain. `compare()` is again similar to `binop()`. `expr()`, again has
+only one argument to walk, and one node out of it.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
+    def on_unaryop(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node)]
+        return self.walk(node.operand, p)
+
+    def on_binop(self, node, myparents):
+        left = self.walk(node.left, myparents)
+        right = self.walk(node.right, left)
+        p = [CFGNode(parents=right, ast=node)]
         return p
 
-    def on_pass(self, node, myparents):
-        return [CFGNode(parents=myparents, ast=node)]
+    def on_compare(self, node, myparents):
+        left = self.walk(node.left, myparents)
+        right = self.walk(node.comparators[0], left)
+        p = [CFGNode(parents=right, ast=node)]
+        return p
 
+    def on_expr(self, node, myparents):
+        p = self.walk(node.value, myparents)
+        p = [CFGNode(parents=p, ast=node)]
+        return p
+```
+
+### Control structures
+
+#### If
+
+We now come to the control structures. For the `if` statement, we have two
+parallel paths. We first evaluate the test expression, then add a new node
+corresponding to the if statement, and provide the paths through the `if.body`
+and `if.orelse`.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
+    def on_if(self, node, myparents):
+        p = self.walk(node.test, [_test_node])
+        test_node = [CFGNode(parents=p, ast=node)]
+        g1 = test_node
+        for n in node.body:
+            g1 = self.walk(n, g1)
+        g2 = test_node
+        for n in node.orelse:
+            g2 = self.walk(n, g2)
+        return g1 + g2
+```
+
+#### While
+
+The `while` statement is more complex than the `if` statement. For one,
+we need to provide a way to evaluate the condition at the beginning of
+each iteration.
+
+Essentially, given something like this:
+
+```
+while x > 0:
+    statement1
+    if x:
+       continue;
+    if y:
+       break
+    statement2
+```
+
+We need to expand this into:
+
+```
+lbl1: v = x > 0
+lbl2: if not v: goto lbl2
+      statement1
+      if x: goto lbl1
+      if y: goto lbl3
+      statement2
+      goto lbl1
+lbl3: ...
+
+```
+
+The basic idea is that when we walk the `node.body`, if there is a break
+statement, it will start searching up the parent chain, until it finds a node with
+`loop_entry` label. Then it will attach itself to the `exit_nodes` as one
+of the exits.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
+    def on_while(self, node, myparents):
+        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry')
+        p = self.walk(node.test, [lbl1_node])
+
+        lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test')
+        lbl1_node.exit_nodes = [lbl2_node]
+        
+        p = [lbl2_node]
+
+        for n in node.body:
+            p = self.walk(n, p)
+
+        # the last node is the parent for the lb1 node.
+        lbl1_node.add_parents(p)
+
+        return lbl1_node.exit_nodes
+```
+
+#### Break
+
+As we explained before, the `break` when it is encountred, looks up
+the parent chain. Once it finds a parent that has the `loop_entry` label,
+it attaches itself to that parent. The statements following the `break` are not
+its immediate children. Hence, we return an empty list.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def on_break(self, node, myparents):
-        parent = myparents[0].parents[0]
-        while not hasattr(parent, 'exit_nodes'):
-            # we have ordered parents
-            parent = CFGNode.i(parent).parents[0]
+        parent = myparents[0]
+        while parent.label != 'loop_entry':
+            parent = parent.parents[0]
 
         assert hasattr(parent, 'exit_nodes')
         p = CFGNode(parents=myparents, ast=node)
@@ -195,22 +318,54 @@ class PyCFG:
 
         # break doesnt have immediate children
         return []
+```
 
+#### Continue
+
+Continue is similar to `break`, except that it has to restart the loop. Hence,
+it adds itself as a parent to the node with `loop_entry` attribute. As like `break`,
+execution does not proceed to the lexically next statement after `continue`. Hence,
+we return an empty set.
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def on_continue(self, node, myparents):
-        parent = myparents[0].parents[0]
-        while not hasattr(parent, 'exit_nodes'):
-            # we have ordered parents
+        parent = myparents[0]
+        while parent.label != 'loop_entry'):
             parent = parent.parents[0]
-        assert hasattr(parent, 'exit_nodes')
+            
         p = CFGNode(parents=myparents, ast=node)
-
-        # make continue one of the parents of the original test node.
         parent.add_parent(p)
-
-        # return the parent because a continue is not the parent
-        # for the just next node
+        
         return []
+```       
 
+#### For
+
+The `For` statement in Python is rather complex. Given a for loop as below
+
+```
+for i in my_expr:
+    statement1
+    statement2
+```
+
+This has to be extracted to the following:
+
+```
+lbl1: 
+      __iv = iter(my_expr)
+lbl2: if __iv.length_hint() > 0: goto lbl3
+      i = next(__iv)
+      statement1
+      statement2
+lbl3: ...
+```
+
+
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
     def on_for(self, node, myparents):
         #node.target in node.iter: node.body
         _test_node = CFGNode(parents=myparents, ast=ast.parse(
@@ -235,56 +390,10 @@ class PyCFG:
         _test_node.add_parent(p1)
 
         return _test_node.exit_nodes + test_node
+```
 
-
-    def on_while(self, node, myparents):
-        # For a while, the earliest parent is the node.test
-        _test_node = CFGNode(parents=myparents, ast=ast.parse(
-               '_while: %s' % astunparse.unparse(node.test).strip()).body[0])
-        ast.copy_location(_test_node.ast_node, node.test)
-        _test_node.exit_nodes = []
-        test_node = self.walk(node.test, [_test_node])
-
-        # we attach the label node here so that break can find it.
-
-        # now we evaluate the body, one at a time.
-        p1 = test_node
-        for n in node.body:
-            p1 = self.walk(n, p1)
-
-        # the test node is looped back at the end of processing.
-        _test_node.add_parents(p1)
-
-        # link label node back to the condition.
-        return _test_node.exit_nodes + test_node
-
-    def on_if(self, node, myparents):
-        _test_node = CFGNode(parents=myparents, ast=ast.parse(
-              '_if: %s' % astunparse.unparse(node.test).strip()).body[0])
-        ast.copy_location(_test_node.ast_node, node.test)
-        test_node = self.walk(node.test, [_test_node])
-        g1 = test_node
-        for n in node.body:
-            g1 = self.walk(n, g1)
-        g2 = test_node
-        for n in node.orelse:
-            g2 = self.walk(n, g2)
-
-        return g1 + g2
-
-    def on_binop(self, node, myparents):
-        left = self.walk(node.left, myparents)
-        right = self.walk(node.right, left)
-        return right
-
-    def on_compare(self, node, myparents):
-        left = self.walk(node.left, myparents)
-        right = self.walk(node.comparators[0], left)
-        return right
-
-    def on_unaryop(self, node, myparents):
-        return self.walk(node.operand, myparents)
-
+```python
+class PyCFGExtractor(PyCFGExtractor):  
     def on_call(self, node, myparents):
         p = myparents
         for a in node.args:
@@ -296,10 +405,6 @@ class PyCFG:
             mid = node.func.value.id
         myparents[0].add_calls(mid)
         return p
-
-    def on_expr(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
-        return self.walk(node.value, p)
 
     def on_return(self, node, myparents):
         parent = myparents[0]
@@ -373,12 +478,7 @@ class PyCFG:
                 p.add_child(node)
                 
     def gen_cfg(self, src):
-        """
-        >>> i = PyCFG()
-        >>> i.walk("100")
-        5
-        """
-        node = self.parse(src)
+        node = ast.parse(src)
         nodes = self.walk(node, [self.founder])
         self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0])
         ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
@@ -413,7 +513,7 @@ def slurp(f):
     with open(f, 'r') as f: return f.read()
 
 def get_cfg(pythonfile):
-    cfg = PyCFG()
+    cfg = PyCFGExtractor()
     cfg.gen_cfg(slurp(pythonfile).strip())
     cache = CFGNode.cache
     g = {}
@@ -468,7 +568,7 @@ if __name__ == '__main__':
             arcs = [(i,j) for i,j in json.loads(open(args.ccoverage).read())]
         else:
             arcs = []
-        cfg = PyCFG()
+        cfg = PyCFGExtractor()
         cfg.gen_cfg(slurp(args.pythonfile).strip())
         g = CFGNode.to_graph(arcs)
         g.draw('out.png', prog='dot')
