@@ -254,9 +254,14 @@ class PyMCInterpreter(PyMCInterpreter):
 Now we come to a slightly more complex part. We want to define a symbol table. The reason
 this is complicated is that the symbol table interacts with the scope, which is a
 nested data structrue, and we need to provide a way to look up symbols in enclosing
-scopes.
+scopes. We have a choice to make here. Essentially, what variables do the calling
+program have access to? Historically, the most common conventions are [lexical and
+dynamic scoping](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scoping_vs._dynamic_scoping).
+Python follows the lexical scoping convention. But it is harder to implement. Hence,
+we do only `dynamic` scoping.
 
 ```python
+SCOPE_RESOLUTION = 'dynamic'
 class Scope:
     def __init__(self, table):
         self.table = [table]
@@ -269,6 +274,12 @@ class Scope:
         return self.table.pop()
 
     def __getitem__(self, i):
+        if scope_resolution == 'lexical':
+           if i in self.table[-1]:
+                return self.table[-1][i]
+           else:
+                raise RuntimeError("%s does not exist." % i)
+        # dynamic scoping
         for t in reversed(self.table):
             if i in t:
                 return t[i]
@@ -370,6 +381,7 @@ class PyMCInterpreter(PyMCInterpreter):
 ##### FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)
 
 The function definition itself is quite simple. We simply update the symbol table with the given values.
+Note that if we want to implement *lexical scoping*, we have to maintain the scoping references here.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
