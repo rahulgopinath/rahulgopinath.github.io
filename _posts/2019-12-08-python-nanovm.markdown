@@ -6,17 +6,161 @@ comments: true
 tags: vm
 ---
 
+*Tested in Python 3.6.8*
 
-This post shows how to implement a very tiny Python virtual machine that will allow us to implement useful tools such as taint analysis later.
-For more complete implementations, refer to the [AOSA Book](https://www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html) or more complete and current [Byterun](https://github.com/nedbat/byterun).
+In the [previous post](/2019/12/07/python-mci/), I described how one can write an interpreter for the Python language in
+Python. However, Python itself is not implemented as a direct interpreter for the AST. Rather, Python AST is compiled first,
+and turned to its own byte code, and the byte code is interpteted by the Python virtual machine. The Python virtual machine
+is is implemented in C in the case of Cython, in Java in the case of Jython, and in (reduced) Python in the case of PyPy.
+
+The reason to use a virtual machine rather than directly interpreting the AST is that, a large number of the higher level
+constructs map to a much smaller number of lower level constructs. The lower level language (the bytecode) is also easier
+to optimize, and is relatively more stable than the higher level language.
+
+For our purposes, the lower level language also allows us to get away with implementing our analysis techniques (such
+as taint analysis --- to be discussed in later posts) on a much smaller number of primitives.
+
+This post shows how to implement a very tiny Python virtual machine.
+For more complete implementations, refer to the [AOSA Book](https://www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html) or more complete and current [Byterun](https://github.com/nedbat/byterun) or [my fork of byterun](https://github.com/vrthra-forks/bytevm).
+
+We start as usual by importing the prerequisite packages. In the case of our virtual machine, we have only the `dis` module
+to import. This module allows us to disassemble Python bytecode from the compiled bytecode. Note that the package [xdis](https://pypi.org/project/xdis/) may be a better module here (it is a drop in replacement).
 
 ```python
 import dis
+```
 
-DEBUG = True
-def log(*x):
-    if DEBUG: print(*x)
+As in the [MCI](/2019/12/07/python-mci/), we try to use as much of the Python infrastructure as possible. Hence,
+we use the Python compiler to compile source files into bytecode, and we only interpret the bytecode. One can
+[compile](https://docs.python.org/3/library/functions.html#compile) source strings to byte code as follows.
 
+### Compilation
+
+```python
+my_code = compile('2+v', filename='', mode='eval')
+```
+
+The `mode` can be one of `eval` -- which evaluates expressions, `exec` -- which executes a sequence of statements,
+and `single` -- which is a limited form of `exec`. Their difference can be seen below.
+
+
+#### compile(mode=eval)
+
+```python
+>>> v = 1
+>>> my_code = compile('2+v', filename='', mode='eval')
+>>> dis.dis(my_code)
+  1           0 LOAD_CONST               0 (2)
+              2 LOAD_NAME                0 (v)
+              4 BINARY_ADD
+              6 RETURN_VALUE
+>>> eval(my_code)
+3
+```
+
+That is, the return value is the result of addition.
+
+#### compile(mode=exec)
+
+```python
+>>> my_code = compile('2+v', filename='', mode='exec')
+>>> dis.dis(my_code)
+  1           0 LOAD_CONST               0 (2)
+              2 LOAD_NAME                0 (v)
+              4 BINARY_ADD
+              6 POP_TOP
+              8 LOAD_CONST               1 (None)
+             10 RETURN_VALUE
+>>> eval(my_code)
+>>> 
+```
+That is, the top of the stack is popped off. That is, it is treated as a statement. This
+mode is used for evaluating a series of statements none of which will return a value when
+`eval()` is called.
+
+```python
+>>> my_code = compile('v=1;x=2+v', filename='', mode='eval')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "", line 1
+    v=1;x=2+v
+     ^
+SyntaxError: invalid syntax
+>>> my_code = compile('v=1;x=2+v', filename='', mode='exec')
+>>> dis.dis(my_code)
+  1           0 LOAD_CONST               0 (1)
+              2 STORE_NAME               0 (v)
+              4 LOAD_CONST               1 (2)
+              6 LOAD_NAME                0 (v)
+              8 BINARY_ADD
+             10 STORE_NAME               1 (x)
+             12 LOAD_CONST               2 (None)
+             14 RETURN_VALUE
+>>> eval(my_code)
+>>> x
+3
+```
+
+#### compile(mode=single)
+
+The `single` mode is a restricted version of `exec`. It is applicable for a single line
+*statement*, which can even be constructed by stitching multiple statements together with semicolons.
+
+```python
+>>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='single')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "", line 1
+    v=1
+      ^
+SyntaxError: multiple statements found while compiling a single statement
+>>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='exec')
+```
+
+The main difference is in the return value. In the case of `exec`, the stack is cleared before return,
+which means only the side effects remain.
+
+```python
+>>> my_code = compile('v=1;x=2+v;x', filename='', mode='exec')
+>>> dis.dis(my_code)
+  1           0 LOAD_CONST               0 (1)
+              2 STORE_NAME               0 (v)
+              4 LOAD_CONST               1 (2)
+              6 LOAD_NAME                0 (v)
+              8 BINARY_ADD
+             10 STORE_NAME               1 (x)
+             12 LOAD_NAME                1 (x)
+             14 POP_TOP
+             16 LOAD_CONST               2 (None)
+             18 RETURN_VALUE
+>>> eval(my_code)
+```
+
+In the case of `single`, the last value in the stack is printed before return. As before, nothing
+is returned.
+
+```python
+>>> my_code = compile('v=1;x=2+v;x', filename='', mode='single')
+>>> dis.dis(my_code)
+  1           0 LOAD_CONST               0 (1)
+              2 STORE_NAME               0 (v)
+              4 LOAD_CONST               1 (2)
+              6 LOAD_NAME                0 (v)
+              8 BINARY_ADD
+             10 STORE_NAME               1 (x)
+             12 LOAD_NAME                1 (x)
+             14 PRINT_EXPR
+             16 LOAD_CONST               2 (None)
+             18 RETURN_VALUE
+>>> eval(my_code)
+3
+```
+
+### Arithmetic operations
+
+Next, we define all the simple arithmetic and boolean operators as below.
+
+```python
 mathops = {
           'BINARY_ADD': lambda a, b: a + b,
           'BINARY_SUBTRACT': lambda a, b: a - b,
@@ -36,7 +180,11 @@ mathops = {
           'UNARY_NOT': lambda a: not a,
           'UNARY_INVERT': lambda a: ~a
         }
+```
 
+### Boolean operations
+
+```python
 boolops = {
         '<' : lambda a, b: a < b,
         '<=': lambda a, b: a <= b,
@@ -49,7 +197,33 @@ boolops = {
         'is' :lambda a, b: a is b,
         'is not': lambda a, b: a is not b,
         }
+```
 
+### The `Code`
+
+The compiled bytecode is of type `code`. 
+
+```python
+>>> my_code.__class__
+<class 'code'>
+```
+
+It contains the following attributes
+
+```python
+>>> [o for o in dir(my_code) if o[0] != '_']
+['co_argcount', 'co_cellvars', 'co_code', 'co_consts', 'co_filename', 
+'co_firstlineno', 'co_flags', 'co_freevars', 'co_kwonlyargcount', 
+'co_lnotab', 'co_name', 'co_names', 'co_nlocals', 'co_stacksize', 
+'co_varnames']
+```
+
+
+Since it is a readonly data structure, and we want
+to modify it, we will use a proxy class `Code` to wrap it. We copy over the
+minimum attributes needed.
+
+```python
 class Code:
     def __init__(self, code):
         self.code = code
@@ -57,7 +231,15 @@ class Code:
         self.co_names = list(code.co_names)
         self.co_varnames = list(code.co_varnames)
         self.opcodes = list(dis.get_instructions(self.code))
+```
 
+### The virtual machine
+
+As can be inferred from the `dis` output, the Python Virtual Machine is a stack
+based machine.
+
+
+```python
 class Vm:
     def i_pop_top(self, i): self.stack.pop()
     def i_load_global(self, i): self.stack.append(self.code.co_names[i])
@@ -159,11 +341,9 @@ class Vm:
         self.local = local
 
     def statement(self, my_str, kind='exec'):
-        log(kind,my_str)
         return self.bytes(compile(my_str, '<>', kind))
 
     def expr(self, my_str, kind='eval'):
-        log(kind, my_str)
         return self.bytes(compile(my_str, '<>', kind))
 
     def bytes(self, code):
@@ -229,7 +409,8 @@ class Vm:
     def result():
         return self.result
 ```
-A driver
+
+### A few example functions
         
 ```python
 def my_add(a, b):
@@ -246,7 +427,11 @@ def gcd(a, b):
         a = b
         b = c % b
     return a
+```
 
+### A driver
+
+```python
 v = Vm().expr('my_add(2, 3)').i()
 print(v.result)
 v = Vm().expr('gcd(12, 15)').i()
