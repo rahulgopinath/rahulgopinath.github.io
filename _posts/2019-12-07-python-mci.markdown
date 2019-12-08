@@ -20,7 +20,7 @@ language.
 Why should one want to write a meta-circular interpreter? Writing such an
 interpreter gives you a large amount of control over how the code is executed.
 Further, it also gives you a way to track the execution as it proceeds.
-Using a meta-circular interpreter, one can:
+Using the same machinery as the meta-circular interpreter, one can:
 
 * Write a concolic interpreter that tracks the concrete execution
 * Extract coverage
