@@ -16,6 +16,9 @@ data structure that encodes all paths that may be traversed through a program. T
 sense, it is an abstract view of the interpreter as a whole.
 
 This implementation is based on the [fuzzingbook CFG appendix](https://www.fuzzingbook.org/html/ControlFlow.html)
+However, the fuzzingbook implementation is focused on Python statements as it is used primarily for
+visualization, while this is based on basic blocks with the intension of using it for code
+generation.
 
 Control flow graphs are useful for a variety of tasks. They are one of the most frequently
 used tools for visualization. But more imporatntly it is the starting point for further
