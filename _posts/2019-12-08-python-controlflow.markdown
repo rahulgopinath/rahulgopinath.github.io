@@ -1098,6 +1098,22 @@ lbl2: if __iv.length_hint() > 0: goto lbl3
 lbl3: ...
 ```
 
+We need `on_call()` for implementing `on_for()`
+
+```python
+class PyCFGExtractor(PyCFGExtractor):
+    def on_call(self, node, myparents):
+        p = myparents
+        for a in node.args:
+            p = self.walk(a, p)
+        mid = None
+        if hasattr(node.func, 'id'):
+            mid = node.func.id
+        else:
+            mid = node.func.value.id
+        myparents[0].add_calls(mid)
+        return p
+```
 
 
 ```python
