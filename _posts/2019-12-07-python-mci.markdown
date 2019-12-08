@@ -352,7 +352,11 @@ During function calls, we need to make sure that the functions that
 are implemented in C are proxied directly.
 
 For others, we want to correctly bind the arguments and create a
-new scope.
+new scope. The big question is how should the scopes be nested.
+If we are trying to implement lexical scoping, then we should
+retrieve the scope that was in effect when the function was defined.
+However, we have only implemented dynamic scoping. Hence, we 
+nest the calling scope.
 
 Note that we handle the `return` exception here.
 
