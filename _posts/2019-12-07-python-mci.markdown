@@ -520,17 +520,3 @@ if __name__ == '__main__':
 ```shell
 $ python3 interp.py triangle.py '1 2 3'
 ```
-
-<svg width="63pt" height="44pt"
- viewBox="0.00 0.00 63.32 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
-<title>%0</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-40 59.3219,-40 59.3219,4 -4,4"/>
-<!-- 0 -->
-<g id="node1" class="node">
-<title>0</title>
-<ellipse fill="none" stroke="#000000" cx="27.6609" cy="-18" rx="27.8228" ry="18"/>
-<text text-anchor="middle" x="27.6609" y="-13.8" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
-</g>
-</g>
-</svg>
