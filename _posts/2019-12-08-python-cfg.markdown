@@ -35,24 +35,39 @@ import re
 import astunparse
 ```
 
+We define a simple viewing function for visualization
+
+```
+import graphviz
+def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'oval', get_peripheries=lambda n: '1'):
+    graph = Digraph(comment=comment)
+    for nid, cnode in registry.items():
+        sn = cnode.name()
+        graph.node(cnode.name(), sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode))
+        for pn in cnode.parents:
+            graph.edge(str(pn.rid), str(cnode.rid), color='black')
+    return graph
+```
+
+
 ### The CFGNode
 
-The control flow graph is a graph, and hence we need a data structue for the *node*.
+The control flow graph is a graph, and hence we need a data structue for the *node*. We need to store the parents
+of this node, the children of this node, and register itself in the registery.
 
 ```python
-class CFGNode(dict):
-    registry = 0
-    cache = {}
-    stack = []
+class CFGNode:
+    counter = 0
+    registry = {}
     def __init__(self, parents=[], ast=None, label=None):
         self.parents = parents
         self.calls = []
         self.children = []
         self.ast_node = ast
         self.label = label
-        self.rid  = CFGNode.registry
-        CFGNode.cache[self.rid] = self
-        CFGNode.registry += 1
+        self.rid  = CFGNode.counter
+        CFGNode.registry[self.rid] = self
+        CFGNode.counter += 1
 ```
 
 Given that it is a directed graph node, we need the ability to add parents and children.
@@ -87,7 +102,13 @@ class CFGNode(CFGNode):
 
     def lineno(self):
         return self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else 0
-
+        
+    def name(self):
+        return str(self.rid)
+        
+    def expr(self):
+        return self.source()
+        
     def __str__(self):
         return "id:%d line[%d] parents: %s : %s" % \
            (self.rid, self.lineno(), str([p.rid for p in self.parents]), self.source())
@@ -103,6 +124,28 @@ class CFGNode(CFGNode):
                'children': [c.rid for c in self.children],
                'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
 ```
+
+The usage is as below:
+
+```python
+start = CFGNode(parents=[], ast=ast.parse('start').body)
+print(to_graph(CFGNode.registry))
+```
+
+<svg width="63pt" height="44pt"
+ viewBox="0.00 0.00 63.32 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
+<title>%0</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-40 59.3219,-40 59.3219,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>0</title>
+<ellipse fill="none" stroke="#000000" cx="27.6609" cy="-18" rx="27.8228" ry="18"/>
+<text text-anchor="middle" x="27.6609" y="-13.8" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+</g>
+</g>
+</svg>
+
 
 ### Extracting the control flow
 
