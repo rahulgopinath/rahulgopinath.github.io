@@ -40,7 +40,7 @@ We define a simple viewing function for visualization
 ```python
 import graphviz
 
-def get_color(p, cp):
+def get_color(p, c):
     color='black'
     while not p.annotation():
         if p.label == 'if:True':
@@ -51,19 +51,25 @@ def get_color(p, cp):
     return color
 
 def get_peripheries(p):
-    if p.annotation() == '<start>':
+    annot = p.annotation()
+    if annot  in {'<start>', '<stop>'}:
         return '2'
-    else:
-        return '1'
+    if annot.startswith('<define>') or annot.startswith('<exit>'):
+        return '2'
+    return '1'
 
 def get_shape(p):
-    if p.annotation() == '<start>':
+    annot = p.annotation()
+    if annot in {'<start>', '<stop>'}:
+        return 'oval'
+    if annot.startswith('<define>') or annot.startswith('<exit>'):
         return 'oval'
 
-    if p.annotation().startswith('if:'):
+    if annot.startswith('if:'):
         return 'diamond'
     else:
         return 'rectangle'
+
 
 def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
     graph = Digraph(comment=comment)
@@ -119,7 +125,12 @@ class CFGNode(CFGNode):
             self.add_parent(p)
 
     def add_calls(self, func):
-        self.calls.append(func)
+        mid = None
+        if hasattr(func, 'id'): # ast.Name
+            mid = func.id
+        else: # ast.Attribute
+            mid = func.value.id
+        self.calls.append(mid)
 ```
 
 A few convenience methods to make our life simpler.
@@ -1098,7 +1109,8 @@ lbl2: if __iv.length_hint() > 0: goto lbl3
 lbl3: ...
 ```
 
-We need `on_call()` for implementing `on_for()`
+We need `on_call()` for implementing `on_for()`. Essentially, we walk through
+the arguments, then add a node corresponding to the call to the parents.
 
 ```python
 class PyCFGExtractor(PyCFGExtractor):
@@ -1106,12 +1118,8 @@ class PyCFGExtractor(PyCFGExtractor):
         p = myparents
         for a in node.args:
             p = self.walk(a, p)
-        mid = None
-        if hasattr(node.func, 'id'):
-            mid = node.func.id
-        else:
-            mid = node.func.value.id
-        myparents[0].add_calls(mid)
+        myparents[0].add_calls(node.func)
+        p = [CFGNode(parents=p, ast=node, label='call', annot='')]
         return p
 ```
 
@@ -1513,21 +1521,49 @@ y = x
 </g>
 </svg>
 
+#### FunctionDef
+
+When defining a function, we should define the `return_nodes` for the
+return statement to hook into. Further, we should also register our
+functions.
+
+Next, we have to decide: Do we want the call graph of the function definition to
+be attached to the previous statements? In Python, the function definition itself
+is independent of the previous statements. Hence, here, we choose not to have
+parents for the definition.
+
+```python
+DEFS_HAVE_PARENTS = False
+
+class PyCFGExtractor(PyCFGExtractor):  
+    def on_functiondef(self, node, myparents):
+        # name, args, body, decorator_list, returns
+        fname = node.name
+        args = node.args
+        returns = node.returns
+        p = myparents if DEFS_HAVE_PARENTS else []
+        enter_node = CFGNode(parents=p, ast=node, label='enter',
+                annot='<define>: %s' % node.name)
+        enter_node.return_nodes = [] # sentinel
+
+        p = [enter_node]
+        for n in node.body:
+            p = self.walk(n, p)
+
+        enter_node.return_nodes.extend(p)
+
+        self.functions[fname] = [enter_node, enter_node.return_nodes]
+        self.functions_node[enter_node.lineno()] = fname
+
+        return myparents
+```
+
+#### Return
+
+For `return`, we need to look up which function we have to return from.
 
 ```python
 class PyCFGExtractor(PyCFGExtractor):  
-    def on_call(self, node, myparents):
-        p = myparents
-        for a in node.args:
-            p = self.walk(a, p)
-        mid = None
-        if hasattr(node.func, 'id'):
-            mid = node.func.id
-        else:
-            mid = node.func.value.id
-        myparents[0].add_calls(mid)
-        return p
-
     def on_return(self, node, myparents):
         parent = myparents[0]
 
@@ -1546,71 +1582,115 @@ class PyCFGExtractor(PyCFGExtractor):
         return []
 ```
 
-```python
-class PyCFGExtractor(PyCFGExtractor):  
-    def on_functiondef(self, node, myparents):
-        # a function definition does not actually continue the thread of
-        # control flow
-        # name, args, body, decorator_list, returns
-        fname = node.name
-        args = node.args
-        returns = node.returns
+Example
 
-        enter_node = CFGNode(parents=[], ast=ast.parse('enter: %s(%s)' % (
-               node.name, ', '.join([a.arg for a in node.args.args])) ).body[0]) # sentinel
-        ast.copy_location(enter_node.ast_node, node)
-        enter_node.return_nodes = [] # sentinel
-
-        p = [enter_node]
-        for n in node.body:
-            p = self.walk(n, p)
-
-        if not enter_node.return_nodes:
-            enter_node.return_nodes = p
-
-        self.functions[fname] = [enter_node, enter_node.return_nodes]
-        self.functions_node[enter_node.lineno()] = fname
-
-        return myparents
+```
+x = 1
+def my_fn(v1, v2):
+    if v1 > v2:
+        return v1
+    else:
+        return v2
+y = 2
 ```
 
-```python
-class PyCFGExtractor(PyCFGExtractor):  
-    def get_defining_function(self, node):
-        if node.lineno() in self.functions_node: return self.functions_node[node.lineno()]
-        if not node.parents:
-            self.functions_node[node.lineno()] = ''
-            return ''
-        val = self.get_defining_function(node.parents[0])
-        self.functions_node[node.lineno()] = val
-        return val
-
-    def link_functions(self):
-        for nid,node in CFGNode.cache.items():
-            if node.calls:
-                for calls in node.calls:
-                    if calls in self.functions:
-                        enter, exits = self.functions[calls]
-                        enter.add_parent(node)
-                        #node.add_parents(exits)
-                        if node.children:
-                            for c in node.children: c.add_parents(exits)
-
-    def update_functions(self):
-        for nid,node in CFGNode.cache.items():
-            _n = self.get_defining_function(node)
-
-    def update_children(self):
-        for nid,node in CFGNode.cache.items():
-            for p in node.parents:
-                p.add_child(node)
-                
-    def gen_cfg(self, src):
-        node = ast.parse(src)
-        nodes = self.walk(node, [self.founder])
-        self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0])
-        ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
-        self.update_children()
-        self.update_functions()
-        self.link_functions()
-```
+<svg width="266pt" height="276pt"
+ viewBox="0.00 0.00 266.00 276.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 272)">
+<title>%3</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-272 262,-272 262,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>0</title>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-246" rx="27" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="31" cy="-246" rx="31" ry="22"/>
+<text text-anchor="start" x="19" y="-242.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
+</g>
+<!-- 1 -->
+<g id="node2" class="node">
+<title>1</title>
+<polygon fill="none" stroke="#000000" points="58,-188 4,-188 4,-152 58,-152 58,-188"/>
+<text text-anchor="middle" x="31" y="-166.3" font-family="Times,serif" font-size="14.00" fill="#000000">x = 1</text>
+</g>
+<!-- 0&#45;&gt;1 -->
+<g id="edge1" class="edge">
+<title>0&#45;&gt;1</title>
+<path fill="none" stroke="#000000" d="M31,-223.6086C31,-215.7272 31,-206.7616 31,-198.4482"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-198.3974 31,-188.3975 27.5001,-198.3975 34.5001,-198.3974"/>
+</g>
+<!-- 15 -->
+<g id="node8" class="node">
+<title>15</title>
+<polygon fill="none" stroke="#000000" points="58,-116 4,-116 4,-80 58,-80 58,-116"/>
+<text text-anchor="middle" x="31" y="-94.3" font-family="Times,serif" font-size="14.00" fill="#000000">y = 2</text>
+</g>
+<!-- 1&#45;&gt;15 -->
+<g id="edge7" class="edge">
+<title>1&#45;&gt;15</title>
+<path fill="none" stroke="#000000" d="M31,-151.8314C31,-144.131 31,-134.9743 31,-126.4166"/>
+<polygon fill="#000000" stroke="#000000" points="34.5001,-126.4132 31,-116.4133 27.5001,-126.4133 34.5001,-126.4132"/>
+</g>
+<!-- 3 -->
+<g id="node3" class="node">
+<title>3</title>
+<ellipse fill="none" stroke="#000000" cx="174" cy="-246" rx="71.4876" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="174" cy="-246" rx="75.4873" ry="22"/>
+<text text-anchor="middle" x="174" y="-242.3" font-family="Times,serif" font-size="14.00" fill="#000000">&lt;define&gt;: my_fn</text>
+</g>
+<!-- 8 -->
+<g id="node7" class="node">
+<title>8</title>
+<polygon fill="none" stroke="#000000" points="174,-188 96.581,-170 174,-152 251.419,-170 174,-188"/>
+<text text-anchor="middle" x="174" y="-166.3" font-family="Times,serif" font-size="14.00" fill="#000000">if: (v1 &gt; v2)</text>
+</g>
+<!-- 3&#45;&gt;8 -->
+<g id="edge4" class="edge">
+<title>3&#45;&gt;8</title>
+<path fill="none" stroke="#000000" d="M174,-223.6086C174,-215.7272 174,-206.7616 174,-198.4482"/>
+<polygon fill="#000000" stroke="#000000" points="177.5001,-198.3974 174,-188.3975 170.5001,-198.3975 177.5001,-198.3974"/>
+</g>
+<!-- 4 -->
+<g id="node4" class="node">
+<title>4</title>
+<ellipse fill="none" stroke="#000000" cx="183" cy="-22" rx="63.0862" ry="18"/>
+<ellipse fill="none" stroke="#000000" cx="183" cy="-22" rx="67.0888" ry="22"/>
+<text text-anchor="middle" x="183" y="-18.3" font-family="Times,serif" font-size="14.00" fill="#000000">&lt;exit&gt;: my_fn</text>
+</g>
+<!-- 11 -->
+<g id="node5" class="node">
+<title>11</title>
+<polygon fill="none" stroke="#000000" points="174,-116 108,-116 108,-80 174,-80 174,-116"/>
+<text text-anchor="middle" x="141" y="-94.3" font-family="Times,serif" font-size="14.00" fill="#000000">return v1</text>
+</g>
+<!-- 11&#45;&gt;4 -->
+<g id="edge2" class="edge">
+<title>11&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M150.9534,-79.9891C155.4654,-71.8246 160.9284,-61.9391 166.056,-52.6605"/>
+<polygon fill="#000000" stroke="#000000" points="169.2506,-54.1158 171.0242,-43.6705 163.1239,-50.73 169.2506,-54.1158"/>
+</g>
+<!-- 14 -->
+<g id="node6" class="node">
+<title>14</title>
+<polygon fill="none" stroke="#000000" points="258,-116 192,-116 192,-80 258,-80 258,-116"/>
+<text text-anchor="middle" x="225" y="-94.3" font-family="Times,serif" font-size="14.00" fill="#000000">return v2</text>
+</g>
+<!-- 14&#45;&gt;4 -->
+<g id="edge3" class="edge">
+<title>14&#45;&gt;4</title>
+<path fill="none" stroke="#000000" d="M215.0466,-79.9891C210.5346,-71.8246 205.0716,-61.9391 199.944,-52.6605"/>
+<polygon fill="#000000" stroke="#000000" points="202.8761,-50.73 194.9758,-43.6705 196.7494,-54.1158 202.8761,-50.73"/>
+</g>
+<!-- 8&#45;&gt;11 -->
+<g id="edge5" class="edge">
+<title>8&#45;&gt;11</title>
+<path fill="none" stroke="#0000ff" d="M166.5118,-153.6621C162.661,-145.2603 157.8655,-134.7974 153.475,-125.2181"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="156.6177,-123.6747 149.2694,-116.0423 150.2543,-126.5913 156.6177,-123.6747"/>
+</g>
+<!-- 8&#45;&gt;14 -->
+<g id="edge6" class="edge">
+<title>8&#45;&gt;14</title>
+<path fill="none" stroke="#ff0000" d="M185.0662,-154.3771C191.2294,-145.6762 199.0698,-134.6074 206.1686,-124.5855"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.2311,-126.3171 212.1552,-116.1338 203.5189,-122.271 209.2311,-126.3171"/>
+</g>
+</g>
+</svg>
