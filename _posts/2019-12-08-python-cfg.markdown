@@ -35,7 +35,8 @@ import astunparse
 ### The CFGNode
 
 The control flow graph is a graph, and hence we need a data structue for the *node*.
-```
+
+```python
 class CFGNode(dict):
     registry = 0
     cache = {}
