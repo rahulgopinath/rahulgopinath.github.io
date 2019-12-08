@@ -1,3 +1,4 @@
+
 ---
 published: true
 title: Python Meta Circular Interpreter
@@ -33,7 +34,7 @@ Using a meta-circular interpreter, one can:
 
 I will be showing how to do these things in the upcoming posts. 
 
-## The Implementation
+## The Implementation (tested in Python 3.6.8)
 
 First, we import everything we need.
 
@@ -48,30 +49,39 @@ from functools import reduce
 import importlib
 ```
 
+The basic idea is to make use of the Python infrastructure as much as possible. That is,
+we do not want to implement things that are not related to the actual interpretation.
+Hence, we use the Python parsing infrastructure exposed by the `ast` module that parses
+Python source files, and returns back the AST. AST (Abstract Syntax Tree) as the name
+indicates is a data structure in the format of a tree.
+
+Once we have the AST, we simply walk the tree, and interpret the statements as we find them.
+
+
 ### The meta-circular-interpreter class
 
-The `interpret()` method is at the heart of our interpreter. Given the AST,
+The `walk()` method is at the heart of our interpreter. Given the AST,
 It iterates through the statements, and evaluates each.
 
 ```python
 class SynErr(Exception): pass
 
 class PyMCInterpreter:
-    def interpret(self, node):
+    def walk(self, node):
         if node is None: return
         res = "on_%s" % node.__class__.__name__.lower()
         if hasattr(self, res):
             return getattr(self,res)(node)
-        raise SynErr('interpret: Not Implemented in %s' % type(node))
+        raise SynErr('walk: Not Implemented in %s' % type(node))
 ```
 
 We provide `eval()` which converts a given string to its AST, and calls
-`interpret()`
+`walk()`
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def eval(self, src):
-        return self.interpret(ast.parse(src))
+        return self.walk(ast.parse(src))
 ```
 
 #### The Pythonic data structures.
@@ -88,7 +98,7 @@ class PyMCInterpreter(PyMCInterpreter):
     def on_list(self, node):
         res = []
         for p in node.elts:
-            v = self.interpret(p)
+            v = self.walk(p)
             res.append(v)
         return res
 ```
@@ -100,7 +110,7 @@ class PyMCInterpreter(PyMCInterpreter):
     def on_tuple(self, node):
         res = []
         for p in node.elts:
-            v = self.interpret(p)
+            v = self.walk(p)
             res.append(v)
         return res
 ```
@@ -131,12 +141,12 @@ subscript.
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_subscript(self, node):
-        value = self.interpret(node.value)
-        slic = self.interpret(node.slice)
+        value = self.walk(node.value)
+        slic = self.walk(node.slice)
         return value[slic]
 
     def on_index(self, node):
-        return self.interpret(node.value)
+        return self.walk(node.value)
 ```
 
 ##### Attribute(expr value, identifier attr, expr_context ctx)
@@ -146,7 +156,7 @@ Similar to subscript for arrays, objects provide attribute access.
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_attribute(self, node):
-        obj = self.interpret(node.value)
+        obj = self.walk(node.value)
         attr = node.attr
         return getattr(obj, attr)
 ```
@@ -169,13 +179,13 @@ class Continue(Exception):
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_return(self, node):
-        raise Return(self.interpret(node.value))
+        raise Return(self.walk(node.value))
 
     def on_break(self, node):
-        raise Break(self.interpret(node.value))
+        raise Break(self.walk(node.value))
 
     def on_continue(self, node):
-        raise Continue(self.interpret(node.value))
+        raise Continue(self.walk(node.value))
 
     def on_pass(self, node):
         pass
@@ -256,7 +266,7 @@ Python allows multi-target assignments.
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_assign(self, node):
-        value = self.interpret(node.value)
+        value = self.walk(node.value)
         tgts = [t.id for t in node.targets]
         if len(tgts) == 1:
             self.symtable[tgts[0]] = value
@@ -276,8 +286,8 @@ new scope.
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_call(self, node):
-        func = self.interpret(node.func)
-        args = [self.interpret(a) for a in node.args]
+        func = self.walk(node.func)
+        args = [self.walk(a) for a in node.args]
         if str(type(func)) == "<class 'builtin_function_or_method'>":
             return func(*args)
         elif str(type(func)) == "<class 'type'>":
@@ -288,7 +298,7 @@ class PyMCInterpreter(PyMCInterpreter):
             self.symtable.push(dict(zip(argnames, args)))
             try:
                 for i in fbody:
-                    res = self.interpret(i)
+                    res = self.walk(i)
                 return res
             except Return as e:
                 return e.val
@@ -372,22 +382,22 @@ BoolOP = {
 
 class PyMCInterpreter(PyMCInterpreter):
     def on_expr(self, node):
-        return self.interpret(node.value)
+        return self.walk(node.value)
 
     def on_compare(self, node):
-        hd = self.interpret(node.left)
+        hd = self.walk(node.left)
         op = node.ops[0]
-        tl = self.interpret(node.comparators[0])
+        tl = self.walk(node.comparators[0])
         return self.cmpop[type(op)](hd, tl)
 
     def on_unaryop(self, node):
-        return self.unaryop[type(node.op)](self.interpret(node.operand))
+        return self.unaryop[type(node.op)](self.walk(node.operand))
 
     def on_boolop(self, node):
-        return reduce(self.boolop[type(node.op)], [self.interpret(n) for n in node.values])
+        return reduce(self.boolop[type(node.op)], [self.walk(n) for n in node.values])
 
     def on_binop(self, node):
-        return self.binop[type(node.op)](self.interpret(node.left), self.interpret(node.right))
+        return self.binop[type(node.op)](self.walk(node.left), self.walk(node.right))
 ```
 
 #### Major control flow statements
@@ -399,10 +409,10 @@ Only basic loops and conditionals -- `while()` and `if()` are implemented.
 ```python
 class PyMCInterpreter(PyMCInterpreter):
     def on_while(self, node):
-        while self.interpret(node.test):
+        while self.walk(node.test):
             try:
                 for b in node.body:
-                    self.interpret(b)
+                    self.walk(b)
             except Break:
                 break
             except Continue:
@@ -415,12 +425,12 @@ class PyMCInterpreter(PyMCInterpreter):
 class PyMCInterpreter(PyMCInterpreter):
 
     def on_if(self, node):
-        v = self.interpret(node.test)
+        v = self.walk(node.test)
         body = node.body if v else node.orelse
         if body:
             res = None
             for b in body:
-                res = self.interpret(b)
+                res = self.walk(b)
 ```
 
 #### Modules
@@ -435,7 +445,7 @@ class PyMCInterpreter(PyMCInterpreter):
         # return value of module is the last statement
         res = None
         for p in node.body:
-            res = self.interpret(p)
+            res = self.walk(p)
         return res
 ```
 
