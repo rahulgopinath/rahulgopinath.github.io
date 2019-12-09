@@ -273,7 +273,7 @@ class Scope:
 
     def __setitem__(self, i, v):
         # choice here. We can check and set then named variable (if any)
-        # in parent scopes.
+        # in parent scopes. See `nonlocal` in Python
         self.table[i] = v
 
     def __getitem__(self, i):
