@@ -1,10 +1,37 @@
 #!/usr/bin/env python3
 import string
 import ast
+import astunparse
 import sys
 import json
 import builtins
 from functools import reduce
+import importlib
+
+class Sym:
+    def __init__(self, parent=None, table=None):
+        self.table = table
+        self.children = []
+        self.parent = parent
+
+    def new_child(table):
+        return Sym(parent=self, table=table)
+
+    def __setitem__(self, i, v):
+        self.table[i] = v
+
+    def __getitem__(self, i):
+        if i in self.table: return self.table[i]
+        if self.parent is None: return None
+        return self.parent[i]
+
+class Return(Exception):
+    def __init__(self, val): self.__dict__.update(locals())
+class Break(Exception):
+    def __init__(self): pass
+class Continue(Exception):
+    def __init__(self): pass
+
 
 class PyMCInterpreter:
     """
@@ -13,7 +40,7 @@ class PyMCInterpreter:
     >>> i.eval('a+b')
     3
     """
-    def __init__(self, symtable):
+    def __init__(self, symtable, args):
         # unaryop = Invert | Not | UAdd | USub
         self.unaryop = {
           ast.Invert: lambda a: ~a,
@@ -59,9 +86,11 @@ class PyMCInterpreter:
           ast.Or: lambda a, b: a or b
         }
 
-        self.symtable = builtins.__dict__
+        self.symtable = Sym(parent=None, table=builtins.__dict__)
+        self.symtable['sys'] = ast.Module(ast.Pass())
+        setattr(self.symtable['sys'], 'argv', args)
 
-        self.symtable.update(symtable)
+        self.symtable = Sym(parent=self.symtable, table=symtable)
 
     def walk(self, node):
         if node is None: return
@@ -112,11 +141,24 @@ class PyMCInterpreter:
         """
         return node.n
 
-    def on_nameconstant(self, node):
+    def on_index(self, node):
+        return self.walk(node.value)
+
+    def on_attribute(self, node):
         """
-        NameConstant(singleton value)
+         | Attribute(expr value, identifier attr, expr_context ctx)
         """
-        return node.value
+        obj = self.walk(node.value)
+        attr = node.attr
+        return getattr(obj, attr)
+
+    def on_subscript(self, node):
+        """
+         | Subscript(expr value, slice slice, expr_context ctx)
+        """
+        value = self.walk(node.value)
+        slic = self.walk(node.slice)
+        return value[slic]
 
     def on_name(self, node):
         """
@@ -175,16 +217,93 @@ class PyMCInterpreter:
     def on_call(self, node):
         func = self.walk(node.func)
         args = [self.walk(a) for a in node.args]
-        return func(*args)
+        if str(type(func)) == "<class 'builtin_function_or_method'>":
+            return func(*args)
+        elif str(type(func)) == "<class 'type'>":
+            return func(*args)
+        else:
+            [fname, argument, returns, fbody, symtable] = func
+            argnames = [a.arg for a in argument.args]
+            defs= dict(zip(argnames, args))
+            oldsyms = self.symtable
+            self.symtable = Sym(parent=symtable, table=defs)
+            try:
+                for i in fbody:
+                    res = self.walk(i)
+                return res
+            except Return as e:
+                return e.val
+            finally:
+                self.symtable = oldsyms
+
+    def on_return(self, node):
+        raise Return(self.walk(node.value))
+
+    def on_break(self, node):
+        """FP Stye dummy"""
+        raise Break(self.walk(node.value))
+
+    def on_continue(self, node):
+        raise Continue(self.walk(node.value))
+
+    def on_pass(self, node):
+        pass
+
+    def on_assign(self, node):
+        """
+        Assign(expr* targets, expr value)
+        """
+        value = self.walk(node.value)
+        tgts = [t.id for t in node.targets]
+        if len(tgts) == 1:
+            self.symtable[tgts[0]] = value
+        else:
+            for t,v in zip(tgts, value):
+                self.symtable[t] = v
+
+    def on_import(self, node):
+        """
+        Import(alias* names)
+        """
+        for im in node.names:
+            if im.name == 'sys': continue
+            v = importlib.import_module(im.name)
+            self.symtable[im.name] = v
+
+    def on_while(self, node):
+        """
+        While(expr test, stmt* body, stmt* orelse)
+        """
+        while self.walk(node.test):
+            try:
+                for b in node.body:
+                    self.walk(b)
+            except Break:
+                break
+            except Continue:
+                continue
+
+    def on_if(self, node):
+        """
+        If(expr test, stmt* body, stmt* orelse)
+        """
+        v = self.walk(node.test)
+        body = node.body if v else node.orelse
+        if body:
+            res = None
+            for b in body:
+                res = self.walk(b)
+
+    def on_functiondef(self, node):
+        fname = node.name
+        args = node.args
+        returns = node.returns
+        self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
 
     def eval(self, src):
         return self.walk(ast.parse(src))
 
 if __name__ == '__main__':
-    defs = {}
-    if len(sys.argv) > 2:
-        defs = json.loads(sys.argv[2])
-    expr = PyMCInterpreter(defs)
-    v = expr.eval(sys.argv[1])
+    expr = PyMCInterpreter({'__name__':'__main__'}, sys.argv[1:]) #json.loads(sys.argv[2])
+    v = expr.eval(open(sys.argv[1]).read())
     print(v)
-
