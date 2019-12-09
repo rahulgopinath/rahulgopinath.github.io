@@ -77,7 +77,6 @@ a.exe: a.c
    mv _$@ $@
 ```
 
-
 #### Avoid phony target names that are also common directories
 
 Namely, avoid target names such as `build`, `all`, `include`, `src`, `lib` etc. These are often
