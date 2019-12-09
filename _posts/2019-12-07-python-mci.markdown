@@ -257,38 +257,25 @@ nested data structrue, and we need to provide a way to look up symbols in enclos
 scopes. We have a choice to make here. Essentially, what variables do the calling
 program have access to? Historically, the most common conventions are [lexical and
 dynamic scoping](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scoping_vs._dynamic_scoping).
-Python follows the lexical scoping convention. But it is harder to implement. Hence,
-we do only `dynamic` scoping. When the scoping is not `dynamic`, we simply disallow
-access to outer scopes. This is *not* lexical scoping however.
+Python follows the lexical scoping convention. Hence, we implement lexical scoping.
 
 ```python
-SCOPE_RESOLUTION = 'dynamic'
 class Scope:
-    def __init__(self, table):
-        self.table = [table]
+    def __init__(self, parent=None, table=None):
+        self.table = table
+        self.children = []
+        self.parent = parent
 
-    def push(self, v):
-        self.table.append(v)
-        return v
-
-    def pop(self):
-        return self.table.pop()
-
-    def __getitem__(self, i):
-        if SCOPE_RESOLUTION != 'dynamic':
-           if i in self.table[-1]:
-                return self.table[-1][i]
-           else:
-                raise RuntimeError("%s does not exist." % i)
-        # dynamic scoping
-        for t in reversed(self.table):
-            if i in t:
-                return t[i]
-        return None
+    def new_child(table):
+        return Scope(parent=self, table=table)
 
     def __setitem__(self, i, v):
-        self.table[-1][i] = v
+        self.table[i] = v
 
+    def __getitem__(self, i):
+        if i in self.table: return self.table[i]
+        if self.parent is None: return None
+        return self.parent[i]
 ```
 
 #### Hooking up the symbol table
@@ -311,11 +298,11 @@ class PyMCInterpreter(PyMCInterpreter):
         self.cmpop = CmpOP
         self.boolop = BoolOP
 
-        self.symtable = Scope(builtins.__dict__)
+        self.symtable = Scope(parent=None, table=builtins.__dict__)
         self.symtable['sys'] = ast.Module(ast.Pass())
         setattr(self.symtable['sys'], 'argv', args)
 
-        self.symtable.push(symtable)
+        self.symtable = Scope(parent=self.symtable, table=symtable)
 ```
 
 #### The following statements use symbol table.
@@ -353,10 +340,9 @@ are implemented in C are proxied directly.
 
 For others, we want to correctly bind the arguments and create a
 new scope. The big question is how should the scopes be nested.
-If we are trying to implement lexical scoping, then we should
-retrieve the scope that was in effect when the function was defined.
-However, we have only implemented dynamic scoping. Hence, we 
-nest the calling scope.
+We use lexical scopes. So, we recover the symbol table used at the
+time of definition, use it for the call, and reset it back to the
+current one after the call.
 
 Note that we handle the `return` exception here.
 
@@ -370,9 +356,11 @@ class PyMCInterpreter(PyMCInterpreter):
         elif str(type(func)) == "<class 'type'>":
             return func(*args)
         else:
-            [fname, argument, returns, fbody] = func
+            [fname, argument, returns, fbody, symtable] = func
             argnames = [a.arg for a in argument.args]
-            self.symtable.push(dict(zip(argnames, args)))
+            defs= dict(zip(argnames, args))
+            oldsyms = self.symtable
+            self.symtable = Scope(parent=symtable, table=defs)
             try:
                 for i in fbody:
                     res = self.walk(i)
@@ -380,13 +368,13 @@ class PyMCInterpreter(PyMCInterpreter):
             except Return as e:
                 return e.val
             finally:
-                self.symtable.pop()
+                self.symtable = oldsyms
 ```
 
 ##### FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)
 
 The function definition itself is quite simple. We simply update the symbol table with the given values.
-Note that if we want to implement *lexical scoping*, we have to maintain the scoping references here.
+Note that because we implement *lexical scoping*, we have to maintain the scoping references during creation.
 
 ```python
 class PyMCInterpreter(PyMCInterpreter):
@@ -394,7 +382,7 @@ class PyMCInterpreter(PyMCInterpreter):
         fname = node.name
         args = node.args
         returns = node.returns
-        self.symtable[fname] = [fname, args, returns, node.body]
+        self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
 ```
 
 ##### Import(alias* names)
@@ -499,7 +487,7 @@ class PyMCInterpreter(PyMCInterpreter):
 
 ```python
 if __name__ == '__main__':
-    expr = PyMCInterpreter({'__name__':'__main__'}, sys.argv[1:])
+    expr = PyMCInterpreter({'__name__':'__main__'}, sys.argv[1:]) #json.loads(sys.argv[2])
     v = expr.eval(open(sys.argv[1]).read())
     print(v)
 ```
