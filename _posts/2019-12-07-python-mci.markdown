@@ -257,7 +257,9 @@ nested data structrue, and we need to provide a way to look up symbols in enclos
 scopes. We have a choice to make here. Essentially, what variables do the calling
 program have access to? Historically, the most common conventions are [lexical and
 dynamic scoping](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scoping_vs._dynamic_scoping).
-Python follows the lexical scoping convention. Hence, we implement lexical scoping.
+The most intuitive is the lexical scoping convention. Hence, we implement lexical scoping,
+but with a restriction: If we modify a variable in parent scopes, then the new variable is
+created in current scope.
 
 ```python
 class Scope:
@@ -270,6 +272,8 @@ class Scope:
         return Scope(parent=self, table=table)
 
     def __setitem__(self, i, v):
+        # choice here. We can check and set then named variable (if any)
+        # in parent scopes.
         self.table[i] = v
 
     def __getitem__(self, i):
