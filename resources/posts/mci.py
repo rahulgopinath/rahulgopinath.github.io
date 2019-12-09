@@ -8,14 +8,14 @@ import builtins
 from functools import reduce
 import importlib
 
-class Sym:
+class Scope:
     def __init__(self, parent=None, table=None):
         self.table = table
         self.children = []
         self.parent = parent
 
     def new_child(table):
-        return Sym(parent=self, table=table)
+        return Scope(parent=self, table=table)
 
     def __setitem__(self, i, v):
         self.table[i] = v
@@ -86,11 +86,11 @@ class PyMCInterpreter:
           ast.Or: lambda a, b: a or b
         }
 
-        self.symtable = Sym(parent=None, table=builtins.__dict__)
+        self.symtable = Scope(parent=None, table=builtins.__dict__)
         self.symtable['sys'] = ast.Module(ast.Pass())
         setattr(self.symtable['sys'], 'argv', args)
 
-        self.symtable = Sym(parent=self.symtable, table=symtable)
+        self.symtable = Scope(parent=self.symtable, table=symtable)
 
     def walk(self, node):
         if node is None: return
@@ -226,7 +226,7 @@ class PyMCInterpreter:
             argnames = [a.arg for a in argument.args]
             defs= dict(zip(argnames, args))
             oldsyms = self.symtable
-            self.symtable = Sym(parent=symtable, table=defs)
+            self.symtable = Scope(parent=symtable, table=defs)
             try:
                 for i in fbody:
                     res = self.walk(i)
