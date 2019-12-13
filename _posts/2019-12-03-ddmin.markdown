@@ -178,7 +178,7 @@ Here is the implementation.
 ### ddrmin()
 
 ```python
-def ddrmin(cur_str, causal_fn, pre, post):
+def ddrmin(cur_str, causal_fn, pre='', post=''):
     if len(cur_str) == 1: return cur_str
     
     part_i = len(cur_str) // 2
