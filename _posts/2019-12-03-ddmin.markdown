@@ -220,7 +220,8 @@ of the derivation tree. Another notable improvement is
 *Automatically Reducing Tree-Structured Test Inputs* by Herfert et al. in 2017. In this
 paper, the authors describe a simple strategy: Try and replace a given node by one of
 its child nodes. This works reasonably well for inputs that are context sensitive such
-as programs that can trigger bugs in compilers.
+as programs that can trigger bugs in compilers. Another is *Perses: Syntax-Guided Program Reduction*
+by Sun et al. in 2018 which uses the program grammar directly to avoid creating invalid nodes.
 
 The problem in the above approach is that, it assumes that there exist a child node that
 is of same type as the parent node. This need not be the case. Hence an even better idea
