@@ -134,6 +134,7 @@ inputstring = ''.join(random.choices(string.digits +
                       string.punctuation, k=1024))
 
 if __name__ == "__main__":
+    assert test(inputstring)
     solution = ddmin(inputstring, test)
     print(solution)
 ```
