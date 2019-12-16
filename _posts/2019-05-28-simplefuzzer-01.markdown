@@ -135,7 +135,7 @@ This grammar fuzzer can be implemented in pretty much any programming language t
 What if you want the derivation tree instead? The following modified fuzzer will get you the derivation tree which
 can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
-```
+```python
 def unify_key(g, key):
    return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
 
@@ -145,7 +145,7 @@ def unify_rule(g, rule):
 
 Using it
 
-```
+```python
 from fuzzingbook.GrammarFuzzer import tree_to_string
 
 res = unify_key(g, '<start>')
