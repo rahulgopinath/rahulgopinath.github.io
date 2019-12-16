@@ -43,11 +43,11 @@ let us use one of the simplest parsers -- ([A PEG parser](http://rahul.gopinath.
 
 ```python
 import random
-def unify_key(key):
-   return unify_rule(random.choice(grammar[key])) if key in grammar else [key]
+def unify_key(grammar, key):
+   return unify_rule(grammar, random.choice(grammar[key])) if key in grammar else [key]
 
-def unify_rule(rule):
-    return sum([unify_key(token) for token in rule], [])
+def unify_rule(grammar, rule):
+    return sum([unify_key(grammar, token) for token in rule], [])
 ```
 Now, all one needs is a grammar.
 
@@ -131,3 +131,25 @@ It results in the following output
 ```
 
 This grammar fuzzer can be implemented in pretty much any programming language that supports basic data structures.
+
+What if you want the derivation tree instead? The following modified fuzzer will get you the derivation tree which
+can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
+
+```
+def unify_key(g, key):
+   return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
+
+def unify_rule(g, rule):
+    return [unify_key(g, token) for token in rule]
+```
+
+Using it
+
+```
+from fuzzingbook.GrammarFuzzer import tree_to_string
+
+res = unify_key(g, '<start>')
+print(res)
+print(repr(tree_to_string(res)))
+
+```
