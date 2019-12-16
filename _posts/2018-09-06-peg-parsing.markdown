@@ -28,7 +28,7 @@ def unify_key(key, text, at):
    rules = grammar[key]
    for rule in rules:
        res, l = unify_rule(rule, text, at)
-       if res: return (res, l)
+       if res is not None: return (res, l)
    return (False, 0)
 ```
 For unifying rules, the idea is similar. We take each token in the rule, and try to unify that token with the string to be matched. We rely on `unify_key` for doing the unification of the token. if the unification fails, we return empty handed.
@@ -36,7 +36,7 @@ For unifying rules, the idea is similar. We take each token in the rule, and try
 def unify_rule(rule, text, at):
     for token in rule:
           result, at = unify_key(token, text, at)
-          if not result: return (False, at)
+          if result is None: return (False, at)
     return (True, at)
  ```
 When we implemented the `unify_key`, we made an important decision, which was that, we return as soon as a match was found. This is what distinguishes a `PEG` parser from a general `CFG` parser. In particular it means that rules have to be ordered.
