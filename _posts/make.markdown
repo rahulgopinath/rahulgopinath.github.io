@@ -185,6 +185,7 @@ These are susceptible to race conditions and corruptions, and incomplete builds 
 
 #### Silent makes
 
+Thanks to [mad-scientist](http://make.mad-scientist.net/managing-recipe-echoing/) for introducing me to `.SILENT` target.
 There are various ways to accomplish this. The most finegrained approach is to use `@` in front of a recipe line
 
 ```
