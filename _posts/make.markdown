@@ -200,6 +200,10 @@ Phony targets are those target that are for providing entry points to make invoc
 .SUFFIXES:
 ```
 
+```
+MAKEFLAGS += --no-builtin-rules
+```
+
 #### Disable autoremoval of intermediate files
 
 ```
