@@ -92,7 +92,7 @@ An open system is characterized by a relaxation of consistency requirement to ev
 
 ### TeamWare
 
-TeamWare[32] was the first distributed version control system, which was imple- mented as a layer over SCCS. It utilises the Network File System for access to peer repositories rather than a separate network protocol. The TeamWare defines operations bringover and putback which are used for synchronization between peer repositories. Unlike other distributed version control systems such as Git and Mercurial, TeamWare can bring over specific directories of the parent rather than particular changesets. This allow a finer grained control over the synchronization operation.
+TeamWare[32] was the first distributed version control system, which was implemented as a layer over SCCS. It utilises the Network File System for access to peer repositories rather than a separate network protocol. The TeamWare defines operations bringover and putback which are used for synchronization between peer repositories. Unlike other distributed version control systems such as Git and Mercurial, TeamWare can bring over specific directories of the parent rather than particular changesets. This allow a finer grained control over the synchronization operation.
 
 ### Bitkeeper
 
