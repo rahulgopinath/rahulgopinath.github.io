@@ -38,6 +38,8 @@ a.exe: a.c
    mv _$@ $@
 ```
 
+See also: `.DELETE_ON_ERROR`
+
 #### Use sentinels when your recipe creates multiple files that are required elsewhere in the build
 
 
