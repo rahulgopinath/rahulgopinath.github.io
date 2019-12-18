@@ -280,3 +280,10 @@ Make on its own accepts the command line `--silent`
 $ make --silent
 ```
 
+#### Recommendation from [here](https://tech.davis-hansson.com/p/make/)
+
+Change the `.RECIPEPREFIX` if you are starting a new project where you do not have to interact with other projects. I recommend `;` to `>` as the former lets you join multiple command lines together, or split a command line into multiple parts with little effort.
+
+```
+.RECIPEPREFIX = ;
+```
