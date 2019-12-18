@@ -287,3 +287,9 @@ Change the `.RECIPEPREFIX` if you are starting a new project where you do not ha
 ```
 .RECIPEPREFIX = ;
 ```
+
+#### Ensure that a failure in a pipe stage kills the build
+
+```
+.SHELLFLAGS := -eu -o pipefail -c  
+```
