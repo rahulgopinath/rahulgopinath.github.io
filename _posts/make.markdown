@@ -1,4 +1,4 @@
-### Makefiles best practices
+### (GNU) Makefiles best practices
 
 
 #### Automatic variables are your friends.
