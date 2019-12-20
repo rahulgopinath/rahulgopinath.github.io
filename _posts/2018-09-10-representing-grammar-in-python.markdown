@@ -4,6 +4,7 @@ title: Representing a Grammar in Python
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 In the [previous](2018/09/05/top-down-parsing/) [posts](/2018/09/06/peg-parsing/), I described how can write a parser. For doing that, I made use of a grammar written as a python data structure, with the assumption that it can be loaded as a JSON file if necessary. The grammar looks like this:

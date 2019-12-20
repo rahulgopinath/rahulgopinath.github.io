@@ -4,6 +4,7 @@ title: A simple grammar miner
 layout: post
 comments: true
 tags: fuzzing
+categories: post
 ---
 
 Note: This post is based on the string inclusion grammar miner in

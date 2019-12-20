@@ -1,6 +1,6 @@
 ---
 layout: post
-category : instructor
+categories : instructor
 tagline: "."
 tags : [instructor securitytesting winter 2019 2020]
 e: Generating Software Tests

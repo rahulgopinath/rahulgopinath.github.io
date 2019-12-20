@@ -4,6 +4,7 @@ title: Parsing Context Free Languages with Derivatives in Python
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 ```python

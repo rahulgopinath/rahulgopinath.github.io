@@ -4,6 +4,7 @@ title: A tiny and incomplete Python Virtual Machine
 layout: post
 comments: true
 tags: vm
+categories: post
 ---
 
 *Tested in Python 3.6.8*

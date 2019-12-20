@@ -4,6 +4,7 @@ title: How hard is parsing a context-free language? - recursive descent parsing 
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 How hard is parsing a context-free<sup id="a1">[1](#f1)</sup> language? In this post, I will try to provide

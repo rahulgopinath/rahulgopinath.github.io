@@ -4,6 +4,7 @@ title: Have We Gotten Better at Writing Code?
 layout: post
 comments: true
 tags: bugs
+categories: post
 ---
 
 I wanted to find whether the developers working on Linux kernel have gotten

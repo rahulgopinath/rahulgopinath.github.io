@@ -4,6 +4,7 @@ title: Recursive descent parsing with Parsing Expression Grammars (PEG)
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 In the [previous](/2018/09/05/top-down-parsing/) post, I showed how to write a simple recursive descent parser by hand -- that is using a set of mutually recursive procedures. Actually, I lied when I said context-free. The common hand-written parsers are usually an encoding of a kind of grammar called _Parsing Expression Grammar_ or _PEG_ for short.

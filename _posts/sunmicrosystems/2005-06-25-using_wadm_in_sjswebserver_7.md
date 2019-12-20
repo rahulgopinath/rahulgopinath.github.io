@@ -1,6 +1,6 @@
 ---
 layout: post
-category : blog
+categories : blog
 tagline: "."
 tags : [sunmicrosystems blog sun]
 categories : sunblog

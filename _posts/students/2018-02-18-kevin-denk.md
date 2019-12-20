@@ -1,6 +1,6 @@
 ---
 layout: post
-category : student
+categories : student
 tagline: "."
 tags : [student kevindenk 2018]
 e: Evaluating the Robustness of Ethereum Virtual Machines

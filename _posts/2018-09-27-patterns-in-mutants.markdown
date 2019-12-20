@@ -3,6 +3,7 @@ published: false
 title: Patterns in Mutants
 layout: post
 comments: true
+categories: post
 tags: mutation
 ---
 

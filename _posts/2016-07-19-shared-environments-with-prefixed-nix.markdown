@@ -4,6 +4,7 @@ title: Shared Environments with Prefixed Nix
 layout: post
 comments: true
 tags: nixos
+categories: post
 ---
 *tl;dr*: Recipe for Nix installation on a non */nix* location, which can be shared across multiple users
 

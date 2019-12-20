@@ -4,6 +4,7 @@ title: A simple split-stream mutation engine in Python
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 This post describes the implementation of a simple forking mutation-testing engine in Python. It is based on our paper [Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis](/publications#gopinath2016topsy).

@@ -1,6 +1,6 @@
 ---
 layout: post
-category : instructor
+categories : instructor
 tagline: "."
 tags : [instructor securityteting winter 2017 2018]
 e: Security Testing

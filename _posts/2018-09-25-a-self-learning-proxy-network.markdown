@@ -4,6 +4,7 @@ title: A self-learning proxy-network with reinforment learning (Q-Learning)
 layout: post
 comments: true
 tags: proxy
+categories: post
 ---
 
 In this post, I describe how to use _Q-learning_ within a caching proxy network so that the network learns the best route to use to fetch URLs from servers. For the purpose of this post, the proxy network and the origin servers are simulated.

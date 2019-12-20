@@ -4,6 +4,7 @@ title: Meltdown - review
 layout: post
 comments: true
 tags: security
+categories: post
 ---
 
 This is a summary of the Meltdown([Lipp et al. 2018](https://arxiv.org/abs/1801.01207)) attack.

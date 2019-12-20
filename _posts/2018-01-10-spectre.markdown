@@ -4,6 +4,7 @@ title: Spectre - review
 layout: post
 comments: true
 tags: security
+categories: post
 ---
 
 This is a summary of the Spectre ([Kocher et al. 2017](https://arxiv.org/abs/1801.01203)) attack.

@@ -4,6 +4,7 @@ title: Parsing XML with a context free grammar
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 Note: The grammar is based on the XML grammar in [the fuzzingbook](https://www.fuzzingbook.org/html/GreyboxGrammarFuzzer.html#Parsing-and-Recombining-HTML).

@@ -4,6 +4,7 @@ title: Generating a parser in c++ with ANTLR4
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 ## Using ANTLR4 for C++ target

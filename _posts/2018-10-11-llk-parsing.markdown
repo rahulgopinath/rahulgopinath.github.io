@@ -4,6 +4,7 @@ title: Parsing with table parsers
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 ```python
 import sys

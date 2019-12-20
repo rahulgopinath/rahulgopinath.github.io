@@ -4,6 +4,7 @@ title: When are comprehensions (list, set) harmful in Python?
 layout: post
 comments: true
 tags: parsing
+categories: post
 ---
 
 When programming in Python, one is often encouraged to apply list or set comprehensions in preference to methods such as `map` and `filter` since they mostly accomplish similar things. For example, say we have a list of 10 numbers

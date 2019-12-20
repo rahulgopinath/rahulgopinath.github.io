@@ -4,6 +4,7 @@ title: The Python Control Flow Graph
 layout: post
 comments: true
 tags: controlflow
+categories: post
 ---
 
 We [previously discussed](/2019/12/07/python-mci/) how one can write an interpreter for

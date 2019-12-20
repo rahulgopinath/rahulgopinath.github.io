@@ -1,6 +1,6 @@
 ---
 layout: post
-category : instructor
+categories : instructor
 tagline: "."
 tags : [instructor fuzzing summer 2019]
 e: Comparing Fuzzing Techniques

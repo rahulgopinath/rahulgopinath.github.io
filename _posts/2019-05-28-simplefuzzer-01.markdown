@@ -4,6 +4,7 @@ title: The simplest grammar fuzzer in the world
 layout: post
 comments: true
 tags: fuzzing
+categories: post
 ---
 
 Fuzzing is one of the key tools in a security reseracher's tool box. It is simple

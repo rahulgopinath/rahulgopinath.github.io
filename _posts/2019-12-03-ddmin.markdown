@@ -4,6 +4,7 @@ title: Delta Debugging
 layout: post
 comments: true
 tags: reducing
+categories: post
 ---
 
 Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).

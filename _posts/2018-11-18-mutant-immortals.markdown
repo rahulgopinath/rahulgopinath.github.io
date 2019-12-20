@@ -4,6 +4,7 @@ title: Rehabilitating Mutant Immortals
 layout: post
 comments: true
 tags: mutation
+categories: post
 ---
 
 # Rehabilitating Mutant Immortals.

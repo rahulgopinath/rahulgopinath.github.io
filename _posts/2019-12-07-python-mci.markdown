@@ -4,6 +4,7 @@ title: Python Meta Circular Interpreter
 layout: post
 comments: true
 tags: mci
+categories: post
 ---
 
 I had previously [discussed](/post/2011/07/20/language7/) how one can implement
