@@ -127,7 +127,7 @@ We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences
 Note: This implementation will blow the stack pretty fast if we attempt to parse any expressions that are reasonably large (where some node in the derivation tree has a depth of 500) because Python provides very limited stack. One
 can improve the situation slightly by inlining the `unify_rule()`.
 
-```
+```python
 class peg_parse:
     def __init__(self, grammar):
         self.grammar = {k:[tuple(l) for l in rules] for k,rules in grammar.items()}
