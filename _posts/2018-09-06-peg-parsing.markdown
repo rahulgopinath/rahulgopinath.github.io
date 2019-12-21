@@ -86,9 +86,6 @@ class peg_parse:
     def __init__(self, grammar):
         self.grammar = {k:[tuple(l) for l in rules] for k,rules in grammar.items()}
 
-    def literal_match(self, part, text, tfrom):
-        return (tfrom + len(part), (part, [])) if text[tfrom:].startswith(part) else (tfrom, None)
-
     @functools.lru_cache(maxsize=None)
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
