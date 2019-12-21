@@ -65,21 +65,21 @@ import sys
 import functools
 
 term_grammar = {
-    'expr': [
-        ['term', 'add_op', 'expr'],
-        ['term']],
-    'term': [
-        ['fact', 'mul_op', 'term'],
-        ['fact']],
-    'fact': [
-        ['digits'],
-        ['(','expr',')']],
-    'digits': [
-        ['digit','digits'],
+    '<expr>': [
+        ['<term>', '<add_op>', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '<mul_op>', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
         ['digit']],
-    'digit': [[str(i)] for i in list(range(10))],
-    'add_op': [['+'], ['-']],
-    'mul_op': [['*'], ['/']]
+    '<digit>': [[str(i)] for i in list(range(10))],
+    '<add_op>': [['+'], ['-']],
+    '<mul_op>': [['*'], ['/']]
 }
 
 class peg_parse:
@@ -123,3 +123,32 @@ What we have here is only a subset of _PEG_ grammar. A _PEG_ grammar can contain
 * Not-predicate: !e
 
 We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, the lack of predicates does not change ([Ford 2004](https://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf)) the class of languages that such grammars can match, and even without the predicates, our _PEG_ can be useful for easily representing a large category of programs.
+
+Note: This implementation will blow the stack pretty fast if we attempt to parse any expressions that are reasonably large (where some node in the derivation tree has a depth of 500) because Python provides very limited stack. One
+can improve the situation slightly by inlining the `unify_rule()`.
+
+```
+class peg_parse:
+    def __init__(self, grammar):
+        self.grammar = {k:[tuple(l) for l in rules] for k,rules in grammar.items()}
+
+    def unify_key(self, key, text, at=0):
+        if key not in self.grammar:
+            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+
+        rules = self.grammar[key]
+        for rule in rules:
+            results = []
+            tfrom = at
+            for part in rule:
+                tfrom, res_ = self.unify_key(part, text, tfrom)
+                if res_ is None:
+                    l, results = tfrom, None
+                    break
+                results.append(res_)
+            l, res = tfrom, results
+            if res is not None: return l, (key, res)
+        return (0, None)
+```
+
+This gets us to derivation trees with at a depth of 1000 (or more if we increase the `sys.setrecursionlimit()`). We can also turn this to a completely iterative solution if we simulate the stack (formal arguments, locals, return value) ourselves rather than relying on the Python stack frame.
