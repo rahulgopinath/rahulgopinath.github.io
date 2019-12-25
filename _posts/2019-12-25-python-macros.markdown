@@ -141,7 +141,7 @@ if __name__ == '__main__':
     print(expression_grammar)
 ```
 
-So, for doing this, we will do it in two steps. First, we will replace `grammar` by `def` which will make the Python parse pase it,
+We will do the editing in two steps. First, we will replace `grammar` by `def` which will make the Python parse pase it,
 and then, we will interpret the AST ourselves to return a data structure instead.
 
 ### Imports
