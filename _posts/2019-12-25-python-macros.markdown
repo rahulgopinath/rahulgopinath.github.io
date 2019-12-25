@@ -147,7 +147,7 @@ and then, we will interpret the AST ourselves to return a data structure instead
 ### Imports
 
 ```python
-!/usr/bin/env python
+#!/usr/bin/env python
 
 import codecs
 import re
