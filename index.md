@@ -38,7 +38,7 @@ My [initial research](/publications/#gopinath2014code) towards addressing the sh
 As an initial step towards reducing the computational requirements of mutation analysis, I investigated techniques used for mutation analysis, and invented a [new algorithm](/publications/#gopinath2016topsy) for faster mutation analysis, taking advantage of redundancy in execution between similar mutants. Further, I was able to identify how [combinatorial evaluation](/publications/#gopinath2015how) could be used for evaluating equivalent mutants. Next,
 I compared the effectiveness of current techniques for reducing mutants to be evaluated such as operator selection and stratum based sampling, and found that they offer surprisingly little advantage (less than 10% for stratum sampling and negative for operator selection) compared to simple random sampling in multiple evaluation criteria.
 
-My [recent research](/publications/#gopinath2016on) comparing the effectiveness of the theoretical best mutation
+My [research](/publications/#gopinath2016on) comparing the effectiveness of the theoretical best mutation
 selection methods with random sampling found that even under oracular
 knowledge of test kills, mutation selection methods can at best be less than
 20% better than random sampling, and are often much worse. Interestingly, there
