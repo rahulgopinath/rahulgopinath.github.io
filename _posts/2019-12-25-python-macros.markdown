@@ -283,6 +283,8 @@ print(expr_grammar.expression_grammar)
 ### Limitations
 
 The biggest limitation is that, one needs to move the encoding definition to the `system` encodings directory,
-which means  that it may require root privileges if you are using the system Python.
+which means  that it may require root privileges if you are using the system Python. If you are unable to do it,
+you will need a runner that will import your code (as in the last example). We need a bit more machinery to make
+that work. See [this project](https://pypi.org/project/emoji-encoding/) for a simple example of how to do it.
 
-[1] See [this project](https://github.com/satwikkansal/wtfpython/blob/master/README.md) for examples of Python warts.
+[1] See [this project](https://github.com/satwikkansal/wtfpython/blob/master/README.md) for examples of Python warts. I particularly dislike the [mutable default arguments](https://github.com/satwikkansal/wtfpython/blob/master/README.md#-beware-of-default-mutable-arguments).
