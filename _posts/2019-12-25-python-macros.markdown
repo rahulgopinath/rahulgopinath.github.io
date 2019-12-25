@@ -148,16 +148,14 @@ and then, we will interpret the AST ourselves to return a data structure instead
 
 ```python
 #!/usr/bin/env python
-
 import codecs
 import re
 import ast
-
 ```
 
 ### Registering our codec
 
-As we mentioend before, the main action happens in `Codec.decode` We first make the source parsable, parse it, and then interpret the
+As we saw before, the main action happens in `Codec.decode`. We first make the source parsable, parse it, and then interpret the
 AST.
 
 ```python
