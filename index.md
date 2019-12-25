@@ -9,7 +9,8 @@ Rahul Gopinath is a postdoctoral researcher working on static and dynamic analys
 <h2>Research at CISPA</h2>
 
 At CISPA, I work in _Grammar Mining_, and _Grammar Based Fuzzing_.
-Currently working on [the fuzzing book](https://www.fuzzingbook.org/).
+I am one of the authors of [the fuzzing book](https://www.fuzzingbook.org/). Some of our recent results include the [F1 grammar fuzzer](https://rahul.gopinath.org/publications/#gopinath2019building) and the grammar inference engine [Mimid](https://rahul.gopinath.org/publications/#gopinath2019inferring).
+
 Stay tuned for our recent results ...
 
 <h2>Research until Ph.D.</h2>
