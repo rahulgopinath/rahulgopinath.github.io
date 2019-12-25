@@ -8,10 +8,18 @@ Rahul Gopinath is a postdoctoral researcher working on static and dynamic analys
 
 <h2>Research at CISPA</h2>
 
-At CISPA, I work in _Grammar Mining_, and _Grammar Based Fuzzing_.
-I am one of the authors of [the fuzzing book](https://www.fuzzingbook.org/). Some of our recent results include the [F1 grammar fuzzer](https://rahul.gopinath.org/publications/#gopinath2019building) and the grammar inference engine [Mimid](https://rahul.gopinath.org/publications/#gopinath2019inferring).
+At CISPA, my work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforseen manner? If a system correctly correctly rejects all invalid inputs, and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilties before it is exposed to the wider world.
 
-Stay tuned for our recent results ...
+Our work produced [the fuzzing book](https://www.fuzzingbook.org/) which is an accessible resource for students and practitioners who are new to fuzzing. It takes the student through writing simple fuzzers that generate random inputs without any information or feedback from the program to writing complex fuzzers that analyze the system under fuzzing for information about the expected inputs, and incorporate the feedback from previous runs to guide further fuzzing.
+
+One of the challenges in fuzzing is how to reach deep code paths. In particular, many systems accept multi layered inputs such as an HTTP request that wraps a JSON object, which in turn encodes an RPC call, which may in turn encode a custom data structure. For such inputs, traditional fuzzers rarely reach beyond the first layer. The problem is that traditional fuzzers rely on the coverage to decide how to proceed. When a fuzzer is faced with a program with a complex input structure, coverage is of little help beyond producing simple values as the paths explored are the same for simple or complex inputs. This means that one needs a better way of producing complex inputs than traditional coverage guided fuzzing.
+
+Our first research was toward generating complex *valid* inputs when faced with a parser, so that we can get to the next level. We found that traditional approaches such as symbolic execution does not work well due to *path explosion* when faced with parsers. 
+We [invented](https://arxiv.org/abs/1810.08289) and [implemented](https://github.com/vrthra/pygmalion) a fast and light weight approach called Pygmalion that iteratively corrects a generated input prefix which ultimately leads to valid inputs. Our result was presented at [PLDI 2019](https://rahul.gopinath.org/publications/#mathis2019parser).
+
+While *Pygmalion* can get us valid inputs faster than traditional methods, it is limited to the first layer parser. While *Pygmalion* is fast, it still needs to run the program under fuzzing once per input character, which is comparitively expensive if one wants to produce a large number of valid inputs. Hence, we [invented]((https://rahul.gopinath.org/publications/#gopinath2019inferring)) and [implemented](https://github.com/vrthra/pymimid/) a technique called Mimid that can infer the input structure expected by a given parser as a *context-free grammar* from dynamic analysis of the program run.
+
+Given such a grammar, the problem reduces to how one can generate inputs fast from a *context-free grammar*. The problem at this point was that the available grammar based fuzzers were too slow. Hence, we [adapted](https://rahul.gopinath.org/publications/#gopinath2019building) ideas from programming language, and virtual machine optimization to build our [F1 grammar fuzzer](https://github.com/vrthra/f1) which can produce millions of inputs per second.
 
 <h2>Research until Ph.D.</h2>
 
