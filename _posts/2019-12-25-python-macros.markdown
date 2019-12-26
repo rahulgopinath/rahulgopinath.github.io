@@ -1,6 +1,6 @@
 ---
 published: true
-title: There are Macros in Python
+title: Automatically Preprocessing Python Files with Codecs
 layout: post
 comments: true
 tags: vm
