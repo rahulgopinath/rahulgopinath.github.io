@@ -229,3 +229,198 @@ is of same type as the parent node. This need not be the case. Hence an even bet
 might be to simply do a breadth first search of the first node that
 has the same symbol as that of the current node, and try replacing with that node,
 continuing with the next symbol of the same kind if it fails.
+
+### Perses
+
+Below is a variant of hierarchical `ddmin()` from "Perses: syntax-guided program reduction" by Sun et al. 2018
+
+```python
+import sys
+import re
+import copy
+import heapq
+from fuzzingbook.Parser import IterativeEarleyParser as Parser
+from fuzzingbook.Parser import canonical
+```
+
+#### A few helpers
+
+Check if a given token is a noterminal
+
+```python
+def is_nt(v):
+    return (v[0], v[-1]) == ('<', '>')
+```
+
+```python
+
+def tree_to_string(tree):
+    name, children, *rest = tree
+    if not is_nt(name): return name
+    else: return ''.join([tree_to_string(c) for c in children])
+```
+
+#### We prioritize the smallest trees.
+
+```python
+def count_leaves(node):
+    name, children = node
+    if not children:
+        return 1
+    return sum(count_leaves(i) for i in children)
+```
+
+#### A priority queue
+
+```python
+def add_to_queue(node, q):
+    heapq.heappush(q, (count_leaves(node), node))
+```
+
+#### A way to tempoararily replace a node in a tree.
+
+```
+class ReplaceNode:
+    def __init__(self, node, new_node = None):
+        self.node, self.new_node = node, ['', []] if new_node is None else new_node
+        self.node_copy = copy.copy(self.node)
+
+    def __enter__(self):
+        # we dont worry about legal grammar here as this is temporary
+        self.node.clear()
+        if self.new_node is not None:
+            self.node.extend(self.new_node)
+
+    def __exit__(self, *args):
+        self.node.clear()
+        self.node.extend(self.node_copy)
+```
+
+#### Find all subtrees with the given symbol
+
+```
+def subtrees_with_symbol(node, symbol, result=None, depth=0):
+    if result is None: result = []
+    name, children = node
+    if name == symbol:
+        result.append((depth, node))
+    for c in children:
+        subtrees_with_symbol(c, symbol, result, depth+1)
+    return result
+```
+
+#### The perses algorithm itself.
+
+```python
+def perses_delta_debug(grammar, orig_tree, predicate):
+    tree = copy.deepcopy(orig_tree) # we minify the original tree
+    p_q = []
+    add_to_queue(tree, p_q)
+    while p_q:
+        reprocess = None
+        _, biggest_node = heapq.heappop(p_q)
+        bsymbol = biggest_node[0]
+        _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
+        ssubtrees = sorted(subtrees, reverse=True)
+
+        if '' in grammar[bsymbol]: # empty expansion
+            ssubtrees.insert(0, (0, (bsymbol, [])))
+
+        for _depth,stree in subtrees:
+            with ReplaceNode(biggest_node, stree):
+                s = tree_to_string(tree)
+                if predicate(s):
+                    reprocess = stree
+                    break
+        if reprocess is not None:
+            biggest_node.clear()
+            biggest_node.extend(reprocess)
+            add_to_queue(biggest_node, p_q)
+        else:
+            for c in biggest_node[1]:
+                if is_nt(c[0]):
+                    add_to_queue(c, p_q)
+    return patterns, tree
+```
+
+#### The driver
+
+First, we define the predicate. Our predicate is simple. We check if the expression has doubled parenthesis.
+
+```python
+def test_bb(inp):
+    if re.match(r'.*[(][(].*[)][)].*', inp):
+        return True
+    return False
+```
+
+We have the following grammar
+
+```python
+EXPR_GRAMMAR = {'<start>': ['<expr>'],
+ '<expr>': ['<term> + <expr>', '<term> - <expr>', '<term>'],
+ '<term>': ['<factor> * <term>', '<factor> / <term>', '<factor>'],
+ '<factor>': ['+<factor>',
+  '-<factor>',
+  '(<expr>)',
+  '<integer>.<integer>',
+  '<integer>'],
+ '<integer>': ['<digit><integer>', '<digit>'],
+ '<digit>': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']}
+```
+
+And the following input
+
+```python
+my_input = '1 + ((2 * 3 / 4))'
+```
+
+We parse and generate a derivation tree as follows
+
+```python
+d_tree, *_ = Parser(EXPR_GRAMMAR).parse(my_input)
+```
+
+The derivation tree looks like this
+
+```python
+d_tree = ['<start>',
+ [['<expr>',
+   [['<term>', [['<factor>', [['<integer>', [['<digit>', [['1', []]]]]]]]]],
+    [' + ', []],
+    ['<expr>',
+     [['<term>',
+       [['<factor>',
+         [['(', []],
+          ['<expr>',
+           [['<term>',
+             [['<factor>',
+               [['(', []],
+                ['<expr>',
+                 [['<term>',
+                   [['<factor>', [['<integer>', [['<digit>', [['2', []]]]]]]],
+                    [' * ', []],
+                    ['<term>',
+                     [['<factor>',
+                       [['<integer>', [['<digit>', [['3', []]]]]]]],
+                      [' / ', []],
+                      ['<term>',
+                       [['<factor>',
+                         [['<integer>', [['<digit>', [['4', []]]]]]]]]]]]]]]],
+                [')', []]]]]]]],
+          [')', []]]]]]]]]]]]
+```
+
+Now, we are ready to use the `perses_delta_debug()`
+
+```python
+EXPR_GRAMMAR_C = canonical(EXPR_GRAMMAR)
+patterns, tree = perses_delta_debug(EXPR_GRAMMAR_C, d_tree, test_bb)
+print(tree_to_string(tree))
+```
+
+This prints
+
+```python
+((4))
+```
