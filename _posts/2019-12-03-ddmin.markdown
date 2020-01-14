@@ -253,7 +253,6 @@ def is_nt(v):
 ```
 
 ```python
-
 def tree_to_string(tree):
     name, children, *rest = tree
     if not is_nt(name): return name
@@ -279,7 +278,7 @@ def add_to_queue(node, q):
 
 #### A way to tempoararily replace a node in a tree.
 
-```
+```python
 class ReplaceNode:
     def __init__(self, node, new_node = None):
         self.node, self.new_node = node, ['', []] if new_node is None else new_node
@@ -298,7 +297,7 @@ class ReplaceNode:
 
 #### Find all subtrees with the given symbol
 
-```
+```python
 def subtrees_with_symbol(node, symbol, result=None, depth=0):
     if result is None: result = []
     name, children = node
