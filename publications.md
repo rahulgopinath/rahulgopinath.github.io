@@ -528,8 +528,7 @@ starts by minimizing the test suite, and hence different from *minimal mutants* 
 mutant dynamically subsumes another if all test cases that kills the *former* is guaranteed
 to kill the *later*, and the mutant is killed by the test suite.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](http://rdcu.be/ut76)
-<!-- /resources/sqj2016/gopinath2016does.pdf-->
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/sqj2016/gopinath2016does.pdf) <!--(http://rdcu.be/ut76)-->
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/sqj2016/gopinath2016does.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](http://eecs.osuosl.org/rahul/sqj2016/)
 
