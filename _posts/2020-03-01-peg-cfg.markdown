@@ -1,0 +1,68 @@
+---
+published: true
+title: On the Power of  Context Free Grammar Vs Parsing Expression Grammars -- Current Status
+layout: post
+comments: true
+tags: peg, cfg
+categories: post
+---
+
+Context free grammars were introduced as a formalism to specify context free languages by Chomsky and 
+Schutzenberger[2]. It is a structural description of strings
+that belong to a given language. Multiple  can exist that specify the same
+context free language.  More importantly, a given context free grammar can also be used as a recognizer for a given context free language.
+Numerous algorithms exist[9,4,7]
+that when given a \cfg, can recognize whether any given string belongs to the corresponding
+context free language. A recognizer checks whether a given string is in a given language. A parser recovers
+the structure(s) of such a string if it is a member of such a language. A string may have
+multiple structures if the grammar is ambiguous. Ruzzo[6] shows
+how one can turn a recognizer into a parser (that recovers one parse of the string)
+with $$O(log n)$$ effort where $$n$$ is the length of the string.
+
+Ruzzo further shows that the *all-parses* problem (Generating
+a convenient representation of a string parse from which all parses of the string can be
+obtained.) is solvable in linear time (in terms of the length of input) only if Boolean
+matrix multiplication of two $$n\times n$$ matrices can be done in $$O(n^2)$$ time.
+Valient[8] showed that context free recognition of $$n$$ character strings can be carried
+out at least as fast as multiplication of two $$n\times n$$ Boolean matrices.
+
+Das et al.[3] shows that the lower bound for multiplication
+of two $$n\times n$$ Boolean matrices is at least $$\Omega(n^3/2^{O(\sqrt{log n})})$$ which is
+greater than $$O(n^2)$$.
+
+Parsing Expression Grammars (PEGs) are an alternative means of specifying the membership
+criteria for a language. It was formalized by Ford in 2004[5].
+Aho et al.[1] showed that recognition using TDPL/GTPL which are equivalent
+to PEGs in power can be done in $$O(n)$$ time where $$n$$ is the length of the input.
+
+The question that one can now ask is, does there exist a context free language such that its recognition can be
+achieved only in greater than $$O(n)$$ time. If such a language exist, then a PEG representation
+cannot exist for that language.
+
+Note that these results on parsing and recognition are all for context free grammars. So, can we translate our
+above question to context free grammars? Say we have an arbitrary context free grammar. Say, the recognition using this 
+context free grammar
+can  be done in $$O(m)$$ time which is greater than $$O(n)$$ time using a BMM encoding. Can
+there exist a different context free grammar that allows a *polynomially* faster recognition? If such a
+context free grammar exists, then we can solve an arbitrary BMM problem by finding a context free grammar that will solve
+it faster.
+
+# References
+
+[1] Alfred V Aho and Jeffrey D Ullman.The theory of parsing, translation, and compiling. Vol. 1. Prentice-Hall Englewood Cliffs, NJ, 1972
+
+[2] Noam Chomsky and Marcel P Schützenberger. “The algebraic theory of context-free languages”. In:Studies in Logic and the Foundations of Mathematics.Vol. 26. Elsevier, 1959, pp. 118–161
+
+[3] Debarati Das, Michal Koucký, and Michael E.Saks. “Lower bounds for Combinatorial Algorithms for Boolean Matrix Multiplication”. In:CoRRabs/1801.05202 (2018). arXiv:1801.05202.URL:http://arxiv.org/abs/1801.05202.
+
+[4] Jay Earley. “An Efficient Context-free Parsing Algorithm”. In:Commun. ACM13.2 (Feb. 1970), pp. 94–102.ISSN: 0001-0782.DOI:10.1145/362007.362035.URL:http://doi.acm.org/10.1145/362007.362035.
+
+[5] Bryan Ford. “Parsing Expression Grammars: ARecognition-based Syntactic Foundation”. In:SIG-PLAN Not.39.1 (Jan. 2004), pp. 111–122.ISSN: 0362-1340.
+
+[6] Walter L  Ruzzo.  “On  the  complexity  of  general context-free language parsing and recognition”. In:International Colloquium on Automata, Languages,and Programming. Springer. 1979, pp. 489–497.
+
+[7] Masaru Tomita. “An Efficient Context-Free Parsing Algorithm for Natural Languages.” In:IJCAI. Vol. 2.1985, pp. 756–764
+
+[8] Leslie G Valiant. “General context-free recognitionin less than cubic time”. In:Journal of computer andsystem sciences10.2 (1975), pp. 308–315.
+
+[9] Daniel  H  Younger.  “Recognition  and  parsing  ofcontext-free languages in time n3”. In:Informationand control10.2 (1967), pp. 189–208
