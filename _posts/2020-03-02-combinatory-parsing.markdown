@@ -76,8 +76,9 @@ Finally we define how alternatives expansions are handled. Each parser operates 
 input string from the beginning independently. So, the implementation is simple.
 ```
 def OrElse(p1, p2):
-   def parse(instr): return p1(instr) + p2(instr)
-    return parse
+   def parse(instr):
+       return p1(instr) + p2(instr)
+   return parse
 ``` 
 
 With this, our parser is complete. We only need to retrieve complete parses as below.
