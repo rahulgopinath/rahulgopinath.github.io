@@ -50,11 +50,8 @@ it faster.
 The other direction to go is to find a CFL that is not under PEG. The current best bet is the `palindrome` language.
 Given two alphabets `0` and `1`, the palindrome language can be defined as:
 
-```
-S ::= 1 S 1
-    | 0 S 0
-    | $$\epsilon$$
-```
+
+$$S\rightarrow 1S1\mid 0S0\mid 1\mid 0\epsilon$$
 
 The reason palindromes are interesting is that, it hits upon the central characteristic of PEGs and CFGs. Namely,
 PEGs require matching the longest prefix first, and the next prefix is checked if and only if the first prefix fails. CFGs
