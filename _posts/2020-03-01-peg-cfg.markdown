@@ -47,6 +47,22 @@ there exist a different context free grammar that allows a *polynomially* faster
 context free grammar exists, then we can solve an arbitrary BMM problem by finding a context free grammar that will solve
 it faster.
 
+The other direction to go is to find a CFL that is not under PEG. The current best bet is the `palindrome` language.
+Given two alphabets `0` and `1`, the palindrome language can be defined as:
+
+```
+S ::= 1 S 1
+    | 0 S 0
+    | $$\epsilon$$
+```
+
+The reason palindromes are interesting is that, it hits upon the central characteristic of PEGs and CFGs. Namely,
+PEGs require matching the longest prefix first, and the next prefix is checked if and only if the first prefix fails. CFGs
+on the other hand, have no defined ordering. To parse an aribtrary palindrome, CFG can start matching the shortest possible
+expansion, and then try with longer and longer expansions (with larger stacks of `S`). With PEG, to match a given palindrome,
+one needs some way to compute an arbitrary pattern (the left prefix of the mirror expansion). This likely require a turing
+machine. The spoiler here is that, PEGs may be in some sense [universal](https://arxiv.org/abs/1902.08272).
+
 # References
 
 [1] Alfred V Aho and Jeffrey D Ullman.The theory of parsing, translation, and compiling. Vol. 1. Prentice-Hall Englewood Cliffs, NJ, 1972
