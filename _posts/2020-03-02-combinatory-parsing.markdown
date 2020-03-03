@@ -93,14 +93,21 @@ One_ = lambda: Lit('1')
 Paren1 = lambda: AndThen(lambda: AndThen(Open_, One_), Close_)
 result = Paren1()(list('(1)'))
 print(result)
+```
 
+Result.
+```
+[([], ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')]))]
+```
+
+More complicated
+```
 Paren = lambda: AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
 result = Paren()(list('(((1)))'))
 print(result)
 ```
-
+Result
 ```
-[([], ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')]))]
 [([], ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')])]), ('Lit', ')')])]), ('Lit', ')')]))]
 ```
 
