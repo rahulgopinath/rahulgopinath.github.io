@@ -156,4 +156,26 @@ Result
 [([], ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')])]), ('Lit', ')')])]), ('Lit', ')')]))]
 ```
 
+Note that at this point, we do not really have a labelled parse tree. The way to add it is the following. We first define `Apply` that
+can be applied at particular parse points.
+
+```python
+def Apply(f, parser):
+    def parse(instr):
+        return [(i,f(r)) for i,r in  parser(instr)]
+    return parse
+```
+We can now define the function that will be accepted by `Apply`
+```python
+def to_paren(v):
+    return ('paren', v)
+```
+It is used as follows
+```python
+Paren1 = lambda: Apply(to_paren, AndThen(lambda: AndThen(Open_, One_), Close_))
+result = Paren1()(list('(1)'))
+print(result)
+```
+The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node. For now, we simply mark it as a `paren` node, but one can also go ahead and remove the wrapped parenthesis inside `AndThen` and convert it to AST.
+
 What is missing at this point? Left recursion!.
