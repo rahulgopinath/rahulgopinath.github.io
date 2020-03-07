@@ -1,6 +1,6 @@
 ---
 published: true
-title: Simple combinatory parsing
+title: Simple Combinatory Parsing For Context Free Languages
 layout: post
 comments: true
 tags: combinators, parsing, cfg
