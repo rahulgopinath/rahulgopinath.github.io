@@ -17,21 +17,26 @@ Here is an attempt.
 
 The idea is simple. Start with the basic item -- a parser that parses a single character. We use the list of successes method by [Wadler](https://homepages.inf.ed.ac.uk/wadler/papers/marktoberdorf/baastad.pdf). That is, failure is represented
 by an empty list. A successful parse of a character is represented by a single element list with the remaining
-input, and the parse tree (In this case, a single literal). We use a closure to capture the particular literal we are trying to parse.
+input, and the parse tree (In this case, a single literal). We use a closure to capture the particular literal we are trying to parse. Note that we store the parsed literal as a single character in an array, which makes it easier to manipulate in Python (as you will see later).
 
 ```python
 def Lit(c):
     def parse(instr):
-        return [(instr[1:], ('Lit', c))] if instr[0] == c else []
+        return [(instr[1:], [c])] if instr[0] == c else []
     return parse
 ```
 We can use it as follows:
 ```python
 la = Lit('a')
-result = parser1(list('a'))
+result = la(list('a'))
 for i,p in result:
   print(i, p)
 ```
+Which prints
+```python
+[] ['a']
+```
+
 We define a convenience method to get only parsed results.
 
 ```python
@@ -44,30 +49,36 @@ Using it as follows:
 for p in only_parsed(result):
     print(p)
 ```
+which prints
+```python
+['a']
+```
 
 ### AndThen
 
 Next, we define how to concatenate two parsers. That is, the result from one parser
 become the input of the next. The idea is that the first parser would have generated a list
 of successful parses until different locations, and the second parser has to operate on the
-remaining.
+remaining. The parse results are arrays and can be simply concatenated together.
 
 ```python
 def AndThen(p1, p2):
     def parse(instr):
-        ret = []
-        for (in1, pr1) in p1(instr):
-            for (in2, pr2) in p2(in1):
-                ret.append((in2, ('AndThen', [pr1, pr2])))
-        return ret
+        return [(in2, pr1+pr2)
+             for (in1, pr1) in p1(instr)
+                  for (in2, pr2) in p2(in1)]
     return parse
 ```
 This parser can be used in the following way:
 ```python
 la = AndThen(Lit('a'), Lit('b'))
-result = parser1(list('ab'))
+result = la(list('ab'))
 for p in only_parsed(result):
     print(p)
+```
+which prints
+```python
+['a', 'b']
 ```
 
 ### OrElse
@@ -92,68 +103,82 @@ parser3 = OrElse(parser1, parser2)
 result = parser3(list('abc'))
 for r in only_parsed(result):
     print(r)
- ```
- The result looks like below.
- ```python
-('AndThen', [('AndThen', [('Lit', 'a'), ('Lit', 'b')]), ('Lit', 'c')])
-('AndThen', [('Lit', 'a'), ('AndThen', [('Lit', 'b'), ('Lit', 'c')])])
- ```
- 
+```
+The result looks like below.
+```python
+['a', 'b', 'c']
+['a', 'b', 'c']
+```
+Note that the order in which `AndThen` is applied is not shown in the results. This is a consequence
+of the way we defined `AndThen` using `pr1+pr2` deep inside the return from the parse. If we wanted
+to keep the distinction, we could have simply used `[pr1, pr2]` instead.
+
 ## Recursion
  
 This is not howver, complete. One major issue is that recursion is not implemented. One way we can
-implement recursion is to make everything lazy.
- 
+implement recursion is to make everything lazy. The only difference in these implementations is how
+we unwrap the parsers first i.e we use `p1()` instead of `p1`.
+
 ### AndThen
- 
+
 ```python
 def AndThen(p1, p2):
    def parse(instr):
-       return [(in2, ('AndThen', [pr1, pr2]))
-                for (in1, pr1) in p1()(instr)
-                    for (in2, pr2) in p2()(in1)]
+       return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
    return parse
 ```
-Note that p1 and p2 are now `lambda` calls that need to be evaluated to get the actual function.
 
 ### OrElse
 
+Similar to `AndThen`, since p1 and p2 are now `lambda` calls that need to be evaluated to get the actual function.
+
 ```python
 def OrElse(p1, p2):
-    def parse(instr): return p1()(instr) + p2()(instr)
+    def parse(instr):
+        return p1()(instr) + p2()(instr)
     return parse
 ```
+We are now ready to test our new parsers.
 
-We define a simple language to parse `(1)`
+### Simple parenthesis language
+
+We define a simple language to parse `(1)`. Note that we can define these either using the
+`lambda` syntax or using `def`. Since it is easier to debug using `def`, and we are giving
+these parsers a name anyway, we use `def`.
 
 ```python
-Open_ = lambda: Lit('(')
-Close_ = lambda: Lit(')')
-One_ = lambda: Lit('1')
-Paren1 = lambda: AndThen(lambda: AndThen(Open_, One_), Close_)
+def Open_(): return Lit('(')
+def Close_(): return Lit(')')
+def One_(): return Lit('1')
+def Paren1():
+    return AndThen(lambda: AndThen(Open_, One_), Close_)
 ```
 We can now parse the simple expression `(1)`
 ```python
 result = Paren1()(list('(1)'))
-print(result)
+for r in only_parsed(result):
+    print(r)
 ```
-
 The result is as follows
 ```python
-[([], ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')]))]
+['(', '1', ')']
 ```
 
-Now, we define the recursive language for parsing `((1))` with any number of parenthesis. As you
+Next, we extend our definitions to parse the recursive language with any number of parenthesis.
+That is, it should be able to parse `(1)`, `((1))`, and others. As you
 can see, `lambda` protects `Paren` from being evaluated too soon.
 
 ```python
-Paren = lambda: AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
-result = Paren()(list('(((1)))'))
-print(result)
+def Paren():
+    return AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
+
+result = Paren()(list('((1))'))
+for r in only_parsed(result):
+    print(r)
 ```
 Result
 ```python
-[([], ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('AndThen', [('AndThen', [('Lit', '('), ('Lit', '1')]), ('Lit', ')')])]), ('Lit', ')')])]), ('Lit', ')')]))]
+['(', '(', '1', ')', ')']
 ```
 
 Note that at this point, we do not really have a labelled parse tree. The way to add it is the following. We first define `Apply` that
@@ -168,33 +193,47 @@ def Apply(f, parser):
 We can now define the function that will be accepted by `Apply`
 ```python
 def to_paren(v):
-    assert v[0] == 'AndThen'
-    p1, p2 = v[1]
-    assert p2 == ('Lit', ')')
-    assert p1[0] == 'AndThen'
-    assert p1[1][0] == ('Lit', '(')
-    return ('Paren', p1[1][1])
+    assert v[0] == '('
+    assert v[-1] == ')'
+    return [('Paren', v[1:-1])]
+```
+
+We define the actual parser for the literal `1` as below:
+```python
+def One():
+    def tree(x):
+        return [('Int', int(x[0]))]
+    return Apply(tree, One_)
+```
+Similarly, we update the `paren` parsers.
+```python
+def Paren1():
+    return Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, One), Close_))
 ```
 It is used as follows
 ```python
-Paren1 = lambda: Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, One_), Close_))
 result = Paren1()(list('(1)'))
-print(result)
+for r in only_parsed(result):
+    print(r)
 ```
 Which results in
 ```python
-[([], ('Paren', ('Lit', '1')))]
+[('Paren', [('Int', 1)])]
 ```
-Similarly
+Similarly we update `Paren`
 ```python
-One = lambda: Apply(lambda x: ('Int', int(x[1])), One_)
-Paren = lambda: Apply(to_paren, AndThen(lambda: lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_))
+def Paren():
+    return Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_))
+```
+Used as thus:
+```
 result = Paren()(list('(((1)))'))
-print(result)
+for r in only_parsed(result):
+    print(r)
 ```
 results in
 ```python
-[([], ('Paren', ('Paren', ('Paren', ('Int', 1)))))]
+[('Paren', [('Paren', [('Paren', [('Int', 1)])])])]
 ```
 The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node, but it can also do other tree surgeries if necessary.
 
