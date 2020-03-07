@@ -96,8 +96,6 @@ With this, our parser is complete. We only need to retrieve complete parses as b
 ```python
 labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
 labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
-result = labc1(list('abc'))
-result = labc2(list('abc'))
 
 labc3 = OrElse(labc1, labc2)
 result = labc3(list('abc'))
