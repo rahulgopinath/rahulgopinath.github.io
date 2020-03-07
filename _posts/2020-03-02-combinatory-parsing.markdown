@@ -235,7 +235,29 @@ results in
 ```python
 [('Paren', [('Paren', [('Paren', [('Int', 1)])])])]
 ```
-The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node, but it can also do other tree surgeries if necessary.
+Now, we are ready to try something adventurous. Let us allow a sequence of parenthesized ones.
+```python
+def Parens():
+    return OrElse(Paren, lambda: AndThen(Paren, Parens))
+
+def Paren():
+    def parser():
+        return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
+    return Apply(to_paren, parser)
+```
+We check if our new parser works
+```python
+result = Paren()(list('(((1)(1)))'))
+for r in only_parsed(result):
+    print(r)
+```
+This results in
+```python
+[('Paren', [('Paren', [('Paren', [('Int', 1)]), ('Paren', [('Int', 1)])])])]
+```
+That seems to have worked!.
+
+### Remaining
 
 What is missing at this point? Left recursion!.
 However, there is something even more interesting here. If you remember my previous post about [minimal PEG parsers](/post/2018/09/06/peg-parsing/) you might notice the similarity between the `AndThen()` and `unify_rule()` and `OrElse()` and `unify_key()`. That is, in combinatory parsing (unlike PEG), the `OrElse` ensures that results of multiple attempts are kept. The `AndThen` is a lighter version of the `unify_rule` in that it tries to unify two symbols at a time rather than any number of symbols. However, this should convince you that we can translate one to the other easily. That is, how to limit `OrElse` so that it does the ordered choice of PEG parsing or how to modify `unify_key` and `unify_rule` so that we have a true context free grammar parser rather than a PEG parser.
