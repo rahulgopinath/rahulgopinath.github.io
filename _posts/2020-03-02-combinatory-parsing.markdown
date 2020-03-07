@@ -30,7 +30,7 @@ We can use it as follows:
 la = Lit('a')
 result = la(list('a'))
 for i,p in result:
-  print(i, p)
+    print(i, p)
 ```
 Which prints
 ```python
