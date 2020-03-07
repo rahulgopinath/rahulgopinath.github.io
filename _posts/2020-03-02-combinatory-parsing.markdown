@@ -168,7 +168,12 @@ def Apply(f, parser):
 We can now define the function that will be accepted by `Apply`
 ```python
 def to_paren(v):
-    return ('paren', v)
+    assert v[0] == 'AndThen'
+    p1, p2 = v[1]
+    assert p2 == ('Lit', ')')
+    assert p1[0] == 'AndThen'
+    assert p1[1][0] == ('Lit', '(')
+    return ('Paren', p1[1][1])
 ```
 It is used as follows
 ```python
@@ -176,6 +181,20 @@ Paren1 = lambda: Apply(to_paren, AndThen(lambda: AndThen(Open_, One_), Close_))
 result = Paren1()(list('(1)'))
 print(result)
 ```
-The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node. For now, we simply mark it as a `paren` node, but one can also go ahead and remove the wrapped parenthesis inside `AndThen` and convert it to AST.
+Which results in
+```python
+[([], ('Paren', ('Lit', '1')))]
+```
+Similarly
+```python
+Paren = lambda: Apply(to_paren, AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_))
+result = Paren()(list('(((1)))'))
+print(result)
+```
+results in
+```python
+[([], ('Paren', ('Paren', ('Paren', ('Lit', '1')))))]
+```
+The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node, but it can also do other tree surgeries if necessary.
 
 What is missing at this point? Left recursion!.
