@@ -25,7 +25,7 @@ def Lit(c):
         return [(instr[1:], [c])] if instr[0] == c else []
     return parse
 ```
-We can use it as follows:
+We can use it as follows --- note that we need to split a string into characters using `list` before it can be passed:
 ```python
 la = Lit('a')
 result = la(list('a'))
@@ -36,6 +36,7 @@ Which prints
 ```python
 [] ['a']
 ```
+That is, the input (the first part) is completely consumed, leaving an empty array, and the parsed result is `['a']`.
 
 We define a convenience method to get only parsed results.
 
