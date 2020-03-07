@@ -71,8 +71,8 @@ def AndThen(p1, p2):
 ```
 This parser can be used in the following way:
 ```python
-la = AndThen(Lit('a'), Lit('b'))
-result = la(list('ab'))
+lab = AndThen(Lit('a'), Lit('b'))
+result = lab(list('ab'))
 for p in only_parsed(result):
     print(p)
 ```
@@ -94,13 +94,13 @@ def OrElse(p1, p2):
 
 With this, our parser is complete. We only need to retrieve complete parses as below.
 ```python
-parser1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
-parser2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
-result = parser1(list('abc'))
-result = parser2(list('abc'))
+labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
+labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
+result = labc1(list('abc'))
+result = labc2(list('abc'))
 
-parser3 = OrElse(parser1, parser2)
-result = parser3(list('abc'))
+labc3 = OrElse(labc1, labc2)
+result = labc3(list('abc'))
 for r in only_parsed(result):
     print(r)
 ```
