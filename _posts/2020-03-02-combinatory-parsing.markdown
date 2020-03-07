@@ -162,7 +162,7 @@ can be applied at particular parse points.
 ```python
 def Apply(f, parser):
     def parse(instr):
-        return [(i,f(r)) for i,r in  parser(instr)]
+        return [(i,f(r)) for i,r in  parser()(instr)]
     return parse
 ```
 We can now define the function that will be accepted by `Apply`
@@ -177,7 +177,7 @@ def to_paren(v):
 ```
 It is used as follows
 ```python
-Paren1 = lambda: Apply(to_paren, AndThen(lambda: AndThen(Open_, One_), Close_))
+Paren1 = lambda: Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, One_), Close_))
 result = Paren1()(list('(1)'))
 print(result)
 ```
@@ -187,13 +187,14 @@ Which results in
 ```
 Similarly
 ```python
-Paren = lambda: Apply(to_paren, AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_))
+One = lambda: Apply(lambda x: ('Int', int(x[1])), One_)
+Paren = lambda: Apply(to_paren, AndThen(lambda: lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_))
 result = Paren()(list('(((1)))'))
 print(result)
 ```
 results in
 ```python
-[([], ('Paren', ('Paren', ('Paren', ('Lit', '1')))))]
+[([], ('Paren', ('Paren', ('Paren', ('Int', 1)))))]
 ```
 The `to_paren` understands how to convert the unlabelled nodes at `Paren` to the AST node, but it can also do other tree surgeries if necessary.
 
