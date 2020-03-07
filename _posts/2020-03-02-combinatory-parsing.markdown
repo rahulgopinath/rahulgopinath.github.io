@@ -205,10 +205,12 @@ def One():
         return [('Int', int(x[0]))]
     return Apply(tree, One_)
 ```
-Similarly, we update the `paren` parsers.
+Similarly, we update the `paren1` parser.
 ```python
 def Paren1():
-    return Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, One), Close_))
+    def parser():
+        return AndThen(lambda: AndThen(Open_, One), Close_)
+    return Apply(to_paren, parser)
 ```
 It is used as follows
 ```python
@@ -223,7 +225,9 @@ Which results in
 Similarly we update `Paren`
 ```python
 def Paren():
-    return Apply(to_paren, lambda: AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_))
+    def parser():
+        return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_)
+    return Apply(to_paren, parser)
 ```
 Used as thus:
 ```
