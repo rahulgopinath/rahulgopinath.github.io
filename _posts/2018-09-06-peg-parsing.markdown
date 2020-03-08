@@ -105,7 +105,7 @@ class peg_parse:
         return tfrom, results
 
 def main(to_parse):
-    result = peg_parse(term_grammar).unify_key('expr', to_parse)
+    result = peg_parse(term_grammar).unify_key('<expr>', to_parse)
     assert (len(to_parse) - result[0]) == 0
     print(result[1])
 
