@@ -76,7 +76,7 @@ term_grammar = {
         ['(','<expr>',')']],
     '<digits>': [
         ['<digit>','<digits>'],
-        ['digit']],
+        ['<digit>']],
     '<digit>': [[str(i)] for i in list(range(10))],
     '<add_op>': [['+'], ['-']],
     '<mul_op>': [['*'], ['/']]
