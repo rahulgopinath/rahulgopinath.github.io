@@ -152,3 +152,44 @@ class peg_parse:
 ```
 
 This gets us to derivation trees with at a depth of 1000 (or more if we increase the `sys.setrecursionlimit()`). We can also turn this to a completely iterative solution if we simulate the stack (formal arguments, locals, return value) ourselves rather than relying on the Python stack frame.
+
+### Context Free.
+
+It is fairly easy to turn this parser into a context-free grammar parser instead. The main idea is to keep a list of parse points, and advance them one at a time.
+
+```python
+class cfg_parse:
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def unify_key(self, key, text, tfroms):
+        tfroms_ = []
+        if key not in self.grammar:
+            for ttill, tkey in tfroms:
+                if text[ttill:].startswith(key):
+                    tfroms_.append((ttill + len(key), (tkey + [key])))
+                else:
+                    continue
+        else:
+            rules = self.grammar[key]
+            for rule in rules:
+                new_tfroms = self.unify_rule(rule, text, tfroms)
+                tfroms_.extend(new_tfroms)
+        return tfroms_
+
+    def unify_rule(self, parts, text, tfroms):
+        if not tfroms: return []
+        for part in parts:
+            tfroms = self.unify_key(part, text, tfroms)
+        return tfroms
+
+def main(to_parse):
+    result = cfg_parse(term_grammar).unify_key('<expr>', to_parse, [(0, [])])
+    for till in result:
+        print(till)
+
+if __name__ == '__main__':
+    main(sys.argv[1])
+```
+
+This implementation is quite limited in that we have lost the ability to memoize (can be added back), and can not handle left recursion. See the [Earley parser](https://www.fuzzingbook.org/html/Parser.html) for a parser without these drawbacks.
