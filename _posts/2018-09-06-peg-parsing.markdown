@@ -84,7 +84,7 @@ term_grammar = {
 
 class peg_parse:
     def __init__(self, grammar):
-        self.grammar = {k:[tuple(l) for l in rules] for k,rules in grammar.items()}
+        self.grammar = grammar
 
     @functools.lru_cache(maxsize=None)
     def unify_key(self, key, text, at=0):
