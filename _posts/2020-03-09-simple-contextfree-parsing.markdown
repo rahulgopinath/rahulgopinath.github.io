@@ -61,3 +61,5 @@ def main(to_parse):
 if __name__ == '__main__':
     main(sys.argv[1])
 ```
+
+Limitations: Does not use the SPPF notation, and can not deal with infinite parse trees. No left recursion, and epsilon terminals either.
