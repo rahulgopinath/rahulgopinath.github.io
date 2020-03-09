@@ -130,7 +130,7 @@ can improve the situation slightly by inlining the `unify_rule()`.
 ```python
 class peg_parse:
     def __init__(self, grammar):
-        self.grammar = {k:[tuple(l) for l in rules] for k,rules in grammar.items()}
+        self.grammar = grammar
 
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
