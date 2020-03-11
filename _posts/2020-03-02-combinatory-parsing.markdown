@@ -7,28 +7,55 @@ tags: combinators, parsing, cfg
 categories: post
 ---
 
-[Parsec](https://www.cs.nott.ac.uk/~pszgmh/pearl.pdf) introduced combinatory parsing to the wider world
-(although this technique seems to have been mentioned by
-[Burge](https://www.amazon.com/Recursive-Programming-Techniques-Systems-programming/dp/0201144506) in 1975).
-The question is, can one write a simple implementation without delving into category theory and Monads?
-Here is an attempt.
+Combinatory parsing (i.e parsing with [combinators]https://en.wikipedia.org/wiki/Combinatory_logic)) was
+introduced by William H Burge in his seminal work
+[Recursive Programming Techniques -- The systems programming series](https://archive.org/details/recursiveprogram0000burg)
+in 1975. Unfortunately, it took until 2001 for the arrival of [Parsec](/references/#leijen2001parsec), and for combinatory
+programming to be noticed by the wider world.
 
-### Lit
+While Parsec is a pretty good library, it is often hard to understand for
+programmers who are not familiar with Haskell. So, the question is, can
+one explain the concept of simple combinatory parsing without delving to
+Haskell and Monads? Here is my attempt.
 
-The idea is simple. Start with the basic item -- a parser that parses a single character. We use the list of successes method by [Wadler](https://homepages.inf.ed.ac.uk/wadler/papers/marktoberdorf/baastad.pdf). That is, failure is represented
-by an empty list. A successful parse of a character is represented by a single element list with the remaining
-input, and the parse tree (In this case, a single literal). We use a closure to capture the particular literal we are trying to parse. Note that we store the parsed literal as a single character in an array, which makes it easier to manipulate in Python (as you will see later).
+The idea of combinatory parsing is really simple. We start with the smallest
+parsers that do some work --- parsing single characters, then figure out how
+to combine them to produce larger and larger parsers.
 
+Note that since we are dealing with context-free parsers, ambiguity in parsing
+is a part of life. Hence, we have to keep a list of possible parses at all
+times. A failure to parse is then naturally represented by an empty list, and
+a single parse item is a tuple that contains the remaining input as the first
+element, and the parse result as the second.
+This particular approach was pioneered by [Wadler](https://homepages.inf.ed.ac.uk/wadler/papers/marktoberdorf/baastad.pdf).
+
+So, here, we start with the basic parser -- one that parses a single character
+`a`.  The return values are as expected --- a single empty list for failure to
+parse and a list of parses (a single element here because there is only one way
+to parse `a`).
+
+```python
+def parse(instr):
+    return [(instr[1:], ['a'])] if instr[0] == 'a' else []
+```
+While this is a good start, we do not want to rewrite our parser each time we
+want to parse a new character. So, we define our parser generator for single
+literal parsers `Lit`.
 ```python
 def Lit(c):
     def parse(instr):
         return [(instr[1:], [c])] if instr[0] == c else []
     return parse
 ```
-We can use it as follows --- note that we need to split a string into characters using `list` before it can be passed:
+The `Lit(c)` captures the character `c` passed in, and returns a new function
+that parses specifically that literal.
+
+We can use it as follows --- note that we need to split a string into characters
+using `list` before it can be passed to the parser:
 ```python
+input_chars = list('a')
 la = Lit('a')
-result = la(list('a'))
+result = la(input_chars)
 for i,p in result:
     print(i, p)
 ```
@@ -36,7 +63,17 @@ Which prints
 ```python
 [] ['a']
 ```
-That is, the input (the first part) is completely consumed, leaving an empty array, and the parsed result is `['a']`.
+That is, the input (the first part) is completely consumed, leaving an empty
+array, and the parsed result is `['a']`.
+Can it parse the literal `b`?
+```python
+input_chars = list('b')
+la = Lit('a')
+result = la(input_chars)
+for i,p in result:
+    print(i, p)
+```
+which prints nothing --- that is, the parser was unable to consume any input.
 
 We define a convenience method to get only parsed results.
 
@@ -57,10 +94,11 @@ which prints
 
 ### AndThen
 
-Next, we define how to concatenate two parsers. That is, the result from one parser
-become the input of the next. The idea is that the first parser would have generated a list
-of successful parses until different locations, and the second parser has to operate on the
-remaining. The parse results are arrays and can be simply concatenated together.
+Next, we define how to concatenate two parsers. That is, the result from one
+parser becomes the input of the next. The idea is that the first parser would
+have generated a list of successful parses until different locations, and the
+second parser has to operate on the remaining. The parse results are arrays and
+can be simply concatenated together.
 
 ```python
 def AndThen(p1, p2):
@@ -84,16 +122,33 @@ which prints
 
 ### OrElse
 
-Finally we define how alternatives expansions are handled. Each parser operates on the
-input string from the beginning independently. So, the implementation is simple.
+Finally we define how alternatives expansions are handled. Each parser operates
+on the input string from the beginning independently. So, the implementation is
+simple. Note that it is here that the main distinguishing feature of a context
+free parser compared to parsing expressions are found. We try *all* possible
+ways to parse a string irrespective of whether previous rules managed to parse
+it or not. Parsing expressions on the other hand, stop at the first success.
+
 ```python
 def OrElse(p1, p2):
    def parse(instr):
        return p1(instr) + p2(instr)
    return parse
 ``` 
+It can be used as follows:
+```python
+lab = OrElse(Lit('a'), Lit('b'))
+result = lab(list('a'))
+for p in only_parsed(result):
+    print(p)
+```
+which prints
+```
+['a']
+```
+With this, our parser is fairly usable. We only need to retrieve complete parses
+as below.
 
-With this, our parser is complete. We only need to retrieve complete parses as below.
 ```python
 labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
 labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
@@ -108,15 +163,17 @@ The result looks like below.
 ['a', 'b', 'c']
 ['a', 'b', 'c']
 ```
-Note that the order in which `AndThen` is applied is not shown in the results. This is a consequence
-of the way we defined `AndThen` using `pr1+pr2` deep inside the return from the parse. If we wanted
-to keep the distinction, we could have simply used `[pr1, pr2]` instead.
+Note that the order in which `AndThen` is applied is not shown in the results.
+This is a consequence of the way we defined `AndThen` using `pr1+pr2` deep
+inside the return from the parse. If we wanted to keep the distinction, we
+could have simply used `[pr1, pr2]` instead.
 
 ## Recursion
  
-This is not howver, complete. One major issue is that recursion is not implemented. One way we can
-implement recursion is to make everything lazy. The only difference in these implementations is how
-we unwrap the parsers first i.e we use `p1()` instead of `p1`.
+This is not however, complete. One major issue is that recursion is not
+implemented. One way we can implement recursion is to make everything lazy.
+The only difference in these implementations is how we unwrap the parsers first
+i.e we use `p1()` instead of `p1`.
 
 ### AndThen
 
