@@ -96,9 +96,16 @@ which prints
 
 Next, we define how to concatenate two parsers. That is, the result from one
 parser becomes the input of the next. The idea is that the first parser would
-have generated a list of successful parses until different locations, and the
-second parser has to operate on the remaining. The parse results are arrays and
-can be simply concatenated together.
+have generated a list of successful parses until different locations. The second
+parser now tries to advance the location of parsing. If successful, the location
+is updated. If not successful, the parse is dropped. That is, given a list of
+chars `ab` and a parser that is `AndThen(Lit('a'), Lit('b'))`, and then first
+applies `Lit('a')` which results in an array with a single element as the succssful
+parse: `[([['b'], ['a']])]` The first elment of the item is the remaining list `['b']`.
+Now, the second parser is applied on it, which takes it forward to `[([[], ['a', 'b']])]`.
+If instead, we were parsing `ac`, then the result of the first parse will be the same
+as before. But the second parse will not succeed. Hence this item will be dropped resulting
+in an empty array.
 
 ```python
 def AndThen(p1, p2):
