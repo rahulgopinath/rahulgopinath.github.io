@@ -40,6 +40,9 @@ weight: 2
 * <a id='kintis2010evaluating' href='#kintis2010evaluating'>Kintis, Marinos, Mike Papadakis, and Nicos Malevris. *Evaluating mutation testing alternatives: A collateral experiment.* 2010 Asia Pacific Software Engineering Conference. IEEE, 2010.</a>
 
 ##### 2001
+
+* <a id='leijen2001parsec' href='#leijen2001parsec'>Daan Leijen, Erik Meijer, *Parsec:  A practical parser library*, Electronic Notes in Theoretical Computer Science </a>
+
 * <a id='offutt2001uniting' href='#offutt2001uniting'>Offutt A. J., Untch R. H., *Mutation 2000: Uniting the Orthogonal*, Mutation testing for the new century 2001.</a>
 * <a id='wah2001theoretical' href='#wah2001theoretical'>K.S. How Tai Wah *Theoretical Insights into the Coupling Effect*, Mutation Testing for the New Century 2001.</a>
 
