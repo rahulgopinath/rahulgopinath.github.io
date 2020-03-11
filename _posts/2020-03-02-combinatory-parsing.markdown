@@ -329,8 +329,7 @@ class P:
         self.parser = parser
 
     def __call__(self, instr):
-        parse_fn = self.parser()
-        return parse_fn(list(instr))
+        return self.parser()(list(instr))
 
     def __rshift__(self, other):
         return P(lambda: AndThen(self.parser, other.parser))
