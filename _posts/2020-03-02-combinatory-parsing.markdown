@@ -7,7 +7,7 @@ tags: combinators, parsing, cfg
 categories: post
 ---
 
-Combinatory parsing (i.e parsing with [combinators]https://en.wikipedia.org/wiki/Combinatory_logic)) was
+Combinatory parsing (i.e parsing with [combinators](https://en.wikipedia.org/wiki/Combinatory_logic)) was
 introduced by William H Burge in his seminal work
 [Recursive Programming Techniques -- The systems programming series](https://archive.org/details/recursiveprogram0000burg)
 in 1975. Unfortunately, it took until 2001 for the arrival of [Parsec](/references/#leijen2001parsec), and for combinatory
