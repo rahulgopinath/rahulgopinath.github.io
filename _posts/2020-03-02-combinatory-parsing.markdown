@@ -356,6 +356,20 @@ The result is
 ```python
 [([], ['(', '(', '1', ')', '(', '(', '1', ')', ')', ')'])]
 ```
+Apply also works with this
+```python
+paren = P(lambda: Apply(to_paren, openP >> (one | parens) >> closeP))
+```
+Used as follows
+```
+v = parens(list('((1)((1)))'))
+print(v)
+```
+results in
+```
+[([], [('Paren', [('Paren', ['1']), ('Paren', [('Paren', ['1'])])])])]
+```
+
 Note that one has to be careful about the precedence of operators. In
 particular, if you mix and match `>>` and `|`, always use parenthesis
 to disambiguate.
