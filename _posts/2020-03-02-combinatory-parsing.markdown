@@ -36,7 +36,7 @@ to parse `a`).
 
 ```python
 def parse(instr):
-    return [(instr[1:], ['a'])] if instr[0] == 'a' else []
+    return [(instr[1:], ['a'])] if instr and instr[0] == 'a' else []
 ```
 While this is a good start, we do not want to rewrite our parser each time we
 want to parse a new character. So, we define our parser generator for single
@@ -44,7 +44,7 @@ literal parsers `Lit`.
 ```python
 def Lit(c):
     def parse(instr):
-        return [(instr[1:], [c])] if instr[0] == c else []
+        return [(instr[1:], [c])] if instr and instr[0] == c else []
     return parse
 ```
 The `Lit(c)` captures the character `c` passed in, and returns a new function
@@ -316,6 +316,52 @@ This results in
 [('Paren', [('Paren', [('Paren', [('Int', 1)]), ('Paren', [('Int', 1)])])])]
 ```
 That seems to have worked!.
+
+All this is pretty cool. But none of this looks as nice as the Parsec examples
+we see. Can we apply some syntactic sugar and make it read nice? Do we have to
+go for the monadic concepts to get the syntactic sugar? Never fear!
+we have the solution. We simply define a class that incorporates some syntactic
+sugar on top.
+
+```python
+class P:
+    def __init__(self, parser):
+        self.parser = parser
+
+    def __call__(self, instr):
+        parse_fn = self.parser()
+        return parse_fn(list(instr))
+
+    def __rshift__(self, other):
+        return P(lambda: AndThen(self.parser, other.parser))
+
+    def __or__(self, other):
+        return P(lambda: OrElse(self.parser, other.parser))
+```
+It can be used as follows
+```python
+one = P(lambda: Lit('1'))
+openP = P(lambda: Lit('('))
+closeP = P(lambda: Lit(')'))
+
+parens = P(lambda: paren | (paren >> parens))
+paren = P(lambda: openP >> (one | parens) >> closeP)
+```
+
+```python
+v = parens(list('((1)((1)))'))
+print(v)
+```
+
+The result is
+```python
+[([], ['(', '(', '1', ')', '(', '(', '1', ')', ')', ')'])]
+```
+Note that one has to be careful about the precedence of operators. In
+particular, if you mix and match `>>` and `|`, always use parenthesis
+to disambiguate.
+
+
 
 ### Remaining
 
