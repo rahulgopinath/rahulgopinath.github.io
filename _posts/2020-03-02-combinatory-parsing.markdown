@@ -110,9 +110,11 @@ in an empty array.
 ```python
 def AndThen(p1, p2):
     def parse(instr):
-        return [(in2, pr1+pr2)
-             for (in1, pr1) in p1(instr)
-                  for (in2, pr2) in p2(in1)]
+        ret = []
+        for (in1, pr1) in p1(instr):
+            for (in2, pr2) in p2(in1):
+                ret.append((in2, pr1+pr2))
+        return ret
     return parse
 ```
 This parser can be used in the following way:
