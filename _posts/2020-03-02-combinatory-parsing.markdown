@@ -99,7 +99,7 @@ parser becomes the input of the next. The idea is that the first parser would
 have generated a list of successful parses until different locations. The second
 parser now tries to advance the location of parsing. If successful, the location
 is updated. If not successful, the parse is dropped. That is, given a list of
-chars `ab` and a parser that is `AndThen(Lit('a'), Lit('b'))`, and then first
+chars `ab` and a parser that is `AndThen(Lit('a'), Lit('b'))`, `AndThen` first
 applies `Lit('a')` which results in an array with a single element as the succssful
 parse: `[([['b'], ['a']])]` The first elment of the item is the remaining list `['b']`.
 Now, the second parser is applied on it, which takes it forward to `[([[], ['a', 'b']])]`.
