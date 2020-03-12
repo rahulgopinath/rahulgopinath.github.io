@@ -36,7 +36,9 @@ to parse `a`).
 
 ```python
 def parse(instr):
-    return [(instr[1:], ['a'])] if instr and instr[0] == 'a' else []
+    if instr and instr[0] == 'a':
+       return [(instr[1:], ['a'])] 
+    return []
 ```
 While this is a good start, we do not want to rewrite our parser each time we
 want to parse a new character. So, we define our parser generator for single
