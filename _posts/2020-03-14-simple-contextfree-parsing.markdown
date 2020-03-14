@@ -244,4 +244,4 @@ main(sys.argv[1])
 
 **Note:** 
 I implemented it to scratch an itch, without first checking the literature about similar parsing techniques. However, now that I have implemented it, this technique seems similar to [GLL](https://github.com/djspiewak/gll-combinators#theory)). While my implmentation is 
-inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS can help the situation.
+inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS (fairly easy to implement in that it is about how to maintain the `rule` structure as a linked graph) can help the situation.
