@@ -242,7 +242,6 @@ import sys
 main(sys.argv[1])
 ```
 
-**Note:** It is at this point obviously inefficient, but the memoizing techniques from PEG parsing can certainly be applied to get the performance comparable to the usual CFG parsers.
-
+**Note:** 
 I implemented it to scratch an itch, without first checking the literature about similar parsing techniques. However, now that I have implemented it, this technique seems similar to [GLL](https://github.com/djspiewak/gll-combinators#theory)). While my implmentation is 
 inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS can help the situation.
