@@ -92,7 +92,13 @@ if __name__ == '__main__':
     main(sys.argv[1])
 ```
 Usage:
+It correctly accepts valid strings
 ```shell
 $ python3  cfgparse.py '112*(4+(3-4))'
 ['1', '1', '2', '*', '(', '4', '+', '(', '3', '-', '4', ')', ')']
 ```
+and correctly rejects invalid ones
+```shell
+$ python3  cfgparse.py '112(4+(3-4))'
+```
+We still need to make this into a parser. This can be done by storing a better datastructure in the second part of the list of successful parses.
