@@ -15,11 +15,13 @@ import string
 grammar = {
     "<start>": [ ["<E>"] ],
     "<E>": [
-            ["<E>", "+", "<E>"],
-            ["<E>", "-", "<E>"],
-            ["(", "<E>", ")"],
-            ["<digits>"],
-            ],
+        ["<E>", "+", "<E>"],
+        ["<E>", "-", "<E>"],
+        ["<E>", "*", "<E>"],
+        ["<E>", "/", "<E>"],
+        ["(", "<E>", ")"],
+        ["<digits>"],
+        ],
     "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
     "<digit>": [[str(i)] for i in string.digits]
 }
@@ -32,17 +34,15 @@ import sys
 class cfg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
-        self.min_len = {}
-        for k in grammar:
-            self.min_len[k] = self.get_key_minlength(k, set())
+        self.min_len = {k: self._key_minlength(k, set()) for k in grammar}
 
-    def get_rule_minlength(self, rule, seen):
-        return sum([self.get_key_minlength(k, seen) for k in rule])
+    def _rule_minlength(self, rule, seen):
+        return sum([self._key_minlength(k, seen) for k in rule])
 
-    def get_key_minlength(self, key, seen):
+    def _key_minlength(self, key, seen):
         if key not in self.grammar: return len(key)
         if key in seen: return math.inf
-        return min([self.get_rule_minlength(r, seen | {key}) for r in self.grammar[key]])
+        return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
 
     def unify_key(self, key, text, tfroms, min_len):
         tfroms_ = []
@@ -90,4 +90,9 @@ def main(to_parse):
 
 if __name__ == '__main__':
     main(sys.argv[1])
+```
+Usage:
+```shell
+$ python3  cfgparse.py '112*(4+(3-4))'
+['1', '1', '2', '*', '(', '4', '+', '(', '3', '-', '4', ')', ')']
 ```
