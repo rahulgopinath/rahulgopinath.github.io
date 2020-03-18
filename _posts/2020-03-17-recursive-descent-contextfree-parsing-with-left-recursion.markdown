@@ -71,6 +71,7 @@ First, we compute the minimum length of each nonterminal statically. The minimum
 any of the rules corresponding to it. The minimum length of a rule is the sum of the minimum lengths of each of its token symbols.
 
 ```python
+import math
 class cfg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
@@ -86,16 +87,14 @@ class cfg_parse:
 ```
 The length of multiple keys can be computed as follows
 ```python
+class cfg_parse(cfg_parse):
     def len_of_parts(self, parts):
         return self._rule_minlength(parts, set())
 ```
 Now, all it remains is to intelligently stop parsing whenever the minimum length of the remaining parts
 to parse becomes larger than the length of the remaining text.
 ```python
-import math
-import sys
-
-class cfg_parse(cfgparse):
+class cfg_parse(cfg_parse):
     def unify_key(self, key, text, tfroms, min_len):
         tfroms_ = []
         if key not in self.grammar:
@@ -127,6 +126,7 @@ class cfg_parse(cfgparse):
 ```
 The driver
 ```python
+import sys
 def main(to_parse):
     p = cfg_parse(grammar)
     result = p.unify_key('<start>', to_parse, [(0, [])], 0)
