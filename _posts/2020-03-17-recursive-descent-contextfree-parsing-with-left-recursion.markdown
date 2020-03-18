@@ -91,7 +91,7 @@ The length of multiple keys can be computed as follows
 ```python
 class cfg_parse(cfg_parse):
     def len_of_parts(self, parts):
-        return self._rule_minlength(parts, set())
+        return sum(self.min_len[p] if p in self.min_len else len(p) for p in parts)
 ```
 Now, all it remains is to intelligently stop parsing whenever the minimum length of the remaining parts
 to parse becomes larger than the length of the remaining text.
@@ -190,8 +190,8 @@ class peg_parse:
         return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
 
     def len_of_parts(self, parts):
-        return self._rule_minlength(parts, set())
-
+        return sum(self.min_len[p] if p in self.min_len else len(p) for p in parts)
+        
     @functools.lru_cache(maxsize=None)
     def unify_key(self, key, text, at, min_len):
         if key not in self.grammar:
