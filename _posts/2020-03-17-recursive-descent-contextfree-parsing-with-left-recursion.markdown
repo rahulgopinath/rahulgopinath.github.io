@@ -70,7 +70,7 @@ particular rule. If the rule requires more characters than what is present in th
 First, we compute the minimum length of each nonterminal statically. The minimum length of a nonterminal is defined as the length of minimum number of terminal symbols needed to satisfy that nonterminal from the grammar. The length of a terminal is obviously the length of that terminal symbol. From this definition, the minimum length of a nonterminal is the minimum of the minimum lengths of
 any of the rules corresponding to it. The minimum length of a rule is the sum of the minimum lengths of each of its token symbols. If the same symbol is encountered again while computing, we return `infinity`.
 
-(Another way to think about the minimum length is as the length of the minimal string produced when the grammar is used as a producer starting from the given nonterminal. The reason for `infinity` for recursion becomes clear --- the producer can not terminate.).
+(Another way to think about the minimum length is as the length of the minimal string produced when the grammar is used as a producer starting from the given nonterminal. The reason for `infinity` for recursion becomes clear --- the producer cannot terminate.).
 
 ```python
 import math
