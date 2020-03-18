@@ -148,3 +148,80 @@ and correctly rejects invalid ones
 $ python3  cfgparse.py '112(4+(3-4))'
 ```
 We still need to make this into a parser. This can be done by storing a better datastructure in the second part of the list of successful parses.
+
+### PEG parser
+
+Can we apply the same technique on a PEG parser? Here is one implementation
+
+```python
+import math
+import sys
+import functools
+import string
+
+expr_grammar = {
+    "<start>": [ ["<E>"] ],
+    "<E>": [
+        ["<E>", "+", "<E>"],
+        ["<E>", "-", "<E>"],
+        ["<E>", "*", "<E>"],
+        ["<E>", "/", "<E>"],
+        ["(", "<E>", ")"],
+        ["<digits>"],
+        ],
+    "<digits>": [["<digit>", "<digits>"], ["<digit>"]],
+    "<digit>": [[str(i)] for i in string.digits]
+}
+
+class peg_parse:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.grammar = grammar
+        self.min_len = {k: self._key_minlength(k, set()) for k in grammar}
+
+    def _rule_minlength(self, rule, seen):
+        return sum([self._key_minlength(k, seen) for k in rule])
+
+    def _key_minlength(self, key, seen):
+        if key not in self.grammar: return len(key)
+        if key in seen: return math.inf
+        return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
+
+    def len_of_parts(self, parts):
+        return self._rule_minlength(parts, set())
+
+    @functools.lru_cache(maxsize=None)
+    def unify_key(self, key, text, at, min_len):
+        if key not in self.grammar:
+            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+        rules = self.grammar[key]
+        for rule in rules:
+            l, res = self.unify_rule(rule, text, at, min_len)
+            if res is not None: return l, (key, res)
+        return (0, None)
+
+    def unify_rule(self, parts, text, tfrom, min_len):
+        results = []
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            if len_of_remaining + tfrom >= len(text):
+                return tfrom, None
+            tfrom, res = self.unify_key(part, text, tfrom, len_of_remaining)
+            if res is None: return tfrom, None
+            results.append(res)
+        return tfrom, results
+
+def main(to_parse):
+    p = peg_parse(expr_grammar)
+    result = p.unify_key('<start>', to_parse, 0, 0)
+    assert (len(to_parse) - result[0]) == 0
+    print(result[1])
+
+if __name__ == '__main__': main(sys.argv[1])                                                                                      
+```
+Using it:
+```shell
+$ python3 peg.py '123+(45+1)'
+('<start>', [('<E>', [('<E>', [('<digits>', [('<digit>', [('1', [])]), ('<digits>', [('<digit>', [('2', [])]), ('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('4', [])]), ('<digits>', [('<digit>', [('5', [])])])])]), ('+', []), ('<E>', [('<digits>', [('<digit>', [('1', [])])])])]), (')', [])])])])
+```
+
