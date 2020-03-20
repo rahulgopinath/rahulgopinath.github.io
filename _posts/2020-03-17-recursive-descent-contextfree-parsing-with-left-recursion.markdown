@@ -14,31 +14,41 @@ class cfg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    def unify_key(self, key, text, tfroms):
-        tfroms_ = []
+    def unify_key(self, key, text, tfrom):
         if key not in self.grammar:
-            for ttill, tkey in tfroms:
-                if text[ttill:].startswith(key):
-                    tfroms_.append((ttill + len(key), (tkey + [key])))
-                else:
-                    continue
+            ttill = tfrom
+            if text[ttill:].startswith(key):
+                return [(ttill + len(key), (key, []))]
+            else:
+                return []
         else:
+            tfroms_ = []
             rules = self.grammar[key]
             for rule in rules:
-                new_tfroms = self.unify_rule(rule, text, tfroms)
-                tfroms_.extend(new_tfroms)
-        return tfroms_
+                new_tfroms = self.unify_rule(rule, text, tfrom)
+                for at, nt in new_tfroms:
+                    tfroms_.append((at, (key, nt)))
+            return tfroms_
+        assert False
 
-    def unify_rule(self, parts, text, tfroms):
-        if not tfroms: return []
+    def unify_rule(self, parts, text, tfrom):
+        arr = []
+        tfroms = [(tfrom, arr)]
         for part in parts:
-            tfroms = self.unify_key(part, text, tfroms)
+            new_tfroms = []
+            for at, nt in tfroms:
+                tfs = self.unify_key(part, text, at)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
         return tfroms
 
 def main(to_parse):
-    result = cfg_parse(term_grammar).unify_key('<expr>', to_parse, [(0, [])])
-    for till in result:
-        print(till)
+    p = cfg_parse(term_grammar)
+    result = p.unify_key('<start>', to_parse, 0)
+    for l,till in result:
+        if l == len(to_parse):
+            print(till)
 
 if __name__ == '__main__':
     main(sys.argv[1])
@@ -97,34 +107,35 @@ Now, all it remains is to intelligently stop parsing whenever the minimum length
 to parse becomes larger than the length of the remaining text.
 ```python
 class cfg_parse(cfg_parse):
-    def unify_key(self, key, text, tfroms, min_len):
-        tfroms_ = []
+    def unify_key(self, key, text, tfrom, min_length):
         if key not in self.grammar:
-            for ttill, tkey in tfroms:
-                if text[ttill:].startswith(key):
-                    tfroms_.append((ttill + len(key), (tkey + [key])))
-                else:
-                    continue
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
+            else:
+                return []
         else:
+            tfroms_ = []
             rules = self.grammar[key]
             for rule in rules:
-                new_tfroms = self.unify_rule(rule, text, tfroms, min_len)
-                tfroms_.extend(new_tfroms)
-        return tfroms_
+                new_tfroms = self.unify_rule(rule, text, tfrom, min_length)
+                for at, nt in new_tfroms:
+                    tfroms_.append((at, (key, nt)))
+            return tfroms_
+        assert False
 
-    def unify_rule(self, parts, text, tfroms, min_len):
-        new_tfroms = []
-        for tfrom in tfroms:
-            till,_k = tfrom
-            tfs = [tfrom]
-            for i,part in enumerate(parts):
-                len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
-                if not tfs or len_of_remaining + till >= len(text):
-                    tfs = []
-                    break
-                tfs = self.unify_key(part, text, tfs, len_of_remaining)
-            new_tfroms.extend(tfs)
-        return new_tfroms
+    def unify_rule(self, parts, text, tfrom, min_len):
+        tfroms = [(tfrom, [])]
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            new_tfroms = []
+            for at, nt in tfroms:
+                if len_of_remaining + at >= len(text):
+                    continue
+                tfs = self.unify_key(part, text, at, len_of_remaining)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
+        return tfroms
 ```
 The driver
 ```python
@@ -143,14 +154,12 @@ Usage:
 It correctly accepts valid strings
 ```shell
 $ python3  cfgparse.py '112*(4+(3-4))'
-['1', '1', '2', '*', '(', '4', '+', '(', '3', '-', '4', ')', ')']
+('<start>', [('<E>', [('<E>', [('<digits>', [('<digits>', [('<digits>', [('<digit>', [('1', [])])]), ('<digit>', [('1', [])])]), ('<digit>', [('2', [])])])]), ('*', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('4', [])])])]), ('+', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('3', [])])])]), ('-', []), ('<E>', [('<digits>', [('<digit>', [('4', [])])])])]), (')', [])])]), (')', [])])])])
 ```
 and correctly rejects invalid ones
 ```shell
 $ python3  cfgparse.py '112(4+(3-4))'
 ```
-We still need to make this into a parser. This can be done by storing a better datastructure in the second part of the list of successful parses.
-
 Note that our implementation relies on there being a minimal length. What if there are empty string derivations? Unfortunately, our parser can fail in these scenarios:
 
 ```python
