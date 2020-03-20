@@ -162,31 +162,39 @@ class cfg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    def unify_key(self, key, text, tfroms):
-        tfroms_ = []
+    def unify_key(self, key, text, tfrom):
         if key not in self.grammar:
-            for ttill, tkey in tfroms:
-                if text[ttill:].startswith(key):
-                    tfroms_.append((ttill + len(key), (tkey + [key])))
-                else:
-                    continue
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
+            else:
+                return []
         else:
+            tfroms_ = []
             rules = self.grammar[key]
             for rule in rules:
-                new_tfroms = self.unify_rule(rule, text, tfroms)
-                tfroms_.extend(new_tfroms)
-        return tfroms_
+                new_tfroms = self.unify_rule(rule, text, tfrom)
+                for at, nt in new_tfroms:
+                    tfroms_.append((at, (key, nt)))
+            return tfroms_
+        assert False
 
-    def unify_rule(self, parts, text, tfroms):
-        if not tfroms: return []
+    def unify_rule(self, parts, text, tfrom):
+        tfroms = [(tfrom, [])]
         for part in parts:
-            tfroms = self.unify_key(part, text, tfroms)
+            new_tfroms = []
+            for at, nt in tfroms:
+                tfs = self.unify_key(part, text, at)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
         return tfroms
 
 def main(to_parse):
-    result = cfg_parse(term_grammar).unify_key('<expr>', to_parse, [(0, [])])
-    for till in result:
-        print(till)
+    p = cfg_parse(term_grammar)
+    result = p.unify_key('<expr>', to_parse, 0)
+    for l,res in result:
+        if l == len(to_parse):
+            print(res)
 
 if __name__ == '__main__':
     main(sys.argv[1])
