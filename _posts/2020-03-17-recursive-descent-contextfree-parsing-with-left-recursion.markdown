@@ -190,9 +190,8 @@ import copy
 class cfg_parse(cfg_parse):
     def unify_key(self, key, text, tfrom, min_len, seen):
         if key not in self.grammar:
-            ttill, tkey = tfrom
-            if text[ttill:].startswith(key):
-                return [(ttill + len(key), (tkey + [key]))]
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
             else:
                 return []
         else:
@@ -217,11 +216,11 @@ class cfg_parse(cfg_parse):
                     # that + #recursions should be <= len(text)
                     return []
 
-            for tfrom in tfroms:
+            for at, nt in tfroms:
                 till,_k = tfrom
                 # if current parse + the minimum required length is > length of
                 # text then no more parsing. (progress)
-                if till + len_of_remaining > len(text):
+                if at + len_of_remaining > len(text):
                     continue
 
                 # if the remaining parts have a minimum length zero, then
@@ -232,11 +231,12 @@ class cfg_parse(cfg_parse):
                     if part in my_seen:
                         my_seen[part][1] += 1
                     else:
-                        my_seen[part] = [till, 0]
+                        my_seen[part] = [at, 0]
                 else:
                     my_seen = {}
-                tfs = self.unify_key(part, text, tfrom, len_of_remaining, my_seen)
-                new_tfroms.extend(tfs)
+                tfs = self.unify_key(part, text, at, len_of_remaining, my_seen)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
             tfroms = new_tfroms
         return tfroms
 ```
