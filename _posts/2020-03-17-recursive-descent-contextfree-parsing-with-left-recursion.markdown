@@ -179,57 +179,57 @@ stopping condition.
 ```python
 import copy
 class cfg_parse(cfg_parse):
-    def unify_key(self, key, text, tfroms, min_len, seen):
-        tfroms_ = []
+    def unify_key(self, key, text, tfrom, min_len, seen):
         if key not in self.grammar:
-            for ttill, tkey in tfroms:
-                if text[ttill:].startswith(key):
-                    tfroms_.append((ttill + len(key), (tkey + [key])))
-                else:
-                    continue
+            ttill, tkey = tfrom
+            if text[ttill:].startswith(key):
+                return [(ttill + len(key), (tkey + [key]))]
+            else:
+                return []
         else:
+            tfroms_ = []
             rules = self.grammar[key]
             for rule in rules:
-                new_tfroms = self.unify_rule(rule, text, tfroms, min_len, seen)
+                new_tfroms = self.unify_rule(rule, text, tfrom, min_len, seen)
                 tfroms_.extend(new_tfroms)
-        return tfroms_
-    def unify_rule(self, parts, text, tfroms, min_len, seen):
-        new_tfroms = []
-        for tfrom in tfroms:
-            till,_k = tfrom
-            tfs = [tfrom]
-            for i,part in enumerate(parts):
-                my_seen = copy.copy(seen)
-                len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            return tfroms_
+
+    def unify_rule(self, parts, text, tfrom, min_len, seen):
+        tfroms = [tfrom]
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            new_tfroms = []
+
+            if self.len_of_parts(parts[i+1:]) == 0:
+                if part in seen and (seen[part][0] + seen[part][1]) > len(text):
+                    # each call to a left recursion should consume at least
+                    # one token. So, if we count from where the left
+                    # recursion originally started (todo),
+                    # that + #recursions should be <= len(text)
+                    return []
+
+            for tfrom in tfroms:
+                till,_k = tfrom
                 # if current parse + the minimum required length is > length of
                 # text then no more parsing. (progress)
-                if till + len_of_remaining > len(text): tfs = []
+                if till + len_of_remaining > len(text):
+                    continue
 
                 # if the remaining parts have a minimum length zero, then
                 # we wont be able to use our progress to curtail the recursion.
                 # so use the number of recursions instead.
                 if self.len_of_parts(parts[i+1:]) == 0:
+                    my_seen = copy.deepcopy(seen)
                     if part in my_seen:
-                        # each call to a left recursion should consume at least
-                        # one token. So, if we count from where the left
-                        # recursion originally started (todo),
-                        # that + #recursions should be <= len(text)
-                        # or #recursions <= len(text) - that
-
-                        if (my_seen[part][0] + my_seen[part][1]) > len(text):
-                            # no progress recursive call
-                            tfs = []
-                        else:
-                            my_seen[part][1] += 1
+                        my_seen[part][1] += 1
                     else:
                         my_seen[part] = [till, 0]
                 else:
                     my_seen = {}
-                # if there are no more parsing threads, break
-                if not tfs: break
-                tfs = self.unify_key(part, text, tfs, len_of_remaining, my_seen)
-            new_tfroms.extend(tfs)
-        return new_tfroms
+                tfs = self.unify_key(part, text, tfrom, len_of_remaining, my_seen)
+                new_tfroms.extend(tfs)
+            tfroms = new_tfroms
+        return tfroms
 ```
 This seems to work. However, one question remains unanswered. One could in
 principle use the second stopping condition on its own, without the first one.
