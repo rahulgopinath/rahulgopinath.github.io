@@ -217,7 +217,6 @@ class cfg_parse(cfg_parse):
                     return []
 
             for at, nt in tfroms:
-                till,_k = tfrom
                 # if current parse + the minimum required length is > length of
                 # text then no more parsing. (progress)
                 if at + len_of_remaining > len(text):
