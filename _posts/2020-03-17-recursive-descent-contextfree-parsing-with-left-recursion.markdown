@@ -16,9 +16,8 @@ class cfg_parse:
 
     def unify_key(self, key, text, tfrom):
         if key not in self.grammar:
-            ttill = tfrom
-            if text[ttill:].startswith(key):
-                return [(ttill + len(key), (key, []))]
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
             else:
                 return []
         else:
@@ -32,8 +31,7 @@ class cfg_parse:
         assert False
 
     def unify_rule(self, parts, text, tfrom):
-        arr = []
-        tfroms = [(tfrom, arr)]
+        tfroms = [(tfrom, [])]
         for part in parts:
             new_tfroms = []
             for at, nt in tfroms:
