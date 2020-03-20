@@ -151,6 +151,35 @@ $ python3  cfgparse.py '112(4+(3-4))'
 ```
 We still need to make this into a parser. This can be done by storing a better datastructure in the second part of the list of successful parses.
 
+Note that our implementation relies on there being a minimal length. What if there are empty string derivations? Unfortunately, our parser can fail in these scenarios:
+
+```python
+ABgrammar = {
+        '<start>': [['<A>']],
+        '<A>': [
+            ['<A>', '<B>'],
+            ['a']],
+        '<B>': [['b'], ['']]
+}
+
+Agrammar = {
+        '<start>': [['<A>']],
+        '<A>': [['<A>'], ['a']],
+}
+```
+The issue is empty strings causing the minimal length to be zero. So, we are unable to make progress. One option
+is to completely remove empty strings from the grammar. While that is a better option than refactoring out left
+recursion, it is a bit unsatisfying. Is there a better way?
+
+Another option is to look for a different stopping condition. The idea is that in left recursion, the left recursions
+always have to make progress (the non-progress-making left recursions can be generated from the single progress making
+left recursion, so we can discard the non-progress-making left recursions). That means that one would never
+have more number of recursions of the same key than there are remaining letters. Here is an attempt to implement this
+stopping condition.
+```python
+
+```
+
 ### PEG parser
 
 Can we apply the same technique on a PEG parser? Here is one implementation
