@@ -177,8 +177,66 @@ left recursion, so we can discard the non-progress-making left recursions). That
 have more number of recursions of the same key than there are remaining letters. Here is an attempt to implement this
 stopping condition.
 ```python
+import copy
+class cfg_parse(cfg_parse):
+    def unify_key(self, key, text, tfroms, min_len, seen):
+        tfroms_ = []
+        if key not in self.grammar:
+            for ttill, tkey in tfroms:
+                if text[ttill:].startswith(key):
+                    tfroms_.append((ttill + len(key), (tkey + [key])))
+                else:
+                    continue
+        else:
+            rules = self.grammar[key]
+            for rule in rules:
+                new_tfroms = self.unify_rule(rule, text, tfroms, min_len, seen)
+                tfroms_.extend(new_tfroms)
+        return tfroms_
+    def unify_rule(self, parts, text, tfroms, min_len, seen):
+        new_tfroms = []
+        for tfrom in tfroms:
+            till,_k = tfrom
+            tfs = [tfrom]
+            for i,part in enumerate(parts):
+                my_seen = copy.copy(seen)
+                len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+                # if current parse + the minimum required length is > length of
+                # text then no more parsing. (progress)
+                if till + len_of_remaining > len(text): tfs = []
 
+                # if the remaining parts have a minimum length zero, then
+                # we wont be able to use our progress to curtail the recursion.
+                # so use the number of recursions instead.
+                if self.len_of_parts(parts[i+1:]) == 0:
+                    if part in my_seen:
+                        # each call to a left recursion should consume at least
+                        # one token. So, if we count from where the left
+                        # recursion originally started (todo),
+                        # that + #recursions should be <= len(text)
+                        # or #recursions <= len(text) - that
+
+                        if (my_seen[part][0] + my_seen[part][1]) > len(text):
+                            # no progress recursive call
+                            tfs = []
+                        else:
+                            my_seen[part][1] += 1
+                    else:
+                        my_seen[part] = [till, 0]
+                else:
+                    my_seen = {}
+                # if there are no more parsing threads, break
+                if not tfs: break
+                tfs = self.unify_key(part, text, tfs, len_of_remaining, my_seen)
+            new_tfroms.extend(tfs)
+        return new_tfroms
 ```
+This seems to work. However, one question remains unanswered. One could in
+principle use the second stopping condition on its own, without the first one.
+So, why use the first stopping condition at all? The reason is that, in my
+experiments at least, the second condition is much more expensive than the first
+So, we only use the second when we absolutely need to.
+
 
 ### PEG parser
 
