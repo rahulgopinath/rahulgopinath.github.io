@@ -243,6 +243,15 @@ So, why use the first stopping condition at all? The reason is that, in my
 experiments at least, the second condition is much more expensive than the first
 So, we only use the second when we absolutely need to.
 
+A few more stopping conditions can be applied. For example, if one has a hashmap at
+each character position for the nonterminals applied (starting) at that position, then
+* No single nonterminal may be applied more times than the remaining length of the string
+* If a single nonterminal has been applied multiple times consecutively, then the number
+  of such applications can be removed from the remaining string length.
+* Similarly, if a set of nonterminals are applied again and again, with no other symbols
+  outside the set in the repetitions, then the number of such groups can be removed from
+  the remaining string length.
+
 
 ### PEG parser
 
