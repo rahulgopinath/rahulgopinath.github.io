@@ -131,7 +131,7 @@ with a single failure-inducing input ("The input ((4)) fails") and an input
 grammar, the DDSET algorithm uses systematic tests to automatically generalize
 the input to an abstract failure inducing input that contains both (concrete)
 terminal symbols and (abstract) nonterminal symbols from the grammar---for
-instance, "((<expr>))", which represents any expression <expr> in double
+instance, "((&lt;expr&gt;))", which represents any expression &lt;expr&gt; in double
 parentheses.  Such an abstract failure inducing input can be used
 1. as a debugging diagnostic, characterizing the circumstances under which a
 failure occurs ("The error occurs whenever an expression is enclosed in
