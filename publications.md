@@ -9,6 +9,15 @@ menu: Publications
 
 ## Peer Reviewed Publications
 
+##### 2020
+
+* [_Abstracting Failure Inducing Inputs _](#gopinath2020abstracting)<br/>
+  *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
+
+* [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
+  Mathis, *Gopinath*, Zeller, PLDI, 2020
+
+
 ##### 2019
 
 * [_Parser-Directed Fuzzing_](#mathis2019parser)<br/>
@@ -116,11 +125,64 @@ Software Modification_](#christi2019evaluating)<br/>
   Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
 
 
+#### <a id='gopinath2020abstracting'></a>[Gopinath, Kampmann, Havrikov, Soremekun, Zeller: _Abstracting Failure Inducing Inputs_ ISSTA, 2020]()
+A program fails.  Under which circumstances does the failure occur?  Starting
+with a single failure-inducing input ("The input ((4)) fails") and an input
+grammar, the DDSET algorithm uses systematic tests to automatically generalize
+the input to an abstract failure inducing input that contains both (concrete)
+terminal symbols and (abstract) nonterminal symbols from the grammar---for
+instance, "((<expr>))", which represents any expression <expr> in double
+parentheses.  Such an abstract failure inducing input can be used
+1. as a debugging diagnostic, characterizing the circumstances under which a
+failure occurs ("The error occurs whenever an expression is enclosed in
+double parentheses"); 2. as a producer of additional failure-inducing tests to
+help design and validate fixes and repair candidates ("The inputs ((1)), ((3 * 4)),
+and many more also fail").
+In its evaluation on real-world bugs in JavaScript, Clojure, Lua, and Coreutils,
+DDSET's abstract failure inducing inputs provided to-the-point diagnostics, and
+precise producers.
+
+#### <a id='mathis2020learning'></a>[Mathis, Gopinath, Zeller: _Learning Input Tokens for Effective Fuzzing_ ISSTA, 2020]()
+
+Modern fuzzing tools like AFL operate at a lexical level: They explore the input
+space of tested programs one byte after another.  For inputs with complex
+syntactical properties, this is very inefficient, as keywords and other tokens
+have to be composed one character at a time. Fuzzers thus allow to specify
+dictionaries listing possible tokens the input can be composed from; such
+dictionaries speed up fuzzers dramatically. Also, fuzzers make use of dynamic
+tainting to track input tokens and infer values that are expected in the input
+validation phase. Unfortunately, such tokens are usually implicitly converted to
+program specific values which causes a loss of the taints attached to the input
+data in the lexical phase. In this paper we present a technique to extend
+dynamic tainting to not only track explicit data flows but also taint implicitly
+converted data without suffering from taint explosion. This extension makes it
+possible to augment existing techniques and automatically infer a set of
+tokens and seed inputs for the input language of a program given nothing but the
+source code.  Specifically targeting the lexical analysis of an input processor,
+our LFuzzer test generator systematically explores branches of the lexical
+analysis, producing a set of tokens that fully cover all decisions seen.
+The resulting set of tokens can be directly used as a dictionary for fuzzing.
+Along with the token extraction seed inputs are generated which give further
+fuzzing processes a head start. In our experiments, the LFuzzer-AFL combination
+achieves up to 17% more coverage on complex input formats like JSON, Lisp,
+TinyC, and JS compared to AFL.
+
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
 
-To be effective, software test generation needs to well cover the space of possible inputs. Traditional fuzzing generates large numbers of random inputs, which however are unlikely to contain keywords and other specific inputs of non-trivial input languages. Constraint-based test generation solves conditions of paths leading to uncovered code, but fails on programs with complex input conditions because of path explosion.
+To be effective, software test generation needs to well cover the space of
+possible inputs. Traditional fuzzing generates large numbers of random inputs,
+which however are unlikely to contain keywords and other specific inputs of
+non-trivial input languages. Constraint-based test generation solves conditions
+of paths leading to uncovered code, but fails on programs with complex input
+conditions because of path explosion.
 
-In this paper, we present a test generation technique specifically directed at input parsers. We systematically produce inputs for the parser and track comparisons made; after every rejection, we satisfy the comparisons leading to rejection. This approach effectively covers the input space: Evaluated on five subjects, from CSV files to JavaScript, our pFuzzer prototype covers more tokens than both random-based and constraint-based approaches, while requiring no symbolic analysis and far fewer tests than random fuzzers.
+In this paper, we present a test generation technique specifically directed at
+input parsers. We systematically produce inputs for the parser and track
+comparisons made; after every rejection, we satisfy the comparisons leading to
+rejection. This approach effectively covers the input space: Evaluated on five
+subjects, from CSV files to JavaScript, our pFuzzer prototype covers more tokens
+than both random-based and constraint-based approaches, while requiring no
+symbolic analysis and far fewer tests than random fuzzers.
 
 This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
 
