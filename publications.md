@@ -15,7 +15,7 @@ menu: Publications
   *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
 
 * [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
-  Mathis, *Gopinath*, Zeller, PLDI, 2020
+  Mathis, *Gopinath*, Zeller, ISSTA, 2020
 
 
 ##### 2019
