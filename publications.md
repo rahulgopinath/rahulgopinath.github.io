@@ -11,7 +11,7 @@ menu: Publications
 
 ##### 2020
 
-* [_Abstracting Failure Inducing Inputs _](#gopinath2020abstracting)<br/>
+* [_Abstracting Failure Inducing Inputs_](#gopinath2020abstracting)<br/>
   *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
 
 * [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
