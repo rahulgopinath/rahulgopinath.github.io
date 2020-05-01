@@ -5,6 +5,8 @@ weight: 1
 ---
 Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He works with [Prof. Dr. Andreas Zeller](https://www.st.cs.uni-saarland.de/zeller/). He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
 
+<b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
+do [contact me](/contact). I will be happy to talk to you, and help you in any way. </b>
 
 <h2>Research at CISPA</h2>
 
