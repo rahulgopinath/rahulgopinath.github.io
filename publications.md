@@ -770,6 +770,24 @@ One of the key challenges of developers testing code is determining a test suite
 
 <!--script async class="speakerdeck-embed" data-id="640fad3e1a254985a10da2792866b675" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script-->
 
+##### Updates:
+
+Laura  Inozemtseva and Reid Holmes published the paper [Coverage is not strongly correlated with test suite effectiveness](https://dl.acm.org/doi/10.1145/2568225.2568271) at the same ICSE 2014 conference. Their title seems to be counter to the findings in this paper. Why is it so?
+Here are my observations:
+
+1. Inozemtseva et al.'s central thesis is that _normalized mutation score_ is not highly correlated with coverage.
+2. The normalized mutation score is computed by Inozemtseva et al. as #mutants killed / #mutants covered.
+3. However, note that #covered mutants is _directly_ determined by statement coverage. That is, it depends only on the average number of mutants per line along with statement coverage.
+
+Normalization is done _according to Inozemtseva et al._ to _remove the effect of coverage_ (Sec 3.6 2ed para).
+So, removing the effect of coverage, if that attempt was successful, should result in a number that is _not_ correlated with coverage (by construction).
+
+So, this means that:
+
+1. A finding that there is no correlation between the normalized mutation score and coverage would be a tautology. This is the expected result.
+2. The finding that there is a moderate correlation between the two just means that the effect of coverage was not completely removed by division. That is, there was some non-linear component involved.
+
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2014/gopinath2014code.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2014/gopinath2014code.bib)
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://dx.doi.org/10.17605/OSF.IO/K7JHU)
