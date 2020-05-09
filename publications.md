@@ -473,6 +473,11 @@ element. In retrospect, comparing the future bug fixes *per line* was a mistake.
 We should have compared the coverage and mutation score of the element with the
 *total* future bugfixes of that element.
 
+Crucially, our research is the first to provide evidence that the mutation
+score is related to the _residual defect density_ of the program. That is, the
+number of live mutants remaining is related to the actual bugs remaining in the
+program.
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2016/ahmed2016can.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2016/ahmed2016can.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/can-testedness-be-effectively-measured)
