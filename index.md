@@ -8,6 +8,13 @@ Rahul Gopinath is a postdoctoral researcher working on static and dynamic analys
 <b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
 do [contact me](/contact). I will be happy to talk to you, and help you in any way. </b>
 
+<hr>
+<b>Special Issue in STVR: Mutation Analysis and Its Industrial Applications</b>
+
+We are pleaseed to announce a special issue in STVR for Mutation Analysis and Its Industrial Applications
+Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
+</hr>
+
 <h2>Research at CISPA</h2>
 
 At CISPA, my work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforeseen manner? If a system correctly rejects all invalid inputs and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilities before it is exposed to the wider world.
