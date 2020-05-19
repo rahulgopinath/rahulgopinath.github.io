@@ -11,6 +11,9 @@ menu: Publications
 
 ##### 2020
 
+* [_Mining Input Grammars from Dynamic Control Flow_](#gopinath2020mining)<br/>
+  *Gopinath*, *Mathis*, Zeller, FSE, 2020
+
 * [_Abstracting Failure Inducing Inputs_](#gopinath2020abstracting)<br/>
   *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
 
@@ -123,6 +126,27 @@ Software Modification_](#christi2019evaluating)<br/>
 
 * [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
   Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
+
+#### <a id='gopinath2020mining'></a>[Gopinath, Mathis, Zeller: _Mining Input Grammars from Dynamic Control Flow_ FSE, 2020]()
+
+One of the key properties of a program is its input specification. Having a
+formal input specification can be critical in fields such as vulnerability
+analysis, reverse engineering, software testing, clone detection, or
+refactoring. Unfortunately, accurate input specifications for typical programs
+are often unavailable or out of date.
+
+In this paper, we present a general algorithm that takes a program and a small
+set of sample inputs and automatically infers a readable context-free grammar
+capturing the input language of the program. We infer the syntactic input
+structure only by observing access of input characters at different locations of
+the input parser. This works on all stack based recursive descent input parsers,
+including parser combinators, and works entirely without program specific
+heuristics. Our Mimid prototype produced accurate and readable grammars for a
+variety of evaluation subjects, including complex languages such as JSON,
+TinyC, and JavaScript.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2020/gopinath2020mining.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2020/gopinath2020mining.bib)
 
 
 #### <a id='gopinath2020abstracting'></a>[Gopinath, Kampmann, Havrikov, Soremekun, Zeller: _Abstracting Failure Inducing Inputs_ ISSTA, 2020]()
