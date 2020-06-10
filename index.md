@@ -11,7 +11,7 @@ do [contact me](/contact). I will be happy to talk to you, and help you in any w
 <hr>
 <b>Special Issue in STVR: Mutation Analysis and Its Industrial Applications</b>
 
-We are pleaseed to announce a special issue in STVR for Mutation Analysis and Its Industrial Applications
+We are pleased to announce a special issue in STVR for Mutation Analysis and Its Industrial Applications
 Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
 <hr>
 
