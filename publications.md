@@ -20,6 +20,9 @@ menu: Publications
 * [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
   Mathis, *Gopinath*, Zeller, ISSTA, 2020
 
+* [_Using Relative Lines of Code to Guide Automated Test Generation for Python_](#holmes2020using)<br/>
+  Holmes, Brindescu, *Gopinath*, Zhang, Groce, TOSEM, 2020
+
 
 ##### 2019
 
@@ -193,6 +196,26 @@ Along with the token extraction seed inputs are generated which give further
 fuzzing processes a head start. In our experiments, the LFuzzer-AFL combination
 achieves up to 17% more coverage on complex input formats like JSON, Lisp,
 TinyC, and JS compared to AFL.
+
+
+#### <a id='holmes2020using'></a>[Holmes, Brindescu, Gopinath, Zhang, Groce: _Using Relative Lines of Code to Guide Automated Test Generation for Python_ TOSEM, 2020]()
+
+Raw lines of code (LOC) is a metric that does not, at first glance, seem extremely
+useful for automated test generation. It is both highly language-dependent and not
+extremely meaningful, semantically, within a language: one coder can produce the
+same effect with many fewer lines than another. However, relative LOC, between
+components of the same project, turns out to be a highly useful metric for automated
+testing. In this paper, we make use of a heuristic based on LOC counts for tested
+functions to dramatically improve the effectiveness of automated test generation.
+This approach is particularly valuable in languages where collecting code coverage
+data to guide testing has a very high overhead.  We apply the heuristic to property-based
+Python testing using the TSTL (Template Scripting Testing Language) tool.
+In our experiments, the simple LOC heuristic can improve branch and statement coverage
+by large margins (often more than 20%, up to 40% or more), and improve fault detection
+by an even larger margin (usually more than 75%, and up to 400% or more).
+The LOC heuristic is also easy to combine with other approaches, and is comparable to,
+and possibly more effective than, two well-established approaches for guiding random testing.
+
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
 
