@@ -197,6 +197,10 @@ fuzzing processes a head start. In our experiments, the LFuzzer-AFL combination
 achieves up to 17% more coverage on complex input formats like JSON, Lisp,
 TinyC, and JS compared to AFL.
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/mathis2020learning.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/mathis2020learning.bib)
+
+
 
 #### <a id='holmes2020using'></a>[Holmes, Brindescu, Gopinath, Zhang, Groce: _Using Relative Lines of Code to Guide Automated Test Generation for Python_ TOSEM, 2020]()
 
