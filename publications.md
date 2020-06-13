@@ -216,6 +216,8 @@ by an even larger margin (usually more than 75%, and up to 400% or more).
 The LOC heuristic is also easy to combine with other approaches, and is comparable to,
 and possibly more effective than, two well-established approaches for guiding random testing.
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/tosem2020/holmes2020using.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/tosem2020/holmes2020using.bib)
 
 #### <a id='mathis2019parser'></a>[Mathis, Gopinath, Mera, Kampmann, Höschele, Zeller: _Parser Directed Fuzzing_ PLDI, 2019]()
 
