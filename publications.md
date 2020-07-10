@@ -20,8 +20,8 @@ menu: Publications
 * [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
   Mathis, *Gopinath*, Zeller, ISSTA, 2020
 
-* [_Using Relative Lines of Code to Guide Automated Test Generation for Python_](#holmes2020using)<br/>
-  Holmes, Brindescu, *Gopinath*, Zhang, Groce, TOSEM, 2020
+* [_Using Relative Lines of Code to Guide Automated Test Generation for Python_](#ahmed2020using)<br/>
+  Ahmed, Holmes, Brindescu, *Gopinath*, Zhang, Groce, TOSEM, 2020
 
 
 ##### 2019
