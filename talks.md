@@ -43,8 +43,8 @@ menu: Talks
 
 This talk is about our ISSTA'20 paper [_Abstracting Failure Inducing Inputs_](https://rahul.gopinath.org/publications/#gopinath2020abstracting).
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/oDtkHAhJHuI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/-AJ2ch-LwkU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 #### <a id='gopinath2017pygram'></a>[Gopinath: _Pygram: Learning input grammars for Python programs_ TU Darmstadt, Germany (software group retreat), 2017]()
 
