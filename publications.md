@@ -246,6 +246,10 @@ symbolic analysis and far fewer tests than random fuzzers.
 This is an expansion of our [TR](https://arxiv.org/abs/1810.08289).
 
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3925727.svg)](https://doi.org/10.5281/zenodo.3925727)
+
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2019/mathis2019parser.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/pldi2019/mathis2019parser.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://www.slideshare.net/secret/iCJtAe8yn1EQ0g)
