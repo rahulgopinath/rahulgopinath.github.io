@@ -255,7 +255,7 @@ zoom(display_tree(parsed_expr))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_36_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_36_0.png) 
 
 
  
@@ -288,7 +288,7 @@ zoom(display_tree(t))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_39_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_39_0.png) 
 
 
 
@@ -329,7 +329,7 @@ zoom(display_tree(te))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_44_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_44_0.png) 
 
 
 
@@ -378,7 +378,7 @@ zoom(display_tree(t))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_48_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_48_0.png) 
 
 
 
@@ -405,7 +405,7 @@ zoom(display_tree(te))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_50_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_50_0.png) 
 
 
 
@@ -432,7 +432,7 @@ zoom(display_tree(tn))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_52_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_52_0.png) 
 
 
 
@@ -740,7 +740,7 @@ zoom(display_tree(er))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_77_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_77_0.png) 
 
 
 
@@ -971,7 +971,7 @@ zoom(display_tree(till_abstract(t)))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_100_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_100_0.png) 
 
 
  
@@ -1024,7 +1024,7 @@ zoom(display_tree(rt))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_104_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_104_0.png) 
 
 
  
@@ -1113,7 +1113,7 @@ display_tree(get_child(er, first_expr))
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_112_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_112_0.svg) 
 
 
 
@@ -1127,7 +1127,7 @@ display_tree(get_child(er, second_expr))
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_113_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_113_0.svg) 
 
 
 
@@ -1141,7 +1141,7 @@ display_tree(get_child(er, third_expr))
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_114_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_114_0.svg) 
 
 
 
@@ -1281,7 +1281,7 @@ display_tree(get_child(er, ab[0][0]))
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_123_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_123_0.svg) 
 
 
  
@@ -1375,7 +1375,7 @@ nt = replace_path(parsed_expr, [0, 0], get_child(er, [0, 0])); display_tree(nt)
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_129_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_129_0.svg) 
 
 
 
@@ -1614,7 +1614,7 @@ display_tree(till_abstract(ist))
 
 
  
-![svg]({{ BASE_PATH }}/resources/posts/notebook_133_0.svg) 
+![svg]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_133_0.svg) 
 
 
  
@@ -2028,7 +2028,7 @@ zoom(display_tree(till_abstract(dd_tree)))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_162_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_162_0.png) 
 
 
 
@@ -3686,7 +3686,7 @@ zoom(display_tree(till_abstract(a_mintree)))
 
 
  
-![png]({{ BASE_PATH }}/resources/posts/notebook_202_0.png) 
+![png]({{ BASE_PATH }}/resources/posts/2020-07-15-ddset/notebook_202_0.png) 
 
 
  
