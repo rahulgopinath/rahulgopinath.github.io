@@ -169,6 +169,9 @@ In its evaluation on real-world bugs in JavaScript, Clojure, Lua, and Coreutils,
 DDSET's abstract failure inducing inputs provided to-the-point diagnostics, and
 precise producers.
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/gopinath2020abstracting.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/gopinath2020abstracting.bib)
 
