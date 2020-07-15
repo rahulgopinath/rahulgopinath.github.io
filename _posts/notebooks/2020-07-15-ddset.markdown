@@ -7,9 +7,11 @@ tags: ddset, cfg, deltadebug
 categories: post
 ---
 
-# Abstracting Failure-Inducing Inputs
+This is a complete worked out example of the algorithm given in the [Abstracting Failure Inducing Inputs](https://rahul.gopinath.org/publications/#gopinath2020abstracting) presented at ISSTA'20. The full Jupyter notebook in runnable form can be downloaded [here](https://github.com/vrthra/ddset/blob/master/src/DDSet.ipynb). Finally, the replication package for the paper is also available [here](https://github.com/vrthra/ddset).
 
-This is a complete worked out example of the algorithm given in the paper.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
+
+
 
 We start by importing the prerequisites.
 
