@@ -20,10 +20,12 @@ We start by importing the prerequisites.
 
 **In [1]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 from enum import Enum
 import copy
 {% endhighlight %}
+</div>
  
 ## Expression Example 
  
@@ -39,6 +41,7 @@ outcomes when an input is executed:
 
 **In [2]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 class PRes(str, Enum):
     success = 'SUCCESS'
@@ -46,58 +49,73 @@ class PRes(str, Enum):
     invalid = 'INVALID'
     timeout = 'TIMEOUT'
 {% endhighlight %}
+</div>
  
 Next, we define our predicate. It is a simple test for doubled parenthesis such
 as `((..))` 
 
 **In [3]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 import re
 {% endhighlight %}
+</div>
 
 **In [4]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def expr_double_paren(inp):
     if re.match(r'.*[(][(].*[)][)].*', inp):
         return PRes.success
     return PRes.failed
 {% endhighlight %}
+</div>
 
 **In [5]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 my_predicate = expr_double_paren
 {% endhighlight %}
+</div>
  
 We also define an input. 
 
 **In [6]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 expr_input =  '1 + ((2 * 3 / 4))'
 {% endhighlight %}
+</div>
 
 **In [7]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 my_input = expr_input
 {% endhighlight %}
+</div>
  
 We verify that we can reproduce the failing condition correctly. 
 
 **In [8]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 assert my_predicate(my_input) == PRes.success
 {% endhighlight %}
+</div>
 
 **In [9]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 assert my_predicate('(1+2)') == PRes.failed
 {% endhighlight %}
+</div>
  
 ### Grammar 
  
@@ -108,6 +126,7 @@ given below.
 
 **In [10]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 EXPR_GRAMMAR = {'<start>': [['<expr>']],
  '<expr>': [['<term>', ' + ', '<expr>'],
@@ -124,12 +143,15 @@ EXPR_GRAMMAR = {'<start>': [['<expr>']],
  '<integer>': [['<digit>', '<integer>'], ['<digit>']],
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
 {% endhighlight %}
+</div>
 
 **In [11]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 EXPR_G = {'[start]': '<start>', '[grammar]': EXPR_GRAMMAR}
 {% endhighlight %}
+</div>
  
 Note the convetion we used: Each nonterminal is enclosed in angle brackets. E.g.
 `<expr>`. We now define a function that can distinguish terminal symbols from
@@ -139,10 +161,12 @@ The `is_nt()` function checks if the given node is a terminal or not.
 
 **In [12]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def is_nt(symbol):
      return symbol and (symbol[0], symbol[-1]) == ('<', '>')
 {% endhighlight %}
+</div>
  
 #### The parser 
  
@@ -153,9 +177,11 @@ generic context-free parser. This is present in the `src` directory.
 
 **In [13]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 from Parser import EarleyParser as Parser
 {% endhighlight %}
+</div>
  
 How do we check that our parse succeeded? We can convert the derivation tree
 back to the original string and check for equality. 
@@ -165,6 +191,7 @@ string.
 
 **In [14]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def tree_to_string(tree, wrap=lambda ntree, depth, name, string: string, depth=0):
     name, children, *rest = tree
@@ -173,14 +200,19 @@ def tree_to_string(tree, wrap=lambda ntree, depth, name, string: string, depth=0
     else:
         return wrap(tree, depth, name, ''.join([tree_to_string(c, wrap, depth-1) for c in children]))
 {% endhighlight %}
+</div>
 
 **In [15]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 expr_parser = Parser(EXPR_GRAMMAR, start_symbol='<start>', canonical=True)
 parsed_expr = list(expr_parser.parse(my_input))[0]
 tree_to_string(parsed_expr)
 {% endhighlight %}
+</div>
+
+**Out [15]:**
 
 
 
@@ -197,18 +229,23 @@ define graphical tree display (code from fuzzingbook)
 
 **In [16]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 from graphviz import Digraph
 {% endhighlight %}
+</div>
 
 **In [17]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 from IPython.display import display, Image
 {% endhighlight %}
+</div>
 
 **In [18]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def zoom(v, zoom=True):
     # return v directly if you do not want to zoom out.
@@ -216,9 +253,11 @@ def zoom(v, zoom=True):
         return Image(v.render(format='png'))
     return v
 {% endhighlight %}
+</div>
 
 **In [19]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def extract_node(node, id):
     symbol, children, *annotation = node
@@ -243,14 +282,19 @@ def display_tree(derivation_tree):
     traverse_tree(dot, derivation_tree)
     return dot
 {% endhighlight %}
+</div>
  
 We are now ready to display the tree structure. 
 
 **In [20]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 zoom(display_tree(parsed_expr))
 {% endhighlight %}
+</div>
+
+**Out [20]:**
 
 
 
@@ -280,10 +324,14 @@ We first have to define a way to address a specific node.
 
 **In [21]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 t = parsed_expr[1][0][1][2][1][0]
 zoom(display_tree(t))
 {% endhighlight %}
+</div>
+
+**Out [21]:**
 
 
 
@@ -294,9 +342,13 @@ zoom(display_tree(t))
 
 **In [22]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(t)
 {% endhighlight %}
+</div>
+
+**Out [22]:**
 
 
 
@@ -312,19 +364,25 @@ Given a path, `get_child()` will simply return the node at the path.
 
 **In [23]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def get_child(tree, path):
     if not path: return tree
     cur, *path = path
     return get_child(tree[1][cur], path)
 {% endhighlight %}
+</div>
 
 **In [24]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 te = get_child(parsed_expr, [0, 2, 0])
 zoom(display_tree(te))
 {% endhighlight %}
+</div>
+
+**Out [24]:**
 
 
 
@@ -335,9 +393,13 @@ zoom(display_tree(te))
 
 **In [25]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(te)
 {% endhighlight %}
+</div>
+
+**Out [25]:**
 
 
 
@@ -351,6 +413,7 @@ We also need a way to replace one node with another. This is done by
 
 **In [26]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def replace_path(tree, path, new_node=None):
     if new_node is None: new_node = []
@@ -367,13 +430,18 @@ def replace_path(tree, path, new_node=None):
             new_children.append(nc)
     return (name, new_children, *rest)
 {% endhighlight %}
+</div>
 
 **In [27]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 t = parsed_expr[1][0][1][2][1][0]
 zoom(display_tree(t))
 {% endhighlight %}
+</div>
+
+**Out [27]:**
 
 
 
@@ -384,9 +452,13 @@ zoom(display_tree(t))
 
 **In [28]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(t)
 {% endhighlight %}
+</div>
+
+**Out [28]:**
 
 
 
@@ -397,10 +469,14 @@ tree_to_string(t)
 
 **In [29]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 te = replace_path(parsed_expr, [0, 2, 0], [])
 zoom(display_tree(te))
 {% endhighlight %}
+</div>
+
+**Out [29]:**
 
 
 
@@ -411,9 +487,13 @@ zoom(display_tree(te))
 
 **In [30]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(te)
 {% endhighlight %}
+</div>
+
+**Out [30]:**
 
 
 
@@ -424,10 +504,14 @@ tree_to_string(te)
 
 **In [31]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tn = replace_path(parsed_expr, [0, 2, 0], ('x',[]))
 zoom(display_tree(tn))
 {% endhighlight %}
+</div>
+
+**Out [31]:**
 
 
 
@@ -438,9 +522,13 @@ zoom(display_tree(tn))
 
 **In [32]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(tn)
 {% endhighlight %}
+</div>
+
+**Out [32]:**
 
 
 
@@ -456,12 +544,15 @@ determine the priority of a node. This is done by `count_leaves()`
 
 **In [33]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 import heapq
 {% endhighlight %}
+</div>
 
 **In [34]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def count_leaves(node):
     name, children, *_ = node
@@ -469,12 +560,17 @@ def count_leaves(node):
         return 1
     return sum(count_leaves(i) for i in children)
 {% endhighlight %}
+</div>
 
 **In [35]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 count_leaves(parsed_expr)
 {% endhighlight %}
+</div>
+
+**Out [35]:**
 
 
 
@@ -485,9 +581,13 @@ count_leaves(parsed_expr)
 
 **In [36]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 count_leaves(te)
 {% endhighlight %}
+</div>
+
+**Out [36]:**
 
 
 
@@ -500,6 +600,7 @@ We also define a helper that simply counts the internal nodes.
 
 **In [37]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def count_nodes(node):
     name, children, *_ = node
@@ -507,12 +608,17 @@ def count_nodes(node):
         return 0
     return sum(count_nodes(i) for i in children) + 1
 {% endhighlight %}
+</div>
 
 **In [38]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 count_nodes(parsed_expr)
 {% endhighlight %}
+</div>
+
+**Out [38]:**
 
 
 
@@ -529,12 +635,15 @@ tie break by the insertion order (`ecount`).
 
 **In [39]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 ecount = 0
 {% endhighlight %}
+</div>
 
 **In [40]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def add_to_pq(tup, q):
     global ecount
@@ -546,6 +655,7 @@ def add_to_pq(tup, q):
     heapq.heappush(q, (n, m, -ecount, tup))
     ecount += 1
 {% endhighlight %}
+</div>
  
 We define another helper function `nt_group()` that groups all nonterminals that
 have the same name. These are used to determine the nodes that can be used to
@@ -553,6 +663,7 @@ replace one node.
 
 **In [41]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def nt_group(tree, all_nodes=None):
     if all_nodes is None: all_nodes = {}
@@ -563,9 +674,11 @@ def nt_group(tree, all_nodes=None):
         nt_group(c, all_nodes)
     return all_nodes
 {% endhighlight %}
+</div>
 
 **In [42]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 gp = nt_group(te)
 for key in gp:
@@ -573,6 +686,9 @@ for key in gp:
     for node in gp[key]:
         print(tree_to_string(node))
 {% endhighlight %}
+</div>
+
+**Out [42]:**
 
     <start>
     1 + 
@@ -596,6 +712,7 @@ defined by `compatible_nodes()`
 
 **In [43]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def compatible_nodes(tree, grammar):
     key, children, *_ = tree
@@ -608,12 +725,17 @@ def compatible_nodes(tree, grammar):
     if [] in grammar[key]: node_lst.insert(0, (-1, (key, [])))
     return node_lst
 {% endhighlight %}
+</div>
 
 **In [44]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 get_child(te, [0])
 {% endhighlight %}
+</div>
+
+**Out [44]:**
 
 
 
@@ -627,9 +749,13 @@ get_child(te, [0])
 
 **In [45]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 compatible_nodes(get_child(te, [0]), EXPR_GRAMMAR)
 {% endhighlight %}
+</div>
+
+**Out [45]:**
 
 
 
@@ -650,6 +776,7 @@ mind when we produce grammars).
 
 **In [46]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def is_token(val):
     assert val != '<>'
@@ -658,6 +785,7 @@ def is_token(val):
     #if val[1] == '_': return val[2].isupper() # token derived.
     return False
 {% endhighlight %}
+</div>
  
 ### Perses reduction 
  
@@ -682,6 +810,7 @@ different tree.)
 
 **In [47]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def reduction(tree, grammar, predicate):
     first_tuple = (tree, [])
@@ -729,13 +858,18 @@ def reduction(tree, grammar, predicate):
             add_to_pq(t, p_q)
     return min_tree
 {% endhighlight %}
+</div>
 
 **In [48]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 er = reduction(parsed_expr, EXPR_GRAMMAR, my_predicate)
 zoom(display_tree(er))
 {% endhighlight %}
+</div>
+
+**Out [48]:**
 
 
 
@@ -746,9 +880,13 @@ zoom(display_tree(er))
 
 **In [49]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(er)
 {% endhighlight %}
+</div>
+
+**Out [49]:**
 
 
 
@@ -764,14 +902,17 @@ grammar. Our fuzzer is able to do that.
 
 **In [50]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 import random
 {% endhighlight %}
+</div>
  
 ### The interface 
 
 **In [51]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 class Fuzzer:
     def __init__(self, grammar):
@@ -780,6 +921,7 @@ class Fuzzer:
     def fuzz(self, key='<start>', max_num=None, max_depth=None):
         raise NotImplemented()
 {% endhighlight %}
+</div>
  
 ### The implementation 
  
@@ -790,6 +932,7 @@ recursion).
 
 **In [52]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 class LimitFuzzer(Fuzzer):
     def symbol_cost(self, grammar, symbol, seen):
@@ -835,13 +978,18 @@ class LimitFuzzer(Fuzzer):
                 cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
         return cost
 {% endhighlight %}
+</div>
 
 **In [53]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 expr_fuzzer = LimitFuzzer(EXPR_GRAMMAR)
 expr_fuzzer.fuzz()
 {% endhighlight %}
+</div>
+
+**Out [53]:**
 
 
 
@@ -861,18 +1009,24 @@ mark them abstract in the same tree.
 
 **In [54]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def mark_verified_abstract_path(tree, path):
     name, children = get_child(tree, path)
     new_tree = replace_path(tree, path, (name, children, {'abstract': True}))
     return new_tree
 {% endhighlight %}
+</div>
 
 **In [55]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 mark_verified_abstract_path(te, [0])
 {% endhighlight %}
+</div>
+
+**Out [55]:**
 
 
 
@@ -888,18 +1042,24 @@ mark_verified_abstract_path(te, [0])
 
 **In [56]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def mark_verified_abstract(tree, verified_paths):
     for path in verified_paths:
         tree = mark_verified_abstract_path(tree, path)
     return tree
 {% endhighlight %}
+</div>
 
 **In [57]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 at = mark_verified_abstract(te, ([0,0], [0,2])); at
 {% endhighlight %}
+</div>
+
+**Out [57]:**
 
 
 
@@ -918,18 +1078,24 @@ A method to mark everything else as concrete.
 
 **In [58]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def mark_concrete(tree):
     name, children, *abstract_a = tree
     abstract = {'abstract': False} if not abstract_a else abstract_a[0]
     return (name, [mark_concrete(c) for c in children], abstract)
 {% endhighlight %}
+</div>
 
 **In [59]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 t = mark_concrete(at); t
 {% endhighlight %}
+</div>
+
+**Out [59]:**
 
 
 
@@ -954,6 +1120,7 @@ A way to display the abstracted tree
 
 **In [60]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def till_abstract(node):
     name, children, *rest = node
@@ -961,12 +1128,17 @@ def till_abstract(node):
         return (name + '*', [])
     return (name, [till_abstract(c) for c in children], *rest)
 {% endhighlight %}
+</div>
 
 **In [61]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 zoom(display_tree(till_abstract(t)))
 {% endhighlight %}
+</div>
+
+**Out [61]:**
 
 
 
@@ -980,6 +1152,7 @@ nodes with random values.
 
 **In [62]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def replace_arr_with_random_values(npath_arr, grammar, tree):
     if not npath_arr: return tree
@@ -991,12 +1164,17 @@ def replace_arr_with_random_values(npath_arr, grammar, tree):
     assert ntree is not None
     return replace_arr_with_random_values(npath_arr, grammar, ntree)
 {% endhighlight %}
+</div>
 
 **In [63]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 rt = replace_arr_with_random_values([[0, 0], [0, 2]], EXPR_GRAMMAR, t); rt
 {% endhighlight %}
+</div>
+
+**Out [63]:**
 
 
 
@@ -1017,9 +1195,13 @@ rt = replace_arr_with_random_values([[0, 0], [0, 2]], EXPR_GRAMMAR, t); rt
 
 **In [64]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 zoom(display_tree(rt))
 {% endhighlight %}
+</div>
+
+**Out [64]:**
 
 
 
@@ -1032,11 +1214,13 @@ A wrapper for the `replace_arr_with_random_values()`
 
 **In [65]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def generate(dtree, grammar, paths):
     res = replace_arr_with_random_values([p[0] for p in paths], grammar, dtree)
     return tree_to_string(res)
 {% endhighlight %}
+</div>
  
 ### Check if we can generalize a node 
  
@@ -1050,15 +1234,18 @@ even when other abstract nodes are replaced with random values.
 
 **In [66]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 MAX_CHECKS=100
 MAX_LIMIT=1000
 FIND_COUNTER_EXAMPLE=True
 MIN_EXAMPLES=1
 {% endhighlight %}
+</div>
 
 **In [67]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def can_generalize(tval, dtree, grammar, predicate, unverified, max_checks):
     checks = 0
@@ -1096,19 +1283,26 @@ def can_generalize(tval, dtree, grammar, predicate, unverified, max_checks):
                 continue
     return abstract
 {% endhighlight %}
+</div>
 
 **In [None]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 
 {% endhighlight %}
+</div>
 
 **In [68]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 first_expr = [0]
 display_tree(get_child(er, first_expr))
 {% endhighlight %}
+</div>
+
+**Out [68]:**
 
 
 
@@ -1119,10 +1313,14 @@ display_tree(get_child(er, first_expr))
 
 **In [69]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 second_expr = [0,0,0,1]
 display_tree(get_child(er, second_expr))
 {% endhighlight %}
+</div>
+
+**Out [69]:**
 
 
 
@@ -1133,10 +1331,14 @@ display_tree(get_child(er, second_expr))
 
 **In [70]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 third_expr = [0,0,0,1,0,0,1]
 display_tree(get_child(er, third_expr))
 {% endhighlight %}
+</div>
+
+**Out [70]:**
 
 
 
@@ -1147,18 +1349,24 @@ display_tree(get_child(er, third_expr))
 
 **In [71]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 class St(Enum):
     unchecked = 1
     unverified = -1
     verified = 0
 {% endhighlight %}
+</div>
 
 **In [72]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 can_generalize((second_expr, St.unchecked), er, EXPR_GRAMMAR, my_predicate, [], 100)
 {% endhighlight %}
+</div>
+
+**Out [72]:**
 
 
 
@@ -1169,9 +1377,13 @@ can_generalize((second_expr, St.unchecked), er, EXPR_GRAMMAR, my_predicate, [], 
 
 **In [73]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 can_generalize((third_expr, St.unchecked), er, EXPR_GRAMMAR, my_predicate, [], 100)
 {% endhighlight %}
+</div>
+
+**Out [73]:**
 
 
 
@@ -1186,21 +1398,26 @@ when a previously abstract node is marked as concrete.
 
 **In [74]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 SKIP_IS_SPECIAL=True
 SKIP_IS_CONCRETE = True
 LOG=True
 LOOK_DEEPER_IN_ISOLATED=True
 {% endhighlight %}
+</div>
 
 **In [75]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 check_counter = 0
 {% endhighlight %}
+</div>
 
 **In [76]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def abstraction(tval, dtree, grammar, predicate, unverified, max_checks):
     global check_counter, KEY
@@ -1248,12 +1465,17 @@ def abstraction(tval, dtree, grammar, predicate, unverified, max_checks):
                 paths.extend(p)
         return paths
 {% endhighlight %}
+</div>
 
 **In [77]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 ab = abstraction((first_expr, St.unchecked), er, EXPR_GRAMMAR, my_predicate, [], 100); ab
 {% endhighlight %}
+</div>
+
+**Out [77]:**
 
     0 check: <expr> St.unchecked
     1 check: <term> St.unchecked
@@ -1274,9 +1496,13 @@ ab = abstraction((first_expr, St.unchecked), er, EXPR_GRAMMAR, my_predicate, [],
 
 **In [78]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 display_tree(get_child(er, ab[0][0]))
 {% endhighlight %}
+</div>
+
+**Out [78]:**
 
 
 
@@ -1293,12 +1519,15 @@ even when other abstract marked nodes are replaced with random values.
 
 **In [79]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 gen_counter = 0
 {% endhighlight %}
+</div>
 
 **In [80]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def isolation(tree, grammar, predicate, max_checks):
     def _path(v): return ','.join([str(i) for i in v[0]])
@@ -1359,18 +1588,25 @@ def isolation(tree, grammar, predicate, max_checks):
     # now change everything else to False
     return mark_concrete(new_tree)
 {% endhighlight %}
+</div>
 
 **In [None]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 
 {% endhighlight %}
+</div>
 
 **In [81]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 nt = replace_path(parsed_expr, [0, 0], get_child(er, [0, 0])); display_tree(nt)
 {% endhighlight %}
+</div>
+
+**Out [81]:**
 
 
 
@@ -1381,9 +1617,13 @@ nt = replace_path(parsed_expr, [0, 0], get_child(er, [0, 0])); display_tree(nt)
 
 **In [82]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(nt)
 {% endhighlight %}
+</div>
+
+**Out [82]:**
 
 
 
@@ -1394,9 +1634,13 @@ tree_to_string(nt)
 
 **In [83]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 nt
 {% endhighlight %}
+</div>
+
+**Out [83]:**
 
 
 
@@ -1443,9 +1687,13 @@ nt
 
 **In [84]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 ist = isolation(nt, EXPR_GRAMMAR, my_predicate, 100); ist
 {% endhighlight %}
+</div>
+
+**Out [84]:**
 
     0 isolation: <start> St.unchecked
     O paths:
@@ -1607,9 +1855,13 @@ ist = isolation(nt, EXPR_GRAMMAR, my_predicate, 100); ist
 
 **In [85]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 display_tree(till_abstract(ist))
 {% endhighlight %}
+</div>
+
+**Out [85]:**
 
 
 
@@ -1632,6 +1884,7 @@ nodes.
 
 **In [86]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def e_g(abstract_a):
     if not abstract_a:
@@ -1639,9 +1892,11 @@ def e_g(abstract_a):
     else:
         return abstract_a[0]['abstract']
 {% endhighlight %}
+</div>
 
 **In [87]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def identify_concrete_paths_to_nt(gtree, path=None):
     if path is None: path = []
@@ -1663,12 +1918,17 @@ def identify_concrete_paths_to_nt(gtree, path=None):
         my_paths.extend(ps)
     return my_paths
 {% endhighlight %}
+</div>
 
 **In [88]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 nts = identify_concrete_paths_to_nt(ist); nts
 {% endhighlight %}
+</div>
+
+**Out [88]:**
 
 
 
@@ -1691,10 +1951,14 @@ nts = identify_concrete_paths_to_nt(ist); nts
 
 **In [89]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 for nt in nts:
     print(nt, "          ", tree_to_string(get_child(ist, nt)))
 {% endhighlight %}
+</div>
+
+**Out [89]:**
 
     []            ((4)) + ((2 * 3 / 4))
     [0]            ((4)) + ((2 * 3 / 4))
@@ -1715,6 +1979,7 @@ Next, we need to find out of these nodes, which are similar
 
 **In [90]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def find_similar_nodes(gtree, cpaths, log=False):
     strings = {}
@@ -1731,12 +1996,17 @@ def find_similar_nodes(gtree, cpaths, log=False):
                 print("  ", q)
     return {s:strings[s] for s in strings if len(strings[s]) > 1}
 {% endhighlight %}
+</div>
 
 **In [91]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 find_similar_nodes(ist, nts, log=True)
 {% endhighlight %}
+</div>
+
+**Out [91]:**
 
     ('<start>', '((4)) + ((2 * 3 / 4))')
        []
@@ -1779,6 +2049,7 @@ faults can be reproduced.
 
 **In [92]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def are_these_similar(tkey, paths, grammar, gtree, predicate, max_checks=100):
     name, string = tkey
@@ -1812,6 +2083,7 @@ def are_these_similar(tkey, paths, grammar, gtree, predicate, max_checks=100):
     # there has been at least one successful replacement
     return nchecks < max_checks
 {% endhighlight %}
+</div>
  
 The `markup_paths` simply rename the context sensitive nodes with a `$` prefix.
 Since there can be multiple context sensitive nodes with the same nonterminal,
@@ -1819,12 +2091,15 @@ but separate usages, we also append a number to them.
 
 **In [93]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 nsym = 0
 {% endhighlight %}
+</div>
 
 **In [94]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def markup_paths(tkey, paths, gtree):
     global nsym
@@ -1838,9 +2113,11 @@ def markup_paths(tkey, paths, gtree):
         gtree = replace_path(gtree, p, (newname, children, {'sensitive': True, 'abstract': True})) 
     return gtree
 {% endhighlight %}
+</div>
 
 **In [95]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def identify_similarities(grammar, predicate, generalized_tree, max_checks=100):
     cpaths = identify_concrete_paths_to_nt(generalized_tree)
@@ -1855,12 +2132,14 @@ def identify_similarities(grammar, predicate, generalized_tree, max_checks=100):
     # for each similar verify if they can be fuzzed together.
     return generalized_tree
 {% endhighlight %}
+</div>
  
 Finally we need to define the string representation of the tree. This is done by
 `general_str()` 
 
 **In [96]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def general_str(tree):
     name, children, *general_ = tree
@@ -1881,11 +2160,13 @@ def general_str(tree):
         res.append(x)
     return ''.join(res)
 {% endhighlight %}
+</div>
  
 ### All Together 
 
 **In [97]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def get_abstraction(grammar_, my_input, predicate, max_checks=100):
     start = grammar_.get('[start]', '<start>')
@@ -1901,12 +2182,17 @@ def get_abstraction(grammar_, my_input, predicate, max_checks=100):
     s = general_str(dd_tree)
     return min_s, s, dd_tree
 {% endhighlight %}
+</div>
 
 **In [98]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 min_s, s, dd_tree = get_abstraction(EXPR_G, my_input, my_predicate)
 {% endhighlight %}
+</div>
+
+**Out [98]:**
 
     5 isolation: <start> St.unchecked
     O paths:
@@ -1942,9 +2228,13 @@ The extracted minimal tree:
 
 **In [99]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 min_s
 {% endhighlight %}
+</div>
+
+**Out [99]:**
 
 
 
@@ -1957,9 +2247,13 @@ The abstract input
 
 **In [100]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 s
 {% endhighlight %}
+</div>
+
+**Out [100]:**
 
 
 
@@ -1972,9 +2266,13 @@ The tree
 
 **In [101]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 dd_tree
 {% endhighlight %}
+</div>
+
+**Out [101]:**
 
 
 
@@ -2013,17 +2311,23 @@ dd_tree
 
 **In [102]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 assert general_str(dd_tree) == '((<expr>))'
 {% endhighlight %}
+</div>
  
 ### Fuzzing 
 
 **In [103]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 zoom(display_tree(till_abstract(dd_tree)))
 {% endhighlight %}
+</div>
+
+**Out [103]:**
 
 
 
@@ -2034,12 +2338,15 @@ zoom(display_tree(till_abstract(dd_tree)))
 
 **In [None]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 
 {% endhighlight %}
+</div>
 
 **In [104]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def find_covarying_paths(tree, path):
     name, children, *general_ = tree
@@ -2062,9 +2369,11 @@ def find_covarying_paths(tree, path):
         paths.extend(p)
     return paths
 {% endhighlight %}
+</div>
 
 **In [105]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def find_abstract_paths(tree, path):
     name, children, *general_ = tree
@@ -2078,9 +2387,11 @@ def find_abstract_paths(tree, path):
         paths.extend(p)
     return paths
 {% endhighlight %}
+</div>
 
 **In [106]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def fuzz_tree(mgrammar, tree):
     start = mgrammar['[start]']
@@ -2112,12 +2423,17 @@ def fuzz_tree(mgrammar, tree):
             results.append(tree_to_string(res))
     return list(set(results))
 {% endhighlight %}
+</div>
 
 **In [107]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 fuzz_tree(EXPR_G, dd_tree)
 {% endhighlight %}
+</div>
+
+**Out [107]:**
 
     # abstract paths 1
 
@@ -3125,6 +3441,7 @@ fuzz_tree(EXPR_G, dd_tree)
 
 **In [108]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 count, total = 0, 0
 for i,s in enumerate(fuzz_tree(EXPR_G, dd_tree)):
@@ -3134,6 +3451,9 @@ for i,s in enumerate(fuzz_tree(EXPR_G, dd_tree)):
         count+=1
 count, total
 {% endhighlight %}
+</div>
+
+**Out [108]:**
 
     # abstract paths 1
 
@@ -3153,6 +3473,7 @@ Importing allprerequisites:
 
 **In [109]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 import os.path
 import json
@@ -3160,26 +3481,32 @@ import tempfile
 import subprocess
 import copy
 {% endhighlight %}
+</div>
  
 We also have a separate grammar file which was converted from the [ANTLR Lua
 grammar](https://github.com/antlr/grammars-v4/blob/master/lua/Lua.g4). 
 
 **In [110]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 GRAMMAR_FILE='../lang/lua/grammar/lua.fbjson'
 {% endhighlight %}
+</div>
  
 Since we have an external compiler, we also have to define how to execute it. 
 
 **In [111]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 TIMEOUT=5
 {% endhighlight %}
+</div>
 
 **In [112]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
@@ -3203,11 +3530,13 @@ def do(command, env=None, shell=False, log=False, **args):
             pass
         return O(returncode=255, stdout='TIMEOUT', stderr='')
 {% endhighlight %}
+</div>
  
 A wrapper to write the input string to a file first. 
 
 **In [113]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def I_do(prefix, cmd, src, as_string=False):
     o = None
@@ -3221,6 +3550,7 @@ def I_do(prefix, cmd, src, as_string=False):
             o = do(cmd.split(' ') + [tname])
     return o
 {% endhighlight %}
+</div>
  
 ### The predicate 
  
@@ -3229,21 +3559,26 @@ and linked.
 
 **In [114]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 COMPILER='../lang/lua/compilers/lua'
 {% endhighlight %}
+</div>
  
 The bug corresponds to the 4th bug
 [here](https://www.lua.org/bugs.html#5.3.5-4). 
 
 **In [115]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 BUG='../lang/lua/bugs/4.lua'
 {% endhighlight %}
+</div>
 
 **In [116]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def my_predicate(src):
     o = I_do('lua', '%s --' % COMPILER, src)
@@ -3258,11 +3593,13 @@ def my_predicate(src):
         return PRes.timeout
     return PRes.failed
 {% endhighlight %}
+</div>
  
 Other helpers to load the grammar and the bug 
 
 **In [117]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def load_grammar(grammar_fn, bug_fn, pred):
     meta, tree = load_parsed_bug(bug_fn, grammar_fn)
@@ -3270,9 +3607,11 @@ def load_grammar(grammar_fn, bug_fn, pred):
 
     return meta, tree, name
 {% endhighlight %}
+</div>
 
 **In [118]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def load_bug(bug_fn, grammar_meta):
     with open(bug_fn) as f: bug_src = f.read()
@@ -3283,20 +3622,24 @@ def load_bug(bug_fn, grammar_meta):
     tree = list(forest)[0]
     return grammar_meta, coalesce(tree)
 {% endhighlight %}
+</div>
 
 **In [119]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def load_parsed_bug(bug_fn, grammar_fn):
     with open(grammar_fn) as f:
         grammar_meta = json.loads(f.read())
     return load_bug(bug_fn, grammar_meta)
 {% endhighlight %}
+</div>
  
 We define a coalesce to manage the tokens. 
 
 **In [120]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 def coalesce(tree):
     name, children, *rest = tree
@@ -3308,18 +3651,25 @@ def coalesce(tree):
     else:
         return (name, [coalesce(n) for n in children], *rest)
 {% endhighlight %}
+</div>
 
 **In [121]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 meta, tree, name = load_grammar(GRAMMAR_FILE, BUG, my_predicate)
 {% endhighlight %}
+</div>
 
 **In [122]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(tree)
 {% endhighlight %}
+</div>
+
+**Out [122]:**
 
 
 
@@ -3330,9 +3680,13 @@ tree_to_string(tree)
 
 **In [123]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 my_predicate(tree_to_string(tree))
 {% endhighlight %}
+</div>
+
+**Out [123]:**
 
 
 
@@ -3343,9 +3697,13 @@ my_predicate(tree_to_string(tree))
 
 **In [124]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 list(meta.keys())
 {% endhighlight %}
+</div>
+
+**Out [124]:**
 
 
 
@@ -3358,15 +3716,21 @@ list(meta.keys())
 
 **In [125]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 min_tree = reduction(tree, meta['[grammar]'], my_predicate)
 {% endhighlight %}
+</div>
 
 **In [126]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 tree_to_string(tree)
 {% endhighlight %}
+</div>
+
+**Out [126]:**
 
 
 
@@ -3379,9 +3743,13 @@ tree_to_string(tree)
 
 **In [127]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 min_s, abs_s, a_mintree = get_abstraction(meta,tree_to_string(tree), my_predicate, MAX_CHECKS)
 {% endhighlight %}
+</div>
+
+**Out [127]:**
 
     7 isolation: <chunk> St.unchecked
     O paths:
@@ -3653,9 +4021,13 @@ min_s, abs_s, a_mintree = get_abstraction(meta,tree_to_string(tree), my_predicat
 
 **In [128]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 min_s
 {% endhighlight %}
+</div>
+
+**Out [128]:**
 
 
 
@@ -3666,9 +4038,13 @@ min_s
 
 **In [129]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 abs_s
 {% endhighlight %}
+</div>
+
+**Out [129]:**
 
 
 
@@ -3679,9 +4055,13 @@ abs_s
 
 **In [130]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 zoom(display_tree(till_abstract(a_mintree)))
 {% endhighlight %}
+</div>
+
+**Out [130]:**
 
 
 
@@ -3694,6 +4074,7 @@ zoom(display_tree(till_abstract(a_mintree)))
 
 **In [131]:**
 
+<div class="input_area" markdown="1">
 {% highlight python %}
 count, total = 0, 0
 for i,s in enumerate(fuzz_tree(meta, a_mintree)):
@@ -3703,6 +4084,9 @@ for i,s in enumerate(fuzz_tree(meta, a_mintree)):
         count+=1
 count, total
 {% endhighlight %}
+</div>
+
+**Out [131]:**
 
     # abstract paths 4
 
