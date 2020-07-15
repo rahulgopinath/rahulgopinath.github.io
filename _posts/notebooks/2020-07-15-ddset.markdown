@@ -1,7 +1,6 @@
 ---
 published: true
-title: 
-Abstracting Failure-Inducing Inputs
+title: Abstracting Failure-Inducing Inputs
 layout: post
 comments: true
 tags: ddset, cfg, deltadebug
