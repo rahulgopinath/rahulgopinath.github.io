@@ -16,10 +16,14 @@ This is a complete worked out example of the algorithm given in the [Abstracting
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
 
-DDSet is a technique that can generalize a fault inducing input to an abstract pattern that can bue used to both understand what kind of inputs induce the fault, and also
-to produce numerous other fault inducing inputs of the same pattern. It can take inputs such as `((4))` and extract the underlying general pattern `((<expr>))`. It does this
-by repeatedly replacing parts of the failure inducing inputs with randomly generated filler values, and trying to see if we can still trigger the failure. This pattern
-can then be used by the developer to generate newer inputs by simply generating a filler that corresponds to `<expr>` using any grammar fuzzer.
+DDSet is a technique that can generalize a fault inducing input to an abstract pattern that can bue used to both understand what kind of inputs induce
+the fault, and also to produce numerous other fault inducing inputs of the same pattern. Given a faulty calculator program that fails on nested
+parenthesis, it can take inputs such as `((4))` and extract the underlying general pattern `((<expr>))`. It does this by first parsing the input, and
+then repeatedly replacing parts of the failure inducing inputs with randomly generated filler values, and trying to see if we can still trigger the failure.
+This pattern can then be used by the developer to generate newer inputs such as `((34 + 887))` or `((739961 / 329 - 5))` or `((-34334))` by simply generating
+a filler that corresponds to `<expr>` using any grammar fuzzer.
+
+Note that if a grammar is not available, [one can always mine one](https://github.com/vrthra/mimid/) from your program.
 
 This notebook takes you through the entire algorithm step by step.
 
