@@ -1,6 +1,6 @@
 ---
 published: true
-title: Abstracting Failure-Inducing Inputs
+title: DDSet and how to abstract a minimized failure inducing input to a failure pattern
 layout: post
 comments: true
 tags:
