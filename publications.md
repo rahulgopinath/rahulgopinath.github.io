@@ -169,6 +169,11 @@ In its evaluation on real-world bugs in JavaScript, Clojure, Lua, and Coreutils,
 DDSET's abstract failure inducing inputs provided to-the-point diagnostics, and
 precise producers.
 
+**Note**
+
+As of now, we check each abstraction independently of others, and then merge them which necessitates isolation later. An altrnative route is to simply accumulate abstractions as your find them, and when generating, regenerate each abstract node that you have accumulated. With this, we can be sure that each node that we mark as abstract is truly abstract. A problem here is that of semantic validity. That is, if say the first abstraction has only 0.5 chance of producing a valid input, and the next abstraction candidate has again only 0.5 chance of producing a valid input, combining them together will reduce the probability of valid input in any generation to 0.25, and as abstractions accumulate, the probability of generating semantically valid inputs drop. Hence, we instead identify them independently and later merge them, with the trade off being a later isolation step.
+
+Another difference is that during isolation we leave every possibly causative part intact. That is, if A or B is necessary for fault reproduction, we leave both A and B as concrete. A user may instead change it to leave either A or B as concrete.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
 
