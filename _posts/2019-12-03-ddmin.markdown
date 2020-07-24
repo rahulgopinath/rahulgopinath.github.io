@@ -216,7 +216,9 @@ either parts are also likely to be invalid. Hence, `ddmin()` will not be able to
 
 The solution here is to go for a variant called `Hierarchical Delta Debugging` described
 in *HDD: hierarchical delta debugging* by Misherghi et al. in 2006. The basic idea is to
-first parse the input using a grammar, and then try and apply `ddmin()` on each level
+first extract the parse tree (either by parsing the input using a grammar, or by either
+relying on a generator to generate the parse tree along with the input, or by extracting
+the parse tree inflight from the target program if it supports it), and then try and apply `ddmin()` on each level
 of the derivation tree. Another notable improvement is
 *Automatically Reducing Tree-Structured Test Inputs* by Herfert et al. in 2017. In this
 paper, the authors describe a simple strategy: Try and replace a given node by one of
