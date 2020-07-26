@@ -101,9 +101,10 @@ o = (h) + r - 0 + i - f - 1 + 0 + 0 - 1 + (0) + j - 1 - f + (((0)) + 1) - (((w))
 s = ((c + (1) - ((1)) - ((0))));
 p = 1 + 1 - (u) + e + k + 1 - 0 - l + j + t - 1 - w - (i)
 ```
-As you can see, the context free grammar `assignment_grammar` generates assignment expressions. However, it tends to
-use variables before they are defined. We want to avoid that. That is a context sensitive feature, which we incorporate
-by a small modification to the fuzzer as follows:
+
+The context free grammar `assignment_grammar` generates assignment expressions. However, it tends to
+use variables before they are defined. We want to avoid that. However, using only defined variables is a context sensitive feature, which we incorporate
+by a small modification to the fuzzer.
 
 ```python
 class ComplexFuzzer(LimitFuzzer):
@@ -164,10 +165,14 @@ def sync(o, val):
     o._vars.clear()
     return val
 ```
-As you can see, we now allow only defined variables to be used for later expansion. Note that the modifications assume the knowledge of the `<var>` 
-key in the grammar defined in the driver.
+We now allow only defined variables to be used for later expansion. The helper procedures `defining_var` is invoked
+when we produce the left hand side of the variable assignment, and the `defined_var` is invoked when the variable is
+referred to from the right hand side. Hence `defined_var` ensures only defined vars are used. The `sync` function
+ensures that the definition is complete only when the assignment is finished.
 
-The driver now includes a context sensitive grammar.
+Note that the modifications assume the knowledge of the `<var>`  key in the grammar defined in the driver.
+
+The driver now includes a context sensitive grammar in the form of `pre` and `post` functions.
 ```python
 if __name__ == '__main__':
     import random
@@ -280,7 +285,7 @@ d = (f + 0 + e - e + (e));
 ['e', 'f', 'e', 'c', 'd']
 [9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1, 6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
 ```
-As you can see, the choice sequence is printed out at the end. The same sequence can be used later, to produce the same string. We use this
+The choice sequence is printed out at the end. The same sequence can be used later, to produce the same string. We use this
 in the next step. Now, all that we need is to hook up the predicate for ddmin, and its definitions.
 
 First, the traditional `ddmin` that works on independent deltas that we defined in the previous [post](/post/2019/12/03/ddmin/).
@@ -321,7 +326,7 @@ def pred(v):
         return True
     return False
 ```
-Now, the driver is as follows. The driver tries to minimize the string if predicate returns true.
+The driver tries to minimize the string if predicate returns true.
 ```python
 if __name__ == '__main__':
     import random
@@ -394,7 +399,7 @@ def remove_check_each_fragment(instr, start, part_len, causal):
         if causal(stitched): return i, stitched
     return -1, instr
 ```
-As you can see, a `[-1]` is inserted in place of the deleted squences. Now, we need to get our fuzzer to understand the `-1` value.
+Next, we need to get our fuzzer to understand the `-1` value.
 We add defaults to each nonterminal, and modify the `select` function to take a default value.
 ```python
 class ChoiceFuzzer(ComplexFuzzer):
@@ -527,5 +532,6 @@ a = ((0));
  15
 [5, 7, 7, -1, 0, 6, -1, -1, -1, 2, 9, 0, 7, 7, -1]
 ```
-As you can see, there does not seem to be a lot of advantage in using an `NOP`. How does this compare against the custom passes of Hypothesis? This is
-something that needs to be found.
+There does not seem to be a lot of advantage in using an `NOP`.
+
+Next: How does this compare against the custom passes of Hypothesis? and how does it compare against direct `delta debug` and variants of `HDD` including `Perses`.
