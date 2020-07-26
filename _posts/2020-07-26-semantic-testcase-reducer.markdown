@@ -357,7 +357,7 @@ if __name__ == '__main__':
         newv = ddmin(c.choices.ints, causal_fn)
         choices = ChoiceSeq(newv)
         cf = ChoiceFuzzer(assignment_grammar, choices)
-        print('original:', val, len(c.choices.ints))
+        print('original:\n', val, len(c.choices.ints))
 
         while True:
             newv = ddmin(cf.choices.ints, causal_fn)
@@ -366,18 +366,20 @@ if __name__ == '__main__':
             cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
 
         cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
-        print('minimal:', cf.fuzz('<start>'), len(newv))
+        print('minimal:\n', cf.fuzz('<start>'), len(newv))
         print(cf.choices.ints)
 ```
 Using it
 ```bash
 $ python3   lf.py 1
-original: e = (((00 - (00 + 00) - 0))) - (1);
+original:
+e = (((00 - (00 + 00) - 0))) - (1);
 f = e + e - e + ((e)) + e + (0) + e - (1);
 g = f;
 j = (e);
  61
-minimal: d = ((00));
+minimal:
+d = ((00));
  7
 [6, 0, 8, 3, 7, 7, 8]
 ```
@@ -469,12 +471,14 @@ These are all the modifications that we require.
 Using it:
 ```bash
 $ python3   lfm.py 1
-original: e = (((00 - (00 + 00) - 0))) - (1);
+original:
+e = (((00 - (00 + 00) - 0))) - (1);
 f = e + e - e + ((e)) + e + (0) + e - (1);
 g = f;
 j = (e);
  61
-minimal: 0 = ((0));
+minimal:
+0 = ((0));
 a=0;
  8
 [2, 9, 1, -1, 7, 7, -1, -1]
@@ -482,15 +486,19 @@ a=0;
 How does this modification fare against the original without modification?
 ```bash
 $ python3   lf.py 5
-original: i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
+original:
+i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
  40
-minimal: d = ((1));
+minimal:
+d = ((1));
  8
 [2, 2, 0, 3, 2, 2, 4, 5]
 $ python3   lfm.py 5
-original: i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
+original:
+i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
  40
-minimal: i = 0 + 0 + 0 + ((0));
+minimal:
+i = 0 + 0 + 0 + ((0));
  13
 [9, 4, 5, 8, 0, -1, 0, -1, 0, -1, 2, 2, -1]
 
@@ -498,18 +506,22 @@ minimal: i = 0 + 0 + 0 + ((0));
 another
 ```bash
 $ python3   lf.py 9 
-original: e = ((00 + (1) + 00 + 0));
+original:
+e = ((00 + (1) + 00 + 0));
 h = ((e)) - (e) - 1 - e - 1 - 1 - 0 + e - ((0 + 1)) - 1 - e + e - e + 1 - e;
  71
-minimal: e = ((00 + 1 + 0));
+minimal:
+e = ((00 + 1 + 0));
 j = 1;
  18
 [7, 9, 5, 4, 2, 2, 0, 5, 8, 9, 1, 9, 6, 6, 1, 9, 9, 3]
 $ python3   lfm.py 9
-original: e = ((00 + (1) + 00 + 0));
+original:
+e = ((00 + (1) + 00 + 0));
 h = ((e)) - (e) - 1 - e - 1 - 1 - 0 + e - ((0 + 1)) - 1 - e + e - e + 1 - e;
  71
-minimal: e = ((0));
+minimal:
+e = ((0));
 a=0;
  8
 [7, 9, 5, 4, 2, 2, -1, -1]
@@ -517,17 +529,21 @@ a=0;
 Another
 ```bash
 $ python3   lf.py 16
-original: e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
+original:
+e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
 j = ((0)) + e;
  33
-minimal: a = ((00));
+minimal:
+a = ((00));
  7
 [0, 2, 9, 0, 7, 7, 3]
 $ python3   lfm.py 16
-original: e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
+original:
+e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
 j = ((0)) + e;
  33
-minimal: 0 = 0 - 0 + 0;
+minimal:
+0 = 0 - 0 + 0;
 a = ((0));
  15
 [5, 7, 7, -1, 0, 6, -1, -1, -1, 2, 9, 0, 7, 7, -1]
