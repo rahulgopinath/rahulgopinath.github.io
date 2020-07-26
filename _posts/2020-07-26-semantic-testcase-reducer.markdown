@@ -7,7 +7,8 @@ tags: deltadebug, testcase reducer, cfg, generator
 categories: post
 ---
 Previously, we had [discussed](/post/2019/12/03/ddmin/) how delta-debugging worked, and I had explained at that time that when it comes
-to preserving semantics, the only options are either custom passes such as CReduce or commandeering the generator as done by Hypothesis.
+to preserving semantics, the only options are either custom passes such as [CReduce](http://embed.cs.utah.edu/creduce/)
+or commandeering the generator as done by [Hypothesis](https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/src/hypothesis/internal/conjecture/shrinker.py).
 Of the two, the Hypothesis approach is actually more generalizable to arbitrary generators. Hence we will look at how it is done. For ease
 of naming, I will call this approach the _generator reduction_ approach. Note that we use the simple `delta debug` on the choice sequences.
 This is different from `Hypothesis` in that `Hypothesis` uses a number of custom passes rather than `delta debug`.
