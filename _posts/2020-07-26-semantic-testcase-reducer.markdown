@@ -81,7 +81,8 @@ if __name__ == '__main__':
 
     assignment_grammar = {
             '<start>' : [[ '<assignments>' ]],
-            '<assignments>': [['<assign>'], ['<assign>', ';\n', '<assignments>']],
+            '<assignments>': [['<assign>'],
+                              ['<assign>', ';\n', '<assignments>']],
             '<assign>': [['<var>', ' = ', '<expr>']],
             '<expr>': [
                 ['<expr>', ' + ', '<expr>'],
@@ -181,7 +182,8 @@ if __name__ == '__main__':
     random.seed(int(sys.argv[1]))
     assignment_grammar = {
             '<start>' : [[ '<assignments>' ]],
-            '<assignments>': [['<assign>', (';\n', {'post':sync})], ['<assign>', (';\n', {'post':sync}), '<assignments>']],
+            '<assignments>': [['<assign>', (';\n', {'post':sync})],
+                              ['<assign>', (';\n', {'post':sync}), '<assignments>']],
             '<assign>': [[('<var>', {'post':defining_var}), ' = ', '<expr>']],
             '<expr>': [
                 ['<expr>', ' + ', '<expr>'],
@@ -255,7 +257,8 @@ if __name__ == '__main__':
     random.seed(int(sys.argv[1]))
     assignment_grammar = {
             '<start>' : [[ '<assignments>' ]],
-            '<assignments>': [['<assign>', (';\n', {'post':sync})], ['<assign>', (';\n', {'post':sync}), '<assignments>']],
+            '<assignments>': [['<assign>', (';\n', {'post':sync})],
+                              ['<assign>', (';\n', {'post':sync}), '<assignments>']],
             '<assign>': [[('<var>', {'post':defining_var}), ' = ', '<expr>']],
             '<expr>': [
                 ['<expr>', ' + ', '<expr>'],
@@ -283,7 +286,10 @@ c = 1;
 d = (f + 0 + e - e + (e));
 
 ['e', 'f', 'e', 'c', 'd']
-[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1, 6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
+[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1,
+6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 
+4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 
+8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
 ```
 The choice sequence is printed out at the end. The same sequence can be used later, to produce the same string. We use this
 in the next step. Now, all that we need is to hook up the predicate for ddmin, and its definitions.
@@ -335,7 +341,8 @@ if __name__ == '__main__':
     random.seed(int(sys.argv[1]))
     assignment_grammar = {
             '<start>' : [[ '<assignments>' ]],
-            '<assignments>': [['<assign>', (';\n', {'post':sync})], ['<assign>', (';\n', {'post':sync}), '<assignments>']],
+            '<assignments>': [['<assign>', (';\n', {'post':sync})],
+                              ['<assign>', (';\n', {'post':sync}), '<assignments>']],
             '<assign>': [[('<var>', {'post':defining_var}), ' = ', '<expr>']],
             '<expr>': [
                 ['<expr>', ' + ', '<expr>'],
@@ -425,7 +432,8 @@ class ChoiceFuzzer(ComplexFuzzer):
     def gen_key(self, key, depth, max_depth):
         if key not in self.grammar: return (key, [])
         if depth > max_depth:
-            clst_ = [(self.cost[key][str(self.cfg_rule(rule))], rule) for rule in self.grammar[key]]
+            clst_ = [(self.cost[key][str(self.cfg_rule(rule))], rule)
+                    for rule in self.grammar[key]]
             clst = sorted(clst_, key=lambda x: x[0])
             rules = [r for c,r in clst if c == clst[0][0]]
         else:
