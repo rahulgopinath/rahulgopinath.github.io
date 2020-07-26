@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Semantic Testcase Reducer
 layout: post
 comments: true
@@ -9,7 +9,8 @@ categories: post
 Previously, we had [discussed](/post/2019/12/03/ddmin/) how delta-debugging worked, and I had explained at that time that when it comes
 to preserving semantics, the only options are either custom passes such as CReduce or commandeering the generator as done by Hypothesis.
 Of the two, the Hypothesis approach is actually more generalizable to arbitrary generators. Hence we will look at how it is done. For ease
-of naming, I will call this approach the _generator reduction_ approach.
+of naming, I will call this approach the _generator reduction_ approach. Note that we use the simple `delta debug` on the choice sequences.
+This is different from `Hypothesis` in that `Hypothesis` uses a number of custom passes rather than `delta debug`.
 
 For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed
 [previously](/post/2019/05/28/simplefuzzer-01/).
@@ -524,4 +525,5 @@ a = ((0));
  15
 [5, 7, 7, -1, 0, 6, -1, -1, -1, 2, 9, 0, 7, 7, -1]
 ```
-As you can see, there does not seem to be a lot of advantage in using an `NOP`.
+As you can see, there does not seem to be a lot of advantage in using an `NOP`. How does this compare against the custom passes of Hypothesis? This is
+something that needs to be found.
