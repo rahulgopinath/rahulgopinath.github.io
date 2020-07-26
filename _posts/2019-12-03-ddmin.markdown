@@ -450,7 +450,8 @@ When the genrator wants to make a random choice, it consumes a number of bits fr
 to denote that the bits were consumed. Now, at the end of generation, the bits consumed so far is essentially the trail of generation. 
 
 Hypothesis tries to reduce the length of this trail (which it calls the _choice sequence_). Hypothesis tries to identify shorter choice sequences (short lex order)
-that can reproduce the failure. This it does by almost arbitrary surgeries in the choice sequnce obtained from generating the string. If it finds
+that can reproduce the failure. This it does by certain surgeries in the choice sequnce obtained from generating the string. The particular surgeries
+are simply removal of chunks that seems to worl well in practice, with no specific reasoning behind it. If it finds
 that more bits are required than in the original choice sequence, then it discards the edit. Otherwise, the idea is that short lex order almost
 always leads to shorter strings by prioritizing strings with smaller number of decisions, and consequently smaller number of recurion and hence
 terminal symbols.
