@@ -11,8 +11,11 @@ menu: Publications
 
 ##### 2020
 
+* [_Revisiting the relationship between fault detection, test adequacy criteria, and test set size_](#chen2020revisiting)<br/>
+  Chen, *Gopinath*, Tadakamalla, Ernst, Holmes, Fraser, Ammann, Just, ASE, 2020
+
 * [_Mining Input Grammars from Dynamic Control Flow_](#gopinath2020mining)<br/>
-  *Gopinath*, *Mathis*, Zeller, FSE, 2020
+  *Gopinath*, Mathis, Zeller, FSE, 2020
 
 * [_Abstracting Failure Inducing Inputs_](#gopinath2020abstracting)<br/>
   *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
