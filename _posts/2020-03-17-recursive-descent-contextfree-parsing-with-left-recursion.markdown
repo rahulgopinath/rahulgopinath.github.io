@@ -329,7 +329,7 @@ $ python3 peg.py '123+(45+1)'
 ('<start>', [('<E>', [('<E>', [('<digits>', [('<digit>', [('1', [])]), ('<digits>', [('<digit>', [('2', [])]), ('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('4', [])]), ('<digits>', [('<digit>', [('5', [])])])])]), ('+', []), ('<E>', [('<digits>', [('<digit>', [('1', [])])])])]), (')', [])])])])
 ```
 
-Note that restricting the recursion using input length has been well known from the sixities[^1]. The latest research by Frost et.a. [^2] suggests a limit of `m * (1 + |s|)` where `m` is the number of nonterminals in the grammar and `|s|` is the length of input.
+Note that restricting the recursion using input length has been well known from the sixities[^1]. The latest research by Frost et. al [^2] suggests a limit of `m * (1 + |s|)` where `m` is the number of nonterminals in the grammar and `|s|` is the length of input.
 
 [^1]: Susumu Kuno. _The predictive analyzer and a path elimination technique_ Communications of ACM, 1965
 [^2]: Richard A. Frost, Rahmatullah Hafiz, and Paul C. Callaghan. Modular and efficient top-down parsing for ambiguous left recursive grammars. IWPT 2007
