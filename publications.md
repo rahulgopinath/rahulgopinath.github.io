@@ -11,7 +11,7 @@ menu: Publications
 
 ##### 2020
 
-* [_Revisiting the relationship between fault detection, test adequacy criteria, and test set size_](#chen2020revisiting)<br/>
+* [_Revisiting the Relationship between Fault Detection, Test Adequacy Criteria, and Test Set Size_](#chen2020revisiting)<br/>
   Chen, *Gopinath*, Tadakamalla, Ernst, Holmes, Fraser, Ammann, Just, ASE, 2020
 
 * [_Mining Input Grammars from Dynamic Control Flow_](#gopinath2020mining)<br/>
