@@ -158,6 +158,10 @@ TinyC, and JavaScript.
 
 The research community has long recognized a complex interrelationship between test set size, test adequacy criteria, and test effectiveness in terms of fault detection. However, there is substantial confusion about the role and importance of controlling for test set size when assessing and comparing test adequacy criteria. This paper makes the following contributions: (1) A review of contradictory analyses of the relationship between fault detection, test suite size, and test adequacy criteria. Specifically, this paper addresses the supposed contradiction of prior work and explains why test suite size is neither a confounding variable, as previously suggested,nor an independent variable that should be experimentally manipulated. (2) An explication and discussion of the experimental design and sampling strategies of prior work, together with a discussion of conceptual and statistical problems, and specific guidelines for future work. (3) A methodology for comparing test-adequacy criteria on an equal basis, which accounts for test suite size by treating it as a covariate. (4) An empirical evaluation that compares the effectiveness of coverage-based and mutation-based testing to one another and random testing. Additionally, this paper proposes probabilistic coupling, a methodology for approximating the representativeness of a set of test goals for a given set of real faults
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ase2020/chen2020revisiting.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/ase2020/chen2020revisiting.bib)
+
+
 #### <a id='gopinath2020abstracting'></a>[Gopinath, Kampmann, Havrikov, Soremekun, Zeller: _Abstracting Failure Inducing Inputs_ ISSTA, 2020]()
 A program fails.  Under which circumstances does the failure occur?  Starting
 with a single failure-inducing input ("The input ((4)) fails") and an input
