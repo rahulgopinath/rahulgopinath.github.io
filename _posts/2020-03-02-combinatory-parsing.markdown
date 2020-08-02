@@ -437,7 +437,7 @@ The simple parenthesis language
 
 ```pyhton
 one = P(lambda: Lit('1'))
-num = P(lambda: Re('^[0-9]+'))
+num = P(lambda: Apply(to_num, lambda: Re('^[0-9]+')))
 openP = P(lambda: Lit('('))
 closeP = P(lambda: Lit(')'))
 
@@ -447,6 +447,9 @@ def to_paren(v):
     assert v[0] == '('
     assert v[-1] == ')'
     return [('Paren', v[1:-1])]
+
+def to_num(v):
+    return [('Num', v)]
 
 paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
 v = parens(list('((1)((1)))'))
