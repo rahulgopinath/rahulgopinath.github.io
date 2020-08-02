@@ -369,7 +369,7 @@ The result is
 ```
 Apply also works with this
 ```python
-paren = P(lambda: Apply(to_paren, openP >> (one | parens) >> closeP))
+paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
 ```
 Used as follows
 ```
