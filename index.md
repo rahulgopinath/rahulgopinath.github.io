@@ -38,7 +38,7 @@ Hence, test case reduction (often variants of _delta debugging_) is often used t
 input, such strings still fail to inform the developer as to what went wrong.
 Even worse, a casual inspection of many such test cases can often suggest an
 incorrect hypothesis. We [invented](https://rahul.gopinath.org/publications/#gopinath2020abstracting) a technique called _DDSET_ that identifies
-the parts of the input that caused the failure, and abstracts away everything else.  The failure representations produced by _DDSET_ (e.g. `<expr>/0` when the error is caused due to division by _zero_)
+the parts of the input that caused the failure, and abstracts away everything else.  The failure representations produced by _DDSET_ (e.g. `((<expr>))` when the error is caused due nested parenthesis)
 are precise and, easy to understand, and also allows the developer to generate
 further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the _ACM SIGSOFT Distinguished Paper_ award.
 
