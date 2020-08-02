@@ -44,7 +44,7 @@ further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinat
 
 <h2>Research until Ph.D.</h2>
 
-PhD Supervisors: [Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
+PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 <h3>Research</h3>
 My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
