@@ -393,6 +393,17 @@ def Lit(c):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
     return parse
 
+import re
+def Re(r):
+    def parse(instr):
+        assert r[0] == '^'
+        res = re.match(r, ''.join(instr))
+        if res:
+            (start, end) = res.span()
+            return [(instr[end:], [instr[start:end]])]
+        return []
+    return parse
+
 def AndThen(p1, p2):
    def parse(instr):
        return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
@@ -426,6 +437,7 @@ The simple parenthesis language
 
 ```pyhton
 one = P(lambda: Lit('1'))
+num = P(lambda: Re('^[0-9]+'))
 openP = P(lambda: Lit('('))
 closeP = P(lambda: Lit(')'))
 
@@ -439,6 +451,11 @@ def to_paren(v):
 paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
 v = parens(list('((1)((1)))'))
 print(v)
+
+paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
+v = parens(list('((123)((456)))'))
+for m in v:
+    print(m)
 ```
 
 
