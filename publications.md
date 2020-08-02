@@ -151,6 +151,8 @@ heuristics. Our Mimid prototype produced accurate and readable grammars for a
 variety of evaluation subjects, including complex languages such as JSON,
 TinyC, and JavaScript.
 
+![ACM artifact available](/resources/acm_artifact_available.png) ![ACM artifact available](/resources/acm_artifact_functional.png) ![ACM artifact available](/resources/acm_artifact_reusable.png)
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2020/gopinath2020mining.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2020/gopinath2020mining.bib)
 
