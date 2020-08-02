@@ -435,7 +435,7 @@ class P:
 
 The simple parenthesis language
 
-```pyhton
+```python
 one = P(lambda: Lit('1'))
 num = P(lambda: Apply(to_num, lambda: Re('^[0-9]+')))
 openP = P(lambda: Lit('('))
