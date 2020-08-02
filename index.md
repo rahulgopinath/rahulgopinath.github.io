@@ -26,11 +26,21 @@ It takes the student through writing simple fuzzers that generate random inputs 
 One of the challenges in fuzzing is how to reach deep code paths. In particular, many systems accept multilayered inputs such as an HTTP request that wraps a JSON object, which in turn encodes an RPC call, which may, in turn, encode a custom data structure. For such inputs, traditional fuzzers rarely reach beyond the first layer. The problem is that traditional fuzzers rely on coverage to decide how to proceed. When a fuzzer is faced with a program with a complex input structure, coverage is of little help beyond producing simple values as the paths explored are the same for simple or complex inputs. This means that one needs a better way of producing complex inputs than traditional coverage guided fuzzing.
 
 Our first research was toward generating complex *valid* inputs when faced with a parser so that we can get to the next level. We found that traditional approaches such as symbolic execution do not work well due to *path explosion* when faced with parsers. 
-We [invented](https://arxiv.org/abs/1810.08289) and [implemented](https://github.com/vrthra/pygmalion) a fast and lightweight approach called Pygmalion that iteratively corrects a generated input prefix which ultimately leads to valid inputs. Our result was presented at [PLDI 2019](https://rahul.gopinath.org/publications/#mathis2019parser).
+We [invented](https://arxiv.org/abs/1810.08289) and [implemented](https://github.com/vrthra/pygmalion) a fast and lightweight approach called Pygmalion that iteratively corrects a generated input prefix which ultimately leads to valid inputs. Our result was presented at [PLDI 2019](https://rahul.gopinath.org/publications/#mathis2019parser) and a later extension targeting parsers with a lexical analysis phase was published at [ISSTA 2020](https://rahul.gopinath.org/publications/#mathis2020learning).
 
-While *Pygmalion* can get us valid inputs faster than traditional methods, it is limited to overcoming the first layer parser. While *Pygmalion* is fast, it still needs to run the program under fuzzing once per input character, which is comparatively expensive if one wants to produce a large number of valid inputs. Hence, we [invented](/publications/#gopinath2019inferring) and [implemented](https://github.com/vrthra/pymimid/) a technique called Mimid that can infer the input structure expected by a given parser as a *context-free grammar* from the dynamic analysis of the program run.
+While *Pygmalion* can get us valid inputs faster than traditional methods, it is limited to overcoming the first layer parser. While *Pygmalion* is fast, it still needs to run the program under fuzzing once per input character, which is comparatively expensive if one wants to produce a large number of valid inputs. Hence, we [invented](https://github.com/vrthra/mimid) a technique called _Mimid_ that can infer the input structure expected by a given parser as a *context-free grammar* from the dynamic analysis of the program run, and was published at [FSE 2020](https://rahul.gopinath.org/publications/#gopinath2020mining)
 
 Given such a grammar, the problem reduces to how one can generate inputs fast from a *context-free grammar*. The problem at this point was that the available grammar-based fuzzers were too slow. Hence, we [adapted](/publications/#gopinath2019building) ideas from programming language implementation, and virtual machine optimization to build our [F1 grammar fuzzer](https://github.com/vrthra/f1) which can produce millions of inputs per second.
+
+While fuzzers are effective in quickly identifying failure conditions using surprising inputs, the inputs produced
+by these tools can often be huge, and incomprehensible to the developer.
+Hence, test case reduction (often variants of _delta debugging_) is often used to reduce the test case to a minimal
+input, such strings still fail to inform the developer as to what went wrong.
+Even worse, a casual inspection of many such test cases can often suggest an
+incorrect hypothesis. We [invented](https://rahul.gopinath.org/publications/#gopinath2020abstracting) a technique called _DDSET_ that identifies
+the parts of the input that caused the failure, and abstracts away everything else.  The failure representations produced by _DDSET_ (e.g. `&lt;expr&gt;/0`)
+are precise and, easy to understand, and also allows the developer to generate
+further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the _ACM SIGSOFT Distinguished Paper_ award.
 
 <h2>Research until Ph.D.</h2>
 
