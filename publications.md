@@ -151,7 +151,7 @@ heuristics. Our Mimid prototype produced accurate and readable grammars for a
 variety of evaluation subjects, including complex languages such as JSON,
 TinyC, and JavaScript.
 
-**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
+**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2020/gopinath2020mining.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2020/gopinath2020mining.bib)
@@ -186,6 +186,8 @@ As of now, we check each abstraction independently of others, and then merge the
 
 Another difference is that during isolation we leave every possibly causative part intact. That is, if A or B is necessary for fault reproduction, we leave both A and B as concrete. A user may instead change it to leave either A or B as concrete.
 
+**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/gopinath2020abstracting.pdf)
@@ -215,6 +217,8 @@ Along with the token extraction seed inputs are generated which give further
 fuzzing processes a head start. In our experiments, the LFuzzer-AFL combination
 achieves up to 17% more coverage on complex input formats like JSON, Lisp,
 TinyC, and JS compared to AFL.
+
+**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png)
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/mathis2020learning.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/mathis2020learning.bib)
