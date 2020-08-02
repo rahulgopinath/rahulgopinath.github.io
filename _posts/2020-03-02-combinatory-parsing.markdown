@@ -385,6 +385,62 @@ Note that one has to be careful about the precedence of operators. In
 particular, if you mix and match `>>` and `|`, always use parenthesis
 to disambiguate.
 
+## All together
+
+```python
+def Lit(c):
+    def parse(instr):
+        return [(instr[1:], [c])] if instr and instr[0] == c else []
+    return parse
+
+def AndThen(p1, p2):
+   def parse(instr):
+       return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
+   return parse
+
+def OrElse(p1, p2):
+    def parse(instr):
+        return p1()(instr) + p2()(instr)
+    return parse
+
+def Apply(f, parser):
+    def parse(instr):
+        return [(i,f(r)) for i,r in  parser()(instr)]
+    return parse
+
+class P:
+    def __init__(self, parser):
+        self.parser = parser
+
+    def __call__(self, instr):
+        return self.parser()(list(instr))
+
+    def __rshift__(self, other):
+        return P(lambda: AndThen(self.parser, other.parser))
+
+    def __or__(self, other):
+        return P(lambda: OrElse(self.parser, other.parser))
+```
+
+The simple parenthesis language
+
+```pyhton
+one = P(lambda: Lit('1'))
+openP = P(lambda: Lit('('))
+closeP = P(lambda: Lit(')'))
+
+parens = P(lambda: paren | (paren >> parens))
+
+def to_paren(v):
+    assert v[0] == '('
+    assert v[-1] == ')'
+    return [('Paren', v[1:-1])]
+
+paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
+v = parens(list('((1)((1)))'))
+print(v)
+```
+
 
 
 ### Remaining
