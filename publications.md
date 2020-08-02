@@ -188,6 +188,8 @@ Another difference is that during isolation we leave every possibly causative pa
 
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
 
+**ACM Distinguished Paper** ![distinguished paper](/resources/acm_distinguished_paper_20px.png)
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3895797.svg)](https://doi.org/10.5281/zenodo.3895797)
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/gopinath2020abstracting.pdf)
