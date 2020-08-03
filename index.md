@@ -15,8 +15,9 @@ We are pleased to announce a special issue in STVR for Mutation Analysis and Its
 Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
 <hr>
 
-<h2>Research at CISPA</h2>
+<h2>Cybersecurity</h2>
 
+I have worked as a postdoctoral scholar at CISPA Helmholtz center from 2017 onwards.
 At CISPA, my work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforeseen manner? If a system correctly rejects all invalid inputs and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilities before it is exposed to the wider world.
 
 Our work produced [the fuzzing book](https://www.fuzzingbook.org/) which is an accessible resource for students and practitioners who are new to fuzzing.
@@ -42,10 +43,32 @@ the parts of the input that caused the failure, and abstracts away everything el
 are precise and, easy to understand, and also allows the developer to generate
 further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the _ACM SIGSOFT Distinguished Paper_ award.
 
-<h2>Research until Ph.D.</h2>
+<h2>Test suite and test case effectiveness</h2>
 
-PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos) and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
-<h3>Research</h3>
+I have also worked on empirical evaluation of the effectiveness of different
+coverage techniques. Our [initial work](/publications/#gopinath2014cod) 
+[(ICSE 2014)](/publications/#gopinath2014code) towards addressing the
+shortcomings of mutation analysis found that **statement coverage**, rather
+than *branch* or *path* coverage is a better measure of mutation score,
+and hence the quality of a test suite. This was substantiated by extensive
+examination of over 200 real-world projects of various sizes, and this was
+notably different from the prevailing wisdom which claimed that *branch* and
+*path* coverage was obviously better.
+
+We were also the first to find [evidence](https://rahul.gopinath.org/publications/#ahmed2016can)
+that  mutation score as well as coverage is inversely related to the
+*residual defect density* of the program (FSE 2016).
+That is, the number of live mutants remaining is related to the actual bugs
+remaining in the program.
+Finally, our recent work [(ASE 2020)](https://rahul.gopinath.org/publications/#chen2020revisiting)
+clarifies the relationship between test suite size and coverage, and shows how
+to correctly account for the suite size.
+
+<!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
+and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/> 
+<h3>Research</h3> -->
+
+<h2>Mutation analysis</h2>
 My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
 <!--h5>Overview of publications</h5>
@@ -53,25 +76,41 @@ My primary focus during my PhD was mutation analysis of programs, and especially
 
 Mutation analysis is a method of evaluating the quality of software test suites by introducing simple faults into a program. A test suite's ability to detect these mutants, or artificial faults, is a reasonable proxy for the effectiveness of the test suite. While mutation analysis is the best technique for test suite evaluation we have, it is also rather computationally and time intensive, requiring millions of test suite runs for even a moderately large software project.  This also means that mutation analysis is effectively impossible to use by developers and practicing testers working on real-world problems, and who need to evaluate whether their current test suites are adequate. Unfortunately, most of the research done in mutation analysis has been done on a small number of subject programs, small in size, and that have test suites with high coverage and adequacy -- something that is a rarity in real-world development (at least at early development stages).
 
+My research published at [ISSRE 2014](/publications/#gopinath2014mutations)
+evaluated whether the faults produced by mutation analysis were representative
+of real faults. Our examination of over 5,371 projects in four different
+programming languages found that the faults used by mutation analysis are rather
+simplistic in practice compared to real-world bugs (in terms of the size of code
+change).
 
-My [initial research](/publications/#gopinath2014code) towards addressing the shortcomings of mutation analysis found that <em>statement coverage</em>, rather than branch or path coverage is a better measure of mutation score, and hence the quality of a test suite. This was substantiated by extensive examination of over 200 real-world projects of various sizes. The [second part](/publications/#gopinath2014mutations) of my research was to evaluate whether the faults produced by mutation analysis were representative of real faults. Our examination of over 5,371 projects in four different programming languages found that the faults used by mutation analysis are rather simplistic in practice compared to real-world bugs (in terms of the size of code change).
+As an initial step towards reducing the computational requirements of mutation
+analysis, I investigated techniques used for mutation analysis, and invented a
+[new algorithm](/publications/#gopinath2016topsy) (ICSE 2016 abstract) for
+faster mutation analysis, taking advantage of redundancy in execution between
+similar mutants. Further, I was able to identify how [combinatorial evaluation](/publications/#gopinath2015how) could be used for evaluating equivalent mutants (ISSRE 2015).
 
-As an initial step towards reducing the computational requirements of mutation analysis, I investigated techniques used for mutation analysis, and invented a [new algorithm](/publications/#gopinath2016topsy) for faster mutation analysis, taking advantage of redundancy in execution between similar mutants. Further, I was able to identify how [combinatorial evaluation](/publications/#gopinath2015how) could be used for evaluating equivalent mutants. Next,
-I compared the effectiveness of current techniques for reducing mutants to be evaluated such as operator selection and stratum based sampling and found that they offer surprisingly little advantage (less than 10% for stratum sampling and negative for operator selection) compared to simple random sampling in multiple evaluation criteria.
-
-My [research](/publications/#gopinath2016on) comparing the effectiveness of the theoretical best mutation
-selection methods with random sampling found that even under oracular
-knowledge of test kills, mutation selection methods can at best be less than
+Next, I compared the effectiveness of current techniques for reducing mutants to
+be evaluated such as operator selection and stratum based sampling and found
+that they offer surprisingly little advantage (less than 10% for stratum
+sampling and negative for operator selection) compared to simple random sampling
+in multiple evaluation criteria.
+My [research](/publications/#gopinath2016on) (ICSE 2016) comparing the
+effectiveness of the theoretical best mutation selection methods with random
+sampling found that **even under oracular knowledge of test kills**, mutation
+selection methods can at best be less than
 20% better than random sampling, and are often much worse. Interestingly, there
 is no such limit on how the amount of efficiency that can be achieved by the
 addition of new operators. This discovery suggests that effort should be spent
 on finding newer and relevant mutation operators rather than removing the
-operators in the name of effectiveness.
+operators in the name of effectiveness. **This research also effectively settled
+the long standing debate on the utility of mutation reduction strategies such
+as operator selection in favor of random sampling**.
 
+<!--
 <h3>Implementation</h3>
 The ideas from my research have resulted in two practical implementations -- [MuCheck](https://hackage.haskell.org/package/MuCheck) for Haskell, and [Xmutant](https://pypi.python.org/pypi/xmutant) for Python. I am also a contributor for [PIT](http://pitest.org/) mutation analysis system for Java, and [Rubocop](https://github.com/bbatsov/rubocop), a static analyzer for Ruby.
+-->
 
 <h3>Practice</h3>
 My interest in the quality of programs is informed by a wealth of practical knowledge from the Industry. Before joining the Ph.D. program, I worked in the software industry as a developer for ten years, where I was part of the web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the OpenSolaris effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionalities in the Solaris Operating system, and at [Galois](https://galois.com/) where I contributed to the visualization of effectiveness of one of the vulnerability mitigation approaches.
-
 
