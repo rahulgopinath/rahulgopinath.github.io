@@ -15,7 +15,7 @@ We are pleased to announce a special issue in STVR for Mutation Analysis and Its
 Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
 <hr>
 
-<h2>Cybersecurity</h2>
+<h3>Cybersecurity</h3>
 
 I have worked as a postdoctoral scholar at CISPA Helmholtz center from 2017 onwards.
 At CISPA, my work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforeseen manner? If a system correctly rejects all invalid inputs and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilities before it is exposed to the wider world.
@@ -43,7 +43,7 @@ the parts of the input that caused the failure, and abstracts away everything el
 are precise and, easy to understand, and also allows the developer to generate
 further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the _ACM SIGSOFT Distinguished Paper_ award.
 
-<h2>Test suite and test case effectiveness</h2>
+<h3>Test suite and test case effectiveness</h3>
 
 I have also worked on empirical evaluation of the effectiveness of different
 coverage techniques. Our [initial work](/publications/#gopinath2014cod) 
@@ -68,7 +68,7 @@ to correctly account for the suite size.
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/> 
 <h3>Research</h3> -->
 
-<h2>Mutation analysis</h2>
+<h3>Mutation analysis</h3>
 My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
 
 <!--h5>Overview of publications</h5>
@@ -105,6 +105,14 @@ on finding newer and relevant mutation operators rather than removing the
 operators in the name of effectiveness. **This research also effectively settled
 the long standing debate on the utility of mutation reduction strategies such
 as operator selection in favor of random sampling**.
+
+Finally, we were able to [conclusively prove](/publications/#gopinath2017the)
+the _coupling effect_ theoretically, as well as quantify its impact
+empirically (ICST 2017). The *couopling effect* is one of the corner stones of
+*mutation analysis*, and our research provided the much needed clarification on
+the relation between simple faults that mutants represent and higher order
+faults that are common in real world programs.
+
 
 <!--
 <h3>Implementation</h3>
