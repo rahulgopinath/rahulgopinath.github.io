@@ -1,9 +1,9 @@
 ---
-published: false
+published: true
 title: Simple DDSet
 layout: post
 comments: true
-tags: deltadebug, testcase reducer, cfg, generator
+tags: deltadebug, ddset, testcase reducer, cfg, generator
 categories: post
 ---
 We previously [discussed](/post/2020/07/15/ddset/) how DDSET is implemented. However, DDSET is a fairly complex algorithm, and
@@ -11,7 +11,10 @@ tries to handle diverse cases that may arise in the real world such as differenc
 This complexity is however, not innate. One can produce a much more simple version of DDSET if one is only interested in abstracting
 inputs, and one has a predicate that does not have a semantic validation phase. The algorithm is as follows:
 
-We first define our predicate. It fails when there is a nested parenthesis.
+(We use a number of library functions from that post). Unlike previous posts, this post uses a top down approach since we have already
+defined a number of functions [previously](/post/2020/07/15/ddset/).
+
+We first define our predicate. It returns `PRes.success` when there is a nested parenthesis.
 ```python
 import re
 from enum import Enum
@@ -138,4 +141,14 @@ def is_node_abstract(node):
         return True
     else:
         return abstract_a[0]['abstract']
+```
+With this, we are ready to extract our pattern.
+```python
+pattern = ddset_simple(reduced_expr, EXPR_GRAMMAR_expr_double_paren)
+print(pattern)
+```
+This prints:
+```bash
+$ python ddset_simple.py
+((<expr>))
 ```
