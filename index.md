@@ -40,8 +40,7 @@ further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinat
 <h3>Test suite and test case effectiveness</h3>
 
 I have also worked on empirical evaluation of the effectiveness of different
-coverage techniques. Our [initial work](/publications/#gopinath2014cod) 
-[(ICSE 2014)](/publications/#gopinath2014code) towards addressing the
+coverage techniques. Our initial work [(ICSE 2014)](/publications/#gopinath2014code) towards addressing the
 shortcomings of mutation analysis found that **statement coverage**, rather
 than *branch* or *path* coverage is a better measure of mutation score,
 and hence the quality of a test suite. This was substantiated by extensive
