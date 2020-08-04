@@ -100,7 +100,7 @@ as operator selection in favor of random sampling**.
 
 Finally, we were able to [conclusively prove](/publications/#gopinath2017the)
 the _coupling effect_ theoretically, as well as quantify its impact
-empirically (ICST 2017). The *couopling effect* is one of the corner stones of
+empirically (ICST 2017). The *coupling effect* is one of the corner stones of
 *mutation analysis*, and our research provided the much needed clarification on
 the relation between simple faults that mutants represent and higher order
 faults that are common in real world programs.
