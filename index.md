@@ -54,8 +54,9 @@ that  mutation score as well as coverage is inversely related to the
 That is, the number of live mutants remaining is related to the actual bugs
 remaining in the program.
 Finally, our recent work [(ASE 2020)](https://rahul.gopinath.org/publications/#chen2020revisiting)
-clarifies the relationship between test suite size and coverage, and shows how
-to correctly account for the suite size.
+clarifies the relationship between test suite size and coverage. It settles
+a long standing debate about how to interpret the effect of test suite size, and
+shows how to correctly account for the suite size in empirical evaluations.
 
 <!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/> 
