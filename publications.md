@@ -226,7 +226,7 @@ TinyC, and JS compared to AFL.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/mathis2020learning.bib)
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://www.slideshare.net/BjrnMathis/lfuzzer-learning-input-tokens-for-effective-fuzzing-237085021)
 
-#### <a id='holmes2020using'></a>[Holmes, Brindescu, Gopinath, Zhang, Groce: _Using Relative Lines of Code to Guide Automated Test Generation for Python_ TOSEM, 2020]()
+#### <a id='ahmed2020using'></a>[Ahmed, Holmes, Brindescu, Gopinath, Zhang, Groce: _Using Relative Lines of Code to Guide Automated Test Generation for Python_ TOSEM, 2020]()
 
 Raw lines of code (LOC) is a metric that does not, at first glance, seem extremely
 useful for automated test generation. It is both highly language-dependent and not
