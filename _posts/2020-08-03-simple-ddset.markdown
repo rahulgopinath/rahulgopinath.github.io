@@ -144,7 +144,7 @@ def is_node_abstract(node):
 ```
 With this, we are ready to extract our pattern.
 ```python
-pattern = ddset_simple(reduced_expr, EXPR_GRAMMAR_expr_double_paren)
+pattern = ddset_simple(reduced_expr, EXPR_GRAMMAR, expr_double_paren)
 print(pattern)
 ```
 This prints:
@@ -152,5 +152,18 @@ This prints:
 $ python ddset_simple.py
 ((<expr>))
 ```
+
+So, given that this algorithm is much simpler than the original, why should we use the
+original algorithm? The problem is that when the input is a file in a programming language,
+one also needs to take into account the semantics. That is, the generated input needs to be
+valid both syntactically (by construction) as well as semantically. It is hard enough trying
+to fill one hole in the parse tree (abstract node) with a semantically valid subtree. Now,
+imagine that you have identified one abstraction and are evaluating a second node. You need to
+generate random nodes both for previously identified abstract node, as well as the node you are
+currently evaluating. Say you have identified three abstract nodes, for any node that will be
+evaluated next, you need to fill in three abstract nodes with randomly generated semantically
+valid values. This is exponential, and infeasible to continue as more nodes are added. Hence,
+in original DDSet, we try to independantly evaluate each single node, and once we have collected
+most of these nodes, we go for a second pass to verify.
 
 The full code is available [here](https://github.com/vrthra/ddset/blob/master/simple/SimpleDDSet.py)
