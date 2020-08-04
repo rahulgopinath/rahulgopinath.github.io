@@ -3,21 +3,10 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He works with [Prof. Dr. Andreas Zeller](https://www.st.cs.uni-saarland.de/zeller/). He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/).
+Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He works with [Prof. Dr. Andreas Zeller](https://www.st.cs.uni-saarland.de/zeller/). He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/). The following is a summary of his research.
 <!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
-
-<b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
-do [contact me](/contact). I will be happy to talk to you, and help you in any way. </b>
-
-<hr>
-<b>Special Issue in STVR: Mutation Analysis and Its Industrial Applications</b>
-
-We are pleased to announce a special issue in STVR for Mutation Analysis and Its Industrial Applications
-Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
-<hr>
-
 <h3>Cybersecurity</h3>
 
 I have worked as a postdoctoral scholar at CISPA Helmholtz center from 2017 onwards.
@@ -124,4 +113,16 @@ The ideas from my research have resulted in two practical implementations -- [Mu
 
 <h3>Practice</h3>
 My interest in the quality of programs is informed by a wealth of practical knowledge from the Industry. Before joining the Ph.D. program, I worked in the software industry as a developer for ten years, where I was part of the web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the OpenSolaris effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionalities in the Solaris Operating system, and at [Galois](https://galois.com/) where I contributed to the visualization of effectiveness of one of the vulnerability mitigation approaches.
+
+<hr>
+<b>Special Issue in STVR: Mutation Analysis and Its Industrial Applications</b>
+
+We are pleased to announce a special issue in STVR for Mutation Analysis and Its Industrial Applications
+Please see [this page](https://mutation-workshop.github.io/2020_stvr_si/) for further details.
+<hr>
+
+<b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
+do [contact me](/contact). I will be happy to talk to you, and help you in any way. </b>
+
+
 
