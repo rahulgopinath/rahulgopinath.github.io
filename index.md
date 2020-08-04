@@ -48,9 +48,9 @@ examination of over 200 real-world projects of various sizes, and this was
 notably different from the prevailing wisdom which claimed that *branch* and
 *path* coverage was obviously better.
 
-We were also the first to find [evidence](https://rahul.gopinath.org/publications/#ahmed2016can)
+We were also the first (and to date, the only ones) to find evidence
 that  mutation score as well as coverage is inversely related to the
-*residual defect density* of the program (FSE 2016).
+*residual defect density* of the program [(FSE 2016)](https://rahul.gopinath.org/publications/#ahmed2016can).
 That is, the number of live mutants remaining is related to the actual bugs
 remaining in the program.
 Finally, our recent work [(ASE 2020)](https://rahul.gopinath.org/publications/#chen2020revisiting)
