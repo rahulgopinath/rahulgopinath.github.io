@@ -69,7 +69,7 @@ My primary focus during my PhD was mutation analysis of programs, and especially
 
 Mutation analysis is a method of evaluating the quality of software test suites by introducing simple faults into a program. A test suite's ability to detect these mutants, or artificial faults, is a reasonable proxy for the effectiveness of the test suite. While mutation analysis is the best technique for test suite evaluation we have, it is also rather computationally and time intensive, requiring millions of test suite runs for even a moderately large software project.  This also means that mutation analysis is effectively impossible to use by developers and practicing testers working on real-world problems, and who need to evaluate whether their current test suites are adequate. Unfortunately, most of the research done in mutation analysis has been done on a small number of subject programs, small in size, and that have test suites with high coverage and adequacy -- something that is a rarity in real-world development (at least at early development stages).
 
-My research published at [ISSRE 2014](/publications/#gopinath2014mutations)
+My research [(ISSRE 2014)](/publications/#gopinath2014mutations)
 evaluated whether the faults produced by mutation analysis were representative
 of real faults. Our examination of over 5,371 projects in four different
 programming languages found that the faults used by mutation analysis are rather
@@ -80,14 +80,14 @@ As an initial step towards reducing the computational requirements of mutation
 analysis, I investigated techniques used for mutation analysis, and invented a
 [new algorithm](/publications/#gopinath2016topsy) (ICSE 2016 abstract) for
 faster mutation analysis, taking advantage of redundancy in execution between
-similar mutants. Further, I was able to identify how [combinatorial evaluation](/publications/#gopinath2015how) could be used for evaluating equivalent mutants (ISSRE 2015).
+similar mutants. Further, I was able to identify how combinatorial evaluation could be used for evaluating equivalent mutants [(ISSRE 2015)](/publications/#gopinath2015how).
 
 Next, I compared the effectiveness of current techniques for reducing mutants to
 be evaluated such as operator selection and stratum based sampling and found
 that they offer surprisingly little advantage (less than 10% for stratum
 sampling and negative for operator selection) compared to simple random sampling
 in multiple evaluation criteria.
-My [research](/publications/#gopinath2016on) (ICSE 2016) comparing the
+My research [(ICSE 2016)](/publications/#gopinath2016on) comparing the
 effectiveness of the theoretical best mutation selection methods with random
 sampling found that **even under oracular knowledge of test kills**, mutation
 selection methods can at best be less than
@@ -99,9 +99,8 @@ operators in the name of effectiveness. **This research also effectively settled
 the long standing debate on the utility of mutation reduction strategies such
 as operator selection in favor of random sampling**.
 
-Finally, we were able to [conclusively prove](/publications/#gopinath2017the)
-the _coupling effect_ theoretically, as well as quantify its impact
-empirically (ICST 2017). The *coupling effect* is one of the corner stones of
+Finally, we were able to conclusively prove the _coupling effect_ theoretically, as well as quantify its impact
+empirically [(ICST 2017)](/publications/#gopinath2017the). The *coupling effect* is one of the corner stones of
 *mutation analysis*, and our research provided the much needed clarification on
 the relation between simple faults that mutants represent and higher order
 faults that are common in real world programs.
