@@ -167,7 +167,7 @@ in original DDSet, we try to independantly evaluate each single node, and once w
 most of these nodes, we go for a second pass to verify.
 
 How much difference does it make? For [Rhino bug 385](https://github.com/mozilla/rhino/issues/385)
-abstracting the minimal string 'var {baz: baz => {}} = baz => {};' took 15643 executions for
+abstracting the minimal string `var {baz: baz => {}} = baz => {};` took 15643 executions for
 `ddsetsimple` when compared to 10340 executions for the ddset from the paper (discounting covarying
 fragments).
 
