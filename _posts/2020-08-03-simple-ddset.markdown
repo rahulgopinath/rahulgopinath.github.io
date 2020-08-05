@@ -166,4 +166,9 @@ valid values. This is exponential, and infeasible to continue as more nodes are 
 in original DDSet, we try to independantly evaluate each single node, and once we have collected
 most of these nodes, we go for a second pass to verify.
 
+How much difference does it make? For [Rhino bug 385](https://github.com/mozilla/rhino/issues/385)
+abstracting the minimal string 'var {baz: baz => {}} = baz => {};' took 15643 executions for
+`ddsetsimple` when compared to 10340 executions for the ddset from the paper (discounting covarying
+fragments).
+
 The full code is available [here](https://github.com/vrthra/ddset/blob/master/simple/SimpleDDSet.py)
