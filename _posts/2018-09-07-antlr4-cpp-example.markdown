@@ -29,7 +29,11 @@ You need to install `antlr4` or download the `antlr4` jar file to compile this g
 ```bash
 $ brew install antlr4
 ```
-You will also need to download the corresponding runtime for your platform.
+**Note:** The brew target may not exist. You may be better off downloading [this](https://www.antlr.org/download/antlr-4.8-complete.jar) and
+putting it in the correct place.
+
+You will also need to download the [corresponding runtime](https://www.antlr.org/download/) for your platform.
+OSX is [here](https://www.antlr.org/download/antlr4-cpp-runtime-4.8-macos.zip).
 Next, we need to implement a simple driver. That is done as follows
 ```cpp
 #include <iostream>
@@ -83,14 +87,17 @@ Compilation can be accomplished by using the following `Makefile`
 ```make
 OUTPUT=output
 GENERATED=generated
-RUNTIME=../runtime
+# runtime is where you downloaded and extracted https://www.antlr.org/download/antlr4-cpp-runtime-4.8-macos.zip
+RUNTIME=./runtime
 CCARGS=-c -I $(RUNTIME)/antlr4-runtime/ -I $(GENERATED) -std=c++11	
 LDARGS=-g
 LIBS=$(RUNTIME)/lib/libantlr4-runtime.a
+JAVA=/usr/bin/java
 CC=g++
 GRAMMAR=Expr
-ANTLR4=$(JAVA) -jar antlr-4.7-complete.jar
-ANTLR4=antlr4
+# This assumes you have antlr-4.8-complete.jar in the current directory.
+ANTLR4=$(JAVA) -jar antlr-4.8-complete.jar
+#ANTLR4=antlr4
 
 ANTLRGEN=BaseListener Lexer Listener Parser 
 OBJS=$(addsuffix .o,$(addprefix $(OUTPUT)/$(GRAMMAR),$(ANTLRGEN)))
