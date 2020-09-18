@@ -196,3 +196,33 @@ As before, compiling requires the runtime. Once you have that, you can generate 
 $ java -cp $ANTLR3COMPLETEJAR org.antlr.Tool -o output Expr.g
 $ gcc -o expr output/*.c -I $LIBANTLR3C/ -I $LIBANTLR3C/include $LIBANTLR3C/.libs/libantlr3c.a
 ```
+
+Antlr ships with a tool called `grun` that can help you to debug your grammar.
+Using that however, is a little different. Here is how one can use it with our
+`Expr` grammar.
+
+First, `grun` requires all files in the same directory, and the files are
+expected to be in Java, so we copy `Expr.g4` to a new directory,
+and we generate the Expr Java files and compile them first.
+
+```bash
+$ java -jar antlr-4.8-complete.jar Expr.g4
+$ javac -cp antlr-4.8-complete.jar Expr*.java
+```
+
+Now, you can use the `grun` as below:
+
+```bash
+echo -n "1+3" | java -cp .:./antlr-4.8-complete.jar org.antlr.v4.gui.TestRig Expr main -tree
+(main (expr (expr 1) + (expr 3)) <EOF>)
+```
+
+You can also get a tree view by
+
+```bash
+echo -n "1+3" | java -cp .:./antlr-4.8-complete.jar org.antlr.v4.gui.TestRig Expr main -gui
+(main (expr (expr 1) + (expr 3)) <EOF>)
+```
+
+This should correctly pop the tree
+
