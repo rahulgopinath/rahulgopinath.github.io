@@ -197,6 +197,8 @@ $ java -cp $ANTLR3COMPLETEJAR org.antlr.Tool -o output Expr.g
 $ gcc -o expr output/*.c -I $LIBANTLR3C/ -I $LIBANTLR3C/include $LIBANTLR3C/.libs/libantlr3c.a
 ```
 
+## Grun
+
 Antlr ships with a tool called `grun` that can help you to debug your grammar.
 Using that however, is a little different. Here is how one can use it with our
 `Expr` grammar.
@@ -210,7 +212,8 @@ $ java -jar antlr-4.8-complete.jar Expr.g4
 $ javac -cp antlr-4.8-complete.jar Expr*.java
 ```
 
-Now, you can use the `grun` as below:
+Now, you can use the `grun` as below. The `grun` is implemented by
+`org.antlr.v4.gui.TestRig` so we use it directly.
 
 ```bash
 echo -n "1+3" | java -cp .:./antlr-4.8-complete.jar org.antlr.v4.gui.TestRig Expr main -tree
