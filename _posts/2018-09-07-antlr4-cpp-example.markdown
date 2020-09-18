@@ -221,7 +221,6 @@ You can also get a tree view by
 
 ```bash
 echo -n "1+3" | java -cp .:./antlr-4.8-complete.jar org.antlr.v4.gui.TestRig Expr main -gui
-(main (expr (expr 1) + (expr 3)) <EOF>)
 ```
 
 This should correctly pop the tree
