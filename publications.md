@@ -162,6 +162,8 @@ The research community has long recognized a complex interrelationship between t
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ase2020/chen2020revisiting.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/ase2020/chen2020revisiting.bib)
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/revisiting-the-relationship-between-fault-detection-test-adequacy-criteria-and-test-set-size)
+
 
 
 #### <a id='gopinath2020abstracting'></a>[Gopinath, Kampmann, Havrikov, Soremekun, Zeller: _Abstracting Failure Inducing Inputs_ ISSTA, 2020]()
