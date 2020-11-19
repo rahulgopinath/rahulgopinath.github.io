@@ -196,6 +196,8 @@ Another difference is that during isolation we leave every possibly causative pa
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issta2020/gopinath2020abstracting.pdf)
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/gopinath2020abstracting.bib)
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/abstracting-failure-inducing-inputs)
+
 
 #### <a id='mathis2020learning'></a>[Mathis, Gopinath, Zeller: _Learning Input Tokens for Effective Fuzzing_ ISSTA, 2020]()
 
