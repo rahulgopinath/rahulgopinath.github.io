@@ -4,7 +4,7 @@ categories : blog
 tagline: "."
 tags : [sunmicrosystems blog sun]
 categories : sunblog
-e: mod_scheme updates
+e: mod_scheme 3.3.a
 title: mod_scheme 3.3.a
 ---
 
