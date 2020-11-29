@@ -2,8 +2,8 @@
 layout: post
 categories : blog
 tagline: "."
-tags : [blog sunmicrosystems]
-categories : blogger
+tags : [sunmicrosystems blog sun]
+categories : sunblog
 e: mod_scheme updates
 title: mod_scheme updates
 ---
