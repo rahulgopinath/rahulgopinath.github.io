@@ -13,7 +13,7 @@ menu: Posts
   <ul>
   {% for post in site.posts%}
   {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
-  {% if mytags != 'sunmicrosystems' and mytags != 'haskelltricks' and mytags != 'cs381' and  mytags != 'ta' and  mytags != 'instructor' and mytags != 'student'  %}
+  {% if mytags != 'quark' and mytags != 'sunmicrosystems' and mytags != 'haskelltricks' and mytags != 'cs381' and  mytags != 'ta' and  mytags != 'instructor' and mytags != 'student'  %}
   <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a></li>
   {% endif %}
   {% endfor %}
@@ -61,4 +61,16 @@ These are the teaching materials I prepared for a course in programming language
   </ul>
 </div>
 
+<h3> Older Quark Posts</h3>
+
+<div class="posts">
+  <ul>
+  {% for post in site.posts%}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'quark' %}
+  <li><span class='date'>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.e }}</a></li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
