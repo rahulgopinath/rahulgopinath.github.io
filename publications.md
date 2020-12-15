@@ -9,6 +9,11 @@ menu: Publications
 
 ## Peer Reviewed Publications
 
+##### 2021
+
+* [_Input Algebras_](#gopinath2021input)<br/>
+  *Gopinath*, Nemati, Zeller. ICSE, 2021
+
 ##### 2020
 
 * [_Revisiting the Relationship between Fault Detection, Test Adequacy Criteria, and Test Set Size_](#chen2020revisiting)<br/>
@@ -132,6 +137,26 @@ Software Modification_](#christi2019evaluating)<br/>
 
 * [Generating Software Tests -- Breaking Software for Fun and Profit](https://www.fuzzingbook.org) <br/>
   Zeller, *Gopinath*, Böhme, Fraser, Holler, 2019
+
+
+#### <a id='gopinath2021input'></a>[Gopinath, Nemati, Zeller: _Input Algebras_ ICSE, 2021]()
+
+Grammar-based test generators are highly efficient in producing syntactically
+valid test inputs, and give their user precise control over which test inputs
+should be generated. Adapting a grammar or a test generator towards a particular
+testing goal can be tedious, though. We introduce the concept of a grammar
+transformer, specializing a grammar towards inclusion or exclusion of specific
+patterns: "The phone number must not start with 011 or +1". To the best of our
+knowledge, ours is the first approach to allow for arbitrary Boolean
+combinations of patterns, giving testers unprecedented flexibility in creating
+targeted software tests. The resulting specialized grammars can be used with any
+grammar-based fuzzer for targeted test generation, but also as validators to
+check whether the given specialization is met or not, opening up additional
+usage scenarios. In our evaluation on real-world bugs, we show that specialized
+grammars are accurate both in producing and validating targeted inputs.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2021/gopinath2021input.pdf)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2021/gopinath2021input.bib)
 
 #### <a id='gopinath2020mining'></a>[Gopinath, Mathis, Zeller: _Mining Input Grammars from Dynamic Control Flow_ FSE, 2020]()
 
