@@ -34,10 +34,29 @@ by these tools can often be huge, and incomprehensible to the developer.
 Hence, test case reduction (often variants of _delta debugging_) is often used to reduce the test case to a minimal
 input, such strings still fail to inform the developer as to what went wrong.
 Even worse, a casual inspection of many such test cases can often suggest an
-incorrect hypothesis. We [invented](https://rahul.gopinath.org/publications/#gopinath2020abstracting) a technique called _DDSET_ that identifies
-the parts of the input that caused the failure, and abstracts away everything else.  The failure representations produced by _DDSET_ (e.g. `((<expr>))` when the error is caused due nested parenthesis)
-are precise and, easy to understand, and also allows the developer to generate
-further test cases. Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the __ACM SIGSOFT Distinguished Paper__ award.
+incorrect hypothesis. We [invented](https://rahul.gopinath.org/publications/#gopinath2020abstracting)
+a technique called _DDSET_ that identifies the parts of the input that caused the failure, and abstracts
+away everything else.  The failure representations (we call these
+_evocative patterns_) produced by _DDSET_ (e.g. `((<expr>))` when
+the error is caused due nested parenthesis)
+are precise and easy to understand.
+Our work was presented at [ISSTA 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting), and received the __ACM SIGSOFT Distinguished Paper__ award.
+
+The evocative patterns thus produced represent a specialization of the base
+grammar of the input. In our paper at [ICSE 2021](https://rahul.gopinath.org/publications/#gopinath2021input),
+we show how, given the base grammar and the evocative pattern corresponding
+to a failure, one can produce the corresponding specialized context-free
+grammar which guarantees that the evocative fragment is present in all
+inputs produced from the specialized grammar at least once. We also show
+how to combine such evocative patterns using all logical connectives
+--- conjunction, disjunction, and negation --- forming evocative expressions
+that represent a specialized _context-free_ grammar.
+
+![Evocative Expressions](/resources/ewok.webp)
+
+The example above shows a simple evocative expression that guarantees
+that the inputs produced from the corresponding evocative grammar will
+have at least one empty key, and no _null_ key values.
 
 <h3>Test suite and test case effectiveness</h3>
 
