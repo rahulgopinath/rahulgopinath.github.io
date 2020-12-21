@@ -57,6 +57,8 @@ that represent a specialized _context-free_ grammar.
 The example above shows a simple evocative expression that guarantees
 that the inputs produced from the corresponding evocative grammar will
 have at least one empty key, and no _null_ key values.
+These evocative expressions can not only be used as precise generators
+but also as supercharged semantic pattern matchers similar to Semgrep.
 
 <h3>Test suite and test case effectiveness</h3>
 
