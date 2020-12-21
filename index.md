@@ -54,9 +54,13 @@ that represent a specialized _context-free_ grammar.
 
 ![Evocative Expressions](/resources/ewok.webp)
 
-The example above shows a simple evocative expression that guarantees
-that the inputs produced from the corresponding evocative grammar will
-have at least one empty key, and no _null_ key values.
+The example above shows a simple evocative expression that specializes
+a base JSON grammar. The corresponding evocative grammar guarantees
+that the inputs produced will have at least one empty key (the first evocative
+pattern in the _where_ clause), and no _null_ key values (the second evocative
+pattern in the _where_ clause, negated). While the evocative patterns can be written by hand,
+they can also be mined from existing bugs by simply using the DDSET
+algorithm.
 These evocative expressions can not only be used as precise generators
 but also as supercharged semantic pattern matchers similar to Semgrep.
 
