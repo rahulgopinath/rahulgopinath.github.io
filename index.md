@@ -21,7 +21,8 @@ One of the challenges in fuzzing is how to reach deep code paths. In particular,
 Our first research was toward generating complex *valid* inputs when faced with a parser so that we can get to the next level. We found that traditional approaches such as symbolic execution do not work well due to *path explosion* when faced with parsers. 
 We [invented](https://arxiv.org/abs/1810.08289) a fast and lightweight approach called [Pygmalion](https://github.com/vrthra/pygmalion) that iteratively corrects a generated input prefix which ultimately leads to valid inputs. Our approach is applicable both for
 single pass parsers [(PLDI 2019)](https://rahul.gopinath.org/publications/#mathis2019parser) as well as for parsers with a lexical analysis
-stage [(ISSTA 2020)](https://rahul.gopinath.org/publications/#mathis2020learning).
+stage [(ISSTA 2020)](https://rahul.gopinath.org/publications/#mathis2020learning). Our
+technique is applicable even for [instrumentation-less systems](https://arxiv.org/abs/2012.13516) such as embedded systems and remote systems.
 
 While *Pygmalion* can get us valid inputs faster than traditional methods, it is limited to overcoming the first layer parser. While *Pygmalion* is fast, it still needs to run the program under fuzzing once per input character, which is comparatively expensive if one wants to produce a large number of valid inputs. Hence, we [invented](https://github.com/vrthra/mimid) a technique called _Mimid_ that can infer the input structure expected by a given parser as a *context-free grammar* from the dynamic analysis of the program run [(FSE 2020)](https://rahul.gopinath.org/publications/#gopinath2020mining). In particular, _Mimid_ covers the entire spectrum of parsers from ad hoc handwritten parsers to modern parser combinators, and represents a significant advancement in the field.
 
