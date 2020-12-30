@@ -58,7 +58,11 @@ The example above shows a simple evocative expression that specializes
 a base JSON grammar. The corresponding evocative grammar guarantees
 that the inputs produced will have at least one empty key (the first evocative
 pattern in the _where_ clause), and no _null_ key values (the second evocative
-pattern in the _where_ clause, negated). While the evocative patterns can be written by hand,
+pattern in the _where_ clause, negated). Second, it also guarantees that the
+evocative grammar produced will be able to successfully parse _any_ input
+that conforms to these specifications (or the grammar when used as a producer
+can produce any such input).
+While the evocative patterns can be written by hand,
 they can also be mined from existing bugs by simply using the DDSET
 algorithm.
 These evocative expressions can not only be used as precise generators
