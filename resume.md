@@ -1,11 +1,3 @@
----
-layout: page
-title : Resume
-header : Rahul Gopinath
-menu: Vita
-group: navigation
-weight: 5
----
 <!--
 You can find my resume in pdf format [here](/resources/resume.pdf).
 
