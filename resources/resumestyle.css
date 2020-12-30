@@ -351,6 +351,35 @@ li{
   padding: 0;
 }
 
+#publications{
+  line-height: 1.5;
+}
+
+#publications ul{
+  margin: 0.05in 0 0.15in;
+  padding: 0;
+}
+
+
+#opensource{
+  line-height: 1.5;
+}
+
+#opensource ul{
+  margin: 0.05in 0 0.15in;
+  padding: 0;
+}
+
+#awards{
+  line-height: 1.5;
+}
+
+#awards ul{
+  margin: 0.05in 0 0.15in;
+  padding: 0;
+}
+
+
 #disclaimer{
   position: absolute;
   bottom: var(--sidebar-horizontal-padding);
