@@ -2,8 +2,8 @@
 layout: post
 categories : phdcommittee
 tagline: "."
-tags : [phdcommittee phd felixklein 2020]
-e: Synthesizing Stream Control
+tags : [phdcommittee phd natanielborges 2020]
+e: Learning the Language of Apps
 ---
 
 #### Ph.D. Thesis
