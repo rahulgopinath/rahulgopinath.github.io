@@ -2,7 +2,7 @@
 layout: post
 categories : phdcommittee
 tagline: "."
-tags : [phd jamrozik 2018]
+tags : [phdcommittee phd jamrozik 2018]
 e: Mining Sandboxes
 ---
 
