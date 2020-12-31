@@ -42,3 +42,15 @@ menu: Academics
   {% endfor %}
   </ul>
 </div>
+
+<h3>Ph.D. Member of Examination Board</h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'phdcommittee' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; {{ post.title }} <br/> Thesis: <a href="{{ BASE_PATH }}{{ post.url  }}"> {{ post.e }} </a></li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
