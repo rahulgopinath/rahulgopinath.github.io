@@ -11,10 +11,10 @@ menu: Contact
 rahul@gopinath.org [^personal]  
 rahul.gopinath@cispa.saarland [^cispa]  
 
-#### Phone [^1]
+#### Phone [^note]
 
-+49 (681) 302-70989 [^cispa]  
 +49 (159) 013-63611 [^personal]
++49 (681) 302-70989 [^cispa]  
 
 #### Address
 CISPA Helmholtz Center for Information Security  
@@ -22,6 +22,6 @@ Stuhlsatzenhaus 5, Saarland Informatics Campus
 66123 Saarbrücken, Germany  
 <p/>
 
-[^1]: Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
+[^note]: Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
 [^personal]: Personal
 [^cispa]: CISPA related
