@@ -12,7 +12,7 @@ or commandeering the generator as done by [Hypothesis](https://github.com/Hypoth
 Of the two, the Hypothesis approach is actually more generalizable to arbitrary generators. Hence we will look at how it is done. For ease
 of naming, I will call this approach the _generator reduction_ approach. Note that we use the simple `delta debug` on the choice sequences.
 This is different from `Hypothesis` in that `Hypothesis` uses a number of custom passes rather than `delta debug`. For further information
-on Hypothesis, please see the [paper](https://drmaciver.github.io/papers/reduction-via-generation-preview.pdf) _Test-Case Reduction via Test-Case Generation:Insights From the Hypothesis Reducer_ by _David R. MacIver_ and _Alastair F. Donaldson_ at [ECOOP 2020](https://www.imperial.ac.uk/news/197040/six-papers-accepted-ecoop-2020/).
+on Hypothesis, please see the note by [MacIver et al.][^mciver2020reduction] .
 
 For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed
 [previously](/post/2019/05/28/simplefuzzer-01/).
@@ -559,3 +559,6 @@ a = ((0));
 There does not seem to be a lot of advantage in using an `NOP`.
 
 Next: How does this compare against the custom passes of Hypothesis? and how does it compare against direct `delta debug` and variants of `HDD` including `Perses`.
+
+
+[^mciver2020reduction]: Test-Case Reduction via Test-Case Generation:Insights From the Hypothesis Reducer_ by _David R. MacIver_ and _Alastair F. Donaldson_ at [ECOOP 2020](https://drmaciver.github.io/papers/reduction-via-generation-preview.pdf)
