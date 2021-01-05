@@ -8,8 +8,8 @@ menu: Contact
 ---
 
 #### Email
-rahul@gopinath.org<br/>
-rahul.gopinath@cispa.saarland (CISPA related)<br/>
+rahul@gopinath.org [^email1]  
+rahul.gopinath@cispa.saarland [^email2]  
 
 #### Phone [^1]
 
@@ -24,4 +24,5 @@ Stuhlsatzenhaus 5, Saarland Informatics Campus<br/>
 <p/>
 
 [^1]: Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
-
+[^email1]: Personal
+[^email2]: CISPA related
