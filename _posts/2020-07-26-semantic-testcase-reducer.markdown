@@ -561,4 +561,4 @@ There does not seem to be a lot of advantage in using an `NOP`.
 Next: How does this compare against the custom passes of Hypothesis? and how does it compare against direct `delta debug` and variants of `HDD` including `Perses`.
 
 
-[^mciver2020reduction]: _Test-Case Reduction via Test-Case Generation:Insights From the Hypothesis Reducer_ by _David R. MacIver_ and _Alastair F. Donaldson_ at [ECOOP 2020](https://drmaciver.github.io/papers/reduction-via-generation-preview.pdf)
+[^mciver2020reduction]: *Test-Case Reduction via Test-Case Generation:Insights From the Hypothesis Reducer* by _David R. MacIver_ and _Alastair F. Donaldson_ at [ECOOP 2020](https://drmaciver.github.io/papers/reduction-via-generation-preview.pdf)
