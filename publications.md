@@ -344,7 +344,7 @@ Fuzzing is one of the key techniques for evaluating the robustness of programs a
 
 In this paper, we describe how to build fast grammar fuzzers from the ground up, treating the problem of fuzzing from a programming language implementation perspective. Starting with a Python textbook approach, we adopt and adapt optimization techniques from functional programming and virtual machine implementation techniques together with other novel domain-specific optimizations in a step-by-step fashion. In our F1 prototype fuzzer, these improve production speed by a factor of 100--300 over the fastest grammar fuzzer Dharma. As F1 is even 5--8 times faster than a lexical random fuzzer, we can find bugs faster and test with much larger valid inputs than previously possible. 
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/1911.07707)
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/1911.07707 "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2019/gopinath2019building.bib "reference")
 
 
@@ -822,7 +822,7 @@ is accounted for.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/esem2015/ahmed2015empirical.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/esem2015/ahmed2015empirical.bib "reference")
-[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time) "presentation" 
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time "presentation")
 
 
 #### <a id='le2014mutation'></a>[Le, Alipour, Gopinath, Groce: _Mutation Testing of Functional Programming Languages_ ICSTW Mutation 2014]()
