@@ -12,7 +12,7 @@ or commandeering the generator as done by [Hypothesis](https://github.com/Hypoth
 Of the two, the Hypothesis approach is actually more generalizable to arbitrary generators. Hence we will look at how it is done. For ease
 of naming, I will call this approach the _generator reduction_ approach. Note that we use the simple `delta debug` on the choice sequences.
 This is different from `Hypothesis` in that `Hypothesis` uses a number of custom passes rather than `delta debug`. For further information
-on Hypothesis, please see the note by MacIver et al.[^mciver2020reduction] .
+on Hypothesis, please see the paper by MacIver et al.[^mciver2020reduction] at ECOOP.
 
 For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed
 [previously](/post/2019/05/28/simplefuzzer-01/).
