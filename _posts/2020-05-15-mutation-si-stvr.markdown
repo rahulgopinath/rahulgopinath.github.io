@@ -13,10 +13,8 @@ Analysis and Its Industrial Applications” in STVR.
 The special issue features a rolling submission period starting from 1st of July
 to 30th of September.
 
-Website with further information:
-https://mutation-workshop.github.io/2020_stvr_si/
-For any questions regarding special issue, please email the editors:
-mutation-analysis-and-its-industrial-applications@googlegroups.com
+Website with further information: <https://mutation-workshop.github.io/2020_stvr_si/>
+For any questions regarding special issue, please email the editors: <mutation-analysis-and-its-industrial-applications@googlegroups.com>
 
 # Call For Papers
 
@@ -78,7 +76,7 @@ been extended.
 
 Please submit your paper electronically using the
 Software Testing, Verification & Reliability manuscript submission
-site: https://mc.manuscriptcentral.com/stvr. Select "Special Issue
+site: <https://mc.manuscriptcentral.com/stvr>. Select "Special Issue
 Paper" and select "Mutation Analysis and Its Industrial
 Applications" as the special issue title.
 
@@ -129,5 +127,5 @@ Intended timeline:
  University College London
 
 For any questions regarding special issue, please email the editors:
-mutation-analysis-and-its-industrial-applications@googlegroups.com
+<mutation-analysis-and-its-industrial-applications@googlegroups.com>
 
