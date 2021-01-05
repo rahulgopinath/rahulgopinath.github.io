@@ -6,7 +6,7 @@ comments: true
 tags: deltadebug, ddset, testcase reducer, cfg, generator
 categories: post
 ---
-We previously [discussed](/post/2020/07/15/ddset/) how DDSET is implemented. However, DDSET is a fairly complex algorithm, and
+We previously [discussed](/post/2020/07/15/ddset/) how DDSET [^gopinath2020abstracting] is implemented. However, DDSET is a fairly complex algorithm, and
 tries to handle diverse cases that may arise in the real world such as difference between syntactic and semantic validity, impact of tokens, variables etc.
 This complexity is however, not innate. One can produce a much more simple version of DDSET if one is only interested in abstracting
 inputs, and one has a predicate that does not have a semantic validation phase. The algorithm is as follows:
@@ -172,3 +172,5 @@ abstracting the minimal string `var {baz: baz => {}} = baz => {};` took 15643 ex
 fragments).
 
 The full code is available [here](https://github.com/vrthra/ddset/blob/master/simple/SimpleDDSet.py)
+
+[^gopinath2020abstracting]: [*Abstracting Failure Inducing Inputs* by _Gopinath_, _Kampmann_, _Havrikov_, _Soremekun_, _Zeller_, ISSTA, 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting)
