@@ -13,7 +13,7 @@ rahul.gopinath@cispa.saarland [^cispa]
 
 #### Phone [^note]
 
-+49 (159) 013-63611 [^personal]
++49 (159) 013-63611 [^personal]  
 +49 (681) 302-70989 [^cispa]  
 
 #### Address
@@ -23,5 +23,5 @@ Stuhlsatzenhaus 5, Saarland Informatics Campus
 <p/>
 
 [^note]: Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
-[^personal]: Personal
-[^cispa]: CISPA related
+[^personal]: Personal.
+[^cispa]: CISPA related.
