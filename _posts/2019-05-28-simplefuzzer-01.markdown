@@ -15,7 +15,9 @@ import random
 
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
+```
 
+```eval-python
 for i in range(10):
     print(repr(fuzzer()))
 ```
