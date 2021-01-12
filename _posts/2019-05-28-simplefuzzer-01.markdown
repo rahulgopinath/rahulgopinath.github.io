@@ -7,17 +7,17 @@ tags: fuzzing
 categories: post
 ---
 
-Fuzzing is one of the key tools in a security reseracher's tool box. It is simple
+Fuzzing is one of the key tools in a security researcher's tool box. It is simple
 to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple-Fuzzer).
 
-```python
+```eval-python
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
 for i in range(10):
     print(fuzzer())
 ```
-This results in the following output, which can be used to fuzz programs.
+<!--This results in the following output, which can be used to fuzz programs.
 ```
 59*6!8/>-9),4:"%01=?1,;5!2 6/? :,)(+>'6-55&#-(>'=:&8)")9,537
 5:4&,;=,,.>1;8 %8=1 <"8!$, /#4&:346>%%<*</!3(602%+:$+5#(!##26=#+7";0'/)!#'%( !;;:&62=#&%-'>;
@@ -30,6 +30,7 @@ This results in the following output, which can be used to fuzz programs.
 8:=%
 !6=$+'89;59$)4.<<!7<7!9$!0"/%/$&")?&6',7.;>84<*,$1=-)-75<35%--68!>=;*0:-/51&4:7
 ```
+-->
 
 Unfortunately, random fuzzing is not very effective for programs that accept complex
 input languages such as those that expect JSON or any other structure in their input.
