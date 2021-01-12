@@ -24,3 +24,12 @@ def hello():
     return 4
 hello()
 </code></pre>
+
+```eval-python
+def hello():
+    print('123')
+    return 4
+hello()
+```
+  
+later
