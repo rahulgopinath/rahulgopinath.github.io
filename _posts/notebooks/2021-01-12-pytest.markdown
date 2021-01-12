@@ -1,0 +1,20 @@
+---
+published: true
+title: PyTest
+layout: post
+comments: true
+tags:
+    - python
+    - notebook
+categories: post
+--- 
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<script>
+    window.klipse_settings = {
+        selector_eval_python_client: '.language-klipse-python', // css selector for the html elements you want to klipsify
+    };
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
+
+
