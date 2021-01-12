@@ -11,7 +11,7 @@ Context free grammars were introduced as a formalism to specify context free lan
 Schutzenberger[^chomsky1959the]. It is a structural description of strings
 that belong to a given language. Multiple  can exist that specify the same
 context free language.  More importantly, a given context free grammar can also be used as a recognizer for a given context free language.
-Numerous algorithms exist [^younger1967recognition][^earley1970an][^tomita1985an]
+Numerous algorithms exist [^younger1967recognition] [^earley1970an] [^tomita1985an]
 that when given a context free grammar, can recognize whether any given string belongs to the corresponding
 context free language. A recognizer checks whether a given string is in a given language. A parser recovers
 the structure(s) of such a string if it is a member of such a language. A string may have
