@@ -17,7 +17,7 @@ def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
 for i in range(10):
-    print(fuzzer())
+    print(repr(fuzzer()))
 ```
 <!--This results in the following output, which can be used to fuzz programs.
 ```
@@ -213,14 +213,7 @@ for i in range(100):
    gf.fuzz(key='<start>', max_depth=10)
 ```
 
-This requires Javascript
-
-```eval-python
-def hello():
-    print('123')
-    return 4
-hello()
-```
+<!-- Prereq -->
   
 <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
 <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/prolog.css">
