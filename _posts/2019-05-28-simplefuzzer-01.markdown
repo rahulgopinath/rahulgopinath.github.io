@@ -11,6 +11,10 @@ Fuzzing is one of the key tools in a security researcher's tool box. It is simpl
 to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple-Fuzzer).
 
 ```eval-python
+import random
+```
+
+```eval-python
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
