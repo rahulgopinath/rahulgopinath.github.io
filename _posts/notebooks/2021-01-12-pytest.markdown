@@ -37,12 +37,7 @@ later
         },
         beautify_strings: true,
 
-        selector: '.language-klipse, .language-eval-clj',
-        selector_eval_markdown: '.language-klipse-markdown',
         selector_eval_python_client: '.language-klipse-python, .language-eval-python',
-        selector_eval_html: '.language-klipse-html',
-        selector_google_charts: '.language-google-chart',
-        selector_plot: '.language-plot',
     };
 </script>
 <script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js?v=8.0.1"></script>
