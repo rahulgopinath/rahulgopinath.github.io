@@ -18,3 +18,9 @@ categories: post
 <script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
 
 
+<pre><code class="language-klipse-python">
+def hello():
+    print('123')
+    return 4
+hello()
+</code></pre>
