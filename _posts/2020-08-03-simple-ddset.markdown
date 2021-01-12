@@ -173,4 +173,4 @@ fragments).
 
 The full code is available [here](https://github.com/vrthra/ddset/blob/master/simple/SimpleDDSet.py)
 
-[^gopinath2020abstracting]: [*Abstracting Failure Inducing Inputs* by _Gopinath_, _Kampmann_, _Havrikov_, _Soremekun_, _Zeller_, ISSTA, 2020](https://rahul.gopinath.org/publications/#gopinath2020abstracting)
+[^gopinath2020abstracting]: Rahul Gopinath, Alexander Kampmann, Nikolas Havrikov, Ezekiel Soremekun, Andreas Zeller, "Abstracting Failure Inducing Inputs" ISSTA 2020 URL:<https://rahul.gopinath.org/publications/#gopinath2020abstracting>
