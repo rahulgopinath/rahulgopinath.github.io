@@ -66,7 +66,7 @@ machine. The spoiler here is that, PEGs may be in some sense universal [^loff201
 
 [^chomsky1959the]: Noam Chomsky and Marcel P Schützenberger. “The algebraic theory of context-free languages”. In:Studies in Logic and the Foundations of Mathematics.Vol. 26. Elsevier, 1959, pp. 118–161
 
-[^das2018lower]: Debarati Das, Michal Koucký, and Michael E.Saks. “Lower bounds for Combinatorial Algorithms for Boolean Matrix Multiplication”. In:CoRRabs/1801.05202 (2018). arXiv:1801.05202.URL:http://arxiv.org/abs/1801.05202.
+[^das2018lower]: Debarati Das, Michal Koucký, and Michael E.Saks. “Lower bounds for Combinatorial Algorithms for Boolean Matrix Multiplication”. In:CoRRabs/1801.05202 (2018). arXiv:1801.05202.URL:<http://arxiv.org/abs/1801.05202>
 
 [^ford2004parsing]: Bryan Ford. “Parsing Expression Grammars: A Recognition-based Syntactic Foundation”. In:SIG-PLAN Not.39.1 (Jan. 2004), pp. 111–122.ISSN: 0362-1340.
 
@@ -78,8 +78,8 @@ machine. The spoiler here is that, PEGs may be in some sense universal [^loff201
 [^younger1967recognition]: Daniel  H  Younger.  “Recognition  and  parsing  of context-free languages in time n3”. In:Information and control 10.2 (1967), pp. 189–208
 
 
-[^earley1970an]: Jay Earley. “An Efficient Context-free Parsing Algorithm”. In:Communications of the ACM 13.2 (Feb. 1970), pp. 94–102.ISSN: 0001-0782.DOI:10.1145/362007.362035.URL:http://doi.acm.org/10.1145/362007.362035.
+[^earley1970an]: Jay Earley. “An Efficient Context-free Parsing Algorithm”. In:Communications of the ACM 13.2 (Feb. 1970), pp. 94–102.ISSN: 0001-0782.DOI:10.1145/362007.362035.URL:<http://doi.acm.org/10.1145/362007.362035>
 
 [^tomita1985an]: Masaru Tomita. “An Efficient Context-Free Parsing Algorithm for Natural Languages.” In:IJCAI. Vol. 2.1985, pp. 756–764
 
-[^loff2019the]: Bruno Loff, Nelma Moreira, Rogério Reis "The computational power of parsing expression grammars" 2019  	arXiv:1902.08272 .URL:https://arxiv.org/abs/1902.08272
+[^loff2019the]: Bruno Loff, Nelma Moreira, Rogério Reis "The computational power of parsing expression grammars" 2019  	arXiv:1902.08272 .URL:<https://arxiv.org/abs/1902.08272>
