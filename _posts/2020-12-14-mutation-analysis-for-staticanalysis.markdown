@@ -13,8 +13,8 @@ test suites and test generators which are used for finding bugs, and it is
 effective in evaluating the quality of such tools by injecting artificial
 faults (mutations) into the program.
 So, will this technique work against static analysis tools? If one considers
-type checking as a static analysis technique, we already have [some evidence](https://rahul.gopinath.org/publications/#gopinath2017how)
-that it works well. However, does it make sense to use mutation analysis
+type checking as a static analysis technique, we already have some evidence [^gopinath2017how] that it works well. Further, researchers already use mutation analysis [^araujo2016correlating] and fault injection [^ghaleb2020how] for evaluating the effectiveness of static analysis tools.
+However, does it make sense to use mutation analysis
 for evaluating static analysis tools _in general_?
 
 The impediment here is that mutations induced by mutation analysis is all
@@ -50,4 +50,11 @@ analysis, one should start with a green state (no flagged faults in
 the program under analysis or only known flagged faults). Next, introduce
 equivalent mutants and check how many such mutants are claimed to be
 faults. This provides the believability ratio of the static analysis tool.
+
+[^gopinath2017how]: Rahul Gopinath, Eric Walkingshaw "How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations" ICSTW Mutation, 2017 URL:<https://rahul.gopinath.org/resources/icst2017/gopinath2017how.pdf>
+
+[^araujo2016correlating]: Cláudio A. Araujo,  Marcio E. Delamaro, Jose C. Maldonado and Auri M. R. Vincenzi "Correlating automatic static analysis andmutation testing: towards incrementalstrategies" Journal of Software Engineering Research and Development 2016 DOI:10.1186/s40411-016-0031-8 URL:<https://core.ac.uk/download/pdf/81636717.pdf>
+
+[^ghaleb2020how]: Asem  Ghaleb, Karthik Pattabiraman "How effective are smart contract analysis tools? evaluating smart contract static analysis tools using bug injection ISSTA 2016 URL:<https://dl.acm.org/doi/abs/10.1145/3395363.3397385>
+
 
