@@ -209,3 +209,30 @@ gf = LimitFuzzer(grammar)
 for i in range(100):
    gf.fuzz(key='<start>', max_depth=10)
 ```
+
+This requires Javascript
+
+```eval-python
+def hello():
+    print('123')
+    return 4
+hello()
+```
+  
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/prolog.css">
+<script>
+    window.klipse_settings = {
+        codemirror_options_in: {
+            lineWrapping: true,
+            autoCloseBrackets: true
+        },
+        codemirror_options_out: {
+            lineWrapping: true
+        },
+        beautify_strings: true,
+
+        selector_eval_python_client: '.language-klipse-python, .language-eval-python',
+    };
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js?v=8.0.1"></script>
