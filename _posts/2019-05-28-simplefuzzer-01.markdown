@@ -12,9 +12,7 @@ to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple
 
 ```eval-python
 import random
-```
 
-```eval-python
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
