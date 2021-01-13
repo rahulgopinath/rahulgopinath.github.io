@@ -13,7 +13,7 @@ test suites and test generators which are used for finding bugs, and it is
 effective in evaluating the quality of such tools by injecting artificial
 faults (mutations) into the program.
 So, will this technique work against static analysis tools? If one considers
-type checking as a static analysis technique, we already have some evidence [^gopinath2017how] that it works well. Further, researchers already use mutation analysis [^araujo2016correlating] [^parveen2020a] and fault injection [^ghaleb2020how] for evaluating the effectiveness of static analysis tools.
+type checking as a static analysis technique, we already have some evidence [^gopinath2017how] that it works well. Further, researchers already use mutation analysis [^araujo2016correlating] and fault injection [^ghaleb2020how] for evaluating the effectiveness of static analysis tools.
 However, does it make sense to use mutation analysis
 for evaluating static analysis tools _in general_?
 
@@ -50,6 +50,8 @@ analysis, one should start with a green state (no flagged faults in
 the program under analysis or only known flagged faults). Next, introduce
 equivalent mutants and check how many such mutants are claimed to be
 faults. This provides the believability ratio of the static analysis tool.
+
+This is the approach taken by Parveen et al.[^parveen2020a].
 
 [^gopinath2017how]: Rahul Gopinath, Eric Walkingshaw "How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations" ICSTW Mutation, 2017 URL:<https://rahul.gopinath.org/resources/icst2017/gopinath2017how.pdf>
 
