@@ -13,7 +13,7 @@ test suites and test generators which are used for finding bugs, and it is
 effective in evaluating the quality of such tools by injecting artificial
 faults (mutations) into the program.
 So, will this technique work against static analysis tools? If one considers
-type checking as a static analysis technique, we already have some evidence [^gopinath2017how] that it works well. Further, researchers already use mutation analysis [^araujo2016correlating] and fault injection [^ghaleb2020how] for evaluating the effectiveness of static analysis tools.
+type checking as a static analysis technique, we already have some evidence [^gopinath2017how] that it works well. Further, researchers already use mutation analysis [^araujo2016correlating] [^parveen2020a] and fault injection [^ghaleb2020how] for evaluating the effectiveness of static analysis tools.
 However, does it make sense to use mutation analysis
 for evaluating static analysis tools _in general_?
 
@@ -57,4 +57,4 @@ faults. This provides the believability ratio of the static analysis tool.
 
 [^ghaleb2020how]: Asem  Ghaleb, Karthik Pattabiraman "How effective are smart contract analysis tools? evaluating smart contract static analysis tools using bug injection ISSTA 2016 URL:<https://dl.acm.org/doi/abs/10.1145/3395363.3397385>
 
-
+[^parveen2020a]: Sajeda Parveen; Manar H. Alalfi "A Mutation Framework for Evaluating Security Analysis Tools in IoT Applications" SANER 2020 URL:<https://ieeexplore.ieee.org/document/9054853>
