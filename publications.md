@@ -178,6 +178,10 @@ TinyC, and JavaScript.
 
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876969.svg)](https://doi.org/10.5281/zenodo.3876969)
+
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2020/gopinath2020mining.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2020/gopinath2020mining.bib "reference")
 
