@@ -53,7 +53,7 @@ doesn't generalize at all, and produces only a small set of inputs. In that case
 the original grammar will accept all generated inputs, resulting in 100% accuracy even though
 the infered grammar was bad. Hence, both tests are equally important.
 
-The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other **.
+The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other** .
 
 A nice result that I should mention here is that comparison of deterministic context-free
 grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the Gödel Prize in
@@ -70,5 +70,5 @@ can even compare them directly.
 
 [^madhavan2015automating]: Madhavan, R., Mayer, M., Gulwani, S., & Kuncak, V. (2015, October). Automating grammar comparison. In Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (pp. 183-200).
 [^fischer2011comparison]: Fischer, B., Lämmel, R., & Zaytsev, V. (2011, July). Comparison of context-free grammars based on parsing generated test data. In International Conference on Software Language Engineering (pp. 324-343). Springer, Berlin, Heidelberg.
-[senizergues2001l]: Sénizergues, G. (2001). L (A)= L (B)? decidability results from complete formal systems. Theoretical Computer Science, 251(1-2), 1-166.
+[^senizergues2001l]: Sénizergues, G. (2001). L (A)= L (B)? decidability results from complete formal systems. Theoretical Computer Science, 251(1-2), 1-166.
 
