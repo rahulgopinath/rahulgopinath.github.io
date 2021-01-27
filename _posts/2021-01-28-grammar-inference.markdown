@@ -60,6 +60,11 @@ grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the
 2002 for this discovery. What this means is that if the grammars are deterministic, you
 can even compare them directly.
 
+The main communities working on grammar inference are
+* [LATA](https://dblp.org/db/conf/lata/index.html)
+* [ICGI](https://grammarlearning.org/)
+* JMLR
+
 
 [^1]: We note here that the grammar derived by [GLADE](https://github.com/obastani/glade) is not in the usual format, and hence, we could not verify that their parser is correct. Unfortunately, general context-free parsers are notoriously difficult to get right as shown by the history of the Earley parser.
 
