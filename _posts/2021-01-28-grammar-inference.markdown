@@ -53,7 +53,7 @@ doesn't generalize at all, and produces only a small set of inputs. In that case
 the original grammar will accept all generated inputs, resulting in 100% accuracy even though
 the infered grammar was bad. Hence, both tests are equally important.
 
-The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other** .
+The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other** . Extracting the grammar from a program is not a useful proof for the effectiveness of your technique unless you are doing whitebox grammar mining.
 
 A nice result that I should mention here is that comparison of deterministic context-free
 grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the Gödel Prize in
