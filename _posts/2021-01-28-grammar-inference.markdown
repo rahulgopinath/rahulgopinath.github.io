@@ -61,11 +61,7 @@ grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the
 can even compare them directly.
 
 
-[^1]: We note here that the grammar
-derived [GLADE](https://github.com/obastani/glade) is not in the usual format, and
-hence, we could not verify that their parser is correct. Unfortunately, general
-context-free parsers are notoriously difficult to get right as shown by the history
-of the Earley parser.
+[^1]: We note here that the grammar derived by [GLADE](https://github.com/obastani/glade) is not in the usual format, and hence, we could not verify that their parser is correct. Unfortunately, general context-free parsers are notoriously difficult to get right as shown by the history of the Earley parser.
 
 [^bastani2017synthesizing]: Bastani, O., Sharma, R., Aiken, A., & Liang, P. (2017). Synthesizing program input grammars. ACM SIGPLAN Notices, 52(6), 95-110.
 [^wu2019reinam]: Wu, Z., Johnson, E., Yang, W., Bastani, O., Song, D., Peng, J., & Xie, T. (2019, August). REINAM: reinforcement learning for input-grammar inference. In Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (pp. 488-498).
