@@ -61,8 +61,8 @@ grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the
 can even compare them directly.
 
 The main communities working on grammar inference are
-* [LATA](https://dblp.org/db/conf/lata/index.html)
-* [ICGI](https://grammarlearning.org/)
+* Language and Automata Theory and Applications ([LATA](https://dblp.org/db/conf/lata/index.html))
+* International Conference on Grammatical Inference ([ICGI](https://grammarlearning.org/))
 * JMLR
 
 
