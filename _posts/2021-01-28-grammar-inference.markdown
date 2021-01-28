@@ -19,7 +19,8 @@ attempting to look for heuristics which are applicable to context-free grammars 
 are found in real-world software. The idea being that, the theoretical limitation
 could be about pathological grammars. Even if one could recover the grammar of a
 reasonable subset of context-free grammars, it is a win. Indeed, Clark et al.[^clark2008a]
-takes this approach. Another reasonable approach is to look for approximations.
+takes this approach. Another reasonable approach is to look for approximations. The
+research in this field was summarized by Higuera[^higuera2010grammatical].
 
 Now, how does one verify their approach? One approach that recent research has taken
 is to try and recover the context free grammar from one of the blackbox programs, then
@@ -79,3 +80,4 @@ The main communities working on grammar inference are
 [^senizergues2001l]: Sénizergues, G. (2001). L (A)= L (B)? decidability results from complete formal systems. Theoretical Computer Science, 251(1-2), 1-166.
 
 [^ginsburg1966the]: S. Ginsburg,The Mathematical Theory of Context Free Languages.McGraw-Hill Book Company, 1966.
+[^higuera2010grammatical]: C. de la Higuera,Grammatical Inference: Learning Automata andGrammars.  Cambridge University Press, 2010.
