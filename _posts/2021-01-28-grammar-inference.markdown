@@ -8,7 +8,8 @@ categories: post
 ---
 
 The problem of infering the input specification of a program has recently seen some
-interest[^bastani2017synthesizing][^wu2019reinam] from researchers. This is of huge interest in fuzzing as recovery
+interest[^bastani2017synthesizing][^wu2019reinam] from researchers.
+This is of huge interest in fuzzing as recovery
 of the input specification can improve the efficiency, effectiveness, and generality
 of a fuzzer by leaps and bounds.
 
@@ -18,7 +19,7 @@ the RSA encryption[^angluin1995when]. However, this has not stopped researchers 
 attempting to look for heuristics which are applicable to context-free grammars that
 are found in real-world software. The idea being that, the theoretical limitation
 could be about pathological grammars. Even if one could recover the grammar of a
-reasonable subset of context-free grammars, it is a win. Indeed, Clark et al.[^clark2008a]
+reasonable subset of context-free grammars, it is a win[^curley2016grammatical]. Indeed, Clark et al.[^clark2008a]
 takes this approach. Another reasonable approach is to look for approximations. The
 research in this field was summarized by Higuera[^higuera2010grammatical].
 
@@ -81,3 +82,4 @@ The main communities working on grammar inference are
 
 [^ginsburg1966the]: S. Ginsburg,The Mathematical Theory of Context Free Languages.McGraw-Hill Book Company, 1966.
 [^higuera2010grammatical]: C. de la Higuera,Grammatical Inference: Learning Automata andGrammars.  Cambridge University Press, 2010.
+[^curley2016grammatical]: Curley, S. S., & Harang, R. E. (2016, May). Grammatical Inference and Machine Learning Approaches to Post-Hoc LangSec. In 2016 IEEE Security and Privacy Workshops (SPW) (pp. 171-178). IEEE.
