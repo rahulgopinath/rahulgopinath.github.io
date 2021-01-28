@@ -6,10 +6,6 @@ group: navigation
 weight: 3
 menu: Talks
 ---
-##### 2020
-
-* [_Abstracting Failure Inducing Inputs_](#gopinath2020abstracting)<br/>
-  *Gopinath* - ISSTA, (virtual), 2020
 
 ##### 2019
 * [_Learning Grammars without Samples_](https://speakerdeck.com/rahulgopinath/learning-grammars-without-samples)<br/>
@@ -38,13 +34,6 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
-
-#### <a id='gopinath2020abstracting'></a>[Gopinath: _Abstracting Failure Inducing Inputs_ ISSTA, 2020]()
-
-This talk is about our ISSTA'20 paper [_Abstracting Failure Inducing Inputs_](https://rahul.gopinath.org/publications/#gopinath2020abstracting).
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/-AJ2ch-LwkU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 #### <a id='gopinath2017pygram'></a>[Gopinath: _Pygram: Learning input grammars for Python programs_ TU Darmstadt, Germany (software group retreat), 2017]()
 
