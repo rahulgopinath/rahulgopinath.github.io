@@ -11,7 +11,7 @@ The problem of infering the input specification of a program has recently seen s
 interest[^bastani2017synthesizing][^wu2019reinam] from researchers.
 This is of huge interest in fuzzing as recovery
 of the input specification can improve the efficiency, effectiveness, and generality
-of a fuzzer by leaps and bounds.
+of a fuzzer by leaps and bounds[^stevenson2014a].
 
 The best way to go about it is to look for a general solution with proofs. However,
 a fully general solution to the problem is impossible, and is as hard as reversing
@@ -70,6 +70,8 @@ The main communities working on grammar inference are
 
 
 [^1]: We note here that the grammar derived by [GLADE](https://github.com/obastani/glade) is not in the usual format, and hence, we could not verify that their parser is correct. Unfortunately, general context-free parsers are notoriously difficult to get right as shown by the history of the Earley parser.
+
+[^stevenson2014a]: Stevenson, A., & Cordy, J. R. (2014). A survey of grammatical inference in software engineering. Science of Computer Programming, 96, 444-459.
 
 [^bastani2017synthesizing]: Bastani, O., Sharma, R., Aiken, A., & Liang, P. (2017). Synthesizing program input grammars. ACM SIGPLAN Notices, 52(6), 95-110.
 
