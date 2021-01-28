@@ -55,7 +55,8 @@ the infered grammar was bad. Hence, both tests are equally important.
 
 The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other** . Extracting the grammar from a program is not a useful proof for the effectiveness of your technique unless you are doing whitebox grammar mining.
 
-A nice result that I should mention here is that comparison of deterministic context-free
+A nice result that I should mention here is that even though comparison of context-free
+grammars in general is undecidable[^ginsburg1966the], comparison of deterministic context-free
 grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the Gödel Prize in
 2002 for this discovery. What this means is that if the grammars are deterministic, you
 can even compare them directly.
@@ -77,3 +78,4 @@ The main communities working on grammar inference are
 [^fischer2011comparison]: Fischer, B., Lämmel, R., & Zaytsev, V. (2011, July). Comparison of context-free grammars based on parsing generated test data. In International Conference on Software Language Engineering (pp. 324-343). Springer, Berlin, Heidelberg.
 [^senizergues2001l]: Sénizergues, G. (2001). L (A)= L (B)? decidability results from complete formal systems. Theoretical Computer Science, 251(1-2), 1-166.
 
+[^ginsburg1966the]: S. Ginsburg,The Mathematical Theory of Context Free Languages.McGraw-Hill Book Company, 1966.
