@@ -72,14 +72,21 @@ The main communities working on grammar inference are
 [^1]: We note here that the grammar derived by [GLADE](https://github.com/obastani/glade) is not in the usual format, and hence, we could not verify that their parser is correct. Unfortunately, general context-free parsers are notoriously difficult to get right as shown by the history of the Earley parser.
 
 [^bastani2017synthesizing]: Bastani, O., Sharma, R., Aiken, A., & Liang, P. (2017). Synthesizing program input grammars. ACM SIGPLAN Notices, 52(6), 95-110.
+
 [^wu2019reinam]: Wu, Z., Johnson, E., Yang, W., Bastani, O., Song, D., Peng, J., & Xie, T. (2019, August). REINAM: reinforcement learning for input-grammar inference. In Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (pp. 488-498).
+
 [^angluin1995when]: Angluin, D., & Kharitonov, M. (1995). When Won′ t Membership Queries Help?. Journal of Computer and System Sciences, 50(2), 336-355.
+
 [^clark2008a]: Clark, A., Eyraud, R., & Habrard, A. (2008, September). A polynomial algorithm for the inference of context free languages. In International Colloquium on Grammatical Inference (pp. 29-42). Springer, Berlin, Heidelberg.
 
 [^madhavan2015automating]: Madhavan, R., Mayer, M., Gulwani, S., & Kuncak, V. (2015, October). Automating grammar comparison. In Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (pp. 183-200).
+
 [^fischer2011comparison]: Fischer, B., Lämmel, R., & Zaytsev, V. (2011, July). Comparison of context-free grammars based on parsing generated test data. In International Conference on Software Language Engineering (pp. 324-343). Springer, Berlin, Heidelberg.
+
 [^senizergues2001l]: Sénizergues, G. (2001). L (A)= L (B)? decidability results from complete formal systems. Theoretical Computer Science, 251(1-2), 1-166.
 
 [^ginsburg1966the]: S. Ginsburg,The Mathematical Theory of Context Free Languages.McGraw-Hill Book Company, 1966.
+
 [^higuera2010grammatical]: C. de la Higuera,Grammatical Inference: Learning Automata andGrammars.  Cambridge University Press, 2010.
+
 [^curley2016grammatical]: Curley, S. S., & Harang, R. E. (2016, May). Grammatical Inference and Machine Learning Approaches to Post-Hoc LangSec. In 2016 IEEE Security and Privacy Workshops (SPW) (pp. 171-178). IEEE.
