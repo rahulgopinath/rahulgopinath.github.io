@@ -3,7 +3,7 @@ layout: post
 categories : student
 tagline: "."
 tags : [student markusdemmel 2020]
-e: fuzzing, differential testing
+e: Differential Testing
 ---
 
 #### Bachelors Thesis
@@ -11,8 +11,6 @@ e: fuzzing, differential testing
 Differential Testing
 
 #### Abstract
-
-
 
 We live in a well-connected world in which almost any device is connected to the
 internet and able to communicate with other devices. This exchange of
