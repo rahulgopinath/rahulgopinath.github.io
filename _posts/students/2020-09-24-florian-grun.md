@@ -3,7 +3,7 @@ layout: post
 categories : student
 tagline: "."
 tags : [student floriangrun 2020]
-e: fuzzing, ARM
+e: ARM Processor Fuzzing via QEMU
 ---
 
 #### Bachelors Thesis
