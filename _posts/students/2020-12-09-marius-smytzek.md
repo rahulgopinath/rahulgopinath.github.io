@@ -3,7 +3,7 @@ layout: post
 categories : student
 tagline: "."
 tags : [student mariussmytzek 2020]
-e: Mutation-Based Impact Analysis
+e: Mutation-Based Impact Analysis or Where Do My Results Come From?
 ---
 
 #### Masters Thesis
