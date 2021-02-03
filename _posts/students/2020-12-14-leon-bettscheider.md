@@ -3,7 +3,7 @@ layout: post
 categories : student
 tagline: "."
 tags : [student leonbettscheider 2020]
-e: grammar refinement
+e: Concolic Grammar Refinement for Stateful Fuzzing
 ---
 
 #### Masters Thesis
