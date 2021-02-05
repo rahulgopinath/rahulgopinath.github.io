@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  alert('hi');
 //    var output = $('#edoutput');
 //    var outf = function (text) {
 //        output.text(output.text() + text);

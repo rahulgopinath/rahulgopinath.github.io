@@ -16,7 +16,6 @@ categories: post
     .Output { width: 90%; height: auto; border: 0px; }
 </style>
 
-<script src="/resources/skulpt/js/jquery.min.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
@@ -34,9 +33,9 @@ def check(val):
     print('myval = ', val)
 </textarea><br />
 <button type="button" onclick="runit1()">Run</button>
-</form>
 <pre id="output1" class='Output'></pre>
 <div id="mycanvas1"></div>
+</form>
 
 ### Try This
 <form>
@@ -46,7 +45,7 @@ check('Hello')
 </textarea><br />
 
 <button type="button" onclick="runit2()">Run</button>
-</form>
 <pre id="output2" class='Output'></pre>
 <div id="mycanvas2"></div>
+</form>
 
