@@ -64,10 +64,8 @@ def unify_rule(grammar, rule):
 
 
 Now, all one needs is a grammar.
-
 <form name='python_run_form'>
-<textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
-```
+```python
 grammar = {
         '<start>': [['<json>']],
         '<json>': [['<element>']],
@@ -117,6 +115,8 @@ grammar = {
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'], ['F']]
         }
 ```
+
+<textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
 </textarea><br />
 $(document).ready(function () {
   $('#yourcode3').val('xx')
