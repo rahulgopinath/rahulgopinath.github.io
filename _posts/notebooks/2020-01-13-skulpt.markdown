@@ -91,7 +91,7 @@ $('[name="python_edit"]').each(function(idx) {
 });
 
 $('[name="python_run"]').click(function() { 
-   console.log('On python_run' + idx)
+   console.log('On python_run')
   //alert($(this).id);
   myform = $(this).closest('[name="python_run_form"]');
   //myeditor = myform.find('[name="python_edit"]').next('.CodeMirror').get(0)
