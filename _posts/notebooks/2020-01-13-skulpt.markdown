@@ -24,6 +24,15 @@ categories: post
     }
 </style>
 
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<!--script src="js/codemirror.js" type="text/javascript"></script-->
+<!--script src="js/repl.js" type="text/javascript"></script-->
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
+<!--script src="js/env/editor.js" type="text/javascript"></script-->
+
+
 <script type="text/javascript">
 function builtinRead(x) {
     if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
@@ -92,14 +101,6 @@ check('Hello')
 <pre id="output2" class='Output'></pre>
 <!-- If you want turtle graphics include a canvas -->
 <div id="mycanvas2"></div>
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<!--script src="js/codemirror.js" type="text/javascript"></script-->
-<!--script src="js/repl.js" type="text/javascript"></script-->
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
-<!--script src="js/env/editor.js" type="text/javascript"></script-->
 
 <script> 
 var editor1 = CodeMirror.fromTextArea(document.getElementById("yourcode1"), { lineNumbers: true });
