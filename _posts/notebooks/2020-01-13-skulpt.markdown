@@ -85,7 +85,7 @@ function runit(mypre, mycanvas, editor) {
 
 $('[name="python_edit"]').each(function(idx) {
    console.log('On editors ' + idx)
-   var editor = CodeMirror.fromTextArea($(this), { lineNumbers: true });
+   var editor = CodeMirror.fromTextArea($(this)[0], { lineNumbers: true });
    $(this).data('CodeMirrorInstance', editor);
    // var myInstance = $('code').data('CodeMirrorInstance');
 });
