@@ -64,72 +64,69 @@ def unify_rule(grammar, rule):
 
 
 Now, all one needs is a grammar.
-<div id='pycode1'></div>
-```python
+<!--div id='pycode1'></div-->
+<form name='python_run_form'>
+<textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
+
 grammar = {
-        '<start>': [['<json>']],
-        '<json>': [['<element>']],
-        '<element>': [['<ws>', '<value>', '<ws>']],
-        '<value>': [
-           ['<object>'], ['<array>'], ['<string>'], ['<number>'],
+        '&lt;start&gt;': [['&lt;json&gt;']],
+        '&lt;json&gt;': [['&lt;element&gt;']],
+        '&lt;element&gt;': [['&lt;ws&gt;', '&lt;value&gt;', '&lt;ws&gt;']],
+        '&lt;value&gt;': [
+           ['&lt;object&gt;'], ['&lt;array&gt;'], ['&lt;string&gt;'], ['&lt;number&gt;'],
            ['true'], ['false'], ['null']],
-        '<object>': [['{', '<ws>', '}'], ['{', '<members>', '}']],
-        '<members>': [['<member>', '<symbol-2>']],
-        '<member>': [['<ws>', '<string>', '<ws>', ':', '<element>']],
-        '<array>': [['[', '<ws>', ']'], ['[', '<elements>', ']']],
-        '<elements>': [['<element>', '<symbol-1-1>']],
-        '<string>': [['"', '<characters>', '"']],
-        '<characters>': [['<character-1>']],
-        '<character>': [
+        '&lt;object&gt;': [['{', '&lt;ws&gt;', '}'], ['{', '&lt;members&gt;', '}']],
+        '&lt;members&gt;': [['&lt;member&gt;', '&lt;symbol-2&gt;']],
+        '&lt;member&gt;': [['&lt;ws&gt;', '&lt;string&gt;', '&lt;ws&gt;', ':', '&lt;element&gt;']],
+        '&lt;array&gt;': [['[', '&lt;ws&gt;', ']'], ['[', '&lt;elements&gt;', ']']],
+        '&lt;elements&gt;': [['&lt;element&gt;', '&lt;symbol-1-1&gt;']],
+        '&lt;string&gt;': [['&quot;', '&lt;characters&gt;', '&quot;']],
+        '&lt;characters&gt;': [['&lt;character-1&gt;']],
+        '&lt;character&gt;': [
             ['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['g'], ['h'], ['i'], ['j'],
             ['k'], ['l'], ['m'], ['n'], ['o'], ['p'], ['q'], ['r'], ['s'], ['t'],
             ['u'], ['v'], ['w'], ['x'], ['y'], ['z'], ['A'], ['B'], ['C'], ['D'],
             ['E'], ['F'], ['G'], ['H'], ['I'], ['J'], ['K'], ['L'], ['M'], ['N'],
             ['O'], ['P'], ['Q'], ['R'], ['S'], ['T'], ['U'], ['V'], ['W'], ['X'],
-            ['Y'], ['Z'], ['!'], ['#'], ['$'], ['%'], ['&'], ["'"], ['('], [')'],
-            ['*'], ['+'], [','], ['-'], ['.'], ['/'], [':'], [';'], ['<'], ['='],
-            ['>'], ['?'], ['@'], ['['], [']'], ['^'], ['_'], ['`'], ['{'], ['|'],
-            ['}'], ['~'], [' '], ['\\"'], ['\\\\'], ['\\/'], ['<unicode>'], ['<escaped>']],
-        '<number>': [['<int>', '<frac>', '<exp>']],
-        '<int>': [
-           ['<digit>'], ['<onenine>', '<digits>'],
-           ['-', '<digits>'], ['-', '<onenine>', '<digits>']],
-        '<digits>': [['<digit-1>']],
-        '<digit>': [['0'], ['<onenine>']],
-        '<onenine>': [['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']],
-        '<frac>': [[], ['.', '<digits>']],
-        '<exp>': [[], ['E', '<sign>', '<digits>'], ['e', '<sign>', '<digits>']],
-        '<sign>': [[], ['+'], ['-']],
-        '<ws>': [['<sp1>', '<ws>'], []],
-        '<sp1>': [[' ']], ##[['\n'], ['\r'], ['\t'], ['\x08'], ['\x0c']],
-        '<symbol>': [[',', '<members>']],
-        '<symbol-1>': [[',', '<elements>']],
-        '<symbol-2>': [[], ['<symbol>', '<symbol-2>']],
-        '<symbol-1-1>': [[], ['<symbol-1>', '<symbol-1-1>']],
-        '<character-1>': [[], ['<character>', '<character-1>']],
-        '<digit-1>': [['<digit>'], ['<digit>', '<digit-1>']],
-        '<escaped>': [['\\u', '<hex>', '<hex>', '<hex>', '<hex>']],
-        '<hex>': [
+            ['Y'], ['Z'], ['!'], ['#'], ['$'], ['%'], ['&amp;'], [&quot;'&quot;], ['('], [')'],
+            ['*'], ['+'], [','], ['-'], ['.'], ['/'], [':'], [';'], ['&lt;'], ['='],
+            ['&gt;'], ['?'], ['@'], ['['], [']'], ['^'], ['_'], ['`'], ['{'], ['|'],
+            ['}'], ['~'], [' '], ['\\&quot;'], ['\\\\'], ['\\/'], ['&lt;unicode&gt;'], ['&lt;escaped&gt;']],
+        '&lt;number&gt;': [['&lt;int&gt;', '&lt;frac&gt;', '&lt;exp&gt;']],
+        '&lt;int&gt;': [
+           ['&lt;digit&gt;'], ['&lt;onenine&gt;', '&lt;digits&gt;'],
+           ['-', '&lt;digits&gt;'], ['-', '&lt;onenine&gt;', '&lt;digits&gt;']],
+        '&lt;digits&gt;': [['&lt;digit-1&gt;']],
+        '&lt;digit&gt;': [['0'], ['&lt;onenine&gt;']],
+        '&lt;onenine&gt;': [['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']],
+        '&lt;frac&gt;': [[], ['.', '&lt;digits&gt;']],
+        '&lt;exp&gt;': [[], ['E', '&lt;sign&gt;', '&lt;digits&gt;'], ['e', '&lt;sign&gt;', '&lt;digits&gt;']],
+        '&lt;sign&gt;': [[], ['+'], ['-']],
+        '&lt;ws&gt;': [['&lt;sp1&gt;', '&lt;ws&gt;'], []],
+        '&lt;sp1&gt;': [[' ']], ##[['\n'], ['\r'], ['\t'], ['\x08'], ['\x0c']],
+        '&lt;symbol&gt;': [[',', '&lt;members&gt;']],
+        '&lt;symbol-1&gt;': [[',', '&lt;elements&gt;']],
+        '&lt;symbol-2&gt;': [[], ['&lt;symbol&gt;', '&lt;symbol-2&gt;']],
+        '&lt;symbol-1-1&gt;': [[], ['&lt;symbol-1&gt;', '&lt;symbol-1-1&gt;']],
+        '&lt;character-1&gt;': [[], ['&lt;character&gt;', '&lt;character-1&gt;']],
+        '&lt;digit-1&gt;': [['&lt;digit&gt;'], ['&lt;digit&gt;', '&lt;digit-1&gt;']],
+        '&lt;escaped&gt;': [['\\u', '&lt;hex&gt;', '&lt;hex&gt;', '&lt;hex&gt;', '&lt;hex&gt;']],
+        '&lt;hex&gt;': [
             ['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],
-            ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'], ['F']]
+            ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'],   ['F']]
         }
-```
-
-<form name='python_run_form'>
-
-<textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
 </textarea><br />
 <button type="button" id="button3" name="python_run">Run</button>
 <pre id="output3" class='Output' name='python_output'></pre>
 <div id="mycanvas3" name='python_canvas'></div>
 </form>
-<script>
+<!--script>
 $(document).ready(function () {
 $('#pycode1').next().next().find('textarea')[0].value = $('#pycode1').next()[0].innerText
 
 });
-</script>
+</script-->
 
 
 The driver is as follows:
