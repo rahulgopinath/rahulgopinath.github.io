@@ -17,6 +17,11 @@ categories: post
       height: auto;
       border: 1px solid black;
     }
+    .Output {
+      width: 90%;
+      height: auto;
+      border: 0px;
+    }
 </style>
 
 <script type="text/javascript">
@@ -69,7 +74,7 @@ print(sys.version)
 </textarea><br />
 <button type="button" onclick="runit1()">Run</button>
 </form>
-<pre id="output1" ></pre>
+<pre id="output1" class='Output'></pre>
 <!-- If you want turtle graphics include a canvas -->
 <div id="mycanvas1"></div>
 
@@ -82,7 +87,7 @@ print(1)
 
 <button type="button" onclick="runit2()">Run</button>
 </form>
-<pre id="output2" ></pre>
+<pre id="output2" class='Output'></pre>
 <!-- If you want turtle graphics include a canvas -->
 <div id="mycanvas2"></div>
 
