@@ -51,7 +51,7 @@ $('[name="python_run"]').click(function() {
 });
 
 $('[name="python_run_all"]').click(function() { 
-  $(document).find('[name="python_run_form"]').each(function(myform) {
+  $(document).find('[name="python_run_form"]').each(function(idx, myform) {
   myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
   mypre = myform.find('[name="python_output"]').first()
   mycanvas = myform.find('[name="python_canvas"]').first()
