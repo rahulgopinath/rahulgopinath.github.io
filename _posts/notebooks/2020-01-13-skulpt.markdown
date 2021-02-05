@@ -51,6 +51,7 @@ check('Hello')
 </form>
 
 
+<script>
 $(document).ready(function () {
 //    var output = $('#edoutput');
 //    var outf = function (text) {
@@ -217,3 +218,4 @@ $('python_run').click(function() {
 //    editor.focus();
 console.log('document ready');
 });
+</script>
