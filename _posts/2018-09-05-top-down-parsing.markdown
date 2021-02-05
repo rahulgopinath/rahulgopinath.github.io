@@ -55,6 +55,11 @@ def pos_set(i):
     global cur_position
     cur_position = i
 
+def reset(i):
+    global cur_position, my_input
+    cur_position = 0
+    my_input = None
+
 def pos_eof():
     return pos_cur() == len(my_input)
 </textarea><br />
@@ -200,7 +205,9 @@ def parse(i):
 Using it:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+reset()
 parse('1+1')
+reset()
 parse('1+(1+1)+1')
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -257,6 +264,7 @@ def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
 Using it:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+reset()
 parse('12*3+(12/13)')
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -313,7 +321,9 @@ def parse(i):
 Using it is same as before:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+reset()
 parse('12*3+(12/13)')
+reset()
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
