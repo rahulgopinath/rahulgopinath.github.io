@@ -136,7 +136,7 @@ The driver:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 to_parse = '1+2'
-result = peg_parse(term_grammar).unify_key('<expr>', to_parse)
+result = peg_parse(term_grammar).unify_key('&lt;expr&gt;', to_parse)
 assert (len(to_parse) - result[0]) == 0
 print(result[1])
 </textarea><br />
