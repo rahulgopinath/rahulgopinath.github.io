@@ -84,7 +84,7 @@ Fortunately, Python makes this easy using `functools.lru_cache` which provides c
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import sys
-import functools
+# import functools -- not yet implemented in brython
 
 term_grammar = {
     '&lt;expr&gt;': [
@@ -108,7 +108,7 @@ class peg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    @functools.lru_cache(maxsize=None)
+    # @functools.lru_cache(maxsize=None) <-- enable in cpython
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
             return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
