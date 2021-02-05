@@ -383,7 +383,7 @@ g_parse(grammar).parse( '123+11+(3*(2))+1')
 Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
 
 <form name='python_run_form'>
-<button type="button" name="python_run_all">Run</button>
+<button type="button" name="python_run_all">Run all</button>
 </form>
 
 
