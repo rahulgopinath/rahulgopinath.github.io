@@ -22,7 +22,7 @@ Fuzzing is one of the key tools in a security researcher's tool box. It is simpl
 to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple-Fuzzer).
 
 <form name='python_run_form'>
-<textarea id="yourcode1" cols="40" rows="4" name='python_edit'>
+<textarea cols="40" rows="4" name='python_edit'>
 import random
 
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
@@ -31,9 +31,9 @@ def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
 for i in range(10):
     print(repr(fuzzer()))
 </textarea><br />
-<button type="button" id="button1" name="python_run">Run</button>
-<pre id="output1" class='Output' name='python_output'></pre>
-<div id="mycanvas1" name='python_canvas'></div>
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
 </form>
 
 Unfortunately, random fuzzing is not very effective for programs that accept complex
