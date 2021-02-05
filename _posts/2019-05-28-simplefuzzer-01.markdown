@@ -134,8 +134,7 @@ $(document).ready(function () {
 
 The driver is as follows:
 
-<form name='python_run_form'>
-<textarea id="yourcode4" cols="40" rows="4" name='python_edit'>
+```python
 i = 0
 while True:
     try:
@@ -144,6 +143,10 @@ while True:
         if i == 10: break
     except:
         pass
+
+```
+<form name='python_run_form'>
+<textarea id="yourcode4" cols="40" rows="4" name='python_edit'>
 </textarea><br />
 <button type="button" id="button4" name="python_run">Run</button>
 <pre id="output4" class='Output' name='python_output'></pre>
@@ -181,12 +184,15 @@ def unify_rule(g, rule):
 
 Using it
 
-<form name='python_run_form'>
-<textarea id="yourcode6" cols="40" rows="4" name='python_edit'>
-
+```python
 res = unify_key(g, '<start>')
 print(res)
 print(repr(tree_to_string(res)))
+```
+
+<form name='python_run_form'>
+<textarea id="yourcode6" cols="40" rows="4" name='python_edit'>
+
 </textarea><br />
 <button type="button" id="button6" name="python_run">Run</button>
 <pre id="output6" class='Output' name='python_output'></pre>
@@ -196,9 +202,8 @@ print(repr(tree_to_string(res)))
 
 
 One problem with the above fuzzer is that it can fail to terminate the recursion. Here is an implementation that uses random expansions until a configurable depth (`max_depth`) is reached, and beyond that, uses purely non-recursive cheap expansions.
-<form name='python_run_form'>
-<textarea id="yourcode7" cols="40" rows="4" name='python_edit'>
 
+```python
 class LimitFuzzer:
     def symbol_cost(self, grammar, symbol, seen):
         if symbol in self.key_cost: return self.key_cost[symbol]
@@ -241,6 +246,12 @@ class LimitFuzzer:
             for rule in grammar[k]:
                 cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
         return cost
+```
+
+<form name='python_run_form'>
+<textarea id="yourcode7" cols="40" rows="4" name='python_edit'>
+
+
 </textarea><br />
 <button type="button" id="button7" name="python_run">Run</button>
 <pre id="output7" class='Output' name='python_output'></pre>
@@ -248,11 +259,15 @@ class LimitFuzzer:
 </form>
 
 Using it:
-<form name='python_run_form'>
-<textarea id="yourcode8" cols="40" rows="4" name='python_edit'>
+
+```python
 gf = LimitFuzzer(grammar)
 for i in range(100):
    gf.fuzz(key='<start>', max_depth=10)
+```
+
+<form name='python_run_form'>
+<textarea id="yourcode8" cols="40" rows="4" name='python_edit'>
 </textarea><br />
 <button type="button" id="button8" name="python_run">Run</button>
 <pre id="output8" class='Output' name='python_output'></pre>
