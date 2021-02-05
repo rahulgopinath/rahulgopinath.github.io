@@ -213,7 +213,7 @@ class LimitFuzzer:
     def gen_key(self, key, depth, max_depth):
         if key not in self.grammar: return key
         if depth &gt; max_depth:
-            clst = sorted([(self.cost[key][str(rule)], rule) for rule in self.             grammar[key]])
+            clst = sorted([(self.cost[key][str(rule)], rule) for rule in self.grammar[key]])
             rules = [r for c,r in clst if c == clst[0][0]]
         else:
             rules = self.grammar[key]
