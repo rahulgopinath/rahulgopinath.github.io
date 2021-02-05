@@ -136,14 +136,10 @@ The driver is as follows:
 
 <form name='python_run_form'>
 <textarea id="yourcode4" cols="40" rows="4" name='python_edit'>
-i = 0
-while True:
-    try:
-        print(repr(''.join(unify_key('&lt;start&gt;'))))
-        i += 1
-        if i == 10: break
-    except:
-        pass
+try:
+  print(repr(''.join(unify_key('&lt;start&gt;'))))
+except:
+  pass
 </textarea><br />
 <button type="button" id="button4" name="python_run">Run</button>
 <pre id="output4" class='Output' name='python_output'></pre>
