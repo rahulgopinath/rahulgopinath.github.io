@@ -32,7 +32,7 @@ print(sys.version)
 def check(val):
     print('myval = ', val)
 </textarea><br />
-<button type="button" onclick="runit1()">Run</button>
+<button type="button" id="button1">Run</button>
 <pre id="output1" class='Output'></pre>
 <div id="mycanvas1"></div>
 </form>
@@ -44,7 +44,7 @@ print(sys.version)
 check('Hello')
 </textarea><br />
 
-<button type="button" onclick="runit2()">Run</button>
+<button type="button" id="button2">Run</button>
 <pre id="output2" class='Output'></pre>
 <div id="mycanvas2"></div>
 </form>

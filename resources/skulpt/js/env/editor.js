@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  alert('hi');
 //    var output = $('#edoutput');
 //    var outf = function (text) {
 //        output.text(output.text() + text);
@@ -125,6 +124,9 @@ var editor2 = CodeMirror.fromTextArea(document.getElementById("yourcode2"), { li
 function runit1() { runit("1", editor1); }
 function runit2() { runit("2", editor2); }
 
+
+$('#button1').click(function() { runit1(); });
+$('#button2').click(function() { runit1(); });
 
 //    editor.focus();
 });
