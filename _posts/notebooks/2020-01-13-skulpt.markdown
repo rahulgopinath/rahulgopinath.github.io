@@ -60,7 +60,7 @@ function runit(prefix, editor) {
 </script>
 
 
-<h3>Try This</h3>
+### Try This
 <form>
 <textarea id="yourcode1" cols="40" rows="4">
 import sys
@@ -73,7 +73,7 @@ print(sys.version)
 <!-- If you want turtle graphics include a canvas -->
 <div id="mycanvas1"></div>
 
-<h3>Try This</h3>
+### Try This
 <form>
 <textarea id="yourcode2" cols="40" rows="4">
 print(sys.version)
@@ -86,14 +86,13 @@ print(1)
 <!-- If you want turtle graphics include a canvas -->
 <div id="mycanvas2"></div>
 
-
-    <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-    <!--script src="js/codemirror.js" type="text/javascript"></script-->
-    <!--script src="js/repl.js" type="text/javascript"></script-->
-    <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-    <script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
-    <script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
-    <!--script src="js/env/editor.js" type="text/javascript"></script-->
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<!--script src="js/codemirror.js" type="text/javascript"></script-->
+<!--script src="js/repl.js" type="text/javascript"></script-->
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
+<!--script src="js/env/editor.js" type="text/javascript"></script-->
 
 <script> 
 var editor1 = CodeMirror.fromTextArea(document.getElementById("yourcode1"), { lineNumbers: true });
