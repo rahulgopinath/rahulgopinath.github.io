@@ -22,7 +22,7 @@ The difference between _PEG_ and a _CFG_ is that _PEG_ does not admit ambiguity.
 
 A few interesting things about _PEG_:
 * We know that _L(PEG)_ is not a subset of _L(CFG)_ (There are [languages](https://stackoverflow.com/a/46743864/1420407) that can be expressed with a _PEG_ that can not be expressed with a _CFG_ -- for example, $$a^nb^nc^n$$).
-* We do not know if _L(PEG)_ is a superset of _CFL_. However, given that all [PEGs can be parsed in $$O(n)$$](https://en.wikipedia.org/wiki/Parsing_expression_grammar), and the best general _CFG_ parsers can only reach $$O(n^{(3-\frac{e}{3})})$$ due to the equivalence to boolean matrix multiplication[^valiant1975general][^lee2002fast]. 
+* We do not know if _L(PEG)_ is a superset of _CFL_. However, given that all [PEGs can be parsed in $$O(n)$$](https://en.wikipedia.org/wiki/Parsing_expression_grammar), and the best general _CFG_ parsers can only reach $$O(n^{(3-\frac{e}{3})})$$ due to the equivalence to boolean matrix multiplication[^valiant1975general] [^lee2002fast]. 
 * We do know that _L(PEG)_ is at least as large as deterministic _CFL_.
 * We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will work only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
 
@@ -155,7 +155,7 @@ What we have here is only a subset of _PEG_ grammar. A _PEG_ grammar can contain
 * And-predicate: &e -- match `e` but do not consume any input
 * Not-predicate: !e
 
-We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, the lack of predicates does not change[^ford2004parsing]  the class of languages that such grammars can match, and even without the predicates, our _PEG_ can be useful for easily representing a large category of programs.
+We are yet to provide _e*_, _e+_, and _e?_. However, these are only conveniences. One can easily modify any _PEG_ that uses them to use grammar rules instead. The effect of predicates on the other hand can not be easily produced.  However, the lack of predicates does not change[^ford2004parsing] the class of languages that such grammars can match, and even without the predicates, our _PEG_ can be useful for easily representing a large category of programs.
 
 Note: This implementation will blow the stack pretty fast if we attempt to parse any expressions that are reasonably large (where some node in the derivation tree has a depth of 500) because Python provides very limited stack. One
 can improve the situation slightly by inlining the `unify_rule()`.
@@ -258,7 +258,7 @@ This implementation is quite limited in that we have lost the ability to memoize
 
 [^valiant1975general]: Valiant, Leslie G. "General context-free recognition in less than cubic time." Journal of computer and system sciences 10.2 (1975): 308-315. 
 
-[^lee2002fast]:Lee, Lillian. "Fast context-free grammar parsing requires fast boolean matrix multiplication." Journal of the ACM (JACM) 49.1 (2002): 1-15.
+[^lee2002fast]: Lee, Lillian. "Fast context-free grammar parsing requires fast boolean matrix multiplication." Journal of the ACM (JACM) 49.1 (2002): 1-15.
 
 [^ford2004parsing]: Ford, Bryan. "Parsing expression grammars: a recognition-based syntactic foundation." Proceedings of the 31st ACM SIGPLAN-SIGACT symposium on Principles of programming languages. 2004.  <https://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf>
 
