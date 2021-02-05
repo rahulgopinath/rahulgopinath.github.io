@@ -83,21 +83,21 @@ function runit(mypre, mycanvas, editor) {
    });
 }
 
-$('python_edit').each(function(idx) {
+$('[name="python_edit"]').each(function(idx) {
    console.log('On editors ' + idx)
    var editor = CodeMirror.fromTextArea(elt, { lineNumbers: true });
    elt.data('CodeMirrorInstance', editor);
    // var myInstance = $('code').data('CodeMirrorInstance');
 });
 
-$('python_run').click(function() { 
+$('[name="python_run"]').click(function() { 
    console.log('On python_run' + idx)
   //alert($(this).id);
-  myform = $(this).closest('python_run_form');
-  //myeditor = myform.find('python_edit').next('.CodeMirror').get(0)
-  myeditor = myform.find('python_edit').data('CodeMirrorInstance')
-  mypre = myform.find('python_output').first()
-  mycanvas = myform.find('python_canvas').first()
+  myform = $(this).closest('[name="python_run_form"]');
+  //myeditor = myform.find('[name="python_edit"]').next('.CodeMirror').get(0)
+  myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+  mypre = myform.find('[name="python_output"]').first()
+  mycanvas = myform.find('[name="python_canvas"]').first()
   runit(mypre, mycanvs, myeditor)
   // var editor = document.querySelector('.CodeMirror').CodeMirror;
 });
