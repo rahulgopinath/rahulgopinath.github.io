@@ -60,7 +60,6 @@ def unify_rule(rule, text, at):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
- ```
 When we implemented the `unify_key`, we made an important decision, which was that, we return as soon as a match was found. This is what distinguishes a `PEG` parser from a general `CFG` parser. In particular it means that rules have to be ordered.
 That is, the following grammar wont work:
 
