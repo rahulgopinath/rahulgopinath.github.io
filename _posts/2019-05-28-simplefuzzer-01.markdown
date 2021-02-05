@@ -120,15 +120,17 @@ grammar = {
 
 <textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
 </textarea><br />
-<script>
-$(document).ready(function () {
-  //$('#pycode1').sibling()
-}
-</script>
 <button type="button" id="button3" name="python_run">Run</button>
 <pre id="output3" class='Output' name='python_output'></pre>
 <div id="mycanvas3" name='python_canvas'></div>
 </form>
+<script>
+$(document).ready(function () {
+  $('#pycode1').siblings('textarea').first()[0].value =
+  $('#pycode1').siblings('div').first()[0].innerText
+}
+</script>
+
 
 The driver is as follows:
 
