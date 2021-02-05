@@ -109,16 +109,13 @@ function runit(prefix, editor) {
    });
 }
 
-
-var editor1 = CodeMirror.fromTextArea(document.getElementById("yourcode1"), { lineNumbers: true });
-var editor2 = CodeMirror.fromTextArea(document.getElementById("yourcode2"), { lineNumbers: true });
-
-function runit1() { runit("1", editor1); }
-function runit2() { runit("2", editor2); }
+function getCodeMirror(prefix) {
+   return CodeMirror.fromTextArea(document.getElementById("yourcode" + prefix), { lineNumbers: true });
+}
 
 
-$('#button1').click(function() { runit1(); });
-$('#button2').click(function() { runit1(); });
+$('#button1').click(function() { runit("1", getCodeMirror("1")); });
+$('#button2').click(function() { runit("2", getCodeMirror("2")); });
 
 //    editor.focus();
 });
