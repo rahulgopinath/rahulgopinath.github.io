@@ -139,6 +139,7 @@ function runit(mypre, mycanvas, editor) {
 //var editor2 = getCodeMirror("2");
 
 editors = $('python_edit').map(function(idx) {
+   console.log('On editors ' + idx)
    var editor = CodeMirror.fromTextArea(elt, { lineNumbers: true });
    elt.data('CodeMirrorInstance', editor);
    // var myInstance = $('code').data('CodeMirrorInstance');
@@ -149,11 +150,12 @@ editors = $('python_edit').map(function(idx) {
 //$('#button2').click(function() { runit("2", editor2); });
 
 $('python_run').click(function() { 
+   console.log('On python_run' + idx)
   //alert($(this).id);
   myform = $(this).closest('python_run_form');
   myeditor = myform.find('python_edit').next('.CodeMirror').get(0)
-  mypre = myform.find('python_output')
-  mycanvas = myform.find('python_canvas')
+  mypre = myform.find('python_output').first()
+  mycanvas = myform.find('python_canvas').first()
   runit(mypre, mycanvs, myeditor)
   // var editor = document.querySelector('.CodeMirror').CodeMirror;
 });
