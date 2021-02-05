@@ -714,6 +714,10 @@ for m in v:
 <div name='python_canvas'></div>
 </form>
 
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
 ### Remaining
 
 What is missing at this point? Left recursion!.
