@@ -15,7 +15,7 @@ categories: post
 <script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<!--script src="/resources/skulpt/js/env/editor1.js" type="text/javascript"></script-->
+<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
 
 
 
@@ -51,57 +51,3 @@ check('Hello')
 </form>
 
 
-<script>
-$(document).ready(function () {
-
-function builtinRead(x) {
-    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-        throw "File not found: '" + x + "'";
-    return Sk.builtinFiles["files"][x];
-}
-
-
-function runit(mypre, mycanvas, editor) {
-   //var prog = document.getElementById("yourcode" + prefix).value;
-   var prog = editor.getValue();
-
-   function outf(text) {
-      mypre.innerHTML = mypre.innerHTML + text;
-   }
-   mypre.innerHTML = '';
-   Sk.pre = mypre.id
-   Sk.configure({output:outf, read:builtinRead, retainglobals: true, __future__: Sk.python3});
-   (Sk.TurtleGraphics || (Sk.TurtleGraphics = {})).target = mycanvas.id
-   var myPromise = Sk.misceval.asyncToPromise(function() {
-       return Sk.importMainWithBody("<stdin>", false, prog, true);
-   });
-   myPromise.then(function(mod) {
-       console.log('success');
-   },
-       function(err) {
-       console.log(err.toString());
-   });
-}
-
-$('[name="python_edit"]').each(function(idx) {
-   console.log('On editors ' + idx)
-   var editor = CodeMirror.fromTextArea($(this)[0], { lineNumbers: true });
-   $(this).data('CodeMirrorInstance', editor);
-   // var myInstance = $('code').data('CodeMirrorInstance');
-});
-
-$('[name="python_run"]').click(function() { 
-   console.log('On python_run')
-  myform = $(this).closest('[name="python_run_form"]');
-  //myeditor = myform.find('[name="python_edit"]').next('.CodeMirror').get(0)
-  myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-  mypre = myform.find('[name="python_output"]').first()
-  mycanvas = myform.find('[name="python_canvas"]').first()
-  runit(mypre[0], mycanvas[0], myeditor)
-  // var editor = document.querySelector('.CodeMirror').CodeMirror;
-});
-
-//    editor.focus();
-console.log('document ready');
-});
-</script>
