@@ -6,6 +6,15 @@ comments: true
 tags: combinators, parsing, cfg
 categories: post
 ---
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
 
 Combinatory parsing (i.e parsing with [combinators](https://en.wikipedia.org/wiki/Combinatory_logic)) was
 introduced by William H Burge in his seminal work
@@ -34,65 +43,110 @@ So, here, we start with the basic parser -- one that parses a single character
 parse and a list of parses (a single element here because there is only one way
 to parse `a`).
 
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 def parse(instr):
-    if instr and instr[0] == 'a':
-       return [(instr[1:], ['a'])] 
+    if instr and instr[0] == &#x27;a&#x27;:
+       return [(instr[1:], [&#x27;a&#x27;])] 
     return []
-```
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 While this is a good start, we do not want to rewrite our parser each time we
 want to parse a new character. So, we define our parser generator for single
 literal parsers `Lit`.
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Lit(c):
     def parse(instr):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
     return parse
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 The `Lit(c)` captures the character `c` passed in, and returns a new function
 that parses specifically that literal.
 
 We can use it as follows --- note that we need to split a string into characters
 using `list` before it can be passed to the parser:
-```python
-input_chars = list('a')
-la = Lit('a')
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+input_chars = list(&#x27;a&#x27;)
+la = Lit(&#x27;a&#x27;)
 result = la(input_chars)
 for i,p in result:
     print(i, p)
-```
-Which prints
-```python
-[] ['a']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 That is, the input (the first part) is completely consumed, leaving an empty
 array, and the parsed result is `['a']`.
 Can it parse the literal `b`?
-```python
-input_chars = list('b')
-la = Lit('a')
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+input_chars = list(&#x27;b&#x27;)
+la = Lit(&#x27;a&#x27;)
 result = la(input_chars)
 for i,p in result:
     print(i, p)
-```
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 which prints nothing --- that is, the parser was unable to consume any input.
 
 We define a convenience method to get only parsed results.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def only_parsed(r):
    for (i, p) in r:
        if i == []: yield p
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Using it as follows:
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 for p in only_parsed(result):
     print(p)
-```
-which prints
-```python
-['a']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ### AndThen
 
@@ -109,7 +163,9 @@ If instead, we were parsing `ac`, then the result of the first parse will be the
 as before. But the second parse will not succeed. Hence this item will be dropped resulting
 in an empty array.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def AndThen(p1, p2):
     def parse(instr):
         ret = []
@@ -118,18 +174,30 @@ def AndThen(p1, p2):
                 ret.append((in2, pr1+pr2))
         return ret
     return parse
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 This parser can be used in the following way:
-```python
-lab = AndThen(Lit('a'), Lit('b'))
-result = lab(list('ab'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+lab = AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;))
+result = lab(list(&#x27;ab&#x27;))
 for p in only_parsed(result):
     print(p)
-```
-which prints
-```python
-['a', 'b']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### OrElse
 
@@ -140,40 +208,59 @@ free parser compared to parsing expressions are found. We try *all* possible
 ways to parse a string irrespective of whether previous rules managed to parse
 it or not. Parsing expressions on the other hand, stop at the first success.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def OrElse(p1, p2):
    def parse(instr):
        return p1(instr) + p2(instr)
    return parse
-``` 
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 It can be used as follows:
-```python
-lab = OrElse(Lit('a'), Lit('b'))
-result = lab(list('a'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+lab = OrElse(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;))
+result = lab(list(&#x27;a&#x27;))
 for p in only_parsed(result):
     print(p)
-```
-which prints
-```
-['a']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 With this, our parser is fairly usable. We only need to retrieve complete parses
 as below.
 
-```python
-labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
-labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+labc1 = AndThen(AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;)), Lit(&#x27;c&#x27;))
+labc2 = AndThen(Lit(&#x27;a&#x27;), AndThen(Lit(&#x27;b&#x27;), Lit(&#x27;c&#x27;)))
 
 labc3 = OrElse(labc1, labc2)
-result = labc3(list('abc'))
+result = labc3(list(&#x27;abc&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-The result looks like below.
-```python
-['a', 'b', 'c']
-['a', 'b', 'c']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Note that the order in which `AndThen` is applied is not shown in the results.
 This is a consequence of the way we defined `AndThen` using `pr1+pr2` deep
 inside the return from the parse. If we wanted to keep the distinction, we
@@ -188,23 +275,41 @@ i.e we use `p1()` instead of `p1`.
 
 ### AndThen
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def AndThen(p1, p2):
    def parse(instr):
        return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
    return parse
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ### OrElse
 
 Similar to `AndThen`, since p1 and p2 are now `lambda` calls that need to be evaluated to get the actual function.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def OrElse(p1, p2):
     def parse(instr):
         return p1()(instr) + p2()(instr)
     return parse
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 We are now ready to test our new parsers.
 
 ### Simple parenthesis language
@@ -213,101 +318,182 @@ We define a simple language to parse `(1)`. Note that we can define these either
 `lambda` syntax or using `def`. Since it is easier to debug using `def`, and we are giving
 these parsers a name anyway, we use `def`.
 
-```python
-def Open_(): return Lit('(')
-def Close_(): return Lit(')')
-def One_(): return Lit('1')
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+def Open_(): return Lit(&#x27;(&#x27;)
+def Close_(): return Lit(&#x27;)&#x27;)
+def One_(): return Lit(&#x27;1&#x27;)
 def Paren1():
     return AndThen(lambda: AndThen(Open_, One_), Close_)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 We can now parse the simple expression `(1)`
-```python
-result = Paren1()(list('(1)'))
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-The result is as follows
-```python
-['(', '1', ')']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Next, we extend our definitions to parse the recursive language with any number of parenthesis.
 That is, it should be able to parse `(1)`, `((1))`, and others. As you
 can see, `lambda` protects `Paren` from being evaluated too soon.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Paren():
     return AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
 
-result = Paren()(list('((1))'))
+result = Paren()(list(&#x27;((1))&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-Result
-```python
-['(', '(', '1', ')', ')']
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 Note that at this point, we do not really have a labelled parse tree. The way to add it is the following. We first define `Apply` that
 can be applied at particular parse points.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Apply(f, parser):
     def parse(instr):
         return [(i,f(r)) for i,r in  parser()(instr)]
     return parse
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 We can now define the function that will be accepted by `Apply`
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def to_paren(v):
-    assert v[0] == '('
-    assert v[-1] == ')'
-    return [('Paren', v[1:-1])]
-```
+    assert v[0] == &#x27;(&#x27;
+    assert v[-1] == &#x27;)&#x27;
+    return [(&#x27;Paren&#x27;, v[1:-1])]
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 We define the actual parser for the literal `1` as below:
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def One():
     def tree(x):
-        return [('Int', int(x[0]))]
+        return [(&#x27;Int&#x27;, int(x[0]))]
     return Apply(tree, One_)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Similarly, we update the `paren1` parser.
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Paren1():
     def parser():
         return AndThen(lambda: AndThen(Open_, One), Close_)
     return Apply(to_paren, parser)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 It is used as follows
-```python
-result = Paren1()(list('(1)'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-Which results in
-```python
-[('Paren', [('Int', 1)])]
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Similarly we update `Paren`
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Paren():
     def parser():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_)
     return Apply(to_paren, parser)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Used as thus:
-```
-result = Paren()(list('(((1)))'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+result = Paren()(list(&#x27;(((1)))&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-results in
-```python
-[('Paren', [('Paren', [('Paren', [('Int', 1)])])])]
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Now, we are ready to try something adventurous. Let us allow a sequence of parenthesized ones.
-```python
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Parens():
     return OrElse(Paren, lambda: AndThen(Paren, Parens))
 
@@ -315,17 +501,30 @@ def Paren():
     def parser():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
     return Apply(to_paren, parser)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 We check if our new parser works
-```python
-result = Paren()(list('(((1)(1)))'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+result = Paren()(list(&#x27;(((1)(1)))&#x27;))
 for r in only_parsed(result):
     print(r)
-```
-This results in
-```python
-[('Paren', [('Paren', [('Paren', [('Int', 1)]), ('Paren', [('Int', 1)])])])]
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 That seems to have worked!.
 
 All this is pretty cool. But none of this looks as nice as the Parsec examples
@@ -334,7 +533,9 @@ go for the monadic concepts to get the syntactic sugar? Never fear!
 we have the solution. We simply define a class that incorporates some syntactic
 sugar on top.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 class P:
     def __init__(self, parser):
         self.parser = parser
@@ -347,39 +548,75 @@ class P:
 
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 It can be used as follows
-```python
-one = P(lambda: Lit('1'))
-openP = P(lambda: Lit('('))
-closeP = P(lambda: Lit(')'))
 
-parens = P(lambda: paren | (paren >> parens))
-paren = P(lambda: openP >> (one | parens) >> closeP)
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 
-```python
-v = parens(list('((1)((1)))'))
+one = P(lambda: Lit(&#x27;1&#x27;))
+openP = P(lambda: Lit(&#x27;(&#x27;))
+closeP = P(lambda: Lit(&#x27;)&#x27;))
+
+parens = P(lambda: paren | (paren &gt;&gt; parens))
+paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
-```
 
-The result is
-```python
-[([], ['(', '(', '1', ')', '(', '(', '1', ')', ')', ')'])]
-```
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Apply also works with this
-```python
-paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
-```
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP))
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Used as follows
-```
-v = parens(list('((1)((1)))'))
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
-```
-results in
-```
-[([], [('Paren', [('Paren', ['1']), ('Paren', [('Paren', ['1'])])])])]
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Note that one has to be careful about the precedence of operators. In
 particular, if you mix and match `>>` and `|`, always use parenthesis
@@ -387,7 +624,9 @@ to disambiguate.
 
 ## All together
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def Lit(c):
     def parse(instr):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
@@ -396,8 +635,8 @@ def Lit(c):
 import re
 def Re(r):
     def parse(instr):
-        assert r[0] == '^'
-        res = re.match(r, ''.join(instr))
+        assert r[0] == &#x27;^&#x27;
+        res = re.match(r, &#x27;&#x27;.join(instr))
         if res:
             (start, end) = res.span()
             return [(instr[end:], [instr[start:end]])]
@@ -431,37 +670,49 @@ class P:
 
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 The simple parenthesis language
 
-```python
-one = P(lambda: Lit('1'))
-num = P(lambda: Apply(to_num, lambda: Re('^[0-9]+')))
-openP = P(lambda: Lit('('))
-closeP = P(lambda: Lit(')'))
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 
-parens = P(lambda: paren | (paren >> parens))
+one = P(lambda: Lit(&#x27;1&#x27;))
+num = P(lambda: Apply(to_num, lambda: Re(&#x27;^[0-9]+&#x27;)))
+openP = P(lambda: Lit(&#x27;(&#x27;))
+closeP = P(lambda: Lit(&#x27;)&#x27;))
+
+parens = P(lambda: paren | (paren &gt;&gt; parens))
 
 def to_paren(v):
-    assert v[0] == '('
-    assert v[-1] == ')'
-    return [('Paren', v[1:-1])]
+    assert v[0] == &#x27;(&#x27;
+    assert v[-1] == &#x27;)&#x27;
+    return [(&#x27;Paren&#x27;, v[1:-1])]
 
 def to_num(v):
-    return [('Num', v)]
+    return [(&#x27;Num&#x27;, v)]
 
-paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
-v = parens(list('((1)((1)))'))
+paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP))
+v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
 
-paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
-v = parens(list('((123)((456)))'))
+paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (num | parens) &gt;&gt; closeP))
+v = parens(list(&#x27;((123)((456)))&#x27;))
 for m in v:
     print(m)
-```
 
 
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### Remaining
 
