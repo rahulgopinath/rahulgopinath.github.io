@@ -57,7 +57,6 @@ def unify_key(grammar, key):
 def unify_rule(grammar, rule):
     return sum([unify_key(grammar, token) for token in rule], [])
 
-print('.')
 </textarea><br />
 <button type="button" id="button2" name="python_run">Run</button>
 <pre id="output2" class='Output' name='python_output'></pre>
@@ -118,7 +117,6 @@ grammar = {
             ['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'],   ['F']]
         }
-print('.')
 </textarea><br />
 <button type="button" id="button3" name="python_run">Run</button>
 <pre id="output3" class='Output' name='python_output'></pre>
@@ -167,7 +165,6 @@ def unify_key(g, key):
 def unify_rule(g, rule):
     return [unify_key(g, token) for token in rule]
 
-print('.')
 </textarea><br />
 <button type="button" id="button5" name="python_run">Run</button>
 <pre id="output5" class='Output' name='python_output'></pre>
@@ -237,7 +234,6 @@ class LimitFuzzer:
             for rule in grammar[k]:
                 cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
         return cost
-print('.')
 </textarea><br />
 <button type="button" id="button7" name="python_run">Run</button>
 <pre id="output7" class='Output' name='python_output'></pre>
