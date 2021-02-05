@@ -109,7 +109,7 @@ function builtinRead(x) {
 // }
 
 
-function runit(mypre. mycanvas, editor) { 
+function runit(mypre, mycanvas, editor) {
    //var prog = document.getElementById("yourcode" + prefix).value;
    var prog = editor.getValue();
 
@@ -139,7 +139,10 @@ function runit(mypre. mycanvas, editor) {
 //var editor2 = getCodeMirror("2");
 
 editors = $('python_edit').map(function(idx) {
-   return CodeMirror.fromTextArea(elt, { lineNumbers: true });
+   var editor = CodeMirror.fromTextArea(elt, { lineNumbers: true });
+   elt.data('CodeMirrorInstance', editor);
+   // var myInstance = $('code').data('CodeMirrorInstance');
+   return editor;
 });
 
 //$('#button1').click(function() { runit("1", editor1); });
