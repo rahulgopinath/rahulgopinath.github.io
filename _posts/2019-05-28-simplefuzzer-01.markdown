@@ -126,8 +126,8 @@ grammar = {
 </form>
 <script>
 $(document).ready(function () {
-$('#pycode1').siblings('form').first().find('textarea').first()[0].value =
-  $('#pycode1').siblings('div').first()[0].innerText
+$('#pycode1').next().next().find('textarea')[0].value = $('#pycode1').next()[0].innerText
+
 });
 </script>
 
