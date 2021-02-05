@@ -255,6 +255,12 @@ def mul_op():   return do_alt([lambda: match('*'), lambda: match('/')])
 
 # note that list comprehensions will not work here due to closure of i
 def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
+
+def parse(i):
+    global my_input
+    my_input = i
+    assert expr()
+    assert pos_eof()
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
