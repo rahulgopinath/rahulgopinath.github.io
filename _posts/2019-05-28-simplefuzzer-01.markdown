@@ -250,7 +250,7 @@ Using it:
 <textarea id="yourcode8" cols="40" rows="4" name='python_edit'>
 gf = LimitFuzzer(grammar)
 for i in range(100):
-   gf.fuzz(key='&lt;start&gt;', max_depth=10)
+   print(gf.fuzz(key='&lt;start&gt;', max_depth=10))
 </textarea><br />
 <button type="button" id="button8" name="python_run">Run</button>
 <pre id="output8" class='Output' name='python_output'></pre>
