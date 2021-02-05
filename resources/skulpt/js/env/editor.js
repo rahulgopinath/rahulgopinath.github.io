@@ -50,5 +50,13 @@ $('[name="python_run"]').click(function() {
   // var editor = document.querySelector('.CodeMirror').CodeMirror;
 });
 
+$('[name="python_run_all"]').click(function() { 
+  $(document).find('[name="python_run_form"]').each(function(myform) {
+  myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+  mypre = myform.find('[name="python_output"]').first()
+  mycanvas = myform.find('[name="python_canvas"]').first()
+  runit(mypre[0], mycanvas[0], myeditor)
+  });
+});
 //    editor.focus();
 });
