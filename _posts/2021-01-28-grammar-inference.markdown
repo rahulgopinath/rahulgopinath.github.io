@@ -7,7 +7,7 @@ tags: grammar mining, context-free grammar
 categories: post
 ---
 
-The problem of infering the input specification of a program has recently seen some
+The problem of inferring the input specification of a program has recently seen some
 interest[^bastani2017synthesizing][^wu2019reinam] from researchers.
 This is of huge interest in fuzzing as recovery
 of the input specification can improve the efficiency, effectiveness, and generality
@@ -47,13 +47,13 @@ Then, turn it around, make the second the producer, and see how many of the prod
 is accepted by the first. We note that doing both is extremely important to have
 confidence in the results. What if we only do one side? That is, only verify that
 the inputs produced by the first are accepted by the second? In that case, nothing
-prevents us from infering an extremely permissive grammar for the second that never
+prevents us from inferring an extremely permissive grammar for the second that never
 rejects any input -- say `/.*/`. This grammar would have 100% accuracy in this testing even though
 it is a very poor inferred grammar. Such problems can only be detected if we turn
-around and use the infered grammar as producer. Now, imagine that the infered grammar
+around and use the inferred grammar as producer. Now, imagine that the inferred grammar
 doesn't generalize at all, and produces only a small set of inputs. In that case, again
 the original grammar will accept all generated inputs, resulting in 100% accuracy even though
-the infered grammar was bad. Hence, both tests are equally important.
+the inferred grammar was bad. Hence, both tests are equally important.
 
 The TLDR; is that **if you are doing blackbox grammar inference, please start with a grammar rather than a program. Use a parser to turn the grammar into an acceptor, and infer the grammar of that acceptor. Then verify both grammars against each other** . Extracting the grammar from a program is not a useful proof for the effectiveness of your technique unless you are doing whitebox grammar mining.
 
