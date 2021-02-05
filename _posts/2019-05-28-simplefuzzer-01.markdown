@@ -7,10 +7,22 @@ tags: fuzzing
 categories: post
 ---
 
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
+
+
 Fuzzing is one of the key tools in a security researcher's tool box. It is simple
 to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple-Fuzzer).
 
-```eval-python
+<form name='python_run_form'>
+<textarea id="yourcode1" cols="40" rows="4" name='python_edit'>
 import random
 
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
@@ -18,21 +30,11 @@ def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
 
 for i in range(10):
     print(repr(fuzzer()))
-```
-<!--This results in the following output, which can be used to fuzz programs.
-```
-59*6!8/>-9),4:"%01=?1,;5!2 6/? :,)(+>'6-55&#-(>'=:&8)")9,537
-5:4&,;=,,.>1;8 %8=1 <"8!$, /#4&:346>%%<*</!3(602%+:$+5#(!##26=#+7";0'/)!#'%( !;;:&62=#&%-'>;
-9#&/>/$ .>1&/84( .%(>&3+%$&="1 &'+6%,06<4<
-/>:#"%9 ((&)#!+:/*-90=(#='.8(*-$#$$>91%93'?*9/7 ,>=",*/= ""4=&0&4,7" )?).
-+"(:67-/-4.#".:>+*)/<%>5+"*:'?-2&58!48/ 49>:$4%=,%/'2#<7;%4/. 0$<=$,$!3).2?:1/!&0!4)3+$%$?&*0
-:7;. $%9'?)7& "><#':$ +6<%$:41?16&,0 054>),2'$02 $#&'3>*9;%9-4>,:882,$4,$$(>6$-3#%8?>#"9";">=126
-1'  ' 4': $9+0(-$*+$:=)"#"
-.67&84,69;=
-8:=%
-!6=$+'89;59$)4.<<!7<7!9$!0"/%/$&")?&6',7.;>84<*,$1=-)-75<35%--68!>=;*0:-/51&4:7
-```
--->
+</textarea><br />
+<button type="button" id="button1" name="python_run">Run</button>
+<pre id="output1" class='Output' name='python_output'></pre>
+<div id="mycanvas1" name='python_canvas'></div>
+</form>
 
 Unfortunately, random fuzzing is not very effective for programs that accept complex
 input languages such as those that expect JSON or any other structure in their input.
@@ -215,20 +217,32 @@ for i in range(100):
 
 <!-- Prereq -->
   
-<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
-<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/prolog.css">
-<script>
-    window.klipse_settings = {
-        codemirror_options_in: {
-            lineWrapping: true,
-            autoCloseBrackets: true
-        },
-        codemirror_options_out: {
-            lineWrapping: true
-        },
-        beautify_strings: true,
 
-        selector_eval_python_client: '.language-klipse-python, .language-eval-python',
-    };
-</script>
-<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js?v=8.0.1"></script>
+
+### Try This
+<form name='python_run_form'>
+<textarea id="yourcode1" cols="40" rows="4" name='python_edit'>
+import sys
+
+print(sys.version)
+def check(val):
+    print('myval = ', val)
+</textarea><br />
+<button type="button" id="button1" name="python_run">Run</button>
+<pre id="output1" class='Output' name='python_output'></pre>
+<div id="mycanvas1" name='python_canvas'></div>
+</form>
+
+### Try This
+<form name='python_run_form'>
+<textarea id="yourcode2" cols="40" rows="4" name='python_edit'>
+print(sys.version)
+check('Hello')
+</textarea><br />
+
+<button type="button" id="button2" name="python_run">Run</button>
+<pre id="output2" class='Output' name='python_output'></pre>
+<div id="mycanvas2" name='python_canvas'></div>
+</form>
+
+
