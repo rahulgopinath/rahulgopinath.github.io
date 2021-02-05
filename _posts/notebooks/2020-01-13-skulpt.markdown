@@ -71,6 +71,8 @@ function runit(prefix, editor) {
 import sys
 
 print(sys.version)
+def check(val):
+    print('myval = ', val)
 </textarea><br />
 <button type="button" onclick="runit1()">Run</button>
 </form>
@@ -82,7 +84,7 @@ print(sys.version)
 <form>
 <textarea id="yourcode2" cols="40" rows="4">
 print(sys.version)
-print(1)
+check('Hello')
 </textarea><br />
 
 <button type="button" onclick="runit2()">Run</button>
