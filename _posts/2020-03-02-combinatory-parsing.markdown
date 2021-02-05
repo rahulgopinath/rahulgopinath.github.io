@@ -714,6 +714,8 @@ for m in v:
 <div name='python_canvas'></div>
 </form>
 
+Note: The re.span errors out due to a bug in skulpt re implementation. Tracking [bug](https://github.com/skulpt/skulpt/issues/1192)
+
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
