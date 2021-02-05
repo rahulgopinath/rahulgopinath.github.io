@@ -21,9 +21,11 @@ function runit(mypre, mycanvas, editor) {
    });
    myPromise.then(function(mod) {
        console.log('success');
+       editor.display.wrapper.style.border = '1px solid black'
    },
        function(err) {
        console.log(err.toString());
+       editor.display.wrapper.style.border = '1px solid red'
    });
 }
 
@@ -39,7 +41,7 @@ $('[name="python_run"]').click(function() {
   mypre = myform.find('[name="python_output"]').first()
   mycanvas = myform.find('[name="python_canvas"]').first()
   runit(mypre[0], mycanvas[0], myeditor)
-  myeditor.display.wrapper.style.border = '1px solid black'
+  //myeditor.display.wrapper.style.border = '1px solid black'
   // var editor = document.querySelector('.CodeMirror').CodeMirror;
 });
 
