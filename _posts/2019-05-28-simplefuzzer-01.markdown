@@ -67,6 +67,7 @@ Now, all one needs is a grammar.
 
 <form name='python_run_form'>
 <textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
+```
 grammar = {
         '<start>': [['<json>']],
         '<json>': [['<element>']],
@@ -115,7 +116,12 @@ grammar = {
             ['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'], ['F']]
         }
+```
 </textarea><br />
+$(document).ready(function () {
+  $('#yourcode3').val('xx')
+}
+</script>
 <button type="button" id="button3" name="python_run">Run</button>
 <pre id="output3" class='Output' name='python_output'></pre>
 <div id="mycanvas3" name='python_canvas'></div>
