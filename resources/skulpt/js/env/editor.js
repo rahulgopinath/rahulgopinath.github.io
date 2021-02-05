@@ -112,10 +112,12 @@ function runit(prefix, editor) {
 function getCodeMirror(prefix) {
    return CodeMirror.fromTextArea(document.getElementById("yourcode" + prefix), { lineNumbers: true });
 }
+// initialize the codemirror first.
+var editor1 = getCodeMirror("1");
+var editor2 = getCodeMirror("2");
 
-
-$('#button1').click(function() { runit("1", getCodeMirror("1")); });
-$('#button2').click(function() { runit("2", getCodeMirror("2")); });
+$('#button1').click(function() { runit("1", editor1); });
+$('#button2').click(function() { runit("2", editor2); });
 
 //    editor.focus();
 });
