@@ -1,0 +1,106 @@
+---
+published: true
+title: Test Page for Skulpt
+layout: post
+comments: true
+tags:
+    - python
+    - notebook
+categories: post
+--- 
+<link rel="stylesheet" type="text/css" media="all" href="css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="css/solarized.css">
+
+<style type='text/css'>
+    .CodeMirror {
+      width: 90%;
+      height: auto;
+      border: 1px solid black;
+    }
+</style>
+
+<script type="text/javascript">
+function builtinRead(x) {
+    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+            throw "File not found: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+}
+
+// output functions are configurable.  This one just appends some text
+// to a pre element.
+// Here's everything you need to run a python program in skulpt
+// grab the code from your textarea
+// get a reference to your pre element for output
+// configure the output function
+// call Sk.importMainWithBody()
+function runit(prefix, editor) { 
+   //var prog = document.getElementById("yourcode" + prefix).value;
+   var prog = editor.getValue();
+   var mypre = document.getElementById("output" + prefix);
+
+   function outf(text) {
+      var mypre = document.getElementById("output" + prefix);
+      mypre.innerHTML = mypre.innerHTML + text;
+   }
+   mypre.innerHTML = '';
+   Sk.pre = "output" + prefix;
+   Sk.configure({output:outf, read:builtinRead, retainglobals: true, __future__: Sk.python3});
+   (Sk.TurtleGraphics || (Sk.TurtleGraphics = {})).target = 'mycanvas' + prefix;
+   var myPromise = Sk.misceval.asyncToPromise(function() {
+       return Sk.importMainWithBody("<stdin>", false, prog, true);
+   });
+   myPromise.then(function(mod) {
+       console.log('success');
+   },
+       function(err) {
+       console.log(err.toString());
+   });
+}
+
+</script>
+
+
+<h3>Try This</h3>
+<form>
+<textarea id="yourcode1" cols="40" rows="4">
+import sys
+
+print(sys.version)
+</textarea><br />
+<button type="button" onclick="runit1()">Run</button>
+</form>
+<pre id="output1" ></pre>
+<!-- If you want turtle graphics include a canvas -->
+<div id="mycanvas1"></div>
+
+<h3>Try This</h3>
+<form>
+<textarea id="yourcode2" cols="40" rows="4">
+print(sys.version)
+print(1)
+</textarea><br />
+
+<button type="button" onclick="runit2()">Run</button>
+</form>
+<pre id="output2" ></pre>
+<!-- If you want turtle graphics include a canvas -->
+<div id="mycanvas2"></div>
+
+
+    <script src="js/codemirrorepl.js" type="text/javascript"></script>
+    <!--script src="js/codemirror.js" type="text/javascript"></script-->
+    <!--script src="js/repl.js" type="text/javascript"></script-->
+    <script src="js/python.js" type="text/javascript"></script>
+    <script src="js/skulpt.min.js" type="text/javascript"></script>
+    <script src="js/skulpt-stdlib.js" type="text/javascript"></script>
+    <!--script src="js/env/editor.js" type="text/javascript"></script-->
+
+<script> 
+var editor1 = CodeMirror.fromTextArea(document.getElementById("yourcode1"), { lineNumbers: true });
+var editor2 = CodeMirror.fromTextArea(document.getElementById("yourcode2"), { lineNumbers: true });
+
+function runit1() { runit("1", editor1); }
+function runit2() { runit("2", editor2); }
+
+</script>
+
