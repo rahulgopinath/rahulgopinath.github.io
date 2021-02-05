@@ -177,7 +177,7 @@ Using it
 
 <form name='python_run_form'>
 <textarea id="yourcode6" cols="40" rows="4" name='python_edit'>
-res = unify_key(g, '&lt;start&gt;')
+res = unify_key(grammar, '&lt;start&gt;')
 print(res)
 print(repr(tree_to_string(res)))
 </textarea><br />
