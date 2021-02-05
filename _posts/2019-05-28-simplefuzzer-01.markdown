@@ -151,6 +151,9 @@ can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
 <form name='python_run_form'>
 <textarea id="yourcode5" cols="40" rows="4" name='python_edit'>
+def is_nonterminal(v):
+    return (v[0], v[-1]) == ('<', '>')
+
 def tree_to_string(tree):
     symbol, children, *_ = tree
     if children:
