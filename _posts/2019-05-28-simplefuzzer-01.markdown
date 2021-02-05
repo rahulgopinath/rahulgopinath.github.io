@@ -47,17 +47,26 @@ The interesting thing is that, a grammar fuzzer is essentially a parser turned i
 out. Rather than consuming, we simply output what gets compared. With that idea in mind,
 let us use one of the simplest parsers -- ([A PEG parser](http://rahul.gopinath.org/2018/09/06/peg-parsing/)).
 
-```python
+
+<form name='python_run_form'>
+<textarea id="yourcode2" cols="40" rows="4" name='python_edit'>
 import random
 def unify_key(grammar, key):
    return unify_rule(grammar, random.choice(grammar[key])) if key in grammar else [key]
 
 def unify_rule(grammar, rule):
     return sum([unify_key(grammar, token) for token in rule], [])
-```
+</textarea><br />
+<button type="button" id="button2" name="python_run">Run</button>
+<pre id="output2" class='Output' name='python_output'></pre>
+<div id="mycanvas2" name='python_canvas'></div>
+</form>
+
+
 Now, all one needs is a grammar.
 
-```python
+<form name='python_run_form'>
+<textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
 grammar = {
         '<start>': [['<json>']],
         '<json>': [['<element>']],
@@ -106,11 +115,16 @@ grammar = {
             ['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'],
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'], ['F']]
         }
-```
+</textarea><br />
+<button type="button" id="button3" name="python_run">Run</button>
+<pre id="output3" class='Output' name='python_output'></pre>
+<div id="mycanvas3" name='python_canvas'></div>
+</form>
 
 The driver is as follows:
 
-```python
+<form name='python_run_form'>
+<textarea id="yourcode4" cols="40" rows="4" name='python_edit'>
 i = 0
 while True:
     try:
@@ -119,50 +133,61 @@ while True:
         if i == 10: break
     except:
         pass
-```
-
-It results in the following output
-
-```json
-' {  "" :105.27E0 } '
-' [ -8e+3700 ]    '
-'null   '
-'  [     false  ,null,"l",     {   "$x":false ,  "=":true , "" :  null} ,""] '
-'false '
-'[  ] '
-' -40e+21'
-'true'
-'[]  '
-'  [  []   ,null  , 60E-3,{"":{}  ,""  :true, ""  :   false },true  ]  '
-```
+</textarea><br />
+<button type="button" id="button4" name="python_run">Run</button>
+<pre id="output4" class='Output' name='python_output'></pre>
+<div id="mycanvas4" name='python_canvas'></div>
+</form>
 
 This grammar fuzzer can be implemented in pretty much any programming language that supports basic data structures.
 
 What if you want the derivation tree instead? The following modified fuzzer will get you the derivation tree which
 can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
-```python
+
+<form name='python_run_form'>
+<textarea id="yourcode5" cols="40" rows="4" name='python_edit'>
+def tree_to_string(tree):
+    symbol, children, *_ = tree
+    if children:
+        return ''.join(tree_to_string(c) for c in children)
+    else:
+        return '' if is_nonterminal(symbol) else symbol
+
 def unify_key(g, key):
    return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
 
 def unify_rule(g, rule):
     return [unify_key(g, token) for token in rule]
-```
+
+</textarea><br />
+<button type="button" id="button5" name="python_run">Run</button>
+<pre id="output5" class='Output' name='python_output'></pre>
+<div id="mycanvas5" name='python_canvas'></div>
+</form>
+
+
 
 Using it
 
-```python
-from fuzzingbook.GrammarFuzzer import tree_to_string
+<form name='python_run_form'>
+<textarea id="yourcode6" cols="40" rows="4" name='python_edit'>
 
 res = unify_key(g, '<start>')
 print(res)
 print(repr(tree_to_string(res)))
+</textarea><br />
+<button type="button" id="button6" name="python_run">Run</button>
+<pre id="output6" class='Output' name='python_output'></pre>
+<div id="mycanvas6" name='python_canvas'></div>
+</form>
 
-```
+
 
 One problem with the above fuzzer is that it can fail to terminate the recursion. Here is an implementation that uses random expansions until a configurable depth (`max_depth`) is reached, and beyond that, uses purely non-recursive cheap expansions.
+<form name='python_run_form'>
+<textarea id="yourcode7" cols="40" rows="4" name='python_edit'>
 
-```python
 class LimitFuzzer:
     def symbol_cost(self, grammar, symbol, seen):
         if symbol in self.key_cost: return self.key_cost[symbol]
@@ -205,44 +230,20 @@ class LimitFuzzer:
             for rule in grammar[k]:
                 cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
         return cost
-```
+</textarea><br />
+<button type="button" id="button7" name="python_run">Run</button>
+<pre id="output7" class='Output' name='python_output'></pre>
+<div id="mycanvas7" name='python_canvas'></div>
+</form>
 
 Using it:
-
-```python
+<form name='python_run_form'>
+<textarea id="yourcode8" cols="40" rows="4" name='python_edit'>
 gf = LimitFuzzer(grammar)
 for i in range(100):
    gf.fuzz(key='<start>', max_depth=10)
-```
-
-<!-- Prereq -->
-  
-
-
-### Try This
-<form name='python_run_form'>
-<textarea id="yourcode1" cols="40" rows="4" name='python_edit'>
-import sys
-
-print(sys.version)
-def check(val):
-    print('myval = ', val)
 </textarea><br />
-<button type="button" id="button1" name="python_run">Run</button>
-<pre id="output1" class='Output' name='python_output'></pre>
-<div id="mycanvas1" name='python_canvas'></div>
+<button type="button" id="button8" name="python_run">Run</button>
+<pre id="output8" class='Output' name='python_output'></pre>
+<div id="mycanvas8" name='python_canvas'></div>
 </form>
-
-### Try This
-<form name='python_run_form'>
-<textarea id="yourcode2" cols="40" rows="4" name='python_edit'>
-print(sys.version)
-check('Hello')
-</textarea><br />
-
-<button type="button" id="button2" name="python_run">Run</button>
-<pre id="output2" class='Output' name='python_output'></pre>
-<div id="mycanvas2" name='python_canvas'></div>
-</form>
-
-
