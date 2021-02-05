@@ -55,7 +55,7 @@ def pos_set(i):
     global cur_position
     cur_position = i
 
-def reset(i):
+def reset():
     global cur_position, my_input
     cur_position = 0
     my_input = None
