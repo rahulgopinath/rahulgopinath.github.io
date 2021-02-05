@@ -61,13 +61,10 @@ want to parse a new character. So, we define our parser generator for single
 literal parsers `Lit`.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Lit(c):
     def parse(instr):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
     return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -82,14 +79,11 @@ using `list` before it can be passed to the parser:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 input_chars = list(&#x27;a&#x27;)
 la = Lit(&#x27;a&#x27;)
 result = la(input_chars)
 for i,p in result:
     print(i, p)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -102,13 +96,11 @@ Can it parse the literal `b`?
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 input_chars = list(&#x27;b&#x27;)
 la = Lit(&#x27;a&#x27;)
 result = la(input_chars)
 for i,p in result:
     print(i, p)
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -121,12 +113,9 @@ We define a convenience method to get only parsed results.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def only_parsed(r):
    for (i, p) in r:
        if i == []: yield p
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -136,11 +125,8 @@ def only_parsed(r):
 Using it as follows:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 for p in only_parsed(result):
     print(p)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -165,7 +151,6 @@ in an empty array.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def AndThen(p1, p2):
     def parse(instr):
         ret = []
@@ -174,8 +159,6 @@ def AndThen(p1, p2):
                 ret.append((in2, pr1+pr2))
         return ret
     return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -186,13 +169,10 @@ This parser can be used in the following way:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 lab = AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;))
 result = lab(list(&#x27;ab&#x27;))
 for p in only_parsed(result):
     print(p)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -210,13 +190,10 @@ it or not. Parsing expressions on the other hand, stop at the first success.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def OrElse(p1, p2):
    def parse(instr):
        return p1(instr) + p2(instr)
    return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -227,13 +204,10 @@ It can be used as follows:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 lab = OrElse(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;))
 result = lab(list(&#x27;a&#x27;))
 for p in only_parsed(result):
     print(p)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -245,7 +219,6 @@ as below.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 labc1 = AndThen(AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;)), Lit(&#x27;c&#x27;))
 labc2 = AndThen(Lit(&#x27;a&#x27;), AndThen(Lit(&#x27;b&#x27;), Lit(&#x27;c&#x27;)))
 
@@ -253,8 +226,6 @@ labc3 = OrElse(labc1, labc2)
 result = labc3(list(&#x27;abc&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -277,13 +248,10 @@ i.e we use `p1()` instead of `p1`.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def AndThen(p1, p2):
    def parse(instr):
        return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
    return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -297,13 +265,10 @@ Similar to `AndThen`, since p1 and p2 are now `lambda` calls that need to be eva
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def OrElse(p1, p2):
     def parse(instr):
         return p1()(instr) + p2()(instr)
     return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -320,14 +285,11 @@ these parsers a name anyway, we use `def`.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Open_(): return Lit(&#x27;(&#x27;)
 def Close_(): return Lit(&#x27;)&#x27;)
 def One_(): return Lit(&#x27;1&#x27;)
 def Paren1():
     return AndThen(lambda: AndThen(Open_, One_), Close_)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -337,12 +299,9 @@ def Paren1():
 We can now parse the simple expression `(1)`
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -355,15 +314,12 @@ can see, `lambda` protects `Paren` from being evaluated too soon.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Paren():
     return AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
 
 result = Paren()(list(&#x27;((1))&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -376,13 +332,10 @@ can be applied at particular parse points.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Apply(f, parser):
     def parse(instr):
         return [(i,f(r)) for i,r in  parser()(instr)]
     return parse
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -393,13 +346,10 @@ We can now define the function that will be accepted by `Apply`
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def to_paren(v):
     assert v[0] == &#x27;(&#x27;
     assert v[-1] == &#x27;)&#x27;
     return [(&#x27;Paren&#x27;, v[1:-1])]
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -410,13 +360,10 @@ We define the actual parser for the literal `1` as below:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def One():
     def tree(x):
         return [(&#x27;Int&#x27;, int(x[0]))]
     return Apply(tree, One_)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -427,13 +374,10 @@ Similarly, we update the `paren1` parser.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Paren1():
     def parser():
         return AndThen(lambda: AndThen(Open_, One), Close_)
     return Apply(to_paren, parser)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -444,12 +388,9 @@ It is used as follows
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -460,13 +401,10 @@ Similarly we update `Paren`
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Paren():
     def parser():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_)
     return Apply(to_paren, parser)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -477,12 +415,9 @@ Used as thus:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 result = Paren()(list(&#x27;(((1)))&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -493,7 +428,6 @@ Now, we are ready to try something adventurous. Let us allow a sequence of paren
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Parens():
     return OrElse(Paren, lambda: AndThen(Paren, Parens))
 
@@ -501,8 +435,6 @@ def Paren():
     def parser():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
     return Apply(to_paren, parser)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -513,12 +445,9 @@ We check if our new parser works
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 result = Paren()(list(&#x27;(((1)(1)))&#x27;))
 for r in only_parsed(result):
     print(r)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -535,7 +464,6 @@ sugar on top.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 class P:
     def __init__(self, parser):
         self.parser = parser
@@ -548,8 +476,6 @@ class P:
 
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -560,15 +486,12 @@ It can be used as follows
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 one = P(lambda: Lit(&#x27;1&#x27;))
 openP = P(lambda: Lit(&#x27;(&#x27;))
 closeP = P(lambda: Lit(&#x27;)&#x27;))
 
 parens = P(lambda: paren | (paren &gt;&gt; parens))
 paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -578,11 +501,8 @@ paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -593,10 +513,7 @@ Apply also works with this
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -607,11 +524,8 @@ Used as follows
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -626,7 +540,6 @@ to disambiguate.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def Lit(c):
     def parse(instr):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
@@ -670,8 +583,6 @@ class P:
 
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -682,7 +593,6 @@ The simple parenthesis language
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 one = P(lambda: Lit(&#x27;1&#x27;))
 num = P(lambda: Apply(to_num, lambda: Re(&#x27;^[0-9]+&#x27;)))
 openP = P(lambda: Lit(&#x27;(&#x27;))
@@ -706,8 +616,6 @@ paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (num | parens) &gt;&gt;
 v = parens(list(&#x27;((123)((456)))&#x27;))
 for m in v:
     print(m)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
