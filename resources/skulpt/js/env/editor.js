@@ -12,6 +12,10 @@ function runit(mypre, mycanvas, editor) {
    function outf(text) {
       mypre.innerHTML = mypre.innerHTML + text;
    }
+   function errf(text) {
+      mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + text + "</font>";
+   }
+
    mypre.innerHTML = '';
    Sk.pre = mypre.id
    Sk.configure({output:outf, read:builtinRead, retainglobals: true, __future__: Sk.python3});
@@ -25,6 +29,7 @@ function runit(mypre, mycanvas, editor) {
    },
        function(err) {
        console.log(err.toString());
+       errf(err.toString())
        editor.display.wrapper.style.border = '1px solid red'
    });
 }
