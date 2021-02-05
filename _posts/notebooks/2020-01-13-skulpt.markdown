@@ -83,10 +83,10 @@ function runit(mypre, mycanvas, editor) {
    });
 }
 
-$('[name="python_edit"]').each(function(idx, elt) {
+$('[name="python_edit"]').each(function(idx) {
    console.log('On editors ' + idx)
-   var editor = CodeMirror.fromTextArea(elt, { lineNumbers: true });
-   elt.data('CodeMirrorInstance', editor);
+   var editor = CodeMirror.fromTextArea($(this), { lineNumbers: true });
+   $(this).data('CodeMirrorInstance', editor);
    // var myInstance = $('code').data('CodeMirrorInstance');
 });
 
