@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Control Flow Graph from Python Bytecode
 layout: post
 comments: true
