@@ -36,6 +36,8 @@ see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
+Note that we disallow empty string (`''`) as a terminal symbol. A terminal
+symbol has at least one character.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
