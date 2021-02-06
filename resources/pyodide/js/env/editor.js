@@ -1,8 +1,7 @@
 $(document).ready(function () {
 
 function runit(mypre, mycanvas, editor) {
-   var pre = "import io, sys\n__IODIDE_console=sys.stdout\n__IODIDE_out = io.StringIO()\nsys.stdout = __IODIDE_out\n"
-   var pre_ = '\ndef __dbg(v): print(v, file=__IODIDE_console)\n'
+   var pre = '__IODIDE_out = io.StringIO()\nsys.stdout = __IODIDE_out\n"
    var prog_ = editor.getValue();
    var post = "\n__IODIDE_out.getvalue()"
    var prog = pre + pre_ + prog_ + post
@@ -36,6 +35,9 @@ $('[name="python_edit"]').each(function(idx) {
 
 languagePluginLoader.then(() => { 
   console.log('pyodide ready');
+  var pre =  "import io, sys\n__IODIDE_console=sys.stdout\n'
+  var pre_ = '\ndef _dbg(v): print(v, file=__IODIDE_console)\n'
+  pyodide.runPython(pre + pre_)
 
   $('[name="python_run"]').click(function() { 
     myform = $(this).closest('[name="python_run_form"]');
