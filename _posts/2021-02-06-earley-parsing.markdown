@@ -249,7 +249,7 @@ First, we seed the chart with columns representing the tokens or characters.
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start):
-        alt = tuple(*self.cgrammar[start])
+        alt = tuple(*self._grammar[start])
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
@@ -271,7 +271,7 @@ class EarleyParser(EarleyParser):
                     self.complete(col, state)
                 else:
                     sym = state.at_dot()
-                    if sym in self.cgrammar:
+                    if sym in self._grammar:
                         self.predict(col, sym, state)
                     else:
                         if i + 1 &gt;= len(chart):
@@ -342,7 +342,7 @@ adds the expansion of the non-terminal to the current column.
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def predict(self, col, sym, state):
-        for alt in self.cgrammar[sym]:
+        for alt in self._grammar[sym]:
             col.add(State(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
@@ -448,7 +448,7 @@ class EarleyParser(EarleyParser):
 
         *expr, var = named_expr
         starts = None
-        if var not in self.cgrammar:
+        if var not in self._grammar:
             starts = ([(var, til - len(var),
                         &#x27;t&#x27;)] if til &gt; 0 and chart[til].letter == var else [])
         else:
@@ -509,7 +509,7 @@ Now we are ready for parsing.
 <textarea cols="40" rows="4" name='python_edit'>
 text = &#x27;11+2&#x27;
 ep = EarleyParser(grammar)
-for tree in ep.parse(text):
+for tree in ep.parse_on(text, START):
     print(tree)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
