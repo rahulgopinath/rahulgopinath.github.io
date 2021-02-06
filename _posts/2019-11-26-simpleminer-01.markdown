@@ -7,6 +7,16 @@ tags: fuzzing
 categories: post
 ---
 
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
+
 Note: This post is based on the string inclusion grammar miner in
 [the fuzzingbook](https://www.fuzzingbook.org/html/GrammarMiner.html),
 but reduced to bare essentials.
@@ -24,20 +34,36 @@ from the Python standard library.
 
 First, we have to import our function, and dependencies:
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 from urllib.parse import urlparse
 import sys
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Next, we define our input values.
 
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 INPUTS = [
-    'http://user:pass@www.freebsd.com:80/release/7.8',
-    'https://www.microsoft.com/windows/2000',
-    'http://www.fuzzing.info:8080/app?search=newterm#ref2',
+    &#x27;http://user:pass@www.freebsd.com:80/release/7.8&#x27;,
+    &#x27;https://www.microsoft.com/windows/2000&#x27;,
+    &#x27;http://www.fuzzing.info:8080/app?search=newterm#ref2&#x27;,
 ]
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 The basic procedure of our grammar mining algorithm is to hook into a debugger,
 and inspect the environment variables as the execution traverses the call graph.
