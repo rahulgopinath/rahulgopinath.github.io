@@ -338,12 +338,20 @@ class EarleyParser(EarleyParser):
 If the term after the dot is a non-terminal, `predict()` is called. It
 adds the expansion of the non-terminal to the current column.
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def predict(self, col, sym, state):
         for alt in self.cgrammar[sym]:
             col.add(State(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ### Scan
 
