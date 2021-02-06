@@ -15,7 +15,7 @@ categories: post
 
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
 Note: This post is based on the string inclusion grammar miner in
 [the fuzzingbook](https://www.fuzzingbook.org/html/GrammarMiner.html),
