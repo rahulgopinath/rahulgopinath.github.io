@@ -212,7 +212,7 @@ def predict(col, sym, grammar):
         else:
             col.add(State(sym, tuple(alt), 0, col))
 
-def is_empty(a): return a == [&#x27;&#x27;]:
+def is_empty(a): return a == [&#x27;&#x27;]
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
