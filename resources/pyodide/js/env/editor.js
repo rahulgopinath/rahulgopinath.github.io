@@ -6,11 +6,15 @@ function runit(mypre, mycanvas, editor) {
    var post = "\n__IODIDE_out.getvalue()"
    var prog = pre + pre_ + prog_ + post
 
+   function escHTML(text) {
+      return $('<div/>').text(text).html();
+   }
+
    function outf(text) {
-      mypre.innerHTML = mypre.innerHTML + $('<div/>').text(text).html();
+      mypre.innerHTML = mypre.innerHTML + escHTML(text);
    }
    function errf(text) {
-      mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + text + "</font>";
+      mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + escHTML(text) + "</font>";
    }
 
    mypre.innerHTML = '';
