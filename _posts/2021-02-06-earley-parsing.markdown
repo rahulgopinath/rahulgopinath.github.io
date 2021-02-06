@@ -27,6 +27,9 @@ context-free grammar for parsing a string, and from the parse forest generated,
 one can recover all (even an infinite number) of parse trees that correspond to
 the given grammar. Unfortunately, this style of parsing pays for generality by
 being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
+However, if the grammar is unambiguous, it can parse in $$O(n^2)$$ time, and
+all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a].
+
 This an implementation of Earley parsing that handles the epsilon case as
 given by Aycock et a.[^aycock2002practical].
 
@@ -37,7 +40,9 @@ see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
 Note that we disallow empty string (`''`) as a terminal symbol. A terminal
-symbol has exactly one character.
+symbol has exactly one character. Secondly, there can only be one alternative
+to the `<start>` symbol. This is however not a restriction in practice as you
+can always rewrite the grammar to conform.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
