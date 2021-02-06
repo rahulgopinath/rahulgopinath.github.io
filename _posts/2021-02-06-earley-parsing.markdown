@@ -277,8 +277,6 @@ class EarleyParser(EarleyParser):
                         if i + 1 &gt;= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            if self.log:
-                print(col, &#x27;\n&#x27;)
         return chart
 </textarea><br />
 <button type="button" name="python_run">Run</button>
