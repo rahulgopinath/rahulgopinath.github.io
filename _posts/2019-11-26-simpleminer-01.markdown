@@ -80,21 +80,31 @@ trace event. For now, we are only interested in arguments to a function, and
 hence, ignore all events other than function `call`. This allows us to ignore
 reassignments.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def traceit(frame, event, arg):
-    if (event != 'call'): return traceit
-    strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) >= 2}
+    if (event != &#x27;call&#x27;): return traceit
+    strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) &gt;= 2}
     for var, value in strings.items():
         if value not in the_input: continue
         if var in the_values: continue
         the_values[var] = value
     return traceit
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Next, we define the `trace_function()` which hooks into the trace functionality,
 and registers a given function to be called on each trace event.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 the_input = None
 the_values = None
 def trace_function(function, inputstr):
@@ -107,18 +117,28 @@ def trace_function(function, inputstr):
     function(the_input)
     sys.settrace(old_trace)
     return the_values
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 We can now inspect the fragments produced
 
-```python
->>> tvars = [trace_function(urlparse, i) for i in INPUTS]
->>> tvars[0]
-{'url': 'http://user:pass@www.freebsd.com:80/release/7.8',
- 'path': '/release/7.8',
- 'netloc': 'user:pass@www.freebsd.com:80',
- 'scheme': 'http'}
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+tvars = [trace_function(urlparse, i) for i in INPUTS]
+print(repr(tvars[0]))
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### Parse Tree
 
@@ -130,17 +150,27 @@ a non terminal symbol in the grammar.
 
 The `to_tree()` iterates through the fragments, and refines the defined tree.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def to_tree(tree, fragments):
     for fvar, fval in fragments.items():
         tree = refine_tree(tree, fvar, fval)
     return tree
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Next, we define the `refine_tree()` which takes one single fragment (a key value
 pair), and recursively searches and update the tree.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def refine_tree(tree, fvar, fval):
     node_name, children = tree
     new_children = []
@@ -150,7 +180,7 @@ def refine_tree(tree, fvar, fval):
             if pos == -1:
                 new_children.append(child)
             else:
-                frags = child[0:pos], ("<%s>" % fvar, [fval]), child[pos + len(fval):]
+                frags = child[0:pos], (&quot;&lt;%s&gt;&quot; % fvar, [fval]), child[pos + len(fval):]
                 for f in frags:
                     if not f: continue
                     new_children.append(f)
@@ -159,20 +189,28 @@ def refine_tree(tree, fvar, fval):
             new_children.append(nchild)
 
     return (node_name, new_children)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 We use the `to_tree()` in the following fashion.
 
-```python
->>> trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
->>> trees[0]
-('<START>',
- [('<url>',
-   [('<scheme>', ['http']),
-    '://',
-    ('<netloc>', ['user:pass@www.freebsd.com:80']),
-    ('<path>', ['/release/7.8'])])])
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
+pritn(repr(trees[0]))
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### Grammar Extraction
 
@@ -180,7 +218,9 @@ Once we have this tree, extracting the grammar is as simple as recursively
 traversing the tree, and collecting the alternative expansions of the rules.
 This is accomplished by the `to_grammar()` function.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def refine_grammar(g, tree):
     node, children = tree
 
@@ -192,72 +232,101 @@ def refine_grammar(g, tree):
     for c in children:
         if not isinstance(c, tuple): continue
         refine_grammar(g, c)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 It is used as follows:
 
-```python
->>> url_grammar = {}
->>> for tree in trees:
->>>    refine_grammar(url_grammar, tree)
->>> url_grammar
-{'<START>': {('<url>',)},
- '<url>': {('<scheme>', '://', '<netloc>', '<path>'),
-  ('<scheme>',
-   '://',
-   '<netloc>',
-   '<path>',
-   '?',
-   '<query>',
-   '#',
-   '<fragment>')},
- '<scheme>': {('http',), ('https',)},
- '<netloc>': {('user:pass@www.freebsd.com:80',),
-  ('www.fuzzing.info:8080',),
-  ('www.microsoft.com',)},
- '<path>': {('/app',), ('/release/7.8',), ('/windows/2000',)},
- '<query>': {('search=newterm',)},
- '<fragment>': {('ref2',)}}
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+url_grammar = {}
+for tree in trees:
+   refine_grammar(url_grammar, tree)
+print(repr(url_grammar))
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 This represents the input grammar of the function `urlparse()`.
 
 All together:
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 def to_grammar(inputs, fn):
     tvars = [trace_function(fn, i) for i in inputs]
-    trees = [to_tree(('<START>', [inpt]), tvars[i])
+    trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i])
              for i,inpt in enumerate(inputs)]
     my_grammar = {}
     for tree in trees:
         refine_grammar(my_grammar, tree)
     return {k:[r for r in my_grammar[k]] for k in my_grammar}
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 The function can be used as follows:
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 grammar = to_grammar(INPUTS, urlparse)
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### Fuzzing
 
 Let us see if our [simple fuzzer](/2019/05/28/simplefuzzer-01/) is able
 to work with this grammar.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
 import random
 def unify_key(key):
     return unify_rule(random.choice(grammar[key])) if key in grammar else [key]
 
 def unify_rule(rule):
     return sum([unify_key(token) for token in rule], [])
-```
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 Using it to fuzz:
 
-```python
->>> ''.join(unify_key('<START>'))
-'http://user:pass@www.freebsd.com:80/windows/2000?search=newterm#ref2'
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+&#x27;&#x27;.join(unify_key(&#x27;&lt;START&gt;&#x27;))
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
