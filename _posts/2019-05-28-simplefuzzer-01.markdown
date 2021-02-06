@@ -6,17 +6,15 @@ comments: true
 tags: fuzzing
 categories: post
 ---
-
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
-
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
 Fuzzing is one of the key tools in a security researcher's tool box. It is simple
 to write a [random fuzzer](https://www.fuzzingbook.org/html/Fuzzer.html#A-Simple-Fuzzer).
@@ -56,7 +54,6 @@ def unify_key(grammar, key):
 
 def unify_rule(grammar, rule):
     return sum([unify_key(grammar, token) for token in rule], [])
-
 </textarea><br />
 <button type="button" id="button2" name="python_run">Run</button>
 <pre id="output2" class='Output' name='python_output'></pre>
@@ -68,7 +65,6 @@ Now, all one needs is a grammar.
 <!--div id='pycode1'></div-->
 <form name='python_run_form'>
 <textarea id="yourcode3" cols="40" rows="4" name='python_edit'>
-
 grammar = {
         '&lt;start&gt;': [['&lt;json&gt;']],
         '&lt;json&gt;': [['&lt;element&gt;']],
@@ -164,7 +160,6 @@ def unify_key(g, key):
 
 def unify_rule(g, rule):
     return [unify_key(g, token) for token in rule]
-
 </textarea><br />
 <button type="button" id="button5" name="python_run">Run</button>
 <pre id="output5" class='Output' name='python_output'></pre>
@@ -253,3 +248,6 @@ for i in range(100):
 <div id="mycanvas8" name='python_canvas'></div>
 </form>
 
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
