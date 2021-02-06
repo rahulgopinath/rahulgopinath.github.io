@@ -6,15 +6,15 @@ comments: true
 tags: combinators, parsing, cfg
 categories: post
 ---
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>\
 
 Combinatory parsing (i.e parsing with [combinators](https://en.wikipedia.org/wiki/Combinatory_logic)) was
 introduced by William H Burge in his seminal work
@@ -621,8 +621,6 @@ for m in v:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-Note: The re.span errors out due to a bug in skulpt re implementation. Tracking [bug](https://github.com/skulpt/skulpt/issues/1192)
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
