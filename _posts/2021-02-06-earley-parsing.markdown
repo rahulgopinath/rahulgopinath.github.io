@@ -73,7 +73,6 @@ START = &#x27;&lt;start&gt;&#x27;
 <div name='python_canvas'></div>
 </form>
 
-
 The chart parser depends on a chart (a table) for parsing. The rows are the
 characters in the input string. Each column represents a set of *states*, and
 corresponds to the legal rules to follow from that point on.
