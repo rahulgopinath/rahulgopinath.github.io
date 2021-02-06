@@ -282,25 +282,6 @@ class EarleyParser(EarleyParser):
 </form>
 
 
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol):
-        self.table = self.chart_parse(text, start_symbol)
-        for col in reversed(self.table):
-            states = [
-                st for st in col.states if st.name == start_symbol
-            ]
-            if states:
-                return col.index, states
-        return -1, []
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
 There are three main methods: `complete()`, `predict()`, and `scan()`
 
 ### Complete
@@ -409,6 +390,25 @@ class EarleyParser(EarleyParser):
 
 We use the following procedures to translate the parse forest to individual
 trees.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def parse_prefix(self, text, start_symbol):
+        self.table = self.chart_parse(text, start_symbol)
+        for col in reversed(self.table):
+            states = [
+                st for st in col.states if st.name == start_symbol
+            ]
+            if states:
+                return col.index, states
+        return -1, []
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 
 <form name='python_run_form'>
