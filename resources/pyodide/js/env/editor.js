@@ -4,7 +4,7 @@ function runit(mypre, mycanvas, editor) {
    var pre = '__IODIDE_out = io.StringIO()\nsys.stdout = __IODIDE_out\n'
    var prog_ = editor.getValue();
    var post = "\n__IODIDE_out.getvalue()"
-   var prog = pre + pre_ + prog_ + post
+   var prog = pre + prog_ + post
 
    function escHTML(text) {
       return $('<div/>').text(text).html();
