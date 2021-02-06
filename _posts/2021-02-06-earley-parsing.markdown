@@ -28,6 +28,7 @@ one can recover all (even an infinite number) of parse trees that correspond to
 the given grammar. Unfortunately, this style of parsing pays for generality by
 being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 This an implementation of Earley parsing that handles the epsilon case.
+However, a limitation here is that we only recover the first parse tree.
 
 For a much more complete implementation including Leo's fixes[^leo1991a], and
 full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
@@ -368,7 +369,6 @@ Displaying the tree
 <textarea cols="40" rows="4" name='python_edit'>
 for tree in trees:
     print(format_parsetree(tree, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1]))
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
