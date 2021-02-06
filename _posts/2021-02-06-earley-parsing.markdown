@@ -257,6 +257,9 @@ def nullable(grammar):
 
     return nullable_({EPSILON})
 
+def nullable_expr(expr, nullables):
+    return all(token in nullables for token in expr)
+
 # warning, modifying the grammar.
 def emptyable(sym, grammar):
     if "" not in grammar:
