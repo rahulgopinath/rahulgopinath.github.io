@@ -507,11 +507,15 @@ Now we are ready for parsing.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
-text = '11+2'
+text = &#x27;11+2&#x27;
 ep = EarleyParser(grammar)
 for tree in ep.parse(text):
     print(tree)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 We need a way to display parse trees.
 
