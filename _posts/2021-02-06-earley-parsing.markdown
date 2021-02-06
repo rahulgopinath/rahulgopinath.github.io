@@ -77,11 +77,10 @@ corresponds to the legal rules to follow from that point on.
 ## Column
 
 The column contains a set of states. Each column corresponds
-to a character (or a token if tokens are used). We also define
-`show_col()` to make it easier to debug.
+to a character (or a token if tokens are used).
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Column(object):
+class Column:
     def __init__(self, index, letter):
         self.index, self.letter = index, letter
         self.states, self._unique = [], {}
@@ -97,20 +96,6 @@ class Column(object):
         self.states.append(state)
         state.e_col = self
         return self._unique[state]
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-
-def show_col(col, i):
-    print(&quot;chart[%d]&quot;%i)
-    for state in col.states:
-        print(state, &quot;\t&quot;, [s.c for s in state.children])
-    print()
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -172,11 +157,32 @@ class State:
 
 ## Parser
 
+A bare minimum interface.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Parser:
+    def grammar(self):
+        return self._grammar
+
+    def parse_on(self, text, start_symbol):
+        cursor, forest = self.parse_prefix(text, start_symbol)
+        if cursor &lt; len(text):
+            raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+        return forest
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We now initialize the Earley parser
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(Parser):
     def __init__(self, grammar, **kwargs):
-        self.grammar = grammar
+        self._grammar = grammar
         self.epsilon = nullable(grammar)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -185,6 +191,8 @@ class EarleyParser(Parser):
 </form>
 
 #### Nullable
+
+As you will have noticed, we need a list of nullable non-terminals.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -233,10 +241,9 @@ def emptyable(sym, grammar):
 <div name='python_canvas'></div>
 </form>
 
+## Chart construction
 
-
-
-We seed the chart with columns representing the tokens or characters.
+First, we seed the chart with columns representing the tokens or characters.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -252,6 +259,7 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
+Then, we complete the chart.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -282,11 +290,11 @@ class EarleyParser(EarleyParser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text):
-        self.table = self.chart_parse(text, self.start_symbol())
+    def parse_prefix(self, text, start_symbol):
+        self.table = self.chart_parse(text, start_symbol)
         for col in reversed(self.table):
             states = [
-                st for st in col.states if st.name == self.start_symbol()
+                st for st in col.states if st.name == start_symbol
             ]
             if states:
                 return col.index, states
@@ -403,8 +411,8 @@ trees.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def parse(self, text):
-        cursor, states = self.parse_prefix(text)
+    def parse_on(self, text, start_symbol):
+        cursor, states = self.parse_prefix(text, start_symbol)
         start = next((s for s in states if s.finished()), None)
 
         if cursor &lt; len(text) or not start:
