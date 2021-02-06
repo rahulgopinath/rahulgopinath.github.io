@@ -36,11 +36,8 @@ First, we have to import our function, and dependencies:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 from urllib.parse import urlparse
 import sys
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -51,14 +48,11 @@ Next, we define our input values.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 INPUTS = [
     &#x27;http://user:pass@www.freebsd.com:80/release/7.8&#x27;,
     &#x27;https://www.microsoft.com/windows/2000&#x27;,
     &#x27;http://www.fuzzing.info:8080/app?search=newterm#ref2&#x27;,
 ]
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -82,7 +76,6 @@ reassignments.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def traceit(frame, event, arg):
     if (event != &#x27;call&#x27;): return traceit
     strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) &gt;= 2}
@@ -91,8 +84,6 @@ def traceit(frame, event, arg):
         if var in the_values: continue
         the_values[var] = value
     return traceit
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -104,7 +95,6 @@ and registers a given function to be called on each trace event.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 the_input = None
 the_values = None
 def trace_function(function, inputstr):
@@ -117,8 +107,6 @@ def trace_function(function, inputstr):
     function(the_input)
     sys.settrace(old_trace)
     return the_values
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -129,11 +117,8 @@ We can now inspect the fragments produced
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 tvars = [trace_function(urlparse, i) for i in INPUTS]
 print(repr(tvars[0]))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -152,13 +137,10 @@ The `to_tree()` iterates through the fragments, and refines the defined tree.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def to_tree(tree, fragments):
     for fvar, fval in fragments.items():
         tree = refine_tree(tree, fvar, fval)
     return tree
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -170,7 +152,6 @@ pair), and recursively searches and update the tree.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def refine_tree(tree, fvar, fval):
     node_name, children = tree
     new_children = []
@@ -189,8 +170,6 @@ def refine_tree(tree, fvar, fval):
             new_children.append(nchild)
 
     return (node_name, new_children)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -201,11 +180,8 @@ We use the `to_tree()` in the following fashion.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
 pritn(repr(trees[0]))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -220,7 +196,6 @@ This is accomplished by the `to_grammar()` function.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def refine_grammar(g, tree):
     node, children = tree
 
@@ -232,8 +207,6 @@ def refine_grammar(g, tree):
     for c in children:
         if not isinstance(c, tuple): continue
         refine_grammar(g, c)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -244,13 +217,10 @@ It is used as follows:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 url_grammar = {}
 for tree in trees:
    refine_grammar(url_grammar, tree)
 print(repr(url_grammar))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -263,7 +233,6 @@ All together:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 def to_grammar(inputs, fn):
     tvars = [trace_function(fn, i) for i in inputs]
     trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i])
@@ -272,8 +241,6 @@ def to_grammar(inputs, fn):
     for tree in trees:
         refine_grammar(my_grammar, tree)
     return {k:[r for r in my_grammar[k]] for k in my_grammar}
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -284,10 +251,7 @@ The function can be used as follows:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 grammar = to_grammar(INPUTS, urlparse)
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -301,15 +265,12 @@ to work with this grammar.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 import random
 def unify_key(key):
     return unify_rule(random.choice(grammar[key])) if key in grammar else [key]
 
 def unify_rule(rule):
     return sum([unify_key(token) for token in rule], [])
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -320,10 +281,7 @@ Using it to fuzz:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 &#x27;&#x27;.join(unify_key(&#x27;&lt;START&gt;&#x27;))
-
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
