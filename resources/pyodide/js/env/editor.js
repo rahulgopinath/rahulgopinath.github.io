@@ -1,7 +1,10 @@
 $(document).ready(function () {
 
 function runit(mypre, mycanvas, editor) {
-   var prog = editor.getValue();
+   var pre = "import io, sys\n out = io.StringIO()\nsys.stdout = out\n"
+   var prog_ = editor.getValue();
+   var post = "\nout.getvalue()"
+   var prog = pre + prog_ + post
 
    function outf(text) {
       mypre.innerHTML = mypre.innerHTML + text;
