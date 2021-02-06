@@ -20,6 +20,23 @@ function runit(mypre, mycanvas, editor) {
    //
    languagePluginLoader.then(() => { 
       console.log('pyodide ready');
+      $('[name="python_run"]').click(function() { 
+        myform = $(this).closest('[name="python_run_form"]');
+        myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+        mypre = myform.find('[name="python_output"]').first()
+        mycanvas = myform.find('[name="python_canvas"]').first()
+        runit(mypre[0], mycanvas[0], myeditor)
+      });
+
+      $('[name="python_run_all"]').click(function() { 
+        $(document).find('[name="python_run_form"]').each(function(idx, myform_) {
+        myform = $(myform_)
+        myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+        mypre = myform.find('[name="python_output"]').first()
+        mycanvas = myform.find('[name="python_canvas"]').first()
+        runit(mypre[0], mycanvas[0], myeditor)
+        });
+      });
    });
 
    pyodide.runPythonAsync(prog)
@@ -49,21 +66,4 @@ $('[name="python_edit"]').each(function(idx) {
    $(this).data('CodeMirrorInstance', editor);
 });
 
-$('[name="python_run"]').click(function() { 
-  myform = $(this).closest('[name="python_run_form"]');
-  myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-  mypre = myform.find('[name="python_output"]').first()
-  mycanvas = myform.find('[name="python_canvas"]').first()
-  runit(mypre[0], mycanvas[0], myeditor)
-});
-
-$('[name="python_run_all"]').click(function() { 
-  $(document).find('[name="python_run_form"]').each(function(idx, myform_) {
-  myform = $(myform_)
-  myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-  mypre = myform.find('[name="python_output"]').first()
-  mycanvas = myform.find('[name="python_canvas"]').first()
-  runit(mypre[0], mycanvas[0], myeditor)
-  });
-});
 });
