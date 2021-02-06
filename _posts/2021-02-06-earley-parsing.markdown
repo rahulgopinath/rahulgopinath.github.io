@@ -92,7 +92,8 @@ counter = 0
 class State:
     def __init__(self, name, expr, dot, start_column):
         global counter
-        self.name, self.expr, self.dot, self.start_column= name, expr, dot, start_column
+        self.name, self.expr, self.dot, self.start_column = \
+             name, expr, dot, start_column
         self.children  = []
         self.c = counter
         counter += 1
