@@ -229,12 +229,6 @@ def nullable(grammar):
 
 def nullable_expr(expr, nullables):
     return all(token in nullables for token in expr)
-
-# warning, modifying the grammar.
-def emptyable(sym, grammar):
-    if "" not in grammar:
-       grammar[""] = nullable(grammar)
-    return sym in grammar[""]
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -471,7 +465,6 @@ class EarleyParser(EarleyParser):
                                      state.e_col.index) if state.expr else []
         return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
                             for pathexpr in pathexprs]
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
