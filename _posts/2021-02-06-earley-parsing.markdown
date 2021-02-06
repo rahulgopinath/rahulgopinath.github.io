@@ -92,7 +92,8 @@ counter = 0
 class State:
     def __init__(self, name, expr, dot, start_column):
         global counter
-        self.name, self.expr, self.dot, self.start_column, self.children = name, expr, dot, start_column, []
+        self.name, self.expr, self.dot, self.start_column= name, expr, dot, start_column
+        self.children  = []
         self.c = counter
         counter += 1
     def finished(self): return self.dot &gt;= len(self.expr)
@@ -105,7 +106,9 @@ class State:
     def _t(self): return (self.name, self.expr, self.dot, self.start_column)
     def __hash__(self): return hash((self.name, self.expr))
     def __eq__(self, other): return  self._t() == other._t()
-    def __str__(self): return (&quot;(S%d)   &quot; % self.c) + self.name +&#x27;:= &#x27;+ &#x27; &#x27;.join([str(p) for p in [*self.expr[:self.dot],&#x27;|&#x27;, *self.expr[self.dot:]]])
+    def __str__(self):
+        return (&quot;(S%d)   &quot; % self.c) + self.name +&#x27;:= &#x27;+ &#x27; &#x27;.join(
+              [str(p) for p in [*self.expr[:self.dot],&#x27;|&#x27;, *self.expr[self.dot:]]])
     def __repr__(self): return str(self)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -368,7 +371,8 @@ Displaying the tree
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for tree in trees:
-    print(format_parsetree(tree, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1]))
+    print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
+        get_children=lambda x: x[1]))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
