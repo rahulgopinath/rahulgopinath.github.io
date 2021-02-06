@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: A tiny and incomplete Python Virtual Machine
 layout: post
 comments: true
