@@ -29,10 +29,10 @@ the given grammar. Unfortunately, this style of parsing pays for generality by
 being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 This an implementation of Earley parsing that handles the epsilon case as
 given by Aycock et a.[^aycock2002practical].
-However, a limitation here is that we only recover the first parse tree.
 
 For a much more complete implementation including Leo's optimizations[^leo1991a], and
-full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
+full recovery of parsing forests using iterative solutions,
+see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
@@ -154,14 +154,13 @@ class State:
 
 ## Parser
 
-A bare minimum interface.
+We start with a bare minimum interface for a parser. It should allow one
+to parse a given text using a given non-terminal (which should be present in
+the grammar)
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Parser:
-    def grammar(self):
-        return self._grammar
-
     def parse_on(self, text, start_symbol):
         cursor, forest = self.parse_prefix(text, start_symbol)
         if cursor &lt; len(text):
@@ -173,7 +172,7 @@ class Parser:
 <div name='python_canvas'></div>
 </form>
 
-We now initialize the Earley parser
+We now initialize the Earley parser, which is a parser.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -189,7 +188,13 @@ class EarleyParser(Parser):
 
 #### Nullable
 
-As you will have noticed, we need a list of nullable non-terminals.
+Earley parser handles *nullable* non-terminals separately. A nullable
+non-terminal is a non-terminal that can derive an empty string. That is
+at least one of the expansion rules must derive an empty string. An
+expansion rule derives an empty string if *all* of the tokens can
+derive the empty string. This means no terminal symbols (assuming we
+do not have zero width terminal symbols), and all non-terminal symbols
+can derive empty string.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -211,7 +216,6 @@ def terminals(grammar):
                for key, choice in rules(grammar)
                for token in choice if token not in grammar)
 
-EPSILON = &#x27;&#x27;
 def nullable(grammar):
     productions = rules(grammar)
 
@@ -222,7 +226,7 @@ def nullable(grammar):
                 nullables |= {A}
         return (nullables)
 
-    return nullable_({EPSILON})
+    return nullable_(set())
 
 def nullable_expr(expr, nullables):
     return all(token in nullables for token in expr)
