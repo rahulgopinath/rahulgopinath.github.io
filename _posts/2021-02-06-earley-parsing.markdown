@@ -30,7 +30,7 @@ being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 This an implementation of Earley parsing that handles the epsilon case.
 
 For a much more complete implementation including Leo's fixes[^leo1991a], and
-full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
+full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
