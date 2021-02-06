@@ -27,10 +27,11 @@ context-free grammar for parsing a string, and from the parse forest generated,
 one can recover all (even an infinite number) of parse trees that correspond to
 the given grammar. Unfortunately, this style of parsing pays for generality by
 being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
-This an implementation of Earley parsing that handles the epsilon case.
+This an implementation of Earley parsing that handles the epsilon case as
+given by Aycock et a.[^aycock2002practical].
 However, a limitation here is that we only recover the first parse tree.
 
-For a much more complete implementation including Leo's fixes[^leo1991a], and
+For a much more complete implementation including Leo's optimizations[^leo1991a], and
 full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
@@ -213,10 +214,54 @@ adds the expansion of the non-terminal to the current column.
 def predict(col, sym, grammar):
     for alt in grammar[sym]:
         col.add(State(sym, tuple([]), 0, col))
-    if emptiable(sym, grammar):
+    if emptyable(sym, grammar):
         col.add(state.advance)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-def emptyable(a): pass
+#### Nullable
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def fixpoint(f):
+    def helper(arg):
+        while True:
+            sarg = str(arg)
+            arg_ = f(arg)
+            if str(arg_) == sarg:
+                return arg
+            arg = arg_
+    return helper
+def rules(grammar):
+    return [(key, choice)
+            for key, choices in grammar.items()
+            for choice in choices]
+def terminals(grammar):
+    return set(token
+               for key, choice in rules(grammar)
+               for token in choice if token not in grammar)
+
+EPSILON = &#x27;&#x27;
+def nullable(grammar):
+    productions = rules(grammar)
+
+    @fixpoint
+    def nullable_(nullables):
+        for A, expr in productions:
+            if nullable_expr(expr, nullables):
+                nullables |= {A}
+        return (nullables)
+
+    return nullable_({EPSILON})
+
+# warning, modifying the grammar.
+def emptyable(sym, grammar):
+    if "" not in grammar:
+       grammar[""] = nullable(grammar)
+    return sym in grammar[""]
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -387,3 +432,4 @@ for tree in trees:
 
 [^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
 
+[^aycock2002practical]: Aycock, John, and R. Nigel Horspool. "Practical earley parsing." The Computer Journal 45.6 (2002): 620-630.
