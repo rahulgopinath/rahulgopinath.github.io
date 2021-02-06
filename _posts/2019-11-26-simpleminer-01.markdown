@@ -202,7 +202,7 @@ def refine_grammar(g, tree):
     rule = [c[0] if isinstance(c, tuple) else c for c in children]
 
     if node not in g: g[node] = set()
-    g[node].add(rule)
+    g[node].add(tuple(rule))
 
     for c in children:
         if not isinstance(c, tuple): continue
@@ -252,6 +252,7 @@ The function can be used as follows:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = to_grammar(INPUTS, urlparse)
+print(grammar)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -281,10 +282,14 @@ Using it to fuzz:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-&#x27;&#x27;.join(unify_key(&#x27;&lt;START&gt;&#x27;))
+res = &#x27;&#x27;.join(unify_key(&#x27;&lt;START&gt;&#x27;))
+print(res)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
