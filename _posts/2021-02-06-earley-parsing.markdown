@@ -478,21 +478,18 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 class EarleyParser(EarleyParser):
-    def extract_a_tree(self, forest_node):
+    def extract_trees(self, forest_node):
         name, paths = forest_node
         if not paths:
-            return (name, [])
-        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
-
-    def extract_trees(self, forest):
-        yield self.extract_a_tree(forest)
-
-
+            yield (name, [])
+        results = []
+        for path in paths:
+            ptrees = [self.extract_trees(self.forest(*p)) for p in path]
+            for p in zip(*ptrees):
+                yield (name, p) 
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
