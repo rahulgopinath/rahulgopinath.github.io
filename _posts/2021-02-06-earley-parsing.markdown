@@ -212,12 +212,11 @@ adds the expansion of the non-terminal to the current column.
 <textarea cols="40" rows="4" name='python_edit'>
 def predict(col, sym, grammar):
     for alt in grammar[sym]:
-        if is_empty(alt):
-            col.add(State(sym, tuple([]), 0, col))
-        else:
-            col.add(State(sym, tuple(alt), 0, col))
+        col.add(State(sym, tuple([]), 0, col))
+    if emptiable(sym, grammar):
+        col.add(state.advance)
 
-def is_empty(a): return a == [&#x27;&#x27;]
+def emptyable(a): pass
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
