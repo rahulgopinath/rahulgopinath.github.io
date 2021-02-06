@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
 function runit(mypre, mycanvas, editor) {
-   var pre = "import io, sys\n out = io.StringIO()\nsys.stdout = out\n"
+   var pre = "import io, sys\nout = io.StringIO()\nsys.stdout = out\n"
    var prog_ = editor.getValue();
    var post = "\nout.getvalue()"
    var prog = pre + prog_ + post
