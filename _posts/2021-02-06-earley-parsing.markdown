@@ -37,38 +37,27 @@ full recovery of parsing forests, see our parsing implementation in the [fuzzing
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
 
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
 grammar = {
- &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
- &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;term&gt;&#x27;, &#x27;&lt;expr_&gt;&#x27;]],
- &#x27;&lt;expr_&gt;&#x27;: [[&#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;&#x27;]],
- &#x27;&lt;term&gt;&#x27;: [[&#x27;&lt;factor&gt;&#x27;, &#x27;&lt;term_&gt;&#x27;]],
- &#x27;&lt;term_&gt;&#x27;: [[&#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;&#x27;]],
- &#x27;&lt;factor&gt;&#x27;: [[&#x27;+&#x27;, &#x27;&lt;factor&gt;&#x27;],
-  [&#x27;-&#x27;, &#x27;&lt;factor&gt;&#x27;],
-  [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
-  [&#x27;&lt;int&gt;&#x27;]],
- &#x27;&lt;int&gt;&#x27;: [[&#x27;&lt;integer&gt;&#x27;, &#x27;&lt;integer_&gt;&#x27;]],
- &#x27;&lt;integer_&gt;&#x27;: [[&#x27;&#x27;], [&#x27;.&#x27;, &#x27;&lt;integer&gt;&#x27;]],
- &#x27;&lt;integer&gt;&#x27;: [[&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;I&gt;&#x27;]],
- &#x27;&lt;I&gt;&#x27;: [[&#x27;&lt;integer&gt;&#x27;], [&#x27;&#x27;]],
- &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;],
-  [&#x27;1&#x27;],
-  [&#x27;2&#x27;],
-  [&#x27;3&#x27;],
-  [&#x27;4&#x27;],
-  [&#x27;5&#x27;],
-  [&#x27;6&#x27;],
-  [&#x27;7&#x27;],
-  [&#x27;8&#x27;],
-  [&#x27;9&#x27;]]}
-START = &#x27;&lt;start&gt;&#x27;
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+START = '<start>'
+
 
 The chart parser depends on a chart (a table) for parsing. The rows are the
 characters in the input string. Each column represents a set of *states*, and
