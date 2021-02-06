@@ -181,7 +181,7 @@ We use the `to_tree()` in the following fashion.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
-pritn(repr(trees[0]))
+print(repr(trees[0]))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
