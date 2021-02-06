@@ -29,6 +29,9 @@ the given grammar. Unfortunately, this style of parsing pays for generality by
 being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 This an implementation of Earley parsing that handles the epsilon case.
 
+For a much more complete implementation including Leo's fixes[^leo1991a], and
+full recovery of parsing forests, see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
+
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
 
@@ -377,3 +380,6 @@ for tree in trees:
 </form>
 
 [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
+
+[^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
+
