@@ -9,31 +9,44 @@ categories: post
 
 *Tested in Python 3.6.8*
 
-In the [previous post](/2019/12/07/python-mci/), I described how one can write an interpreter for the Python language in
-Python. However, Python itself is not implemented as a direct interpreter for the AST. Rather, Python AST is compiled first,
-and turned to its own byte code, and the byte code is interpteted by the Python virtual machine. The Python virtual machine
-is is implemented in C in the case of Cython, in Java in the case of Jython, and in (reduced) Python in the case of PyPy.
+In the [previous post](/post/2019/12/07/python-mci/), I described how one can write
+an interpreter for the Python language in Python. However, Python itself is not
+implemented as a direct interpreter for the AST. Rather, Python AST is compiled
+first, and turned to its own byte code. The byte code is interpreted by the
+Python virtual machine. The Python virtual machine is implemented in C in the
+case of CPython, in Java in the case of Jython, in WASM for Pyodide, and in
+(reduced) Python in the case of PyPy.
 
-The reason to use a virtual machine rather than directly interpreting the AST is that, a large number of the higher level
-constructs map to a much smaller number of lower level constructs. The lower level language (the bytecode) is also easier
+The reason to use a virtual machine rather than directly interpreting the AST is
+that, a large number of the higher level constructs map to a much smaller number
+of lower level constructs. The lower level language (the bytecode) is also easier
 to optimize, and is relatively more stable than the higher level language.
 
-For our purposes, the lower level language also allows us to get away with implementing our analysis techniques (such
-as taint analysis --- to be discussed in later posts) on a much smaller number of primitives.
+For our purposes, the lower level language also allows us to get away with
+implementing our analysis techniques (such as taint analysis --- to be discussed
+in later posts) on a much smaller number of primitives.
 
 This post shows how to implement a very tiny Python virtual machine.
-For more complete implementations, refer to the [AOSA Book](https://www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html) or more complete and current [Byterun](https://github.com/nedbat/byterun) or [my fork of byterun](https://github.com/vrthra-forks/bytevm).
+For more complete implementations, refer to the
+[AOSA Book](https://www.aosabook.org/en/500L/a-python-interpreter-written-in-python.html)
+or more complete and current [Byterun](https://github.com/nedbat/byterun) or
+[my fork of byterun](https://github.com/vrthra-forks/bytevm).
 
-We start as usual by importing the prerequisite packages. In the case of our virtual machine, we have only the `dis` module
-to import. This module allows us to disassemble Python bytecode from the compiled bytecode. Note that the package [xdis](https://pypi.org/project/xdis/) may be a better module here (it is a drop in replacement).
+We start as usual by importing the prerequisite packages. In the case of our
+virtual machine, we have only the `dis` module to import. This module allows us
+to disassemble Python bytecode from the compiled bytecode. Note that the package
+[xdis](https://pypi.org/project/xdis/) may be a better module here (it is a drop
+in replacement).
 
 ```python
 import dis
 ```
 
-As in the [MCI](/2019/12/07/python-mci/), we try to use as much of the Python infrastructure as possible. Hence,
-we use the Python compiler to compile source files into bytecode, and we only interpret the bytecode. One can
-[compile](https://docs.python.org/3/library/functions.html#compile) source strings to byte code as follows.
+As in the [MCI](/post/2019/12/07/python-mci/), we try to use as much of the
+Python infrastructure as possible. Hence, we use the Python compiler to compile
+source files into bytecode, and we only interpret the bytecode. One can
+[compile](https://docs.python.org/3/library/functions.html#compile) source
+strings to byte code as follows.
 
 ### Compilation
 
@@ -41,8 +54,9 @@ we use the Python compiler to compile source files into bytecode, and we only in
 my_code = compile('2+v', filename='', mode='eval')
 ```
 
-The `mode` can be one of `eval` -- which evaluates expressions, `exec` -- which executes a sequence of statements,
-and `single` -- which is a limited form of `exec`. Their difference can be seen below.
+The `mode` can be one of `eval` -- which evaluates expressions, `exec` --
+which executes a sequence of statements, and `single` -- which is a limited form
+of `exec`. Their difference can be seen below.
 
 
 #### compile(mode=eval)
@@ -75,9 +89,9 @@ That is, the return value is the result of addition.
 >>> eval(my_code)
 >>> 
 ```
-That is, the top of the stack is popped off. That is, it is treated as a statement. This
-mode is used for evaluating a series of statements none of which will return a value when
-`eval()` is called.
+The top of the stack is popped off on execution. That is,
+it is treated as a statement. This mode is used for evaluating a series of
+statements none of which will return a value when `eval()` is called.
 
 ```python
 >>> my_code = compile('v=1;x=2+v', filename='', mode='eval')
@@ -104,8 +118,9 @@ SyntaxError: invalid syntax
 
 #### compile(mode=single)
 
-The `single` mode is a restricted version of `exec`. It is applicable for a single line
-*statement*, which can even be constructed by stitching multiple statements together with semicolons.
+The `single` mode is a restricted version of `exec`. It is applicable for a
+single line *statement*, which can even be constructed by stitching multiple
+statements together with semicolons.
 
 ```python
 >>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='single')
@@ -118,8 +133,8 @@ SyntaxError: multiple statements found while compiling a single statement
 >>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='exec')
 ```
 
-The main difference is in the return value. In the case of `exec`, the stack is cleared before return,
-which means only the side effects remain.
+The main difference is in the return value. In the case of `exec`, the stack is
+cleared before return, which means only the side effects remain.
 
 ```python
 >>> my_code = compile('v=1;x=2+v;x', filename='', mode='exec')
@@ -137,8 +152,8 @@ which means only the side effects remain.
 >>> eval(my_code)
 ```
 
-In the case of `single`, the last value in the stack is printed before return. As before, nothing
-is returned.
+In the case of `single`, the last value in the stack is printed before return.
+As before, nothing is returned.
 
 ```python
 >>> my_code = compile('v=1;x=2+v;x', filename='', mode='single')
@@ -185,6 +200,8 @@ mathops = {
 
 ### Boolean operations
 
+Similar to arithmetic operations, we define all logical operators.
+
 ```python
 boolops = {
         '<' : lambda a, b: a < b,
@@ -220,9 +237,8 @@ It contains the following attributes
 ```
 
 
-Since it is a readonly data structure, and we want
-to modify it, we will use a proxy class `Code` to wrap it. We copy over the
-minimum attributes needed.
+Since it is a read-only data structure, and we want to modify it, we will use a
+proxy class `Code` to wrap it. We copy over the minimum attributes needed.
 
 ```python
 class Code:
@@ -237,11 +253,16 @@ class Code:
 ### The virtual machine
 
 As can be inferred from the `dis` output, the Python Virtual Machine is a stack
-based machine.
-
+based machine. So we define a bare bones virtual machine that can use a stack
+as below.
 
 ```python
 class Vm:
+    def __init__(self, local=[]):
+        self.stack = []
+        self.block_stack = []
+        self.local = local
+
     def i_pop_top(self, i): self.stack.pop()
     def i_load_global(self, i): self.stack.append(self.code.co_names[i])
     def i_load_name(self, i): self.stack.append(self.code.co_names[i])
@@ -259,10 +280,21 @@ class Vm:
             self.local.append(self.stack.pop())
         else:
             self.local[i] = self.stack.pop()
+```
 
+The return instruction is simply a pop of the stack.
+   
+```python
+class Vm(Vm):
     def i_return_value(self, i):
         return self.stack.pop()
+```
 
+Now, we define how a function is called. We need to extract the
+function and args, and pass the execution to the called function.
+
+```python
+class Vm(Vm):
     def i_call_function(self, i):
         nargs = i + 1
         fn, *args = self.stack[-nargs:]
@@ -286,7 +318,13 @@ class Vm:
                 v = Vm(args).bytes(myfn)
                 v.i()
                 self.stack.append(v.result)
+```
 
+
+Implementing *COMPARE_OP*
+
+```python
+class Vm(Vm):
     def i_compare_op(self, opname):
         op = dis.cmp_op[opname]
         fn = boolops[op]
@@ -295,6 +333,12 @@ class Vm:
         self.stack = self.stack[:len(self.stack)-nargs]
         v = fn(*args)
         self.stack.append(v)
+```
+
+Implementing jumps
+
+```python
+class Vm(Vm):
 
     def i_pop_jump_if_true(self, i, ins):
         v = self.stack.pop()
@@ -309,7 +353,12 @@ class Vm:
     def i_jump_absolute(self, i, ins):
         # each instruction is two bytes long
         return i // 2
+```
 
+Implementing loops
+
+```python
+class Vm(Vm):
     def i_setup_loop(self, i):
         # not sure.
         self.block_stack.append(i)
@@ -335,18 +384,24 @@ class Vm:
         qname = self.stack.pop()
         code = self.stack.pop()
         self.stack.append((qname, code, p))
+```
 
-    def __init__(self, local=[]):
-        self.stack = []
-        self.block_stack = []
-        self.local = local
+Wrappers
+
+```python
+class Vm(Vm):
 
     def statement(self, my_str, kind='exec'):
         return self.bytes(compile(my_str, '<>', kind))
 
     def expr(self, my_str, kind='eval'):
         return self.bytes(compile(my_str, '<>', kind))
+```
 
+Translation of bytes to corresponding functions.
+
+```python
+class Vm(Vm):
     def bytes(self, code):
         self.fnops = {
                 'LOAD_GLOBAL': self.i_load_global,
@@ -374,7 +429,12 @@ class Vm:
                 }
         self.code = Code(code)
         return self
+```
 
+The interpreter itself
+
+```python
+class Vm(Vm):
     def i(self):
         ops = self.code.opcodes
         ins = 0
