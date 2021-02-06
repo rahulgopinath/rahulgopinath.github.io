@@ -61,7 +61,7 @@ grammar = {
   [&#x27;7&#x27;],
   [&#x27;8&#x27;],
   [&#x27;9&#x27;]]}
-START = &#x27;&lt;start&gt;&#x27
+START = &#x27;&lt;start&gt;&#x27;
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
