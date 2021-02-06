@@ -70,75 +70,41 @@ START = &#x27;&lt;start&gt;&#x27;
 <div name='python_canvas'></div>
 </form>
 
-
 The chart parser depends on a chart (a table) for parsing. The rows are the
 characters in the input string. Each column represents a set of *states*, and
 corresponds to the legal rules to follow from that point on.
-
-## State
-
-Each state contains the following:
-
-* name: The non-terminal that this rule represents.
-* expr: The rule that is being followed
-* dot:  The point till which parsing has happened in the rule.
-* start_column: The starting point for this rule.
-* children: Child states if any.
-
-We use a global `counter` so that it is easier to keep track of the different
-states.
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-counter = 0
-class State:
-    def __init__(self, name, expr, dot, start_column):
-        global counter
-        self.name, self.expr, self.dot, self.start_column = \
-             name, expr, dot, start_column
-        self.children  = []
-        self.c = counter
-        counter += 1
-    def finished(self): return self.dot &gt;= len(self.expr)
-    def shift(self, bp=None):
-        s = State(self.name, self.expr, self.dot+1, self.start_column)
-        s.children = self.children[:]
-        return s
-    def symbol(self): return self.expr[self.dot]
-
-    def _t(self): return (self.name, self.expr, self.dot, self.start_column)
-    def __hash__(self): return hash((self.name, self.expr))
-    def __eq__(self, other): return  self._t() == other._t()
-    def __str__(self):
-        return (&quot;(S%d)   &quot; % self.c) + self.name +&#x27;:= &#x27;+ &#x27; &#x27;.join(
-              [str(p) for p in [*self.expr[:self.dot],&#x27;|&#x27;, *self.expr[self.dot:]]])
-    def __repr__(self): return str(self)
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 
 ## Column
 
 The column contains a set of states. Each column corresponds
 to a character (or a token if tokens are used). We also define
 `show_col()` to make it easier to debug.
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Column(object):
+    def __init__(self, index, letter):
+        self.index, self.letter = index, letter
+        self.states, self._unique = [], {}
+
+    def __str__(self):
+        return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
+            str(state) for state in self.states if state.finished()))
+
+    def add(self, state):
+        if state in self._unique:
+            return self._unique[state]
+        self._unique[state] = state
+        self.states.append(state)
+        state.e_col = self
+        return self._unique[state]
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Column:
-    def __init__(self, i, token):
-        self.token, self.states, self._unique = token, [], {}
-        self.i = i
-    def add(self, state, bp=None):
-        if state in self._unique:
-            if bp: state.children.append(bp)
-            return
-        self._unique[state] = state
-        if bp: state.children.append(bp)
-        self.states.append(state)
-    def __repr__(self):
-        return &quot;%s chart[%d] %s&quot; % (self.token, self.i, str(self.states))
 
 def show_col(col, i):
     print(&quot;chart[%d]&quot;%i)
@@ -151,71 +117,67 @@ def show_col(col, i):
 <div name='python_canvas'></div>
 </form>
 
-## Parsing
+## State
 
-There are three main methods: `complete()`, `predict()`, and `scan()`
+Each state contains the following:
+
+* name: The non-terminal that this rule represents.
+* expr: The rule that is being followed
+* dot:  The point till which parsing has happened in the rule.
+* s_col: The starting point for this rule.
+* e_col: The ending point for this rule.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def parse(words, grammar, start):
-    alt = tuple(*grammar[start])
-    chart = [Column(i,tok) for i,tok in enumerate([None, *words])]
-    chart[0].add(State(start, alt, 0, chart[0]))
+class State:
+    def __init__(self, name, expr, dot, s_col, e_col=None):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.s_col, self.e_col = s_col, e_col
 
-    for i, col in enumerate(chart):
-        for state in col.states:
-            if state.finished():
-                complete(col, state, grammar)
-            else:
-                sym = state.symbol()
-                if sym in grammar:
-                    predict(col, sym, grammar)
-                else:
-                    if i + 1 &gt;= len(chart): continue
-                    scan(chart[i+1], state, sym)
-    return chart
+    def finished(self):
+        return self.dot &gt;= len(self.expr)
+
+    def at_dot(self):
+        return self.expr[self.dot] if self.dot &lt; len(self.expr) else None
+
+    def __str__(self):
+        def idx(var):
+            return var.index if var else -1
+
+        return self.name + &#x27;:= &#x27; + &#x27; &#x27;.join([
+            str(p)
+            for p in [*self.expr[:self.dot], &#x27;|&#x27;, *self.expr[self.dot:]]
+        ]) + &quot;(%d,%d)&quot; % (idx(self.s_col), idx(self.e_col))
+
+    def copy(self):
+        return State(self.name, self.expr, self.dot, self.s_col, self.e_col)
+
+    def _t(self):
+        return (self.name, self.expr, self.dot, self.s_col.index)
+
+    def __hash__(self):
+        return hash(self._t())
+
+    def __eq__(self, other):
+        return self._t() == other._t()
+
+    def advance(self):
+        return State(self.name, self.expr, self.dot + 1, self.s_col)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
-### Complete
 
-The `complete()` method is called if a particular state has finished the rule
-during execution. It first extracts the start column of the finished state, then
-for all states in the start column that is not finished, find the states that
-were parsing this current state (that is, we can go back to continue to parse
-those rules now). Next, shift them by one position, and add them to the current
-column.
+## Parser
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def complete(col, state, grammar):
-    for st in state.start_column.states:
-        if st.finished(): continue
-        sym = st.symbol()
-        if state.name != sym: continue
-        assert sym in grammar
-        col.add(st.shift(), state)
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-### Predict
-
-If the term after the dot is a non-terminal, `predict()` is called. It
-adds the expansion of the non-terminal to the current column.
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def predict(col, sym, grammar):
-    for alt in grammar[sym]:
-        col.add(State(sym, tuple([]), 0, col))
-    if emptyable(sym, grammar):
-        col.add(state.advance)
+class EarleyParser(Parser):
+    def __init__(self, grammar, **kwargs):
+        self.grammar = grammar
+        self.epsilon = nullable(grammar)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -272,6 +234,109 @@ def emptyable(sym, grammar):
 </form>
 
 
+
+
+We seed the chart with columns representing the tokens or characters.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def chart_parse(self, tokens, start):
+        alt = tuple(*self.cgrammar[start])
+        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart[0].add(State(start, alt, 0, chart[0]))
+        return self.fill_chart(chart)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def fill_chart(self, chart):
+        for i, col in enumerate(chart):
+            for state in col.states:
+                if state.finished():
+                    self.complete(col, state)
+                else:
+                    sym = state.at_dot()
+                    if sym in self.cgrammar:
+                        self.predict(col, sym, state)
+                    else:
+                        if i + 1 &gt;= len(chart):
+                            continue
+                        self.scan(chart[i + 1], state, sym)
+            if self.log:
+                print(col, &#x27;\n&#x27;)
+        return chart
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def parse_prefix(self, text):
+        self.table = self.chart_parse(text, self.start_symbol())
+        for col in reversed(self.table):
+            states = [
+                st for st in col.states if st.name == self.start_symbol()
+            ]
+            if states:
+                return col.index, states
+        return -1, []
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+There are three main methods: `complete()`, `predict()`, and `scan()`
+
+### Complete
+
+The `complete()` method is called if a particular state has finished the rule
+during execution. It first extracts the start column of the finished state, then
+for all states in the start column that is not finished, find the states that
+were parsing this current state (that is, we can go back to continue to parse
+those rules now). Next, shift them by one position, and add them to the current
+column.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [
+            st for st in state.s_col.states if st.at_dot() == state.name
+        ]
+        for st in parent_states:
+            col.add(st.advance())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+### Predict
+
+If the term after the dot is a non-terminal, `predict()` is called. It
+adds the expansion of the non-terminal to the current column.
+
+class EarleyParser(EarleyParser):
+    def predict(self, col, sym, state):
+        for alt in self.cgrammar[sym]:
+            col.add(State(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            col.add(state.advance())
+
 ### Scan
 
 The `scan()` method is called if the next symbol is a terminal symbol. If the
@@ -280,14 +345,16 @@ state to the column.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def scan(col, state, token):
-    if token == col.token:
-        col.add(state.shift())
+class EarleyParser(EarleyParser):
+    def scan(self, col, state, letter):
+        if letter == col.letter:
+            col.add(state.advance())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 <!--
 #grammar = {
@@ -332,26 +399,92 @@ def scan(col, state, token):
 We use the following procedures to translate the parse forest to individual
 trees.
 
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def process_expr(expr, children, grammar):
-    lst = []
-    nt_counter = 0
-    for i in expr:
-        if i not in grammar:
-            lst.append((i,[]))
-        else:
-            lst.append(node_translator(children[nt_counter], grammar))
-            nt_counter += 1
-    return lst
+class EarleyParser(EarleyParser):
+    def parse(self, text):
+        cursor, states = self.parse_prefix(text)
+        start = next((s for s in states if s.finished()), None)
 
-def node_translator(state, grammar):
-    return (state.name, process_expr(state.expr, state.children, grammar))
+        if cursor &lt; len(text) or not start:
+            raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+
+        forest = self.parse_forest(self.table, start)
+        for tree in self.extract_trees(forest):
+            yield tree
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def parse_paths(self, named_expr, chart, frm, til):
+        def paths(state, start, k, e):
+            if not e:
+                return [[(state, k)]] if start == frm else []
+            else:
+                return [[(state, k)] + r
+                        for r in self.parse_paths(e, chart, frm, start)]
+
+        *expr, var = named_expr
+        starts = None
+        if var not in self.cgrammar:
+            starts = ([(var, til - len(var),
+                        &#x27;t&#x27;)] if til &gt; 0 and chart[til].letter == var else [])
+        else:
+            starts = [(s, s.s_col.index, &#x27;n&#x27;) for s in chart[til].states
+                      if s.finished() and s.name == var]
+
+        return [p for s, start, k in starts for p in paths(s, start, k, expr)]
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def forest(self, s, kind, chart):
+        return self.parse_forest(chart, s) if kind == &#x27;n&#x27; else (s, [])
+
+    def parse_forest(self, chart, state):
+        pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
+                                     state.e_col.index) if state.expr else []
+        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
+                            for pathexpr in pathexprs]
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+class EarleyParser(EarleyParser):
+    def extract_a_tree(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return (name, [])
+        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
+
+    def extract_trees(self, forest):
+        yield self.extract_a_tree(forest)
+
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ## Example
 Now we are ready for parsing. 
@@ -359,16 +492,10 @@ Now we are ready for parsing.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 
-text = &#x27;11+2&#x27;
-table = parse(list(text), grammar, START)
-state, *states = [st for st in table[-1].states if st.name == START and st.finished()]
-assert not states
-trees = [node_translator(state, grammar)]
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
+text = '11+2'
+ep = EarleyParser(grammar)
+for tree in ep.parse(text):
+    print(tree)
 
 We need a way to display parse trees.
 
@@ -418,8 +545,7 @@ Displaying the tree
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for tree in trees:
-    print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
+print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
         get_children=lambda x: x[1]))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
