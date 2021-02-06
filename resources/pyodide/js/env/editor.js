@@ -39,7 +39,7 @@ $('[name="python_edit"]').each(function(idx) {
 
 languagePluginLoader.then(() => { 
   console.log('pyodide ready');
-  var pre =  "\nimport io, sys\n__IODIDE_console=sys.stdout\n'
+  var pre =  '\nimport io, sys\n__IODIDE_console=sys.stdout\n'
   var pre_ = '\ndef _dbg(v): print(v, file=__IODIDE_console)\n'
 
   pyodide.runPython(pre + pre_)
