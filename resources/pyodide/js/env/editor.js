@@ -7,7 +7,7 @@ function runit(mypre, mycanvas, editor) {
    var prog = pre + pre_ + prog_ + post
 
    function outf(text) {
-      mypre.innerHTML = mypre.innerHTML + text;
+      mypre.innerHTML = mypre.innerHTML + $('<div/>').text(text).html();
    }
    function errf(text) {
       mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + text + "</font>";
