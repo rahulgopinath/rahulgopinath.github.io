@@ -596,12 +596,58 @@ The `scan()` method is called if the next symbol is a terminal symbol. If the
 state matches the next term, moves the dot one position, and adds the new
 state to the column.
 
+For example, consider this state.
+```
+   <B>: | b c
+```
+If we scan the next column's letter, and that letter is `b`, then it matches the
+next symbol. So, we can advance the state by one symbol, and add it to the next
+column.
+```
+   <B>: b | c
+```
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def scan(self, col, state, letter):
         if letter == col.letter:
             col.add(state.advance())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Here is our continuing example.
+<!--
+############
+ep = EarleyParser(sample_grammar)
+col_1 = Column(1, 'a')
+ep.chart = [col_0, col_1]
+
+new_state = ep.chart[0].states[1]
+print(new_state)
+
+ep.scan(col_1, new_state, 'a')
+for s in ep.chart[1].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = EarleyParser(sample_grammar)
+col_1 = Column(1, &#x27;a&#x27;)
+ep.chart = [col_0, col_1]
+
+new_state = ep.chart[0].states[1]
+print(new_state)
+
+ep.scan(col_1, new_state, &#x27;a&#x27;)
+for s in ep.chart[1].states:
+    print(s)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -623,18 +669,6 @@ class EarleyParser(EarleyParser):
 #        '<expr>': ['<sym>', '<expr>+<expr>', '<expr>-<expr>']
 #        }
 #
-#grammar = {
-#        START: ['<S>'],
-#        '<S>': ['<NP><VP>'],
-#        '<PP>': ['<P><NP>'],
-#        '<VP>': ['<V><NP>', '<VP><PP>'],
-#        '<P>': ['with'],
-#        '<V>': ['saw'],
-#        '<NP>': ['<NP><PP>', '<N>'],
-#        '<N>': ['astronomers', 'ears', 'stars', 'telescopes']
-#        }
-
-
 #grammar = {'<start>': ['<expr>'],
 # '<expr>': ['<term>+<expr>', '<term>-<expr>', '<term>'],
 # '<term>': ['<factor>*<term>', '<factor>/<term>', '<factor>'],
@@ -656,6 +690,23 @@ were parsing this current state (that is, we can go back to continue to parse
 those rules now). Next, shift them by one position, and add them to the current
 column.
 
+For example, say the state we have is:
+```
+   <A>: a | <B> c
+   <B>: b c |
+```
+The state `<B> b c |` is complete, and we need to advance any state that
+has `<B>` at the dot to one index forward, which is `<A>: a <B> | c`
+
+How do we determine the parent states? During predict, we added the predicted
+child states to the same column as that of the inspected state. So, the states
+will be found in the starting column of the current state, with the same symbol
+at_dot as that of the name of the completed state.
+
+We advance all such parents (producing new states) and add the new states to the
+current column.
+
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -669,6 +720,146 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+Here is our example. We start parsing `ad`. So, we have three columns.
+
+<!--
+############
+ep = EarleyParser(sample_grammar)
+col_1 = Column(1, 'a')
+col_2 = Column(2, 'd')
+ep.chart = [col_0, col_1, col_2]
+ep.predict(col_0, '<A>', s)
+for s in ep.chart[0].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = EarleyParser(sample_grammar)
+col_1 = Column(1, &#x27;a&#x27;)
+col_2 = Column(2, &#x27;d&#x27;)
+ep.chart = [col_0, col_1, col_2]
+ep.predict(col_0, &#x27;&lt;A&gt;&#x27;, s)
+for s in ep.chart[0].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Next, we populate column 1
+
+<!--
+############
+for state in ep.chart[0].states:
+    if state.at_dot() not in sample_grammar:
+        ep.scan(col_1, state, 'a')
+for s in ep.chart[1].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for state in ep.chart[0].states:
+    if state.at_dot() not in sample_grammar:
+        ep.scan(col_1, state, &#x27;a&#x27;)
+for s in ep.chart[1].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Predict again to flush out
+
+<!--
+############
+for state in ep.chart[1].states:
+    if state.at_dot() in sample_grammar:
+        ep.predict(col_1, state.at_dot(), state)
+for s in ep.chart[1].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for state in ep.chart[1].states:
+    if state.at_dot() in sample_grammar:
+        ep.predict(col_1, state.at_dot(), state)
+for s in ep.chart[1].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Scan again to populate column 2
+
+<!--
+############
+for state in ep.chart[1].states:
+    if state.at_dot() not in sample_grammar:
+        ep.scan(col_2, state, state.at_dot())
+
+for s in ep.chart[2].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for state in ep.chart[1].states:
+    if state.at_dot() not in sample_grammar:
+        ep.scan(col_2, state, state.at_dot())
+
+for s in ep.chart[2].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Finally, we use complete.
+
+
+<!--
+############
+for state in ep.chart[2].states:
+    if state.finished():
+        ep.complete(col_2, state)
+
+for s in ep.chart[2].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for state in ep.chart[2].states:
+    if state.finished():
+        ep.complete(col_2, state)
+
+for s in ep.chart[2].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 
 ## Parse trees
