@@ -884,6 +884,29 @@ columns = ep.chart_parse(&#x27;adcd&#x27;, start, sample_grammar[start][0])
 </form>
 
 
+<!--
+############
+last_col = columns[-1]
+for s in last_col.states:
+    if s.name == '<start>':
+        print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+last_col = columns[-1]
+for s in last_col.states:
+    if s.name == &#x27;&lt;start&gt;&#x27;:
+        print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 ## Parse trees
 
 We use the following procedures to translate the parse forest to individual
