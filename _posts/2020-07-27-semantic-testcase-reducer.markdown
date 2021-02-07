@@ -532,6 +532,7 @@ def pred(v):
 
 
 The driver tries to minimize the string if predicate returns true.
+
 <!--
 ############
 choices = ChoiceSeq()
