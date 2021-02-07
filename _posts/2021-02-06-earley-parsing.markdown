@@ -869,7 +869,7 @@ We can now recognize the given string as part of the language represented by the
 <!--
 ############
 ep = EarleyParser(sample_grammar, log=True)
-columns = ep.chart_parse('adcd', start, sample_grammar[start][0])
+columns = ep.chart_parse('adcd', START, sample_grammar[START][0])
 ############
 -->
 
