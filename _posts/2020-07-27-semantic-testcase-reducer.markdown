@@ -559,6 +559,7 @@ if pred(val):
     cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
     print('minimal:\n', cf.fuzz('<start>'), len(newv))
     print(cf.choices.ints)
+else: print("run again")
 ############
 -->
 
@@ -587,6 +588,7 @@ if pred(val):
     cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
+else: print("run again")
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -813,6 +815,7 @@ if pred(val):
     cf = ChoiceFuzzer2(assignment_grammar, ChoiceSeq2(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
+else: print("run again")
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
