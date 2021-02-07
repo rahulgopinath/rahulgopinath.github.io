@@ -880,6 +880,7 @@ We can now recognize the given string as part of the language represented by the
 ############
 ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
+for c in columns: print(c)
 ############
 -->
 
@@ -887,6 +888,7 @@ columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
+for c in columns: print(c)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
