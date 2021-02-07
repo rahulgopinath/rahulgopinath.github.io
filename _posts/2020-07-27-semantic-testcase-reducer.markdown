@@ -636,7 +636,7 @@ We add defaults to each nonterminal, and modify the `select` function to take a 
 
 <!--
 ############
-class ChoiceFuzzer(ComplexFuzzer):
+class ChoiceFuzzer2(ComplexFuzzer):
     def __init__(self, grammar, choices):
         super().__init__(grammar)
         self.choices = choices
@@ -669,7 +669,7 @@ class ChoiceFuzzer(ComplexFuzzer):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ChoiceFuzzer(ComplexFuzzer):
+class ChoiceFuzzer2(ComplexFuzzer):
     def __init__(self, grammar, choices):
         super().__init__(grammar)
         self.choices = choices
@@ -708,7 +708,7 @@ The choice sequence now returns the `default` when it sees the `-1` value.
 
 <!--
 ############
-class ChoiceSeq:
+class ChoiceSeq2:
     def __init__(self, ints=None):
         self.index = -1
         if ints is None:
@@ -746,7 +746,7 @@ class ChoiceSeq:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ChoiceSeq:
+class ChoiceSeq2:
     def __init__(self, ints=None):
         self.index = -1
         if ints is None:
@@ -811,6 +811,32 @@ if pred(val):
     cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+choices = ChoiceSeq2()
+
+c = ChoiceFuzzer2(assignment_grammar, choices)
+print(c.fuzz('<start>'))
+print(c.vars)
+print(c.choices.ints)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+choices = ChoiceSeq2()
+
+c = ChoiceFuzzer2(assignment_grammar, choices)
+print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
+print(c.vars)
+print(c.choices.ints)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
