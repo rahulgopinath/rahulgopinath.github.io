@@ -232,10 +232,7 @@ single expansion rule here.
 <textarea cols="40" rows="4" name='python_edit'>
 class Parser:
     def parse_on(self, text, start_symbol):
-        cursor, forest = self.parse_prefix(text, start_symbol)
-        if cursor &lt; len(text):
-            raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
-        return forest
+        raise NotImplemented()
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
