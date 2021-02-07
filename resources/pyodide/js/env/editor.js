@@ -66,7 +66,7 @@ languagePluginLoader.then(() => {
 
   $('[name="python_run_all"]').each(function(idx) {
     $(this)[0].style.border = '1px solid red'
-  }):
+  });
 
 }); //lang plugin
 
