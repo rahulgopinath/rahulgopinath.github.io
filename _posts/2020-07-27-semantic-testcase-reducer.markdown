@@ -33,7 +33,7 @@ For the _generator reduction_ to work, we need a generator in the first place. S
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/limitfuzzer-0.0.1-py3-none-any.whl"
+"https://rahul.gopinath.org/py/limitfuzzer-0.0.2-py3-none-any.whl"
 </textarea>
 </form>
 
