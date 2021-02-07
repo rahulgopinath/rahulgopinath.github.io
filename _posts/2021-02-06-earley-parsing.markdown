@@ -74,6 +74,9 @@ For this post, we use the following terms:
 * A *derivation tree* is an ordered tree that describes how an input string is
   derived by the given start symbol. Also called a *parse tree*.
 
+
+
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 
@@ -142,9 +145,77 @@ rule.
   finished.
 
 
-The chart parser depends on a chart (a table) for parsing. The rows are the
-characters in the input string. Each column represents a set of *states*, and
-corresponds to the legal rules to follow from that point on.
+The chart parser depends on a chart (a table) for parsing. The columns
+correspond to the characters in the input string. Each column represents a set
+of *states*, and corresponds to the legal rules to follow from that point on.
+
+Say we start with the following grammar:
+
+```python
+grammar = {
+    '<start>': [['<A>','<B>']],
+    '<A>': [['a', '<B>', 'c'], ['a', '<A>']],
+    '<B>': [['b', '<C>'], ['<D>']],
+    '<C>': [['c']],
+    '<D>': [['d']]
+}
+```
+
+Earley parser produces a table of possible parse paths at each letter index of
+the table. Given an input `adcd`, we seed the column `0`  with:
+
+```
+   <start>: * <A> <B>
+```
+
+where the `*` represents the parsing index (also called the dot). This indicates
+that we are at the starting, and the next step is to identify `<A>`. After this
+rule is processed, the column would contain two more states
+
+```
+   <A>: * a <B> <c>
+   <A>: * a <A>
+```
+which represents two parsing paths to complete `<A>`.
+
+After processing of column `0` (which corresponds to input character `a`), we
+would find the following in column `1` (which corresponds to the input character `b`)
+
+```
+   <A>: a * <B> c
+   <A>: a * <A>
+   <B>: * b <C>
+   <B>: * <D>
+   <A>: * a <B> c
+   <A>: * a <A>
+   <D>: * d
+```
+
+Similarly, the next column (column `2` corresponding to `d`) would contain the following.
+
+```
+   <D>: * d
+   <B>: <D> *
+   <A>: a <B> * c
+```
+
+Next, column `3` corresponding to `c` would contain:
+```
+   <A>: a <B> c *
+   <start>: <A> * <B>
+   <B>: * <b> <C>
+   <B>: * <D>
+   <D>: * d
+```
+
+Finally, column `4` (`d`) would contain this at the end of processing.
+```
+   <D>: d *
+   <B>: <D> *
+   <start>: <A> <B> *
+```
+
+This is how the table or the chart -- from where the parsing gets its name: chart parsing -- gets filled.
 
 ## Column
 
