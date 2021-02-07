@@ -688,7 +688,8 @@ def test_bb(inp):
 
 We have the following grammar
 
-```python
+<!--
+############
 EXPR_GRAMMAR = {'<start>': [['<expr>']],
  '<expr>': [['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
  '<term>': [['<factor>', '*', '<term>'], ['<factor>', '/', '<term>'], ['<factor>']],
@@ -699,7 +700,28 @@ EXPR_GRAMMAR = {'<start>': [['<expr>']],
   ['<integer>']],
  '<integer>': [['<digit>', '<integer>'], ['<digit>']],
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+EXPR_GRAMMAR = {&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+ &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;&lt;term&gt;&#x27;]],
+ &#x27;&lt;term&gt;&#x27;: [[&#x27;&lt;factor&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;&lt;factor&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;&lt;factor&gt;&#x27;]],
+ &#x27;&lt;factor&gt;&#x27;: [[&#x27;+&#x27;, &#x27;&lt;factor&gt;&#x27;],
+  [&#x27;-&lt;factor&gt;&#x27;],
+  [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+  [&#x27;&lt;integer&gt;&#x27;, &#x27;.&#x27;, &#x27;&lt;integer&gt;&#x27;],
+  [&#x27;&lt;integer&gt;&#x27;]],
+ &#x27;&lt;integer&gt;&#x27;: [[&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;integer&gt;&#x27;], [&#x27;&lt;digit&gt;&#x27;]],
+ &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;], [&#x27;2&#x27;], [&#x27;3&#x27;], [&#x27;4&#x27;], [&#x27;5&#x27;], [&#x27;6&#x27;], [&#x27;7&#x27;], [&#x27;8&#x27;], [&#x27;9&#x27;]]}
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 And the following input
 
