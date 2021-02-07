@@ -37,7 +37,7 @@ However, if the grammar is unambiguous, it can parse in $$O(n^2)$$ time, and
 all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a].
 
 This an implementation of Earley parsing that handles the epsilon case as
-given by Aycock et a.[^aycock2002practical].
+given by Aycock et al.[^aycock2002practical].
 
 For a much more complete implementation including Leo's optimizations[^leo1991a], and
 full recovery of parsing forests using iterative solutions,
