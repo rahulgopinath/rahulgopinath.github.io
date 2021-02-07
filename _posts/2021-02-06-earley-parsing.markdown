@@ -17,6 +17,12 @@ categories: post
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a black border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
 The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] that
 can be used to parse strings that conform to a context-free grammar. The
 algorithm uses a chart for parsing -- that is, it is implemented as a dynamic
