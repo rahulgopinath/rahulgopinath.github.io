@@ -736,7 +736,7 @@ class ChoiceSeq2:
         else:
             return lst[v % len(lst)]
             
- def defined_var(o, token, val):
+def defined_var(o, token, val):
     assert token == '<var>'
     if not o.vars:
         return ('00', [])
@@ -774,7 +774,7 @@ class ChoiceSeq2:
         else:
             return lst[v % len(lst)]
             
- def defined_var(o, token, val):
+def defined_var(o, token, val):
     assert token == &#x27;&lt;var&gt;&#x27;
     if not o.vars:
         return (&#x27;00&#x27;, [])
@@ -791,26 +791,26 @@ These are all the modifications that we require.
 Using it:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-choices = ChoiceSeq()
+choices = ChoiceSeq2()
 
-c = ChoiceFuzzer(assignment_grammar, choices)
+c = ChoiceFuzzer2(assignment_grammar, choices)
 val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
 
 causal_fn = lambda ints: pred(ints_to_string(assignment_grammar, ints))
 
 if pred(val):
     newv = ddmin(c.choices.ints, causal_fn)
-    choices = ChoiceSeq(newv)
-    cf = ChoiceFuzzer(assignment_grammar, choices)
+    choices = ChoiceSeq2(newv)
+    cf = ChoiceFuzzer2(assignment_grammar, choices)
     print(&#x27;original:\n&#x27;, val, len(c.choices.ints))
 
     while True:
         newv = ddmin(cf.choices.ints, causal_fn)
         if len(newv) &gt;= len(cf.choices.ints):
             break
-        cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+        cf = ChoiceFuzzer2(assignment_grammar, ChoiceSeq2(newv))
 
-    cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+    cf = ChoiceFuzzer2(assignment_grammar, ChoiceSeq2(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
 </textarea><br />
