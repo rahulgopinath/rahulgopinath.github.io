@@ -15,7 +15,7 @@ categories: post
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
+Note: The in browser implementation is buggy. 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
