@@ -471,6 +471,7 @@ nt_expr = tuple(sample_grammar[START][0])
 col_0 = Column(0, None)
 start_state = State(START, nt_expr, 0, col_0)
 col_0.add(start_state)
+print(start_state)
 print(start_state.at_dot())
 ############
 -->
@@ -482,6 +483,7 @@ nt_expr = tuple(sample_grammar[START][0])
 col_0 = Column(0, None)
 start_state = State(START, nt_expr, 0, col_0)
 col_0.add(start_state)
+print(start_state)
 print(start_state.at_dot())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -524,7 +526,6 @@ There are three main methods: `predict()`, `scan()`, and `complete()`
 If the term after the dot is a nonterminal, `predict()` is called. It
 adds the expansion of the nonterminal to the current column.
 
-If we look our example, we have seeded
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -534,6 +535,54 @@ class EarleyParser(EarleyParser):
             col.add(State(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+If we look our example, we have seeded the first column with `| <A> <B>`. Now,
+`fill_chart()` will find that the next term is `<A>` and call `predict()`
+which will then add the expansions of `<A>`.
+
+<!--
+############
+ep = EarleyParser(sample_grammar)
+ep.chart = [col_0]
+for s in ep.chart[0].states:
+    print(s)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = EarleyParser(sample_grammar)
+ep.chart = [col_0]
+for s in ep.chart[0].states:
+    print(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+Next, we apply predict.
+
+<!--
+############
+ep.predict(col_0, '<A>', s)
+for s in ep.chart[0].states:
+    print(s)
+############
+-->
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep.predict(col_0, &#x27;&lt;A&gt;&#x27;, s)
+for s in ep.chart[0].states:
+    print(s)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
