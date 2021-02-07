@@ -362,10 +362,8 @@ column.
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def complete(self, col, state):
-        parent_states = [
-            st for st in state.s_col.states
-                 if st.at_dot() == state.name and st..expr == alt
-        ]
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name and st..expr == alt]
         for st in parent_states:
             col.add(st.advance())
 </textarea><br />
