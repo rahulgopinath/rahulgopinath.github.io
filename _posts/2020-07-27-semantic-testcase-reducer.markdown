@@ -303,6 +303,7 @@ as the choices at each step.
 ############
 class ChoiceFuzzer(ComplexFuzzer):
     def __init__(self, grammar, choices):
+        super().__init__(grammar)
         self.grammar = grammar
         self.vars = []
         self._vars = []
@@ -318,6 +319,7 @@ class ChoiceFuzzer(ComplexFuzzer):
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceFuzzer(ComplexFuzzer):
     def __init__(self, grammar, choices):
+        super().__init__(grammar)
         self.grammar = grammar
         self.vars = []
         self._vars = []
