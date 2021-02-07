@@ -884,6 +884,13 @@ columns = ep.chart_parse(&#x27;adcd&#x27;, start, sample_grammar[start][0])
 </form>
 
 
+
+The chart above only shows completed entries. The parenthesized expression
+indicates the column just before the first character was recognized, and the
+ending column.
+
+Notice how the `<start>` nonterminal shows the dot at the end. That is, fully parsed.
+
 <!--
 ############
 last_col = columns[-1]
