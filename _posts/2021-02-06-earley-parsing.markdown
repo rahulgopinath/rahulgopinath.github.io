@@ -462,7 +462,7 @@ class EarleyParser(EarleyParser):
         self.table = self.chart_parse(text, start_symbol, alt)
         for col in reversed(self.table):
             states = [st for st in col.states
-                if st.name == start_symbol and st..expr == alt
+                if st.name == start_symbol and st.expr == alt
             ]
             if states:
                 return col.index, states
