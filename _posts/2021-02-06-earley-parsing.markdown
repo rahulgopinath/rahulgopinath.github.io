@@ -23,7 +23,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
-The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] that
+The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] in 1970. It
 can be used to parse strings that conform to a context-free grammar. The
 algorithm uses a chart for parsing -- that is, it is implemented as a dynamic
 program relying on solving simpler sub-problems.
