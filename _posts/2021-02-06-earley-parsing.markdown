@@ -487,7 +487,8 @@ class EarleyParser(EarleyParser):
             start = next((s for s in states if s.finished()), None)
 
             if cursor &lt; len(text) or not start:
-                raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+                #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+                continue
 
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
