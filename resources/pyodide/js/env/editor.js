@@ -43,7 +43,7 @@ languagePluginLoader.then(() => {
     var imports_lst = [];
     if (imports_.length > 0) {
         var imports_text = imports_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
-        pyodide.runPython('micropip.install([' + imports_text + '])');
+        pyodide.runPython('import micropip\nmicropip.install([' + imports_text + '])');
     }
 
     console.log('pyodide ready');
