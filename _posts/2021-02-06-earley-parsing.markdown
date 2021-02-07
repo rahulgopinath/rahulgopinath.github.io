@@ -383,6 +383,7 @@ class EarleyParser(Parser):
     def __init__(self, grammar, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
+        self.log = False
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -511,6 +512,7 @@ class EarleyParser(EarleyParser):
                         if i + 1 &gt;= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
+            if self.log: print(col, '\n')
         return chart
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -860,6 +862,26 @@ for s in ep.chart[2].states:
 <div name='python_canvas'></div>
 </form>
 
+## Filling the chart
+
+We can now recognize the given string as part of the language represented by the grammar.
+
+<!--
+############
+ep = EarleyParser(sample_grammar, log=True)
+columns = ep.chart_parse('adcd', start, sample_grammar[start][0])
+############
+-->
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = EarleyParser(sample_grammar, log=True)
+columns = ep.chart_parse(&#x27;adcd&#x27;, start, sample_grammar[start][0])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 
 ## Parse trees
