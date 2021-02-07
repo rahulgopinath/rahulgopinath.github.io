@@ -363,7 +363,8 @@ column.
 class EarleyParser(EarleyParser):
     def complete(self, col, state):
         parent_states = [
-            st for st in state.s_col.states if st.at_dot() == state.name
+            st for st in state.s_col.states
+                 if st.at_dot() == state.name and st..expr == alt
         ]
         for st in parent_states:
             col.add(st.advance())
