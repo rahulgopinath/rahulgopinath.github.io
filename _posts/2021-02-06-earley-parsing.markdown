@@ -363,7 +363,7 @@ column.
 class EarleyParser(EarleyParser):
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
-                 if st.at_dot() == state.name and st..expr == alt]
+                 if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
 </textarea><br />
@@ -461,8 +461,8 @@ class EarleyParser(EarleyParser):
     def parse_prefix(self, text, start_symbol, alt):
         self.table = self.chart_parse(text, start_symbol, alt)
         for col in reversed(self.table):
-            states = [
-                st for st in col.states if st.name == start_symbol
+            states = [st for st in col.states
+                if st.name == start_symbol and st..expr == alt
             ]
             if states:
                 return col.index, states
