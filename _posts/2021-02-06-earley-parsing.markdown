@@ -924,10 +924,12 @@ for s in last_col.states:
 </form>
 
 
-## Parse trees
+## Derivation trees
 
 We use the following procedures to translate the parse forest to individual
 trees.
+
+### parse_prefix
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -946,6 +948,30 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+Here is an example of using it.
+
+<!--
+############
+p = EarleyParser(sample_grammar)
+cursor, last_states = ep.parse_prefix('adcd')
+print(cursor, [str(s) for s in last_states])
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = EarleyParser(sample_grammar)
+cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;)
+print(cursor, [str(s) for s in last_states])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+### parse_on
 
 Our `parse_on()` method is slightly different from usual Earley implementations
 in that we accept any nonterminal symbol, not just nonterminal symbols with a
@@ -972,6 +998,24 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+### parse_paths
+
+
+The parse_paths() method tries to unify the given expression in `named_expr` with
+the parsed string. For that, it extracts the last symbol in `named_expr` and
+checks if it is a terminal symbol. If it is, then it checks the chart at `til` to
+see if the letter corresponding to the position matches the terminal symbol.
+If it does, extend our start index by the length of the symbol.
+
+If the symbol was a nonterminal symbol, then we retrieve the parsed states
+at the current end column index (`til`) that correspond to the nonterminal
+symbol, and collect the start index. These are the end column indexes for
+the remaining expression.
+
+Given our list of start indexes, we obtain the parse paths from the remaining
+expression. If we can obtain any, then we return the parse paths. If not, we
+return an empty list.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -1000,6 +1044,48 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
+Example
+
+<!--
+############
+print(sample_grammar[START])
+ep = EarleyParser(sample_grammar)
+completed_start = last_states[0]
+paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
+for path in paths:
+    print([list(str(s_) for s_ in s) for s in path])
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(sample_grammar[START])
+ep = EarleyParser(sample_grammar)
+completed_start = last_states[0]
+paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
+for path in paths:
+    print([list(str(s_) for s_ in s) for s in path])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+That is, the parse path for `<start>` given the input `adcd` included
+recognizing the expression `<A><B>`. This was recognized by the two states:
+`<A>` from input(0) to input(2) which further involved recognizing the rule
+`a<B>c`, and the next state `<B>` from input(3) which involved recognizing the
+rule `<D>`.
+
+### parse_forest
+
+The `parse_forest()` method takes the state which represents the completed
+parse, and determines the possible ways that its expressions corresponded to
+the parsed expression. For example, say we are parsing `1+2+3`, and the
+state has `[<expr>,+,<expr>]` in `expr`. It could have been parsed as either
+`[{<expr>:1+2},+,{<expr>:3}]` or `[{<expr>:1},+,{<expr>:2+3}]`.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1016,6 +1102,61 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+Example
+
+<!--
+############
+ep = EarleyParser(sample_grammar)
+result = ep.parse_forest(columns, last_states[0])
+print(result)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = EarleyParser(sample_grammar)
+result = ep.parse_forest(columns, last_states[0])
+print(result)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+### extract_trees
+
+We show how to extract a single tree first, and then generalize it to
+all trees.
+
+<!--
+############
+class EarleyParser(EarleyParser):
+    def extract_a_tree(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return (name, [])
+        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def extract_a_tree(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return (name, [])
+        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+The above can be generalized to `extract_trees()` as below.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -1034,7 +1175,6 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 ## Example
 Now we are ready for parsing. 
