@@ -1253,6 +1253,15 @@ print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
+## Remaining
+
+There is a problem with our `extract_trees()` method. The issue is that it is
+too eager. The parse forest can have an infinite number of trees, and at this
+time we effectively try to extract all at the same time. So, in case of
+such grammars our `extract_trees()` will fail. We will show how to do this
+better in a later post.
+
+
 [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
 
 [^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
