@@ -953,7 +953,7 @@ Here is an example of using it.
 
 <!--
 ############
-p = EarleyParser(sample_grammar)
+ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix('adcd')
 print(cursor, [str(s) for s in last_states])
 ############
@@ -962,7 +962,7 @@ print(cursor, [str(s) for s in last_states])
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-p = EarleyParser(sample_grammar)
+ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;)
 print(cursor, [str(s) for s in last_states])
 </textarea><br />
