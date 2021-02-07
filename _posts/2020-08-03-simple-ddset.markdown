@@ -18,7 +18,7 @@ categories: post
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
 <form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 "https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl"
 </textarea>
 <button type="button" name="python_run_all">Run all</button>
