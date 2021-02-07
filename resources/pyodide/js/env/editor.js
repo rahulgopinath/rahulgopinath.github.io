@@ -65,9 +65,11 @@ languagePluginLoader.then(() => {
       myform = $(myform_)
       myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
       if (typeof myeditor !== 'undefined')  {
-          mypre = myform.find('[name="python_output"]').first()
-          mycanvas = myform.find('[name="python_canvas"]').first()
-          runit(mypre[0], mycanvas[0], myeditor)
+          if (myform.find('[name="python_edit"]')[0].id != 'python_pre_edit') {
+            mypre = myform.find('[name="python_output"]').first()
+            mycanvas = myform.find('[name="python_canvas"]').first()
+            runit(mypre[0], mycanvas[0], myeditor)
+          }
       }
       });
     });
