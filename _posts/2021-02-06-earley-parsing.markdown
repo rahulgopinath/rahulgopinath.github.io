@@ -76,8 +76,10 @@ For this post, we use the following terms:
   after another contiguously (also called parsing).
 * A *derivation tree* is an ordered tree that describes how an input string is
   derived by the given start symbol. Also called a *parse tree*.
-
-
+* A derivation tree can be collapsed into its string equivalent. Such a string
+  can be parsed again by the nonterminal at the root node of the derivation
+  tree such that at least one of the resulting derivation trees would be the
+  same as the one we started with.
 
 
 <form name='python_run_form'>
@@ -530,6 +532,10 @@ There are three main methods: `predict()`, `scan()`, and `complete()`
 
 If the term after the dot is a nonterminal, `predict()` is called. It
 adds the expansion of the nonterminal to the current column.
+
+If the term is nullable, then we simply advance the current state, and
+add that to the current column. This fix to the original Earley parsing
+was suggested by Aycock et al.[^aycock2002practical].
 
 
 <form name='python_run_form'>
