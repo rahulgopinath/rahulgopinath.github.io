@@ -511,9 +511,6 @@ class EarleyParser(EarleyParser):
                     self.complete(col, state)
                 else:
                     sym = state.at_dot()
-                    if sym in self.epsilon:
-                        col.add(state.advance())
-
                     if sym in self._grammar:
                         self.predict(col, sym, state)
                     else:
@@ -547,6 +544,8 @@ class EarleyParser(EarleyParser):
     def predict(self, col, sym, state):
         for alt in self._grammar[sym]:
             col.add(State(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            col.add(state.advance())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
