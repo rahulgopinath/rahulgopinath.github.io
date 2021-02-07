@@ -44,6 +44,29 @@ symbol has exactly one character. Secondly, there can only be one alternative
 to the `<start>` symbol. This is however not a restriction in practice as you
 can always rewrite the grammar to conform.
 
+For this post, we use the following terms:
+
+* The _alphabet_ is the set all of symbols in the input language
+* A _terminal_ is a single alphabet symbol. Note that this is slightly different
+  from usual definitions (done here for ease of parsing). (Usually a terminal is
+  a contiguous sequence of symbols from the alphabet. However, both kinds of
+  grammars have a one to one correspondence, and can be converted easily.)
+* A _nonterminal_ is a symbol outside the alphabet whose expansion is _defined_
+  in the grammar using _rules_ for expansion.
+* A _rule_ is a finite sequence of _terms_ (two types of terms: terminals and
+  nonterminals) that describe an expansion of a given terminal.
+* A _definition_ is a set of _rules_ that describe the expansion of a given nonterminal.
+* A _context-free grammar_ is  composed of a set of nonterminals and 
+  corresponding definitions that define the structure of the nonterminal.
+* A terminal _derives_ a string if the string contains only the symbols in the
+  terminal. A nonterminal derives a string if the corresponding definition
+  derives the string. A definition derives the  string if one of the rules in
+  the definition derives the string. A rule derives a string if the sequence
+  of terms that make up the rule can derive the string, deriving one substring 
+  after another contiguously (also called parsing).
+* A *derivation tree* is an ordered tree that describes how an input string is
+  derived by the given start symbol. Also called a *parse tree*.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 
@@ -72,6 +95,45 @@ START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+
+## Summary
+
+An Earley parser executes the following steps for parsing:
+
+Use `<start>` as the entry into parsing. At this point, we want to parse the
+given string by the nonterminal `<start>`. The _definition_ of `<start>`
+contains the possible expansion rule that can match the given string. Each
+expansion rule can be thought of as a *parsing path*, with contiguous
+substrings of the given input string matched by the particular terms in the
+rule.
+
+* When given a nonterminal to match the string, the essential idea is to
+  get the rules in the definition, and add them to the current set of
+  parsing paths to try with the given string. Within the parsing path, we have
+  a parsed index which denotes the progress of parsing that particular path
+  (i.e the point till which the string until now has been recognized by that
+  path, and any parents of this path). When a rule is newly added, this parsed
+  index is set to zero.
+
+* We next look at our set of possible parsing paths, and check if any of these
+  paths start with a nonterminal. If one is found, then for that parsing path to
+  be completed with the given string, that nonterminal has to be recognized
+  first. So, we add the expansion rules corresponding to that nonterminal to the
+  list of possible parsing paths. We do this recursively.
+
+* Now, examine the current letter in the input. Then select all parsing paths
+  that have that particular letter at the parsed index. These expressions can
+  now advance one step to the next index. We add such parsing paths to the
+  set of parsing paths to try for the next character.
+
+* While doing this, any parsing paths have finished parsing, fetch its
+  corresponding nonterminal and advance all parsing paths that have that
+  nonterminal at the parsing index.
+
+* Continue recursively until the parsing path corresponding to `<start>` has
+  finished.
+
 
 The chart parser depends on a chart (a table) for parsing. The rows are the
 characters in the input string. Each column represents a set of *states*, and
@@ -109,7 +171,7 @@ class Column:
 
 Each state contains the following:
 
-* name: The non-terminal that this rule represents.
+* name: The nonterminal that this rule represents.
 * expr: The rule that is being followed
 * dot:  The point till which parsing has happened in the rule.
 * s_col: The starting point for this rule.
@@ -161,8 +223,10 @@ class State:
 ## Parser
 
 We start with a bare minimum interface for a parser. It should allow one
-to parse a given text using a given non-terminal (which should be present in
-the grammar)
+to parse a given text using a given nonterminal (which should be present in
+the grammar). Note that while `on_parse()` can accept any nonterminal, due to
+the technicality of Earley parsing, we can only accept nonterminals with a
+single expansion rule here.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -194,12 +258,12 @@ class EarleyParser(Parser):
 
 #### Nullable
 
-Earley parser handles *nullable* non-terminals separately. A nullable
-non-terminal is a non-terminal that can derive an empty string. That is
+Earley parser handles *nullable* nonterminals separately. A nullable
+nonterminal is a nonterminal that can derive an empty string. That is
 at least one of the expansion rules must derive an empty string. An
 expansion rule derives an empty string if *all* of the tokens can
 derive the empty string. This means no terminal symbols (assuming we
-do not have zero width terminal symbols), and all non-terminal symbols
+do not have zero width terminal symbols), and all nonterminal symbols
 can derive empty string.
 
 <form name='python_run_form'>
@@ -315,8 +379,8 @@ class EarleyParser(EarleyParser):
 
 ### Predict
 
-If the term after the dot is a non-terminal, `predict()` is called. It
-adds the expansion of the non-terminal to the current column.
+If the term after the dot is a nonterminal, `predict()` is called. It
+adds the expansion of the nonterminal to the current column.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
