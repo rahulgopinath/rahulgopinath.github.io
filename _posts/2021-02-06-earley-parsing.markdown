@@ -330,7 +330,9 @@ print(a_state.at_dot())
 <textarea cols="40" rows="4" name='python_edit'>
 nt_name = &#x27;&lt;B&gt;&#x27;
 nt_expr = tuple(sample_grammar[nt_name][1])
-a_state = State(nt_name, tuple(nt_expr), 0, Column(0, None))
+col_0 = Column(0, None)
+a_state = State(nt_name, tuple(nt_expr), 0, col_0)
+print(a_state)
 print(a_state.at_dot())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -343,6 +345,7 @@ That is, the next symbol to be parsed is `<D>`, and if we advance it,
 <!--
 ############
 b_state = a_state.advance()
+print(b_state)
 print(b_state.finished())
 ############
 -->
@@ -622,6 +625,7 @@ class EarleyParser(EarleyParser):
 </form>
 
 Here is our continuing example.
+
 <!--
 ############
 ep = EarleyParser(sample_grammar)
@@ -876,7 +880,7 @@ columns = ep.chart_parse('adcd', START, sample_grammar[START][0])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar, log=True)
-columns = ep.chart_parse(&#x27;adcd&#x27;, start, sample_grammar[start][0])
+columns = ep.chart_parse(&#x27;adcd&#x27;, START, sample_grammar[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
