@@ -39,7 +39,7 @@ $('[name="python_edit"]').each(function(idx) {
 
 languagePluginLoader.then(() => { 
   pyodide.loadPackage(['micropip']).then(() => {
-    var imports_ = $(document).find('#python_pre_edit"')
+    var imports_ = $(document).find('#python_pre_edit')
     var imports_lst = [];
     if (imports_.length > 0) {
         var imports_text = imports_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
