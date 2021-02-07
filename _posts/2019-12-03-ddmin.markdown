@@ -617,7 +617,7 @@ def perses_delta_debug(grammar, orig_tree, predicate):
             for c in biggest_node[1]:
                 if is_nt(c[0]):
                     add_to_queue(c, p_q)
-    return patterns, tree
+    return tree
 ############
 -->
 
@@ -652,7 +652,7 @@ def perses_delta_debug(grammar, orig_tree, predicate):
             for c in biggest_node[1]:
                 if is_nt(c[0]):
                     add_to_queue(c, p_q)
-    return patterns, tree
+    return tree
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -783,9 +783,9 @@ print(d_tree_)
 ############
 def modifiable(tree):
     name, children, *rest = tree
-    if not is_nt(name): return (name, [])
+    if not is_nt(name): return [name, []]
     else:
-      return (name, [modifiable(c) for c in children])
+      return [name, [modifiable(c) for c in children]]
 
 d_tree = modifiable(d_tree_)
 ############
@@ -812,7 +812,7 @@ Now, we are ready to use the `perses_delta_debug()`
 
 <!--
 ############
-patterns, tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
+tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
 print(tree_to_string(tree))
 ############
 -->
@@ -820,7 +820,7 @@ print(tree_to_string(tree))
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-patterns, tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
+tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
 print(tree_to_string(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
