@@ -483,7 +483,7 @@ each expansion.
 class EarleyParser(EarleyParser):
     def parse_on(self, text, start_symbol):
         for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, alt)
+            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
             start = next((s for s in states if s.finished()), None)
 
             if cursor &lt; len(text) or not start:
