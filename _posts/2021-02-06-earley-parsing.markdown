@@ -41,7 +41,9 @@ given by Aycock et al.[^aycock2002practical].
 
 For a much more complete implementation including Leo's optimizations[^leo1991a], and
 full recovery of parsing forests using iterative solutions,
-see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html) (See the solved exercises).
+see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
+(See the solved exercises). A very detailed explanation of Earley parsing is
+by [Loup Vaillant](https://loup-vaillant.fr/tutorials/earley-parsing/).
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
@@ -222,6 +224,10 @@ This is how the table or the chart -- from where the parsing gets its name: char
 
 The column contains a set of states. Each column corresponds
 to a character (or a token if tokens are used).
+Note that the states in a column corresponds to the parsing expression that will
+occur once that character has been read. That is, the first column will
+correspond to the parsing expression when no characters have been read.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Column:
