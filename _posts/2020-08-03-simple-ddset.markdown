@@ -7,33 +7,6 @@ tags: deltadebug, ddset, testcase reducer, cfg, generator
 categories: post
 ---
 
-<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl"
-</textarea>
-<button type="button" name="python_run_all">Run all</button>
-</form>
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
 We previously [discussed](/post/2020/07/15/ddset/) how DDSET [^gopinath2020abstracting] is implemented. However, DDSET is a fairly complex algorithm, and
 tries to handle diverse cases that may arise in the real world such as difference between syntactic and semantic validity, impact of tokens, variables etc.
 This complexity is however, not innate. One can produce a much more simple version of DDSET if one is only interested in abstracting

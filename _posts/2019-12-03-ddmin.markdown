@@ -9,6 +9,32 @@ categories: post
 
 Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).
 
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl"
+</textarea>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import earleyparser
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 ### About Delta Debugging
 
 Delta Debugging is a method to reduce failure inducing inputs to their
@@ -29,12 +55,29 @@ character will remove the observed failure.
 
 Given a causal function as below,
 
-```python
+<!--
+############
 def test(s):
     v = re.match("<SELECT.*>", s)
     print("%s  %s %d" % (('+' if v else '.'),  s, len(s)))
     return v
-```
+
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def test(s):
+    v = re.match(&quot;&lt;SELECT.*&gt;&quot;, s)
+    print(&quot;%s  %s %d&quot; % ((&#x27;+&#x27; if v else &#x27;.&#x27;),  s, len(s)))
+    return v
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 Here is an example run:
 
@@ -76,10 +119,27 @@ How do we implement this?
 
 First, the prerequisites:
 
+<!--
+############
 ```python
 import random
 import string
-```
+
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+import string
+
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ### remove_check_each_fragment()
 
@@ -88,13 +148,29 @@ that many partitions, remove each partition one at a time from the
 string, and check if for any of them, the `causal()` succeeds. If it
 succeeds for any, then return the succeeding string.
 
-```python
+<!--
+############
 def remove_check_each_fragment(instr, start, part_len, causal):
     for i in range(start, len(instr), part_len):
         stitched =  instr[:i] + instr[i+part_len:]
         if causal(stitched): return i, stitched
     return -1, instr
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def remove_check_each_fragment(instr, start, part_len, causal):
+    for i in range(start, len(instr), part_len):
+        stitched =  instr[:i] + instr[i+part_len:]
+        if causal(stitched): return i, stitched
+    return -1, instr
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 ### ddmin()
 
@@ -111,7 +187,8 @@ partition length. We reduce the partition length by half.
 
 If the partition length is now single chars, then we break and return.
 
-```python
+<!--
+############
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
     while part_len >= 1:
@@ -121,32 +198,93 @@ def ddmin(cur_str, causal_fn):
         else:
             start, part_len = 0, part_len // 2
     return cur_str
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def ddmin(cur_str, causal_fn):
+    start, part_len = 0, len(cur_str) // 2
+    while part_len &gt;= 1:
+        start, cur_str = remove_check_each_fragment(cur_str, start, part_len, causal_fn)
+        if start != -1:
+            if not cur_str: return &#x27;&#x27;
+        else:
+            start, part_len = 0, part_len // 2
+    return cur_str
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 The driver.
 
-```python
+<!--
+############
 def test(s):
     print("%s %d" % (s, len(s)))
     return set('()') <= set(s)
+############
+-->
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def test(s):
+    print(&quot;%s %d&quot; % (s, len(s)))
+    return set(&#x27;()&#x27;) &lt;= set(s)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
 inputstring = ''.join(random.choices(string.digits +
                       string.ascii_letters +
                       string.punctuation, k=1024))
+print(inputstring)
+############
+-->
 
-if __name__ == "__main__":
-    assert test(inputstring)
-    solution = ddmin(inputstring, test)
-    print(solution)
-```
 
-Usage:
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+inputstring = &#x27;&#x27;.join(random.choices(string.digits +
+                      string.ascii_letters +
+                      string.punctuation, k=1024))
+print(inputstring)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-```shell
-$ python3 py.py
-...
-)(
-```
+
+<!--
+############
+assert test(inputstring)
+solution = ddmin(inputstring, test)
+print(solution)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+assert test(inputstring)
+solution = ddmin(inputstring, test)
+print(solution)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 The nice thing is that, if you invoke the driver, you can see the reduction in
 input length in action. Note that our driver is essentially a best case
@@ -179,7 +317,8 @@ Here is the implementation.
 
 ### ddrmin()
 
-```python
+<!--
+############
 def ddrmin(cur_str, causal_fn, pre='', post=''):
     if len(cur_str) == 1: return cur_str
     
@@ -194,7 +333,32 @@ def ddrmin(cur_str, causal_fn, pre='', post=''):
     return s1 + s2
     
 ddmin = ddrmin
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def ddrmin(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
+    if len(cur_str) == 1: return cur_str
+    
+    part_i = len(cur_str) // 2
+    string1, string2 = cur_str[:part_i], cur_str[part_i:]
+    if causal_fn(pre + string1 + post):
+        return ddrmin(string1, causal_fn, pre, post)
+    elif causal_fn(pre + string2 + post):
+        return ddrmin(string2, causal_fn, pre, post)
+    s1 = ddrmin(string1, causal_fn, pre, string2 + post)
+    s2 = ddrmin(string2, causal_fn, pre + s1, post)
+    return s1 + s2
+    
+ddmin = ddrmin
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 in languages such as Python which allocates just the bare minimum stack by default. The
@@ -218,7 +382,7 @@ The solution here is to go for a variant called `Hierarchical Delta Debugging` d
 in *HDD: hierarchical delta debugging* by Misherghi et al. in 2006. The basic idea is to
 first extract the parse tree (either by parsing the input using a grammar, or by either
 relying on a generator to generate the parse tree along with the input, or by extracting
-the parse tree inflight from the target program if it supports it), and then try and apply `ddmin()` on each level
+the parse tree in-flight from the target program if it supports it), and then try and apply `ddmin()` on each level
 of the derivation tree. Another notable improvement is
 *Automatically Reducing Tree-Structured Test Inputs* by Herfert et al. in 2017. In this
 paper, the authors describe a simple strategy: Try and replace a given node by one of
@@ -236,51 +400,116 @@ continuing with the next symbol of the same kind if it fails.
 
 Below is a variant of hierarchical `ddmin()` from "Perses: syntax-guided program reduction" by Sun et al. 2018
 
-```python
+<!--
+############
 import sys
 import re
 import copy
 import heapq
-from fuzzingbook.Parser import IterativeEarleyParser as Parser
-from fuzzingbook.Parser import canonical
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import sys
+import re
+import copy
+import heapq
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### A few helpers
 
 Check if a given token is a noterminal
 
-```python
+<!--
+############
 def is_nt(v):
     return (v[0], v[-1]) == ('<', '>')
-```
 
-```python
 def tree_to_string(tree):
     name, children, *rest = tree
     if not is_nt(name): return name
     else: return ''.join([tree_to_string(c) for c in children])
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def is_nt(v):
+    return (v[0], v[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+
+def tree_to_string(tree):
+    name, children, *rest = tree
+    if not is_nt(name): return name
+    else: return &#x27;&#x27;.join([tree_to_string(c) for c in children])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### We prioritize the smallest trees.
 
-```python
+
+<!--
+############
 def count_leaves(node):
     name, children = node
     if not children:
         return 1
     return sum(count_leaves(i) for i in children)
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def count_leaves(node):
+    name, children = node
+    if not children:
+        return 1
+    return sum(count_leaves(i) for i in children)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### A priority queue
 
-```python
+<!--
+############
 def add_to_queue(node, q):
     heapq.heappush(q, (count_leaves(node), node))
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def add_to_queue(node, q):
+    heapq.heappush(q, (count_leaves(node), node))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### A way to tempoararily replace a node in a tree.
 
-```python
+
+<!--
+############
 class ReplaceNode:
     def __init__(self, node, new_node = None):
         self.node, self.new_node = node, ['', []] if new_node is None else new_node
@@ -295,11 +524,38 @@ class ReplaceNode:
     def __exit__(self, *args):
         self.node.clear()
         self.node.extend(self.node_copy)
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReplaceNode:
+    def __init__(self, node, new_node = None):
+        self.node, self.new_node = node, [&#x27;&#x27;, []] if new_node is None else new_node
+        self.node_copy = copy.copy(self.node)
+
+    def __enter__(self):
+        # we dont worry about legal grammar here as this is temporary
+        self.node.clear()
+        if self.new_node is not None:
+            self.node.extend(self.new_node)
+
+    def __exit__(self, *args):
+        self.node.clear()
+        self.node.extend(self.node_copy)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### Find all subtrees with the given symbol
 
-```python
+
+<!--
+############
 def subtrees_with_symbol(node, symbol, result=None, depth=0):
     if result is None: result = []
     name, children = node
@@ -308,11 +564,31 @@ def subtrees_with_symbol(node, symbol, result=None, depth=0):
     for c in children:
         subtrees_with_symbol(c, symbol, result, depth+1)
     return result
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def subtrees_with_symbol(node, symbol, result=None, depth=0):
+    if result is None: result = []
+    name, children = node
+    if name == symbol:
+        result.append((depth, node))
+    for c in children:
+        subtrees_with_symbol(c, symbol, result, depth+1)
+    return result
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 #### The perses algorithm itself.
 
-```python
+<!--
+############
 def perses_delta_debug(grammar, orig_tree, predicate):
     tree = copy.deepcopy(orig_tree) # we minify the original tree
     p_q = []
@@ -342,89 +618,167 @@ def perses_delta_debug(grammar, orig_tree, predicate):
                 if is_nt(c[0]):
                     add_to_queue(c, p_q)
     return patterns, tree
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def perses_delta_debug(grammar, orig_tree, predicate):
+    tree = copy.deepcopy(orig_tree) # we minify the original tree
+    p_q = []
+    add_to_queue(tree, p_q)
+    while p_q:
+        reprocess = None
+        _, biggest_node = heapq.heappop(p_q)
+        bsymbol = biggest_node[0]
+        _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
+        ssubtrees = sorted(subtrees, reverse=True)
+
+        if &#x27;&#x27; in grammar[bsymbol]: # empty expansion
+            ssubtrees.insert(0, (0, (bsymbol, [])))
+
+        for _depth,stree in subtrees:
+            with ReplaceNode(biggest_node, stree):
+                s = tree_to_string(tree)
+                if predicate(s):
+                    reprocess = stree
+                    break
+        if reprocess is not None:
+            biggest_node.clear()
+            biggest_node.extend(reprocess)
+            add_to_queue(biggest_node, p_q)
+        else:
+            for c in biggest_node[1]:
+                if is_nt(c[0]):
+                    add_to_queue(c, p_q)
+    return patterns, tree
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 #### The driver
 
 First, we define the predicate. Our predicate is simple. We check if the expression has doubled parenthesis.
 
-```python
+<!--
+############
 def test_bb(inp):
     if re.match(r'.*[(][(].*[)][)].*', inp):
         return True
     return False
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def test_bb(inp):
+    if re.match(r&#x27;.*[(][(].*[)][)].*&#x27;, inp):
+        return True
+    return False
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 We have the following grammar
 
 ```python
-EXPR_GRAMMAR = {'<start>': ['<expr>'],
- '<expr>': ['<term> + <expr>', '<term> - <expr>', '<term>'],
- '<term>': ['<factor> * <term>', '<factor> / <term>', '<factor>'],
- '<factor>': ['+<factor>',
-  '-<factor>',
-  '(<expr>)',
-  '<integer>.<integer>',
-  '<integer>'],
- '<integer>': ['<digit><integer>', '<digit>'],
- '<digit>': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']}
+EXPR_GRAMMAR = {'<start>': [['<expr>']],
+ '<expr>': [['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
+ '<term>': [['<factor>', '*', '<term>'], ['<factor>', '/', '<term>'], ['<factor>']],
+ '<factor>': [['+', '<factor>'],
+  ['-<factor>'],
+  ['(', '<expr>', ')'],
+  ['<integer>', '.', '<integer>'],
+  ['<integer>']],
+ '<integer>': [['<digit>', '<integer>'], ['<digit>']],
+ '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
 ```
 
 And the following input
 
-```python
+<!--
+############
 my_input = '1 + ((2 * 3 / 4))'
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_input = &#x27;1 + ((2 * 3 / 4))&#x27;
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 We parse and generate a derivation tree as follows
 
-```python
-d_tree, *_ = Parser(EXPR_GRAMMAR).parse(my_input)
-```
+
+<!--
+############
+d_tree, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+d_tree, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 The derivation tree looks like this
+<!--
+############
+print(d_tree)
+############
+-->
 
-```python
-d_tree = ['<start>',
- [['<expr>',
-   [['<term>', [['<factor>', [['<integer>', [['<digit>', [['1', []]]]]]]]]],
-    [' + ', []],
-    ['<expr>',
-     [['<term>',
-       [['<factor>',
-         [['(', []],
-          ['<expr>',
-           [['<term>',
-             [['<factor>',
-               [['(', []],
-                ['<expr>',
-                 [['<term>',
-                   [['<factor>', [['<integer>', [['<digit>', [['2', []]]]]]]],
-                    [' * ', []],
-                    ['<term>',
-                     [['<factor>',
-                       [['<integer>', [['<digit>', [['3', []]]]]]]],
-                      [' / ', []],
-                      ['<term>',
-                       [['<factor>',
-                         [['<integer>', [['<digit>', [['4', []]]]]]]]]]]]]]]],
-                [')', []]]]]]]],
-          [')', []]]]]]]]]]]]
-```
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(d_tree)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 Now, we are ready to use the `perses_delta_debug()`
 
-```python
-EXPR_GRAMMAR_C = canonical(EXPR_GRAMMAR)
-patterns, tree = perses_delta_debug(EXPR_GRAMMAR_C, d_tree, test_bb)
+<!--
+############
+patterns, tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
 print(tree_to_string(tree))
-```
+############
+-->
 
-This prints
 
-```python
-((4))
-```
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+patterns, tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
+print(tree_to_string(tree))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 ### Is this Enough? (Semantics)
 
 Note that at this point, we can generate syntactically valid inputs to check reduction, but there is no guarantee that they
@@ -436,7 +790,7 @@ A rather different approach is taken by [Hypothesis](https://github.com/Hypothes
 
 Hypothesis reducer works as follows: Given any generator that relies on randomness, one can envision an array of random bits that
 is passed to the generator. For example, consider the simple grammar generator below. It is passed `bits` which is an array of random
-bits with a function `next()`, which returns an integer and advances the inex.
+bits with a function `next()`, which returns an integer and advances the index.
 
 ```python
 def unify_key(bits, grammar, key):
@@ -446,19 +800,19 @@ def unify_rule(bits, grammar, rule):
     return sum([unify_key(bits, grammar, token) for token in rule], [])
 ```
 
-When the genrator wants to make a random choice, it consumes a number of bits from this array, and advances the index
+When the generator wants to make a random choice, it consumes a number of bits from this array, and advances the index
 to denote that the bits were consumed. Now, at the end of generation, the bits consumed so far is essentially the trail of generation. 
 
-Hypothesis tries to reduce the length of this trail (which it calls the _choice sequence_). Hypothesis tries to identify shorter choice sequences (short lex order)
-that can reproduce the failure. This it does by certain surgeries in the choice sequnce obtained from generating the string. The particular surgeries
+Hypothesis tries to reduce the length of this trail (which it calls the _choice sequence_). Hypothesis tries to identify shorter choice sequences (short-lex order)
+that can reproduce the failure. This it does by certain surgeries in the choice sequence obtained from generating the string. The particular surgeries
 are simply removal of chunks that seems to work well in practice, with no specific reasoning behind it. If it finds
-that more bits are required than in the original choice sequence, then it discards the edit. Otherwise, the idea is that short lex order almost
-always leads to shorter strings by prioritizing strings with smaller number of decisions, and consequently smaller number of recurion and hence
+that more bits are required than in the original choice sequence, then it discards the edit. Otherwise, the idea is that short-lex order almost
+always leads to shorter strings by prioritizing strings with smaller number of decisions, and consequently smaller number of recursion and hence
 terminal symbols.
 
 Note that unlike HDD variants, any edit on the choice sequence is guaranteed to produce a valid string.
 
-One question here is, why does the almost arbitrary edits in choice sequences work? The surprice here is that, aribtrary edits work eventhough any edit
+One question here is, why does the almost arbitrary edits in choice sequences work? The surprise here is that, arbitrary edits work even though any edit
 can end up making the remaining bits be passed to different choices than original.
 The reason seems to be that, the bugs are usually locally concentrated. That is, once one is able to reproduce the failure pattern, one can fill in
 the remaining parts of the input with randomly generated (but valid) values. Note that skeleton of the input will be generated by the initial choices itself.
