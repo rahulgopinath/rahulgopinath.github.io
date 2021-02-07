@@ -956,7 +956,7 @@ Here is an example of using it.
 <!--
 ############
 ep = EarleyParser(sample_grammar)
-cursor, last_states = ep.parse_prefix('adcd')
+cursor, last_states = ep.parse_prefix('adcd', START, tuple(sample_grammr[START][0]))
 print(cursor, [str(s) for s in last_states])
 ############
 -->
@@ -965,7 +965,7 @@ print(cursor, [str(s) for s in last_states])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
-cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;)
+cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;START, tuple(sample_grammr[START][0]))
 print(cursor, [str(s) for s in last_states])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
