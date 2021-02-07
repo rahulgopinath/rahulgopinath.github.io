@@ -319,7 +319,7 @@ self explanatory. For example,
 <!--
 ############
 nt_name = '<B>'
-nt_expr = sample_grammar[nt_name][1]
+nt_expr = tuple(sample_grammar[nt_name][1])
 col_0 = Column(0, None)
 a_state = State(nt_name, tuple(nt_expr), 0, col_0)
 print(a_state.at_dot())
@@ -329,7 +329,7 @@ print(a_state.at_dot())
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 nt_name = &#x27;&lt;B&gt;&#x27;
-nt_expr = sample_grammar[nt_name][1]
+nt_expr = tuple(sample_grammar[nt_name][1])
 a_state = State(nt_name, tuple(nt_expr), 0, Column(0, None))
 print(a_state.at_dot())
 </textarea><br />
@@ -467,7 +467,7 @@ We seed our initial state in the example
 
 <!--
 ############
-nt_expr = sample_grammar[START][0]
+nt_expr = tuple(sample_grammar[START][0])
 col_0 = Column(0, None)
 start_state = State(START, nt_expr, 0, col_0)
 col_0.add(start_state)
@@ -478,7 +478,7 @@ print(start_state.at_dot())
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-nt_expr = sample_grammar[START][0]
+nt_expr = tuple(sample_grammar[START][0])
 col_0 = Column(0, None)
 start_state = State(START, nt_expr, 0, col_0)
 col_0.add(start_state)
