@@ -154,30 +154,37 @@ of *states*, and corresponds to the legal rules to follow from that point on.
 
 Say we start with the following grammar:
 
-```python
-grammar = {
-    '<start>': [['<A>','<B>']],
-    '<A>': [['a', '<B>', 'c'], ['a', '<A>']],
-    '<B>': [['b', '<C>'], ['<D>']],
-    '<C>': [['c']],
-    '<D>': [['d']]
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+sample_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;,&#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;c&#x27;], [&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;C&gt;&#x27;], [&#x27;&lt;D&gt;&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;c&#x27;]],
+    &#x27;&lt;D&gt;&#x27;: [[&#x27;d&#x27;]]
 }
-```
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 Earley parser produces a table of possible parse paths at each letter index of
 the table. Given an input `adcd`, we seed the column `0`  with:
 
 ```
-   <start>: * <A> <B>
+   <start>: | <A> <B>
 ```
 
-where the `*` represents the parsing index (also called the dot). This indicates
+where the `|` represents the parsing index (also called the dot). This indicates
 that we are at the starting, and the next step is to identify `<A>`. After this
 rule is processed, the column would contain two more states
 
 ```
-   <A>: * a <B> <c>
-   <A>: * a <A>
+   <A>: | a <B> <c>
+   <A>: | a <A>
 ```
 which represents two parsing paths to complete `<A>`.
 
@@ -185,37 +192,37 @@ After processing of column `0` (which corresponds to input character `a`), we
 would find the following in column `1` (which corresponds to the input character `b`)
 
 ```
-   <A>: a * <B> c
-   <A>: a * <A>
-   <B>: * b <C>
-   <B>: * <D>
-   <A>: * a <B> c
-   <A>: * a <A>
-   <D>: * d
+   <A>: a | <B> c
+   <A>: a | <A>
+   <B>: | b <C>
+   <B>: | <D>
+   <A>: | a <B> c
+   <A>: | a <A>
+   <D>: | d
 ```
 
 Similarly, the next column (column `2` corresponding to `d`) would contain the following.
 
 ```
-   <D>: * d
-   <B>: <D> *
-   <A>: a <B> * c
+   <D>: | d
+   <B>: <D> |
+   <A>: a <B> | c
 ```
 
 Next, column `3` corresponding to `c` would contain:
 ```
-   <A>: a <B> c *
-   <start>: <A> * <B>
-   <B>: * <b> <C>
-   <B>: * <D>
-   <D>: * d
+   <A>: a <B> c |
+   <start>: <A> | <B>
+   <B>: | <b> <C>
+   <B>: | <D>
+   <D>: | d
 ```
 
 Finally, column `4` (`d`) would contain this at the end of processing.
 ```
-   <D>: d *
-   <B>: <D> *
-   <start>: <A> <B> *
+   <D>: d |
+   <B>: <D> |
+   <start>: <A> <B> |
 ```
 
 This is how the table or the chart -- from where the parsing gets its name: chart parsing -- gets filled.
@@ -254,6 +261,8 @@ class Column:
 
 ## State
 
+A state represents a parsing path (which corresponds to the nonterminal, and the
+expansion rule that is being followed) with the current parsed index. 
 Each state contains the following:
 
 * name: The nonterminal that this rule represents.
@@ -304,14 +313,56 @@ class State:
 <div name='python_canvas'></div>
 </form>
 
+The convenience methods `finished()`, `advanced()` and `at_dot()` should be
+self explanatory. For example,
+
+<!--
+############
+nt_name = '<B>'
+nt_expr = sample_grammar[nt_name][1]
+col_0 = Column(0, None)
+a_state = State(nt_name, tuple(nt_expr), 0, col_0)
+print(a_state.at_dot())
+############
+-->
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nt_name = &#x27;&lt;B&gt;&#x27;
+nt_expr = sample_grammar[nt_name][1]
+a_state = State(nt_name, tuple(nt_expr), 0, Column(0, None))
+print(a_state.at_dot())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+That is, the next symbol to be parsed is `<D>`, and if we advance it,
+
+<!--
+############
+b_state = a_state.advance()
+print(b_state.finished())
+############
+-->
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+b_state = a_state.advance()
+print(b_state.finished())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ## Parser
 
 We start with a bare minimum interface for a parser. It should allow one
 to parse a given text using a given nonterminal (which should be present in
-the grammar). <!-- Note that while `on_parse()` can accept any nonterminal, due to
-the technicality of Earley parsing, we can only accept nonterminals with a
-single expansion rule here. -->
+the grammar).
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -391,6 +442,13 @@ def nullable_expr(expr, nullables):
 ## Chart construction
 
 First, we seed the chart with columns representing the tokens or characters.
+Consider our example grammar again. The starting point is,
+```
+   <start>: | <A> <B>
+```
+We add this state to the `chart[0]` to start the parse. Note that the term
+after dot is `<A>`, which will need to be recursively inserted to the column.
+We will see how to do that later.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -404,6 +462,34 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+We seed our initial state in the example
+
+<!--
+############
+nt_expr = sample_grammar[START][0]
+col_0 = Column(0, None)
+start_state = State(START, nt_expr, 0, col_0)
+col_0.add(start_state)
+print(start_state.at_dot())
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nt_expr = sample_grammar[START][0]
+col_0 = Column(0, None)
+start_state = State(START, nt_expr, 0, col_0)
+col_0.add(start_state)
+print(start_state.at_dot())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 
 Then, we complete the chart.
 
@@ -431,36 +517,14 @@ class EarleyParser(EarleyParser):
 </form>
 
 
-There are three main methods: `complete()`, `predict()`, and `scan()`
-
-### Complete
-
-The `complete()` method is called if a particular state has finished the rule
-during execution. It first extracts the start column of the finished state, then
-for all states in the start column that is not finished, find the states that
-were parsing this current state (that is, we can go back to continue to parse
-those rules now). Next, shift them by one position, and add them to the current
-column.
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
-    def complete(self, col, state):
-        parent_states = [st for st in state.s_col.states
-                 if st.at_dot() == state.name]
-        for st in parent_states:
-            col.add(st.advance())
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
+There are three main methods: `predict()`, `scan()`, and `complete()`
 
 ### Predict
 
 If the term after the dot is a nonterminal, `predict()` is called. It
 adds the expansion of the nonterminal to the current column.
+
+If we look our example, we have seeded
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -533,6 +597,30 @@ class EarleyParser(EarleyParser):
 # '<integer>': ['<digit><integer>', '<digit>'],
 # '<digit>': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']}
 -->
+
+### Complete
+
+The `complete()` method is called if a particular state has finished the rule
+during execution. It first extracts the start column of the finished state, then
+for all states in the start column that is not finished, find the states that
+were parsing this current state (that is, we can go back to continue to parse
+those rules now). Next, shift them by one position, and add them to the current
+column.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        for st in parent_states:
+            col.add(st.advance())
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ## Parse trees
 
