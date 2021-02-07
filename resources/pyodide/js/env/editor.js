@@ -38,36 +38,45 @@ $('[name="python_edit"]').each(function(idx) {
 });
 
 languagePluginLoader.then(() => { 
-  pyodide.loadPackage(['micropip'])
-  console.log('pyodide ready');
-  var pre =  '\nimport io, sys\n__IODIDE_console=sys.stdout\n'
-  var pre_ = '\ndef _dbg(v): print(v, file=__IODIDE_console)\n'
-
-  pyodide.runPython(pre + pre_)
-
-  $('[name="python_run"]').click(function() { 
-    myform = $(this).closest('[name="python_run_form"]');
-    myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-    mypre = myform.find('[name="python_output"]').first()
-    mycanvas = myform.find('[name="python_canvas"]').first()
-    runit(mypre[0], mycanvas[0], myeditor)
-  });
-
-  $('[name="python_run_all"]').click(function() { 
-    $(document).find('[name="python_run_form"]').each(function(idx, myform_) {
-    myform = $(myform_)
-    myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-    if (typeof myeditor !== 'undefined')  {
-        mypre = myform.find('[name="python_output"]').first()
-        mycanvas = myform.find('[name="python_canvas"]').first()
-        runit(mypre[0], mycanvas[0], myeditor)
+  pyodide.loadPackage(['micropip']).then(() => {
+    var imports_ = myform.find('#python_pre_edit"')
+    var imports_lst = [];
+    if (imports_.length > 0) {
+        var imports_text = imports_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
+        pyodide.runPython('micropip.install([%s])' % imports_text);
     }
-    });
-  });
 
-  $('[name="python_run_all"]').each(function(idx) {
-    $(this)[0].style.border = '1px solid red'
-  });
+    console.log('pyodide ready');
+    var pre =  '\nimport io, sys\n__IODIDE_console=sys.stdout\n'
+    var pre_ = '\ndef _dbg(v): print(v, file=__IODIDE_console)\n'
+
+    pyodide.runPython(pre + pre_)
+
+    $('[name="python_run"]').click(function() { 
+      myform = $(this).closest('[name="python_run_form"]');
+      myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+      mypre = myform.find('[name="python_output"]').first()
+      mycanvas = myform.find('[name="python_canvas"]').first()
+      runit(mypre[0], mycanvas[0], myeditor)
+    });
+
+    $('[name="python_run_all"]').click(function() { 
+      $(document).find('[name="python_run_form"]').each(function(idx, myform_) {
+      myform = $(myform_)
+      myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+      if (typeof myeditor !== 'undefined')  {
+          mypre = myform.find('[name="python_output"]').first()
+          mycanvas = myform.find('[name="python_canvas"]').first()
+          runit(mypre[0], mycanvas[0], myeditor)
+      }
+      });
+    });
+
+    $('[name="python_run_all"]').each(function(idx) {
+      $(this)[0].style.border = '1px solid red'
+    });
+
+  }); //pyodide
 
 }); //lang plugin
 
