@@ -224,9 +224,9 @@ class State:
 
 We start with a bare minimum interface for a parser. It should allow one
 to parse a given text using a given nonterminal (which should be present in
-the grammar). Note that while `on_parse()` can accept any nonterminal, due to
+the grammar). <!-- Note that while `on_parse()` can accept any nonterminal, due to
 the technicality of Earley parsing, we can only accept nonterminals with a
-single expansion rule here.
+single expansion rule here. -->
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -310,8 +310,7 @@ First, we seed the chart with columns representing the tokens or characters.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start):
-        alt = tuple(*self._grammar[start])
+    def chart_parse(self, tokens, start, alt):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
@@ -459,8 +458,8 @@ trees.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol):
-        self.table = self.chart_parse(text, start_symbol)
+    def parse_prefix(self, text, start_symbol, alt):
+        self.table = self.chart_parse(text, start_symbol, alt)
         for col in reversed(self.table):
             states = [
                 st for st in col.states if st.name == start_symbol
@@ -474,21 +473,25 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
-
+Our `parse_on()` method is slightly different from usual Earley implementations
+in that we accept any nonterminal symbol, not just nonterminal symbols with a
+single expansion rule. We accomplish this by computing a different chart for
+each expansion.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def parse_on(self, text, start_symbol):
-        cursor, states = self.parse_prefix(text, start_symbol)
-        start = next((s for s in states if s.finished()), None)
+        for alt in self._grammar[start_symbol]:
+            cursor, states = self.parse_prefix(text, start_symbol, alt)
+            start = next((s for s in states if s.finished()), None)
 
-        if cursor &lt; len(text) or not start:
-            raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+            if cursor &lt; len(text) or not start:
+                raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
 
-        forest = self.parse_forest(self.table, start)
-        for tree in self.extract_trees(forest):
-            yield tree
+            forest = self.parse_forest(self.table, start)
+            for tree in self.extract_trees(forest):
+                yield tree
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
