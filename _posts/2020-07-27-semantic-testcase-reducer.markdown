@@ -690,6 +690,7 @@ def remove_check_each_fragment(instr, start, part_len, causal):
 Next, we need to get our fuzzer to understand the `-1` value.
 We add defaults to each nonterminal, and modify the `select` function to take a default value.
 
+
 <!--
 ############
 class ChoiceFuzzer2(ComplexFuzzer):
@@ -721,8 +722,33 @@ class ChoiceFuzzer2(ComplexFuzzer):
             rules = self.grammar[key]
         default = self.default[key]
         return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
+
+    def gen_rule(self, rule, depth, max_depth):
+        ret = []
+        for token_ in rule:
+            if isinstance(token_, tuple):
+                token = token_[0]
+                fns = token_[1]
+            else:
+                token = token_
+                fns = {}
+
+            pre = fns.get('pre', lambda s, t, x, d: x())
+            post = fns.get('post', lambda s, x: x)
+            val = pre(self, token, lambda: self.gen_key(token, depth, max_depth), self.default)
+            v = post(self, val)
+            ret.append(v)
+        return ret
+
+ def defined_var(o, token, val, default):
+    assert token == '<var>'
+    if not o.vars:
+        return ('00', [])
+    else:
+        return (o.select(o.vars, '000', default), [])
 ############
 -->
+
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -755,11 +781,36 @@ class ChoiceFuzzer2(ComplexFuzzer):
             rules = self.grammar[key]
         default = self.default[key]
         return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
+
+    def gen_rule(self, rule, depth, max_depth):
+        ret = []
+        for token_ in rule:
+            if isinstance(token_, tuple):
+                token = token_[0]
+                fns = token_[1]
+            else:
+                token = token_
+                fns = {}
+
+            pre = fns.get(&#x27;pre&#x27;, lambda s, t, x, d: x())
+            post = fns.get(&#x27;post&#x27;, lambda s, x: x)
+            val = pre(self, token, lambda: self.gen_key(token, depth, max_depth), self.default)
+            v = post(self, val)
+            ret.append(v)
+        return ret
+
+ def defined_var(o, token, val, default):
+    assert token == &#x27;&lt;var&gt;&#x27;
+    if not o.vars:
+        return (&#x27;00&#x27;, [])
+    else:
+        return (o.select(o.vars, &#x27;000&#x27;, default), [])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 
 The choice sequence now returns the `default` when it sees the `-1` value.
