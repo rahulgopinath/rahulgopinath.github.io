@@ -847,6 +847,51 @@ class ChoiceSeq2:
 
 
 These are all the modifications that we require.
+(For strange reasons, we now have to rebind the grammar).
+<!--
+############
+assignment_grammar = {
+        '<start>' : [[ '<assignments>' ]],
+        '<assignments>': [['<assign>', (';\n', {'post':sync})],
+                          ['<assign>', (';\n', {'post':sync}), '<assignments>']],
+        '<assign>': [[('<var>', {'post':defining_var}), ' = ', '<expr>']],
+        '<expr>': [
+            ['<expr>', ' + ', '<expr>'],
+            ['<expr>', ' - ', '<expr>'],
+            ['(', '<expr>', ')'],
+            [('<var>', {'pre':defined_var})],
+            ['<digit>']],
+        '<digit>': [['0'], ['1']],
+        '<var>': [[i] for i in string.ascii_lowercase]
+}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+assignment_grammar = {
+        &#x27;&lt;start&gt;&#x27; : [[ &#x27;&lt;assignments&gt;&#x27; ]],
+        &#x27;&lt;assignments&gt;&#x27;: [[&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync})],
+                          [&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync}), &#x27;&lt;assignments&gt;&#x27;]],
+        &#x27;&lt;assign&gt;&#x27;: [[(&#x27;&lt;var&gt;&#x27;, {&#x27;post&#x27;:defining_var}), &#x27; = &#x27;, &#x27;&lt;expr&gt;&#x27;]],
+        &#x27;&lt;expr&gt;&#x27;: [
+            [&#x27;&lt;expr&gt;&#x27;, &#x27; + &#x27;, &#x27;&lt;expr&gt;&#x27;],
+            [&#x27;&lt;expr&gt;&#x27;, &#x27; - &#x27;, &#x27;&lt;expr&gt;&#x27;],
+            [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+            [(&#x27;&lt;var&gt;&#x27;, {&#x27;pre&#x27;:defined_var})],
+            [&#x27;&lt;digit&gt;&#x27;]],
+        &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;]],
+        &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
+}
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
 Using it:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
