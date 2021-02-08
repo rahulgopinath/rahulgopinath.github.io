@@ -843,13 +843,6 @@ class ChoiceSeq2:
             return default
         else:
             return lst[v % len(lst)]
-            
-def defined_var(o, token, val):
-    assert token == '<var>'
-    if not o.vars:
-        return ('00', [])
-    else:
-        return (o.select(o.vars, '000'), [])
 ############
 -->
 
@@ -881,13 +874,6 @@ class ChoiceSeq2:
             return default
         else:
             return lst[v % len(lst)]
-            
-def defined_var(o, token, val):
-    assert token == &#x27;&lt;var&gt;&#x27;
-    if not o.vars:
-        return (&#x27;00&#x27;, [])
-    else:
-        return (o.select(o.vars, &#x27;000&#x27;), [])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
