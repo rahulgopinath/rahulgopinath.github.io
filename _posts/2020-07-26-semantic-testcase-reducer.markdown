@@ -962,8 +962,6 @@ print(c.fuzz('<start>'))
 print(c.vars)
 print(c.choices.ints)
 ############
--->
-
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -978,6 +976,7 @@ print(c.choices.ints)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+-->
 
 
 Sample run:
