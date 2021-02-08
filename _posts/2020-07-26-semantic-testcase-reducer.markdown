@@ -723,7 +723,7 @@ class ChoiceFuzzer2(ComplexFuzzer):
         default = self.default[key]
         return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
 
-def defined_var(o, token, val):
+def defined_var2(o, token, val):
     assert token == '<var>'
     if not o.vars:
         return ('00', [])
@@ -765,12 +765,56 @@ class ChoiceFuzzer2(ComplexFuzzer):
         default = self.default[key]
         return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
 
-def defined_var(o, token, val):
+def defined_var2(o, token, val):
     assert token == &#x27;&lt;var&gt;&#x27;
     if not o.vars:
         return (&#x27;00&#x27;, [])
     else:
         return (o.select(o.vars, &#x27;000&#x27;), [])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Rebinding our grammar
+
+<!--
+############
+assignment_grammar2 = {
+        '<start>' : [[ '<assignments>' ]],
+        '<assignments>': [['<assign>', (';\n', {'post':sync})],
+                          ['<assign>', (';\n', {'post':sync}), '<assignments>']],
+        '<assign>': [[('<var>', {'post':defining_var}), ' = ', '<expr>']],
+        '<expr>': [
+            ['<expr>', ' + ', '<expr>'],
+            ['<expr>', ' - ', '<expr>'],
+            ['(', '<expr>', ')'],
+            [('<var>', {'pre':defined_var2})],
+            ['<digit>']],
+        '<digit>': [['0'], ['1']],
+        '<var>': [[i] for i in string.ascii_lowercase]
+}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+assignment_grammar2 = {
+        &#x27;&lt;start&gt;&#x27; : [[ &#x27;&lt;assignments&gt;&#x27; ]],
+        &#x27;&lt;assignments&gt;&#x27;: [[&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync})],
+                          [&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync}), &#x27;&lt;assignments&gt;&#x27;]],
+        &#x27;&lt;assign&gt;&#x27;: [[(&#x27;&lt;var&gt;&#x27;, {&#x27;post&#x27;:defining_var}), &#x27; = &#x27;, &#x27;&lt;expr&gt;&#x27;]],
+        &#x27;&lt;expr&gt;&#x27;: [
+            [&#x27;&lt;expr&gt;&#x27;, &#x27; + &#x27;, &#x27;&lt;expr&gt;&#x27;],
+            [&#x27;&lt;expr&gt;&#x27;, &#x27; - &#x27;, &#x27;&lt;expr&gt;&#x27;],
+            [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+            [(&#x27;&lt;var&gt;&#x27;, {&#x27;pre&#x27;:defined_var2})],
+            [&#x27;&lt;digit&gt;&#x27;]],
+        &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;]],
+        &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
+}
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -882,24 +926,24 @@ Using it:
 <textarea cols="40" rows="4" name='python_edit'>
 choices = ChoiceSeq2()
 
-c = ChoiceFuzzer2(assignment_grammar, choices)
+c = ChoiceFuzzer2(assignment_grammar2, choices)
 val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
 
-causal_fn = lambda ints: pred(ints_to_string2(assignment_grammar, ints))
+causal_fn = lambda ints: pred(ints_to_string2(assignment_grammar2, ints))
 
 if pred(val):
     newv = ddmin(c.choices.ints, causal_fn)
     choices = ChoiceSeq2(newv)
-    cf = ChoiceFuzzer2(assignment_grammar, choices)
+    cf = ChoiceFuzzer2(assignment_grammar2, choices)
     print(&#x27;original:\n&#x27;, val, len(c.choices.ints))
 
     while True:
         newv = ddmin(cf.choices.ints, causal_fn)
         if len(newv) &gt;= len(cf.choices.ints):
             break
-        cf = ChoiceFuzzer2(assignment_grammar, ChoiceSeq2(newv))
+        cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
 
-    cf = ChoiceFuzzer2(assignment_grammar, ChoiceSeq2(newv))
+    cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
 else: print("run again")
@@ -913,7 +957,7 @@ else: print("run again")
 ############
 choices = ChoiceSeq2()
 
-c = ChoiceFuzzer2(assignment_grammar, choices)
+c = ChoiceFuzzer2(assignment_grammar2, choices)
 print(c.fuzz('<start>'))
 print(c.vars)
 print(c.choices.ints)
@@ -925,7 +969,7 @@ print(c.choices.ints)
 <textarea cols="40" rows="4" name='python_edit'>
 choices = ChoiceSeq2()
 
-c = ChoiceFuzzer2(assignment_grammar, choices)
+c = ChoiceFuzzer2(assignment_grammar2, choices)
 print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 print(c.choices.ints)
