@@ -258,7 +258,7 @@ The driver now includes a context sensitive grammar in the form of `pre` and `po
 
 <!--
 ############
-assignment_grammar = {
+assignment_grammar1 = {
         '<start>' : [[ '<assignments>' ]],
         '<assignments>': [['<assign>', (';\n', {'post':sync})],
                           ['<assign>', (';\n', {'post':sync}), '<assignments>']],
@@ -272,7 +272,7 @@ assignment_grammar = {
         '<digit>': [['0'], ['1']],
         '<var>': [[i] for i in string.ascii_lowercase]
 }
-c = ComplexFuzzer(assignment_grammar)
+c = ComplexFuzzer(assignment_grammar1)
 print(c.fuzz('<start>'))
 print(c.vars)
 ############
@@ -281,7 +281,7 @@ print(c.vars)
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-assignment_grammar = {
+assignment_grammar1 = {
         &#x27;&lt;start&gt;&#x27; : [[ &#x27;&lt;assignments&gt;&#x27; ]],
         &#x27;&lt;assignments&gt;&#x27;: [[&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync})],
                           [&#x27;&lt;assign&gt;&#x27;, (&#x27;;\n&#x27;, {&#x27;post&#x27;:sync}), &#x27;&lt;assignments&gt;&#x27;]],
@@ -295,7 +295,7 @@ assignment_grammar = {
         &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;]],
         &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
 }
-c = ComplexFuzzer(assignment_grammar)
+c = ComplexFuzzer(assignment_grammar1)
 print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 </textarea><br />
@@ -421,7 +421,7 @@ The driver is as follows
 ############
 choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar, choices)
+c = ChoiceFuzzer(assignment_grammar1, choices)
 print(c.fuzz('<start>'))
 print(c.vars)
 print(c.choices.ints)
@@ -433,7 +433,7 @@ print(c.choices.ints)
 <textarea cols="40" rows="4" name='python_edit'>
 choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar, choices)
+c = ChoiceFuzzer(assignment_grammar1, choices)
 print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 print(c.choices.ints)
@@ -577,24 +577,24 @@ The driver tries to minimize the string if predicate returns true.
 ############
 choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar, choices)
+c = ChoiceFuzzer(assignment_grammar1, choices)
 val = c.fuzz('<start>')
 
-causal_fn = lambda ints: pred(ints_to_string(assignment_grammar, ints))
+causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
 
 if pred(val):
     newv = ddmin(c.choices.ints, causal_fn)
     choices = ChoiceSeq(newv)
-    cf = ChoiceFuzzer(assignment_grammar, choices)
+    cf = ChoiceFuzzer(assignment_grammar1, choices)
     print('original:\n', val, len(c.choices.ints))
 
     while True:
         newv = ddmin(cf.choices.ints, causal_fn)
         if len(newv) >= len(cf.choices.ints):
             break
-        cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+        cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
 
-    cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
     print('minimal:\n', cf.fuzz('<start>'), len(newv))
     print(cf.choices.ints)
 else: print("run again")
@@ -606,24 +606,24 @@ else: print("run again")
 <textarea cols="40" rows="4" name='python_edit'>
 choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar, choices)
+c = ChoiceFuzzer(assignment_grammar1, choices)
 val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
 
-causal_fn = lambda ints: pred(ints_to_string(assignment_grammar, ints))
+causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
 
 if pred(val):
     newv = ddmin(c.choices.ints, causal_fn)
     choices = ChoiceSeq(newv)
-    cf = ChoiceFuzzer(assignment_grammar, choices)
+    cf = ChoiceFuzzer(assignment_grammar1, choices)
     print(&#x27;original:\n&#x27;, val, len(c.choices.ints))
 
     while True:
         newv = ddmin(cf.choices.ints, causal_fn)
         if len(newv) &gt;= len(cf.choices.ints):
             break
-        cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+        cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
 
-    cf = ChoiceFuzzer(assignment_grammar, ChoiceSeq(newv))
+    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
     print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
     print(cf.choices.ints)
 else: print("run again")
