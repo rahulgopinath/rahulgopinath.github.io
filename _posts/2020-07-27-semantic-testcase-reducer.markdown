@@ -741,7 +741,7 @@ class ChoiceFuzzer2(ComplexFuzzer):
             ret.append(v)
         return ret
 
- def defined_var(o, token, val, default):
+def defined_var(o, token, val, default):
     assert token == '<var>'
     if not o.vars:
         return ('00', [])
@@ -800,7 +800,7 @@ class ChoiceFuzzer2(ComplexFuzzer):
             ret.append(v)
         return ret
 
- def defined_var(o, token, val, default):
+def defined_var(o, token, val, default):
     assert token == &#x27;&lt;var&gt;&#x27;
     if not o.vars:
         return (&#x27;00&#x27;, [])
