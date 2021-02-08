@@ -355,21 +355,6 @@ class ChoiceFuzzer(ComplexFuzzer):
 <div name='python_canvas'></div>
 </form>
 
-A sample run
-```
-$ python3   lf.py 6
-e = (1) + 1 + 00 + 00 - 00 + 00 - 0 + 1;
-f = 1 - e - 1 + 1 + e - e + e + 1 - 1 - e - e;
-e = e;
-c = 1;
-d = (f + 0 + e - e + (e));
-
-['e', 'f', 'e', 'c', 'd']
-[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1,
-6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 
-4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 
-8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
-```
 
 The choice sequence both keeps track of all choices made, and also allows one to reuse previous choices.
 
@@ -457,6 +442,22 @@ print(c.choices.ints)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+A sample run
+```
+$ python3   lf.py 6
+e = (1) + 1 + 00 + 00 - 00 + 00 - 0 + 1;
+f = 1 - e - 1 + 1 + e - e + e + 1 - 1 - e - e;
+e = e;
+c = 1;
+d = (f + 0 + e - e + (e));
+
+['e', 'f', 'e', 'c', 'd']
+[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1,
+6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 
+4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 
+8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
+```
 
 
 The choice sequence is printed out at the end. The same sequence can be used later, to produce the same string. We use this
