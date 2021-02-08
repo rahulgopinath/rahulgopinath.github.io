@@ -104,6 +104,16 @@ print(limitfuzzer.LimitFuzzer(assignment_grammar).fuzz(&#x27;&lt;start&gt;&#x27;
 <div name='python_canvas'></div>
 </form>
 
+A sample run
+
+```
+$ python3 lf.py 5
+o = (h) + r - 0 + i - f - 1 + 0 + 0 - 1 + (0) + j - 1 - f + (((0)) + 1) - (((w))) + (p - a + m - l + s) - b + 0 - l - 1 + 1;
+s = ((c + (1) - ((1)) - ((0))));
+p = 1 + 1 - (u) + e + k + 1 - 0 - l + j + t - 1 - w - (i)
+```
+
+
 The context free grammar `assignment_grammar` generates assignment expressions. However, it tends to
 use variables before they are defined. We want to avoid that. However, using only defined variables is a context sensitive feature, which we incorporate
 by a small modification to the fuzzer.
@@ -294,6 +304,18 @@ print(c.vars)
 <div name='python_canvas'></div>
 </form>
 
+A sample run
+
+```
+$ python3   lf.py 6 
+b = 1 - (((00) + 00 - 0)) + 1 - 0;
+c = (b);
+y = (0 + (b) + 0) - (1 - ((0)));
+d = 1;
+
+['b', 'c', 'y', 'd']
+```
+
 As you can see, the variables used are only those that were defined earlier. So, how do we minimize such a generated string?
 
 For the answer, we need to modify our fuzzer a bit more. We need to make it take a stream of integers which are interpreted
@@ -333,6 +355,21 @@ class ChoiceFuzzer(ComplexFuzzer):
 <div name='python_canvas'></div>
 </form>
 
+A sample run
+```
+$ python3   lf.py 6
+e = (1) + 1 + 00 + 00 - 00 + 00 - 0 + 1;
+f = 1 - e - 1 + 1 + e - e + e + 1 - 1 - e - e;
+e = e;
+c = 1;
+d = (f + 0 + e - e + (e));
+
+['e', 'f', 'e', 'c', 'd']
+[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1,
+6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 
+4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 
+8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
+```
 
 The choice sequence both keeps track of all choices made, and also allows one to reuse previous choices.
 
@@ -594,6 +631,21 @@ else: print("run again")
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+A sample run
+```
+$ python3   lf.py 1
+original:
+e = (((00 - (00 + 00) - 0))) - (1);
+f = e + e - e + ((e)) + e + (0) + e - (1);
+g = f;
+j = (e);
+ 61
+minimal:
+d = ((00));
+ 7
+[6, 0, 8, 3, 7, 7, 8]
+```
 
 As you can see, the original string that is a `61` choice long sequence has become reduced to an `8` choice long sequence, with a corresponding
 decrease in the string length. At this point, note that it is fairly magick how the approach performs. In particular, as soon as an edit is made,
