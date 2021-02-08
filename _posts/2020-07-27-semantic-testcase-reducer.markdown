@@ -720,6 +720,7 @@ class ChoiceFuzzer2(ComplexFuzzer):
         else:
             rules = self.grammar[key]
         default = self.default[key]
+        return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
 ############
 -->
 
@@ -753,6 +754,7 @@ class ChoiceFuzzer2(ComplexFuzzer):
         else:
             rules = self.grammar[key]
         default = self.default[key]
+        return (key, self.gen_rule(self.select(rules, default), depth+1, max_depth))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
