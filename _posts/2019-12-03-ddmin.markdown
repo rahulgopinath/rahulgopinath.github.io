@@ -136,7 +136,7 @@ import re
 Given a partition length, we want to split the string into
 that many partitions, remove each partition one at a time from the
 string, and check if for any of them, the `causal()` succeeds. If it
-succeeds for any, then return the succeeding string.
+succeeds for any, then we can skip that section of the string.
 
 <!-- Original
 ############
@@ -181,14 +181,10 @@ def remove_check_each_fragment(instr, part_len, causal):
 The main function. We start by the smallest number of partitions -- 2.
 Then, we check by removing each fragment for success. If removing one
 fragment succeeds, we change the current string to the string without that
-fragment. Since we succeeded in removing one fragment at this partition
-length, we do not know if we can remove other parts of the string. So,
-we want to redo with the same fragment length, so we keep the current
-partition length.
-
-If none of the fragments could be removed, then it is time to decrease the
-partition length. We reduce the partition length by half.
-
+fragment. So, we remove all fragments that can be removed in that partition
+size.
+If none of the fragments could be removed, then we reduce the partition length
+by half.
 If the partition cannot be halved again (i.e, the last partition length was
 one) or the string has become empty, we stop the iteration.
 
