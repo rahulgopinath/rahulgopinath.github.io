@@ -115,7 +115,6 @@ First, the prerequisites:
 import random
 import string
 import re
-
 ############
 -->
 
@@ -125,7 +124,6 @@ import re
 import random
 import string
 import re
-
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -183,7 +181,7 @@ If the partition length is now single chars, then we break and return.
 ############
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
-    while part_len >= 1 and cur_str:
+    while part_len and cur_str:
         start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
                                                     causal_fn)
         if start == -1:
@@ -198,7 +196,7 @@ def ddmin(cur_str, causal_fn):
 <textarea cols="40" rows="4" name='python_edit'>
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
-    while part_len &gt;= 1 and cur_str:
+    while part_len and cur_str:
         start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
                                                     causal_fn)
         if start == -1:
