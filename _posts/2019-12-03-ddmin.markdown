@@ -175,7 +175,8 @@ partition length.
 If none of the fragments could be removed, then it is time to decrease the
 partition length. We reduce the partition length by half.
 
-If the partition length is now single chars, then we break and return.
+If the partition cannot be halved again (i.e, the last partition length was
+one) or the string has become empty, we stop the iteration.
 
 <!--
 ############
