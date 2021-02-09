@@ -138,7 +138,7 @@ that many partitions, remove each partition one at a time from the
 string, and check if for any of them, the `causal()` succeeds. If it
 succeeds for any, then return the succeeding string.
 
-<!--
+<!-- Original
 ############
 def remove_check_each_fragment(instr, start, part_len, causal):
     for i in range(start, len(instr), part_len):
@@ -148,19 +148,33 @@ def remove_check_each_fragment(instr, start, part_len, causal):
 ############
 -->
 
+<!--
+############
+def remove_check_each_fragment(instr, part_len, causal):
+    pre = ''
+    for i in range(0, len(instr), part_len):
+        stitched =  pre + instr[i+part_len:]
+        if not causal(stitched):
+             pre = pre + instr[i:i+part_len]
+    return pre
+############
+-->
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def remove_check_each_fragment(instr, start, part_len, causal):
-    for i in range(start, len(instr), part_len):
-        stitched =  instr[:i] + instr[i+part_len:]
-        if causal(stitched): return i, stitched
-    return -1, instr
+def remove_check_each_fragment(instr, part_len, causal):
+    pre = &#x27;&#x27;
+    for i in range(0, len(instr), part_len):
+        stitched =  pre + instr[i+part_len:]
+        if not causal(stitched):
+             pre = pre + instr[i:i+part_len]
+    return pre
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 ### ddmin()
 
@@ -178,7 +192,7 @@ partition length. We reduce the partition length by half.
 If the partition cannot be halved again (i.e, the last partition length was
 one) or the string has become empty, we stop the iteration.
 
-<!--
+<!-- Original
 ############
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
@@ -192,16 +206,30 @@ def ddmin(cur_str, causal_fn):
 ############
 -->
 
+<!--
+############
+def ddmin(cur_str, causal_fn):
+    part_len = len(cur_str) // 2
+    while part_len and cur_str:
+        _str = remove_check_each_fragment(cur_str, part_len, causal_fn)
+        if _str == cur_str:
+            part_len = part_len // 2
+        cur_str = _str
+
+    return cur_str
+############
+-->
+
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ddmin(cur_str, causal_fn):
-    start, part_len = 0, len(cur_str) // 2
+    part_len = len(cur_str) // 2
     while part_len and cur_str:
-        start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
-                                                    causal_fn)
-        if start == -1:
-            start, part_len = 0, part_len // 2
+        _str = remove_check_each_fragment(cur_str, part_len, causal_fn)
+        if _str == cur_str:
+            part_len = part_len // 2
+        cur_str = _str
 
     return cur_str
 </textarea><br />
@@ -209,6 +237,7 @@ def ddmin(cur_str, causal_fn):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 
 The driver.
