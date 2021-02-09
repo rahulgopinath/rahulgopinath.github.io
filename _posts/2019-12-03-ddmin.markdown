@@ -181,13 +181,12 @@ If the partition length is now single chars, then we break and return.
 ############
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
-    while part_len >= 1:
-        start, cur_str = remove_check_each_fragment(
-                            cur_str, start, part_len, causal_fn)
-        if start != -1:
-            if not cur_str: return ''
-        else:
+    while part_len >= 1 and cur_str:
+        start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
+                                                    causal_fn)
+        if start == -1:
             start, part_len = 0, part_len // 2
+
     return cur_str
 ############
 -->
@@ -197,13 +196,12 @@ def ddmin(cur_str, causal_fn):
 <textarea cols="40" rows="4" name='python_edit'>
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
-    while part_len &gt;= 1:
-        start, cur_str = remove_check_each_fragment(
-                            cur_str, start, part_len, causal_fn)
-        if start != -1:
-            if not cur_str: return &#x27;&#x27;
-        else:
+    while part_len &gt;= 1 and cur_str:
+        start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
+                                                    causal_fn)
+        if start == -1:
             start, part_len = 0, part_len // 2
+
     return cur_str
 </textarea><br />
 <button type="button" name="python_run">Run</button>
