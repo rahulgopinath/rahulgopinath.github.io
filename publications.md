@@ -11,7 +11,7 @@ menu: Publications
 
 ##### 2021
 
-* [_Inducing Subtle Mutations with Program Repair_](#schwander2021inducing)
+* [_Inducing Subtle Mutations with Program Repair_](#schwander2021inducing)<br/>
   Schwander, *Gopinath*, Zeller, ICSTW Mutation, 2021
 
 * [_Input Algebras_](#gopinath2021input)<br/>
