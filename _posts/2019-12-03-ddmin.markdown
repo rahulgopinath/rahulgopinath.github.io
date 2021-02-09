@@ -182,7 +182,8 @@ If the partition length is now single chars, then we break and return.
 def ddmin(cur_str, causal_fn):
     start, part_len = 0, len(cur_str) // 2
     while part_len >= 1:
-        start, cur_str = remove_check_each_fragment(cur_str, start, part_len, causal_fn)
+        start, cur_str = remove_check_each_fragment(
+                           cur_str, start, part_len, causal_fn)
         if start != -1:
             if not cur_str: return ''
         else:
