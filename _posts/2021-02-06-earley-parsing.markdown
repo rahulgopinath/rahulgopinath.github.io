@@ -540,14 +540,14 @@ nullable_grammar = {
 Checking
 <!--
 ############
-print(nullable(G))
+print(nullable(nullable_grammar))
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(nullable(G))
+print(nullable(nullable_grammar))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
