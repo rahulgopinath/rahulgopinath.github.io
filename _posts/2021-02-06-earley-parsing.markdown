@@ -511,6 +511,51 @@ def nullable(g):
 <div name='python_canvas'></div>
 </form>
 
+An example
+
+<!--
+############
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
+}
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Checking
+<!--
+############
+print(nullable(G))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(nullable(G))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 ## Chart construction
 
