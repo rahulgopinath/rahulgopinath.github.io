@@ -405,40 +405,63 @@ derive the empty string. This means no terminal symbols (assuming we
 do not have zero width terminal symbols), and all nonterminal symbols
 can derive empty string.
 
+
+<!--
+############
+def nullable(g):
+    # first initialize all nullables
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+    g_cur = dict(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if is_nt(t) and t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+############
+-->
+
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def fixpoint(f):
-    def helper(arg):
-        while True:
-            sarg = str(arg)
-            arg_ = f(arg)
-            if str(arg_) == sarg:
-                return arg
-            arg = arg_
-    return helper
-def rules(grammar):
-    return [(key, choice)
-            for key, choices in grammar.items()
-            for choice in choices]
-def terminals(grammar):
-    return set(token
-               for key, choice in rules(grammar)
-               for token in choice if token not in grammar)
+def nullable(g):
+    # first initialize all nullables
+    nullable_keys = {k for k in g if [] in g[k]}
 
-def nullable(grammar):
-    productions = rules(grammar)
+    unprocessed  = list(nullable_keys)
+    g_cur = dict(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if is_nt(t) and t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
 
-    @fixpoint
-    def nullable_(nullables):
-        for A, expr in productions:
-            if nullable_expr(expr, nullables):
-                nullables |= {A}
-        return (nullables)
-
-    return nullable_(set())
-
-def nullable_expr(expr, nullables):
-    return all(token in nullables for token in expr)
+    return nullable_keys
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
