@@ -405,22 +405,49 @@ derive the empty string. This means no terminal symbols (assuming we
 do not have zero width terminal symbols), and all nonterminal symbols
 can derive empty string.
 
+In this implementation, we first initialize the list of first level
+nullable nonterminals that contain an empty expansion. That is, they
+directly derive the empty string.
+Next, we remove any expansion rule that contains a token as these
+expansion rules will not result in empty strings. Next, we start with
+our current list of nullable nonterminals, take one at a time, and
+remove them from the current expansion rules. If any expansion rule
+becomes empty, the corresponding nonterminal is added to the nullable
+nonterminal list. This continues until all nullable nonterminals
+are processed.
+
 
 <!--
 ############
+def is_nt(k):
+    return k[0], k[-1] == ('<', '>')
+
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
 def nullable(g):
     # first initialize all nullables
     nullable_keys = {k for k in g if [] in g[k]}
 
     unprocessed  = list(nullable_keys)
-    g_cur = dict(g)
+
+    g_cur = rem_terminals(g)
     while unprocessed:
         nxt, *unprocessed = unprocessed
         g_nxt = {}
         for k in g_cur:
             g_alts = []
             for alt in g_cur[k]:
-                alt_ = [t for t in alt if is_nt(t) and t != nxt]
+                alt_ = [t for t in alt if t != nxt]
                 if not alt_:
                     nullable_keys.add(k)
                     unprocessed.append(k)
@@ -438,19 +465,35 @@ def nullable(g):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def is_nt(k):
+    return k[0], k[-1] == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
 def nullable(g):
     # first initialize all nullables
     nullable_keys = {k for k in g if [] in g[k]}
 
     unprocessed  = list(nullable_keys)
-    g_cur = dict(g)
+
+    g_cur = rem_terminals(g)
     while unprocessed:
         nxt, *unprocessed = unprocessed
         g_nxt = {}
         for k in g_cur:
             g_alts = []
             for alt in g_cur[k]:
-                alt_ = [t for t in alt if is_nt(t) and t != nxt]
+                alt_ = [t for t in alt if t != nxt]
                 if not alt_:
                     nullable_keys.add(k)
                     unprocessed.append(k)
@@ -467,6 +510,7 @@ def nullable(g):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 ## Chart construction
 
