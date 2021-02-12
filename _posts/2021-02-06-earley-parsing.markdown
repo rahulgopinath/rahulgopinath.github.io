@@ -1622,6 +1622,23 @@ Here is a simple extractor that avoids this problem. The idea here is that we
 randomly and lazily choose a node to expand, which avoids the infinite
 recursion.
 
+<!--
+############
+import random
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 
 <!--
 ############
@@ -1721,7 +1738,7 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, dir
 <!--
 ############
 for i in range(5):
-    tree = ie.extract_a_tree()
+    tree = de.extract_a_tree()
     print(tree_to_string(tree))
 ############
 -->
@@ -1730,7 +1747,7 @@ for i in range(5):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
-    tree = ie.extract_a_tree()
+    tree = de.extract_a_tree()
     print(tree_to_string(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
