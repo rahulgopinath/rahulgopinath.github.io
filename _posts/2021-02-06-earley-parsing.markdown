@@ -147,10 +147,6 @@ a_grammar = {
         ['<expr>', '-', '<expr>'],
         ['<expr>', '*', '<expr>'],
         ['<expr>', '/', '<expr>'],
-        ['<expr>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
         ['<fact>']],
     '<fact>': [
         ['<digits>'],
