@@ -1538,10 +1538,6 @@ print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
 <div name='python_canvas'></div>
 </form>
 
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
-
 ## Remaining
 
 There is a problem with our `extract_trees()` method. The issue is that it is
@@ -2060,6 +2056,10 @@ while True:
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
+</form>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
 </form>
 
 
