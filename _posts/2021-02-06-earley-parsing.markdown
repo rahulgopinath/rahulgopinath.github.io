@@ -81,6 +81,32 @@ For this post, we use the following terms:
   tree such that at least one of the resulting derivation trees would be the
   same as the one we started with.
 
+<!--
+
+
+grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<expr>'],
+        ['<expr>', '-', '<expr>'],
+        ['<expr>', '*', '<expr>'],
+        ['<expr>', '/', '<expr>'],
+        ['<expr>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+START = '<start>'
+-->
+
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -110,6 +136,64 @@ START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+
+<!--
+############
+a_grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<expr>'],
+        ['<expr>', '-', '<expr>'],
+        ['<expr>', '*', '<expr>'],
+        ['<expr>', '/', '<expr>'],
+        ['<expr>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+############
+-->
+
+Here is another grammar that targets the same language.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+a_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 
 
 ## Summary
@@ -157,26 +241,14 @@ of *states*, and corresponds to the legal rules to follow from that point on.
 Say we start with the following grammar:
 
 <!--
-grammar = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
 
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
+sample_grammar = {
+    '<start>': [['<A>','<B>']],
+    '<A>': [['a', '<B>', 'c'], ['a', '<A>']],
+    '<B>': [['b', '<C>'], ['<D>']],
+    '<C>': [['c']],
+    '<D>': [['d']]
 }
-START = '<start>'
 -->
 
 <form name='python_run_form'>
@@ -1303,8 +1375,8 @@ Example
 
 <!--
 ############
-mystring = '(1+24)'
-parser = EarleyParser(sample_grammar)
+mystring = '1+24'
+parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(tree)
 ############
@@ -1313,8 +1385,8 @@ for tree in parser.parse_on(mystring, START):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;(1+24)&#x27;
-parser = EarleyParser(sample_grammar)
+mystring = &#x27;1+24&#x27;
+parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(tree)
 </textarea><br />
