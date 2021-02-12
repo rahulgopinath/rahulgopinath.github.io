@@ -435,7 +435,6 @@ def rem_terminals(g):
     return g_cur
 
 def nullable(g):
-    # first initialize all nullables
     nullable_keys = {k for k in g if [] in g[k]}
 
     unprocessed  = list(nullable_keys)
@@ -481,7 +480,6 @@ def rem_terminals(g):
     return g_cur
 
 def nullable(g):
-    # first initialize all nullables
     nullable_keys = {k for k in g if [] in g[k]}
 
     unprocessed  = list(nullable_keys)
