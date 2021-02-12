@@ -1269,6 +1269,38 @@ class EarleyParser(EarleyParser):
 </form>
 
 The above can be generalized to `extract_trees()` as below.
+<!--
+############
+import itertools as I
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import itertools as I
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+class EarleyParser(EarleyParser):
+    def extract_trees(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            yield (name, [])
+        results = []
+        for path in paths:
+            ptrees = [self.extract_trees(self.forest(*p)) for p in path]
+            for p in I.product(*ptrees):
+                yield (name, p)
+############
+-->
+
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -1280,13 +1312,14 @@ class EarleyParser(EarleyParser):
         results = []
         for path in paths:
             ptrees = [self.extract_trees(self.forest(*p)) for p in path]
-            for p in zip(*ptrees):
-                yield (name, p) 
+            for p in I.product(*ptrees):
+                yield (name, p)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 ## Example
 Now we are ready for parsing. 
