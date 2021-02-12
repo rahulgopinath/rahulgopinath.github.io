@@ -1628,7 +1628,7 @@ recursion.
 class SimpleExtractor:
     def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, alt)
+        cursor, states = parser.parse_prefix(text, start_symbol, tuple(alt))
         start = next((s for s in states if s.finished()), None)
         if cursor < len(text) or not start:
             raise SyntaxError("at " + repr(cursor))
@@ -1666,7 +1666,7 @@ class SimpleExtractor:
 class SimpleExtractor:
     def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, alt)
+        cursor, states = parser.parse_prefix(text, start_symbol, tuple(alt))
         start = next((s for s in states if s.finished()), None)
         if cursor &lt; len(text) or not start:
             raise SyntaxError(&quot;at &quot; + repr(cursor))
