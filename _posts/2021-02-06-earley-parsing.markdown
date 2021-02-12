@@ -172,10 +172,6 @@ a_grammar = {
         [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;integer&gt;&#x27;]],
     &#x27;&lt;integer&gt;&#x27;: [
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;integer&gt;&#x27;: [
         [&#x27;&lt;digits&gt;&#x27;],
         [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
     &#x27;&lt;digits&gt;&#x27;: [
