@@ -1375,7 +1375,7 @@ Example
 
 <!--
 ############
-mystring = '1+24'
+mystring = '1+2+4'
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(tree)
@@ -1385,7 +1385,7 @@ for tree in parser.parse_on(mystring, START):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;1+24&#x27;
+mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(tree)
@@ -1397,8 +1397,14 @@ for tree in parser.parse_on(mystring, START):
 
 
 
+### Ambiguous Parsing
 
-The above can be generalized to `extract_trees()` as below.
+Ambiguous grammars can produce multiple derivation trees for some given string.
+In the above example, the `a_grammar` can parse `1+2+4` in as either `[1+2]+4` or `1+[2+4]`.
+
+That is, we need to extract all derivation trees.
+We enhance our `extract_trees()` as below.
+
 <!--
 ############
 import itertools as I
