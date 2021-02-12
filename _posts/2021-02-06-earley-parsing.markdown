@@ -1590,7 +1590,7 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
     print('recognized', mystring)
     try:
         for tree in forest:
-            print(tree_to_string(tree))
+            print(tree)
     except RecursionError as e:
          print("Recursion error",e)
 ############
@@ -1605,7 +1605,7 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
     print(&#x27;recognized&#x27;, mystring)
     try:
         for tree in forest:
-            print(tree_to_string(tree))
+            print(tree)
     except RecursionError as e:
          print(&quot;Recursion error&quot;,e)
 </textarea><br />
@@ -1673,7 +1673,7 @@ class SimpleExtractor:
     
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
-        return self.parser.prune_tree(parse_tree)
+        return parse_tree
 ############
 -->
 
@@ -1711,7 +1711,7 @@ class SimpleExtractor:
     
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
-        return self.parser.prune_tree(parse_tree)
+        return parse_tree
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1739,7 +1739,7 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, dir
 ############
 for i in range(5):
     tree = de.extract_a_tree()
-    print(tree_to_string(tree))
+    print(tree)
 ############
 -->
 
@@ -1748,7 +1748,7 @@ for i in range(5):
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = de.extract_a_tree()
-    print(tree_to_string(tree))
+    print(tree)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1780,7 +1780,7 @@ ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, i
 ############
 for i in range(5):
     tree = ie.extract_a_tree()
-    print(tree_to_string(tree))
+    print(tree)
 ############
 -->
 
@@ -1789,7 +1789,7 @@ for i in range(5):
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = ie.extract_a_tree()
-    print(tree_to_string(tree))
+    print(tree)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -2002,7 +2002,7 @@ class EnhancedExtractor(EnhancedExtractor):
             parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
             choices.increment()
             if parse_tree is not None:
-                return self.parser.prune_tree(parse_tree)
+                return parse_tree
         return None
 ############
 -->
@@ -2016,7 +2016,7 @@ class EnhancedExtractor(EnhancedExtractor):
             parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
             choices.increment()
             if parse_tree is not None:
-                return self.parser.prune_tree(parse_tree)
+                return parse_tree
         return None
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -2049,8 +2049,6 @@ while True:
     t = ee.extract_a_tree()
     if t is None: break
     print(i, t)
-    s = tree_to_string(t)
-    assert s == mystring
 ############
 -->
 
@@ -2063,8 +2061,6 @@ while True:
     t = ee.extract_a_tree()
     if t is None: break
     print(i, t)
-    s = tree_to_string(t)
-    assert s == mystring
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
