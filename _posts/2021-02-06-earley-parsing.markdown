@@ -156,6 +156,29 @@ of *states*, and corresponds to the legal rules to follow from that point on.
 
 Say we start with the following grammar:
 
+<!--
+grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+START = '<start>'
+-->
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 
@@ -1250,6 +1273,10 @@ class EarleyParser(EarleyParser):
         if not paths:
             return (name, [])
         return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
+
+    def extract_trees(self, forest):
+        yield self.extract_a_tree(forest)
+
 ############
 -->
 
@@ -1262,11 +1289,42 @@ class EarleyParser(EarleyParser):
         if not paths:
             return (name, [])
         return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
+
+
+    def extract_trees(self, forest):
+        yield self.extract_a_tree(forest)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+Example
+
+<!--
+############
+mystring = '(1+24)'
+parser = EarleyParser(sample_grammar)
+for tree in parser.parse_on(mystring, START):
+    print(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;(1+24)&#x27;
+parser = EarleyParser(sample_grammar)
+for tree in parser.parse_on(mystring, START):
+    print(tree)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
 
 The above can be generalized to `extract_trees()` as below.
 <!--
