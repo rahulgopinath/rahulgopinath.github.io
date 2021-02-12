@@ -147,8 +147,8 @@ a_grammar = {
         ['<expr>', '-', '<expr>'],
         ['<expr>', '*', '<expr>'],
         ['<expr>', '/', '<expr>'],
-        ['<fact>']],
-    '<fact>': [
+        ['<integer>']],
+    '<integer>': [
         ['<digits>'],
         ['(','<expr>',')']],
     '<digits>': [
@@ -171,11 +171,11 @@ a_grammar = {
         [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;expr&gt;&#x27;]],
-    &#x27;&lt;term&gt;&#x27;: [
+    &#x27;&lt;integer&gt;&#x27;: [
         [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
         [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
         [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;fact&gt;&#x27;: [
+    &#x27;&lt;integer&gt;&#x27;: [
         [&#x27;&lt;digits&gt;&#x27;],
         [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
     &#x27;&lt;digits&gt;&#x27;: [
@@ -1547,8 +1547,520 @@ print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
 There is a problem with our `extract_trees()` method. The issue is that it is
 too eager. The parse forest can have an infinite number of trees, and at this
 time we effectively try to extract all at the same time. So, in case of
-such grammars our `extract_trees()` will fail. We will show how to do this
-better in a later post.
+such grammars our `extract_trees()` will fail. Here are two example grammars.
+
+
+<!--
+############
+directly_self_referring = {
+    '<start>': [['<query>']],
+    '<query>': [['<expr>']],
+    "<expr>": [["<expr>"], ['a']],
+}
+
+indirectly_self_referring = {
+    '<start>': [['<query>']],
+    '<query>': [['<expr>']],
+    '<expr>': [['<aexpr>'], ['a']],
+    '<aexpr>': [['<expr>']],
+}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+directly_self_referring = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;query&gt;&#x27;]],
+    &#x27;&lt;query&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &quot;&lt;expr&gt;&quot;: [[&quot;&lt;expr&gt;&quot;], [&#x27;a&#x27;]],
+}
+
+indirectly_self_referring = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;query&gt;&#x27;]],
+    &#x27;&lt;query&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;aexpr&gt;&#x27;], [&#x27;a&#x27;]],
+    &#x27;&lt;aexpr&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+}
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+An example run.
+
+<!--
+############
+mystring = 'a'
+for grammar in [directly_self_referring, indirectly_self_referring]:
+    forest = EarleyParser(grammar).parse(mystring)
+    print('recognized', mystring)
+    try:
+        for tree in forest:
+            print(tree_to_string(tree))
+    except RecursionError as e:
+         print("Recursion error",e)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;a&#x27;
+for grammar in [directly_self_referring, indirectly_self_referring]:
+    forest = EarleyParser(grammar).parse(mystring)
+    print(&#x27;recognized&#x27;, mystring)
+    try:
+        for tree in forest:
+            print(tree_to_string(tree))
+    except RecursionError as e:
+         print(&quot;Recursion error&quot;,e)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+The problem is that, our implementation of `extract_trees()` is eager.
+That is, it attempts to extract all inner parse trees before it can construct
+the outer parse tree. When there is a self reference, this results in recursion.
+Here is a simple extractor that avoids this problem. The idea here is that we
+randomly and lazily choose a node to expand, which avoids the infinite
+recursion.
+
+
+<!--
+############
+class SimpleExtractor:
+    def __init__(self, parser, text):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text)
+        start = next((s for s in states if s.finished()), None)
+        if cursor < len(text) or not start:
+            raise SyntaxError("at " + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, start)
+
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+        
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+    
+    def choose_path(self, arr):
+        l = len(arr)
+        i = random.randrange(l)
+        return arr[i], i, l
+    
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return self.parser.prune_tree(parse_tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SimpleExtractor:
+    def __init__(self, parser, text):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text)
+        start = next((s for s in states if s.finished()), None)
+        if cursor &lt; len(text) or not start:
+            raise SyntaxError(&quot;at &quot; + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, start)
+
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+        
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+    
+    def choose_path(self, arr):
+        l = len(arr)
+        i = random.randrange(l)
+        return arr[i], i, l
+    
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return self.parser.prune_tree(parse_tree)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+for i in range(5):
+    tree = ie.extract_a_tree()
+    print(tree_to_string(tree))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in range(5):
+    tree = ie.extract_a_tree()
+    print(tree_to_string(tree))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+indirect reference
+
+<!--
+############
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
+for i in range(5):
+    tree = ie.extract_a_tree()
+    print(tree_to_string(tree))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in range(5):
+    tree = ie.extract_a_tree()
+    print(tree_to_string(tree))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Simple extractor gives no guarantee on the order. Can we fix that?
+
+
+
+<!--
+############
+class ChoiceNode:
+    def __init__(self, parent, total):
+        self._p, self._chosen = parent, 0
+        self._total, self.next = total, None
+
+    def chosen(self):
+        assert not self.finished()
+        return self._chosen
+
+    def __str__(self):
+        return '%d(%s/%s %s)' % (self._i, str(self._chosen),
+                                 str(self._total), str(self.next))
+    def __repr__(self):
+        return repr((self._i, self._chosen, self._total))
+
+    def increment(self):
+        # as soon as we increment, next becomes invalid
+        self.next = None
+        self._chosen += 1
+        if self.finished():
+            if self._p is None:
+                return None
+            return self._p.increment()
+        return self
+    
+    def finished(self):
+        return self._chosen >= self._total
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ChoiceNode:
+    def __init__(self, parent, total):
+        self._p, self._chosen = parent, 0
+        self._total, self.next = total, None
+
+    def chosen(self):
+        assert not self.finished()
+        return self._chosen
+
+    def __str__(self):
+        return &#x27;%d(%s/%s %s)&#x27; % (self._i, str(self._chosen),
+                                 str(self._total), str(self.next))
+    def __repr__(self):
+        return repr((self._i, self._chosen, self._total))
+
+    def increment(self):
+        # as soon as we increment, next becomes invalid
+        self.next = None
+        self._chosen += 1
+        if self.finished():
+            if self._p is None:
+                return None
+            return self._p.increment()
+        return self
+    
+    def finished(self):
+        return self._chosen &gt;= self._total
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
+class EnhancedExtractor(SimpleExtractor):
+    def __init__(self, parser, text):
+        super().__init__(parser, text)
+        self.choices = choices = ChoiceNode(None, 1)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EnhancedExtractor(SimpleExtractor):
+    def __init__(self, parser, text):
+        super().__init__(parser, text)
+        self.choices = choices = ChoiceNode(None, 1)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+class EnhancedExtractor(EnhancedExtractor):
+    def choose_path(self, arr, choices):
+        arr_len = len(arr)
+        if choices.next is not None:
+            if choices.next.finished():
+                return None, None, None, choices.next
+        else:
+            choices.next = ChoiceNode(choices, arr_len)
+        next_choice = choices.next.chosen()
+        choices = choices.next
+        return arr[next_choice], next_choice, arr_len, choices
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EnhancedExtractor(EnhancedExtractor):
+    def choose_path(self, arr, choices):
+        arr_len = len(arr)
+        if choices.next is not None:
+            if choices.next.finished():
+                return None, None, None, choices.next
+        else:
+            choices.next = ChoiceNode(choices, arr_len)
+        next_choice = choices.next.chosen()
+        choices = choices.next
+        return arr[next_choice], next_choice, arr_len, choices
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_node(self, forest_node, seen, choices):
+        name, paths = forest_node
+        if not paths:
+            return (name, []), choices
+
+        cur_path, _i, _l, new_choices = self.choose_path(paths, choices)
+        if cur_path is None:
+            return None, new_choices
+        child_nodes = []
+        for s, kind, chart in cur_path:
+            if kind == 't':
+                child_nodes.append((s, []))
+                continue
+            nid = (s.name, s.s_col.index, s.e_col.index)
+            if nid in seen:
+                return None, new_choices
+            f = self.parser.forest(s, kind, chart)
+            ntree, newer_choices = self.extract_a_node(f, seen | {nid}, new_choices)
+            if ntree is None:
+                return None, newer_choices
+            child_nodes.append(ntree)
+            new_choices = newer_choices
+        return (name, child_nodes), new_choices
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_node(self, forest_node, seen, choices):
+        name, paths = forest_node
+        if not paths:
+            return (name, []), choices
+
+        cur_path, _i, _l, new_choices = self.choose_path(paths, choices)
+        if cur_path is None:
+            return None, new_choices
+        child_nodes = []
+        for s, kind, chart in cur_path:
+            if kind == &#x27;t&#x27;:
+                child_nodes.append((s, []))
+                continue
+            nid = (s.name, s.s_col.index, s.e_col.index)
+            if nid in seen:
+                return None, new_choices
+            f = self.parser.forest(s, kind, chart)
+            ntree, newer_choices = self.extract_a_node(f, seen | {nid}, new_choices)
+            if ntree is None:
+                return None, newer_choices
+            child_nodes.append(ntree)
+            new_choices = newer_choices
+        return (name, child_nodes), new_choices
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_tree(self):
+        while not self.choices.finished():
+            parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
+            choices.increment()
+            if parse_tree is not None:
+                return self.parser.prune_tree(parse_tree)
+        return None
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_tree(self):
+        while not self.choices.finished():
+            parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
+            choices.increment()
+            if parse_tree is not None:
+                return self.parser.prune_tree(parse_tree)
+        return None
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+i = 0
+while True:
+    i += 1
+    t = ee.extract_a_tree()
+    if t is None: break
+    print(i, t)
+    s = tree_to_string(t)
+    assert s == mystring
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+i = 0
+while True:
+    i += 1
+    t = ee.extract_a_tree()
+    if t is None: break
+    print(i, t)
+    s = tree_to_string(t)
+    assert s == mystring
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 
 [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
