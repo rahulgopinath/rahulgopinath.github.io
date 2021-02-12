@@ -1458,19 +1458,33 @@ class EarleyParser(EarleyParser):
 
 
 ## Example
-Now we are ready for parsing. 
+
+Using the same example,
+
+<!--
+############
+mystring = '1+2+4'
+parser = EarleyParser(a_grammar)
+for tree in parser.parse_on(mystring, START):
+    print(tree)
+############
+-->
+
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-text = &#x27;11+2&#x27;
-ep = EarleyParser(grammar)
-for tree in ep.parse_on(text, START):
+mystring = &#x27;1+2+4&#x27;
+parser = EarleyParser(a_grammar)
+for tree in parser.parse_on(mystring, START):
     print(tree)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+
+
 
 We need a way to display parse trees.
 
