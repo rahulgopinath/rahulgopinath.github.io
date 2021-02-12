@@ -60,8 +60,8 @@ The TLDR; is that **if you are doing blackbox grammar inference, please start wi
 A nice result that I should mention here is that even though comparison of context-free
 grammars in general is undecidable[^ginsburg1966the], comparison of deterministic context-free
 grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the Gödel Prize in
-2002 for this discovery. What this means is that if the grammars are deterministic, you
-can even compare them directly.
+2002 for this discovery. What this means is that if the grammars are
+deterministic (these are the LR(k) grammars), you can even compare them directly.
 
 The main communities working on grammar inference are
 * Language and Automata Theory and Applications ([LATA](https://dblp.org/db/conf/lata/index.html))
