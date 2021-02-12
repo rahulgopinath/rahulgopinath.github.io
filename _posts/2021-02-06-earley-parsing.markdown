@@ -1586,7 +1586,7 @@ An example run.
 ############
 mystring = 'a'
 for grammar in [directly_self_referring, indirectly_self_referring]:
-    forest = EarleyParser(grammar).parse(mystring)
+    forest = EarleyParser(grammar).parse_on(mystring, START)
     print('recognized', mystring)
     try:
         for tree in forest:
@@ -1601,7 +1601,7 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;a&#x27;
 for grammar in [directly_self_referring, indirectly_self_referring]:
-    forest = EarleyParser(grammar).parse(mystring)
+    forest = EarleyParser(grammar).parse_on(mystring, START)
     print(&#x27;recognized&#x27;, mystring)
     try:
         for tree in forest:
@@ -1626,9 +1626,9 @@ recursion.
 <!--
 ############
 class SimpleExtractor:
-    def __init__(self, parser, text):
+    def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text)
+        cursor, states = parser.parse_prefix(text, start_symbol, alt)
         start = next((s for s in states if s.finished()), None)
         if cursor < len(text) or not start:
             raise SyntaxError("at " + repr(cursor))
@@ -1664,9 +1664,9 @@ class SimpleExtractor:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SimpleExtractor:
-    def __init__(self, parser, text):
+    def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text)
+        cursor, states = parser.parse_prefix(text, start_symbol, alt)
         start = next((s for s in states if s.finished()), None)
         if cursor &lt; len(text) or not start:
             raise SyntaxError(&quot;at &quot; + repr(cursor))
@@ -1704,14 +1704,14 @@ class SimpleExtractor:
 
 <!--
 ############
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring)
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, directly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring)
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, directly_self_referring[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1743,14 +1743,14 @@ indirect reference
 
 <!--
 ############
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring)
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring)
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1856,8 +1856,8 @@ class ChoiceNode:
 <!--
 ############
 class EnhancedExtractor(SimpleExtractor):
-    def __init__(self, parser, text):
-        super().__init__(parser, text)
+    def __init__(self, parser, text, start_symbol, alt):
+        super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
 ############
 -->
@@ -1866,8 +1866,8 @@ class EnhancedExtractor(SimpleExtractor):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(SimpleExtractor):
-    def __init__(self, parser, text):
-        super().__init__(parser, text)
+    def __init__(self, parser, text, start_symbol, alt):
+        super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -2009,14 +2009,14 @@ class EnhancedExtractor(EnhancedExtractor):
 
 <!--
 ############
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring)
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring)
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
