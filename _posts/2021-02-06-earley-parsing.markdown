@@ -1744,7 +1744,7 @@ for tree in parser.parse_on(mystring, START):
 
 
 
-## Remaining
+## Almost infinite parse trees
 
 There is a problem with our `extract_trees()` method. The issue is that it is
 too eager. The parse forest can have an infinite number of trees, and at this
