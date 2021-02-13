@@ -214,6 +214,9 @@ node [shape=plaintext]
 ############
 pg = pydot.graph_from_dot_data(dotFormat)
 g = nx.nx_pydot.from_pydot(pg[0])
+
+for node in (pg[0].get_nodes()):
+  print(node.get_name(), type(node), node.get_label())
 ############
 -->
 
@@ -222,6 +225,8 @@ g = nx.nx_pydot.from_pydot(pg[0])
 <textarea cols="40" rows="4" name='python_edit'>
 pg = pydot.graph_from_dot_data(dotFormat)
 g = nx.nx_pydot.from_pydot(pg[0])
+for node in (pg[0].get_nodes()):
+  print(node.get_name(), type(node), node.get_label())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
