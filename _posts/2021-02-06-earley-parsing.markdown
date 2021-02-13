@@ -839,38 +839,6 @@ letter.
 
 There are three main methods: `predict()`, `scan()`, and `complete()`
 
-In the below algorithm, when ever the `at_dot()` is at a nonterminal
-symbol, the expansion rules of that nonterminal are added to the current
-rule (`predict()`) since each rule represents one valid parsing path. If on the
-other hand, `at_dot()` indicates processing finished for that nonterminal, we
-lookup the parent symbols and advance their parsing state (`complete()`). If we
-find that we are at a terminal symbol, we simply check if the current state can
-advance to parsing the next character (`scan()`). 
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
-    def fill_chart(self, chart):
-        for i, col in enumerate(chart):
-            for state in col.states:
-                if state.finished():
-                    self.complete(col, state)
-                else:
-                    sym = state.at_dot()
-                    if sym in self._grammar:
-                        self.predict(col, sym, state)
-                    else:
-                        if i + 1 &gt;= len(chart):
-                            continue
-                        self.scan(chart[i + 1], state, sym)
-            if self.log: print(col, '\n')
-        return chart
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
 
 ### Predict
 
@@ -1227,6 +1195,39 @@ for s in chart[2].states:
 
 
 ## Filling the chart
+
+In the below algorithm, whenever the `at_dot()` is at a nonterminal
+symbol, the expansion rules of that nonterminal are added to the current
+rule (`predict()`) since each rule represents one valid parsing path. If on the
+other hand, `at_dot()` indicates processing finished for that nonterminal, we
+lookup the parent symbols and advance their parsing state (`complete()`). If we
+find that we are at a terminal symbol, we simply check if the current state can
+advance to parsing the next character (`scan()`). 
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def fill_chart(self, chart):
+        for i, col in enumerate(chart):
+            for state in col.states:
+                if state.finished():
+                    self.complete(col, state)
+                else:
+                    sym = state.at_dot()
+                    if sym in self._grammar:
+                        self.predict(col, sym, state)
+                    else:
+                        if i + 1 &gt;= len(chart):
+                            continue
+                        self.scan(chart[i + 1], state, sym)
+            if self.log: print(col, '\n')
+        return chart
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 We can now recognize the given string as part of the language represented by the grammar.
 
