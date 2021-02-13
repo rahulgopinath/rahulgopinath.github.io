@@ -73,20 +73,15 @@ import io, base64
 
 Add graph
 
-
 <!--
 ############
-G=nx.Graph()
-G.add_node("a")
-G.add_nodes_from(["b","c"])
-
-G.add_edge(1,2)
-edge = ("d", "e")
-G.add_edge(*edge)
-edge = ("a", "b")
-G.add_edge(*edge)
-G.add_edges_from([("a","c"),("c","d"), ("a",1), (1,"d"), ("a",2)])
-nx.draw(G)
+G = nx.Graph()
+G.add_nodes_from([('A', {'weight':5}), ('B', {'weight':3}), ('C', {'weight':3})])
+G.add_edges_from([('A', 'B', {'weight':20})])
+G.add_edges_from([('A', 'C', {'weight':20})])
+pos = nx.shell_layout(G)
+nx.draw(G, pos=pos, node_size=1000, with_labels=False)
+nx.draw_networkx_labels(G,pos=pos,font_size=30)
 plt.axis('off')
 plt.show()
 ############
@@ -95,17 +90,13 @@ plt.show()
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-G=nx.Graph()
-G.add_node(&quot;a&quot;)
-G.add_nodes_from([&quot;b&quot;,&quot;c&quot;])
-
-G.add_edge(1,2)
-edge = (&quot;d&quot;, &quot;e&quot;)
-G.add_edge(*edge)
-edge = (&quot;a&quot;, &quot;b&quot;)
-G.add_edge(*edge)
-G.add_edges_from([(&quot;a&quot;,&quot;c&quot;),(&quot;c&quot;,&quot;d&quot;), (&quot;a&quot;,1), (1,&quot;d&quot;), (&quot;a&quot;,2)])
-nx.draw(G)
+G = nx.Graph()
+G.add_nodes_from([(&#x27;A&#x27;, {&#x27;weight&#x27;:5}), (&#x27;B&#x27;, {&#x27;weight&#x27;:3}), (&#x27;C&#x27;, {&#x27;weight&#x27;:3})])
+G.add_edges_from([(&#x27;A&#x27;, &#x27;B&#x27;, {&#x27;weight&#x27;:20})])
+G.add_edges_from([(&#x27;A&#x27;, &#x27;C&#x27;, {&#x27;weight&#x27;:20})])
+pos = nx.shell_layout(G)
+nx.draw(G, pos=pos, node_size=1000, with_labels=False)
+nx.draw_networkx_labels(G,pos=pos,font_size=30)
 plt.axis(&#x27;off&#x27;)
 plt.show()
 </textarea><br />
