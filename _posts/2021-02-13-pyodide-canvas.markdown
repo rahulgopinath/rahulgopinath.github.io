@@ -81,7 +81,7 @@ G.add_nodes_from([('A', {'weight':5}), ('B', {'weight':3}), ('C', {'weight':3})]
 G.add_edges_from([('A', 'B', {'weight':20})])
 G.add_edges_from([('A', 'C', {'weight':20})])
 pos = nx.shell_layout(G)
-labels = {'A', 'aaa', 'B': 'bbb', 'C':'ccc'}
+labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
 nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
 #nx.draw_networkx_labels(G,pos=pos,font_size=30)
 plt.axis('off')
@@ -98,7 +98,7 @@ G.add_nodes_from([(&#x27;A&#x27;, {&#x27;weight&#x27;:5}), (&#x27;B&#x27;, {&#x2
 G.add_edges_from([(&#x27;A&#x27;, &#x27;B&#x27;, {&#x27;weight&#x27;:20})])
 G.add_edges_from([(&#x27;A&#x27;, &#x27;C&#x27;, {&#x27;weight&#x27;:20})])
 pos = nx.shell_layout(G)
-labels = {'A', 'aaa', 'B': 'bbb', 'C':'ccc'}
+labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
 nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
 #nx.draw_networkx_labels(G,pos=pos,font_size=30)
 plt.axis(&#x27;off&#x27;)
