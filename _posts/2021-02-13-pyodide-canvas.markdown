@@ -629,7 +629,7 @@ def hierarchy_pos(G, root=None, width=0.01, vert_gap = 0.002, vert_loc = 1, xcen
 plt.clf()
 pos = hierarchy_pos(g,'0')
 
-nx.draw(g, pos=pos, with_labels=True, labels=labels)
+nx.draw(g, pos=pos, with_labels=True, labels=labels,node_size=1000,font_size=8, node_color='#ffffff')
 
 plt.axis('off')
 plt.show()
@@ -647,7 +647,7 @@ print(len(img_str))
 plt.clf()
 pos = hierarchy_pos(g,&#x27;0&#x27;)
 
-nx.draw(g, pos=pos, with_labels=True, labels=labels)
+nx.draw(g, pos=pos, with_labels=True, labels=labels,node_size=1000,font_size=8, node_color=&#x27;#ffffff&#x27;)
 
 plt.axis(&#x27;off&#x27;)
 plt.show()
