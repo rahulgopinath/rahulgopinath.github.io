@@ -44,6 +44,7 @@ full recovery of parsing forests using iterative solutions,
 see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
 (See the solved exercises). A very detailed explanation of Earley parsing is
 by [Loup Vaillant](https://loup-vaillant.fr/tutorials/earley-parsing/).
+Further, a fast industrial strength Earley parser implementation is [Marpa](https://jeffreykegler.github.io/Marpa-web-site/)
 
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 Here is an example grammar for arithmetic expressions, starting at `<start>`.
