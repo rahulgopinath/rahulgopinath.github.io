@@ -718,7 +718,6 @@ def nullable(g):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def nullable(g):
-    # remove expansions with terminals
     g_cur = rem_terminals(g)
 
     hash_counts = {k:get_appearances(g_cur, k) for k in g_cur}
@@ -787,9 +786,6 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
-
-    def fill_chart(self, chart):
-        return chart # for now.
 ############
 -->
 
@@ -801,9 +797,6 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
-
-    def fill_chart(self, chart):
-        return chart # for now.
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -844,6 +837,16 @@ element at a time. At each character, we examine the current parse paths
 (states) and continue forward any parse path that successfully parses the
 letter.
 
+There are three main methods: `predict()`, `scan()`, and `complete()`
+
+In the below algorithm, when ever the `at_dot()` is at a nonterminal
+symbol, the expansion rules of that nonterminal are added to the current
+rule (`predict()`) since each rule represents one valid parsing path. If on the
+other hand, `at_dot()` indicates processing finished for that nonterminal, we
+lookup the parent symbols and advance their parsing state (`complete()`). If we
+find that we are at a terminal symbol, we simply check if the current state can
+advance to parsing the next character (`scan()`). 
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -868,8 +871,6 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
-
-There are three main methods: `predict()`, `scan()`, and `complete()`
 
 ### Predict
 
