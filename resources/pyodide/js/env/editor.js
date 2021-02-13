@@ -20,7 +20,7 @@ function runit(mypre, mycanvas, editor) {
    function draw(str) {
       myimg = document.createElement("img");
       $(mycanvas).append(myimg);
-      myimg.attr('src', str);
+      $(myimg).attr('src', str);
    }
 
    mypre.innerHTML = '';
@@ -34,7 +34,7 @@ function runit(mypre, mycanvas, editor) {
         })
         .catch((err) => {
            console.log(err.toString());
-           errf(err.toString())
+           errf(err.toString());
            editor.display.wrapper.style.border = '1px solid red'
         });
 }
