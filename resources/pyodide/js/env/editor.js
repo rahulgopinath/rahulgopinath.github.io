@@ -17,6 +17,12 @@ function runit(mypre, mycanvas, editor) {
       mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + escHTML(text) + "</font>";
    }
 
+   function draw(str) {
+      myimg = document.createElement("img");
+      $(mycanvas).append(myimg);
+      myimg.attr('src', str);
+   }
+
    mypre.innerHTML = '';
 
    pyodide.runPythonAsync(prog)
@@ -24,6 +30,9 @@ function runit(mypre, mycanvas, editor) {
            console.log('success');
            outf(output)
            editor.display.wrapper.style.border = '1px solid black'
+           if (pyodide.globals.__canvas__) {
+              pyodide.globals.__canvas__ = draw
+           }
         })
         .catch((err) => {
            console.log(err.toString());
