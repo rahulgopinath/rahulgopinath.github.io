@@ -1991,6 +1991,7 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
 ############
 for i in range(5):
     tree = de.extract_a_tree()
+    print(tree_to_str(tree))
     print(format_parsetree(tree))
 ############
 -->
@@ -2000,7 +2001,8 @@ for i in range(5):
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = de.extract_a_tree()
-    print(tree)
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -2042,14 +2044,15 @@ for i in range(5):
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = ie.extract_a_tree()
-    print(tree)
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
-Simple extractor gives no guarantee on the order. Can we fix that?
+
 
 
 
