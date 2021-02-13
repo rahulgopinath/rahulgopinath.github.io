@@ -558,7 +558,7 @@ def nullable(g):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def is_nt(k):
-    return k[0], k[-1] == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+    return (k[0], k[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
 
 def rem_terminals(g):
     g_cur = {}
