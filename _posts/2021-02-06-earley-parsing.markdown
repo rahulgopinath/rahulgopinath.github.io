@@ -1724,7 +1724,7 @@ Using the same example,
 mystring = '1+2+4'
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
-    print(tree)
+    print(format_parsetree(tree))
 ############
 -->
 
@@ -1734,7 +1734,7 @@ for tree in parser.parse_on(mystring, START):
 mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
-    print(tree)
+    print(format_parsetree(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
