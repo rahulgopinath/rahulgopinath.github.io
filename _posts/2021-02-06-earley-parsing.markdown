@@ -1597,7 +1597,9 @@ def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
         for result in tree:
             yield result
 
-def format_parsetree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1]):
+def format_parsetree(node,
+          format_node=lambda x: repr(x[0]),
+          get_children=lambda x: x[1]):
     lines = itertools.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
 </textarea><br />
