@@ -835,14 +835,15 @@ print(v[0].states[0])
 Then, we complete the chart. The idea here is to process one character or one
 element at a time. At each character, we examine the current parse paths
 (states) and continue forward any parse path that successfully parses the
-letter.
+letter. We process any state that is present in the current column in the
+following fashion.
 
-There are three main methods: `predict()`, `scan()`, and `complete()`
+There are three main methods we use: `predict()`, `scan()`, and `complete()`
 
 
 ### Predict
 
-If the term after the dot is a nonterminal, `predict()` is called. It
+If in the current state, the term after the dot is a nonterminal, `predict()` is called. It
 adds the expansion of the nonterminal to the current column.
 
 If the term is nullable, then we simply advance the current state, and
@@ -919,10 +920,13 @@ for s in chart[0].states:
 <div name='python_canvas'></div>
 </form>
 
+As you can see, the two rules of `<A>` has been added to
+the current column.
+
 
 ### Scan
 
-The `scan()` method is called if the next symbol is a terminal symbol. If the
+The `scan()` method is called if the next symbol in the current state is a terminal symbol. If the
 state matches the next term, moves the dot one position, and adds the new
 state to the column.
 
@@ -988,6 +992,10 @@ for s in chart[1].states:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+As you can see, the `state[1]` in `chart[0]` that was waiting for `a` has
+advanced one letter after consuming `a`, and has been added to `chart[1]`.
+
 
 <!--
 #grammar = {
@@ -1084,10 +1092,11 @@ for s in chart[0].states:
 <div name='python_canvas'></div>
 </form>
 
-Next, we populate column 1
+Next, we populate column 1 which corresponds to letter `a`.
 
 <!--
 ############
+print(chart[1].letter)
 for state in chart[0].states:
     if state.at_dot() not in sample_grammar:
         ep.scan(chart[1], state, 'a')
@@ -1099,6 +1108,7 @@ for s in chart[1].states:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+print(chart[1].letter)
 for state in chart[0].states:
     if state.at_dot() not in sample_grammar:
         ep.scan(chart[1], state, &#x27;a&#x27;)
@@ -1110,7 +1120,10 @@ for s in chart[1].states:
 <div name='python_canvas'></div>
 </form>
 
-Predict again to flush out
+You can see that the two states are waiting on `<A>` and `<B>`
+respectively at `at_dot()`.
+Hence, we run predict again to add the corresponding rules of `<A>` and `<B>`
+to the current column.
 
 <!--
 ############
@@ -1136,7 +1149,30 @@ for s in chart[1].states:
 <div name='python_canvas'></div>
 </form>
 
-Scan again to populate column 2
+As you can see, we have a list of states that are waiting
+for `b`, `a` and `d`.
+
+Our next letter is:
+
+<!--
+############
+print(chart[2])
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(chart[2])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+We scan to populate `column 2`.
 
 <!--
 ############
@@ -1164,8 +1200,10 @@ for s in chart[2].states:
 <div name='python_canvas'></div>
 </form>
 
+As we expected, only `<D>` could advance to the next column (`chart[2]`)
+after reading `d`
 
-Finally, we use complete.
+Finally, we use complete, so that we can advance the parents of the `<D>` state above.
 
 <!--
 ############
@@ -1192,6 +1230,9 @@ for s in chart[2].states:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+As you can see, that led to `<B>` being complete, and since `<B>` is
+complete, `<A>` also becomes complete.
 
 
 ## Filling the chart
