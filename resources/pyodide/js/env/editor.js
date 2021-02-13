@@ -25,14 +25,12 @@ function runit(mypre, mycanvas, editor) {
 
    mypre.innerHTML = '';
 
+   pyodide.globals.__canvas__ = draw
    pyodide.runPythonAsync(prog)
         .then(output => {
            console.log('success');
-           outf(output)
-           editor.display.wrapper.style.border = '1px solid black'
-           if (pyodide.globals.__canvas__) {
-              pyodide.globals.__canvas__ = draw
-           }
+           outf(output):
+           editor.display.wrapper.style.border = '1px solid black';
         })
         .catch((err) => {
            console.log(err.toString());
