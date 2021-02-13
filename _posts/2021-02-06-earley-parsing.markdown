@@ -2052,9 +2052,16 @@ for i in range(5):
 <div name='python_canvas'></div>
 </form>
 
+However, `SimpleExtractor` has a problem. The issue is that since we rely on
+randomness for exploration, it gives no guarantees on the uniqueness of the
+returned trees. Hence, we need a way to keep track of the explored paths.
+our next class `EnahncedExtractor` can do that. In `EnhancedExtractor`,
+different exploration paths form a tree of nodes.
 
-
-
+First we define a data-structure to keep track of explorations. 
+* `_chosen` contains the current choice
+* `next` holds the next choice done using `_chosen`
+* `total` holds he total number of choices for this node.
 
 <!--
 ############
@@ -2124,7 +2131,7 @@ class ChoiceNode:
 <div name='python_canvas'></div>
 </form>
 
-
+Initialization of the data-structure in the constructor.
 
 <!--
 ############
@@ -2148,6 +2155,9 @@ class EnhancedExtractor(SimpleExtractor):
 <div name='python_canvas'></div>
 </form>
 
+Given an array and a choice node, `choose_path()` returns the element
+in array corresponding to the next choice node if it exists, or produces
+a new choice nodes, and returns that element.
 
 <!--
 ############
@@ -2186,6 +2196,29 @@ class EnhancedExtractor(EnhancedExtractor):
 </form>
 
 
+
+While extracting, we have a choice. Should we allow infinite forests,
+or should we have a finite number of trees with no direct recursion?
+A direct recursion is when there exists a parent node with the same
+nonterminal that parsed the same span. We choose here not to extract
+such trees. They can be added back after parsing.
+
+This is a recursive procedure that inspects a node, extracts the path
+required to complete that node. A single path (corresponding to a nonterminal)
+may again be composed of a sequence of smaller paths. Such paths are again
+extracted using another call to extract_a_node() recursively.
+
+What happens when we hit on one of the node recursions we want to avoid?
+In that case, we return the current choice node, which bubbles up to
+`extract_a_tree()`. That procedure increments the last choice, which in
+turn increments up the parents until we reach a choice node that still has
+options to explore.
+
+What if we hit the end of choices for a particular choice node
+(i.e, we have exhausted paths that can be taken from a node)? In this case also,
+we return the current choice node, which bubbles up to `extract_a_tree()`.
+That procedure increments the last choice, which bubbles up to the next choice
+that has some unexplored paths.
 
 <!--
 ############
@@ -2249,6 +2282,10 @@ class EnhancedExtractor(EnhancedExtractor):
 <div name='python_canvas'></div>
 </form>
 
+The `extract_a_tree()` is a depth first extractor of a single tree. It tries to
+extract a tree, and if the extraction returns None, it means that a particular
+choice was exhausted, or we hit on a recursion. In that case, we increment the
+choice, and explore a new path.
 
 <!--
 ############
@@ -2280,16 +2317,22 @@ class EnhancedExtractor(EnhancedExtractor):
 <div name='python_canvas'></div>
 </form>
 
+Note that the `EnhancedExtractor` only extracts nodes that are not directly
+recursive. That is, if it finds a node with a nonterminal that covers the same
+span as that of a parent node with the same nonterminal, it skips the node.
+
 <!--
 ############
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                    indirectly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                    indirectly_self_referring[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -2304,7 +2347,8 @@ while True:
     i += 1
     t = ee.extract_a_tree()
     if t is None: break
-    print(i, t)
+    s = tree_to_string(t)
+    assert s == mystring
 ############
 -->
 
@@ -2316,7 +2360,8 @@ while True:
     i += 1
     t = ee.extract_a_tree()
     if t is None: break
-    print(i, t)
+    s = tree_to_string(t)
+    assert s == mystring
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
