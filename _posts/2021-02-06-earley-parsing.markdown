@@ -780,6 +780,20 @@ We add this state to the `chart[0]` to start the parse. Note that the term
 after dot is `<A>`, which will need to be recursively inserted to the column.
 We will see how to do that later.
 
+<!--
+############
+class EarleyParser(EarleyParser):
+    def chart_parse(self, tokens, start, alt):
+        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart[0].add(State(start, alt, 0, chart[0]))
+        return self.fill_chart(chart)
+
+    def fill_chart(self, chart):
+        return chart # for now.
+############
+-->
+
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -787,34 +801,36 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
+
+    def fill_chart(self, chart):
+        return chart # for now.
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
+
 We seed our initial state in the example
 
 <!--
 ############
-nt_expr = tuple(sample_grammar[START][0])
-col_0 = Column(0, None)
-start_state = State(START, nt_expr, 0, col_0)
-col_0.add(start_state)
-print(start_state)
-print(start_state.at_dot())
+ep = EarleyParser(sample_grammar)
+ep.fill_chart = lambda s: s
+
+v = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+print(v[0].states[0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-nt_expr = tuple(sample_grammar[START][0])
-col_0 = Column(0, None)
-start_state = State(START, nt_expr, 0, col_0)
-col_0.add(start_state)
-print(start_state)
-print(start_state.at_dot())
+ep = EarleyParser(sample_grammar)
+ep.fill_chart = lambda s: s
+
+v = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
+print(v[0].states[0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -823,7 +839,10 @@ print(start_state.at_dot())
 
 
 
-Then, we complete the chart.
+Then, we complete the chart. The idea here is to process one character or one
+element at a time. At each character, we examine the current parse paths
+(states) and continue forward any parse path that successfully parses the
+letter.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
