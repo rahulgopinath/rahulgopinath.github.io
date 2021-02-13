@@ -75,6 +75,7 @@ Add graph
 
 <!--
 ############
+plt.clf()
 G = nx.Graph()
 G.add_nodes_from([('A', {'weight':5}), ('B', {'weight':3}), ('C', {'weight':3})])
 G.add_edges_from([('A', 'B', {'weight':20})])
@@ -90,6 +91,7 @@ plt.show()
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+plt.clf()
 G = nx.Graph()
 G.add_nodes_from([(&#x27;A&#x27;, {&#x27;weight&#x27;:5}), (&#x27;B&#x27;, {&#x27;weight&#x27;:3}), (&#x27;C&#x27;, {&#x27;weight&#x27;:3})])
 G.add_edges_from([(&#x27;A&#x27;, &#x27;B&#x27;, {&#x27;weight&#x27;:20})])
@@ -131,6 +133,133 @@ print(len(img_str))
 </form>
 
 Show
+
+
+<!--
+############
+__canvas__(img_str)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+__canvas__(img_str)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+dot
+
+<!--
+############
+import pydot
+dotFormat = """
+digraph G{
+edge [dir=forward]
+node [shape=plaintext]
+0 [label="0 (None)"]
+0 -> 7 [label="root"]
+1 [label="1 (The)"]
+4 [label="4 (great Indian Circus)"]
+4 -> 4 [label="compound"]
+4 -> 1 [label="det"]
+4 -> 4 [label="amod"]
+5 [label="5 (is)"]
+6 [label="6 (in)"]
+7 [label="7 (Mumbai)"]
+7 -> 6 [label="case"]
+7 -> 5 [label="cop"]
+7 -> 4 [label="nsubj"]
+}
+"""
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import pydot
+dotFormat = &quot;&quot;&quot;
+digraph G{
+edge [dir=forward]
+node [shape=plaintext]
+0 [label=&quot;0 (None)&quot;]
+0 -&gt; 7 [label=&quot;root&quot;]
+1 [label=&quot;1 (The)&quot;]
+4 [label=&quot;4 (great Indian Circus)&quot;]
+4 -&gt; 4 [label=&quot;compound&quot;]
+4 -&gt; 1 [label=&quot;det&quot;]
+4 -&gt; 4 [label=&quot;amod&quot;]
+5 [label=&quot;5 (is)&quot;]
+6 [label=&quot;6 (in)&quot;]
+7 [label=&quot;7 (Mumbai)&quot;]
+7 -&gt; 6 [label=&quot;case&quot;]
+7 -&gt; 5 [label=&quot;cop&quot;]
+7 -&gt; 4 [label=&quot;nsubj&quot;]
+}
+&quot;&quot;&quot;
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+pg = pydot.graph_from_dot_data(dotFormat)
+g = nx.nx_pydot.from_pydot(pg[0])
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+pg = pydot.graph_from_dot_data(dotFormat)
+g = nx.nx_pydot.from_pydot(pg[0])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
+plt.clf()
+nx.draw(g)
+plt.axis('off')
+plt.show()
+buf = io.BytesIO()
+plt.savefig(buf, format='png')
+buf.seek(0)
+img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
+print(len(img_str))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+plt.clf()
+nx.draw(g)
+plt.axis(&#x27;off&#x27;)
+plt.show()
+buf = io.BytesIO()
+plt.savefig(buf, format=&#x27;png&#x27;)
+buf.seek(0)
+img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
+print(len(img_str))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 
 <!--
