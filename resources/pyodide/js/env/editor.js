@@ -18,6 +18,7 @@ function runit(mypre, mycanvas, editor) {
    }
 
    function draw(str) {
+      $(mycanvas).empty();
       myimg = document.createElement("img");
       $(mycanvas).append(myimg);
       $(myimg).attr('src', str);
