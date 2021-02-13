@@ -1562,6 +1562,63 @@ class EarleyParser(EarleyParser):
 <div name='python_canvas'></div>
 </form>
 
+
+We need a way to display parse trees.
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import itertools
+
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+    def __repr__(self): return str(self.__dict__)
+
+Options = O(F=&#x27;|&#x27;, L=&#x27;+&#x27;, V=&#x27;|&#x27;, H=&#x27;-&#x27;, NL=&#x27;\n&#x27;)
+
+def format_newlines(prefix, formatted_node):
+    replacement = &#x27;&#x27;.join([Options.NL, &#x27;\n&#x27;, prefix])
+    return formatted_node.replace(&#x27;\n&#x27;, replacement)
+
+def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
+    children = list(get_children(node))
+    next_prefix = &#x27;&#x27;.join([prefix, Options.V, &#x27;   &#x27;])
+    for child in children[:-1]:
+        fml = format_newlines(next_prefix, format_node(child))
+        yield &#x27;&#x27;.join([prefix, Options.F, Options.H, Options.H, &#x27; &#x27;, fml])
+        tree = format_tree(child, format_node, get_children, next_prefix)
+        for result in tree:
+            yield result
+    if children:
+        last_prefix = &#x27;&#x27;.join([prefix, &#x27;    &#x27;])
+        fml = format_newlines(last_prefix, format_node(children[-1]))
+        yield &#x27;&#x27;.join([prefix, Options.L, Options.H, Options.H, &#x27; &#x27;, fml])
+        tree = format_tree(children[-1], format_node, get_children, last_prefix)
+        for result in tree:
+            yield result
+
+def format_parsetree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1]):
+    lines = itertools.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
+    return &#x27;\n&#x27;.join(lines)
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Displaying the tree
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for tree in parser.parse_on(mystring, START):
+    print(format_parsetree(tree))
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 Example
 
 <!--
@@ -1676,62 +1733,6 @@ for tree in parser.parse_on(mystring, START):
 
 
 
-
-We need a way to display parse trees.
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import itertools
-
-class O:
-    def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
-
-Options = O(F=&#x27;|&#x27;, L=&#x27;+&#x27;, V=&#x27;|&#x27;, H=&#x27;-&#x27;, NL=&#x27;\n&#x27;)
-
-def format_newlines(prefix, formatted_node):
-    replacement = &#x27;&#x27;.join([Options.NL, &#x27;\n&#x27;, prefix])
-    return formatted_node.replace(&#x27;\n&#x27;, replacement)
-
-def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
-    children = list(get_children(node))
-    next_prefix = &#x27;&#x27;.join([prefix, Options.V, &#x27;   &#x27;])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield &#x27;&#x27;.join([prefix, Options.F, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = &#x27;&#x27;.join([prefix, &#x27;    &#x27;])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield &#x27;&#x27;.join([prefix, Options.L, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
-
-def format_parsetree(node, format_node, get_children):
-    lines = itertools.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
-    return &#x27;\n&#x27;.join(lines)
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-Displaying the tree
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print(format_parsetree(tree, format_node=lambda x: repr(x[0]),
-        get_children=lambda x: x[1]))
-</textarea><br />
-<button type="button" name="python_run">Run</button>
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 
 ## Remaining
 
