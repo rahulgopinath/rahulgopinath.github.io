@@ -2348,7 +2348,7 @@ while True:
     i += 1
     t = ee.extract_a_tree()
     if t is None: break
-    s = tree_to_string(t)
+    s = tree_to_str(t)
     assert s == mystring
 ############
 -->
@@ -2361,7 +2361,7 @@ while True:
     i += 1
     t = ee.extract_a_tree()
     if t is None: break
-    s = tree_to_string(t)
+    s = tree_to_str(t)
     assert s == mystring
 </textarea><br />
 <button type="button" name="python_run">Run</button>
