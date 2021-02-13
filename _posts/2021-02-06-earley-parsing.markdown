@@ -159,7 +159,8 @@ a_grammar = {
 ############
 -->
 
-Here is another grammar that targets the same language.
+Here is another grammar that targets the same language. Unlike the first
+grammar, this grammar produces ambiguous parse results.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -324,6 +325,9 @@ Note that the states in a column corresponds to the parsing expression that will
 occur once that character has been read. That is, the first column will
 correspond to the parsing expression when no characters have been read.
 
+The column allows for adding states, and checks to prevent duplication of
+states.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Column:
@@ -402,7 +406,7 @@ class State:
 <div name='python_canvas'></div>
 </form>
 
-The convenience methods `finished()`, `advanced()` and `at_dot()` should be
+The convenience methods `finished()`, `advance()` and `at_dot()` should be
 self explanatory. For example,
 
 <!--
@@ -442,6 +446,7 @@ print(b_state.finished())
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 b_state = a_state.advance()
+print(b_state)
 print(b_state.finished())
 </textarea><br />
 <button type="button" name="python_run">Run</button>
@@ -641,12 +646,17 @@ print(nullable(nullable_grammar))
 <div name='python_canvas'></div>
 </form>
 
-This is however expensive. Can we make this linear?
+This is however expensive. The main problem is that we are looking up
+expansion rules again and again. Can we make this linear?
+Here is a simple solution. We simply keep a look up table for each
+nonterminal that provides the expansion rules it appears in. Further,
+for each expansion rule, we keep the count of non-nullable nonterminals.
+This way, we can directly lookup the corresponding rules whenever we
+need to process a nullable nonterminal.
 
 <!--
 ############
 def get_appearances(g, key):
-    # return a [(cnt, k, rule)]
     res = []
     for k in g:
         alts = []
@@ -662,7 +672,6 @@ def get_appearances(g, key):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def get_appearances(g, key):
-    # return a [(cnt, k, rule)]
     res = []
     for k in g:
         alts = []
@@ -681,7 +690,6 @@ def get_appearances(g, key):
 <!--
 ############
 def nullable(g):
-    # remove expansions with terminals
     g_cur = rem_terminals(g)
 
     hash_counts = {k:get_appearances(g_cur, k) for k in g_cur}
@@ -759,7 +767,11 @@ print(nullable(nullable_grammar))
 
 ## Chart construction
 
-First, we seed the chart with columns representing the tokens or characters.
+Earley parser is a chart parser. That is, it relies on a table of solutions
+to smaller problems. This table is called a chart (hence the name of such parsers -- chart parsers).
+
+Here, we begin the chart construction by 
+seeding the chart with columns representing the tokens or characters.
 Consider our example grammar again. The starting point is,
 ```
    <start>: | <A> <B>
