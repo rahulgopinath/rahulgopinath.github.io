@@ -1,6 +1,6 @@
 ---
 published: true
-title: Piodide Canvas
+title: Pyodide Canvas
 layout: post
 comments: true
 tags: pyodide
