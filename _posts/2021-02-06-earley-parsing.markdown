@@ -1988,7 +1988,7 @@ ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
 <div name='python_canvas'></div>
 </form>
 
-At this point, we also need a simple way to display the original string
+At this point, we also need a simple way to collapse the derivation tree to the original string
 
 <!--
 ############
