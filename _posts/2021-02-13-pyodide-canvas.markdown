@@ -27,7 +27,7 @@ Loading the prerequisite:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 "https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/py/pydot-1.4.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl"
 </textarea>
 </form>
 
