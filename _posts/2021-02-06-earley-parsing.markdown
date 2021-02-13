@@ -1931,14 +1931,16 @@ class SimpleExtractor:
 
 <!--
 ############
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, directly_self_referring[START][0])
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
+                                  directly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, directly_self_referring[START][0])
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
+                                  directly_self_referring[START][0])
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1949,7 +1951,7 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START, dir
 ############
 for i in range(5):
     tree = de.extract_a_tree()
-    print(tree)
+    print(format_parsetree(tree))
 ############
 -->
 
@@ -1970,14 +1972,54 @@ indirect reference
 
 <!--
 ############
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                  indirectly_self_referring[START][0])
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, indirectly_self_referring[START][0])
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                  indirectly_self_referring[START][0])
+</textarea><br />
+<button type="button" name="python_run">Run</button>
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+At this point, we also need a simple way to display the original string
+
+<!--
+############
+def tree_to_str(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def tree_to_str(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return &#x27;&#x27;.join(expanded)
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1990,7 +2032,8 @@ ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START, i
 ############
 for i in range(5):
     tree = ie.extract_a_tree()
-    print(tree)
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 ############
 -->
 
