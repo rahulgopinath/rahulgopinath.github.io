@@ -231,7 +231,7 @@ g = nx.nx_pydot.from_pydot(pg[0])
 <!--
 ############
 plt.clf()
-nx.draw(g)
+nx.draw(g, with_labels=True)
 plt.axis('off')
 plt.show()
 buf = io.BytesIO()
@@ -246,7 +246,7 @@ print(len(img_str))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 plt.clf()
-nx.draw(g)
+nx.draw(g, with_labels=True)
 plt.axis(&#x27;off&#x27;)
 plt.show()
 buf = io.BytesIO()
