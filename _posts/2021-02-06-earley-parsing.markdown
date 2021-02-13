@@ -1608,10 +1608,18 @@ def format_parsetree(node, format_node=lambda x: repr(x[0]), get_children=lambda
 
 Displaying the tree
 
+<!--
+############
+tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
+print(format_parsetree(tree))
+############
+-->
+
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for tree in parser.parse_on(mystring, START):
-    print(format_parsetree(tree))
+tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
+print(format_parsetree(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
@@ -1636,7 +1644,7 @@ for tree in parser.parse_on(mystring, START):
 mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
-    print(tree)
+    print(format_parsetree(tree))
 </textarea><br />
 <button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
