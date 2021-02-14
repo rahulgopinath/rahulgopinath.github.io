@@ -2379,6 +2379,35 @@ lookup. The transitive item needs to be added to each column we inspect.
 
 Here is the skeleton for the parser `LeoParser`.
 
+We first save our original complete
+
+<!--
+############
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        for st in parent_states:
+            col.add(st.advance())
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        for st in parent_states:
+            col.add(st.advance())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
 <!--
 ############
 class LeoParser(EarleyParser):
@@ -2506,7 +2535,7 @@ class LeoParser(LeoParser):
 <!--
 ############
 lp = LeoParser(RR_GRAMMAR)
-[(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states]
+print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
 ############
 -->
 
@@ -2514,7 +2543,7 @@ lp = LeoParser(RR_GRAMMAR)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 lp = LeoParser(RR_GRAMMAR)
-[(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states]
+print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
