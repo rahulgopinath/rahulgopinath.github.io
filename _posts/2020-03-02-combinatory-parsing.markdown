@@ -14,7 +14,11 @@ categories: post
 
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>\
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 
 Combinatory parsing (i.e parsing with [combinators](https://en.wikipedia.org/wiki/Combinatory_logic)) was
 introduced by William H Burge in his seminal work
