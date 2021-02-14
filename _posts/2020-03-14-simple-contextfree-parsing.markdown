@@ -54,6 +54,17 @@ import string
 ############
 -->
 
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import heapq as H
+import math
+import string
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 Our grammar is
 
 <!--
@@ -92,17 +103,6 @@ grammar = {
 </form>
 
 
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import heapq as H
-import math
-import string
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 
 
 <!--
