@@ -80,6 +80,7 @@ grammar = {
         "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
         "<digit>": [[str(i)] for i in string.digits]
         }
+START = '<start>'
 ############
 -->
 
@@ -97,6 +98,7 @@ grammar = {
         &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
         &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
         }
+START =  &quot;&lt;start&gt;&quot
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -228,7 +230,7 @@ def forking_parse(arg, grammar, start):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def forking_parse(arg, grammar, start):
-    for x in match(list(arg), &#x27;&lt;start&gt;&#x27;, grammar):
+    for x in match(list(arg), start, grammar):
         print(x)
 
 </textarea><br />
@@ -343,14 +345,14 @@ With this, we are now ready to parse any context-free language. Using the driver
 
 <!--
 ############
-forking_parse('1+1+', grammar, start)
+forking_parse('1+1+', grammar, START)
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-forking_parse(&#x27;1+1+&#x27;, grammar, start)
+forking_parse(&#x27;1+1+&#x27;, grammar, START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -358,14 +360,14 @@ forking_parse(&#x27;1+1+&#x27;, grammar, start)
 
 <!--
 ############
-forking_parse('1+1+1', grammar, start)
+forking_parse('1+1+1', grammar, START)
 ############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-forking_parse(&#x27;1+1+1&#x27;, grammar, start)
+forking_parse(&#x27;1+1+1&#x27;, grammar, START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
