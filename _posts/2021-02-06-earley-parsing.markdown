@@ -2384,7 +2384,7 @@ We first save our original complete
 <!--
 ############
 class EarleyParser(EarleyParser):
-    def complete(self, col, state):
+    def earley_complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
         for st in parent_states:
@@ -2396,7 +2396,7 @@ class EarleyParser(EarleyParser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def complete(self, col, state):
+    def earley_complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
         for st in parent_states:
