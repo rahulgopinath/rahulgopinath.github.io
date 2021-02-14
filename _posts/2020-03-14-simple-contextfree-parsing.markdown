@@ -48,6 +48,65 @@ which may produce a new set of threads that represent alternative parse directio
 
 <!--
 ############
+import heapq as H
+import math
+import string
+############
+-->
+
+Our grammar is
+
+<!--
+############
+grammar = {
+        "<start>": [["<E>"]],
+        "<E>": [
+            ["<E>", "+", "<E>"],
+            ["<E>", "-", "<E>"],
+            ["(", "<E>", ")"],
+            ["<digits>"],
+            ],
+        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
+        "<digit>": [[str(i)] for i in string.digits]
+        }
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+grammar = {
+        &quot;&lt;start&gt;&quot;: [[&quot;&lt;E&gt;&quot;]],
+        &quot;&lt;E&gt;&quot;: [
+            [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
+            [&quot;&lt;digits&gt;&quot;],
+            ],
+        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+        }
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import heapq as H
+import math
+import string
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
 def match(lst, key, grammar):
     queue = [((len(lst), 0), [(0, key)])]
     while queue:
@@ -183,43 +242,6 @@ in the case of left recursion, and an incomplete prefix, the threads simply mult
 out any means of actually parsing the input. 
 
 That is, given the usual grammar:
-
-<!--
-############
-grammar = {
-        "<start>": [["<E>"]],
-        "<E>": [
-            ["<E>", "+", "<E>"],
-            ["<E>", "-", "<E>"],
-            ["(", "<E>", ")"],
-            ["<digits>"],
-            ],
-        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
-        "<digit>": [[str(i)] for i in string.digits]
-        }
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-grammar = {
-        &quot;&lt;start&gt;&quot;: [[&quot;&lt;E&gt;&quot;]],
-        &quot;&lt;E&gt;&quot;: [
-            [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
-            [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
-            [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
-            [&quot;&lt;digits&gt;&quot;],
-            ],
-        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
-        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
-        }
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
 and the input `1+`, the `<E>` will keep getting expanded again and again generating
 new threads. So the parser will never terminate.
 
