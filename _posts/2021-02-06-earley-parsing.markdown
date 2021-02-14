@@ -3289,7 +3289,7 @@ for tree in result:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-result = LeoParser(RR_GRAMMAR4).parse_on(mystring4)
+result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
 for tree in result:
     assert mystring4 == tree_to_str(tree)
 </textarea><br />
