@@ -36,10 +36,10 @@ being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 However, if the grammar is unambiguous, it can parse in $$O(n^2)$$ time, and
 all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a].
 
-This an implementation of Earley parsing that handles the epsilon case as
-given by Aycock et al.[^aycock2002practical].
+This is an implementation of Earley parsing that handles the epsilon case as
+given by Aycock et al.[^aycock2002practical] as well as Leo's optimizations[^leo1991a].
 
-For a much more complete implementation including Leo's optimizations[^leo1991a], and
+For a much more complete implementation and
 full recovery of parsing forests using iterative solutions,
 see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
 (See the solved exercises). A very detailed explanation of Earley parsing is
