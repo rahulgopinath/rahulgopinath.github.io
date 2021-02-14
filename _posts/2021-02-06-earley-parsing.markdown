@@ -133,7 +133,6 @@ grammar = {
 }
 START = &#x27;&lt;start&gt;&#x27;
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -182,7 +181,6 @@ a_grammar = {
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -256,7 +254,6 @@ sample_grammar = {
     &#x27;&lt;D&gt;&#x27;: [[&#x27;d&#x27;]]
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -348,7 +345,6 @@ class Column:
         state.e_col = self
         return self._unique[state]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -402,7 +398,6 @@ class State:
     def advance(self):
         return State(self.name, self.expr, self.dot + 1, self.s_col)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -429,7 +424,6 @@ a_state = State(nt_name, tuple(nt_expr), 0, col_0)
 print(a_state)
 print(a_state.at_dot())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -450,7 +444,6 @@ b_state = a_state.advance()
 print(b_state)
 print(b_state.finished())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -468,7 +461,6 @@ class Parser:
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -483,7 +475,6 @@ class EarleyParser(Parser):
         self.epsilon = nullable(grammar)
         self.log = False
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -597,7 +588,6 @@ def nullable(g):
 
     return nullable_keys
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -625,7 +615,6 @@ nullable_grammar = {
     &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -642,7 +631,6 @@ print(nullable(nullable_grammar))
 <textarea cols="40" rows="4" name='python_edit'>
 print(nullable(nullable_grammar))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -682,7 +670,6 @@ class EarleyParser(EarleyParser):
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -709,7 +696,6 @@ ep.fill_chart = lambda s: s
 v = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
 print(v[0].states[0])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -744,7 +730,6 @@ class EarleyParser(EarleyParser):
         if sym in self.epsilon:
             col.add(state.advance())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -776,7 +761,6 @@ chart = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0
 for s in chart[0].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -799,7 +783,6 @@ ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -832,7 +815,6 @@ class EarleyParser(EarleyParser):
         if letter == col.letter:
             col.add(state.advance())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -872,7 +854,6 @@ ep.scan(chart[1], new_state, &#x27;a&#x27;)
 for s in chart[1].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -942,7 +923,6 @@ class EarleyParser(EarleyParser):
         for st in parent_states:
             col.add(st.advance())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -971,7 +951,6 @@ ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -999,7 +978,6 @@ for state in chart[0].states:
 for s in chart[1].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1028,7 +1006,6 @@ for state in chart[1].states:
 for s in chart[1].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1049,7 +1026,6 @@ print(chart[2])
 <textarea cols="40" rows="4" name='python_edit'>
 print(chart[2])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1079,7 +1055,6 @@ for state in chart[1].states:
 for s in chart[2].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1110,7 +1085,6 @@ for state in chart[2].states:
 for s in chart[2].states:
     print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1148,7 +1122,6 @@ class EarleyParser(EarleyParser):
             if self.log: print(col, '\n')
         return chart
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1170,7 +1143,6 @@ ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 for c in columns: print(c)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1200,7 +1172,6 @@ for s in last_col.states:
     if s.name == &#x27;&lt;start&gt;&#x27;:
         print(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1226,7 +1197,6 @@ class EarleyParser(EarleyParser):
                 return col.index, states
         return -1, []
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1248,7 +1218,6 @@ ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 print(cursor, [str(s) for s in last_states])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1276,7 +1245,6 @@ class EarleyParser(EarleyParser):
             for tree in self.extract_trees(forest):
                 yield tree
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1321,7 +1289,6 @@ class EarleyParser(EarleyParser):
 
         return [p for s, start, k in starts for p in paths(s, start, k, expr)]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1349,7 +1316,6 @@ paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
 for path in paths:
     print([list(str(s_) for s_ in s) for s in path])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1380,7 +1346,6 @@ class EarleyParser(EarleyParser):
         return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
                             for pathexpr in pathexprs]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1402,7 +1367,6 @@ ep = EarleyParser(sample_grammar)
 result = ep.parse_forest(columns, last_states[0])
 print(result)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1441,7 +1405,6 @@ class EarleyParser(EarleyParser):
     def extract_trees(self, forest):
         yield self.extract_a_tree(forest)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1487,7 +1450,6 @@ def format_parsetree(node,
     lines = itertools.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1507,7 +1469,6 @@ print(format_parsetree(tree))
 tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
 print(format_parsetree(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1532,7 +1493,6 @@ parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1558,7 +1518,6 @@ import itertools as I
 <textarea cols="40" rows="4" name='python_edit'>
 import itertools as I
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1593,7 +1552,6 @@ class EarleyParser(EarleyParser):
             for p in I.product(*ptrees):
                 yield (name, p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1620,7 +1578,6 @@ parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1669,7 +1626,6 @@ indirectly_self_referring = {
     &#x27;&lt;aexpr&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1703,7 +1659,6 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
     except RecursionError as e:
          print(&quot;Recursion error&quot;,e)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1727,7 +1682,6 @@ import random
 <textarea cols="40" rows="4" name='python_edit'>
 import random
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1807,7 +1761,6 @@ class SimpleExtractor:
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1845,7 +1798,6 @@ def tree_to_str(tree):
             expanded.append(key)
     return &#x27;&#x27;.join(expanded)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1866,7 +1818,6 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
 de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
                                   directly_self_referring[START][0])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1888,7 +1839,6 @@ for i in range(5):
     print(tree_to_str(tree))
     print(format_parsetree(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1909,7 +1859,6 @@ ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
 ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                   indirectly_self_referring[START][0])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -1931,7 +1880,6 @@ for i in range(5):
     print(tree_to_str(tree))
     print(format_parsetree(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2010,7 +1958,6 @@ class ChoiceNode:
     def finished(self):
         return self._chosen &gt;= self._total
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2034,7 +1981,6 @@ class EnhancedExtractor(SimpleExtractor):
         super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2074,7 +2020,6 @@ class EnhancedExtractor(EnhancedExtractor):
         choices = choices.next
         return arr[next_choice], next_choice, arr_len, choices
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2161,7 +2106,6 @@ class EnhancedExtractor(EnhancedExtractor):
             new_choices = newer_choices
         return (name, child_nodes), new_choices
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2196,7 +2140,6 @@ class EnhancedExtractor(EnhancedExtractor):
                 return parse_tree
         return None
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2218,7 +2161,6 @@ ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
 ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                     indirectly_self_referring[START][0])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -2247,7 +2189,6 @@ while True:
     s = tree_to_str(t)
     assert s == mystring
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
