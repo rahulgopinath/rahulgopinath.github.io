@@ -61,7 +61,10 @@ languagePluginLoader.then(() => {
     pyodide.runPython(pre + pre_)
 
     $('[name="python_run_form"]').each(function(idx, myform_) { 
-      mybutton = document.createElement("<button type='button' name='clear'>clear</button>");
+      mybutton = document.createElement("button");
+      mybutton.type = "button";
+      mybutton.name = "clear";
+      mybutton.innerText = "clear";
       $(myform_).append(mybutton);
       $(mybutton).click(function() {
           mypre = myform.find('[name="python_output"]').first()
