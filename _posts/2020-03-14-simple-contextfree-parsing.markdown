@@ -165,7 +165,7 @@ parsing point is updated, and returned. If not a match, the current thread is di
 
 If the gievn element is a nonterminal, then the parsing can proceed in any of the possible
 expansions of the nonterminal. So, the parsing thread is split into as many new threads, and
-the nontermainl is replaced with its particular expansion in each of the thread, and the
+the nonterminal is replaced with its particular expansion in each of the thread, and the
 new threads are returned.
 
 <!--
