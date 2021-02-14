@@ -3155,7 +3155,7 @@ class LeoParser(LeoParser):
             cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
             start = next((s for s in states if s.finished()), None)
 
-            if cursor &lt; len(text) or not start:
+            if cursor <len(text) or not start:
                 #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
                 continue
 
@@ -3176,7 +3176,7 @@ class LeoParser(LeoParser):
             cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
             start = next((s for s in states if s.finished()), None)
 
-            if cursor &amp;lt; len(text) or not start:
+            if cursor &lt; len(text) or not start:
                 #raise SyntaxError(&amp;quot;at &amp;quot; + repr(text[cursor:]))
                 continue
 
