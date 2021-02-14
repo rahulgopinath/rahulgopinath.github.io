@@ -1,6 +1,6 @@
 ---
 published: true
-title: Simple Parser For Context Free Languages
+title: Simple Parser For Context Free Languages with Forking Stacks
 layout: post
 comments: true
 tags: combinators, parsing, cfg
