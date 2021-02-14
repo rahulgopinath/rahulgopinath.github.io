@@ -2682,7 +2682,7 @@ mystring2 = &#x27;ababababab&#x27;
 
 <!--
 ############
-result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, RR_GRAMMAR2[START][0])
+result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
 for _ in result: pass
 ############
 -->
@@ -2690,7 +2690,7 @@ for _ in result: pass
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, RR_GRAMMAR2[START][0])
+result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
 for _ in result: pass
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2910,7 +2910,7 @@ We verify that our parser works correctly on `LR_GRAMMAR` too.
 
 <!--
 ############
-result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, LR_GRAMMAR[START][0])
+result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
 ############
 -->
@@ -2918,7 +2918,7 @@ for _ in result: pass
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, LR_GRAMMAR[START][0])
+result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
