@@ -2193,6 +2193,142 @@ while True:
 <div name='python_canvas'></div>
 </form>
 
+## Leo Optimizations
+
+One of the problems with the original Earley parser is that while it can parse
+strings using arbitrary Context Free Grammars, its performance on
+right-recursive grammars is quadratic. That is, it takes $$O(n^2)$$ runtime and
+space for parsing with right-recursive grammars. For example, consider the
+parsing of the following string by two different grammars `LR_GRAMMAR` and
+`RR_GRAMMAR`.
+
+
+<!--
+############
+LR_GRAMMAR = {
+    '<start>': [['<A>']],
+    '<A>': [['<A>', 'a'], []],
+}
+
+lr_tree = ('<start>', (('<A>', (('<A>', (('<A>', []), ('a', []))), ('a', []))), ('a', [])))
+print(format_parsetree(lr_tree))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+LR_GRAMMAR = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;], []],
+}
+
+lr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, []), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, [])))
+print(format_parsetree(lr_tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
+RR_GRAMMAR = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], []],
+}
+rr_tree = ('<start>', (('<A>', (('a', []), ('<A>', (('a', []), ('<A>', (('a', []), ('<A>', []))))))),))
+print(format_parsetree(rr_tree))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], []],
+}
+rr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, []))))))),))
+print(format_parsetree(rr_tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Here is our input string
+
+
+<!--
+############
+mystring = 'aaaaaa'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;aaaaaa&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+To see the problem, we need to enable logging. Here is the logged version of parsing with the `LR_GRAMMAR`
+
+<!--
+############
+result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass # consume the generator so that we can see the logs
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass # consume the generator so that we can see the logs
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+As can be seen from the parsing log for each letter, the number of states with
+representation `<A>: a <A> | (i, j)` increases at each stage, and these are
+simply a left over from the previous letter. They do not contribute anything
+more to the parse other than to simply complete these entries. However, they
+take up space, and require resources for inspection, contributing a factor of $$n$$ in analysis.
+
+Joop Leo[^leo1991a] found that this inefficiency can be avoided by detecting
+right recursion. The idea is that before starting the completion step, check
+whether the current item has a deterministic reduction path. If such a path
+exists, add a copy of the topmost element of the deterministic reduction path
+to the current column, and return. If not, perform the original completion step.
+
+
+
+
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
