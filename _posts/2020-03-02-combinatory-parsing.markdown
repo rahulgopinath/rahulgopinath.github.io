@@ -16,6 +16,8 @@ categories: post
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
