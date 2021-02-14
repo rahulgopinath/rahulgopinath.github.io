@@ -60,6 +60,16 @@ languagePluginLoader.then(() => {
 
     pyodide.runPython(pre + pre_)
 
+    $('[name="python_run_form"]').each(function(idx, myform_) { 
+      mybutton = document.createElement("<button type='button' name='clear'>clear</button>");
+      $(myform_).append(mybutton);
+      $(mybutton).click(function() {
+          mypre = myform.find('[name="python_output"]').first()
+          mypre.empty();
+      });
+    });
+
+
     $('[name="python_run"]').click(function() { 
       myform = $(this).closest('[name="python_run_form"]');
       myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
