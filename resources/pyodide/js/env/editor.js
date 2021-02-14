@@ -69,10 +69,12 @@ languagePluginLoader.then(() => {
           mybutton.name = "python_run";
           mybutton.innerText = "Run";
           mypre = myform.find('[name="python_output"]').first()
-          myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
-          mycanvas = myform.find('[name="python_canvas"]').first()
           mypre.before(mybutton);
           $(mybutton).click(function() {
+              myform = $(this).closest('[name="python_run_form"]');
+              myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
+              mypre = myform.find('[name="python_output"]').first()
+              mycanvas = myform.find('[name="python_canvas"]').first()
               runit(mypre[0], mycanvas[0], myeditor)
           });
       }
