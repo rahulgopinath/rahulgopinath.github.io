@@ -470,10 +470,10 @@ We now initialize the Earley parser, which is a parser.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(Parser):
-    def __init__(self, grammar, **kwargs):
+    def __init__(self, grammar, log = False, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
-        self.log = False
+        self.log = log
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
