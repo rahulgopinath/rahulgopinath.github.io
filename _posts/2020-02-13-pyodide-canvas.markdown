@@ -45,7 +45,6 @@ print(__canvas__)
 <textarea cols="40" rows="4" name='python_edit'>
 print(__canvas__)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -66,7 +65,6 @@ import  matplotlib.pyplot as plt
 import networkx as nx
 import io, base64
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -104,7 +102,6 @@ nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
 plt.axis(&#x27;off&#x27;)
 plt.show()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -129,7 +126,6 @@ buf.seek(0)
 img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
 print(len(img_str))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -148,7 +144,6 @@ __canvas__(img_str)
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -205,7 +200,6 @@ node [shape=plaintext]
 }
 &quot;&quot;&quot;
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -228,7 +222,6 @@ g = nx.nx_pydot.from_pydot(pg[0])
 for node in (pg[0].get_nodes()):
   print(node.get_name(), type(node), node.get_label())
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -262,7 +255,6 @@ buf.seek(0)
 img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
 print(len(img_str))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -280,7 +272,6 @@ __canvas__(img_str)
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -307,7 +298,6 @@ derivation_tree = (&quot;&lt;start&gt;&quot;,
                          (&quot;&lt;term&gt;&quot;, None)]
                      )])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -430,7 +420,6 @@ def display_tree(derivation_tree,
         print(dot)
     return dot, labels
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -451,7 +440,6 @@ v, labels = display_tree(derivation_tree)
 print(str(v))
 print(labels)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -479,7 +467,6 @@ pg = pydot.graph_from_dot_data(dotFormat)
 g = nx.nx_pydot.from_pydot(pg[0])
 print(pg[0])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -532,7 +519,6 @@ def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
         return pos
     return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -573,7 +559,6 @@ buf.seek(0)
 img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
 print(len(img_str))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -590,7 +575,6 @@ __canvas__(img_str)
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

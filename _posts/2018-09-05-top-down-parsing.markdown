@@ -63,7 +63,6 @@ def reset():
 def pos_eof():
     return pos_cur() == len(my_input)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -76,7 +75,6 @@ def next_token():
     pos_set(i+1)
     return my_input[i]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -86,7 +84,6 @@ Another convenience we use is the ability to `match` a token to a given symbol.
 def match(t):
     return next_token() == t
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -101,7 +98,6 @@ def do_seq(seq_terms):
        if not t(): return False
    return True
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -117,7 +113,6 @@ def do_alt(alt_terms):
         pos_set(o_pos)
     return False
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -130,7 +125,6 @@ start with the axiom rule `E` which contains two alternatives.
 def E():
     return do_alt([E_1, E_2])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -144,7 +138,6 @@ def E_1():
 def E_2():
     return do_seq([T])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -156,7 +149,6 @@ Defining `T` is similar
 def T():
     return do_alt([T_1, T_2])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -170,7 +162,6 @@ def T_1():
 def T_2():
     return do_seq([P_OPEN,E,P_CLOSE])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -185,7 +176,6 @@ def P_CLOSE():
     return match(')')
 
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -198,7 +188,6 @@ def parse(i):
     assert E()
     assert pos_eof()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -210,7 +199,6 @@ parse('1+1')
 reset()
 parse('1+(1+1)+1')
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -262,7 +250,6 @@ def parse(i):
     assert expr()
     assert pos_eof()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -273,7 +260,6 @@ Using it:
 reset()
 parse('12*3+(12/13)')
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -293,7 +279,6 @@ grammar = {
         &quot;mul_op&quot;: [[&quot;*&quot;], [&quot;/&quot;]]
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -320,7 +305,6 @@ def parse(i):
     do_alt('expr')
     assert pos_eof()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -331,7 +315,6 @@ reset()
 parse('12*3+(12/13)')
 reset()
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -367,7 +350,6 @@ class g_parse:
         self.do_alt('expr')
         assert self.remain() == 0
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -376,7 +358,6 @@ class g_parse:
 <textarea cols="40" rows="4" name='python_edit'>
 g_parse(grammar).parse( '123+11+(3*(2))+1')
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

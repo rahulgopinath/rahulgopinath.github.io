@@ -63,7 +63,6 @@ def test(s):
     print(&quot;%s  %s %d&quot; % ((&#x27;+&#x27; if v else &#x27;.&#x27;),  s, len(s)))
     return v
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -125,7 +124,6 @@ import random
 import string
 import re
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -170,7 +168,6 @@ def remove_check_each_fragment(instr, part_len, causal):
              pre = pre + instr[i:i+part_len]
     return pre
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -229,7 +226,6 @@ def ddmin(cur_str, causal_fn):
 
     return cur_str
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -252,7 +248,6 @@ def test(s):
     print(&quot;%s %d&quot; % (s, len(s)))
     return set(&#x27;()&#x27;) &lt;= set(s)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -276,7 +271,6 @@ inputstring = &#x27;&#x27;.join(random.choices(string.digits +
                       string.punctuation, k=1024))
 print(inputstring)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -297,7 +291,6 @@ assert test(inputstring)
 solution = ddmin(inputstring, test)
 print(solution)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -370,7 +363,6 @@ def ddrmin(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
     
 ddmin = ddrmin
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -433,7 +425,6 @@ import re
 import copy
 import heapq
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -466,7 +457,6 @@ def tree_to_string(tree):
     if not is_nt(name): return name
     else: return &#x27;&#x27;.join([tree_to_string(c) for c in children])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -494,7 +484,6 @@ def count_leaves(node):
         return 1
     return sum(count_leaves(i) for i in children)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -515,7 +504,6 @@ def add_to_queue(node, q):
 def add_to_queue(node, q):
     heapq.heappush(q, (count_leaves(node), node))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -561,7 +549,6 @@ class ReplaceNode:
         self.node.clear()
         self.node.extend(self.node_copy)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -595,7 +582,6 @@ def subtrees_with_symbol(node, symbol, result=None, depth=0):
         subtrees_with_symbol(c, symbol, result, depth+1)
     return result
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -670,7 +656,6 @@ def perses_delta_debug(grammar, orig_tree, predicate):
                     add_to_queue(c, p_q)
     return tree
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -696,7 +681,6 @@ def test_bb(inp):
         return True
     return False
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -733,7 +717,6 @@ EXPR_GRAMMAR = {&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
  &#x27;&lt;integer&gt;&#x27;: [[&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;integer&gt;&#x27;], [&#x27;&lt;digit&gt;&#x27;]],
  &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;], [&#x27;2&#x27;], [&#x27;3&#x27;], [&#x27;4&#x27;], [&#x27;5&#x27;], [&#x27;6&#x27;], [&#x27;7&#x27;], [&#x27;8&#x27;], [&#x27;9&#x27;]]}
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -752,7 +735,6 @@ my_input = '1+((2*3/4))'
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = &#x27;1+((2*3/4))&#x27;
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -771,7 +753,6 @@ Loading the prerequisite:
 <textarea cols="40" rows="4" name='python_edit'>
 import earleyparser
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -789,7 +770,6 @@ d_tree, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>
 <textarea cols="40" rows="4" name='python_edit'>
 d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -807,7 +787,6 @@ print(d_tree_)
 <textarea cols="40" rows="4" name='python_edit'>
 print(d_tree_)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -835,7 +814,6 @@ def modifiable(tree):
 
 d_tree = modifiable(d_tree_)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -856,7 +834,6 @@ print(tree_to_string(tree))
 tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
 print(tree_to_string(tree))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

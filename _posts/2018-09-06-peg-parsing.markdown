@@ -42,7 +42,6 @@ def unify_key(key, text, at):
         if res is not None: return (res, l)
     return (False, 0)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -56,7 +55,6 @@ def unify_rule(rule, text, at):
           if result is None: return (False, at)
     return (True, at)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -127,7 +125,6 @@ class peg_parse:
         return tfrom, results
 
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -140,7 +137,6 @@ result = peg_parse(term_grammar).unify_key('&lt;expr&gt;', to_parse)
 assert (len(to_parse) - result[0]) == 0
 print(result[1])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -184,7 +180,6 @@ class peg_parse:
             if res is not None: return l, (key, res)
         return (0, None)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -228,7 +223,6 @@ class cfg_parse:
             tfroms = new_tfroms
         return tfroms
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -244,7 +238,6 @@ for l,res in result:
     if l == len(to_parse):
         print(res)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

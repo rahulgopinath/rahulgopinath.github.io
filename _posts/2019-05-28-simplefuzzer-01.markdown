@@ -29,7 +29,6 @@ def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
 for i in range(10):
     print(repr(fuzzer()))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -55,7 +54,6 @@ def unify_key(grammar, key):
 def unify_rule(grammar, rule):
     return sum([unify_key(grammar, token) for token in rule], [])
 </textarea><br />
-<button type="button" id="button2" name="python_run">Run</button>
 <pre id="output2" class='Output' name='python_output'></pre>
 <div id="mycanvas2" name='python_canvas'></div>
 </form>
@@ -114,7 +112,6 @@ grammar = {
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'],   ['F']]
         }
 </textarea><br />
-<button type="button" id="button3" name="python_run">Run</button>
 <pre id="output3" class='Output' name='python_output'></pre>
 <div id="mycanvas3" name='python_canvas'></div>
 </form>
@@ -132,7 +129,6 @@ The driver is as follows:
 <textarea id="yourcode4" cols="40" rows="4" name='python_edit'>
 print(repr(''.join(unify_key(grammar, '&lt;start&gt;'))))
 </textarea><br />
-<button type="button" id="button4" name="python_run">Run</button>
 <pre id="output4" class='Output' name='python_output'></pre>
 <div id="mycanvas4" name='python_canvas'></div>
 </form>
@@ -161,7 +157,6 @@ def unify_key(g, key):
 def unify_rule(g, rule):
     return [unify_key(g, token) for token in rule]
 </textarea><br />
-<button type="button" id="button5" name="python_run">Run</button>
 <pre id="output5" class='Output' name='python_output'></pre>
 <div id="mycanvas5" name='python_canvas'></div>
 </form>
@@ -176,7 +171,6 @@ res = unify_key(grammar, '&lt;start&gt;')
 print(res)
 print(repr(tree_to_string(res)))
 </textarea><br />
-<button type="button" id="button6" name="python_run">Run</button>
 <pre id="output6" class='Output' name='python_output'></pre>
 <div id="mycanvas6" name='python_canvas'></div>
 </form>
@@ -230,7 +224,6 @@ class LimitFuzzer:
                 cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
         return cost
 </textarea><br />
-<button type="button" id="button7" name="python_run">Run</button>
 <pre id="output7" class='Output' name='python_output'></pre>
 <div id="mycanvas7" name='python_canvas'></div>
 </form>
@@ -243,7 +236,6 @@ gf = LimitFuzzer(grammar)
 for i in range(100):
    print(gf.fuzz(key='&lt;start&gt;', max_depth=10))
 </textarea><br />
-<button type="button" id="button8" name="python_run">Run</button>
 <pre id="output8" class='Output' name='python_output'></pre>
 <div id="mycanvas8" name='python_canvas'></div>
 </form>

@@ -41,7 +41,6 @@ For the _generator reduction_ to work, we need a generator in the first place. S
 <textarea cols="40" rows="4" name='python_edit'>
 import limitfuzzer
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -99,7 +98,6 @@ assignment_grammar = {
 }
 print(limitfuzzer.LimitFuzzer(assignment_grammar).fuzz(&#x27;&lt;start&gt;&#x27;))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -242,7 +240,6 @@ def sync(o, val):
     o._vars.clear()
     return val
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -299,7 +296,6 @@ c = ComplexFuzzer(assignment_grammar1)
 print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -350,7 +346,6 @@ class ChoiceFuzzer(ComplexFuzzer):
     def select(self, lst):
         return self.choices.choice(lst)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -409,7 +404,6 @@ class ChoiceSeq:
     def choice(self, lst):
         return lst[self.i() % len(lst)]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -438,7 +432,6 @@ print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 print(c.choices.ints)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -504,7 +497,6 @@ def ddmin(cur_str, causal_fn):
             start, part_len = 0, part_len // 2
     return cur_str
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -536,7 +528,6 @@ def ints_to_string(grammar, ints):
     except IndexError:
         return None
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -565,7 +556,6 @@ def pred(v):
         return True
     return False
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -628,7 +618,6 @@ if pred(val):
     print(cf.choices.ints)
 else: print("run again")
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -682,7 +671,6 @@ def remove_check_each_fragment(instr, start, part_len, causal):
         if causal(stitched): return i, stitched
     return -1, instr
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -772,7 +760,6 @@ def defined_var2(o, token, val):
     else:
         return (o.select(o.vars, &#x27;000&#x27;), [])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -816,7 +803,6 @@ assignment_grammar2 = {
         &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
 }
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -884,7 +870,6 @@ class ChoiceSeq2:
         else:
             return lst[v % len(lst)]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -911,7 +896,6 @@ def ints_to_string2(grammar, ints):
     except IndexError:
         return None
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -948,7 +932,6 @@ if pred(val):
     print(cf.choices.ints)
 else: print("run again")
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -972,7 +955,6 @@ print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
 print(c.choices.ints)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

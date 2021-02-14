@@ -39,7 +39,6 @@ First, we have to import our function, and dependencies:
 from urllib.parse import urlparse
 import sys
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -54,7 +53,6 @@ INPUTS = [
     &#x27;http://www.fuzzing.info:8080/app?search=newterm#ref2&#x27;,
 ]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -85,7 +83,6 @@ def traceit(frame, event, arg):
         the_values[var] = value
     return traceit
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -108,7 +105,6 @@ def trace_function(function, inputstr):
     sys.settrace(old_trace)
     return the_values
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -120,7 +116,6 @@ We can now inspect the fragments produced
 tvars = [trace_function(urlparse, i) for i in INPUTS]
 print(repr(tvars[0]))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -142,7 +137,6 @@ def to_tree(tree, fragments):
         tree = refine_tree(tree, fvar, fval)
     return tree
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -171,7 +165,6 @@ def refine_tree(tree, fvar, fval):
 
     return (node_name, new_children)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -183,7 +176,6 @@ We use the `to_tree()` in the following fashion.
 trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
 print(repr(trees[0]))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -208,7 +200,6 @@ def refine_grammar(g, tree):
         if not isinstance(c, tuple): continue
         refine_grammar(g, c)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -222,7 +213,6 @@ for tree in trees:
    refine_grammar(url_grammar, tree)
 print(repr(url_grammar))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -242,7 +232,6 @@ def to_grammar(inputs, fn):
         refine_grammar(my_grammar, tree)
     return {k:[r for r in my_grammar[k]] for k in my_grammar}
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -254,7 +243,6 @@ The function can be used as follows:
 grammar = to_grammar(INPUTS, urlparse)
 print(grammar)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -273,7 +261,6 @@ def unify_key(key):
 def unify_rule(rule):
     return sum([unify_key(token) for token in rule], [])
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -285,7 +272,6 @@ Using it to fuzz:
 res = &#x27;&#x27;.join(unify_key(&#x27;&lt;START&gt;&#x27;))
 print(res)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

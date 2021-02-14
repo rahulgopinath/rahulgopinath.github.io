@@ -51,7 +51,6 @@ def parse(instr):
        return [(instr[1:], [&#x27;a&#x27;])] 
     return []
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -66,7 +65,6 @@ def Lit(c):
         return [(instr[1:], [c])] if instr and instr[0] == c else []
     return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -85,7 +83,6 @@ result = la(input_chars)
 for i,p in result:
     print(i, p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -102,7 +99,6 @@ result = la(input_chars)
 for i,p in result:
     print(i, p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -117,7 +113,6 @@ def only_parsed(r):
    for (i, p) in r:
        if i == []: yield p
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -128,7 +123,6 @@ Using it as follows:
 for p in only_parsed(result):
     print(p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -160,7 +154,6 @@ def AndThen(p1, p2):
         return ret
     return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -174,7 +167,6 @@ result = lab(list(&#x27;ab&#x27;))
 for p in only_parsed(result):
     print(p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -195,7 +187,6 @@ def OrElse(p1, p2):
        return p1(instr) + p2(instr)
    return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -209,7 +200,6 @@ result = lab(list(&#x27;a&#x27;))
 for p in only_parsed(result):
     print(p)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -227,7 +217,6 @@ result = labc3(list(&#x27;abc&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -253,7 +242,6 @@ def AndThen(p1, p2):
        return [(in2, pr1 + pr2) for (in1, pr1) in p1()(instr) for (in2, pr2) in p2()(in1)]
    return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -270,7 +258,6 @@ def OrElse(p1, p2):
         return p1()(instr) + p2()(instr)
     return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -291,7 +278,6 @@ def One_(): return Lit(&#x27;1&#x27;)
 def Paren1():
     return AndThen(lambda: AndThen(Open_, One_), Close_)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -303,7 +289,6 @@ result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -321,7 +306,6 @@ result = Paren()(list(&#x27;((1))&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -337,7 +321,6 @@ def Apply(f, parser):
         return [(i,f(r)) for i,r in  parser()(instr)]
     return parse
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -351,7 +334,6 @@ def to_paren(v):
     assert v[-1] == &#x27;)&#x27;
     return [(&#x27;Paren&#x27;, v[1:-1])]
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -365,7 +347,6 @@ def One():
         return [(&#x27;Int&#x27;, int(x[0]))]
     return Apply(tree, One_)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -379,7 +360,6 @@ def Paren1():
         return AndThen(lambda: AndThen(Open_, One), Close_)
     return Apply(to_paren, parser)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -392,7 +372,6 @@ result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -406,7 +385,6 @@ def Paren():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Paren)), Close_)
     return Apply(to_paren, parser)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -419,7 +397,6 @@ result = Paren()(list(&#x27;(((1)))&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -436,7 +413,6 @@ def Paren():
         return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
     return Apply(to_paren, parser)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -449,7 +425,6 @@ result = Paren()(list(&#x27;(((1)(1)))&#x27;))
 for r in only_parsed(result):
     print(r)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -477,7 +452,6 @@ class P:
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -493,7 +467,6 @@ closeP = P(lambda: Lit(&#x27;)&#x27;))
 parens = P(lambda: paren | (paren &gt;&gt; parens))
 paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -504,7 +477,6 @@ paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -515,7 +487,6 @@ Apply also works with this
 <textarea cols="40" rows="4" name='python_edit'>
 paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -527,7 +498,6 @@ Used as follows
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -584,7 +554,6 @@ class P:
     def __or__(self, other):
         return P(lambda: OrElse(self.parser, other.parser))
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
@@ -617,7 +586,6 @@ v = parens(list(&#x27;((123)((456)))&#x27;))
 for m in v:
     print(m)
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
