@@ -2327,7 +2327,579 @@ exists, add a copy of the topmost element of the deterministic reduction path
 to the current column, and return. If not, perform the original completion step.
 
 
+**Definition:** An item is said to be on the deterministic reduction path above `[A→γ.,i]`
+if it is `[B→αA.,k]` with `[B→α.A,k]` being the only item in $$I_i$$ with the
+dot in front of $$A$$, or if it is on the deterministic reduction path above
+`[B→αA.,k]`. An item on such a path is called topmost one if there is no item on
+the deterministic reduction path above it[^leo1991a].
 
+Finding a deterministic reduction path is as follows:
+
+Given a complete state, represented by `<A> : seq_1 | (s, e)` where `s` is the
+starting column for this rule, and `e` the current column, there is a
+deterministic reduction path above it if two constraints are satisfied.
+
+1. There exist a single item in the form `<B> : seq_2 | <A> (k, s)` in column `s`.
+2. That should be the single item in s with dot in front of `<A>1
+
+The resulting item is of the form `<B> : seq_2 <A> | (k, e)`, which is simply
+item from (1) advanced, and is considered above `<A>:.. (s, e)` in the
+deterministic reduction path. The `seq_1` and `seq_2` are arbitrary symbol sequences.
+
+This forms the following chain of links, with `<A>:.. (s_1, e)` being the child
+of `<B>:.. (s_2, e)` etc.
+
+Here is one way to visualize the chain:
+
+```
+<C> : seq_3 <B> | (s_3, e)  
+             |  constraints satisfied by <C> : seq_3 | <B> (s_3, s_2)
+            <B> : seq_2 <A> | (s_2, e)  
+                         | constraints satisfied by <B> : seq_2 | <A> (s_2, s_1)
+                        <A> : seq_1 | (s_1, e)
+```
+
+Essentially, what we want to do is to identify potential deterministic right
+recursion candidates, perform completion on them, and *throw away* the result.
+We do this until we reach the top. See Grune et al.[^grune2008parsing] for further information.
+
+Note that the completions are in the same column (e), with each candidates with constraints satisfied in further and further earlier columns (as shown below):
+
+```
+<C> : seq_3 | <B> (s_3, s_2)  -->              <C> : seq_3 <B> | (s_3, e)
+               |
+              <B> : seq_2 | <A> (s_2, s_1) --> <B> : seq_2 <A> | (s_2, e)  
+                             |
+                            <A> : seq_1 |                        (s_1, e)
+```
+Following this chain, the topmost item is the item `<C>:.. (s_3, e)` that does
+not have a parent. The topmost item needs to be saved is called a transitive
+item by Leo, and it is associated with the non-terminal symbol that started the
+lookup. The transitive item needs to be added to each column we inspect.
+
+Here is the skeleton for the parser `LeoParser`.
+
+<!--
+############
+class LeoParser(EarleyParser):
+    def complete(self, col, state):
+        return self.leo_complete(col, state)
+
+    def leo_complete(self, col, state):
+        detred = self.deterministic_reduction(state)
+        if detred:
+            col.add(detred.copy())
+        else:
+            self.earley_complete(col, state)
+
+    def deterministic_reduction(self, state):
+        raise NotImplemented()
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(EarleyParser):
+    def complete(self, col, state):
+        return self.leo_complete(col, state)
+
+    def leo_complete(self, col, state):
+        detred = self.deterministic_reduction(state)
+        if detred:
+            col.add(detred.copy())
+        else:
+            self.earley_complete(col, state)
+
+    def deterministic_reduction(self, state):
+        raise NotImplemented()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+First, we update our `Column` class with the ability to add transitive items.
+Note that, while Leo asks the transitive to be added to the set $$I_k$$ there is
+no actual requirement for the transitive states to be added to the states list.
+The transitive items are only intended for memoization and not for the
+`fill_chart()` method. Hence, we track them separately.
+
+<!--
+############
+class Column(Column):
+    def __init__(self, index, letter):
+        self.index, self.letter = index, letter
+        self.states, self._unique, self.transitives = [], {}, {}
+
+    def add_transitive(self, key, state):
+        assert key not in self.transitives
+        self.transitives[key] = state
+        return self.transitives[key]
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Column(Column):
+    def __init__(self, index, letter):
+        self.index, self.letter = index, letter
+        self.states, self._unique, self.transitives = [], {}, {}
+
+    def add_transitive(self, key, state):
+        assert key not in self.transitives
+        self.transitives[key] = state
+        return self.transitives[key]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Remember the picture we drew of the deterministic path?
+
+```
+    <C> : seq_3 <B> | (s_3, e)
+                 |  constraints satisfied by <C> : seq_3 | <B> (s_3, s_2)
+                <B> : seq_2 <A> | (s_2, e)
+                             | constraints satisfied by <B> : seq_2 | <A> (s_2, s_1)
+                            <A> : seq_1 | (s_1, e)
+```
+
+We define a function `uniq_postdot()` that given the item `<A> := seq_1 | (s_1, e)`,
+returns a `<B> : seq_2 | <A> (s_2, s_1)` that satisfies the constraints
+mentioned in the above picture.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def uniq_postdot(self, st_A):
+        col_s1 = st_A.s_col
+        parent_states = [
+            s for s in col_s1.states if s.expr and s.at_dot() == st_A.name
+        ]
+        if len(parent_states) > 1:
+            return None
+        matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
+        return matching_st_B[0] if matching_st_B else None
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def uniq_postdot(self, st_A):
+        col_s1 = st_A.s_col
+        parent_states = [
+            s for s in col_s1.states if s.expr and s.at_dot() == st_A.name
+        ]
+        if len(parent_states) &gt; 1:
+            return None
+        matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
+        return matching_st_B[0] if matching_st_B else None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+lp = LeoParser(RR_GRAMMAR)
+[(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states]
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+lp = LeoParser(RR_GRAMMAR)
+[(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We next define the function `get_top()` that is the core of deterministic
+reduction which gets the topmost state above the current state `(A)`.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def get_top(self, state_A):
+        st_B_inc = self.uniq_postdot(state_A)
+        if not st_B_inc:
+            return None
+
+        t_name = st_B_inc.name
+        if t_name in st_B_inc.e_col.transitives:
+            return st_B_inc.e_col.transitives[t_name]
+
+        st_B = st_B_inc.advance()
+
+        top = self.get_top(st_B) or st_B
+        return st_B_inc.e_col.add_transitive(t_name, top)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def get_top(self, state_A):
+        st_B_inc = self.uniq_postdot(state_A)
+        if not st_B_inc:
+            return None
+
+        t_name = st_B_inc.name
+        if t_name in st_B_inc.e_col.transitives:
+            return st_B_inc.e_col.transitives[t_name]
+
+        st_B = st_B_inc.advance()
+
+        top = self.get_top(st_B) or st_B
+        return st_B_inc.e_col.add_transitive(t_name, top)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+Once we have the machinery in place, `deterministic_reduction()` itself is
+simply a wrapper to call `get_top()`
+
+
+<!--
+############
+class LeoParser(LeoParser):
+    def deterministic_reduction(self, state):
+        return self.get_top(state)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def deterministic_reduction(self, state):
+        return self.get_top(state)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+lp = LeoParser(RR_GRAMMAR)
+columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+[(str(s), str(lp.get_top(s))) for s in columns[-1].states]
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+lp = LeoParser(RR_GRAMMAR)
+columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+[(str(s), str(lp.get_top(s))) for s in columns[-1].states]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Now, both LR and RR grammars should work within  $$O(n)$$ bounds.
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Examples
+
+<!--
+############
+RR_GRAMMAR2 = {
+    '<start>': [['<A>']],
+    '<A>': [['a','b', '<A>'], []],
+}
+mystring2 = 'ababababab'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR2 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;,&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
+}
+mystring2 = &#x27;ababababab&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, RR_GRAMMAR2[START][0])
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, RR_GRAMMAR2[START][0])
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+RR_GRAMMAR3 = {
+    '<start>': [['c', '<A>']],
+    '<A>': [['a', 'b', '<A>'], []],
+}
+mystring3 = 'cababababab'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR3 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;c&#x27;, &#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
+}
+mystring3 = &#x27;cababababab&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+RR_GRAMMAR4 = {
+    '<start>': [['<A>', 'c']],
+    '<A>': [['a', 'b', '<A>'], []],
+}
+mystring4 = 'ababababc'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR4 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;c&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
+}
+mystring4 = &#x27;ababababc&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+RR_GRAMMAR5 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', 'b', '<B>'], []],
+    '<B>': [['<A>']],
+}
+mystring5 = 'abababab'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR5 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], []],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+}
+mystring5 = &#x27;abababab&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+RR_GRAMMAR6 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<B>'], []],
+    '<B>': [['b', '<A>']],
+}
+mystring6 = 'abababab'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR6 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;], []],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;]],
+}
+mystring6 = &#x27;abababab&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+RR_GRAMMAR7 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], ['a']],
+}
+mystring7 = 'aaaaaaaa'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR7 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]],
+}
+mystring7 = &#x27;aaaaaaaa&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+We verify that our parser works correctly on `LR_GRAMMAR` too.
+
+<!--
+############
+result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, LR_GRAMMAR[START][0])
+for _ in result: pass
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, LR_GRAMMAR[START][0])
+for _ in result: pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<!-- XXXXXXXXXX -->
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
@@ -2339,3 +2911,5 @@ to the current column, and return. If not, perform the original completion step.
 [^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
 
 [^aycock2002practical]: Aycock, John, and R. Nigel Horspool. "Practical earley parsing." The Computer Journal 45.6 (2002): 620-630.
+
+[^grune2008parsing]: Grune, Dick, and Ceriel JH Jacobs. "Introduction to Parsing." Parsing Techniques. Springer, New York, NY, 2008. 61-102.
