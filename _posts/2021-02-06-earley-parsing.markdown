@@ -2925,7 +2925,545 @@ for _ in result: pass
 <div name='python_canvas'></div>
 </form>
 
+We have fixed the complexity bounds. However, because we are saving only the topmost item of a right recursion, we need to fix our parser to be aware of our fix while extracting parse trees.
 
+We first change the definition of `add_transitive()` so that results of deterministic reduction can be identified later.
+
+<!--
+############
+class Column(Column):
+    def add_transitive(self, key, state):
+        assert key not in self.transitives
+        self.transitives[key] = TState(state.name, state.expr, state.dot,
+                                       state.s_col, state.e_col)
+        return self.transitives[key]
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Column(Column):
+    def add_transitive(self, key, state):
+        assert key not in self.transitives
+        self.transitives[key] = TState(state.name, state.expr, state.dot,
+                                       state.s_col, state.e_col)
+        return self.transitives[key]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We also need a `back()` method to create the constraints.
+
+<!--
+############
+class State(State):
+    def back(self):
+        return TState(self.name, self.expr, self.dot - 1, self.s_col, self.e_col)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class State(State):
+    def back(self):
+        return TState(self.name, self.expr, self.dot - 1, self.s_col, self.e_col)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We update `copy()` to make `TState` items instead.
+
+<!--
+############
+class TState(State):
+    def copy(self):
+        return TState(self.name, self.expr, self.dot, self.s_col, self.e_col)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class TState(State):
+    def copy(self):
+        return TState(self.name, self.expr, self.dot, self.s_col, self.e_col)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We now modify the `LeoParser` to keep track of the chain of constrains that we mentioned earlier.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def __init__(self, grammar, **kwargs):
+        super().__init__(grammar, **kwargs)
+        self._postdots = {}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def __init__(self, grammar, **kwargs):
+        super().__init__(grammar, **kwargs)
+        self._postdots = {}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Next, we update the `uniq_postdot()` so that it tracks the chain of links.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def uniq_postdot(self, st_A):
+        col_s1 = st_A.s_col
+        parent_states = [
+            s for s in col_s1.states if s.expr and s.at_dot() == st_A.name
+        ]
+        if len(parent_states) > 1:
+            return None
+        matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
+        if matching_st_B:
+            self._postdots[matching_st_B[0]._t()] = st_A
+            return matching_st_B[0]
+        return None
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def uniq_postdot(self, st_A):
+        col_s1 = st_A.s_col
+        parent_states = [
+            s for s in col_s1.states if s.expr and s.at_dot() == st_A.name
+        ]
+        if len(parent_states) &gt; 1:
+            return None
+        matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
+        if matching_st_B:
+            self._postdots[matching_st_B[0]._t()] = st_A
+            return matching_st_B[0]
+        return None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We next define a method `expand_tstate()` that, when given a `TState`, generates
+all the intermediate links that we threw away earlier for a given end column.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def expand_tstate(self, state, e):
+        if state._t() not in self._postdots:
+            return
+        c_C = self._postdots[state._t()]
+        e.add(c_C.advance())
+        self.expand_tstate(c_C.back(), e)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def expand_tstate(self, state, e):
+        if state._t() not in self._postdots:
+            return
+        c_C = self._postdots[state._t()]
+        e.add(c_C.advance())
+        self.expand_tstate(c_C.back(), e)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We define a `rearrange()` method to generate a reversed table where each column contains states that start at that column.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def rearrange(self, table):
+        f_table = [Column(c.index, c.letter) for c in table]
+        for col in table:
+            for s in col.states:
+                f_table[s.s_col.index].states.append(s)
+        return f_table
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def rearrange(self, table):
+        f_table = [Column(c.index, c.letter) for c in table]
+        for col in table:
+            for s in col.states:
+                f_table[s.s_col.index].states.append(s)
+        return f_table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Here is the rearranged table.
+
+<!--
+############
+ep = LeoParser(RR_GRAMMAR)
+columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+r_table = ep.rearrange(columns)
+for col in r_table:
+    print(col, "\n")
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ep = LeoParser(RR_GRAMMAR)
+columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+r_table = ep.rearrange(columns)
+for col in r_table:
+    print(col, &quot;\n&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We save the result of rearrange before going into `parse_forest()`.
+
+
+<!--
+############
+class LeoParser(LeoParser):
+    def parse_on(self, text, start_symbol):
+        for alt in self._grammar[start_symbol]:
+            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
+            start = next((s for s in states if s.finished()), None)
+
+            if cursor &lt; len(text) or not start:
+                #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+                continue
+
+            self.r_table = self.rearrange(self.table)
+
+            forest = self.parse_forest(self.table, start)
+            for tree in self.extract_trees(forest):
+                yield tree
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def parse_on(self, text, start_symbol):
+        for alt in self._grammar[start_symbol]:
+            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
+            start = next((s for s in states if s.finished()), None)
+
+            if cursor &amp;lt; len(text) or not start:
+                #raise SyntaxError(&amp;quot;at &amp;quot; + repr(text[cursor:]))
+                continue
+
+            self.r_table = self.rearrange(self.table)
+
+            forest = self.parse_forest(self.table, start)
+            for tree in self.extract_trees(forest):
+                yield tree
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Finally, during `parse_forest()`, we first check to see if it is a transitive
+state, and if it is, expand it to the original sequence of states using
+`traverse_constraints()`.
+
+<!--
+############
+class LeoParser(LeoParser):
+    def parse_forest(self, chart, state):
+        if isinstance(state, TState):
+            self.expand_tstate(state.back(), state.e_col)
+        
+        return super().parse_forest(chart, state)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LeoParser(LeoParser):
+    def parse_forest(self, chart, state):
+        if isinstance(state, TState):
+            self.expand_tstate(state.back(), state.e_col)
+        
+        return super().parse_forest(chart, state)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+This completes our implementation of `LeoParser `.
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
+for tree in result:
+    assert mystring == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
+for tree in result:
+    assert mystring == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
+for tree in result:
+    assert mystring2 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
+for tree in result:
+    assert mystring2 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
+for tree in result:
+    assert mystring3 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
+for tree in result:
+    assert mystring3 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
+for tree in result:
+    assert mystring4 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR4).parse_on(mystring4)
+for tree in result:
+    assert mystring4 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
+for tree in result:
+    assert mystring5 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
+for tree in result:
+    assert mystring5 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
+for tree in result:
+    assert mystring6 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
+for tree in result:
+    assert mystring6 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
+for tree in result:
+    assert mystring7 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
+for tree in result:
+    assert mystring7 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
+for tree in result:
+    assert mystring == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
+for tree in result:
+    assert mystring == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+RR_GRAMMAR8 = {
+   '<start>': [['<A>']],
+   '<A>': [['a', '<A>'], ['a']]
+}
+mystring8 = 'aa'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR8 = {
+   &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+   &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
+}
+mystring8 = &#x27;aa&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+RR_GRAMMAR9 = {
+   '<start>': [['<A>']],
+   '<A>': [['<B>', '<A>'], ['<B>']],
+   '<B>': [['b']]
+}
+mystring9 = 'bbbbbbb'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+RR_GRAMMAR9 = {
+   &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+   &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;B&gt;&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]],
+   &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]]
+}
+mystring9 = &#x27;bbbbbbb&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
+for tree in result:
+    print(repr(tree_to_str(tree)))
+    assert mystring8 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
+for tree in result:
+    print(repr(tree_to_str(tree)))
+    assert mystring8 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
+for tree in result:
+    print(repr(tree_to_str(tree)))
+    assert mystring9 == tree_to_str(tree)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
+for tree in result:
+    print(repr(tree_to_str(tree)))
+    assert mystring9 == tree_to_str(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 
 <!-- XXXXXXXXXX -->
