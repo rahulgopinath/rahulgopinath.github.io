@@ -18,7 +18,6 @@ print('''
 print(scraped_html)
 print('''\
 </textarea><br />
-<button type="button" name="python_run">Run</button>
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>

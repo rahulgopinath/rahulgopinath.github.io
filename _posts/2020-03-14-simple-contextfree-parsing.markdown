@@ -7,6 +7,22 @@ tags: combinators, parsing, cfg
 categories: post
 ---
 
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
 We [previously](/post/2020/03/02/combinatory-parsing/) saw how to parse simple context-free
 languages using combinatory parsers. In another [post](/post/2018/09/06/peg-parsing/), I had
 also detailed how one can do a simple PEG and even a context-free parser. However, these
@@ -30,7 +46,8 @@ Here is a simple implementation. It takes the input chars (`lst`), the starting 
 the `grammar`. Then, it extracts the most promising parse thread, *explores* its first element,
 which may produce a new set of threads that represent alternative parse directions.
 
-```python
+<!--
+############
 def match(lst, key, grammar):
     queue = [((len(lst), 0), [(0, key)])]
     while queue:
@@ -50,7 +67,36 @@ def match(lst, key, grammar):
                     continue
                 else:
                     H.heappush(queue, item)
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def match(lst, key, grammar):
+    queue = [((len(lst), 0), [(0, key)])]
+    while queue:
+        current = H.heappop(queue)
+        rlst = explore(current, lst)
+        for item in rlst:
+            (lst_rem, _depth), rule = item
+            lst_idx = len(lst) - lst_rem
+            if lst_idx == len(lst):
+                if not rule:
+                    yield &#x27;parsed: &#x27; + str(lst_idx)
+                else:
+                    # (check for epsilons)
+                    H.heappush(queue, item)
+            else:
+                if not rule: # incomplete parse
+                    continue
+                else:
+                    H.heappush(queue, item)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 The `explore()` method is fairly simple. It checks if the given element is a terminal or
 a nonterminal. If it is a terminal, it is checked for a match, and if matched, the current
@@ -61,7 +107,8 @@ expansions of the nonterminal. So, the parsing thread is split into as many new 
 the nontermainl is replaced with its particular expansion in each of the thread, and the
 new threads are returned.
 
-```python
+<!--
+############
 def explore(current, lst):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
@@ -79,23 +126,66 @@ def explore(current, lst):
             new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def explore(current, lst):
+    (lst_rem, depth), rule = current
+    lst_idx = len(lst) - lst_rem
+    depth, key = rule[0]
+
+    if key not in grammar:
+        if key != lst[lst_idx]:
+            return []
+        else:
+            return [((lst_rem - len(key), math.inf), rule[1:])]
+    else:
+        expansions = grammar[key]
+        ret = []
+        for expansion in expansions:
+            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
+            ret.append(((lst_rem, depth + 1), new_rule))
+        return ret
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 The driver would be
-```python
-def main(arg):
-    for x in match(list(arg), '<start>', grammar):
+
+<!--
+############
+def forking_parse(arg, grammar, start):
+    for x in match(list(arg), start, grammar):
         print(x)
 
-import sys
-main(sys.argv[1])
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def forking_parse(arg, grammar, start):
+    for x in match(list(arg), &#x27;&lt;start&gt;&#x27;, grammar):
+        print(x)
+
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 While this can certainly handle left recursion, there is a new problem. The issue is that
 in the case of left recursion, and an incomplete prefix, the threads simply multiply, with
 out any means of actually parsing the input. 
 
 That is, given the usual grammar:
-```python
+
+<!--
+############
 grammar = {
         "<start>": [["<E>"]],
         "<E>": [
@@ -107,7 +197,29 @@ grammar = {
         "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
         "<digit>": [[str(i)] for i in string.digits]
         }
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+grammar = {
+        &quot;&lt;start&gt;&quot;: [[&quot;&lt;E&gt;&quot;]],
+        &quot;&lt;E&gt;&quot;: [
+            [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
+            [&quot;&lt;digits&gt;&quot;],
+            ],
+        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+        }
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 and the input `1+`, the `<E>` will keep getting expanded again and again generating
 new threads. So the parser will never terminate.
 
@@ -116,7 +228,8 @@ case, we can see that if you have reached the end of `1+` where there are no mor
 to parse, we no longer can accept an expansion that has even a single terminal symbol that
 is non empty. We can make this restriction into code as below:
 
-```python
+<!--
+############
 def get_rule_minlength(grammar, rule, seen):
     return sum([get_key_minlength(grammar, k, seen) for k in rule])
 
@@ -128,12 +241,35 @@ def get_key_minlength(grammar, key, seen):
 cost = {}
 for k in grammar:
     cost[k] = get_key_minlength(grammar, k, set())
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_rule_minlength(grammar, rule, seen):
+    return sum([get_key_minlength(grammar, k, seen) for k in rule])
+
+def get_key_minlength(grammar, key, seen):
+    if key not in grammar: return len(key)
+    if key in seen: return math.inf
+    return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
+
+cost = {}
+for k in grammar:
+    cost[k] = get_key_minlength(grammar, k, set())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 That is, we find the minimum expansion length of each key and store it beforehand.
 Next, we update our `explore` so that if the minimum expansion length in any
 of the potential threads is larger than the characters remaining, that thread is not
 started.
-```python
+
+<!--
+############
 def explore(current, lst):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
@@ -152,14 +288,68 @@ def explore(current, lst):
             if sum([cost.get(r, len(r)) for d,r in new_rule]) > lst_rem: continue # <-- changed
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
-```
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def explore(current, lst):
+    (lst_rem, depth), rule = current
+    lst_idx = len(lst) - lst_rem
+    depth, key = rule[0]
+
+    if key not in grammar:
+        if key != lst[lst_idx]:
+            return []
+        else:
+            return [((lst_rem - len(key), math.inf), rule[1:])]
+    else:
+        expansions = grammar[key]
+        ret = []
+        for expansion in expansions:
+            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
+            if sum([cost.get(r, len(r)) for d,r in new_rule]) &gt; lst_rem: continue # &lt;-- changed
+            ret.append(((lst_rem, depth + 1), new_rule))
+        return ret
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 With this, we are now ready to parse any context-free language. Using the driver above:
-```shell
-$ python3  cfgparser.py '1+1+'
-$ python3  cfgparser.py '1+1+1'
-parsed: 5
-parsed: 5
-```
+
+<!--
+############
+forking_parse('1+1+', grammar, start)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+forking_parse(&#x27;1+1+&#x27;, grammar, start)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+forking_parse('1+1+1', grammar, start)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+forking_parse(&#x27;1+1+1&#x27;, grammar, start)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 As you can see, we can successfully use left recursive grammars. Note that this is still a
 recognizer. Turning it into a parser is not very difficult, and may be handled in a future post.
 
