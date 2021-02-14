@@ -98,7 +98,7 @@ grammar = {
         &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
         &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
         }
-START =  &quot;&lt;start&gt;&quot
+START =  &quot;&lt;start&gt;&quot;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
