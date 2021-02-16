@@ -100,18 +100,14 @@ there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
 
-
 <!--
-
-
+############
 grammar = {
     '<start>': [['<expr>']],
     '<expr>': [
-        ['<expr>', '+', '<expr>'],
-        ['<expr>', '-', '<expr>'],
-        ['<expr>', '*', '<expr>'],
-        ['<expr>', '/', '<expr>'],
-        ['<expr>']],
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
     '<term>': [
         ['<fact>', '*', '<term>'],
         ['<fact>', '/', '<term>'],
@@ -125,18 +121,17 @@ grammar = {
     '<digit>': [["%s" % str(i)] for i in range(10)],
 }
 START = '<start>'
+############
 -->
 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 grammar = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
     &#x27;&lt;expr&gt;&#x27;: [
         [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
-
         [&#x27;&lt;term&gt;&#x27;]],
     &#x27;&lt;term&gt;&#x27;: [
         [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
