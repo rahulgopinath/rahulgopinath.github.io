@@ -6,15 +6,22 @@ comments: true
 tags: parsing
 categories: post
 ---
+
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
 <script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt.min.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/skulpt-stdlib.js" type="text/javascript"></script>
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/env/editor.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 
 In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to write a simple recursive descent parser by hand -- that is using a set of mutually recursive procedures. Actually, I lied when I said context-free. The common hand-written parsers are usually an encoding of a kind of grammar called _Parsing Expression Grammar_ or _PEG_ for short.
 
@@ -82,7 +89,7 @@ Fortunately, Python makes this easy using `functools.lru_cache` which provides c
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import sys
-# import functools -- not yet implemented in brython
+import functools
 
 term_grammar = {
     '&lt;expr&gt;': [
@@ -106,7 +113,7 @@ class peg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    # @functools.lru_cache(maxsize=None) <-- enable in cpython
+    @functools.lru_cache(maxsize=None) <-- enable in cpython
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
             return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
