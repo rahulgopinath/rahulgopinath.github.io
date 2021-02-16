@@ -6,6 +6,13 @@ comments: true
 tags: recursivedescent, parsing, cfg, leftrecursion
 categories: post
 ---
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
 Previously, we had [discussed](/post/2018/09/06/peg-parsing/) how a simple PEG parser, and a CFG parser can be constructed. At that time, I had mentioned that left-recursion was still to be implemented. Here is one way to implement left recursion correctly for the CFG parser.
 
 For ease of reference, here was our original parser.
