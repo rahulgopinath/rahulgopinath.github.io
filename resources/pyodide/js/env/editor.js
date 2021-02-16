@@ -41,7 +41,7 @@ function runit(mypre, mycanvas, editor) {
           });
    } catch (err) {
        errf(err.toString());
-       editor.display.wrapper.style.border = '1px solid red'
+       editor.display.wrapper.style.border = '2px solid red'
    }
 }
 
