@@ -138,6 +138,9 @@ START = &#x27;&lt;start&gt;&#x27;
 </form>
 
 
+Here is another grammar that targets the same language. Unlike the first
+grammar, this grammar produces ambiguous parse results.
+
 <!--
 ############
 a_grammar = {
@@ -147,10 +150,10 @@ a_grammar = {
         ['<expr>', '-', '<expr>'],
         ['<expr>', '*', '<expr>'],
         ['<expr>', '/', '<expr>'],
+        ['(', '<expr>', ')'],
         ['<integer>']],
     '<integer>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
+        ['<digits>']]
     '<digits>': [
         ['<digit>','<digits>'],
         ['<digit>']],
@@ -159,8 +162,6 @@ a_grammar = {
 ############
 -->
 
-Here is another grammar that targets the same language. Unlike the first
-grammar, this grammar produces ambiguous parse results.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
@@ -171,10 +172,10 @@ a_grammar = {
         [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
         [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
         [&#x27;&lt;integer&gt;&#x27;]],
     &#x27;&lt;integer&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+        [&#x27;&lt;digits&gt;&#x27;]]
     &#x27;&lt;digits&gt;&#x27;: [
         [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
         [&#x27;&lt;digit&gt;&#x27;]],
@@ -184,8 +185,6 @@ a_grammar = {
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 
 
 ## Summary
