@@ -113,7 +113,7 @@ class peg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
 
-    @functools.lru_cache(maxsize=None) <-- enable in cpython
+    @functools.lru_cache(maxsize=None)
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
             return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
