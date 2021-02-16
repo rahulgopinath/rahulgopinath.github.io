@@ -167,7 +167,7 @@ a_grammar = {
         ['(', '<expr>', ')'],
         ['<integer>']],
     '<integer>': [
-        ['<digits>']]
+        ['<digits>']],
     '<digits>': [
         ['<digit>','<digits>'],
         ['<digit>']],
@@ -189,7 +189,7 @@ a_grammar = {
         [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
         [&#x27;&lt;integer&gt;&#x27;]],
     &#x27;&lt;integer&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;]]
+        [&#x27;&lt;digits&gt;&#x27;]],
     &#x27;&lt;digits&gt;&#x27;: [
         [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
         [&#x27;&lt;digit&gt;&#x27;]],
