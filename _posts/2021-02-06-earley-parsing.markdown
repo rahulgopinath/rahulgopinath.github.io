@@ -100,6 +100,7 @@ there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
 
+
 <!--
 ############
 grammar = {
@@ -337,6 +338,8 @@ occur once that character has been read. That is, the first column will
 correspond to the parsing expression when no characters have been read.
 
 The column allows for adding states, and checks to prevent duplication of
+states. Why do we need to prevent duplication? The problem is left recursion.
+We need to detect and curtail left recursion, which is indicated by non-unique
 states.
 
 <form name='python_run_form'>
@@ -663,6 +666,14 @@ Consider our example grammar again. The starting point is,
 We add this state to the `chart[0]` to start the parse. Note that the term
 after dot is `<A>`, which will need to be recursively inserted to the column.
 We will see how to do that later.
+
+*Note:* Here, we assume that a single expansion rule `alt` is being passed
+in. This is the traditional implementation. We handle multiple expansion rules
+for start symbol by using multiple charts. Another way to handle multiple
+expansion rules for the start symbol is to seed *all* expansion rules into
+the chart at `column 0`. We will have to then take care of that difference
+while building parse trees. For now, we go with the implementation closest
+to traditional implementation.
 
 <!--
 ############
