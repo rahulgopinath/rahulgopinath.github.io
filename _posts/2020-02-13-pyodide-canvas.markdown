@@ -21,7 +21,7 @@ categories: post
 Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
-</form>
+</form> *Note:* Unfortunately run all does not work yet (trouble with external imports).
 
 Loading the prerequisite:
 <form name='python_run_form'>
