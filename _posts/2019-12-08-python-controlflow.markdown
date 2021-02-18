@@ -7,7 +7,7 @@ tags: controlflow
 categories: post
 ---
 
-We [previously discussed](/2019/12/07/python-mci/) how one can write an interpreter for
+We [previously discussed](/post/2019/12/07/python-mci/) how one can write an interpreter for
 Python. We hinted at that time that the machinery could be used for a variety of
 other applications, including exctracting the call and control flow graph. In this
 post, we will show how one can extract the control flow graph using such an interpteter.
