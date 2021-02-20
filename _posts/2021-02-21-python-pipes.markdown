@@ -1,0 +1,336 @@
+---
+published: true
+title: Some Sillyness with Python Iterators  as Pipes
+layout: post
+comments: true
+tags: pipes, python
+categories: post
+---
+
+<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+Here is a how we write a normal `for` loop in Python.
+
+<!--
+############
+for i in [1,2,3,4,5,6,7,8,9]:
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in [1,2,3,4,5,6,7,8,9]:
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+What if you want to operate on the list, such as squaring each element, or
+perhaps only selecting values greater than 5? Python list comprehensions are the
+Pythonic solution, which is as below
+
+<!--
+############
+for i in [i*i for i in [1,2,3,4,5,6,7,8,9] if i > 5]:
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in [i*i for i in [1,2,3,4,5,6,7,8,9] if i &gt; 5]:
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+But I have always found more complex list comprehensions a bit difficult to
+read. Is there a better solution? Here is an attempt to adapt a UNIX shell
+pipelines like solution to Python. Something like
+
+```
+[i1,2,3,4,5,6,7,8,9] | where(_ > 5) | map(_ * _)
+```
+
+Here is a possible solution. What we need is a way to stitch operations on a
+list together. So, we define a class `Chains` with the `__or__` *dunder method*
+redefined. What it does is to connect the current object to the right object
+in the pipeline, and set the current object as the source of values..
+
+<!--
+############
+class Chains:
+    def __or__(self, trans):
+        return trans.source(self)
+
+    def __iter__(self):
+        return self
+
+    def source(self, src):
+        self._source = src
+        return self
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Chains:
+    def __or__(self, trans):
+        return trans.source(self)
+
+    def __iter__(self):
+        return self
+
+    def source(self, src):
+        self._source = src
+        return self
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+## Source
+Next, we define the source. That is, an object that is at the start of the
+pipeline.
+
+<!--
+############
+class S_(Chains):
+    def __init__(self, nxt): self._source = iter(nxt)
+
+    def __next__(self): return next(self._source)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class S_(Chains):
+    def __init__(self, nxt): self._source = iter(nxt)
+
+    def __next__(self): return next(self._source)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We can use it as follows:
+
+<!--
+############
+for i in S_([i for i in range(10)]):
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in S_([i for i in range(10)]):
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+## Map
+
+Next, we define maps.
+
+<!--
+############
+class M_(Chains):
+    def __init__(self, nxt): self._transform = nxt
+
+    def __next__(self):
+        return self._transform(next(self._source))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class M_(Chains):
+    def __init__(self, nxt): self._transform = nxt
+
+    def __next__(self):
+        return self._transform(next(self._source))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We use it as follows.
+
+
+<!--
+############
+for i in S_([i for i in range(10)]) | M_(lambda s: s + 10):
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in S_([i for i in range(10)]) | M_(lambda s: s + 10):
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+## Filter
+
+Finally, we implement filters as follows.
+
+<!--
+############
+class F_(Chains):
+    def __init__(self, nxt): self._filter = nxt
+
+    def __next__(self):
+        r = next(self._source)
+        v = self._filter(r)
+        while not v:
+            r = next(self._source)
+            v = self._filter(r)
+        return r
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class F_(Chains):
+    def __init__(self, nxt): self._filter = nxt
+
+    def __next__(self):
+        r = next(self._source)
+        v = self._filter(r)
+        while not v:
+            r = next(self._source)
+            v = self._filter(r)
+        return r
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+This is used as follows.
+
+<!--
+############
+for i in S_([i for i in range(10)]) | F_(lambda s: s > 5):
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in S_([i for i in range(10)]) | F_(lambda s: s &gt; 5):
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+## Pipe DSL
+
+This is great, but can we do better? In particular, can we avoid having
+to specify the constructors? One way to do that is through introspection. 
+We redefine `Chains` as below.
+
+<!--
+############
+class Chains:
+    def __or__(self, src):
+        s = None
+        if isinstance(src, set) and callable(list(src)[0]):
+            s = F_(list(src)[0])
+        elif isinstance(src, list) and callable(src[0]):
+            s = M_(src[0])
+        else:
+            s = S_(src)
+        return s.source(self)
+
+    def __iter__(self):
+        return self
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Chains:
+    def __or__(self, src):
+        s = None
+        if isinstance(src, set) and callable(list(src)[0]):
+            s = F_(list(src)[0])
+        elif isinstance(src, list) and callable(src[0]):
+            s = M_(src[0])
+        else:
+            s = S_(src)
+        return s.source(self)
+
+    def __iter__(self):
+        return self
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+What we are essentially saying here is that, a `lambda` within a list (`[lambda s: …]`)
+is treated as a map, while within a set (`{lambda s:, ..}`) is treated as a
+filter.
+
+It is used a follows
+
+<!--
+############
+for i in S_([i for i in range(10)]) | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
+    print(i)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in S_([i for i in range(10)]) | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s: s*10]:
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<!-- XXXXXXXXXX -->
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
