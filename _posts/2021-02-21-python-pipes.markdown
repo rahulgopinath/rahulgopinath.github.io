@@ -261,7 +261,9 @@ for i in S_([i for i in range(10)]) | F_(lambda s: s &gt; 5):
 
 This is great, but can we do better? In particular, can we avoid having
 to specify the constructors? One way to do that is through introspection. 
-We redefine `Chains` as below.
+We redefine `Chains` as below. (The other classes are simply redefined so
+that they inherit from the right `Chain` class)
+
 
 <!--
 ############
@@ -278,6 +280,33 @@ class Chains:
 
     def __iter__(self):
         return self
+
+    def source(self, src):
+        self._source = src
+        return self
+
+class S_(Chains):
+    def __init__(self, nxt): self._source = iter(nxt)
+
+    def __next__(self): return next(self._source)
+
+class M_(Chains):
+    def __init__(self, nxt): self._transform = nxt
+
+    def __next__(self):
+        return self._transform(next(self._source))
+
+
+class F_(Chains):
+    def __init__(self, nxt): self._filter = nxt
+
+    def __next__(self):
+        r = next(self._source)
+        v = self._filter(r)
+        while not v:
+            r = next(self._source)
+            v = self._filter(r)
+        return r
 ############
 -->
 
@@ -297,10 +326,38 @@ class Chains:
 
     def __iter__(self):
         return self
+
+    def source(self, src):
+        self._source = src
+        return self
+
+class S_(Chains):
+    def __init__(self, nxt): self._source = iter(nxt)
+
+    def __next__(self): return next(self._source)
+
+class M_(Chains):
+    def __init__(self, nxt): self._transform = nxt
+
+    def __next__(self):
+        return self._transform(next(self._source))
+
+
+class F_(Chains):
+    def __init__(self, nxt): self._filter = nxt
+
+    def __next__(self):
+        r = next(self._source)
+        v = self._filter(r)
+        while not v:
+            r = next(self._source)
+            v = self._filter(r)
+        return r
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 What we are essentially saying here is that, a `lambda` within a list (`[lambda s: …]`)
 is treated as a map, while within a set (`{lambda s:, ..}`) is treated as a
