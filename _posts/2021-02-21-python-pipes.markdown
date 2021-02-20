@@ -367,7 +367,7 @@ It is used a follows
 
 <!--
 ############
-for i in S_([i for i in range(10)]) | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
+for i in S_(i for i in range(10)) | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
     print(i)
 ############
 -->
@@ -375,7 +375,7 @@ for i in S_([i for i in range(10)]) | [lambda s: s + 10] | {lambda s: s > 15} | 
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for i in S_([i for i in range(10)]) | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s: s*10]:
+for i in S_(i for i in range(10)) | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s: s*10]:
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
