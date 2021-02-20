@@ -11,7 +11,8 @@ function runit(mypre, mycanvas, editor) {
    }
 
    function outf(text) {
-      mypre.innerHTML = mypre.innerHTML + escHTML(text);
+      mypre.innerHTML = escHTML(text);
+      //mypre.innerHTML = mypre.innerHTML + escHTML(text);
    }
    function errf(text) {
       mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + escHTML(text) + "</font>";
