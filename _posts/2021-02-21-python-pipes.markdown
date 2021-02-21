@@ -379,6 +379,21 @@ for i in S_(range(10)) | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s:
 <div name='python_canvas'></div>
 </form>
 
+One final note here is that, the final iterator object that the for loop
+iterates on here is of kind `M_` from the last object.
+This is a consequence of the precedence of the operator `|`. That is, when
+we have `a | b | c`, this is parenthesized as `(a | b) | c`, which is then
+taken as `c(b(a()))`. This is also the reason why we have to wrap the
+initial value in `S_`, but not any others (Because we override `__or__`
+only the right hand object in an `|` operation needs to be the type `Chain`).
+(We are also essentially pulling the values from previous pipe stages.)
+
+If we want, we can make the last stage the required `Chain` type so that
+we can write `a | b | c | Chain()`. However, for that, we need to override
+the only right associative operator in python -- `**`. That is, we have to
+write `a ** b ** c ** Chain()`, and have to override `__rpow__()`. We will
+then get the object corresponding to `a`, and we will then have to *push*
+the values to the later pipe stages.
 
 
 
