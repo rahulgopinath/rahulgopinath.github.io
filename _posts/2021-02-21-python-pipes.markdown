@@ -265,6 +265,7 @@ We redefine `Chains` as below. (The other classes are simply redefined so
 that they inherit from the right `Chain` class)
 
 
+
 <!--
 ############
 class Chains:
@@ -276,19 +277,17 @@ class Chains:
             s = M_(src[0])
         else:
             s = S_(src)
-        return s.source(self)
+        s._source = self
+        return s
 
     def __iter__(self):
-        return self
-
-    def source(self, src):
-        self._source = src
         return self
 
 class S_(Chains):
     def __init__(self, nxt): self._source = iter(nxt)
 
     def __next__(self): return next(self._source)
+
 
 class M_(Chains):
     def __init__(self, nxt): self._transform = nxt
@@ -322,19 +321,17 @@ class Chains:
             s = M_(src[0])
         else:
             s = S_(src)
-        return s.source(self)
+        s._source = self
+        return s
 
     def __iter__(self):
-        return self
-
-    def source(self, src):
-        self._source = src
         return self
 
 class S_(Chains):
     def __init__(self, nxt): self._source = iter(nxt)
 
     def __next__(self): return next(self._source)
+
 
 class M_(Chains):
     def __init__(self, nxt): self._transform = nxt
