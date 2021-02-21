@@ -32,6 +32,7 @@ minimum distance error correcting parser by Aho et al.[^aho1972minimum].
 
 <!--
 ############
+import random
 import itertools as I
 Any_plus = '<$.+>' # this is a nonterminal
 Any_one = '{$.}' # this is a terminal
@@ -506,6 +507,7 @@ print(format_parsetree(t))
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import random
 import itertools as I
 Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
 Any_one = &#x27;{$.}&#x27; # this is a terminal
