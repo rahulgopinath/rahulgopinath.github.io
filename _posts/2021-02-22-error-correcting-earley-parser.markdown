@@ -148,6 +148,15 @@ def print_g(g):
 print_g(grammar)
 ############
 -->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print_g(grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 
 Now, the covering grammar itself
 
@@ -329,15 +338,6 @@ def fix_weighted_terminals(g):
 
 
 
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print_g(grammar)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 
 
 
