@@ -347,45 +347,37 @@ print(terminal_match(&#x27;{!b}&#x27;, &#x27;a&#x27;))
 <div name='python_canvas'></div>
 </form>
 
+Now, we need to transform our grammar. Essentially, the idea is
+that for each terminal symbol in the grammar, we add a
+nonterminal symbol that handles the following possibilities
+
+* The terminal is matched exactly as provided with a symbol in input
+* The symbol that matches terminal is replaced by something else in the input, which means another symbol instead of the expected one
+* Some junk symbols are present before the symbol that matches the given terminal
+* The expected symbol was deleted from input string
+
+That is, given `a` is a terminal symbol, we add the following
+
+* $$E_a \leftarrow a $$
+* $$E_a \leftarrow b  | b <> a
+* $$E_a \leftarrow H a$$
+* $$E_a \leftarrow \epsilon $$ where $$\epsilon$$ is the empty string.
 
 
 <!--
 ############
-
-def new_start(old_start):
-    old_start_ = old_start[1:-1]
-    return '<$%s>' % old_start_
-
-def add_any(g):
-    g[Any_plus] = [
-            add_weight([Any_plus, Any_one], 1),
-            add_weight([Any_one], 1)]
-    return g
-
-def add_start(g, old_start):
-    alts = [alt for alt,w in g[old_start]]
-    for alt in alts:
-        g[old_start].append(add_weight(list(alt) + ['<$ .+>'], 0))
-    return g
-
-def add_weight(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
-
-def add_weights_to_grammar(g):
-    return {k:[add_weight(rule, 0) for rule in g[k]] for k in g}
+def to_term(t): return '<$ %s>' % t
 
 def fix_terminal(g, t):
     nt_t = to_term(t)
     if nt_t not in g:
         g[nt_t] = [ # Any_plus already has at least 1 weight.
-                add_weight([t], 0),
-                add_weight([Any_plus, t], 0),
-                add_weight([], 1),
-                add_weight([Any_not(t)], 1)
+                add_penalty([t], 0),
+                add_penalty([Any_plus, t], 0),
+                add_penalty([], 1),
+                add_penalty([Any_not(t)], 1)
         ]
 
-def to_term(t): return '<$ %s>' % t
 
 def change_t(t):
     if is_nt(t):
@@ -414,41 +406,18 @@ def fix_weighted_terminals(g):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
-def new_start(old_start):
-    old_start_ = old_start[1:-1]
-    return &#x27;&lt;$%s&gt;&#x27; % old_start_
-
-def add_any(g):
-    g[Any_plus] = [
-            add_weight([Any_plus, Any_one], 1),
-            add_weight([Any_one], 1)]
-    return g
-
-def add_start(g, old_start):
-    alts = [alt for alt,w in g[old_start]]
-    for alt in alts:
-        g[old_start].append(add_weight(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
-    return g
-
-def add_weight(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
-
-def add_weights_to_grammar(g):
-    return {k:[add_weight(rule, 0) for rule in g[k]] for k in g}
+def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
 
 def fix_terminal(g, t):
     nt_t = to_term(t)
     if nt_t not in g:
         g[nt_t] = [ # Any_plus already has at least 1 weight.
-                add_weight([t], 0),
-                add_weight([Any_plus, t], 0),
-                add_weight([], 1),
-                add_weight([Any_not(t)], 1)
+                add_penalty([t], 0),
+                add_penalty([Any_plus, t], 0),
+                add_penalty([], 1),
+                add_penalty([Any_not(t)], 1)
         ]
 
-def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
 
 def change_t(t):
     if is_nt(t):
@@ -471,6 +440,69 @@ def fix_weighted_terminals(g):
         else:
             g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
     return g_
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<!--
+############
+
+def new_start(old_start):
+    old_start_ = old_start[1:-1]
+    return '<$%s>' % old_start_
+
+def add_any(g):
+    g[Any_plus] = [
+            add_penalty([Any_plus, Any_one], 1),
+            add_penalty([Any_one], 1)]
+    return g
+
+def add_start(g, old_start):
+    alts = [alt for alt,w in g[old_start]]
+    for alt in alts:
+        g[old_start].append(add_penalty(list(alt) + ['<$ .+>'], 0))
+    return g
+
+def add_penalty(rule, weight):
+    assert isinstance(rule, list)
+    return [tuple(rule), weight]
+
+def add_weights_to_grammar(g):
+    return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+
+def new_start(old_start):
+    old_start_ = old_start[1:-1]
+    return &#x27;&lt;$%s&gt;&#x27; % old_start_
+
+def add_any(g):
+    g[Any_plus] = [
+            add_penalty([Any_plus, Any_one], 1),
+            add_penalty([Any_one], 1)]
+    return g
+
+def add_start(g, old_start):
+    alts = [alt for alt,w in g[old_start]]
+    for alt in alts:
+        g[old_start].append(add_penalty(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
+    return g
+
+def add_penalty(rule, weight):
+    assert isinstance(rule, list)
+    return [tuple(rule), weight]
+
+def add_weights_to_grammar(g):
+    return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1166,7 +1198,7 @@ def format_parsetree(node,
 # Each terminal gets converted to a nonterminal
 
 #ep = EarleyParser(grammar, log=False)
-#cursor, columns = ep.parse_prefix('0', START, add_weight(grammar[START][0], 0))
+#cursor, columns = ep.parse_prefix('0', START, add_penalty(grammar[START][0], 0))
 #print(cursor)
 #for c in columns:
 #    print(c)
@@ -1234,7 +1266,7 @@ def format_parsetree(node,
 # Each terminal gets converted to a nonterminal
 
 #ep = EarleyParser(grammar, log=False)
-#cursor, columns = ep.parse_prefix(&#x27;0&#x27;, START, add_weight(grammar[START][0], 0))
+#cursor, columns = ep.parse_prefix(&#x27;0&#x27;, START, add_penalty(grammar[START][0], 0))
 #print(cursor)
 #for c in columns:
 #    print(c)
