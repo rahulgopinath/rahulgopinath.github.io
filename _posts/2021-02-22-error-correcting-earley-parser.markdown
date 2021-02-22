@@ -661,7 +661,10 @@ def nullable(g):
 <div name='python_canvas'></div>
 </form>
 
-The column definition is exactly the same as before.
+The column definition is exactly the same as before, but with one crucial
+difference. When we compare uniqueness of states in `add()`, we give
+priority to states with less penalty. That is, if the state being
+added has a lower penalty than an existing state, it is replaced.
 
 <!--
 ############
@@ -738,7 +741,7 @@ class Column:
 <div name='python_canvas'></div>
 </form>
 
-Similarly, no changes in the definition of state.
+No changes in the definition of state.
 
 <!--
 ############
@@ -823,7 +826,9 @@ class State:
 <div name='python_canvas'></div>
 </form>
 
-Now the parser itself.
+Next, the parser itself. We need to make sure that the grammar we use is the
+updated grammar.
+
 
 <!--
 ############
@@ -841,7 +846,37 @@ class EarleyParser(Parser):
         self.log = log
 
         self._grammar = add_any(self._grammar)
+############
+-->
 
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Parser:
+    def parse_on(self, text, start_symbol):
+        raise NotImplemented()
+
+class EarleyParser(Parser):
+    def __init__(self, grammar, log=False, **kwargs):
+        g_e = add_penalties_to_grammar(grammar)
+        # need to update terminals
+        g_e = fix_terminal_with_penalties(g_e)
+        self.epsilon = nullable(grammar)
+        self._grammar = g_e
+        self.log = log
+
+        self._grammar = add_any(self._grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+Remaining
+
+
+<!--
+############
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alt):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
@@ -1018,21 +1053,6 @@ class SimpleExtractor:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Parser:
-    def parse_on(self, text, start_symbol):
-        raise NotImplemented()
-
-class EarleyParser(Parser):
-    def __init__(self, grammar, log=False, **kwargs):
-        g_e = add_penalties_to_grammar(grammar)
-        # need to update terminals
-        g_e = fix_terminal_with_penalties(g_e)
-        self.epsilon = nullable(grammar)
-        self._grammar = g_e
-        self.log = log
-
-        self._grammar = add_any(self._grammar)
-
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alt):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
