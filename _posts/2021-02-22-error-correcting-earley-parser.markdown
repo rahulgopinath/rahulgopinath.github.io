@@ -354,12 +354,12 @@ nonterminal symbol that handles the following possibilities
 * Some junk symbols are present before the symbol that matches the given terminal
 * The expected symbol was deleted from input string
 
-That is, given `a` is a terminal symbol, we add the following *error productions*.
+That is, given `a` is a terminal symbol, we add the following *error productions*, where `<$ a>` is the corresponding nonterminal.
 
-* $E_a \rightarrow a$
-* $E_a \rightarrow b | b != a$
-* $E_a \rightarrow H a$
-* $E_a \rightarrow \epsilon$
+* `<$ a> -> a`
+* `<$ a> -> {!a}`
+* `<$ a> -> {$.+} a`
+* `<$ a> -> ` $$\epsilon$$
 
 For each such *correction*, we add one penalty. In essence, the following
 general correction rules get one penalty if they are used.
