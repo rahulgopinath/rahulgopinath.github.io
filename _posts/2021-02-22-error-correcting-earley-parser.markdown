@@ -1044,32 +1044,6 @@ class EarleyParser(EarleyParser):
             forest = self.parse_forest(self.table, start)
             print('weight = ', str(start))
             yield forest
-            #for tree in self.extract_trees(forest):
-            #    yield tree
-
-class EarleyParser(EarleyParser):
-    def extract_a_tree(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            return (name, [])
-        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
-
-
-    def extract_trees(self, forest):
-        yield self.extract_a_tree(forest)
-
-class EarleyParser(EarleyParser):
-    def extract_trees(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            yield (name, [])
-        results = []
-        for path in paths:
-            ptrees = [self.extract_trees(self.forest(*p)) for p in path]
-            for p in I.product(*ptrees):
-                yield (name, p)
-
-
 ############
 -->
 
@@ -1133,31 +1107,6 @@ class EarleyParser(EarleyParser):
             forest = self.parse_forest(self.table, start)
             print(&#x27;weight = &#x27;, str(start))
             yield forest
-            #for tree in self.extract_trees(forest):
-            #    yield tree
-
-class EarleyParser(EarleyParser):
-    def extract_a_tree(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            return (name, [])
-        return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
-
-
-    def extract_trees(self, forest):
-        yield self.extract_a_tree(forest)
-
-class EarleyParser(EarleyParser):
-    def extract_trees(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            yield (name, [])
-        results = []
-        for path in paths:
-            ptrees = [self.extract_trees(self.forest(*p)) for p in path]
-            for p in I.product(*ptrees):
-                yield (name, p)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1316,12 +1265,6 @@ print(repr(inp))
 x = SimpleExtractor(myg, inp, START)
 t = x.extract_a_tree()
 print(format_parsetree(t))
-#forests = myg.parse_on(inp, START)
-#for forest in forests:
-#    print('parse:', inp)
-#    for v in myg.extract_trees(forest):
-#        print(format_parsetree(v))
-#        print('||||||||||||||||||\n')
 ############
 -->
 
@@ -1384,12 +1327,6 @@ print(repr(inp))
 x = SimpleExtractor(myg, inp, START)
 t = x.extract_a_tree()
 print(format_parsetree(t))
-#forests = myg.parse_on(inp, START)
-#for forest in forests:
-#    print(&#x27;parse:&#x27;, inp)
-#    for v in myg.extract_trees(forest):
-#        print(format_parsetree(v))
-#        print(&#x27;||||||||||||||||||\n&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
