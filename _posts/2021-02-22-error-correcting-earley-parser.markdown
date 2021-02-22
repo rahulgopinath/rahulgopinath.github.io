@@ -372,6 +372,9 @@ Also, these terminal corrections get one penalty.
 * `<$ a> -> `$$\epsilon$$
 * `<$ a> -> {!a}`
 
+Notice that we do not have to add penalty for the junk insertion because that
+is already been applied by the general corrections.
+
 These are added to the grammar as follows.
 
 <!--
