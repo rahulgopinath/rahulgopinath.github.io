@@ -335,6 +335,40 @@ def fix_weighted_terminals(g):
 </form>
 
 
+<!--
+############
+g_e = add_weights_to_grammar(grammar)
+print(g_e)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g_e = add_weights_to_grammar(grammar)
+print(g_e)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+g_e = fix_weighted_terminals(g_e)
+print(g_e)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g_e = fix_weighted_terminals(g_e)
+print(g_e)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 
 
@@ -640,68 +674,6 @@ class SimpleExtractor:
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
 
-class O:
-    def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
-
-Options = O(F='|', L='+', V='|', H='-', NL='\n')
-
-def format_newlines(prefix, formatted_node):
-    replacement = ''.join([Options.NL, '\n', prefix])
-    return formatted_node.replace('\n', replacement)
-
-def format_tree(node, format_node, get_children, prefix=''):
-    children = list(get_children(node))
-    next_prefix = ''.join([prefix, Options.V, '   '])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = ''.join([prefix, '    '])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
-
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
-    return '\n'.join(lines)
-
-
-# Modifications:
-# Each rule gets a weight
-# The start gets changed to:
-# <$start>  := [0] <start>
-#            | [0] <start> <$.+>
-# <$.+>     := [1] <$.+> <$.>
-#            | [1] <$.>
-# Each terminal gets converted to a nonterminal
-
-#ep = EarleyParser(grammar, log=False)
-#cursor, columns = ep.parse_prefix('0', START, add_weight(grammar[START][0], 0))
-#print(cursor)
-#for c in columns:
-#    print(c)
-
-
-myg = EarleyParser(grammar)
-inp = 'xz+yz'
-print(repr(inp))
-x = SimpleExtractor(myg, inp, START)
-t = x.extract_a_tree()
-print(format_parsetree(t))
-#forests = myg.parse_on(inp, START)
-#for forest in forests:
-#    print('parse:', inp)
-#    for v in myg.extract_trees(forest):
-#        print(format_parsetree(v))
-#        print('||||||||||||||||||\n')
 ############
 -->
 
@@ -1003,7 +975,83 @@ class SimpleExtractor:
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
+
+
+<!--
+############
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+    def __repr__(self): return str(self.__dict__)
+
+Options = O(F='|', L='+', V='|', H='-', NL='\n')
+
+def format_newlines(prefix, formatted_node):
+    replacement = ''.join([Options.NL, '\n', prefix])
+    return formatted_node.replace('\n', replacement)
+
+def format_tree(node, format_node, get_children, prefix=''):
+    children = list(get_children(node))
+    next_prefix = ''.join([prefix, Options.V, '   '])
+    for child in children[:-1]:
+        fml = format_newlines(next_prefix, format_node(child))
+        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
+        tree = format_tree(child, format_node, get_children, next_prefix)
+        for result in tree:
+            yield result
+    if children:
+        last_prefix = ''.join([prefix, '    '])
+        fml = format_newlines(last_prefix, format_node(children[-1]))
+        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
+        tree = format_tree(children[-1], format_node, get_children, last_prefix)
+        for result in tree:
+            yield result
+
+def format_parsetree(node,
+          format_node=lambda x: repr(x[0]),
+          get_children=lambda x: x[1]):
+    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
+    return '\n'.join(lines)
+
+
+# Modifications:
+# Each rule gets a weight
+# The start gets changed to:
+# <$start>  := [0] <start>
+#            | [0] <start> <$.+>
+# <$.+>     := [1] <$.+> <$.>
+#            | [1] <$.>
+# Each terminal gets converted to a nonterminal
+
+#ep = EarleyParser(grammar, log=False)
+#cursor, columns = ep.parse_prefix('0', START, add_weight(grammar[START][0], 0))
+#print(cursor)
+#for c in columns:
+#    print(c)
+
+
+myg = EarleyParser(grammar)
+inp = 'xz+yz'
+print(repr(inp))
+x = SimpleExtractor(myg, inp, START)
+t = x.extract_a_tree()
+print(format_parsetree(t))
+#forests = myg.parse_on(inp, START)
+#for forest in forests:
+#    print('parse:', inp)
+#    for v in myg.extract_trees(forest):
+#        print(format_parsetree(v))
+#        print('||||||||||||||||||\n')
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
     def __repr__(self): return str(self.__dict__)
