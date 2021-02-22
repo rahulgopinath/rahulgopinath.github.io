@@ -120,13 +120,14 @@ START = &#x27;&lt;start&gt;&#x27;
 We can also print it.
 
 
+
 <!--
 ############
 def print_g(g):
     for k in g:
         print(k)
         for rule in g[k]:
-            print('|  ', ' '.join(rule))
+            print('|  ', ' '.join([str(k) for k in rule]))
 ############
 -->
 
@@ -137,11 +138,13 @@ def print_g(g):
     for k in g:
         print(k)
         for rule in g[k]:
-            print(&#x27;|  &#x27;, &#x27; &#x27;.join(rule))
+            print(&#x27;|  &#x27;, &#x27; &#x27;.join([str(k) for k in rule]))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+
 
 Checking whether a term is nonterminal
 
@@ -377,7 +380,7 @@ def fix_weighted_terminals(g):
 <!--
 ############
 g_e = add_weights_to_grammar(grammar)
-print(g_e)
+print_g(g_e)
 ############
 -->
 
@@ -385,7 +388,7 @@ print(g_e)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g_e = add_weights_to_grammar(grammar)
-print(g_e)
+print_g(g_e)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -394,7 +397,7 @@ print(g_e)
 <!--
 ############
 g_e = fix_weighted_terminals(g_e)
-print(g_e)
+print_g(g_e)
 ############
 -->
 
@@ -402,7 +405,7 @@ print(g_e)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g_e = fix_weighted_terminals(g_e)
-print(g_e)
+print_g(g_e)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
