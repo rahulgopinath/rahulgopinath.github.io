@@ -30,10 +30,139 @@ error correcting if it is able to parse corrupt inputs that only partially
 conform to a given grammar. The particular algorithm we will be examining is the
 minimum distance error correcting parser by Aho et al.[^aho1972minimum].
 
+## Covering Grammar
+
+The idea from Aho et al. is to first transform the given grammar into a
+*covering grammar*. A grammar $$G_2$$ covers another grammar $$G_1$$ if
+(in essence) all productions in $$G_1$$ are in $$G_2$$, and a string that
+is parsed by $$G_1$$ is guaranteed to be parsed by $$G_2$$, and all the
+parses from $$G_1$$ are guaranteed to exist in the set of parses from $$G_2$$.
+
+So, we first construct a covering grammar that can handle any corruption of
+input, with the additional property that there will be a parse of the corrupt
+string which contains **the minimum number of modifications needed** such that
+if they are applied on the string, it will make it parsed by the original
+grammar.
+
+### First, the prerequisites
+
 <!--
 ############
 import random
 import itertools as I
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+import itertools as I
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+### Our Grammar
+
+<!--
+############
+grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+START = '<start>'
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+START = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We can also print it.
+
+<!--
+############
+def print_g(g):
+    for k in g:
+        print('#',k)
+        for rule in g[k]:
+            print('#  ', rule)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def print_g(g):
+    for k in g:
+        print(&#x27;#&#x27;,k)
+        for rule in g[k]:
+            print(&#x27;#  &#x27;, rule)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+print_g(grammar)
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print_g(grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<!--
+############
 Any_plus = '<$.+>' # this is a nonterminal
 Any_one = '{$.}' # this is a terminal
 def Any_not(t): return '{!%s}' % t # this is a terminal.
@@ -73,13 +202,6 @@ def add_start(g, old_start):
     for alt in alts:
         g[old_start].append(add_weight(list(alt) + ['<$ .+>'], 0))
     return g
-
-def print_g(g):
-    for k in g:
-        print('#',k)
-        for rule in g[k]:
-            print('#  ', rule)
-
 
 def add_weight(rule, weight):
     assert isinstance(rule, list)
@@ -452,26 +574,6 @@ def format_parsetree(node,
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
     return '\n'.join(lines)
 
-grammar = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
-}
-START = '<start>'
-
 
 # Modifications:
 # Each rule gets a weight
@@ -507,8 +609,6 @@ print(format_parsetree(t))
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import random
-import itertools as I
 Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
 Any_one = &#x27;{$.}&#x27; # this is a terminal
 def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
@@ -548,13 +648,6 @@ def add_start(g, old_start):
     for alt in alts:
         g[old_start].append(add_weight(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
     return g
-
-def print_g(g):
-    for k in g:
-        print(&#x27;#&#x27;,k)
-        for rule in g[k]:
-            print(&#x27;#  &#x27;, rule)
-
 
 def add_weight(rule, weight):
     assert isinstance(rule, list)
@@ -926,26 +1019,6 @@ def format_parsetree(node,
           get_children=lambda x: x[1]):
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
-
-grammar = {
-    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
-    &#x27;&lt;expr&gt;&#x27;: [
-        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;]],
-    &#x27;&lt;term&gt;&#x27;: [
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;fact&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
-    &#x27;&lt;digits&gt;&#x27;: [
-        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;&lt;digit&gt;&#x27;]],
-    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
-}
-START = &#x27;&lt;start&gt;&#x27;
 
 
 # Modifications:
