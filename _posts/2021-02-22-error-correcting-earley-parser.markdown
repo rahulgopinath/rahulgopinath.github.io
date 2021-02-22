@@ -119,13 +119,14 @@ START = &#x27;&lt;start&gt;&#x27;
 
 We can also print it.
 
+
 <!--
 ############
 def print_g(g):
     for k in g:
-        print('#',k)
+        print(k)
         for rule in g[k]:
-            print('#  ', rule)
+            print('|  ', ' '.join(rule))
 ############
 -->
 
@@ -134,9 +135,9 @@ def print_g(g):
 <textarea cols="40" rows="4" name='python_edit'>
 def print_g(g):
     for k in g:
-        print(&#x27;#&#x27;,k)
+        print(k)
         for rule in g[k]:
-            print(&#x27;#  &#x27;, rule)
+            print(&#x27;|  &#x27;, &#x27; &#x27;.join(rule))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
