@@ -358,11 +358,10 @@ nonterminal symbol that handles the following possibilities
 
 That is, given `a` is a terminal symbol, we add the following
 
-* $$E_a \leftarrow a $$
-* $$E_a \leftarrow b  | b <> a
-* $$E_a \leftarrow H a$$
-* $$E_a \leftarrow \epsilon $$ where $$\epsilon$$ is the empty string.
-
+* `E_a -> a`
+* `E_a -> b  | b != a`
+* `E_a -> H a`
+* `E_a -> {empty}`
 
 <!--
 ############
