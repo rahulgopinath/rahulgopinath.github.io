@@ -1008,45 +1008,6 @@ class EarleyParser(EarleyParser):
                 yield (name, p)
 
 
-class SimpleExtractor:
-    def __init__(self, parser, text, start_symbol):
-        parser._grammar = add_start(parser._grammar, start_symbol)
-        self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, parser._grammar[start_symbol][0])
-        start = next((s for s in states if s.finished()), None)
-        if cursor < len(text) or not start:
-            raise SyntaxError("at " + repr(cursor))
-        self.my_forest = parser.parse_forest(parser.table, start)
-
-    def extract_a_node(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            return ((name, 0, 1), []), (name, [])
-        cur_path, i, l = self.choose_path(paths)
-        child_nodes = []
-        pos_nodes = []
-        for s, kind, chart in cur_path:
-            f = self.parser.forest(s, kind, chart)
-            postree, ntree = self.extract_a_node(f)
-            child_nodes.append(ntree)
-            pos_nodes.append(postree)
-
-        return ((name, i, l), pos_nodes), (name, child_nodes)
-
-    def choose_path(self, arr):
-        l = len(arr)
-        i = random.randrange(l)
-        res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
-        return res[0][1], None, None
-
-    def cost_of_path(self, p):
-        states = [s for s,kind,chart in p if kind == 'n']
-        return sum([s.weight for s in states])
-
-    def extract_a_tree(self):
-        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
-        return parse_tree
-
 ############
 -->
 
@@ -1183,7 +1144,61 @@ class EarleyParser(EarleyParser):
             for p in I.product(*ptrees):
                 yield (name, p)
 
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
+Now, we can use a simple extractor to extract one of the error correcting parses
+with lowest penalties.
+
+
+<!--
+############
+class SimpleExtractor:
+    def __init__(self, parser, text, start_symbol):
+        parser._grammar = add_start(parser._grammar, start_symbol)
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol, parser._grammar[start_symbol][0])
+        start = next((s for s in states if s.finished()), None)
+        if cursor < len(text) or not start:
+            raise SyntaxError("at " + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, start)
+
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+
+    def choose_path(self, arr):
+        l = len(arr)
+        i = random.randrange(l)
+        res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
+        return res[0][1], None, None
+
+    def cost_of_path(self, p):
+        states = [s for s,kind,chart in p if kind == 'n']
+        return sum([s.weight for s in states])
+
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return parse_tree
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 class SimpleExtractor:
     def __init__(self, parser, text, start_symbol):
         parser._grammar = add_start(parser._grammar, start_symbol)
