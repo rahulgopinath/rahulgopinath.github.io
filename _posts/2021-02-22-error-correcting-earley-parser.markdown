@@ -574,6 +574,92 @@ print_g(g_e)
 </form>
 
 
+## Next, we extract the nullable keys used in Earley parsing
+
+<!--
+############
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 
 
@@ -665,44 +751,6 @@ class EarleyParser(Parser):
         self.log = log
 
         self._grammar = add_any(self._grammar)
-
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not is_nt(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
-
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
-
 
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alt):
@@ -963,48 +1011,6 @@ class EarleyParser(Parser):
         self.log = log
 
         self._grammar = add_any(self._grammar)
-
-def is_nt(k):
-    if len(k) == 1: return False
-    return (k[0], k[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
-
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not is_nt(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
-
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
-
 
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alt):
