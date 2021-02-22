@@ -1243,22 +1243,6 @@ def format_parsetree(node,
     return '\n'.join(lines)
 
 
-# Modifications:
-# Each rule gets a weight
-# The start gets changed to:
-# <$start>  := [0] <start>
-#            | [0] <start> <$.+>
-# <$.+>     := [1] <$.+> <$.>
-#            | [1] <$.>
-# Each terminal gets converted to a nonterminal
-
-#ep = EarleyParser(grammar, log=False)
-#cursor, columns = ep.parse_prefix('0', START, add_penalty(grammar[START][0], 0))
-#print(cursor)
-#for c in columns:
-#    print(c)
-
-
 myg = EarleyParser(grammar)
 inp = 'xz+yz'
 print(repr(inp))
@@ -1303,23 +1287,6 @@ def format_parsetree(node,
           get_children=lambda x: x[1]):
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
-
-
-# Modifications:
-# Each rule gets a weight
-# The start gets changed to:
-# &lt;$start&gt;  := [0] &lt;start&gt;
-#            | [0] &lt;start&gt; &lt;$.+&gt;
-# &lt;$.+&gt;     := [1] &lt;$.+&gt; &lt;$.&gt;
-#            | [1] &lt;$.&gt;
-# Each terminal gets converted to a nonterminal
-
-#ep = EarleyParser(grammar, log=False)
-#cursor, columns = ep.parse_prefix(&#x27;0&#x27;, START, add_penalty(grammar[START][0], 0))
-#print(cursor)
-#for c in columns:
-#    print(c)
-
 
 myg = EarleyParser(grammar)
 inp = &#x27;xz+yz&#x27;
