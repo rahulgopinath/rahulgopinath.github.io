@@ -209,8 +209,8 @@ Any number and combinations of these mutations can accumulate in an input.
 That is, in effect, *any string* can be considered a mutation of a parsable
 string, and hence we can expect the covering grammar to parse it.
 
-Now, to make sure that any string is parsable, we first define a nonterminal
-that is capable of parsing any string. Now, for ease of parsing, let us define
+Next, to make sure that any string is parsable, we first define a nonterminal
+that is capable of parsing any string. For ease of parsing, let us define
 a new terminal symbol that stands in for any terminal symbol. This stands for $$I$$
 in Aho's paper.
 
@@ -266,7 +266,7 @@ def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
 <div name='python_canvas'></div>
 </form>
 
-Now, how do we check for match between a terminal symbol and a given input symbol?
+How do we check for match between a terminal symbol and a given input symbol?
 
 <!--
 ############
@@ -345,7 +345,7 @@ print(terminal_match(&#x27;{!b}&#x27;, &#x27;a&#x27;))
 <div name='python_canvas'></div>
 </form>
 
-Now, we need to transform our grammar. Essentially, the idea is
+We need to transform our grammar. Essentially, the idea is
 that for each terminal symbol in the grammar, we add a
 nonterminal symbol that handles the following possibilities
 
@@ -361,7 +361,7 @@ That is, given `a` is a terminal symbol, we add the following *error productions
 * $E_a \rightarrow H a$
 * $E_a \rightarrow \epsilon$
 
-Now, for each such *correction*, we add one penalty. In essence, the following
+For each such *correction*, we add one penalty. In essence, the following
 general correction rules get one penalty if they are used.
 
 * `{$.+} -> {$.+} .`
