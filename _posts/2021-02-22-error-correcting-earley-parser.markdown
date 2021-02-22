@@ -364,8 +364,8 @@ That is, given `a` is a terminal symbol, we add the following *error productions
 For each such *correction*, we add one penalty. In essence, the following
 general correction rules get one penalty if they are used.
 
-* `{$.+} -> {$.+} .`
-* `{$.+} -> .`
+* `<$.+> -> <$.+> .`
+* `<$.+> -> .`
 
 Also, these terminal corrections get one penalty.
 
@@ -485,7 +485,7 @@ Finally, we need to modify the start symbol to let junk symbols after the parse.
 This is handled by adding a new start symbol as below.
 
 * `<$start> -> <start>`
-* `<$start> -> <start> {$.+}`
+* `<$start> -> <start> <$.+>`
 
 <!--
 ############
