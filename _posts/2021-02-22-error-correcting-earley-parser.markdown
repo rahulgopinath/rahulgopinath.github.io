@@ -484,8 +484,8 @@ def add_any(g):
 Finally, we need to modify the start symbol to let junk symbols after the parse.
 This is handled by adding a new start symbol as below.
 
-* `&lt;start'&gt; -&gt; &lt;start&gt; `
-* `&lt;start'&gt; -&gt; &lt;start&gt; {$.+}`
+* `<start'> -> <start>`
+* `<start'> -> <start> {$.+}`
 
 <!--
 ############
