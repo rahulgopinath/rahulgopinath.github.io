@@ -397,7 +397,7 @@ def change_t(t):
     else:
         return to_term(t)
 
-def fix_weighted_terminals(g):
+def fix_terminal_with_penalties(g):
     keys = [k for k in g]
     for k in keys:
         for alt,w in g[k]:
@@ -437,7 +437,7 @@ def change_t(t):
     else:
         return to_term(t)
 
-def fix_weighted_terminals(g):
+def fix_terminal_with_penalties(g):
     keys = [k for k in g]
     for k in keys:
         for alt,w in g[k]:
@@ -557,7 +557,7 @@ print_g(g_e)
 
 <!--
 ############
-g_e = fix_weighted_terminals(g_e)
+g_e = fix_terminal_with_penalties(g_e)
 print_g(g_e)
 ############
 -->
@@ -565,7 +565,7 @@ print_g(g_e)
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_e = fix_weighted_terminals(g_e)
+g_e = fix_terminal_with_penalties(g_e)
 print_g(g_e)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -658,7 +658,7 @@ class EarleyParser(Parser):
     def __init__(self, grammar, log=False, **kwargs):
         g_e = add_penalties_to_grammar(grammar)
         # need to update terminals
-        g_e = fix_weighted_terminals(g_e)
+        g_e = fix_terminal_with_penalties(g_e)
         self.epsilon = nullable(grammar)
         self._grammar = g_e
         self.log = log
@@ -956,7 +956,7 @@ class EarleyParser(Parser):
     def __init__(self, grammar, log=False, **kwargs):
         g_e = add_penalties_to_grammar(grammar)
         # need to update terminals
-        g_e = fix_weighted_terminals(g_e)
+        g_e = fix_terminal_with_penalties(g_e)
         self.epsilon = nullable(grammar)
         self._grammar = g_e
         self.log = log
