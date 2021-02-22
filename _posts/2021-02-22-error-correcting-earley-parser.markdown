@@ -358,10 +358,10 @@ nonterminal symbol that handles the following possibilities
 
 That is, given `a` is a terminal symbol, we add the following *error productions*.
 
-* $$E_a \rightarrow a$$
-* $$E_a \rightarrow b | b != a$$
-* $$E_a \rightarrow H a$$
-* $$E_a \rightarrow \epsilon$$
+* $E_a \rightarrow a$
+* $E_a \rightarrow b | b != a$
+* $E_a \rightarrow H a$
+* $E_a \rightarrow \epsilon$
 
 Now, for each such *correction*, we add one penalty. In essence, the following
 general correction rules get one penalty if they are used.
