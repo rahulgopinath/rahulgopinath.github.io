@@ -149,16 +149,7 @@ print_g(grammar)
 ############
 -->
 
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print_g(grammar)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
+Now, the covering grammar itself
 
 
 <!--
@@ -243,8 +234,116 @@ def fix_weighted_terminals(g):
         else:
             g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
     return g_
+############
+-->
 
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
+Any_one = &#x27;{$.}&#x27; # this is a terminal
+def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
+def is_not(t):
+    if len(t) &gt; 1:
+        if  t[1] == &#x27;!&#x27;:
+            return t[2]
+    return None
+
+def is_not_match(letter, col_letter):
+    l = is_not(letter)
+    if l is not None:
+        return l != col_letter
+    else:
+        return False
+
+def letter_match(letter, col_letter):
+    if letter == col_letter: return True
+        # letter can be any: &lt;$.+&gt; or not: &lt;!x&gt;
+    if letter == Any_one: return True
+    if is_not_match(letter, col_letter): return True
+    return False
+
+
+def new_start(old_start):
+    old_start_ = old_start[1:-1]
+    return &#x27;&lt;$%s&gt;&#x27; % old_start_
+
+def add_any(g):
+    g[Any_plus] = [
+            add_weight([Any_plus, Any_one], 1),
+            add_weight([Any_one], 1)]
+    return g
+
+def add_start(g, old_start):
+    alts = [alt for alt,w in g[old_start]]
+    for alt in alts:
+        g[old_start].append(add_weight(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
+    return g
+
+def add_weight(rule, weight):
+    assert isinstance(rule, list)
+    return [tuple(rule), weight]
+
+def add_weights_to_grammar(g):
+    return {k:[add_weight(rule, 0) for rule in g[k]] for k in g}
+
+def fix_terminal(g, t):
+    nt_t = to_term(t)
+    if nt_t not in g:
+        g[nt_t] = [ # Any_plus already has at least 1 weight.
+                add_weight([t], 0),
+                add_weight([Any_plus, t], 0),
+                add_weight([], 1),
+                add_weight([Any_not(t)], 1)
+        ]
+
+def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
+
+def change_t(t):
+    if is_nt(t):
+        return t
+    else:
+        return to_term(t)
+
+def fix_weighted_terminals(g):
+    keys = [k for k in g]
+    for k in keys:
+        for alt,w in g[k]:
+            for t in alt:
+                if t not in g:
+                    fix_terminal(g, t)
+
+    g_ = {}
+    for k in g:
+        if k[1] == &#x27;$&#x27;:
+            g_[k] = g[k]
+        else:
+            g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
+    return g_
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print_g(grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+
+<!--
+############
 class Column:
     def __init__(self, index, letter):
         self.index, self.letter = index, letter
@@ -609,88 +708,6 @@ print(format_parsetree(t))
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
-Any_one = &#x27;{$.}&#x27; # this is a terminal
-def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
-def is_not(t):
-    if len(t) &gt; 1:
-        if  t[1] == &#x27;!&#x27;:
-            return t[2]
-    return None
-
-def is_not_match(letter, col_letter):
-    l = is_not(letter)
-    if l is not None:
-        return l != col_letter
-    else:
-        return False
-
-def letter_match(letter, col_letter):
-    if letter == col_letter: return True
-        # letter can be any: &lt;$.+&gt; or not: &lt;!x&gt;
-    if letter == Any_one: return True
-    if is_not_match(letter, col_letter): return True
-    return False
-
-
-def new_start(old_start):
-    old_start_ = old_start[1:-1]
-    return &#x27;&lt;$%s&gt;&#x27; % old_start_
-
-def add_any(g):
-    g[Any_plus] = [
-            add_weight([Any_plus, Any_one], 1),
-            add_weight([Any_one], 1)]
-    return g
-
-def add_start(g, old_start):
-    alts = [alt for alt,w in g[old_start]]
-    for alt in alts:
-        g[old_start].append(add_weight(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
-    return g
-
-def add_weight(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
-
-def add_weights_to_grammar(g):
-    return {k:[add_weight(rule, 0) for rule in g[k]] for k in g}
-
-def fix_terminal(g, t):
-    nt_t = to_term(t)
-    if nt_t not in g:
-        g[nt_t] = [ # Any_plus already has at least 1 weight.
-                add_weight([t], 0),
-                add_weight([Any_plus, t], 0),
-                add_weight([], 1),
-                add_weight([Any_not(t)], 1)
-        ]
-
-def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
-
-def change_t(t):
-    if is_nt(t):
-        return t
-    else:
-        return to_term(t)
-
-def fix_weighted_terminals(g):
-    keys = [k for k in g]
-    for k in keys:
-        for alt,w in g[k]:
-            for t in alt:
-                if t not in g:
-                    fix_terminal(g, t)
-
-    g_ = {}
-    for k in g:
-        if k[1] == &#x27;$&#x27;:
-            g_[k] = g[k]
-        else:
-            g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
-    return g_
-
-
 class Column:
     def __init__(self, index, letter):
         self.index, self.letter = index, letter
