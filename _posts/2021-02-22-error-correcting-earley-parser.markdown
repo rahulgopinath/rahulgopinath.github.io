@@ -872,8 +872,8 @@ class EarleyParser(Parser):
 </form>
 
 
-Remaining
-
+Remaining is almost exactly same as the original Earley parser except for
+`complete()` where we have to transfer the penalties to the parent parse.
 
 <!--
 ############
@@ -924,6 +924,68 @@ class EarleyParser(EarleyParser):
             col.remove_extra_states()
             if self.log: print(col, '\n')
         return chart
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def chart_parse(self, tokens, start, alt):
+        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart[0].add(State(start, alt, 0, chart[0]))
+        return self.fill_chart(chart)
+
+
+class EarleyParser(EarleyParser):
+    def predict(self, col, sym, state):
+        for alt in self._grammar[sym]:
+            col.add(State(sym, alt, 0, col))
+        if sym in self.epsilon:
+            col.add(state.advance())
+
+class EarleyParser(EarleyParser):
+    def scan(self, col, state, letter):
+        if terminal_match(letter, col.letter):
+            s = state.advance()
+            s.expr = col.letter
+            col.add(s)
+
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        for st in parent_states:
+            s = st.advance()
+            s.weight += state.weight
+            col.add(s)
+
+class EarleyParser(EarleyParser):
+    def fill_chart(self, chart):
+        for i, col in enumerate(chart):
+            for state in col.states:
+                if state.finished():
+                    self.complete(col, state)
+                else:
+                    sym = state.at_dot()
+                    if sym in self._grammar:
+                        self.predict(col, sym, state)
+                    else:
+                        if i + 1 &gt;= len(chart):
+                            continue
+                        self.scan(chart[i + 1], state, sym)
+            col.remove_extra_states()
+            if self.log: print(col, &#x27;\n&#x27;)
+        return chart
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+The extraction of parse trees.
+
+<!--
+############
 
 class EarleyParser(EarleyParser):
     def parse_prefix(self, text, start_symbol, alt):
@@ -1014,54 +1076,6 @@ class EarleyParser(EarleyParser):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start, alt):
-        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(State(start, alt, 0, chart[0]))
-        return self.fill_chart(chart)
-
-
-class EarleyParser(EarleyParser):
-    def predict(self, col, sym, state):
-        for alt in self._grammar[sym]:
-            col.add(State(sym, alt, 0, col))
-        if sym in self.epsilon:
-            col.add(state.advance())
-
-class EarleyParser(EarleyParser):
-    def scan(self, col, state, letter):
-        if terminal_match(letter, col.letter):
-            s = state.advance()
-            s.expr = col.letter
-            col.add(s)
-
-class EarleyParser(EarleyParser):
-    def complete(self, col, state):
-        parent_states = [st for st in state.s_col.states
-                 if st.at_dot() == state.name]
-        for st in parent_states:
-            s = st.advance()
-            s.weight += state.weight
-            col.add(s)
-
-class EarleyParser(EarleyParser):
-    def fill_chart(self, chart):
-        for i, col in enumerate(chart):
-            for state in col.states:
-                if state.finished():
-                    self.complete(col, state)
-                else:
-                    sym = state.at_dot()
-                    if sym in self._grammar:
-                        self.predict(col, sym, state)
-                    else:
-                        if i + 1 &gt;= len(chart):
-                            continue
-                        self.scan(chart[i + 1], state, sym)
-            col.remove_extra_states()
-            if self.log: print(col, &#x27;\n&#x27;)
-        return chart
-
 class EarleyParser(EarleyParser):
     def parse_prefix(self, text, start_symbol, alt):
         self.table = self.chart_parse(text, start_symbol, alt)
