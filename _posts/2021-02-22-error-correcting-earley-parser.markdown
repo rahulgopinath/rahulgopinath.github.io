@@ -200,8 +200,16 @@ print_g(grammar)
 
 
 
-Now, the covering grammar itself
+Now, the covering grammar itself. The covering grammar constructed by Aho et al.
+is fairly straight forward. It handles three possible mutations of the input
 
+* The replacement of a terminal symbol by another terminal symbol
+* The insertion of an extra terminal symbol
+* Deletion of a terminal symbol
+
+Any number and combinations of these mutations can accumulate in an input.
+That is, in effect, *any string* can be considered a mutation of a parsable
+string, and hence we can expect the covering grammar to parse it.
 
 <!--
 ############
