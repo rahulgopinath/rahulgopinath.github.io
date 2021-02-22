@@ -457,8 +457,37 @@ def fix_weighted_terminals(g):
 <div name='python_canvas'></div>
 </form>
 
+We modify the grammar to add this new nonterminal.
+
+<!--
+############
+def add_any(g):
+    g[Any_plus] = [
+            add_penalty([Any_plus, Any_one], 1),
+            add_penalty([Any_one], 1)]
+    return g
+############
+-->
 
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def add_any(g):
+    g[Any_plus] = [
+            add_penalty([Any_plus, Any_one], 1),
+            add_penalty([Any_one], 1)]
+    return g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+Finally, we need to modify the start symbol to let junk symbols after the parse.
+This is handled by adding a new start symbol as below.
+
+* `&lt;start'&gt; -&gt; &lt;start&gt; `
+* `&lt;start'&gt; -&gt; &lt;start&gt; {$.+}`
 
 <!--
 ############
@@ -466,12 +495,6 @@ def fix_weighted_terminals(g):
 def new_start(old_start):
     old_start_ = old_start[1:-1]
     return '<$%s>' % old_start_
-
-def add_any(g):
-    g[Any_plus] = [
-            add_penalty([Any_plus, Any_one], 1),
-            add_penalty([Any_one], 1)]
-    return g
 
 def add_start(g, old_start):
     alts = [alt for alt,w in g[old_start]]
@@ -483,7 +506,7 @@ def add_penalty(rule, weight):
     assert isinstance(rule, list)
     return [tuple(rule), weight]
 
-def add_weights_to_grammar(g):
+def add_penalties_to_grammar(g):
     return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
 ############
 -->
@@ -496,12 +519,6 @@ def new_start(old_start):
     old_start_ = old_start[1:-1]
     return &#x27;&lt;$%s&gt;&#x27; % old_start_
 
-def add_any(g):
-    g[Any_plus] = [
-            add_penalty([Any_plus, Any_one], 1),
-            add_penalty([Any_one], 1)]
-    return g
-
 def add_start(g, old_start):
     alts = [alt for alt,w in g[old_start]]
     for alt in alts:
@@ -512,7 +529,7 @@ def add_penalty(rule, weight):
     assert isinstance(rule, list)
     return [tuple(rule), weight]
 
-def add_weights_to_grammar(g):
+def add_penalties_to_grammar(g):
     return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
 
 </textarea><br />
@@ -523,7 +540,7 @@ def add_weights_to_grammar(g):
 
 <!--
 ############
-g_e = add_weights_to_grammar(grammar)
+g_e = add_penalties_to_grammar(grammar)
 print_g(g_e)
 ############
 -->
@@ -531,7 +548,7 @@ print_g(g_e)
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_e = add_weights_to_grammar(grammar)
+g_e = add_penalties_to_grammar(grammar)
 print_g(g_e)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -639,7 +656,7 @@ class Parser:
 
 class EarleyParser(Parser):
     def __init__(self, grammar, log=False, **kwargs):
-        g_e = add_weights_to_grammar(grammar)
+        g_e = add_penalties_to_grammar(grammar)
         # need to update terminals
         g_e = fix_weighted_terminals(g_e)
         self.epsilon = nullable(grammar)
@@ -937,7 +954,7 @@ class Parser:
 
 class EarleyParser(Parser):
     def __init__(self, grammar, log=False, **kwargs):
-        g_e = add_weights_to_grammar(grammar)
+        g_e = add_penalties_to_grammar(grammar)
         # need to update terminals
         g_e = fix_weighted_terminals(g_e)
         self.epsilon = nullable(grammar)
