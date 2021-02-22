@@ -143,6 +143,44 @@ def print_g(g):
 <div name='python_canvas'></div>
 </form>
 
+Checking whether a term is nonterminal
+
+<!--
+############
+def is_nt(k):
+    if len(k) == 1: return False
+    return (k[0], k[-1]) == ('<', '>')
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def is_nt(k):
+    if len(k) == 1: return False
+    return (k[0], k[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+print(is_nt('a'))
+print(is_nt('<a>'))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(is_nt(&#x27;a&#x27;))
+print(is_nt(&#x27;&lt;a&gt;&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 
 <!--
 ############
@@ -462,10 +500,6 @@ class EarleyParser(Parser):
         self.log = log
 
         self._grammar = add_any(self._grammar)
-
-def is_nt(k):
-    if len(k) == 1: return False
-    return (k[0], k[-1]) == ('<', '>')
 
 def rem_terminals(g):
     g_cur = {}
