@@ -661,10 +661,7 @@ def nullable(g):
 <div name='python_canvas'></div>
 </form>
 
-
-
-
-
+The column definition is exactly the same as before.
 
 <!--
 ############
@@ -699,8 +696,52 @@ class Column:
             my_states.append(cur_states[0])
         self.states = my_states
         return
+############
+-->
 
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Column:
+    def __init__(self, index, letter):
+        self.index, self.letter = index, letter
+        self.states, self._unique = [], {}
+
+    def __str__(self):
+        return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
+            str(state) for state in self.states if state.finished()))
+
+    def add(self, state):
+        if state in self._unique:
+            if self._unique[state].weight &gt; state.weight:
+                # delete from self.states in fill_chart
+                state.e_col = self
+                self.states.append(state)
+                self._unique[state] = state
+            return self._unique[state]
+        self._unique[state] = state
+        self.states.append(state)
+        state.e_col = self
+        return self._unique[state]
+
+    def remove_extra_states(self):
+        my_states = []
+        for state in self._unique:
+            cur_states = [s for s in self.states if s == state]
+            if len(cur_states) &gt; 1:
+                cur_states = sorted(cur_states, key=lambda s: s.weight)
+            my_states.append(cur_states[0])
+        self.states = my_states
+        return
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Similarly, no changes in the definition of state.
+
+<!--
+############
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr_, self.dot = name, expr, dot
@@ -736,7 +777,56 @@ class State:
 
     def advance(self):
         return State(self.name, (self.expr, self.weight), self.dot + 1, self.s_col)
+############
+-->
 
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class State:
+    def __init__(self, name, expr, dot, s_col, e_col=None):
+        self.name, self.expr_, self.dot = name, expr, dot
+        self.s_col, self.e_col = s_col, e_col
+        self.expr, self.weight = expr
+
+    def finished(self):
+        return self.dot &gt;= len(self.expr)
+
+    def at_dot(self):
+        return self.expr[self.dot] if self.dot &lt; len(self.expr) else None
+
+    def __str__(self):
+        def idx(var):
+            return var.index if var else -1
+
+        return self.name + &#x27;:= &#x27; + &#x27; &#x27;.join([
+            str(p)
+            for p in [*self.expr[:self.dot], &#x27;|&#x27;, *self.expr[self.dot:]]
+            ]) + &quot;(%d,%d):%d&quot; % (idx(self.s_col), idx(self.e_col), self.weight)
+
+    def copy(self):
+        return State(self.name, (self.expr, self.weight), self.dot, self.s_col, self.e_col)
+
+    def _t(self):
+        return (self.name, self.expr, self.dot, self.s_col.index)
+
+    def __hash__(self):
+        return hash(self._t())
+
+    def __eq__(self, other):
+        return self._t() == other._t()
+
+    def advance(self):
+        return State(self.name, (self.expr, self.weight), self.dot + 1, self.s_col)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Now the parser itself.
+
+<!--
+############
 class Parser:
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
@@ -928,75 +1018,6 @@ class SimpleExtractor:
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Column:
-    def __init__(self, index, letter):
-        self.index, self.letter = index, letter
-        self.states, self._unique = [], {}
-
-    def __str__(self):
-        return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
-            str(state) for state in self.states if state.finished()))
-
-    def add(self, state):
-        if state in self._unique:
-            if self._unique[state].weight &gt; state.weight:
-                # delete from self.states in fill_chart
-                state.e_col = self
-                self.states.append(state)
-                self._unique[state] = state
-            return self._unique[state]
-        self._unique[state] = state
-        self.states.append(state)
-        state.e_col = self
-        return self._unique[state]
-
-    def remove_extra_states(self):
-        my_states = []
-        for state in self._unique:
-            cur_states = [s for s in self.states if s == state]
-            if len(cur_states) &gt; 1:
-                cur_states = sorted(cur_states, key=lambda s: s.weight)
-            my_states.append(cur_states[0])
-        self.states = my_states
-        return
-
-
-class State:
-    def __init__(self, name, expr, dot, s_col, e_col=None):
-        self.name, self.expr_, self.dot = name, expr, dot
-        self.s_col, self.e_col = s_col, e_col
-        self.expr, self.weight = expr
-
-    def finished(self):
-        return self.dot &gt;= len(self.expr)
-
-    def at_dot(self):
-        return self.expr[self.dot] if self.dot &lt; len(self.expr) else None
-
-    def __str__(self):
-        def idx(var):
-            return var.index if var else -1
-
-        return self.name + &#x27;:= &#x27; + &#x27; &#x27;.join([
-            str(p)
-            for p in [*self.expr[:self.dot], &#x27;|&#x27;, *self.expr[self.dot:]]
-            ]) + &quot;(%d,%d):%d&quot; % (idx(self.s_col), idx(self.e_col), self.weight)
-
-    def copy(self):
-        return State(self.name, (self.expr, self.weight), self.dot, self.s_col, self.e_col)
-
-    def _t(self):
-        return (self.name, self.expr, self.dot, self.s_col.index)
-
-    def __hash__(self):
-        return hash(self._t())
-
-    def __eq__(self, other):
-        return self._t() == other._t()
-
-    def advance(self):
-        return State(self.name, (self.expr, self.weight), self.dot + 1, self.s_col)
-
 class Parser:
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
