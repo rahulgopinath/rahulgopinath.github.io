@@ -144,6 +144,20 @@ def print_g(g):
 <div name='python_canvas'></div>
 </form>
 
+<!--
+############
+print_g(grammar)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print_g(grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
 
 
 Checking whether a term is nonterminal
@@ -183,22 +197,6 @@ print(is_nt(&#x27;&lt;a&gt;&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-<!--
-############
-print_g(grammar)
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print_g(grammar)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
 
 Now, the covering grammar itself. The covering grammar constructed by Aho et al.
 is fairly straight forward. It handles three possible mutations of the input
