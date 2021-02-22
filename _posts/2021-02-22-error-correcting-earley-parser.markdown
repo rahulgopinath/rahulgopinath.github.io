@@ -356,12 +356,25 @@ nonterminal symbol that handles the following possibilities
 * Some junk symbols are present before the symbol that matches the given terminal
 * The expected symbol was deleted from input string
 
-That is, given `a` is a terminal symbol, we add the following
+That is, given `a` is a terminal symbol, we add the following *error productions*.
 
 * $$E_a \rightarrow a$$
 * $$E_a \rightarrow b | b != a$$
 * $$E_a \rightarrow H a$$
 * $$E_a \rightarrow \epsilon$$
+
+Now, for each such *correction*, we add one penalty. In essence, the following
+general correction rules get one penalty if they are used.
+
+* `{$.+} -> {$.+} .`
+* `{$.+} -> .`
+
+Also, these terminal corrections get one penalty.
+
+* `<$ a> -> `$$\epsilon$$
+* `<$ a> -> {!a}`
+
+These are added to the grammar as follows.
 
 <!--
 ############
