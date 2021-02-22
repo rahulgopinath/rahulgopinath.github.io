@@ -211,31 +211,145 @@ Any number and combinations of these mutations can accumulate in an input.
 That is, in effect, *any string* can be considered a mutation of a parsable
 string, and hence we can expect the covering grammar to parse it.
 
+Now, to make sure that any string is parsable, we first define a nonterminal
+that is capable of parsing any string. Now, for ease of parsing, let us define
+a new terminal symbol that stands in for any terminal symbol. This stands for $$I$$
+in Aho's paper.
+
+<!--
+############
+Any_one = '{$.}' # this is a terminal
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Any_one = &#x27;{$.}&#x27; # this is a terminal
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+We should be able to parse any number of such symbols. So, we define a new
+nonterminal for that. This stands for $$H$$ in Aho's paper.
+
 <!--
 ############
 Any_plus = '<$.+>' # this is a nonterminal
-Any_one = '{$.}' # this is a terminal
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+In a similar fashion, we also need a terminal symbol that will match any except
+a given terminal symbol. Since this is specific to a terminal symbol, let us make
+it a method.
+
+<!--
+############
 def Any_not(t): return '{!%s}' % t # this is a terminal.
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+Now, how do we check for match between a terminal symbol and a given input symbol?
+
+<!--
+############
 def is_not(t):
     if len(t) > 1:
         if  t[1] == '!':
             return t[2]
     return None
 
-def is_not_match(letter, col_letter):
-    l = is_not(letter)
+def is_not_match(terminal, in_sym):
+    l = is_not(terminal)
     if l is not None:
-        return l != col_letter
+        return l != in_sym
     else:
         return False
 
-def letter_match(letter, col_letter):
-    if letter == col_letter: return True
-        # letter can be any: <$.+> or not: <!x>
-    if letter == Any_one: return True
-    if is_not_match(letter, col_letter): return True
+def terminal_match(terminal, in_sym):
+    if terminal == in_sym: return True
+    # terminal can be any: <$.+> or not: <!x>
+    if terminal == Any_one: return True
+    if is_not_match(terminal, in_sym): return True
     return False
+############
+-->
 
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def is_not(t):
+    if len(t) &gt; 1:
+        if  t[1] == &#x27;!&#x27;:
+            return t[2]
+    return None
+
+def is_not_match(terminal, in_sym):
+    l = is_not(terminal)
+    if l is not None:
+        return l != in_sym
+    else:
+        return False
+
+def terminal_match(terminal, in_sym):
+    if terminal == in_sym: return True
+    # terminal can be any: &lt;$.+&gt; or not: &lt;!x&gt;
+    if terminal == Any_one: return True
+    if is_not_match(terminal, in_sym): return True
+    return False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+Checking it
+
+
+<!--
+############
+print(terminal_match('a', 'a'))
+print(terminal_match('{.}', 'a'))
+print(terminal_match('{!a}', 'a'))
+print(terminal_match('{!b}', 'a'))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(terminal_match(&#x27;a&#x27;, &#x27;a&#x27;))
+print(terminal_match(&#x27;{.}&#x27;, &#x27;a&#x27;))
+print(terminal_match(&#x27;{!a}&#x27;, &#x27;a&#x27;))
+print(terminal_match(&#x27;{!b}&#x27;, &#x27;a&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+
+<!--
+############
 
 def new_start(old_start):
     old_start_ = old_start[1:-1]
@@ -299,29 +413,6 @@ def fix_weighted_terminals(g):
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
-Any_one = &#x27;{$.}&#x27; # this is a terminal
-def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
-def is_not(t):
-    if len(t) &gt; 1:
-        if  t[1] == &#x27;!&#x27;:
-            return t[2]
-    return None
-
-def is_not_match(letter, col_letter):
-    l = is_not(letter)
-    if l is not None:
-        return l != col_letter
-    else:
-        return False
-
-def letter_match(letter, col_letter):
-    if letter == col_letter: return True
-        # letter can be any: &lt;$.+&gt; or not: &lt;!x&gt;
-    if letter == Any_one: return True
-    if is_not_match(letter, col_letter): return True
-    return False
-
 
 def new_start(old_start):
     old_start_ = old_start[1:-1]
@@ -566,7 +657,7 @@ class EarleyParser(EarleyParser):
 
 class EarleyParser(EarleyParser):
     def scan(self, col, state, letter):
-        if letter_match(letter, col.letter):
+        if terminal_match(letter, col.letter):
             s = state.advance()
             s.expr = col.letter
             col.add(s)
@@ -868,7 +959,7 @@ class EarleyParser(EarleyParser):
 
 class EarleyParser(EarleyParser):
     def scan(self, col, state, letter):
-        if letter_match(letter, col.letter):
+        if terminal_match(letter, col.letter):
             s = state.advance()
             s.expr = col.letter
             col.add(s)
