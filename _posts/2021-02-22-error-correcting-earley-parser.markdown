@@ -358,7 +358,7 @@ That is, given `a` is a terminal symbol, we add the following *error productions
 
 * `<$ a> -> a`
 * `<$ a> -> {!a}`
-* `<$ a> -> {$.+} a`
+* `<$ a> -> <$.+> a`
 * `<$ a> -> ` $$\epsilon$$
 
 For each such *correction*, we add one penalty. In essence, the following
