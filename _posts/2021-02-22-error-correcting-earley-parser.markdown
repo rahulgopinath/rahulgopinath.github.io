@@ -325,10 +325,11 @@ def terminal_match(terminal, in_sym):
 Checking it
 
 
+
 <!--
 ############
 print(terminal_match('a', 'a'))
-print(terminal_match('{.}', 'a'))
+print(terminal_match('{$.}', 'a'))
 print(terminal_match('{!a}', 'a'))
 print(terminal_match('{!b}', 'a'))
 ############
@@ -338,7 +339,7 @@ print(terminal_match('{!b}', 'a'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(terminal_match(&#x27;a&#x27;, &#x27;a&#x27;))
-print(terminal_match(&#x27;{.}&#x27;, &#x27;a&#x27;))
+print(terminal_match(&#x27;{$.}&#x27;, &#x27;a&#x27;))
 print(terminal_match(&#x27;{!a}&#x27;, &#x27;a&#x27;))
 print(terminal_match(&#x27;{!b}&#x27;, &#x27;a&#x27;))
 </textarea><br />
