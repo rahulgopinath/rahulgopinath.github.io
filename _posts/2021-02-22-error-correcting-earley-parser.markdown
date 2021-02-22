@@ -418,6 +418,10 @@ def fix_terminal_with_penalties(g):
 <textarea cols="40" rows="4" name='python_edit'>
 def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
 
+def add_penalty(rule, weight):
+    assert isinstance(rule, list)
+    return [tuple(rule), weight]
+
 def fix_terminal(g, t):
     nt_t = to_term(t)
     if nt_t not in g:
@@ -499,10 +503,6 @@ def add_start(g, old_start):
     for alt in alts:
         g[old_start].append(add_penalty(list(alt) + ['<$ .+>'], 0))
     return g
-
-def add_penalty(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
 
 def add_penalties_to_grammar(g):
     return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
