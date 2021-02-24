@@ -209,6 +209,7 @@ TinyC, and JavaScript.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2020/gopinath2020mining.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2020/gopinath2020mining.bib "reference")
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/mining-input-grammars-from-dynamic-control-flow "presentation")
 
 #### <a id='chen2020revisiting'></a>[Chen, Gopinath, Tadakamalla, Ernst, Holmes, Fraser, Ammann, Just: _Revisiting the Relationship between Fault Detection, Test Adequacy Criteria, and Test Set Size_ ASE, 2020]()
 
