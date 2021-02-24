@@ -403,8 +403,8 @@ def fix_terminal_with_penalties(g):
             for t in alt:
                 if t not in g:
                     nt_t = to_term(t)
-                    if n_t not in g:
-                       g[n_t] = error_productions(g, t)
+                    if nt_t not in g:
+                       g[nt_t] = error_productions(g, t)
 
     g_ = {}
     for k in g:
@@ -447,8 +447,8 @@ def fix_terminal_with_penalties(g):
             for t in alt:
                 if t not in g:
                     nt_t = to_term(t)
-                    if n_t not in g:
-                       g[n_t] = error_productions(g, t)
+                    if nt_t not in g:
+                       g[nt_t] = error_productions(g, t)
 
     g_ = {}
     for k in g:
