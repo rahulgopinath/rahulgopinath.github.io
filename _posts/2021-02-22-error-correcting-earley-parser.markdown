@@ -526,10 +526,6 @@ def add_start(g, old_start):
         g[old_start].append(add_penalty(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
     return g
 
-def add_penalty(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
-
 def add_penalties_to_grammar(g):
     return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
 
