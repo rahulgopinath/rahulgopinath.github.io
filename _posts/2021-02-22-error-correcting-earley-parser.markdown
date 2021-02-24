@@ -381,15 +381,13 @@ These are added to the grammar as follows.
 ############
 def to_term(t): return '<$ %s>' % t
 
-def fix_terminal(g, t):
-    nt_t = to_term(t)
-    if nt_t not in g:
-        g[nt_t] = [ # Any_plus already has at least 1 weight.
+def error_productions(g, t):
+    return [ # Any_plus already has at least 1 weight.
                 add_penalty([t], 0),
                 add_penalty([Any_plus, t], 0),
                 add_penalty([], 1),
                 add_penalty([Any_not(t)], 1)
-        ]
+    ]
 
 
 def change_t(t):
@@ -404,7 +402,9 @@ def fix_terminal_with_penalties(g):
         for alt,w in g[k]:
             for t in alt:
                 if t not in g:
-                    fix_terminal(g, t)
+                    nt_t = to_term(t)
+                    if n_t not in g:
+                       g[n_] = error_productions(g, t)
 
     g_ = {}
     for k in g:
@@ -425,15 +425,13 @@ def add_penalty(rule, weight):
     assert isinstance(rule, list)
     return [tuple(rule), weight]
 
-def fix_terminal(g, t):
-    nt_t = to_term(t)
-    if nt_t not in g:
-        g[nt_t] = [ # Any_plus already has at least 1 weight.
-                add_penalty([t], 0),
-                add_penalty([Any_plus, t], 0),
-                add_penalty([], 1),
-                add_penalty([Any_not(t)], 1)
-        ]
+def error_productions(g, t):
+    return [ # Any_plus already has at least 1 weight.
+            add_penalty([t], 0),
+            add_penalty([Any_plus, t], 0),
+            add_penalty([], 1),
+            add_penalty([Any_not(t)], 1)
+    ]
 
 
 def change_t(t):
@@ -448,7 +446,9 @@ def fix_terminal_with_penalties(g):
         for alt,w in g[k]:
             for t in alt:
                 if t not in g:
-                    fix_terminal(g, t)
+                    nt_t = to_term(t)
+                    if n_t not in g:
+                       g[n_] = error_productions(g, t)
 
     g_ = {}
     for k in g:
