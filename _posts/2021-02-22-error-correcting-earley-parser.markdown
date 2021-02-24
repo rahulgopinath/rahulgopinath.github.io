@@ -247,6 +247,7 @@ Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
 <div name='python_canvas'></div>
 </form>
 
+
 In a similar fashion, we also need a terminal symbol that will match any except
 a given terminal symbol. Since this is specific to a terminal symbol, let us make
 it a method.
@@ -265,6 +266,11 @@ def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+Note that both `Any_one` and `Any_not` can be made into nonterminal symbols
+with corresponding definitions if required so that the resulting grammar is
+fully in the context-free format. We do not do that here because it is
+easier this way.
 
 How do we check for match between a terminal symbol and a given input symbol?
 
