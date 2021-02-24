@@ -163,6 +163,8 @@ We evaluate our method on eight python programs and show that our technique
 can generate new mutants that are both interesting for the developer and
 guaranteed to be mortal.
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icstw2021/schwander2021inducing.pdf "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2021/schwander2021inducing.bib "reference")
 
 #### <a id='gopinath2021input'></a>[Gopinath, Nemati, Zeller: _Input Algebras_ ICSE, 2021]()
 
