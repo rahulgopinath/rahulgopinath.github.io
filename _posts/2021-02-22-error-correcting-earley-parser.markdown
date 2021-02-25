@@ -363,9 +363,9 @@ nonterminal symbol that handles the following possibilities
 That is, given `a` is a terminal symbol, we add the following *error productions*, where `<$ a>` is the corresponding nonterminal.
 
 * `<$ a> -> a`
-* `<$ a> -> {!a}`
 * `<$ a> -> <$.+> a`
 * `<$ a> -> ` $$\epsilon$$
+* `<$ a> -> {!a}`
 
 For each such *correction*, we add one penalty. In essence, the following
 general correction rules get one penalty if they are used. That is, each
