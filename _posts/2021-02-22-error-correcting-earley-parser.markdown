@@ -368,12 +368,15 @@ That is, given `a` is a terminal symbol, we add the following *error productions
 * `<$ a> -> ` $$\epsilon$$
 
 For each such *correction*, we add one penalty. In essence, the following
-general correction rules get one penalty if they are used.
+general correction rules get one penalty if they are used. That is, each
+*any* character `{$.}` is a correction, and the count of such *any*
+characters is the penalty in these rules.
 
 * `<$.+> -> <$.+> {$.}`
 * `<$.+> -> {$.}`
 
-Also, these terminal corrections get one penalty.
+Also, these terminal corrections get one penalty. Again, like above, the penalty
+here is because of not matching a particular expected character.
 
 * `<$ a> -> `$$\epsilon$$
 * `<$ a> -> {!a}`
