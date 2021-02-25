@@ -1243,14 +1243,6 @@ def format_parsetree(node,
           get_children=lambda x: x[1]):
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
     return '\n'.join(lines)
-
-
-myg = EarleyParser(grammar)
-inp = 'xz+yz'
-print(repr(inp))
-x = SimpleExtractor(myg, inp, START)
-t = x.extract_a_tree()
-print(format_parsetree(t))
 ############
 -->
 
@@ -1289,7 +1281,26 @@ def format_parsetree(node,
           get_children=lambda x: x[1]):
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
+
+<!--
+############
+myg = EarleyParser(grammar)
+inp = 'xz+yz'
+print(repr(inp))
+x = SimpleExtractor(myg, inp, START)
+t = x.extract_a_tree()
+print(format_parsetree(t))
+############
+-->
+
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 myg = EarleyParser(grammar)
 inp = &#x27;xz+yz&#x27;
 print(repr(inp))
