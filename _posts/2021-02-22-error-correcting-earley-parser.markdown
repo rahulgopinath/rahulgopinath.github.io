@@ -869,6 +869,7 @@ for i in range(3):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+[^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
