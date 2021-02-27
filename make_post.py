@@ -63,7 +63,7 @@ Initialization completion is indicated by a red border around *Run all* button.
             first_comment = False
         elif kind == 'code':
             scraped_chunk = escape(chunk)
-            p('''\
+            p('''
 <!--
 ############
 %s
