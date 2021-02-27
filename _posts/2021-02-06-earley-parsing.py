@@ -881,7 +881,7 @@ if __name__ == '__main__':
     mystring = '1+2+4'
     parser = EarleyParser(a_grammar)
     for tree in parser.parse_on(mystring, START):
-        print(tree)
+        print(format_parsetree(tree))
 
 # ### Ambiguous Parsing
 # 
@@ -920,7 +920,6 @@ if __name__ == '__main__':
 # such grammars our `extract_trees()` will fail. Here are two example grammars.
 
 if __name__ == '__main__':
-
     directly_self_referring = {
         '<start>': [['<query>']],
         '<query>': [['<expr>']],
@@ -1189,6 +1188,8 @@ if __name__ == '__main__':
     lr_tree = ('<start>', (('<A>', (('<A>', (('<A>', []), ('a', []))), ('a', []))), ('a', [])))
     print(format_parsetree(lr_tree))
 
+# 
+
 if __name__ == '__main__':
     RR_GRAMMAR = {
         '<start>': [['<A>']],
@@ -1400,9 +1401,8 @@ if __name__ == '__main__':
 # 
 
 if __name__ == '__main__':
-    if __name__ == '__main__':
-        result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
-        for _ in result: pass
+    result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
+    for _ in result: pass
 
 # 
 

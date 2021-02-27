@@ -75,7 +75,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 <textarea cols="40" rows="4" name='python_edit'>
 ''')
             p(scraped_chunk)
-            p('''\
+            p('''
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

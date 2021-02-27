@@ -6,7 +6,6 @@ comments: true
 tags: parsing, context-free
 categories: post
 ---
-
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
 <script src="/resources/pyodide/full/3.8/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -22,7 +21,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
 The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] in 1970. It
 can be used to parse strings that conform to a context-free grammar. The
 algorithm uses a chart for parsing -- that is, it is implemented as a dynamic
@@ -99,8 +97,6 @@ Secondly, as per traditional implementations,
 there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
-
-
 <!--
 ############
 grammar = {
@@ -122,10 +118,9 @@ grammar = {
     '<digit>': [["%s" % str(i)] for i in range(10)],
 }
 START = '<start>'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = {
@@ -147,15 +142,13 @@ grammar = {
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
 START = &#x27;&lt;start&gt;&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Here is another grammar that targets the same language. Unlike the first
 grammar, this grammar produces ambiguous parse results.
-
 <!--
 ############
 a_grammar = {
@@ -174,10 +167,9 @@ a_grammar = {
         ['<digit>']],
     '<digit>': [["%s" % str(i)] for i in range(10)],
 }
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 a_grammar = {
@@ -196,12 +188,11 @@ a_grammar = {
         [&#x27;&lt;digit&gt;&#x27;]],
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ## Summary
 
 An Earley parser executes the following steps for parsing:
@@ -245,9 +236,8 @@ correspond to the characters in the input string. Each column represents a set
 of *states*, and corresponds to the legal rules to follow from that point on.
 
 Say we start with the following grammar:
-
 <!--
-
+############
 sample_grammar = {
     '<start>': [['<A>','<B>']],
     '<A>': [['a', '<B>', 'c'], ['a', '<A>']],
@@ -255,11 +245,11 @@ sample_grammar = {
     '<C>': [['c']],
     '<D>': [['d']]
 }
--->
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-
 sample_grammar = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;,&#x27;&lt;B&gt;&#x27;]],
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;c&#x27;], [&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;]],
@@ -267,12 +257,11 @@ sample_grammar = {
     &#x27;&lt;C&gt;&#x27;: [[&#x27;c&#x27;]],
     &#x27;&lt;D&gt;&#x27;: [[&#x27;d&#x27;]]
 }
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Earley parser produces a table of possible parse paths at each letter index of
 the table. Given an input `adcd`, we seed the column `0`  with:
 
@@ -341,7 +330,27 @@ The column allows for adding states, and checks to prevent duplication of
 states. Why do we need to prevent duplication? The problem is left recursion.
 We need to detect and curtail left recursion, which is indicated by non-unique
 states.
+<!--
+############
+class Column:
+    def __init__(self, index, letter):
+        self.index, self.letter = index, letter
+        self.states, self._unique = [], {}
 
+    def __str__(self):
+        return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
+            str(state) for state in self.states if state.finished()))
+
+    def add(self, state):
+        if state in self._unique:
+            return self._unique[state]
+        self._unique[state] = state
+        self.states.append(state)
+        state.e_col = self
+        return self._unique[state]
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Column:
@@ -360,11 +369,11 @@ class Column:
         self.states.append(state)
         state.e_col = self
         return self._unique[state]
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 ## State
 
 A state represents a parsing path (which corresponds to the nonterminal, and the
@@ -376,7 +385,45 @@ Each state contains the following:
 * dot:  The point till which parsing has happened in the rule.
 * s_col: The starting point for this rule.
 * e_col: The ending point for this rule.
+<!--
+############
+class State:
+    def __init__(self, name, expr, dot, s_col, e_col=None):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.s_col, self.e_col = s_col, e_col
 
+    def finished(self):
+        return self.dot >= len(self.expr)
+
+    def at_dot(self):
+        return self.expr[self.dot] if self.dot < len(self.expr) else None
+
+    def __str__(self):
+        def idx(var):
+            return var.index if var else -1
+
+        return self.name + ':= ' + ' '.join([
+            str(p)
+            for p in [*self.expr[:self.dot], '|', *self.expr[self.dot:]]
+        ]) + "(%d,%d)" % (idx(self.s_col), idx(self.e_col))
+
+    def copy(self):
+        return State(self.name, self.expr, self.dot, self.s_col, self.e_col)
+
+    def _t(self):
+        return (self.name, self.expr, self.dot, self.s_col.index)
+
+    def __hash__(self):
+        return hash(self._t())
+
+    def __eq__(self, other):
+        return self._t() == other._t()
+
+    def advance(self):
+        return State(self.name, self.expr, self.dot + 1, self.s_col)
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class State:
@@ -413,14 +460,13 @@ class State:
 
     def advance(self):
         return State(self.name, self.expr, self.dot + 1, self.s_col)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 The convenience methods `finished()`, `advance()` and `at_dot()` should be
 self explanatory. For example,
-
 <!--
 ############
 nt_name = '<B>'
@@ -428,61 +474,74 @@ nt_expr = tuple(sample_grammar[nt_name][1])
 col_0 = Column(0, None)
 a_state = State(nt_name, tuple(nt_expr), 0, col_0)
 print(a_state.at_dot())
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 nt_name = &#x27;&lt;B&gt;&#x27;
 nt_expr = tuple(sample_grammar[nt_name][1])
 col_0 = Column(0, None)
 a_state = State(nt_name, tuple(nt_expr), 0, col_0)
-print(a_state)
 print(a_state.at_dot())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 That is, the next symbol to be parsed is `<D>`, and if we advance it,
-
 <!--
 ############
 b_state = a_state.advance()
 print(b_state)
 print(b_state.finished())
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 b_state = a_state.advance()
 print(b_state)
 print(b_state.finished())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ## Parser
 
 We start with a bare minimum interface for a parser. It should allow one
 to parse a given text using a given nonterminal (which should be present in
 the grammar).
+<!--
+############
+class Parser:
+    def parse_on(self, text, start_symbol):
+        raise NotImplemented()
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Parser:
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We now initialize the Earley parser, which is a parser.
+<!--
+############
+class EarleyParser(Parser):
+    def __init__(self, grammar, log = False, **kwargs):
+        self._grammar = grammar
+        self.epsilon = nullable(grammar)
+        self.log = log
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(Parser):
@@ -490,11 +549,11 @@ class EarleyParser(Parser):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
         self.log = log
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 #### Nullable
 
 Earley parser handles *nullable* nonterminals separately. A nullable
@@ -515,8 +574,6 @@ remove them from the current expansion rules. If any expansion rule
 becomes empty, the corresponding nonterminal is added to the nullable
 nonterminal list. This continues until all nullable nonterminals
 are processed.
-
-
 <!--
 ############
 def is_nt(k):
@@ -558,10 +615,9 @@ def nullable(g):
         g_cur = g_nxt
 
     return nullable_keys
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def is_nt(k):
@@ -603,13 +659,12 @@ def nullable(g):
         g_cur = g_nxt
 
     return nullable_keys
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 An example
-
 <!--
 ############
 nullable_grammar = {
@@ -618,10 +673,9 @@ nullable_grammar = {
     '<B>': [['b']],
     '<C>': [['<A>'], ['<B>']]
 }
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 nullable_grammar = {
@@ -630,28 +684,26 @@ nullable_grammar = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
     &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
 }
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Checking
 <!--
 ############
 print(nullable(nullable_grammar))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(nullable(nullable_grammar))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ## Chart construction
 
 Earley parser is a chart parser. That is, it relies on a table of solutions
@@ -674,7 +726,6 @@ expansion rules for the start symbol is to seed *all* expansion rules into
 the chart at `column 0`. We will have to then take care of that difference
 while building parse trees. For now, we go with the implementation closest
 to traditional implementation.
-
 <!--
 ############
 class EarleyParser(EarleyParser):
@@ -682,10 +733,9 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -693,14 +743,12 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We seed our initial state in the example
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
@@ -708,10 +756,9 @@ ep.fill_chart = lambda s: s
 
 v = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
 print(v[0].states[0])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
@@ -719,13 +766,11 @@ ep.fill_chart = lambda s: s
 
 v = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
 print(v[0].states[0])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 Then, we complete the chart. The idea here is to process one character or one
 element at a time. At each character, we examine the current parse paths
 (states) and continue forward any parse path that successfully parses the
@@ -743,8 +788,17 @@ adds the expansion of the nonterminal to the current column.
 If the term is nullable, then we simply advance the current state, and
 add that to the current column. This fix to the original Earley parsing
 was suggested by Aycock et al.[^aycock2002practical].
+<!--
+############
+class EarleyParser(EarleyParser):
+    def predict(self, col, sym, state):
+        for alt in self._grammar[sym]:
+            col.add(State(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            col.add(state.advance())
 
-
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -753,15 +807,14 @@ class EarleyParser(EarleyParser):
             col.add(State(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 If we look our example, we have seeded the first column with `| <A> <B>`. Now,
 `fill_chart()` will find that the next term is `<A>` and call `predict()`
 which will then add the expansions of `<A>`.
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
@@ -771,10 +824,9 @@ chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
 
 for s in chart[0].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
@@ -784,37 +836,32 @@ chart = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0
 
 for s in chart[0].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Next, we apply predict.
-
 <!--
 ############
 ep.predict(chart[0], '<A>', s)
 for s in chart[0].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 As you can see, the two rules of `<A>` has been added to
 the current column.
-
-
 ### Scan
 
 The `scan()` method is called if the next symbol in the current state is a terminal symbol. If the
@@ -831,20 +878,27 @@ column.
 ```
    <B>: b | c
 ```
+<!--
+############
+class EarleyParser(EarleyParser):
+    def scan(self, col, state, letter):
+        if letter == col.letter:
+            col.add(state.advance())
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def scan(self, col, state, letter):
         if letter == col.letter:
             col.add(state.advance())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Here is our continuing example.
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
@@ -859,10 +913,9 @@ print(new_state)
 ep.scan(chart[1], new_state, 'a')
 for s in chart[1].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
@@ -877,41 +930,13 @@ print(new_state)
 ep.scan(chart[1], new_state, &#x27;a&#x27;)
 for s in chart[1].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 As you can see, the `state[1]` in `chart[0]` that was waiting for `a` has
 advanced one letter after consuming `a`, and has been added to `chart[1]`.
-
-
-<!--
-#grammar = {
-#        START:['<expr>'],
-#        '<sym>': ['a', 'b', 'c', 'd'],
-#        '<op>': ['+', '-'],
-#        '<expr>': ['<sym>', '<expr><op><expr>']
-#        }
-#
-#grammar = {
-#        START:['<expr>'],
-#        '<sym>': ['a', 'b', 'c', 'd'],
-#        '<expr>': ['<sym>', '<expr>+<expr>', '<expr>-<expr>']
-#        }
-#
-#grammar = {'<start>': ['<expr>'],
-# '<expr>': ['<term>+<expr>', '<term>-<expr>', '<term>'],
-# '<term>': ['<factor>*<term>', '<factor>/<term>', '<factor>'],
-# '<factor>': ['+<factor>',
-#  '-<factor>',
-#  '(<expr>)',
-#  '<integer>',
-#  '<integer>.<integer>'],
-# '<integer>': ['<digit><integer>', '<digit>'],
-# '<digit>': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']}
--->
-
 ### Complete
 
 The `complete()` method is called if a particular state has finished the rule
@@ -936,8 +961,17 @@ at_dot as that of the name of the completed state.
 
 We advance all such parents (producing new states) and add the new states to the
 current column.
+<!--
+############
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        for st in parent_states:
+            col.add(st.advance())
 
-
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -946,13 +980,12 @@ class EarleyParser(EarleyParser):
                  if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Here is our example. We start parsing `ad`. So, we have three columns.
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
@@ -962,9 +995,9 @@ chart = ep.chart_parse(list('ad'), START, tuple(sample_grammar[START][0]))
 ep.predict(chart[0], '<A>', s)
 for s in chart[0].states:
     print(s)
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
@@ -974,13 +1007,12 @@ chart = ep.chart_parse(list(&#x27;ad&#x27;), START, tuple(sample_grammar[START][
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Next, we populate column 1 which corresponds to letter `a`.
-
 <!--
 ############
 print(chart[1].letter)
@@ -989,10 +1021,9 @@ for state in chart[0].states:
         ep.scan(chart[1], state, 'a')
 for s in chart[1].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(chart[1].letter)
@@ -1001,16 +1032,15 @@ for state in chart[0].states:
         ep.scan(chart[1], state, &#x27;a&#x27;)
 for s in chart[1].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 You can see that the two states are waiting on `<A>` and `<B>`
 respectively at `at_dot()`.
 Hence, we run predict again to add the corresponding rules of `<A>` and `<B>`
 to the current column.
-
 <!--
 ############
 for state in chart[1].states:
@@ -1018,10 +1048,9 @@ for state in chart[1].states:
         ep.predict(chart[1], state.at_dot(), state)
 for s in chart[1].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for state in chart[1].states:
@@ -1029,35 +1058,29 @@ for state in chart[1].states:
         ep.predict(chart[1], state.at_dot(), state)
 for s in chart[1].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 As you can see, we have a list of states that are waiting
 for `b`, `a` and `d`.
-
 Our next letter is:
-
 <!--
 ############
 print(chart[2])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(chart[2])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 We scan to populate `column 2`.
-
 <!--
 ############
 for state in chart[1].states:
@@ -1066,10 +1089,9 @@ for state in chart[1].states:
 
 for s in chart[2].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for state in chart[1].states:
@@ -1078,16 +1100,14 @@ for state in chart[1].states:
 
 for s in chart[2].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 As we expected, only `<D>` could advance to the next column (`chart[2]`)
 after reading `d`
-
 Finally, we use complete, so that we can advance the parents of the `<D>` state above.
-
 <!--
 ############
 for state in chart[2].states:
@@ -1096,10 +1116,9 @@ for state in chart[2].states:
 
 for s in chart[2].states:
     print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for state in chart[2].states:
@@ -1108,15 +1127,13 @@ for state in chart[2].states:
 
 for s in chart[2].states:
     print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 As you can see, that led to `<B>` being complete, and since `<B>` is
 complete, `<A>` also becomes complete.
-
-
 ## Filling the chart
 
 In the below algorithm, whenever the `at_dot()` is at a nonterminal
@@ -1126,7 +1143,27 @@ other hand, `at_dot()` indicates processing finished for that nonterminal, we
 lookup the parent symbols and advance their parsing state (`complete()`). If we
 find that we are at a terminal symbol, we simply check if the current state can
 advance to parsing the next character (`scan()`). 
+<!--
+############
+class EarleyParser(EarleyParser):
+    def fill_chart(self, chart):
+        for i, col in enumerate(chart):
+            for state in col.states:
+                if state.finished():
+                    self.complete(col, state)
+                else:
+                    sym = state.at_dot()
+                    if sym in self._grammar:
+                        self.predict(col, sym, state)
+                    else:
+                        if i + 1 >= len(chart):
+                            continue
+                        self.scan(chart[i + 1], state, sym)
+            if self.log: print(col, '\n')
+        return chart
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1143,71 +1180,76 @@ class EarleyParser(EarleyParser):
                         if i + 1 &gt;= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            if self.log: print(col, '\n')
+            if self.log: print(col, &#x27;\n&#x27;)
         return chart
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We can now recognize the given string as part of the language represented by the grammar.
-
 <!--
 ############
 ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
 for c in columns: print(c)
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 for c in columns: print(c)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 The chart above only shows completed entries. The parenthesized expression
 indicates the column just before the first character was recognized, and the
 ending column.
-
 Notice how the `<start>` nonterminal shows the dot at the end. That is, fully parsed.
-
 <!--
 ############
 last_col = columns[-1]
 for s in last_col.states:
     if s.name == '<start>':
         print(s)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 last_col = columns[-1]
 for s in last_col.states:
     if s.name == &#x27;&lt;start&gt;&#x27;:
         print(s)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ## Derivation trees
 
 We use the following procedures to translate the parse forest to individual
 trees.
-
 ### parse_prefix
+<!--
+############
+class EarleyParser(EarleyParser):
+    def parse_prefix(self, text, start_symbol, alt):
+        self.table = self.chart_parse(text, start_symbol, alt)
+        for col in reversed(self.table):
+            states = [st for st in col.states
+                if st.name == start_symbol and st.expr == alt and st.s_col.index == 0
+            ]
+            if states:
+                return col.index, states
+        return -1, []
 
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1220,39 +1262,54 @@ class EarleyParser(EarleyParser):
             if states:
                 return col.index, states
         return -1, []
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Here is an example of using it.
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix('adcd', START, tuple(sample_grammar[START][0]))
 print(cursor, [str(s) for s in last_states])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 print(cursor, [str(s) for s in last_states])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 ### parse_on
 
 Our `parse_on()` method is slightly different from usual Earley implementations
 in that we accept any nonterminal symbol, not just nonterminal symbols with a
 single expansion rule. We accomplish this by computing a different chart for
 each expansion.
+<!--
+############
+class EarleyParser(EarleyParser):
+    def parse_on(self, text, start_symbol):
+        for alt in self._grammar[start_symbol]:
+            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
+            start = next((s for s in states if s.finished()), None)
 
+            if cursor < len(text) or not start:
+                #raise SyntaxError("at " + repr(text[cursor:]))
+                continue
+
+            forest = self.parse_forest(self.table, start)
+            for tree in self.extract_trees(forest):
+                yield tree
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1268,11 +1325,11 @@ class EarleyParser(EarleyParser):
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
                 yield tree
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 ### parse_paths
 
 
@@ -1290,7 +1347,30 @@ the remaining expression.
 Given our list of start indexes, we obtain the parse paths from the remaining
 expression. If we can obtain any, then we return the parse paths. If not, we
 return an empty list.
+<!--
+############
+class EarleyParser(EarleyParser):
+    def parse_paths(self, named_expr, chart, frm, til):
+        def paths(state, start, k, e):
+            if not e:
+                return [[(state, k)]] if start == frm else []
+            else:
+                return [[(state, k)] + r
+                        for r in self.parse_paths(e, chart, frm, start)]
 
+        *expr, var = named_expr
+        starts = None
+        if var not in self._grammar:
+            starts = ([(var, til - len(var),
+                        't')] if til > 0 and chart[til].letter == var else [])
+        else:
+            starts = [(s, s.s_col.index, 'n') for s in chart[til].states
+                      if s.finished() and s.name == var]
+
+        return [p for s, start, k in starts for p in paths(s, start, k, expr)]
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1312,13 +1392,12 @@ class EarleyParser(EarleyParser):
                       if s.finished() and s.name == var]
 
         return [p for s, start, k in starts for p in paths(s, start, k, expr)]
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Example
-
 <!--
 ############
 print(sample_grammar[START])
@@ -1327,10 +1406,9 @@ completed_start = last_states[0]
 paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
 for path in paths:
     print([list(str(s_) for s_ in s) for s in path])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(sample_grammar[START])
@@ -1339,11 +1417,11 @@ completed_start = last_states[0]
 paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
 for path in paths:
     print([list(str(s_) for s_ in s) for s in path])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 That is, the parse path for `<start>` given the input `adcd` included
 recognizing the expression `<A><B>`. This was recognized by the two states:
 `<A>` from input(0) to input(2) which further involved recognizing the rule
@@ -1357,7 +1435,20 @@ parse, and determines the possible ways that its expressions corresponded to
 the parsed expression. For example, say we are parsing `1+2+3`, and the
 state has `[<expr>,+,<expr>]` in `expr`. It could have been parsed as either
 `[{<expr>:1+2},+,{<expr>:3}]` or `[{<expr>:1},+,{<expr>:2+3}]`.
+<!--
+############
+class EarleyParser(EarleyParser):
+    def forest(self, s, kind, chart):
+        return self.parse_forest(chart, s) if kind == 'n' else (s, [])
 
+    def parse_forest(self, chart, state):
+        pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
+                                     state.e_col.index) if state.expr else []
+        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
+                            for pathexpr in pathexprs]
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1369,37 +1460,34 @@ class EarleyParser(EarleyParser):
                                      state.e_col.index) if state.expr else []
         return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
                             for pathexpr in pathexprs]
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Example
-
 <!--
 ############
 ep = EarleyParser(sample_grammar)
 result = ep.parse_forest(columns, last_states[0])
 print(result)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
 result = ep.parse_forest(columns, last_states[0])
 print(result)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 ### extract_trees
 
 We show how to extract a single tree first, and then generalize it to
 all trees.
-
 <!--
 ############
 class EarleyParser(EarleyParser):
@@ -1414,8 +1502,6 @@ class EarleyParser(EarleyParser):
 
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1425,21 +1511,56 @@ class EarleyParser(EarleyParser):
             return (name, [])
         return (name, [self.extract_a_tree(self.forest(*p)) for p in paths[0]])
 
-
     def extract_trees(self, forest):
         yield self.extract_a_tree(forest)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We need a way to display parse trees.
+<!--
+############
+import itertools as I
 
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+    def __repr__(self): return str(self.__dict__)
 
+Options = O(F='|', L='+', V='|', H='-', NL='\n')
+
+def format_newlines(prefix, formatted_node):
+    replacement = ''.join([Options.NL, '\n', prefix])
+    return formatted_node.replace('\n', replacement)
+
+def format_tree(node, format_node, get_children, prefix=''):
+    children = list(get_children(node))
+    next_prefix = ''.join([prefix, Options.V, '   '])
+    for child in children[:-1]:
+        fml = format_newlines(next_prefix, format_node(child))
+        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
+        tree = format_tree(child, format_node, get_children, next_prefix)
+        for result in tree:
+            yield result
+    if children:
+        last_prefix = ''.join([prefix, '    '])
+        fml = format_newlines(last_prefix, format_node(children[-1]))
+        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
+        tree = format_tree(children[-1], format_node, get_children, last_prefix)
+        for result in tree:
+            yield result
+
+def format_parsetree(node,
+          format_node=lambda x: repr(x[0]),
+          get_children=lambda x: x[1]):
+    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
+    return '\n'.join(lines)
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import itertools
+import itertools as I
 
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
@@ -1471,58 +1592,51 @@ def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
 def format_parsetree(node,
           format_node=lambda x: repr(x[0]),
           get_children=lambda x: x[1]):
-    lines = itertools.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
+    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Displaying the tree
-
 <!--
 ############
 tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
 print(format_parsetree(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
 print(format_parsetree(tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Example
-
 <!--
 ############
 mystring = '1+2+4'
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
-    print(tree)
+    print(format_parsetree(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 ### Ambiguous Parsing
 
 Ambiguous grammars can produce multiple derivation trees for some given string.
@@ -1533,22 +1647,6 @@ We enhance our `extract_trees()` as below.
 
 <!--
 ############
-import itertools as I
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import itertools as I
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-<!--
-############
 class EarleyParser(EarleyParser):
     def extract_trees(self, forest_node):
         name, paths = forest_node
@@ -1561,8 +1659,6 @@ class EarleyParser(EarleyParser):
                 yield (name, p)
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -1579,44 +1675,35 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ## Example
 
 Using the same example,
-
 <!--
 ############
 mystring = '1+2+4'
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
-
 ## Almost infinite parse trees
 
 There is a problem with our `extract_trees()` method. The issue is that it is
 too eager. The parse forest can have an infinite number of trees, and at this
 time we effectively try to extract all at the same time. So, in case of
 such grammars our `extract_trees()` will fail. Here are two example grammars.
-
-
 <!--
 ############
 directly_self_referring = {
@@ -1631,10 +1718,9 @@ indirectly_self_referring = {
     '<expr>': [['<aexpr>'], ['a']],
     '<aexpr>': [['<expr>']],
 }
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 directly_self_referring = {
@@ -1649,13 +1735,12 @@ indirectly_self_referring = {
     &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;aexpr&gt;&#x27;], [&#x27;a&#x27;]],
     &#x27;&lt;aexpr&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
 }
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 An example run.
-
 <!--
 ############
 mystring = 'a'
@@ -1667,10 +1752,10 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
             print(tree)
     except RecursionError as e:
          print("Recursion error",e)
+
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;a&#x27;
@@ -1682,38 +1767,22 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
             print(tree)
     except RecursionError as e:
          print(&quot;Recursion error&quot;,e)
+
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The problem is that, our implementation of `extract_trees()` is eager.
 That is, it attempts to extract all inner parse trees before it can construct
 the outer parse tree. When there is a self reference, this results in recursion.
 Here is a simple extractor that avoids this problem. The idea here is that we
 randomly and lazily choose a node to expand, which avoids the infinite
 recursion.
-
 <!--
 ############
 import random
-############
--->
 
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import random
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-
-<!--
-############
 class SimpleExtractor:
     def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
@@ -1735,23 +1804,24 @@ class SimpleExtractor:
             postree, ntree = self.extract_a_node(f)
             child_nodes.append(ntree)
             pos_nodes.append(postree)
-        
+
         return ((name, i, l), pos_nodes), (name, child_nodes)
-    
+
     def choose_path(self, arr):
         l = len(arr)
         i = random.randrange(l)
         return arr[i], i, l
-    
+
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import random
+
 class SimpleExtractor:
     def __init__(self, parser, text, start_symbol, alt):
         self.parser = parser
@@ -1773,24 +1843,23 @@ class SimpleExtractor:
             postree, ntree = self.extract_a_node(f)
             child_nodes.append(ntree)
             pos_nodes.append(postree)
-        
+
         return ((name, i, l), pos_nodes), (name, child_nodes)
-    
+
     def choose_path(self, arr):
         l = len(arr)
         i = random.randrange(l)
         return arr[i], i, l
-    
+
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 At this point, we also need a simple way to collapse the derivation tree to the original string
-
 <!--
 ############
 def tree_to_str(tree):
@@ -1806,8 +1875,6 @@ def tree_to_str(tree):
     return ''.join(expanded)
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def tree_to_str(tree):
@@ -1826,21 +1893,18 @@ def tree_to_str(tree):
 <div name='python_canvas'></div>
 </form>
 
-
-
-
 <!--
 ############
 de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
                                   directly_self_referring[START][0])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
                                   directly_self_referring[START][0])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1852,36 +1916,33 @@ for i in range(5):
     tree = de.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = de.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 indirect reference
-
 <!--
 ############
 ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                   indirectly_self_referring[START][0])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                   indirectly_self_referring[START][0])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1893,21 +1954,20 @@ for i in range(5):
     tree = ie.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for i in range(5):
     tree = ie.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 However, `SimpleExtractor` has a problem. The issue is that since we rely on
 randomness for exploration, it gives no guarantees on the uniqueness of the
 returned trees. Hence, we need a way to keep track of the explored paths.
@@ -1918,7 +1978,6 @@ First we define a data-structure to keep track of explorations.
 * `_chosen` contains the current choice
 * `next` holds the next choice done using `_chosen`
 * `total` holds he total number of choices for this node.
-
 <!--
 ############
 class ChoiceNode:
@@ -1945,13 +2004,12 @@ class ChoiceNode:
                 return None
             return self._p.increment()
         return self
-    
+
     def finished(self):
         return self._chosen >= self._total
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceNode:
@@ -1978,41 +2036,38 @@ class ChoiceNode:
                 return None
             return self._p.increment()
         return self
-    
+
     def finished(self):
         return self._chosen &gt;= self._total
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Initialization of the data-structure in the constructor.
-
 <!--
 ############
 class EnhancedExtractor(SimpleExtractor):
     def __init__(self, parser, text, start_symbol, alt):
         super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(SimpleExtractor):
     def __init__(self, parser, text, start_symbol, alt):
         super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Given an array and a choice node, `choose_path()` returns the element
 in array corresponding to the next choice node if it exists, or produces
 a new choice nodes, and returns that element.
-
 <!--
 ############
 class EnhancedExtractor(EnhancedExtractor):
@@ -2026,10 +2081,9 @@ class EnhancedExtractor(EnhancedExtractor):
         next_choice = choices.next.chosen()
         choices = choices.next
         return arr[next_choice], next_choice, arr_len, choices
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(EnhancedExtractor):
@@ -2043,13 +2097,11 @@ class EnhancedExtractor(EnhancedExtractor):
         next_choice = choices.next.chosen()
         choices = choices.next
         return arr[next_choice], next_choice, arr_len, choices
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 While extracting, we have a choice. Should we allow infinite forests,
 or should we have a finite number of trees with no direct recursion?
 A direct recursion is when there exists a parent node with the same
@@ -2072,7 +2124,6 @@ What if we hit the end of choices for a particular choice node
 we return the current choice node, which bubbles up to `extract_a_tree()`.
 That procedure increments the last choice, which bubbles up to the next choice
 that has some unexplored paths.
-
 <!--
 ############
 class EnhancedExtractor(EnhancedExtractor):
@@ -2099,10 +2150,9 @@ class EnhancedExtractor(EnhancedExtractor):
             child_nodes.append(ntree)
             new_choices = newer_choices
         return (name, child_nodes), new_choices
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(EnhancedExtractor):
@@ -2129,16 +2179,15 @@ class EnhancedExtractor(EnhancedExtractor):
             child_nodes.append(ntree)
             new_choices = newer_choices
         return (name, child_nodes), new_choices
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 The `extract_a_tree()` is a depth first extractor of a single tree. It tries to
 extract a tree, and if the extraction returns None, it means that a particular
 choice was exhausted, or we hit on a recursion. In that case, we increment the
 choice, and explore a new path.
-
 <!--
 ############
 class EnhancedExtractor(EnhancedExtractor):
@@ -2149,10 +2198,9 @@ class EnhancedExtractor(EnhancedExtractor):
             if parse_tree is not None:
                 return parse_tree
         return None
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(EnhancedExtractor):
@@ -2163,32 +2211,30 @@ class EnhancedExtractor(EnhancedExtractor):
             if parse_tree is not None:
                 return parse_tree
         return None
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Note that the `EnhancedExtractor` only extracts nodes that are not directly
 recursive. That is, if it finds a node with a nonterminal that covers the same
 span as that of a parent node with the same nonterminal, it skips the node.
-
 <!--
 ############
 ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                     indirectly_self_referring[START][0])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                     indirectly_self_referring[START][0])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -2199,10 +2245,9 @@ while True:
     if t is None: break
     s = tree_to_str(t)
     assert s == mystring
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 i = 0
@@ -2212,11 +2257,11 @@ while True:
     if t is None: break
     s = tree_to_str(t)
     assert s == mystring
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 ## Leo Optimizations
 
 One of the problems with the original Earley parser is that while it can parse
@@ -2225,36 +2270,30 @@ right-recursive grammars is quadratic. That is, it takes $$O(n^2)$$ runtime and
 space for parsing with right-recursive grammars. For example, consider the
 parsing of the following string by two different grammars `LR_GRAMMAR` and
 `RR_GRAMMAR`.
-
-
 <!--
 ############
 LR_GRAMMAR = {
     '<start>': [['<A>']],
     '<A>': [['<A>', 'a'], []],
 }
-
 lr_tree = ('<start>', (('<A>', (('<A>', (('<A>', []), ('a', []))), ('a', []))), ('a', [])))
 print(format_parsetree(lr_tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 LR_GRAMMAR = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
     &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;], []],
 }
-
 lr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, []), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, [])))
 print(format_parsetree(lr_tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 
 <!--
 ############
@@ -2264,10 +2303,9 @@ RR_GRAMMAR = {
 }
 rr_tree = ('<start>', (('<A>', (('a', []), ('<A>', (('a', []), ('<A>', (('a', []), ('<A>', []))))))),))
 print(format_parsetree(rr_tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR = {
@@ -2276,68 +2314,60 @@ RR_GRAMMAR = {
 }
 rr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, []))))))),))
 print(format_parsetree(rr_tree))
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Here is our input string
-
-
 <!--
 ############
 mystring = 'aaaaaa'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;aaaaaa&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 To see the problem, we need to enable logging. Here is the logged version of parsing with the `LR_GRAMMAR`
-
 <!--
 ############
 result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass # consume the generator so that we can see the logs
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass # consume the generator so that we can see the logs
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
-
 <!--
 ############
 result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 As can be seen from the parsing log for each letter, the number of states with
 representation `<A>: a <A> | (i, j)` increases at each stage, and these are
 simply a left over from the previous letter. They do not contribute anything
@@ -2349,8 +2379,6 @@ right recursion. The idea is that before starting the completion step, check
 whether the current item has a deterministic reduction path. If such a path
 exists, add a copy of the topmost element of the deterministic reduction path
 to the current column, and return. If not, perform the original completion step.
-
-
 **Definition:** An item is said to be on the deterministic reduction path above `[A→γ.,i]`
 if it is `[B→αA.,k]` with `[B→α.A,k]` being the only item in $$I_i$$ with the
 dot in front of $$A$$, or if it is on the deterministic reduction path above
@@ -2404,7 +2432,6 @@ lookup. The transitive item needs to be added to each column we inspect.
 Here is the skeleton for the parser `LeoParser`.
 
 We first save our original complete
-
 <!--
 ############
 class EarleyParser(EarleyParser):
@@ -2413,10 +2440,9 @@ class EarleyParser(EarleyParser):
                  if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
@@ -2425,12 +2451,11 @@ class EarleyParser(EarleyParser):
                  if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 
 <!--
 ############
@@ -2447,10 +2472,9 @@ class LeoParser(EarleyParser):
 
     def deterministic_reduction(self, state):
         raise NotImplemented()
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(EarleyParser):
@@ -2466,18 +2490,16 @@ class LeoParser(EarleyParser):
 
     def deterministic_reduction(self, state):
         raise NotImplemented()
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 First, we update our `Column` class with the ability to add transitive items.
 Note that, while Leo asks the transitive to be added to the set $$I_k$$ there is
 no actual requirement for the transitive states to be added to the states list.
 The transitive items are only intended for memoization and not for the
 `fill_chart()` method. Hence, we track them separately.
-
 <!--
 ############
 class Column(Column):
@@ -2489,10 +2511,9 @@ class Column(Column):
         assert key not in self.transitives
         self.transitives[key] = state
         return self.transitives[key]
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Column(Column):
@@ -2504,11 +2525,11 @@ class Column(Column):
         assert key not in self.transitives
         self.transitives[key] = state
         return self.transitives[key]
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Remember the picture we drew of the deterministic path?
 
 ```
@@ -2522,7 +2543,6 @@ Remember the picture we drew of the deterministic path?
 We define a function `uniq_postdot()` that given the item `<A> := seq_1 | (s_1, e)`,
 returns a `<B> : seq_2 | <A> (s_2, s_1)` that satisfies the constraints
 mentioned in the above picture.
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -2535,10 +2555,9 @@ class LeoParser(LeoParser):
             return None
         matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
         return matching_st_B[0] if matching_st_B else None
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -2551,6 +2570,7 @@ class LeoParser(LeoParser):
             return None
         matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
         return matching_st_B[0] if matching_st_B else None
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2560,22 +2580,20 @@ class LeoParser(LeoParser):
 ############
 lp = LeoParser(RR_GRAMMAR)
 print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 lp = LeoParser(RR_GRAMMAR)
 print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We next define the function `get_top()` that is the core of deterministic
 reduction which gets the topmost state above the current state `(A)`.
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -2592,10 +2610,9 @@ class LeoParser(LeoParser):
 
         top = self.get_top(st_B) or st_B
         return st_B_inc.e_col.add_transitive(t_name, top)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -2612,30 +2629,27 @@ class LeoParser(LeoParser):
 
         top = self.get_top(st_B) or st_B
         return st_B_inc.e_col.add_transitive(t_name, top)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Once we have the machinery in place, `deterministic_reduction()` itself is
 simply a wrapper to call `get_top()`
-
-
 <!--
 ############
 class LeoParser(LeoParser):
     def deterministic_reduction(self, state):
         return self.get_top(state)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
     def deterministic_reduction(self, state):
         return self.get_top(state)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2645,42 +2659,38 @@ class LeoParser(LeoParser):
 ############
 lp = LeoParser(RR_GRAMMAR)
 columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
-[(str(s), str(lp.get_top(s))) for s in columns[-1].states]
+print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 lp = LeoParser(RR_GRAMMAR)
 columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
-[(str(s), str(lp.get_top(s))) for s in columns[-1].states]
+print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Now, both LR and RR grammars should work within  $$O(n)$$ bounds.
-
 <!--
 ############
 result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Examples
-
 <!--
 ############
 RR_GRAMMAR2 = {
@@ -2688,10 +2698,9 @@ RR_GRAMMAR2 = {
     '<A>': [['a','b', '<A>'], []],
 }
 mystring2 = 'ababababab'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR2 = {
@@ -2699,6 +2708,7 @@ RR_GRAMMAR2 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;,&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring2 = &#x27;ababababab&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2708,19 +2718,18 @@ mystring2 = &#x27;ababababab&#x27;
 ############
 result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -2729,10 +2738,9 @@ RR_GRAMMAR3 = {
     '<A>': [['a', 'b', '<A>'], []],
 }
 mystring3 = 'cababababab'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR3 = {
@@ -2740,6 +2748,7 @@ RR_GRAMMAR3 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring3 = &#x27;cababababab&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2749,14 +2758,14 @@ mystring3 = &#x27;cababababab&#x27;
 ############
 result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2769,10 +2778,9 @@ RR_GRAMMAR4 = {
     '<A>': [['a', 'b', '<A>'], []],
 }
 mystring4 = 'ababababc'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR4 = {
@@ -2780,6 +2788,7 @@ RR_GRAMMAR4 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring4 = &#x27;ababababc&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2789,19 +2798,18 @@ mystring4 = &#x27;ababababc&#x27;
 ############
 result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -2811,10 +2819,9 @@ RR_GRAMMAR5 = {
     '<B>': [['<A>']],
 }
 mystring5 = 'abababab'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR5 = {
@@ -2823,24 +2830,24 @@ RR_GRAMMAR5 = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
 }
 mystring5 = &#x27;abababab&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
-
 <!--
 ############
 result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2854,10 +2861,9 @@ RR_GRAMMAR6 = {
     '<B>': [['b', '<A>']],
 }
 mystring6 = 'abababab'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR6 = {
@@ -2866,6 +2872,7 @@ RR_GRAMMAR6 = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;]],
 }
 mystring6 = &#x27;abababab&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2875,14 +2882,14 @@ mystring6 = &#x27;abababab&#x27;
 ############
 result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2895,10 +2902,9 @@ RR_GRAMMAR7 = {
     '<A>': [['a', '<A>'], ['a']],
 }
 mystring7 = 'aaaaaaaa'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR7 = {
@@ -2906,6 +2912,7 @@ RR_GRAMMAR7 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]],
 }
 mystring7 = &#x27;aaaaaaaa&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2915,44 +2922,40 @@ mystring7 = &#x27;aaaaaaaa&#x27;
 ############
 result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
 for _ in result: pass
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
 for _ in result: pass
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 We verify that our parser works correctly on `LR_GRAMMAR` too.
-
 <!--
 ############
 result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
+
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We have fixed the complexity bounds. However, because we are saving only the topmost item of a right recursion, we need to fix our parser to be aware of our fix while extracting parse trees.
 
 We first change the definition of `add_transitive()` so that results of deterministic reduction can be identified later.
-
 <!--
 ############
 class Column(Column):
@@ -2961,10 +2964,9 @@ class Column(Column):
         self.transitives[key] = TState(state.name, state.expr, state.dot,
                                        state.s_col, state.e_col)
         return self.transitives[key]
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Column(Column):
@@ -2973,78 +2975,71 @@ class Column(Column):
         self.transitives[key] = TState(state.name, state.expr, state.dot,
                                        state.s_col, state.e_col)
         return self.transitives[key]
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We also need a `back()` method to create the constraints.
-
 <!--
 ############
 class State(State):
     def back(self):
         return TState(self.name, self.expr, self.dot - 1, self.s_col, self.e_col)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class State(State):
     def back(self):
         return TState(self.name, self.expr, self.dot - 1, self.s_col, self.e_col)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We update `copy()` to make `TState` items instead.
-
 <!--
 ############
 class TState(State):
     def copy(self):
         return TState(self.name, self.expr, self.dot, self.s_col, self.e_col)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class TState(State):
     def copy(self):
         return TState(self.name, self.expr, self.dot, self.s_col, self.e_col)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We now modify the `LeoParser` to keep track of the chain of constrains that we mentioned earlier.
-
 <!--
 ############
 class LeoParser(LeoParser):
     def __init__(self, grammar, **kwargs):
         super().__init__(grammar, **kwargs)
         self._postdots = {}
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
     def __init__(self, grammar, **kwargs):
         super().__init__(grammar, **kwargs)
         self._postdots = {}
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Next, we update the `uniq_postdot()` so that it tracks the chain of links.
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -3060,10 +3055,9 @@ class LeoParser(LeoParser):
             self._postdots[matching_st_B[0]._t()] = st_A
             return matching_st_B[0]
         return None
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -3079,14 +3073,13 @@ class LeoParser(LeoParser):
             self._postdots[matching_st_B[0]._t()] = st_A
             return matching_st_B[0]
         return None
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We next define a method `expand_tstate()` that, when given a `TState`, generates
 all the intermediate links that we threw away earlier for a given end column.
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -3096,10 +3089,9 @@ class LeoParser(LeoParser):
         c_C = self._postdots[state._t()]
         e.add(c_C.advance())
         self.expand_tstate(c_C.back(), e)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -3109,13 +3101,12 @@ class LeoParser(LeoParser):
         c_C = self._postdots[state._t()]
         e.add(c_C.advance())
         self.expand_tstate(c_C.back(), e)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We define a `rearrange()` method to generate a reversed table where each column contains states that start at that column.
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -3125,10 +3116,9 @@ class LeoParser(LeoParser):
             for s in col.states:
                 f_table[s.s_col.index].states.append(s)
         return f_table
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -3138,13 +3128,12 @@ class LeoParser(LeoParser):
             for s in col.states:
                 f_table[s.s_col.index].states.append(s)
         return f_table
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Here is the rearranged table.
-
 <!--
 ############
 ep = LeoParser(RR_GRAMMAR)
@@ -3152,10 +3141,9 @@ columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
 r_table = ep.rearrange(columns)
 for col in r_table:
     print(col, "\n")
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = LeoParser(RR_GRAMMAR)
@@ -3163,14 +3151,12 @@ columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
 r_table = ep.rearrange(columns)
 for col in r_table:
     print(col, &quot;\n&quot;)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We save the result of rearrange before going into `parse_forest()`.
-
-
 <!--
 ############
 class LeoParser(LeoParser):
@@ -3188,10 +3174,9 @@ class LeoParser(LeoParser):
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
                 yield tree
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
@@ -3200,7 +3185,7 @@ class LeoParser(LeoParser):
             cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
             start = next((s for s in states if s.finished()), None)
 
-            if cursor &lt; len(text) or not start:
+            if cursor &lt;len(text) or not start:
                 #raise SyntaxError(&amp;quot;at &amp;quot; + repr(text[cursor:]))
                 continue
 
@@ -3209,56 +3194,53 @@ class LeoParser(LeoParser):
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
                 yield tree
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Finally, during `parse_forest()`, we first check to see if it is a transitive
 state, and if it is, expand it to the original sequence of states using
 `traverse_constraints()`.
-
 <!--
 ############
 class LeoParser(LeoParser):
     def parse_forest(self, chart, state):
         if isinstance(state, TState):
             self.expand_tstate(state.back(), state.e_col)
-        
+
         return super().parse_forest(chart, state)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
     def parse_forest(self, chart, state):
         if isinstance(state, TState):
             self.expand_tstate(state.back(), state.e_col)
-        
+
         return super().parse_forest(chart, state)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 This completes our implementation of `LeoParser `.
-
 <!--
 ############
 result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3269,15 +3251,15 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
 for tree in result:
     assert mystring2 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
 for tree in result:
     assert mystring2 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3288,15 +3270,15 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
 for tree in result:
     assert mystring3 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
 for tree in result:
     assert mystring3 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3307,15 +3289,15 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
 for tree in result:
     assert mystring4 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
 for tree in result:
     assert mystring4 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3326,15 +3308,15 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
 for tree in result:
     assert mystring5 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
 for tree in result:
     assert mystring5 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3345,35 +3327,34 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
 for tree in result:
     assert mystring6 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
 for tree in result:
     assert mystring6 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
 result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
 for tree in result:
     assert mystring7 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
 for tree in result:
     assert mystring7 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3384,15 +3365,15 @@ for tree in result:
 result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3405,10 +3386,9 @@ RR_GRAMMAR8 = {
    '<A>': [['a', '<A>'], ['a']]
 }
 mystring8 = 'aa'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR8 = {
@@ -3416,11 +3396,11 @@ RR_GRAMMAR8 = {
    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
 }
 mystring8 = &#x27;aa&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -3430,10 +3410,9 @@ RR_GRAMMAR9 = {
    '<B>': [['b']]
 }
 mystring9 = 'bbbbbbb'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 RR_GRAMMAR9 = {
@@ -3442,6 +3421,7 @@ RR_GRAMMAR9 = {
    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]]
 }
 mystring9 = &#x27;bbbbbbb&#x27;
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3453,16 +3433,16 @@ result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring8 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring8 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3474,29 +3454,20 @@ result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring9 == tree_to_str(tree)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring9 == tree_to_str(tree)
+
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-<!-- XXXXXXXXXX -->
-
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
-
-
 [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
 
 [^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
@@ -3504,3 +3475,7 @@ for tree in result:
 [^aycock2002practical]: Aycock, John, and R. Nigel Horspool. "Practical earley parsing." The Computer Journal 45.6 (2002): 620-630.
 
 [^grune2008parsing]: Grune, Dick, and Ceriel JH Jacobs. "Introduction to Parsing." Parsing Techniques. Springer, New York, NY, 2008. 61-102.
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
