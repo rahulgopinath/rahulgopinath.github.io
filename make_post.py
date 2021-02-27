@@ -9,7 +9,8 @@ def split_data(data):
     processed_data = []
     for chunk in chunks:
         if chunk[0][0] == '#': # comment chunk
-            comment = ''.join([line[1:] for line in chunk])
+            assert chunk[0][1] == ' '
+            comment = ''.join([line[2:] for line in chunk])
             processed_data.append(('comment', comment))
         else:
             code = ''.join([line for line in chunk])
