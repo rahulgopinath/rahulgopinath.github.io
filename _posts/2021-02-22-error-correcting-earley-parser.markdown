@@ -42,11 +42,15 @@ Initialization completion is indicated by a red border around *Run all* button.
 import sys
 if "pyodide" in sys.modules:
     import pyodide
-    github_repo = 'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io'
-    earley_module_str = pyodide.open_url(github_repo +
+    github_repo = 'https://raw.githubusercontent.com/'
+    my_repo = 'rahulgopinath/rahulgopinath.github.io'
+    earley_module_str = pyodide.open_url(github_repo + my_repo +
             '/master/notebooks/2021-02-06-earley-parsing.py')
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
+    # caution: this is a horrible temporary hack to load a local file with
+    # hyphens, and make it available in the current namespace.
+    # Dont use it in production.
     __vars__ = vars(__import__('2021-02-06-earley-parsing'))
     globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
 
@@ -57,11 +61,15 @@ else:
 import sys
 if &quot;pyodide&quot; in sys.modules:
     import pyodide
-    github_repo = &#x27;https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io&#x27;
-    earley_module_str = pyodide.open_url(github_repo +
+    github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
+    my_repo = &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
+    earley_module_str = pyodide.open_url(github_repo + my_repo +
             &#x27;/master/notebooks/2021-02-06-earley-parsing.py&#x27;)
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
+    # caution: this is a horrible temporary hack to load a local file with
+    # hyphens, and make it available in the current namespace.
+    # Dont use it in production.
     __vars__ = vars(__import__(&#x27;2021-02-06-earley-parsing&#x27;))
     globals().update({k:__vars__[k] for k in __vars__ if k not in [&#x27;__name__&#x27;]})
 </textarea><br />
