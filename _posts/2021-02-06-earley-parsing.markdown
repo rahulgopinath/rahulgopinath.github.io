@@ -143,7 +143,6 @@ grammar = {
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
 START = &#x27;&lt;start&gt;&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -190,7 +189,6 @@ a_grammar = {
         [&#x27;&lt;digit&gt;&#x27;]],
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -260,7 +258,6 @@ sample_grammar = {
     &#x27;&lt;C&gt;&#x27;: [[&#x27;c&#x27;]],
     &#x27;&lt;D&gt;&#x27;: [[&#x27;d&#x27;]]
 }
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -373,7 +370,6 @@ class Column:
         self.states.append(state)
         state.e_col = self
         return self._unique[state]
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -465,7 +461,6 @@ class State:
 
     def advance(self):
         return State(self.name, self.expr, self.dot + 1, self.s_col)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -490,7 +485,6 @@ nt_expr = tuple(sample_grammar[nt_name][1])
 col_0 = Column(0, None)
 a_state = State(nt_name, tuple(nt_expr), 0, col_0)
 print(a_state.at_dot())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -510,7 +504,6 @@ print(b_state.finished())
 b_state = a_state.advance()
 print(b_state)
 print(b_state.finished())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -534,7 +527,6 @@ class Parser:
 class Parser:
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -558,7 +550,6 @@ class EarleyParser(Parser):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
         self.log = log
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -669,7 +660,6 @@ def nullable(g):
         g_cur = g_nxt
 
     return nullable_keys
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -695,7 +685,6 @@ nullable_grammar = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
     &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
 }
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -711,7 +700,6 @@ print(nullable(nullable_grammar))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(nullable(nullable_grammar))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -756,7 +744,6 @@ class EarleyParser(EarleyParser):
         chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
         chart[0].add(State(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -780,7 +767,6 @@ ep.fill_chart = lambda s: s
 
 v = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
 print(v[0].states[0])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -822,7 +808,6 @@ class EarleyParser(EarleyParser):
             col.add(State(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -852,7 +837,6 @@ chart = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0
 
 for s in chart[0].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -872,7 +856,6 @@ for s in chart[0].states:
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -911,7 +894,6 @@ class EarleyParser(EarleyParser):
     def scan(self, col, state, letter):
         if letter == col.letter:
             col.add(state.advance())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -949,7 +931,6 @@ print(new_state)
 ep.scan(chart[1], new_state, &#x27;a&#x27;)
 for s in chart[1].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1000,7 +981,6 @@ class EarleyParser(EarleyParser):
                  if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1028,7 +1008,6 @@ chart = ep.chart_parse(list(&#x27;ad&#x27;), START, tuple(sample_grammar[START][
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1054,7 +1033,6 @@ for state in chart[0].states:
         ep.scan(chart[1], state, &#x27;a&#x27;)
 for s in chart[1].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1081,7 +1059,6 @@ for state in chart[1].states:
         ep.predict(chart[1], state.at_dot(), state)
 for s in chart[1].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1099,7 +1076,6 @@ print(chart[2])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(chart[2])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1125,7 +1101,6 @@ for state in chart[1].states:
 
 for s in chart[2].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1153,7 +1128,6 @@ for state in chart[2].states:
 
 for s in chart[2].states:
     print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1209,7 +1183,6 @@ class EarleyParser(EarleyParser):
                         self.scan(chart[i + 1], state, sym)
             if self.log: print(col, &#x27;\n&#x27;)
         return chart
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1229,7 +1202,6 @@ for c in columns: print(c)
 ep = EarleyParser(sample_grammar, log=True)
 columns = ep.chart_parse(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 for c in columns: print(c)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1254,7 +1226,6 @@ last_col = columns[-1]
 for s in last_col.states:
     if s.name == &#x27;&lt;start&gt;&#x27;:
         print(s)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1292,7 +1263,6 @@ class EarleyParser(EarleyParser):
             if states:
                 return col.index, states
         return -1, []
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1312,7 +1282,6 @@ print(cursor, [str(s) for s in last_states])
 ep = EarleyParser(sample_grammar)
 cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
 print(cursor, [str(s) for s in last_states])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1357,7 +1326,6 @@ class EarleyParser(EarleyParser):
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
                 yield tree
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1425,7 +1393,6 @@ class EarleyParser(EarleyParser):
                       if s.finished() and s.name == var]
 
         return [p for s, start, k in starts for p in paths(s, start, k, expr)]
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1451,7 +1418,6 @@ completed_start = last_states[0]
 paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
 for path in paths:
     print([list(str(s_) for s_ in s) for s in path])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1495,7 +1461,6 @@ class EarleyParser(EarleyParser):
                                      state.e_col.index) if state.expr else []
         return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
                             for pathexpr in pathexprs]
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1515,7 +1480,6 @@ print(result)
 ep = EarleyParser(sample_grammar)
 result = ep.parse_forest(columns, last_states[0])
 print(result)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1550,7 +1514,6 @@ class EarleyParser(EarleyParser):
 
     def extract_trees(self, forest):
         yield self.extract_a_tree(forest)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1632,7 +1595,6 @@ def format_parsetree(node,
           get_children=lambda x: x[1]):
     lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
     return &#x27;\n&#x27;.join(lines)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1650,7 +1612,6 @@ print(format_parsetree(tree))
 <textarea cols="40" rows="4" name='python_edit'>
 tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
 print(format_parsetree(tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1672,7 +1633,6 @@ mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1735,7 +1695,6 @@ mystring = &#x27;1+2+4&#x27;
 parser = EarleyParser(a_grammar)
 for tree in parser.parse_on(mystring, START):
     print(format_parsetree(tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1778,7 +1737,6 @@ indirectly_self_referring = {
     &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;aexpr&gt;&#x27;], [&#x27;a&#x27;]],
     &#x27;&lt;aexpr&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
 }
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1811,8 +1769,6 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
             print(tree)
     except RecursionError as e:
          print(&quot;Recursion error&quot;,e)
-
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1899,7 +1855,6 @@ class SimpleExtractor:
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1951,7 +1906,6 @@ de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
 <textarea cols="40" rows="4" name='python_edit'>
 de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
                                   directly_self_referring[START][0])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1973,7 +1927,6 @@ for i in range(5):
     tree = de.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1991,7 +1944,6 @@ ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
 <textarea cols="40" rows="4" name='python_edit'>
 ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                   indirectly_self_referring[START][0])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2013,7 +1965,6 @@ for i in range(5):
     tree = ie.extract_a_tree()
     print(tree_to_str(tree))
     print(format_parsetree(tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2090,7 +2041,6 @@ class ChoiceNode:
 
     def finished(self):
         return self._chosen &gt;= self._total
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2112,7 +2062,6 @@ class EnhancedExtractor(SimpleExtractor):
     def __init__(self, parser, text, start_symbol, alt):
         super().__init__(parser, text, start_symbol, alt)
         self.choices = choices = ChoiceNode(None, 1)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2150,7 +2099,6 @@ class EnhancedExtractor(EnhancedExtractor):
         next_choice = choices.next.chosen()
         choices = choices.next
         return arr[next_choice], next_choice, arr_len, choices
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2233,7 +2181,6 @@ class EnhancedExtractor(EnhancedExtractor):
             child_nodes.append(ntree)
             new_choices = newer_choices
         return (name, child_nodes), new_choices
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2266,7 +2213,6 @@ class EnhancedExtractor(EnhancedExtractor):
             if parse_tree is not None:
                 return parse_tree
         return None
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2286,7 +2232,6 @@ ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
 <textarea cols="40" rows="4" name='python_edit'>
 ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
                                     indirectly_self_referring[START][0])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2314,7 +2259,6 @@ while True:
     if t is None: break
     s = tree_to_str(t)
     assert s == mystring
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2347,7 +2291,6 @@ LR_GRAMMAR = {
 }
 lr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, []), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, []))), (&#x27;a&#x27;, [])))
 print(format_parsetree(lr_tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2373,7 +2316,6 @@ RR_GRAMMAR = {
 }
 rr_tree = (&#x27;&lt;start&gt;&#x27;, ((&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, ((&#x27;a&#x27;, []), (&#x27;&lt;A&gt;&#x27;, []))))))),))
 print(format_parsetree(rr_tree))
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2389,7 +2331,6 @@ mystring = 'aaaaaa'
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;aaaaaa&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2407,7 +2348,6 @@ for _ in result: pass # consume the generator so that we can see the logs
 <textarea cols="40" rows="4" name='python_edit'>
 result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass # consume the generator so that we can see the logs
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2425,7 +2365,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2514,7 +2453,6 @@ class EarleyParser(EarleyParser):
                  if st.at_dot() == state.name]
         for st in parent_states:
             col.add(st.advance())
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2554,7 +2492,6 @@ class LeoParser(EarleyParser):
 
     def deterministic_reduction(self, state):
         raise NotImplemented()
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2590,7 +2527,6 @@ class Column(Column):
         assert key not in self.transitives
         self.transitives[key] = state
         return self.transitives[key]
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2636,7 +2572,6 @@ class LeoParser(LeoParser):
             return None
         matching_st_B = [s for s in parent_states if s.dot == len(s.expr) - 1]
         return matching_st_B[0] if matching_st_B else None
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2654,7 +2589,6 @@ print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
 <textarea cols="40" rows="4" name='python_edit'>
 lp = LeoParser(RR_GRAMMAR)
 print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2697,7 +2631,6 @@ class LeoParser(LeoParser):
 
         top = self.get_top(st_B) or st_B
         return st_B_inc.e_col.add_transitive(t_name, top)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2718,7 +2651,6 @@ class LeoParser(LeoParser):
 class LeoParser(LeoParser):
     def deterministic_reduction(self, state):
         return self.get_top(state)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2738,7 +2670,6 @@ print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
 lp = LeoParser(RR_GRAMMAR)
 columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
 print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2756,7 +2687,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2780,7 +2710,6 @@ RR_GRAMMAR2 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;,&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring2 = &#x27;ababababab&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2798,7 +2727,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2822,7 +2750,6 @@ RR_GRAMMAR3 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring3 = &#x27;cababababab&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2840,7 +2767,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2864,7 +2790,6 @@ RR_GRAMMAR4 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring4 = &#x27;ababababc&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2882,7 +2807,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2908,7 +2832,6 @@ RR_GRAMMAR5 = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
 }
 mystring5 = &#x27;abababab&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2926,7 +2849,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2952,7 +2874,6 @@ RR_GRAMMAR6 = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;]],
 }
 mystring6 = &#x27;abababab&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2970,7 +2891,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2994,7 +2914,6 @@ RR_GRAMMAR7 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]],
 }
 mystring7 = &#x27;aaaaaaaa&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3012,7 +2931,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
 for _ in result: pass
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3031,8 +2949,6 @@ for _ in result: pass
 <textarea cols="40" rows="4" name='python_edit'>
 result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
 for _ in result: pass
-
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3060,7 +2976,6 @@ class Column(Column):
         self.transitives[key] = TState(state.name, state.expr, state.dot,
                                        state.s_col, state.e_col)
         return self.transitives[key]
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3080,7 +2995,6 @@ class State(State):
 class State(State):
     def back(self):
         return TState(self.name, self.expr, self.dot - 1, self.s_col, self.e_col)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3100,7 +3014,6 @@ class TState(State):
 class TState(State):
     def copy(self):
         return TState(self.name, self.expr, self.dot, self.s_col, self.e_col)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3122,7 +3035,6 @@ class LeoParser(LeoParser):
     def __init__(self, grammar, **kwargs):
         super().__init__(grammar, **kwargs)
         self._postdots = {}
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3162,7 +3074,6 @@ class LeoParser(LeoParser):
             self._postdots[matching_st_B[0]._t()] = st_A
             return matching_st_B[0]
         return None
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3191,7 +3102,6 @@ class LeoParser(LeoParser):
         c_C = self._postdots[state._t()]
         e.add(c_C.advance())
         self.expand_tstate(c_C.back(), e)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3219,7 +3129,6 @@ class LeoParser(LeoParser):
             for s in col.states:
                 f_table[s.s_col.index].states.append(s)
         return f_table
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3243,7 +3152,6 @@ columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
 r_table = ep.rearrange(columns)
 for col in r_table:
     print(col, &quot;\n&quot;)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3287,7 +3195,6 @@ class LeoParser(LeoParser):
             forest = self.parse_forest(self.table, start)
             for tree in self.extract_trees(forest):
                 yield tree
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3315,7 +3222,6 @@ class LeoParser(LeoParser):
             self.expand_tstate(state.back(), state.e_col)
 
         return super().parse_forest(chart, state)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3335,7 +3241,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3355,7 +3260,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
 for tree in result:
     assert mystring2 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3375,7 +3279,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
 for tree in result:
     assert mystring3 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3395,7 +3298,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
 for tree in result:
     assert mystring4 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3415,7 +3317,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
 for tree in result:
     assert mystring5 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3435,7 +3336,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
 for tree in result:
     assert mystring6 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3455,7 +3355,6 @@ for tree in result:
 result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
 for tree in result:
     assert mystring7 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3475,7 +3374,6 @@ for tree in result:
 result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
 for tree in result:
     assert mystring == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3499,7 +3397,6 @@ RR_GRAMMAR8 = {
    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
 }
 mystring8 = &#x27;aa&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3525,7 +3422,6 @@ RR_GRAMMAR9 = {
    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]]
 }
 mystring9 = &#x27;bbbbbbb&#x27;
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3547,7 +3443,6 @@ result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring8 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3569,7 +3464,6 @@ result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
 for tree in result:
     print(repr(tree_to_str(tree)))
     assert mystring9 == tree_to_str(tree)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
