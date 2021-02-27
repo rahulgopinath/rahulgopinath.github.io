@@ -445,9 +445,13 @@ if __name__ == '__main__':
 
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alt):
-        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(State(start, alt, 0, chart[0]))
+        chart = [self.create_column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart[0].add(self.create_state(start, alt, 0, chart[0]))
         return self.fill_chart(chart)
+
+    def create_column(self, i, tok): return Column(i, tok)
+
+    def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
 
 # We seed our initial state in the example
 
@@ -479,7 +483,7 @@ if __name__ == '__main__':
 class EarleyParser(EarleyParser):
     def predict(self, col, sym, state):
         for alt in self._grammar[sym]:
-            col.add(State(sym, tuple(alt), 0, col))
+            col.add(self.create_state(sym, tuple(alt), 0, col))
         if sym in self.epsilon:
             col.add(state.advance())
 
@@ -1495,9 +1499,12 @@ if __name__ == '__main__':
 class Column(Column):
     def add_transitive(self, key, state):
         assert key not in self.transitives
-        self.transitives[key] = TState(state.name, state.expr, state.dot,
-                                       state.s_col, state.e_col)
+        self.transitives[key] = self.create_tstate(state)
         return self.transitives[key]
+
+    def create_tstate(self, state):
+        return TState(state.name, state.expr, state.dot, state.s_col, state.e_col)
+
 
 # We also need a `back()` method to create the constraints.
 
@@ -1549,7 +1556,7 @@ class LeoParser(LeoParser):
 
 class LeoParser(LeoParser):
     def rearrange(self, table):
-        f_table = [Column(c.index, c.letter) for c in table]
+        f_table = [self.create_column(c.index, c.letter) for c in table]
         for col in table:
             for s in col.states:
                 f_table[s.s_col.index].states.append(s)
