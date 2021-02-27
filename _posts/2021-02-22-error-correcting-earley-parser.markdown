@@ -229,14 +229,14 @@ nonterminal that corresponds to each terminal symbol.
 <!--
 ############
 def This_char(t):
-    return '<$ {%s}>' % t
+    return '<$ [%s]>' % t
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def This_char(t):
-    return &#x27;&lt;$ {%s}&gt;&#x27; % t
+    return &#x27;&lt;$ [%s]&gt;&#x27; % t
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -351,13 +351,15 @@ nonterminals as there are terminal symbols again. So, we define a function.
 
 <!--
 ############
-def Any_not(t): return '<$!{%s}>' % t
+Any_not_str = '<$![%s]>'
+def Any_not(t): return Any_not_str % t
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def Any_not(t): return &#x27;&lt;$!{%s}&gt;&#x27; % t
+Any_not_str = &#x27;&lt;$![%s]&gt;&#x27;
+def Any_not(t): return Any_not_str % t
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -561,7 +563,7 @@ class EarleyParser(EarleyParser):
             my_penalty = 1
         elif state.name == Any_one:
             my_penalty = 1
-        elif state.name.startswith('<$ !{'):
+        elif state.name.startswith(Any_not_str[:4]):
             my_penalty = 1
         for st in parent_states:
             s = st.advance()
@@ -581,7 +583,7 @@ class EarleyParser(EarleyParser):
             my_penalty = 1
         elif state.name == Any_one:
             my_penalty = 1
-        elif state.name.startswith(&#x27;&lt;$ !{&#x27;):
+        elif state.name.startswith(Any_not_str[:4]):
             my_penalty = 1
         for st in parent_states:
             s = st.advance()

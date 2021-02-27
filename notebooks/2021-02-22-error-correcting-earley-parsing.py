@@ -109,7 +109,7 @@ if __name__ == '__main__':
 # nonterminal that corresponds to each terminal symbol.
 
 def This_char(t):
-    return '<$ {%s}>' % t
+    return '<$ [%s]>' % t
 
 # 
 
@@ -160,7 +160,8 @@ Empty = '<$>'
 # than the expected input symbol `a` -- `<$!{a}>`. We have to define as many
 # nonterminals as there are terminal symbols again. So, we define a function.
 
-def Any_not(t): return '<$!{%s}>' % t
+Any_not_str = '<$![%s]>' 
+def Any_not(t): return Any_not_str % t
 
 # What happens if there is junk after parsing? We take care of that by wrapping
 # the start symbol as follows
@@ -262,7 +263,7 @@ class EarleyParser(EarleyParser):
             my_penalty = 1
         elif state.name == Any_one:
             my_penalty = 1
-        elif state.name.startswith('<$ !{'):
+        elif state.name.startswith(Any_not_str[:4]):
             my_penalty = 1
         for st in parent_states:
             s = st.advance()
