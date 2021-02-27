@@ -4,7 +4,7 @@ import itertools as I
 from html import escape
 
 def split_data(data):
-    chunks = [i for i in I.groupby(data, key=lambda line: line[0] == '#')]
+    chunks = [list(g) for k,g in I.groupby(data, key=lambda line: line[0] == '#')]
 
     processed_data = []
     for chunk in chunks:
@@ -20,7 +20,7 @@ def split_data(data):
 def print_data(processed_data):
     for kind, chunk in processed_data:
         if kind == 'comment':
-            print(chunk)
+            sys.stdout.buffer.write(chunk.encode('utf8'))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
             print('''\
@@ -41,7 +41,7 @@ def print_data(processed_data):
 
 def main(args):
     fn =  args[0]
-    with open(fn) as f:
+    with open(fn, 'r', encoding='utf-8') as f:
         data = f.readlines()
     result = split_data(data)
     print('''\
@@ -74,7 +74,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-'''
-
+''')
 
 main(sys.argv[1:])
