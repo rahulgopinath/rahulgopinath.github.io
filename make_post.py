@@ -58,7 +58,8 @@ def print_data(processed_data):
 Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
-</form>''')
+</form>
+''')
             first_comment = False
         elif kind == 'code':
             scraped_chunk = escape(chunk)
