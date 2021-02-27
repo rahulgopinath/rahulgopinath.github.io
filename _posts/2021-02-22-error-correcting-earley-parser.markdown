@@ -797,23 +797,6 @@ class SimpleExtractor(SimpleExtractor):
         states = [s for s,kind,chart in p if kind == 'n']
         return sum([s.penalty for s in states])
 
-if __name__ == '__main__':
-    ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
-    for i in range(3):
-        tree = ie3.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
-
-
-if __name__ == '__main__':
-    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
-    for i in range(3):
-        tree = ie4.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
-
-
 ############
 -->
 <form name='python_run_form'>
@@ -828,22 +811,55 @@ class SimpleExtractor(SimpleExtractor):
     def cost_of_path(self, p):
         states = [s for s,kind,chart in p if kind == &#x27;n&#x27;]
         return sum([s.penalty for s in states])
-
-if __name__ == &#x27;__main__&#x27;:
-    ie3 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
-    for i in range(3):
-        tree = ie3.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 
-if __name__ == &#x27;__main__&#x27;:
-    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-    ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
-    for i in range(3):
-        tree = ie4.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+<!--
+############
+ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie3.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ie3 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie3.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie4.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie4.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

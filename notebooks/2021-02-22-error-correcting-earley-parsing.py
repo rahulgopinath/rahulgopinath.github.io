@@ -363,6 +363,8 @@ class SimpleExtractor(SimpleExtractor):
         states = [s for s,kind,chart in p if kind == 'n']
         return sum([s.penalty for s in states])
 
+# 
+
 if __name__ == '__main__':
     ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
     for i in range(3):
@@ -370,6 +372,7 @@ if __name__ == '__main__':
         print(tree_to_str(tree))
         print(format_parsetree(tree))
 
+# 
 
 if __name__ == '__main__':
     covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
