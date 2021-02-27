@@ -1,3 +1,12 @@
+# ---
+# published: true
+# title: Earley Parser
+# layout: post
+# comments: true
+# tags: parsing, context-free
+# categories: post
+# ---
+
 # The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] in 1970. It
 # can be used to parse strings that conform to a context-free grammar. The
 # algorithm uses a chart for parsing -- that is, it is implemented as a dynamic
