@@ -15,7 +15,7 @@
 # the minimum distance error correcting parser by Aho et al.[^aho1972minimum].
 # 
 # There are two parts to this algorithm. The first is the idea of a
-# _covering grammar_ that parses any corrupt input and the second is the
+# covering grammar that parses any corrupt input and the second is the
 # extraction of the best possible parse from the corresponding parse forest.
 # 
 # Aho et al. uses Earley parser for their error correcting parser. So, we will
@@ -33,6 +33,7 @@ else:
     __vars__ = vars(__import__('2021-02-06-earley-parsing'))
     globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
 
+# 
 # ## Covering Grammar
 # 
 # The idea from Aho et al. is to first transform the given grammar into a
@@ -49,6 +50,7 @@ else:
 # grammar.
 # 
 # ### First, we load the prerequisites
+# 
 
 import string
 import random
