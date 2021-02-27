@@ -72,7 +72,8 @@ Initialization completion is indicated by a red border around *Run all* button.
 ''' % chunk)
             p('''\
 <form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>''')
+<textarea cols="40" rows="4" name='python_edit'>
+''')
             p(scraped_chunk)
             p('''\
 </textarea><br />
