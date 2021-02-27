@@ -25,7 +25,7 @@ import sys
 if "pyodide" in sys.modules:
     import pyodide
     earley_module_str = pyodide.open_url(
-    'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/_posts/2021-02-06-earley-parsing.py')
+    'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/notebooks/2021-02-06-earley-parsing.py')
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
     #with open('2021-02-06-earley-parsing.py', encoding='utf8') as f:
