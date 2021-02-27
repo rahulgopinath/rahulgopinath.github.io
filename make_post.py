@@ -44,6 +44,37 @@ def main(args):
     with open(fn) as f:
         data = f.readlines()
     result = split_data(data)
+    print('''\
+---
+published: true
+title: 
+layout: post
+comments: true
+tags: 
+categories: post
+---
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>''')
+
     print_data(result)
+    print('''\
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+'''
+
 
 main(sys.argv[1:])
