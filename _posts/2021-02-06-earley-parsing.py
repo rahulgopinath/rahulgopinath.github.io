@@ -303,17 +303,19 @@ class State:
 # The convenience methods `finished()`, `advance()` and `at_dot()` should be
 # self explanatory. For example,
 
-nt_name = '<B>'
-nt_expr = tuple(sample_grammar[nt_name][1])
-col_0 = Column(0, None)
-a_state = State(nt_name, tuple(nt_expr), 0, col_0)
-print(a_state.at_dot())
+if __name__ == '__main__':
+    nt_name = '<B>'
+    nt_expr = tuple(sample_grammar[nt_name][1])
+    col_0 = Column(0, None)
+    a_state = State(nt_name, tuple(nt_expr), 0, col_0)
+    print(a_state.at_dot())
 
 # That is, the next symbol to be parsed is `<D>`, and if we advance it,
 
-b_state = a_state.advance()
-print(b_state)
-print(b_state.finished())
+if __name__ == '__main__':
+    b_state = a_state.advance()
+    print(b_state)
+    print(b_state.finished())
 
 # ## Parser
 # 
@@ -396,16 +398,18 @@ def nullable(g):
 
 # An example
 
-nullable_grammar = {
-    '<start>': [['<A>', '<B>']],
-    '<A>': [['a'], [], ['<C>']],
-    '<B>': [['b']],
-    '<C>': [['<A>'], ['<B>']]
-}
+if __name__ == '__main__':
+    nullable_grammar = {
+        '<start>': [['<A>', '<B>']],
+        '<A>': [['a'], [], ['<C>']],
+        '<B>': [['b']],
+        '<C>': [['<A>'], ['<B>']]
+    }
 
 # Checking
 
-print(nullable(nullable_grammar))
+if __name__ == '__main__':
+    print(nullable(nullable_grammar))
 
 # ## Chart construction
 # 
@@ -438,11 +442,12 @@ class EarleyParser(EarleyParser):
 
 # We seed our initial state in the example
 
-ep = EarleyParser(sample_grammar)
-ep.fill_chart = lambda s: s
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    ep.fill_chart = lambda s: s
 
-v = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
-print(v[0].states[0])
+    v = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+    print(v[0].states[0])
 
 # Then, we complete the chart. The idea here is to process one character or one
 # element at a time. At each character, we examine the current parse paths
@@ -473,19 +478,21 @@ class EarleyParser(EarleyParser):
 # `fill_chart()` will find that the next term is `<A>` and call `predict()`
 # which will then add the expansions of `<A>`.
 
-ep = EarleyParser(sample_grammar)
-ep.fill_chart = lambda s: s
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+    chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
 
-for s in chart[0].states:
-    print(s)
+    for s in chart[0].states:
+        print(s)
 
 # Next, we apply predict.
 
-ep.predict(chart[0], '<A>', s)
-for s in chart[0].states:
-    print(s)
+if __name__ == '__main__':
+    ep.predict(chart[0], '<A>', s)
+    for s in chart[0].states:
+        print(s)
 
 # As you can see, the two rules of `<A>` has been added to
 # the current column.
@@ -514,18 +521,19 @@ class EarleyParser(EarleyParser):
 
 # Here is our continuing example.
 
-ep = EarleyParser(sample_grammar)
-ep.fill_chart = lambda s: s
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
-ep.predict(chart[0], '<A>', s)
+    chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+    ep.predict(chart[0], '<A>', s)
 
-new_state = chart[0].states[1]
-print(new_state)
+    new_state = chart[0].states[1]
+    print(new_state)
 
-ep.scan(chart[1], new_state, 'a')
-for s in chart[1].states:
-    print(s)
+    ep.scan(chart[1], new_state, 'a')
+    for s in chart[1].states:
+        print(s)
 
 # As you can see, the `state[1]` in `chart[0]` that was waiting for `a` has
 # advanced one letter after consuming `a`, and has been added to `chart[1]`.
@@ -564,61 +572,67 @@ class EarleyParser(EarleyParser):
 
 # Here is our example. We start parsing `ad`. So, we have three columns.
 
-ep = EarleyParser(sample_grammar)
-ep.fill_chart = lambda s: s
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('ad'), START, tuple(sample_grammar[START][0]))
-ep.predict(chart[0], '<A>', s)
-for s in chart[0].states:
-    print(s)
+    chart = ep.chart_parse(list('ad'), START, tuple(sample_grammar[START][0]))
+    ep.predict(chart[0], '<A>', s)
+    for s in chart[0].states:
+        print(s)
 
 # Next, we populate column 1 which corresponds to letter `a`.
 
-print(chart[1].letter)
-for state in chart[0].states:
-    if state.at_dot() not in sample_grammar:
-        ep.scan(chart[1], state, 'a')
-for s in chart[1].states:
-    print(s)
+if __name__ == '__main__':
+    print(chart[1].letter)
+    for state in chart[0].states:
+        if state.at_dot() not in sample_grammar:
+            ep.scan(chart[1], state, 'a')
+    for s in chart[1].states:
+        print(s)
 
 # You can see that the two states are waiting on `<A>` and `<B>`
 # respectively at `at_dot()`.
 # Hence, we run predict again to add the corresponding rules of `<A>` and `<B>`
 # to the current column.
 
-for state in chart[1].states:
-    if state.at_dot() in sample_grammar:
-        ep.predict(chart[1], state.at_dot(), state)
-for s in chart[1].states:
-    print(s)
+if __name__ == '__main__':
+    for state in chart[1].states:
+        if state.at_dot() in sample_grammar:
+            ep.predict(chart[1], state.at_dot(), state)
+    for s in chart[1].states:
+        print(s)
 
 # As you can see, we have a list of states that are waiting
 # for `b`, `a` and `d`.
 
 # Our next letter is:
 
-print(chart[2])
+if __name__ == '__main__':
+    print(chart[2])
 
 # We scan to populate `column 2`.
 
-for state in chart[1].states:
-    if state.at_dot() not in sample_grammar:
-        ep.scan(chart[2], state, state.at_dot())
+if __name__ == '__main__':
+    for state in chart[1].states:
+        if state.at_dot() not in sample_grammar:
+            ep.scan(chart[2], state, state.at_dot())
 
-for s in chart[2].states:
-    print(s)
+    for s in chart[2].states:
+        print(s)
 
 # As we expected, only `<D>` could advance to the next column (`chart[2]`)
 # after reading `d`
 
 # Finally, we use complete, so that we can advance the parents of the `<D>` state above.
 
-for state in chart[2].states:
-    if state.finished():
-        ep.complete(chart[2], state)
+if __name__ == '__main__':
+    for state in chart[2].states:
+        if state.finished():
+            ep.complete(chart[2], state)
 
-for s in chart[2].states:
-    print(s)
+    for s in chart[2].states:
+        print(s)
 
 # As you can see, that led to `<B>` being complete, and since `<B>` is
 # complete, `<A>` also becomes complete.
@@ -652,9 +666,10 @@ class EarleyParser(EarleyParser):
 
 # We can now recognize the given string as part of the language represented by the grammar.
 
-ep = EarleyParser(sample_grammar, log=True)
-columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
-for c in columns: print(c)
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar, log=True)
+    columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
+    for c in columns: print(c)
 
 # The chart above only shows completed entries. The parenthesized expression
 # indicates the column just before the first character was recognized, and the
@@ -662,10 +677,11 @@ for c in columns: print(c)
 
 # Notice how the `<start>` nonterminal shows the dot at the end. That is, fully parsed.
 
-last_col = columns[-1]
-for s in last_col.states:
-    if s.name == '<start>':
-        print(s)
+if __name__ == '__main__':
+    last_col = columns[-1]
+    for s in last_col.states:
+        if s.name == '<start>':
+            print(s)
 
 # ## Derivation trees
 # 
@@ -687,9 +703,10 @@ class EarleyParser(EarleyParser):
 
 # Here is an example of using it.
 
-ep = EarleyParser(sample_grammar)
-cursor, last_states = ep.parse_prefix('adcd', START, tuple(sample_grammar[START][0]))
-print(cursor, [str(s) for s in last_states])
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    cursor, last_states = ep.parse_prefix('adcd', START, tuple(sample_grammar[START][0]))
+    print(cursor, [str(s) for s in last_states])
 
 # ### parse_on
 # 
@@ -752,12 +769,13 @@ class EarleyParser(EarleyParser):
 
 # Example
 
-print(sample_grammar[START])
-ep = EarleyParser(sample_grammar)
-completed_start = last_states[0]
-paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
-for path in paths:
-    print([list(str(s_) for s_ in s) for s in path])
+if __name__ == '__main__':
+    print(sample_grammar[START])
+    ep = EarleyParser(sample_grammar)
+    completed_start = last_states[0]
+    paths = ep.parse_paths(completed_start.expr, columns, 0, 4)
+    for path in paths:
+        print([list(str(s_) for s_ in s) for s in path])
 
 # That is, the parse path for `<start>` given the input `adcd` included
 # recognizing the expression `<A><B>`. This was recognized by the two states:
@@ -785,9 +803,10 @@ class EarleyParser(EarleyParser):
 
 # Example
 
-ep = EarleyParser(sample_grammar)
-result = ep.parse_forest(columns, last_states[0])
-print(result)
+if __name__ == '__main__':
+    ep = EarleyParser(sample_grammar)
+    result = ep.parse_forest(columns, last_states[0])
+    print(result)
 
 # ### extract_trees
 # 
@@ -843,15 +862,17 @@ def format_parsetree(node,
 
 # Displaying the tree
 
-tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
-print(format_parsetree(tree))
+if __name__ == '__main__':
+    tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
+    print(format_parsetree(tree))
 
 # Example
 
-mystring = '1+2+4'
-parser = EarleyParser(a_grammar)
-for tree in parser.parse_on(mystring, START):
-    print(tree)
+if __name__ == '__main__':
+    mystring = '1+2+4'
+    parser = EarleyParser(a_grammar)
+    for tree in parser.parse_on(mystring, START):
+        print(tree)
 
 # ### Ambiguous Parsing
 # 
@@ -876,10 +897,11 @@ class EarleyParser(EarleyParser):
 # 
 # Using the same example,
 
-mystring = '1+2+4'
-parser = EarleyParser(a_grammar)
-for tree in parser.parse_on(mystring, START):
-    print(format_parsetree(tree))
+if __name__ == '__main__':
+    mystring = '1+2+4'
+    parser = EarleyParser(a_grammar)
+    for tree in parser.parse_on(mystring, START):
+        print(format_parsetree(tree))
 
 # ## Almost infinite parse trees
 # 
@@ -888,31 +910,33 @@ for tree in parser.parse_on(mystring, START):
 # time we effectively try to extract all at the same time. So, in case of
 # such grammars our `extract_trees()` will fail. Here are two example grammars.
 
+if __name__ == '__main__':
 
-directly_self_referring = {
-    '<start>': [['<query>']],
-    '<query>': [['<expr>']],
-    "<expr>": [["<expr>"], ['a']],
-}
+    directly_self_referring = {
+        '<start>': [['<query>']],
+        '<query>': [['<expr>']],
+        "<expr>": [["<expr>"], ['a']],
+    }
 
-indirectly_self_referring = {
-    '<start>': [['<query>']],
-    '<query>': [['<expr>']],
-    '<expr>': [['<aexpr>'], ['a']],
-    '<aexpr>': [['<expr>']],
-}
+    indirectly_self_referring = {
+        '<start>': [['<query>']],
+        '<query>': [['<expr>']],
+        '<expr>': [['<aexpr>'], ['a']],
+        '<aexpr>': [['<expr>']],
+    }
 
 # An example run.
 
-mystring = 'a'
-for grammar in [directly_self_referring, indirectly_self_referring]:
-    forest = EarleyParser(grammar).parse_on(mystring, START)
-    print('recognized', mystring)
-    try:
-        for tree in forest:
-            print(tree)
-    except RecursionError as e:
-         print("Recursion error",e)
+if __name__ == '__main__':
+    mystring = 'a'
+    for grammar in [directly_self_referring, indirectly_self_referring]:
+        forest = EarleyParser(grammar).parse_on(mystring, START)
+        print('recognized', mystring)
+        try:
+            for tree in forest:
+                print(tree)
+        except RecursionError as e:
+             print("Recursion error",e)
 
 
 # The problem is that, our implementation of `extract_trees()` is eager.
@@ -971,28 +995,30 @@ def tree_to_str(tree):
             expanded.append(key)
     return ''.join(expanded)
 # 
-
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
-                                  directly_self_referring[START][0])
+if __name__ == '__main__':
+    de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
+                                      directly_self_referring[START][0])
 
 # 
-
-for i in range(5):
-    tree = de.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+if __name__ == '__main__':
+    for i in range(5):
+        tree = de.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 
 # indirect reference
 
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                  indirectly_self_referring[START][0])
+if __name__ == '__main__':
+    ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                      indirectly_self_referring[START][0])
 
 # 
 
-for i in range(5):
-    tree = ie.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+if __name__ == '__main__':
+    for i in range(5):
+        tree = ie.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 
 # However, `SimpleExtractor` has a problem. The issue is that since we rely on
 # randomness for exploration, it gives no guarantees on the uniqueness of the
@@ -1122,16 +1148,20 @@ class EnhancedExtractor(EnhancedExtractor):
 # recursive. That is, if it finds a node with a nonterminal that covers the same
 # span as that of a parent node with the same nonterminal, it skips the node.
 
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                    indirectly_self_referring[START][0])
+if __name__ == '__main__':
+    ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
+                                        indirectly_self_referring[START][0])
 
-i = 0
-while True:
-    i += 1
-    t = ee.extract_a_tree()
-    if t is None: break
-    s = tree_to_str(t)
-    assert s == mystring
+# 
+
+if __name__ == '__main__':
+    i = 0
+    while True:
+        i += 1
+        t = ee.extract_a_tree()
+        if t is None: break
+        s = tree_to_str(t)
+        assert s == mystring
 
 # ## Leo Optimizations
 # 
@@ -1142,33 +1172,38 @@ while True:
 # parsing of the following string by two different grammars `LR_GRAMMAR` and
 # `RR_GRAMMAR`.
 
-LR_GRAMMAR = {
-    '<start>': [['<A>']],
-    '<A>': [['<A>', 'a'], []],
-}
+if __name__ == '__main__':
+    LR_GRAMMAR = {
+        '<start>': [['<A>']],
+        '<A>': [['<A>', 'a'], []],
+    }
+    lr_tree = ('<start>', (('<A>', (('<A>', (('<A>', []), ('a', []))), ('a', []))), ('a', [])))
+    print(format_parsetree(lr_tree))
 
-lr_tree = ('<start>', (('<A>', (('<A>', (('<A>', []), ('a', []))), ('a', []))), ('a', [])))
-print(format_parsetree(lr_tree))
-
-RR_GRAMMAR = {
-    '<start>': [['<A>']],
-    '<A>': [['a', '<A>'], []],
-}
-rr_tree = ('<start>', (('<A>', (('a', []), ('<A>', (('a', []), ('<A>', (('a', []), ('<A>', []))))))),))
-print(format_parsetree(rr_tree))
+if __name__ == '__main__':
+    RR_GRAMMAR = {
+        '<start>': [['<A>']],
+        '<A>': [['a', '<A>'], []],
+    }
+    rr_tree = ('<start>', (('<A>', (('a', []), ('<A>', (('a', []), ('<A>', (('a', []), ('<A>', []))))))),))
+    print(format_parsetree(rr_tree))
 
 # Here is our input string
 
-mystring = 'aaaaaa'
+if __name__ == '__main__':
+    mystring = 'aaaaaa'
 
 # To see the problem, we need to enable logging. Here is the logged version of parsing with the `LR_GRAMMAR`
 
-result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
-for _ in result: pass # consume the generator so that we can see the logs
+if __name__ == '__main__':
+    result = EarleyParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
+    for _ in result: pass # consume the generator so that we can see the logs
 
+# 
 
-result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = EarleyParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+    for _ in result: pass
 
 # As can be seen from the parsing log for each letter, the number of states with
 # representation `<A>: a <A> | (i, j)` increases at each stage, and these are
@@ -1302,8 +1337,9 @@ class LeoParser(LeoParser):
 
 # 
 
-lp = LeoParser(RR_GRAMMAR)
-print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
+if __name__ == '__main__':
+    lp = LeoParser(RR_GRAMMAR)
+    print([(str(s), str(lp.uniq_postdot(s))) for s in columns[-1].states])
 
 # We next define the function `get_top()` that is the core of deterministic
 # reduction which gets the topmost state above the current state `(A)`.
@@ -1332,99 +1368,115 @@ class LeoParser(LeoParser):
 
 # 
 
-lp = LeoParser(RR_GRAMMAR)
-columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
-[(str(s), str(lp.get_top(s))) for s in columns[-1].states]
+if __name__ == '__main__':
+    lp = LeoParser(RR_GRAMMAR)
+    columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+    print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
 
 # Now, both LR and RR grammars should work within  $$O(n)$$ bounds.
 
-result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR, log=True).parse_on(mystring, START)
+    for _ in result: pass
 
 # Examples
 
-RR_GRAMMAR2 = {
-    '<start>': [['<A>']],
-    '<A>': [['a','b', '<A>'], []],
-}
-mystring2 = 'ababababab'
+if __name__ == '__main__':
+    RR_GRAMMAR2 = {
+        '<start>': [['<A>']],
+        '<A>': [['a','b', '<A>'], []],
+    }
+    mystring2 = 'ababababab'
 
 # 
 
-result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
-for _ in result: pass
+if __name__ == '__main__':
+    if __name__ == '__main__':
+        result = LeoParser(RR_GRAMMAR2, log=True).parse_on(mystring2, START)
+        for _ in result: pass
 
 # 
 
-RR_GRAMMAR3 = {
-    '<start>': [['c', '<A>']],
-    '<A>': [['a', 'b', '<A>'], []],
-}
-mystring3 = 'cababababab'
+if __name__ == '__main__':
+    RR_GRAMMAR3 = {
+        '<start>': [['c', '<A>']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring3 = 'cababababab'
 
 # 
 
-result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR3, log=True).parse_on(mystring3, START)
+    for _ in result: pass
 
 # 
 
-RR_GRAMMAR4 = {
-    '<start>': [['<A>', 'c']],
-    '<A>': [['a', 'b', '<A>'], []],
-}
-mystring4 = 'ababababc'
+if __name__ == '__main__':
+    RR_GRAMMAR4 = {
+        '<start>': [['<A>', 'c']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring4 = 'ababababc'
 
 # 
 
-result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR4, log=True).parse_on(mystring4, START)
+    for _ in result: pass
 
 # 
 
-RR_GRAMMAR5 = {
-    '<start>': [['<A>']],
-    '<A>': [['a', 'b', '<B>'], []],
-    '<B>': [['<A>']],
-}
-mystring5 = 'abababab'
+if __name__ == '__main__':
+    RR_GRAMMAR5 = {
+        '<start>': [['<A>']],
+        '<A>': [['a', 'b', '<B>'], []],
+        '<B>': [['<A>']],
+    }
+    mystring5 = 'abababab'
 
 # 
 
-result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR5, log=True).parse_on(mystring5, START)
+    for _ in result: pass
 
 # 
 
-RR_GRAMMAR6 = {
-    '<start>': [['<A>']],
-    '<A>': [['a', '<B>'], []],
-    '<B>': [['b', '<A>']],
-}
-mystring6 = 'abababab'
+if __name__ == '__main__':
+    RR_GRAMMAR6 = {
+        '<start>': [['<A>']],
+        '<A>': [['a', '<B>'], []],
+        '<B>': [['b', '<A>']],
+    }
+    mystring6 = 'abababab'
 
 # 
 
-result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR6, log=True).parse_on(mystring6, START)
+    for _ in result: pass
 
 # 
 
-RR_GRAMMAR7 = {
-    '<start>': [['<A>']],
-    '<A>': [['a', '<A>'], ['a']],
-}
-mystring7 = 'aaaaaaaa'
+if __name__ == '__main__':
+    RR_GRAMMAR7 = {
+        '<start>': [['<A>']],
+        '<A>': [['a', '<A>'], ['a']],
+    }
+    mystring7 = 'aaaaaaaa'
 
 # 
 
-result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR7, log=True).parse_on(mystring7, START)
+    for _ in result: pass
 
 # We verify that our parser works correctly on `LR_GRAMMAR` too.
 
-result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
-for _ in result: pass
+if __name__ == '__main__':
+    result = LeoParser(LR_GRAMMAR, log=True).parse_on(mystring, START)
+    for _ in result: pass
 
 
 # We have fixed the complexity bounds. However, because we are saving only the topmost item of a right recursion, we need to fix our parser to be aware of our fix while extracting parse trees.
@@ -1496,11 +1548,12 @@ class LeoParser(LeoParser):
 
 # Here is the rearranged table.
 
-ep = LeoParser(RR_GRAMMAR)
-columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
-r_table = ep.rearrange(columns)
-for col in r_table:
-    print(col, "\n")
+if __name__ == '__main__':
+    ep = LeoParser(RR_GRAMMAR)
+    columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+    r_table = ep.rearrange(columns)
+    for col in r_table:
+        print(col, "\n")
 
 # We save the result of rearrange before going into `parse_forest()`.
 
@@ -1533,82 +1586,94 @@ class LeoParser(LeoParser):
 
 # This completes our implementation of `LeoParser `.
 
-result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
-for tree in result:
-    assert mystring == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
+    for tree in result:
+        assert mystring == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
-for tree in result:
-    assert mystring2 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR2).parse_on(mystring2, START)
+    for tree in result:
+        assert mystring2 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
-for tree in result:
-    assert mystring3 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR3).parse_on(mystring3, START)
+    for tree in result:
+        assert mystring3 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
-for tree in result:
-    assert mystring4 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR4).parse_on(mystring4, START)
+    for tree in result:
+        assert mystring4 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
-for tree in result:
-    assert mystring5 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR5).parse_on(mystring5, START)
+    for tree in result:
+        assert mystring5 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
-for tree in result:
-    assert mystring6 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR6).parse_on(mystring6, START)
+    for tree in result:
+        assert mystring6 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
-for tree in result:
-    assert mystring7 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR7).parse_on(mystring7, START)
+    for tree in result:
+        assert mystring7 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
-for tree in result:
-    assert mystring == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(LR_GRAMMAR).parse_on(mystring, START)
+    for tree in result:
+        assert mystring == tree_to_str(tree)
 
 # 
 
-RR_GRAMMAR8 = {
-   '<start>': [['<A>']],
-   '<A>': [['a', '<A>'], ['a']]
-}
-mystring8 = 'aa'
+if __name__ == '__main__':
+    RR_GRAMMAR8 = {
+       '<start>': [['<A>']],
+       '<A>': [['a', '<A>'], ['a']]
+    }
+    mystring8 = 'aa'
 
 # 
 
-RR_GRAMMAR9 = {
-   '<start>': [['<A>']],
-   '<A>': [['<B>', '<A>'], ['<B>']],
-   '<B>': [['b']]
-}
-mystring9 = 'bbbbbbb'
+if __name__ == '__main__':
+    RR_GRAMMAR9 = {
+       '<start>': [['<A>']],
+       '<A>': [['<B>', '<A>'], ['<B>']],
+       '<B>': [['b']]
+    }
+    mystring9 = 'bbbbbbb'
 
 # 
 
-result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
-for tree in result:
-    print(repr(tree_to_str(tree)))
-    assert mystring8 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR8).parse_on(mystring8, START)
+    for tree in result:
+        print(repr(tree_to_str(tree)))
+        assert mystring8 == tree_to_str(tree)
 
 # 
 
-result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
-for tree in result:
-    print(repr(tree_to_str(tree)))
-    assert mystring9 == tree_to_str(tree)
+if __name__ == '__main__':
+    result = LeoParser(RR_GRAMMAR9).parse_on(mystring9, START)
+    for tree in result:
+        print(repr(tree_to_str(tree)))
+        assert mystring9 == tree_to_str(tree)
 
 # [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
 # 
