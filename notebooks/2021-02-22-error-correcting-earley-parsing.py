@@ -113,20 +113,20 @@ if __name__ == '__main__':
 # nonterminal that lets you make these mistakes. So, we first define that
 # nonterminal that corresponds to each terminal symbol.
 
-def This_char(t):
+def This_sym(t):
     return '<$ [%s]>' % t
 
 # 
 
 if __name__ == '__main__':
-    print(This_char('a'))
+    print(This_sym('a'))
 
 # We also define a convenience function that when given a rule, translates the
 # terminal symbols in that rule to the above nonterminal symbol.
 
 def translate_terminal(t):
     if is_nt(t): return t
-    return This_char(t)
+    return This_sym(t)
 
 def translate_terminals(g):
     return {k:[[translate_terminal(t) for t in alt] for alt in g[k]] for k in g}
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 # following expansions: (1) it matches the original terminal symbol
 # (2) there is some junk before the terminal symbol. So, match and discard
 # that junk before matching the terminal symbol
-# -- `<$.+>` matches any number of any characters. These are the corresponding
+# -- `<$.+>` matches any number of any symbols. These are the corresponding
 # nonterminals names
 
 Any_one = '<$.>'
@@ -192,24 +192,24 @@ def add_start(g, old_start):
 
 # Finally we are ready to augment the original given grammar so that what we
 # have is a covering grammar. We first extract the symbols used, then produce
-# the nonterminal `Any_one` that correspond to any character match. Next,
-# we use `Any_not` to produce an any char except match. We then have a
+# the nonterminal `Any_one` that correspond to any symbol match. Next,
+# we use `Any_not` to produce an any symbol except match. We then have a
 # `Empty` to match the absence of the nonterminal.
 
 def augment_grammar(g, start, Symbols=None):
     if Symbols is None:
         Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
-    Match_any_char = {Any_one: [[k] for k in Symbols]}
+    Match_any_sym = {Any_one: [[k] for k in Symbols]}
 
 
-    Match_any_char_except = {}
+    Match_any_sym_except = {}
     for kk in Symbols:
-        Match_any_char_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+        Match_any_sym_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
     Match_empty = {Empty: []}
 
-    Match_a_char = {}
+    Match_a_sym = {}
     for kk in Symbols:
-        Match_a_char[This_char(kk)] = [
+        Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
                 [Empty],
@@ -218,9 +218,9 @@ def augment_grammar(g, start, Symbols=None):
     start_g, start_s = add_start(g, start)
     return {**start_g,
             **translate_terminals(g),
-            **Match_any_char,
-            **Match_a_char,
-            **Match_any_char_except,
+            **Match_any_sym,
+            **Match_a_sym,
+            **Match_any_sym_except,
             **Match_empty}, start_s
 
 # Here is the augmented grammar
