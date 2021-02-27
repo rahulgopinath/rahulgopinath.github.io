@@ -66,7 +66,7 @@ grammar = {
 }
 START = '<start>'
 
-# The gramamr can be printed as follows.
+# The grammar can be printed as follows.
 
 def print_g(g):
     for k in g:
@@ -87,7 +87,7 @@ def is_nt(k):
     return (k[0], k[-1]) == ('<', '>')
 
 # Next, we take each terminal symbol in the given grammar. For example, the
-# below contains all termial symbols from our `grammar`
+# below contains all terminal symbols from our `grammar`
 
 if __name__ == '__main__':
     #Symbols = [i for i in string.printable if i not in '\n\r\t\x0b\x0c']
@@ -100,12 +100,12 @@ if __name__ == '__main__':
 # * The input symbol being considered may have some junk value in front
 # * The input symbol may have been mistakenly written as something else.
 # 
-# A moment's reflection should covince you that a covering grammar only needs
+# A moment's reflection should convince you that a covering grammar only needs
 # to handle these three cases (In fact, only the first two cases are sufficient
 # but we add the third because it is also a _simple_ mutation).
 # 
 # The main idea is that we replace the given terminal symbol with an equivalent
-# nontrminal that lets you make these mistakes. So, we first define that
+# nonterminal that lets you make these mistakes. So, we first define that
 # nonterminal that corresponds to each terminal symbol.
 
 def This_char(t):
@@ -131,7 +131,7 @@ def translate_terminals(g):
 if __name__ == '__main__':
     print_g(translate_terminals(grammar))
 
-# How are thes nonterminals defined? Each nonterminal has the following
+# How are these nonterminals defined? Each nonterminal has the following
 # expansion rules
 # 
 # ```
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 # following expansions: (1) it matches the original terminal symbol
 # (2) there is some junk before the terminal symbol. So, match and discard
 # that junk before matching the terminal symbol
-# -- `<$.+>` matches any number of any characters. These are the corresonding
+# -- `<$.+>` matches any number of any characters. These are the corresponding
 # nonterminals names
 
 Any_one = '<$.>'
@@ -269,7 +269,7 @@ class EarleyParser(EarleyParser):
             s.penalty += my_penalty
             col.add(s)
 
-# This means that we need a new state defitition with penalty.
+# This means that we need a new state definition with penalty.
 
 class State(State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
@@ -288,7 +288,7 @@ class State(State):
         return s
 
 # Since States are created by Columns, we need new column too that knows about
-# state penaltys. We also need to keep track of the minimum penaly that a state
+# state penalties. We also need to keep track of the minimum penalty that a state
 # incurred. In particular, any time we find a less corrupt parse, we update the
 # penalty.
 

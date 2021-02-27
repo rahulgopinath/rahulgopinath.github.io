@@ -6,7 +6,20 @@ comments: true
 tags: parsing, error correcting, context-free
 categories: post
 ---
-**DRAFT**
+
+We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
+One of the interesting things about Earley parsers is that it also forms the
+basis of best known general context-free error correcting parser. A parser is
+error correcting if it is able to parse corrupt inputs that only partially
+conform to a given grammar. The particular algorithm we will be examining is
+the minimum distance error correcting parser by Aho et al.[^aho1972minimum].
+
+There are two parts to this algorithm. The first is the idea of a
+_covering grammar_ that parses any corrupt input and the second is the
+extraction of the best possible parse from the corresponding parse forest.
+
+Aho et al. uses Earley parser for their error correcting parser. So, we will
+follow in their foot steps.
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
 <script src="/resources/pyodide/full/3.8/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -23,20 +36,47 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
-We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
-One of the interesting things about Earley parsers is that it also forms the
-basis of best known general context-free error correcting parser. A parser is
-error correcting if it is able to parse corrupt inputs that only partially
-conform to a given grammar. The particular algorithm we will be examining is the
-minimum distance error correcting parser by Aho et al.[^aho1972minimum].
+<!--
+############
+import sys
+if "pyodide" in sys.modules:
+    import pyodide
+    earley_module_str = pyodide.open_url(
+    'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/_posts/2021-02-06-earley-parsing.py')
+    pyodide.eval_code(earley_module_str.getvalue(), globals())
+else:
+    #with open('2021-02-06-earley-parsing.py', encoding='utf8') as f:
+    #    exec(f.read())
+    __vars__ = vars(__import__('2021-02-06-earley-parsing'))
+    globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import sys
+if &quot;pyodide&quot; in sys.modules:
+    import pyodide
+    earley_module_str = pyodide.open_url(
+    &#x27;https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/_posts/2021-02-06-earley-parsing.py&#x27;)
+    pyodide.eval_code(earley_module_str.getvalue(), globals())
+else:
+    #with open(&#x27;2021-02-06-earley-parsing.py&#x27;, encoding=&#x27;utf8&#x27;) as f:
+    #    exec(f.read())
+    __vars__ = vars(__import__(&#x27;2021-02-06-earley-parsing&#x27;))
+    globals().update({k:__vars__[k] for k in __vars__ if k not in [&#x27;__name__&#x27;]})
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## Covering Grammar
 
 The idea from Aho et al. is to first transform the given grammar into a
 *covering grammar*. A grammar $$G_2$$ covers another grammar $$G_1$$ if
-(in essence) all productions in $$G_1$$ are in $$G_2$$, and a string that
-is parsed by $$G_1$$ is guaranteed to be parsed by $$G_2$$, and all the
-parses from $$G_1$$ are guaranteed to exist in the set of parses from $$G_2$$.
+all productions in $$G_1$$ have a one to one correspondence to some production
+in $$G_2$$, and a string that is parsed by $$G_1$$ is guaranteed to be parsed
+by $$G_2$$, and all the parses from $$G_1$$ are guaranteed to exist in the set
+of parses from $$G_2$$ (with the given homomorphism of productions).
 
 So, we first construct a covering grammar that can handle any corruption of
 input, with the additional property that there will be a parse of the corrupt
@@ -44,71 +84,49 @@ string which contains **the minimum number of modifications needed** such that
 if they are applied on the string, it will make it parsed by the original
 grammar.
 
-### First, the prerequisites
+### First, we load the prerequisites
 
 <!--
 ############
+import string
 import random
 import itertools as I
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import string
 import random
 import itertools as I
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-### Our Grammar
+The following is our grammar and its start symbol.
 
 <!--
 ############
 grammar = {
     '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
+    '<expr>': [ ['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
+    '<term>': [ ['<fact>', '*', '<term>'], ['<fact>', '/', '<term>'], ['<fact>']],
+    '<fact>': [ ['<digits>'], ['(','<expr>',')']],
+    '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
     '<digit>': [["%s" % str(i)] for i in range(10)],
 }
 START = '<start>'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
-    &#x27;&lt;expr&gt;&#x27;: [
-        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;]],
-    &#x27;&lt;term&gt;&#x27;: [
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;fact&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
-    &#x27;&lt;digits&gt;&#x27;: [
-        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [ [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;], [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [ [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;], [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [ [&#x27;&lt;digits&gt;&#x27;], [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [ [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;], [&#x27;&lt;digit&gt;&#x27;]],
     &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
 START = &#x27;&lt;start&gt;&#x27;
@@ -116,10 +134,7 @@ START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-We can also print it.
-
-
+The grammar can be printed as follows.
 
 <!--
 ############
@@ -127,26 +142,27 @@ def print_g(g):
     for k in g:
         print(k)
         for rule in g[k]:
-            print('|  ', ' '.join([str(k) for k in rule]))
+            print('|  ', ' '.join([repr(k) for k in rule]))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def print_g(g):
     for k in g:
         print(k)
         for rule in g[k]:
-            print(&#x27;|  &#x27;, &#x27; &#x27;.join([str(k) for k in rule]))
+            print(&#x27;|  &#x27;, &#x27; &#x27;.join([repr(k) for k in rule]))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+For example,
 
 <!--
 ############
 print_g(grammar)
+
 ############
 -->
 <form name='python_run_form'>
@@ -156,21 +172,17 @@ print_g(grammar)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
-
-Checking whether a term is nonterminal
+Now, constructing a covering grammar proceeds as follows.
+First we define how to distinguish nonterminal and terminal symbols
 
 <!--
 ############
 def is_nt(k):
     if len(k) == 1: return False
     return (k[0], k[-1]) == ('<', '>')
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def is_nt(k):
@@ -180,511 +192,459 @@ def is_nt(k):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Next, we take each terminal symbol in the given grammar. For example, the
+below contains all terminal symbols from our `grammar`
 
 <!--
 ############
-print(is_nt('a'))
-print(is_nt('<a>'))
+#Symbols = [i for i in string.printable if i not in '\n\r\t\x0b\x0c']
+Symbols = [t for k in grammar for alt in grammar[k] for t in alt if not is_nt(t)]
+print(len(Symbols))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(is_nt(&#x27;a&#x27;))
-print(is_nt(&#x27;&lt;a&gt;&#x27;))
+#Symbols = [i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;]
+Symbols = [t for k in grammar for alt in grammar[k] for t in alt if not is_nt(t)]
+print(len(Symbols))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Next, we consider the following corruptions of the valid input:
 
-Now, the covering grammar itself. The covering grammar constructed by Aho et al.
-is fairly straight forward. It handles three possible mutations of the input
+* The input symbol being considered may have been deleted
+* The input symbol being considered may have some junk value in front
+* The input symbol may have been mistakenly written as something else.
 
-* The replacement of a terminal symbol by another terminal symbol
-* The insertion of an extra terminal symbol
-* Deletion of a terminal symbol
+A moment's reflection should convince you that a covering grammar only needs
+to handle these three cases (In fact, only the first two cases are sufficient
+but we add the third because it is also a _simple_ mutation).
 
-Any number and combinations of these mutations can accumulate in an input.
-That is, in effect, *any string* can be considered a mutation of a parsable
-string, and hence we can expect the covering grammar to parse it.
-
-Next, to make sure that any string is parsable, we first define a nonterminal
-that is capable of parsing any string. For ease of parsing, let us define
-a new terminal symbol that stands in for any terminal symbol. This stands for $$I$$
-in Aho's paper.
+The main idea is that we replace the given terminal symbol with an equivalent
+nonterminal that lets you make these mistakes. So, we first define that
+nonterminal that corresponds to each terminal symbol.
 
 <!--
 ############
-Any_one = '{$.}' # this is a terminal
+def This_char(t):
+    return '<$ {%s}>' % t
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-Any_one = &#x27;{$.}&#x27; # this is a terminal
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-We should be able to parse any number of such symbols. So, we define a new
-nonterminal for that. This stands for $$H$$ in Aho's paper.
-
-<!--
-############
-Any_plus = '<$.+>' # this is a nonterminal
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-Any_plus = &#x27;&lt;$.+&gt;&#x27; # this is a nonterminal
+def This_char(t):
+    return &#x27;&lt;$ {%s}&gt;&#x27; % t
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
 
-In a similar fashion, we also need a terminal symbol that will match any except
-a given terminal symbol. Since this is specific to a terminal symbol, let us make
-it a method.
-
 <!--
 ############
-def Any_not(t): return '{!%s}' % t # this is a terminal.
+print(This_char('a'))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def Any_not(t): return &#x27;{!%s}&#x27; % t # this is a terminal.
+print(This_char(&#x27;a&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-Note that both `Any_one` and `Any_not` can be made into nonterminal symbols
-with corresponding definitions if required so that the resulting grammar is
-fully in the context-free format. We do not do that here because it is
-easier this way.
-
-How do we check for match between a terminal symbol and a given input symbol?
+We also define a convenience function that when given a rule, translates the
+terminal symbols in that rule to the above nonterminal symbol.
 
 <!--
 ############
-def is_not(t):
-    if len(t) > 1:
-        if  t[1] == '!':
-            return t[2]
-    return None
+def translate_terminal(t):
+    if is_nt(t): return t
+    return This_char(t)
 
-def is_not_match(terminal, in_sym):
-    l = is_not(terminal)
-    if l is not None:
-        return l != in_sym
-    else:
-        return False
+def translate_terminals(g):
+    return {k:[[translate_terminal(t) for t in alt] for alt in g[k]] for k in g}
 
-def terminal_match(terminal, in_sym):
-    if terminal == in_sym: return True
-    # terminal can be any: <$.+> or not: <!x>
-    if terminal == Any_one: return True
-    if is_not_match(terminal, in_sym): return True
-    return False
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def is_not(t):
-    if len(t) &gt; 1:
-        if  t[1] == &#x27;!&#x27;:
-            return t[2]
-    return None
+def translate_terminal(t):
+    if is_nt(t): return t
+    return This_char(t)
 
-def is_not_match(terminal, in_sym):
-    l = is_not(terminal)
-    if l is not None:
-        return l != in_sym
-    else:
-        return False
-
-def terminal_match(terminal, in_sym):
-    if terminal == in_sym: return True
-    # terminal can be any: &lt;$.+&gt; or not: &lt;!x&gt;
-    if terminal == Any_one: return True
-    if is_not_match(terminal, in_sym): return True
-    return False
+def translate_terminals(g):
+    return {k:[[translate_terminal(t) for t in alt] for alt in g[k]] for k in g}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 
 
-Checking it
-
-
-
 <!--
 ############
-print(terminal_match('a', 'a'))
-print(terminal_match('{$.}', 'a'))
-print(terminal_match('{!a}', 'a'))
-print(terminal_match('{!b}', 'a'))
+print_g(translate_terminals(grammar))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(terminal_match(&#x27;a&#x27;, &#x27;a&#x27;))
-print(terminal_match(&#x27;{$.}&#x27;, &#x27;a&#x27;))
-print(terminal_match(&#x27;{!a}&#x27;, &#x27;a&#x27;))
-print(terminal_match(&#x27;{!b}&#x27;, &#x27;a&#x27;))
+print_g(translate_terminals(grammar))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+How are these nonterminals defined? Each nonterminal has the following
+expansion rules
 
-We need to transform our grammar. Essentially, the idea is
-that for each terminal symbol in the grammar, we add a
-nonterminal symbol that handles the following possibilities
+```
+<$ {a}> -> a
+         | <$.+> a
+         | <$>
+         | <$!{a}>
+```
 
-* The terminal is matched exactly as provided with a symbol in input
-* The symbol that matches terminal is replaced by something else in the input, which means another symbol instead of the expected one
-* Some junk symbols are present before the symbol that matches the given terminal
-* The expected symbol was deleted from input string
-
-That is, given `a` is a terminal symbol, we add the following *error productions*, where `<$ a>` is the corresponding nonterminal.
-
-* `<$ a> -> a`
-* `<$ a> -> <$.+> a`
-* `<$ a> -> ` $$\epsilon$$
-* `<$ a> -> {!a}`
-
-For each such *correction*, we add one penalty. In essence, the following
-general correction rules get one penalty if they are used. That is, each
-*any* character `{$.}` is a correction, and the count of such *any*
-characters is the penalty in these rules.
-
-* `<$.+> -> <$.+> {$.}`
-* `<$.+> -> {$.}`
-
-Also, these terminal corrections get one penalty. Again, like above, the penalty
-here is because of not matching a particular expected character.
-
-* `<$ a> -> `$$\epsilon$$
-* `<$ a> -> {!a}`
-
-Notice that we do not have to add penalty for the junk insertion because that
-is already been applied by the general corrections.
-
-These are added to the grammar as follows.
+That is, each nonterminal that corresponds to a terminal symbol has the
+following expansions: (1) it matches the original terminal symbol
+(2) there is some junk before the terminal symbol. So, match and discard
+that junk before matching the terminal symbol
+-- `<$.+>` matches any number of any characters. These are the corresponding
+nonterminals names
 
 <!--
 ############
-def to_term(t): return '<$ %s>' % t
+Any_one = '<$.>'
+Any_plus = '<$.+>'
 
-def error_productions(g, t):
-    return [ # Any_plus already has at least 1 weight.
-                add_penalty([t], 0),
-                add_penalty([Any_plus, t], 0),
-                add_penalty([], 1),
-                add_penalty([Any_not(t)], 1)
-    ]
-
-
-def change_t(t):
-    if is_nt(t):
-        return t
-    else:
-        return to_term(t)
-
-def fix_terminal_with_penalties(g):
-    keys = [k for k in g]
-    for k in keys:
-        for alt,w in g[k]:
-            for t in alt:
-                if t not in g:
-                    nt_t = to_term(t)
-                    if nt_t not in g:
-                       g[nt_t] = error_productions(g, t)
-
-    g_ = {}
-    for k in g:
-        if k[1] == '$':
-            g_[k] = g[k]
-        else:
-            g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
-    return g_
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def to_term(t): return &#x27;&lt;$ %s&gt;&#x27; % t
-
-def add_penalty(rule, weight):
-    assert isinstance(rule, list)
-    return [tuple(rule), weight]
-
-def error_productions(g, t):
-    return [ # Any_plus already has at least 1 weight.
-            add_penalty([t], 0),
-            add_penalty([Any_plus, t], 0),
-            add_penalty([], 1),
-            add_penalty([Any_not(t)], 1)
-    ]
-
-
-def change_t(t):
-    if is_nt(t):
-        return t
-    else:
-        return to_term(t)
-
-def fix_terminal_with_penalties(g):
-    keys = [k for k in g]
-    for k in keys:
-        for alt,w in g[k]:
-            for t in alt:
-                if t not in g:
-                    nt_t = to_term(t)
-                    if nt_t not in g:
-                       g[nt_t] = error_productions(g, t)
-
-    g_ = {}
-    for k in g:
-        if k[1] == &#x27;$&#x27;:
-            g_[k] = g[k]
-        else:
-            g_[k] = [(tuple([change_t(a) for a in alt]),w) for (alt,w) in g[k]]
-    return g_
+Any_one = &#x27;&lt;$.&gt;&#x27;
+Any_plus = &#x27;&lt;$.+&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-We modify the grammar to add this new nonterminal.
+(3) the terminal symbol was deleted. So, skip this terminal symbol by matching
+empty (`<$>`)
 
 <!--
 ############
-def add_any(g):
-    g[Any_plus] = [
-            add_penalty([Any_plus, Any_one], 1),
-            add_penalty([Any_one], 1)]
-    return g
+Empty = '<$>'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def add_any(g):
-    g[Any_plus] = [
-            add_penalty([Any_plus, Any_one], 1),
-            add_penalty([Any_one], 1)]
-    return g
+Empty = &#x27;&lt;$&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-Finally, we need to modify the start symbol to let junk symbols after the parse.
-This is handled by adding a new start symbol as below.
-
-* `<$start> -> <start>`
-* `<$start> -> <start> <$.+>`
+(4) the input symbol was a mistake. That is, it matches any input symbol other
+than the expected input symbol `a` -- `<$!{a}>`. We have to define as many
+nonterminals as there are terminal symbols again. So, we define a function.
 
 <!--
 ############
+def Any_not(t): return '<$!{%s}>' % t
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def Any_not(t): return &#x27;&lt;$!{%s}&gt;&#x27; % t
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+What happens if there is junk after parsing? We take care of that by wrapping
+the start symbol as follows
+
+```
+<$corrupt_start> -> <start>
+                  | <start> <$.+>
+<$new_start> -> <$corrupt_start>
+```
+
+<!--
+############
+def corrupt_start(old_start):
+    return '<@# %s>' % old_start[1:-1]
 
 def new_start(old_start):
-    old_start_ = old_start[1:-1]
-    return '<$%s>' % old_start_
+    return '<@ %s>' % old_start[1:-1]
 
 def add_start(g, old_start):
-    alts = [alt for alt,w in g[old_start]]
-    for alt in alts:
-        g[old_start].append(add_penalty(list(alt) + ['<$ .+>'], 0))
-    return g
+    g_ = {}
+    g_[corrupt_start(old_start)] = [[old_start], [old_start, Any_plus]]
+    new_s = new_start(old_start)
+    g_[new_s] = [[corrupt_start(old_start)]]
+    return g_, new_s
 
-def add_penalties_to_grammar(g):
-    return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def corrupt_start(old_start):
+    return &#x27;&lt;@# %s&gt;&#x27; % old_start[1:-1]
 
 def new_start(old_start):
-    old_start_ = old_start[1:-1]
-    return &#x27;&lt;$%s&gt;&#x27; % old_start_
+    return &#x27;&lt;@ %s&gt;&#x27; % old_start[1:-1]
 
 def add_start(g, old_start):
-    alts = [alt for alt,w in g[old_start]]
-    for alt in alts:
-        g[old_start].append(add_penalty(list(alt) + [&#x27;&lt;$ .+&gt;&#x27;], 0))
-    return g
-
-def add_penalties_to_grammar(g):
-    return {k:[add_penalty(rule, 0) for rule in g[k]] for k in g}
-
+    g_ = {}
+    g_[corrupt_start(old_start)] = [[old_start], [old_start, Any_plus]]
+    new_s = new_start(old_start)
+    g_[new_s] = [[corrupt_start(old_start)]]
+    return g_, new_s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+Finally we are ready to augment the original given grammar so that what we
+have is a covering grammar. We first extract the symbols used, then produce
+the nonterminal `Any_one` that correspond to any character match. Next,
+we use `Any_not` to produce an any char except match. We then have a
+`Empty` to match the absence of the nonterminal.
 
 <!--
 ############
-g_e = add_penalties_to_grammar(grammar)
-print_g(g_e)
+def augment_grammar(g, start, Symbols=None):
+    if Symbols is None:
+        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_char = {Any_one: [[k] for k in Symbols]}
+
+
+    Match_any_char_except = {}
+    for kk in Symbols:
+        Match_any_char_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+    Match_empty = {Empty: []}
+
+    Match_a_char = {}
+    for kk in Symbols:
+        Match_a_char[This_char(kk)] = [
+                [kk],
+                [Any_plus, kk],
+                [Empty],
+                [Any_not(kk)]
+                ]
+    start_g, start_s = add_start(g, start)
+    return {**start_g,
+            **translate_terminals(g),
+            **Match_any_char,
+            **Match_a_char,
+            **Match_any_char_except,
+            **Match_empty}, start_s
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_e = add_penalties_to_grammar(grammar)
-print_g(g_e)
+def augment_grammar(g, start, Symbols=None):
+    if Symbols is None:
+        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_char = {Any_one: [[k] for k in Symbols]}
+
+
+    Match_any_char_except = {}
+    for kk in Symbols:
+        Match_any_char_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+    Match_empty = {Empty: []}
+
+    Match_a_char = {}
+    for kk in Symbols:
+        Match_a_char[This_char(kk)] = [
+                [kk],
+                [Any_plus, kk],
+                [Empty],
+                [Any_not(kk)]
+                ]
+    start_g, start_s = add_start(g, start)
+    return {**start_g,
+            **translate_terminals(g),
+            **Match_any_char,
+            **Match_a_char,
+            **Match_any_char_except,
+            **Match_empty}, start_s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is the augmented grammar
 
 <!--
 ############
-g_e = fix_terminal_with_penalties(g_e)
-print_g(g_e)
+covering_grammar, covering_start = augment_grammar(grammar, START)
+print_g(covering_grammar)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_e = fix_terminal_with_penalties(g_e)
-print_g(g_e)
+covering_grammar, covering_start = augment_grammar(grammar, START)
+print_g(covering_grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-## Next, we extract the nullable keys used in Earley parsing
+At this point, we are ready to check the covering properties of our grammar.
 
 <!--
 ############
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not is_nt(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
+ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not is_nt(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
-
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
+ie = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1&#x27;, covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-The column definition is exactly the same as before, but with one crucial
-difference. When we compare uniqueness of states in `add()`, we give
-priority to states with less penalty. That is, if the state being
-added has a lower penalty than an existing state, it is replaced.
+What about an error?
 
 <!--
 ############
-class Column:
-    def __init__(self, index, letter):
-        self.index, self.letter = index, letter
-        self.states, self._unique = [], {}
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie2.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 
-    def __str__(self):
-        return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
-            str(state) for state in self.states if state.finished()))
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie2.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As you can see, we can parse corrupt inputs. The next step is how to extract
+the minimally corrupt parse.
 
+## The minimally corrupt parse.
+
+First, we need to modify the Earley parser so that it can keep track of the
+penalties. We essentially assign a penalty if any of the following us used.
+
+* Any use of <$.> : Any_one --- note, Any_plus gets +1 automatically
+* Any use of <$>  : Empty
+* Any use of <$ !{.}>  : Any_not
+
+<!--
+############
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        my_penalty = state.penalty
+        if state.name ==  Empty:
+            my_penalty = 1
+        elif state.name == Any_one:
+            my_penalty = 1
+        elif state.name.startswith('<$ !{'):
+            my_penalty = 1
+        for st in parent_states:
+            s = st.advance()
+            s.penalty += my_penalty
+            col.add(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class EarleyParser(EarleyParser):
+    def complete(self, col, state):
+        parent_states = [st for st in state.s_col.states
+                 if st.at_dot() == state.name]
+        my_penalty = state.penalty
+        if state.name ==  Empty:
+            my_penalty = 1
+        elif state.name == Any_one:
+            my_penalty = 1
+        elif state.name.startswith(&#x27;&lt;$ !{&#x27;):
+            my_penalty = 1
+        for st in parent_states:
+            s = st.advance()
+            s.penalty += my_penalty
+            col.add(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This means that we need a new state definition with penalty.
+
+<!--
+############
+class State(State):
+    def __init__(self, name, expr, dot, s_col, e_col=None):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.s_col, self.e_col = s_col, e_col
+        self.penalty = 0
+
+    def copy(self):
+        s = State(self.name, self.expr, self.dot, self.s_col, self.e_col)
+        s.penalty = self.penalty
+        return s
+
+    def advance(self):
+        s = State(self.name, self.expr, self.dot + 1, self.s_col, self.e_col)
+        s.penalty = self.penalty
+        return s
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class State(State):
+    def __init__(self, name, expr, dot, s_col, e_col=None):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.s_col, self.e_col = s_col, e_col
+        self.penalty = 0
+
+    def copy(self):
+        s = State(self.name, self.expr, self.dot, self.s_col, self.e_col)
+        s.penalty = self.penalty
+        return s
+
+    def advance(self):
+        s = State(self.name, self.expr, self.dot + 1, self.s_col, self.e_col)
+        s.penalty = self.penalty
+        return s
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Since States are created by Columns, we need new column too that knows about
+state penalties. We also need to keep track of the minimum penalty that a state
+incurred. In particular, any time we find a less corrupt parse, we update the
+penalty.
+
+<!--
+############
+class Column(Column):
     def add(self, state):
         if state in self._unique:
-            if self._unique[state].weight > state.weight:
+            if self._unique[state].penalty > state.penalty:
                 # delete from self.states in fill_chart
                 state.e_col = self
                 self.states.append(state)
@@ -695,49 +655,54 @@ class Column:
         state.e_col = self
         return self._unique[state]
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Column(Column):
+    def add(self, state):
+        if state in self._unique:
+            if self._unique[state].penalty &gt; state.penalty:
+                # delete from self.states in fill_chart
+                state.e_col = self
+                self.states.append(state)
+                self._unique[state] = state
+            return self._unique[state]
+        self._unique[state] = state
+        self.states.append(state)
+        state.e_col = self
+        return self._unique[state]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As we find and add our states with lesser penalties, we need to remove the
+higher penalty states from our list.
+
+<!--
+############
+class Column(Column):
     def remove_extra_states(self):
         my_states = []
         for state in self._unique:
             cur_states = [s for s in self.states if s == state]
             if len(cur_states) > 1:
-                cur_states = sorted(cur_states, key=lambda s: s.weight)
+                cur_states = sorted(cur_states, key=lambda s: s.penalty)
             my_states.append(cur_states[0])
         self.states = my_states
         return
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Column:
-    def __init__(self, index, letter):
-        self.index, self.letter = index, letter
-        self.states, self._unique = [], {}
-
-    def __str__(self):
-        return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
-            str(state) for state in self.states if state.finished()))
-
-    def add(self, state):
-        if state in self._unique:
-            if self._unique[state].weight &gt; state.weight:
-                # delete from self.states in fill_chart
-                state.e_col = self
-                self.states.append(state)
-                self._unique[state] = state
-            return self._unique[state]
-        self._unique[state] = state
-        self.states.append(state)
-        state.e_col = self
-        return self._unique[state]
-
+class Column(Column):
     def remove_extra_states(self):
         my_states = []
         for state in self._unique:
             cur_states = [s for s in self.states if s == state]
             if len(cur_states) &gt; 1:
-                cur_states = sorted(cur_states, key=lambda s: s.weight)
+                cur_states = sorted(cur_states, key=lambda s: s.penalty)
             my_states.append(cur_states[0])
         self.states = my_states
         return
@@ -745,173 +710,10 @@ class Column:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-No changes in the definition of state.
-
-<!--
-############
-class State:
-    def __init__(self, name, expr, dot, s_col, e_col=None):
-        self.name, self.expr_, self.dot = name, expr, dot
-        self.s_col, self.e_col = s_col, e_col
-        self.expr, self.weight = expr
-
-    def finished(self):
-        return self.dot >= len(self.expr)
-
-    def at_dot(self):
-        return self.expr[self.dot] if self.dot < len(self.expr) else None
-
-    def __str__(self):
-        def idx(var):
-            return var.index if var else -1
-
-        return self.name + ':= ' + ' '.join([
-            str(p)
-            for p in [*self.expr[:self.dot], '|', *self.expr[self.dot:]]
-            ]) + "(%d,%d):%d" % (idx(self.s_col), idx(self.e_col), self.weight)
-
-    def copy(self):
-        return State(self.name, (self.expr, self.weight), self.dot, self.s_col, self.e_col)
-
-    def _t(self):
-        return (self.name, self.expr, self.dot, self.s_col.index)
-
-    def __hash__(self):
-        return hash(self._t())
-
-    def __eq__(self, other):
-        return self._t() == other._t()
-
-    def advance(self):
-        return State(self.name, (self.expr, self.weight), self.dot + 1, self.s_col)
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class State:
-    def __init__(self, name, expr, dot, s_col, e_col=None):
-        self.name, self.expr_, self.dot = name, expr, dot
-        self.s_col, self.e_col = s_col, e_col
-        self.expr, self.weight = expr
-
-    def finished(self):
-        return self.dot &gt;= len(self.expr)
-
-    def at_dot(self):
-        return self.expr[self.dot] if self.dot &lt; len(self.expr) else None
-
-    def __str__(self):
-        def idx(var):
-            return var.index if var else -1
-
-        return self.name + &#x27;:= &#x27; + &#x27; &#x27;.join([
-            str(p)
-            for p in [*self.expr[:self.dot], &#x27;|&#x27;, *self.expr[self.dot:]]
-            ]) + &quot;(%d,%d):%d&quot; % (idx(self.s_col), idx(self.e_col), self.weight)
-
-    def copy(self):
-        return State(self.name, (self.expr, self.weight), self.dot, self.s_col, self.e_col)
-
-    def _t(self):
-        return (self.name, self.expr, self.dot, self.s_col.index)
-
-    def __hash__(self):
-        return hash(self._t())
-
-    def __eq__(self, other):
-        return self._t() == other._t()
-
-    def advance(self):
-        return State(self.name, (self.expr, self.weight), self.dot + 1, self.s_col)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-Next, the parser itself. We need to make sure that the grammar we use is the
-updated grammar.
-
+We need to call this method at the end of processing of the column.
 
 <!--
 ############
-class Parser:
-    def parse_on(self, text, start_symbol):
-        raise NotImplemented()
-
-class EarleyParser(Parser):
-    def __init__(self, grammar, log=False, **kwargs):
-        g_e = add_penalties_to_grammar(grammar)
-        # need to update terminals
-        g_e = fix_terminal_with_penalties(g_e)
-        self.epsilon = nullable(grammar)
-        self._grammar = g_e
-        self.log = log
-
-        self._grammar = add_any(self._grammar)
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class Parser:
-    def parse_on(self, text, start_symbol):
-        raise NotImplemented()
-
-class EarleyParser(Parser):
-    def __init__(self, grammar, log=False, **kwargs):
-        g_e = add_penalties_to_grammar(grammar)
-        # need to update terminals
-        g_e = fix_terminal_with_penalties(g_e)
-        self.epsilon = nullable(grammar)
-        self._grammar = g_e
-        self.log = log
-
-        self._grammar = add_any(self._grammar)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-Remaining is almost exactly same as the original Earley parser except for
-`complete()` where we have to transfer the penalties to the parent parse.
-
-<!--
-############
-class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start, alt):
-        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(State(start, alt, 0, chart[0]))
-        return self.fill_chart(chart)
-
-
-class EarleyParser(EarleyParser):
-    def predict(self, col, sym, state):
-        for alt in self._grammar[sym]:
-            col.add(State(sym, alt, 0, col))
-        if sym in self.epsilon:
-            col.add(state.advance())
-
-class EarleyParser(EarleyParser):
-    def scan(self, col, state, letter):
-        if terminal_match(letter, col.letter):
-            s = state.advance()
-            s.expr = col.letter
-            col.add(s)
-
-class EarleyParser(EarleyParser):
-    def complete(self, col, state):
-        parent_states = [st for st in state.s_col.states
-                 if st.at_dot() == state.name]
-        for st in parent_states:
-            s = st.advance()
-            s.weight += state.weight
-            col.add(s)
-
 class EarleyParser(EarleyParser):
     def fill_chart(self, chart):
         for i, col in enumerate(chart):
@@ -929,42 +731,11 @@ class EarleyParser(EarleyParser):
             col.remove_extra_states()
             if self.log: print(col, '\n')
         return chart
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start, alt):
-        chart = [Column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(State(start, alt, 0, chart[0]))
-        return self.fill_chart(chart)
-
-
-class EarleyParser(EarleyParser):
-    def predict(self, col, sym, state):
-        for alt in self._grammar[sym]:
-            col.add(State(sym, alt, 0, col))
-        if sym in self.epsilon:
-            col.add(state.advance())
-
-class EarleyParser(EarleyParser):
-    def scan(self, col, state, letter):
-        if terminal_match(letter, col.letter):
-            s = state.advance()
-            s.expr = col.letter
-            col.add(s)
-
-class EarleyParser(EarleyParser):
-    def complete(self, col, state):
-        parent_states = [st for st in state.s_col.states
-                 if st.at_dot() == state.name]
-        for st in parent_states:
-            s = st.advance()
-            s.weight += state.weight
-            col.add(s)
-
 class EarleyParser(EarleyParser):
     def fill_chart(self, chart):
         for i, col in enumerate(chart):
@@ -986,168 +757,32 @@ class EarleyParser(EarleyParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-The extraction of parse trees.
+Now, we need to hook up our new column and state to Earley parser.
 
 <!--
 ############
-
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol, alt):
-        self.table = self.chart_parse(text, start_symbol, alt)
-        for col in reversed(self.table):
-            states = [st for st in col.states
-                if st.name == start_symbol and st.expr == alt[0] and st.s_col.index == 0
-            ]
-            if states:
-                return col.index, states
-        return -1, []
+    def create_column(self, i, tok): return Column(i, tok)
 
-class EarleyParser(EarleyParser):
-    def parse_paths(self, named_expr, chart, frm, til):
-        def paths(state, start, k, e):
-            if not e:
-                return [[(state, k)]] if start == frm else []
-            else:
-                return [[(state, k)] + r
-                        for r in self.parse_paths(e, chart, frm, start)]
+    def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
 
-        *expr, var = named_expr
-        starts = None
-        if var not in self._grammar:
-            starts = ([(var, til - len(var),
-                        't')] if til > 0 and chart[til].letter == var else [])
-        else:
-            starts = [(s, s.s_col.index, 'n') for s in chart[til].states
-                      if s.finished() and s.name == var]
-
-        return [p for s, start, k in starts for p in paths(s, start, k, expr)]
-
-
-class EarleyParser(EarleyParser):
-    def forest(self, s, kind, chart):
-        return self.parse_forest(chart, s) if kind == 'n' else (s, [])
-
-    def parse_forest(self, chart, state):
-        pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
-                                     state.e_col.index) if state.expr else []
-        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
-                            for pathexpr in pathexprs]
-
-class EarleyParser(EarleyParser):
-    def parse_on(self, text, start_symbol):
-        self._grammar = add_start(self._grammar, start_symbol)
-        print_g(self._grammar)
-
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, alt)
-            start = next((s for s in states if s.finished()), None)
-
-            if cursor < len(text) or not start:
-                #raise SyntaxError("at " + repr(text[cursor:]))
-                continue
-            forest = self.parse_forest(self.table, start)
-            print('weight = ', str(start))
-            yield forest
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol, alt):
-        self.table = self.chart_parse(text, start_symbol, alt)
-        for col in reversed(self.table):
-            states = [st for st in col.states
-                if st.name == start_symbol and st.expr == alt[0] and st.s_col.index == 0
-            ]
-            if states:
-                return col.index, states
-        return -1, []
+    def create_column(self, i, tok): return Column(i, tok)
 
-class EarleyParser(EarleyParser):
-    def parse_paths(self, named_expr, chart, frm, til):
-        def paths(state, start, k, e):
-            if not e:
-                return [[(state, k)]] if start == frm else []
-            else:
-                return [[(state, k)] + r
-                        for r in self.parse_paths(e, chart, frm, start)]
-
-        *expr, var = named_expr
-        starts = None
-        if var not in self._grammar:
-            starts = ([(var, til - len(var),
-                        &#x27;t&#x27;)] if til &gt; 0 and chart[til].letter == var else [])
-        else:
-            starts = [(s, s.s_col.index, &#x27;n&#x27;) for s in chart[til].states
-                      if s.finished() and s.name == var]
-
-        return [p for s, start, k in starts for p in paths(s, start, k, expr)]
-
-
-class EarleyParser(EarleyParser):
-    def forest(self, s, kind, chart):
-        return self.parse_forest(chart, s) if kind == &#x27;n&#x27; else (s, [])
-
-    def parse_forest(self, chart, state):
-        pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
-                                     state.e_col.index) if state.expr else []
-        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
-                            for pathexpr in pathexprs]
-
-class EarleyParser(EarleyParser):
-    def parse_on(self, text, start_symbol):
-        self._grammar = add_start(self._grammar, start_symbol)
-        print_g(self._grammar)
-
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, alt)
-            start = next((s for s in states if s.finished()), None)
-
-            if cursor &lt; len(text) or not start:
-                #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
-                continue
-            forest = self.parse_forest(self.table, start)
-            print(&#x27;weight = &#x27;, str(start))
-            yield forest
+    def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-Now, we can use a simple extractor to extract one of the error correcting parses
-with lowest penalties.
-
+Finally, we hook up our simple extractor to choose the lowest cost path.
 
 <!--
 ############
-class SimpleExtractor:
-    def __init__(self, parser, text, start_symbol):
-        parser._grammar = add_start(parser._grammar, start_symbol)
-        self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, parser._grammar[start_symbol][0])
-        start = next((s for s in states if s.finished()), None)
-        if cursor < len(text) or not start:
-            raise SyntaxError("at " + repr(cursor))
-        self.my_forest = parser.parse_forest(parser.table, start)
-
-    def extract_a_node(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            return ((name, 0, 1), []), (name, [])
-        cur_path, i, l = self.choose_path(paths)
-        child_nodes = []
-        pos_nodes = []
-        for s, kind, chart in cur_path:
-            f = self.parser.forest(s, kind, chart)
-            postree, ntree = self.extract_a_node(f)
-            child_nodes.append(ntree)
-            pos_nodes.append(postree)
-
-        return ((name, i, l), pos_nodes), (name, child_nodes)
-
+class SimpleExtractor(SimpleExtractor):
     def choose_path(self, arr):
         l = len(arr)
         i = random.randrange(l)
@@ -1156,42 +791,30 @@ class SimpleExtractor:
 
     def cost_of_path(self, p):
         states = [s for s,kind,chart in p if kind == 'n']
-        return sum([s.weight for s in states])
+        return sum([s.penalty for s in states])
 
-    def extract_a_tree(self):
-        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
-        return parse_tree
+if __name__ == '__main__':
+    ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie3.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
+
+
+if __name__ == '__main__':
+    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie4.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
+
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class SimpleExtractor:
-    def __init__(self, parser, text, start_symbol):
-        parser._grammar = add_start(parser._grammar, start_symbol)
-        self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, parser._grammar[start_symbol][0])
-        start = next((s for s in states if s.finished()), None)
-        if cursor &lt; len(text) or not start:
-            raise SyntaxError(&quot;at &quot; + repr(cursor))
-        self.my_forest = parser.parse_forest(parser.table, start)
-
-    def extract_a_node(self, forest_node):
-        name, paths = forest_node
-        if not paths:
-            return ((name, 0, 1), []), (name, [])
-        cur_path, i, l = self.choose_path(paths)
-        child_nodes = []
-        pos_nodes = []
-        for s, kind, chart in cur_path:
-            f = self.parser.forest(s, kind, chart)
-            postree, ntree = self.extract_a_node(f)
-            child_nodes.append(ntree)
-            pos_nodes.append(postree)
-
-        return ((name, i, l), pos_nodes), (name, child_nodes)
-
+class SimpleExtractor(SimpleExtractor):
     def choose_path(self, arr):
         l = len(arr)
         i = random.randrange(l)
@@ -1200,128 +823,28 @@ class SimpleExtractor:
 
     def cost_of_path(self, p):
         states = [s for s,kind,chart in p if kind == &#x27;n&#x27;]
-        return sum([s.weight for s in states])
+        return sum([s.penalty for s in states])
 
-    def extract_a_tree(self):
-        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
-        return parse_tree
+if __name__ == &#x27;__main__&#x27;:
+    ie3 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie3.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
+
+
+if __name__ == &#x27;__main__&#x27;:
+    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+    ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie4.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
-<!--
-############
-class O:
-    def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
-
-Options = O(F='|', L='+', V='|', H='-', NL='\n')
-
-def format_newlines(prefix, formatted_node):
-    replacement = ''.join([Options.NL, '\n', prefix])
-    return formatted_node.replace('\n', replacement)
-
-def format_tree(node, format_node, get_children, prefix=''):
-    children = list(get_children(node))
-    next_prefix = ''.join([prefix, Options.V, '   '])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = ''.join([prefix, '    '])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
-
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
-    return '\n'.join(lines)
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class O:
-    def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
-
-Options = O(F=&#x27;|&#x27;, L=&#x27;+&#x27;, V=&#x27;|&#x27;, H=&#x27;-&#x27;, NL=&#x27;\n&#x27;)
-
-def format_newlines(prefix, formatted_node):
-    replacement = &#x27;&#x27;.join([Options.NL, &#x27;\n&#x27;, prefix])
-    return formatted_node.replace(&#x27;\n&#x27;, replacement)
-
-def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
-    children = list(get_children(node))
-    next_prefix = &#x27;&#x27;.join([prefix, Options.V, &#x27;   &#x27;])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield &#x27;&#x27;.join([prefix, Options.F, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = &#x27;&#x27;.join([prefix, &#x27;    &#x27;])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield &#x27;&#x27;.join([prefix, Options.L, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
-
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
-    return &#x27;\n&#x27;.join(lines)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-<!--
-############
-myg = EarleyParser(grammar)
-inp = 'xz+yz'
-print(repr(inp))
-x = SimpleExtractor(myg, inp, START)
-t = x.extract_a_tree()
-print(format_parsetree(t))
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-myg = EarleyParser(grammar)
-inp = &#x27;xz+yz&#x27;
-print(repr(inp))
-x = SimpleExtractor(myg, inp, START)
-t = x.extract_a_tree()
-print(format_parsetree(t))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-<!-- XXXXXXXXXX -->
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
-[^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
-
-
