@@ -1684,7 +1684,7 @@ if __name__ == '__main__':
         print(repr(tree_to_str(tree)))
         assert mystring9 == tree_to_str(tree)
 
-# The source for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/_posts/2021-02-06-earley-parsing.py).
+# The runnable Python source for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/_posts/2021-02-06-earley-parsing.py).
 # 
 # [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
 # 
