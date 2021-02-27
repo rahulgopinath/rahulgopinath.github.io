@@ -3468,6 +3468,7 @@ for tree in result:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+The source for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/_posts/2021-02-06-earley-parsing.py).
 [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
 
 [^leo1991a]: Leo, Joop MIM. "A general context-free parsing algorithm running in linear time on every LR (k) grammar without using lookahead." Theoretical computer science 82.1 (1991): 165-176.
