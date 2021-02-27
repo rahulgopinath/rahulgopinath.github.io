@@ -24,12 +24,11 @@
 import sys
 if "pyodide" in sys.modules:
     import pyodide
-    earley_module_str = pyodide.open_url(
-    'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/notebooks/2021-02-06-earley-parsing.py')
+    github_repo = 'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io'
+    earley_module_str = pyodide.open_url(github_repo +
+            '/master/notebooks/2021-02-06-earley-parsing.py')
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
-    #with open('2021-02-06-earley-parsing.py', encoding='utf8') as f:
-    #    exec(f.read())
     __vars__ = vars(__import__('2021-02-06-earley-parsing'))
     globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
 
@@ -92,7 +91,6 @@ def is_nt(k):
 # below contains all terminal symbols from our `grammar`
 
 if __name__ == '__main__':
-    #Symbols = [i for i in string.printable if i not in '\n\r\t\x0b\x0c']
     Symbols = [t for k in grammar for alt in grammar[k] for t in alt if not is_nt(t)]
     print(len(Symbols))
 
@@ -372,7 +370,7 @@ if __name__ == '__main__':
         print(tree_to_str(tree))
         print(format_parsetree(tree))
 
-# 
+# Caution, this command will take time. 30 seconds in Mac Book Pro.
 
 if __name__ == '__main__':
     covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])

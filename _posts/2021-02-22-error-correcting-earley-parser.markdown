@@ -41,12 +41,11 @@ Initialization completion is indicated by a red border around *Run all* button.
 import sys
 if "pyodide" in sys.modules:
     import pyodide
-    earley_module_str = pyodide.open_url(
-    'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/notebooks/2021-02-06-earley-parsing.py')
+    github_repo = 'https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io'
+    earley_module_str = pyodide.open_url(github_repo +
+            '/master/notebooks/2021-02-06-earley-parsing.py')
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
-    #with open('2021-02-06-earley-parsing.py', encoding='utf8') as f:
-    #    exec(f.read())
     __vars__ = vars(__import__('2021-02-06-earley-parsing'))
     globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
 
@@ -57,12 +56,11 @@ else:
 import sys
 if &quot;pyodide&quot; in sys.modules:
     import pyodide
-    earley_module_str = pyodide.open_url(
-    &#x27;https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/notebooks/2021-02-06-earley-parsing.py&#x27;)
+    github_repo = &#x27;https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io&#x27;
+    earley_module_str = pyodide.open_url(github_repo +
+            &#x27;/master/notebooks/2021-02-06-earley-parsing.py&#x27;)
     pyodide.eval_code(earley_module_str.getvalue(), globals())
 else:
-    #with open(&#x27;2021-02-06-earley-parsing.py&#x27;, encoding=&#x27;utf8&#x27;) as f:
-    #    exec(f.read())
     __vars__ = vars(__import__(&#x27;2021-02-06-earley-parsing&#x27;))
     globals().update({k:__vars__[k] for k in __vars__ if k not in [&#x27;__name__&#x27;]})
 </textarea><br />
@@ -199,7 +197,6 @@ below contains all terminal symbols from our `grammar`
 
 <!--
 ############
-#Symbols = [i for i in string.printable if i not in '\n\r\t\x0b\x0c']
 Symbols = [t for k in grammar for alt in grammar[k] for t in alt if not is_nt(t)]
 print(len(Symbols))
 
@@ -207,7 +204,6 @@ print(len(Symbols))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-#Symbols = [i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;]
 Symbols = [t for k in grammar for alt in grammar[k] for t in alt if not is_nt(t)]
 print(len(Symbols))
 </textarea><br />
@@ -838,7 +834,7 @@ for i in range(3):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+Caution, this command will take time. 30 seconds in Mac Book Pro.
 
 <!--
 ############
