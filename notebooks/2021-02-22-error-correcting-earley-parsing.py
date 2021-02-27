@@ -6,6 +6,7 @@
 # tags: parsing, error correcting, context-free
 # categories: post
 # ---
+# **Caution:** Runall takes time -- up to 30 seconds in Macbook Pro.
 # 
 # We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
 # One of the interesting things about Earley parsers is that it also forms the
