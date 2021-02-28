@@ -401,6 +401,61 @@ if __name__ == '__main__':
 # character (e.g. `a`) on `!a`. What we lose there is generality. THat is, the
 # augmented context-free grammar will no longer be usable by other parsers
 # (unless they are augmented got match regular expressions).
+# We modify our Earley parser to expect these. First our strings.
+
+Any_term = '$.'
+
+Any_not_term = '!%s'
+
+# Now our parser.
+
+class EarleyParser(EarleyParser):
+    def match_terminal(self, rex, input_term):
+        if len(rex) > 1:
+            if rex == Any_term: return True
+            if rex[0] == Any_not_term[0]: return rex[1] != input_term # Any not
+            return False
+        else: return rex == input_term # normal
+
+    def scan(self, col, state, letter):
+        if self.match_terminal(letter, col.letter):
+            col.add(state.advance())
+
+# Our grammars are augmented this way.
+
+def augment_grammar_ext(g, start, Symbols=None):
+    if Symbols is None:
+        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_sym = {Any_one: [[ANy_term]]}
+
+
+    Match_any_sym_except = {}
+    for kk in Symbols:
+        Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
+    Match_empty = {Empty: []}
+
+    Match_a_sym = {}
+    for kk in Symbols:
+        Match_a_sym[This_sym(kk)] = [
+                [kk],
+                [Any_plus, kk],
+                [Empty],
+                [Any_not(kk)]
+                ]
+    start_g, start_s = add_start(g, start)
+    return {**start_g,
+            **translate_terminals(g),
+            **Match_any_sym,
+            **Match_a_sym,
+            **Match_any_sym_except,
+            **Match_empty}, start_s
+
+# Using it.
+
+if __name__ == '__main__':
+    covering_grammar_ex, covering_start_ex = augment_grammar_ext(grammar, START)
+    print_g(covering_grammar_ex)
+
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 
