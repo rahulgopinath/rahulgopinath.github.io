@@ -6,7 +6,6 @@ comments: true
 tags: parsing, error correcting, context-free
 categories: post
 ---
-**Caution:** Runall takes time -- up to 30 seconds in Macbook Pro.
 
 We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
 One of the interesting things about Earley parsers is that it also forms the
@@ -847,23 +846,25 @@ Caution, this command will take time. 30 seconds in Mac Book Pro.
 
 <!--
 ############
-covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
-for i in range(3):
-    tree = ie4.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+if False:
+    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie4.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
-for i in range(3):
-    tree = ie4.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+if False:
+    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+    ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie4.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
