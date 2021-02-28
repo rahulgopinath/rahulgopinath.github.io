@@ -516,6 +516,10 @@ if __name__ == '__main__':
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
 
+# Note that the algorithm for recognition is $$O(n^3)$$. This is a consequence
+# of the fact that our covering grammar is simply a context-free grammar, and
+# as you can see, there is only a constant size increase in the grammar $$(|G|+ |T|^3)$$
+# where $$|G|$$ is the original size, and $$|T|$$ is the numbeer of terminals.
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 
