@@ -385,6 +385,22 @@ if __name__ == '__main__':
         print(tree_to_str(tree))
         print(format_parsetree(tree))
 
+# Why is this so slow? One reason is that, for conceptual clarity, and
+# generality, we opted to expand two terms from the original paper.
+# For example, we chose set Any_one: `<$.>` as well as
+# Any_not_str: `<$![.]>` as nonterminal symbols. This means that
+# to match `<$.>`, (say we have $$T$$ terminal symbols,) we have to carry
+# an extra $$T$$ symbols per each symbol -- essentially giving us $$T^2$$
+# extra matches to perform. For matching `<$![.]>`, the situation is worse,
+# we have to carry $$T^2$$ symbols per each terminal, giving $$T^3$$
+# matches per original terminal symbol.
+# 
+# Fortunately, there is an optimization possible here. We can set the
+# Any_one: `.` and Any_not(a): `!a` to be terminal symbols, and fix the
+# terminal match so that we match any character on `.` and except the given
+# character (e.g. `a`) on `!a`. What we lose there is generality. THat is, the
+# augmented context-free grammar will no longer be usable by other parsers
+# (unless they are augmented got match regular expressions).
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 
