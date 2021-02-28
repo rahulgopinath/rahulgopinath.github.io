@@ -426,7 +426,7 @@ class EarleyParser(EarleyParser):
 def augment_grammar_ex(g, start, Symbols=None):
     if Symbols is None:
         Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
-    Match_any_sym = {Any_one: [[ANy_term]]}
+    Match_any_sym = {Any_one: [[Any_term]]}
 
 
     Match_any_sym_except = {}
