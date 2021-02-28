@@ -297,7 +297,7 @@ if __name__ == '__main__':
 # * Any use of <$ !{.}>  : Any_not
 
 
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(EarleyParser):
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
@@ -366,7 +366,7 @@ class Column(Column):
 
 # We need to call this method at the end of processing of the column.
 
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def fill_chart(self, chart):
         for i, col in enumerate(chart):
             for state in col.states:
@@ -386,7 +386,7 @@ class EarleyParser(EarleyParser):
 
 # Now, we need to hook up our new column and state to Earley parser.
 
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def create_column(self, i, tok): return Column(i, tok)
 
     def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
@@ -407,7 +407,7 @@ class SimpleExtractor(SimpleExtractor):
 # 
 
 if __name__ == '__main__':
-    ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
     for i in range(3):
         tree = ie3.extract_a_tree()
         print(tree_to_str(tree))
@@ -418,7 +418,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     if False:
         covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-        ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+        ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
         for i in range(3):
             tree = ie4.extract_a_tree()
             print(tree_to_str_delta(tree))
@@ -448,7 +448,7 @@ Any_not_term = '!%s'
 
 # Now our parser.
 
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def match_terminal(self, rex, input_term):
         if len(rex) > 1:
             if rex == Any_term: return True
@@ -501,7 +501,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
     for i in range(3):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -511,7 +511,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
     for i in range(3):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -520,6 +520,8 @@ if __name__ == '__main__':
 # of the fact that our covering grammar is simply a context-free grammar, and
 # as you can see, there is only a constant size increase in the grammar $$(|G|+ |T|^3)$$
 # where $$|G|$$ is the original size, and $$|T|$$ is the numbeer of terminals.
+
+# The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-22-error-correcting-earley-parsing.py).
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 

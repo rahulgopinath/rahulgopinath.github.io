@@ -651,7 +651,7 @@ penalties. We essentially assign a penalty if any of the following us used.
 
 <!--
 ############
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(EarleyParser):
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
@@ -671,7 +671,7 @@ class EarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(EarleyParser):
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
@@ -813,7 +813,7 @@ We need to call this method at the end of processing of the column.
 
 <!--
 ############
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def fill_chart(self, chart):
         for i, col in enumerate(chart):
             for state in col.states:
@@ -835,7 +835,7 @@ class EarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def fill_chart(self, chart):
         for i, col in enumerate(chart):
             for state in col.states:
@@ -860,7 +860,7 @@ Now, we need to hook up our new column and state to Earley parser.
 
 <!--
 ############
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def create_column(self, i, tok): return Column(i, tok)
 
     def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
@@ -869,7 +869,7 @@ class EarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def create_column(self, i, tok): return Column(i, tok)
 
     def create_state(self, sym, alt, num, col): return State(sym, alt, num, col)
@@ -914,7 +914,7 @@ class SimpleExtractor(SimpleExtractor):
 
 <!--
 ############
-ie3 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
 for i in range(3):
     tree = ie3.extract_a_tree()
     print(tree_to_str(tree))
@@ -924,7 +924,7 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie3 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
 for i in range(3):
     tree = ie3.extract_a_tree()
     print(tree_to_str(tree))
@@ -939,7 +939,7 @@ Caution, this command will take time. 30 seconds in Mac Book Pro.
 ############
 if False:
     covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+    ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
     for i in range(3):
         tree = ie4.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -951,7 +951,7 @@ if False:
 <textarea cols="40" rows="4" name='python_edit'>
 if False:
     covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-    ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
+    ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
     for i in range(3):
         tree = ie4.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -999,7 +999,7 @@ Now our parser.
 
 <!--
 ############
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def match_terminal(self, rex, input_term):
         if len(rex) > 1:
             if rex == Any_term: return True
@@ -1017,7 +1017,7 @@ class EarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class EarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
     def match_terminal(self, rex, input_term):
         if len(rex) &gt; 1:
             if rex == Any_term: return True
@@ -1121,7 +1121,7 @@ Testing x+y
 <!--
 ############
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1132,7 +1132,7 @@ for i in range(3):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), &#x27;x+y&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), &#x27;x+y&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1145,7 +1145,7 @@ Testing x+1
 <!--
 ############
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1155,7 +1155,7 @@ for i in range(3):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), &#x27;x+1&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), &#x27;x+1&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
