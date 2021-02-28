@@ -6,7 +6,6 @@
 # tags: parsing, error correcting, context-free
 # categories: post
 # ---
-# **Caution:** Runall takes time -- up to 30 seconds in Macbook Pro.
 # 
 # We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
 # One of the interesting things about Earley parsers is that it also forms the
@@ -378,12 +377,13 @@ if __name__ == '__main__':
 # Caution, this command will take time. 30 seconds in Mac Book Pro.
 
 if __name__ == '__main__':
-    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
-    for i in range(3):
-        tree = ie4.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+    if False:
+        covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+        ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+        for i in range(3):
+            tree = ie4.extract_a_tree()
+            print(tree_to_str(tree))
+            print(format_parsetree(tree))
 
 # Why is this so slow? One reason is that, for conceptual clarity, and
 # generality, we opted to expand two terms from the original paper.
