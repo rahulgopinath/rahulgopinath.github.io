@@ -112,8 +112,10 @@ if __name__ == '__main__':
 # nonterminal that lets you make these mistakes. So, we first define that
 # nonterminal that corresponds to each terminal symbol.
 
+This_sym_str = '<$ [%s]>'
+
 def This_sym(t):
-    return '<$ [%s]>' % t
+    return  This_sym_str % t
 
 # 
 
@@ -245,7 +247,44 @@ if __name__ == '__main__':
         print(tree_to_str(tree))
         print(format_parsetree(tree))
 
-# As you can see, we can parse corrupt inputs. The next step is how to extract
+# We define a `tree_to_str_delta() that indicates the corrections produced.
+
+def tree_to_str_delta(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == '<$' and key[2] != ' ':
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append('{s/%s//}' % repr(tree_to_str((key, children, *rest))))
+                elif key == Empty:
+                    assert False
+                    expanded.append('{del}')
+                elif key.startswith(Any_not_str[:4]): # <$![.]>
+                    k = key[4]
+                    expanded.append('{s/%s/%s/}' % (repr(tree_to_str((key, children, *rest))), k))
+                else:
+                    assert False
+            elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
+                expanded.append('{del %s}' % repr(key[3:-2]))
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
+
+# 
+if __name__ == '__main__':
+    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    for i in range(3):
+        tree = ie2.extract_a_tree()
+        print(tree_to_str_delta(tree))
+
+# As you can see, we can parse corrupt inputs, but the inputs that we parse are
+# not necessarily the smallest. The next step is how to extract
 # the minimally corrupt parse.
 # 
 # ## The minimally corrupt parse.
@@ -382,7 +421,7 @@ if __name__ == '__main__':
         ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
         for i in range(3):
             tree = ie4.extract_a_tree()
-            print(tree_to_str(tree))
+            print(tree_to_str_delta(tree))
             print(format_parsetree(tree))
 
 # Why is this so slow? One reason is that, for conceptual clarity, and
@@ -419,7 +458,9 @@ class EarleyParser(EarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
-            col.add(state.advance())
+            s = state.advance()
+            s.expr = (col.letter, )
+            col.add(s)
 
 # Our grammars are augmented this way.
 
@@ -456,15 +497,24 @@ if __name__ == '__main__':
     covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
     print_g(covering_grammar_ex)
 
-# Testing
+# Testing x+y
 
 if __name__ == '__main__':
     covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
     ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
     for i in range(3):
         tree = ie5.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+        print(tree_to_str_delta(tree))
+
+
+# Testing x+1
+
+if __name__ == '__main__':
+    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    for i in range(3):
+        tree = ie5.extract_a_tree()
+        print(tree_to_str_delta(tree))
 
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>

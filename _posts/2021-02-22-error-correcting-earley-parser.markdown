@@ -234,15 +234,19 @@ nonterminal that corresponds to each terminal symbol.
 
 <!--
 ############
+This_sym_str = '<$ [%s]>'
+
 def This_sym(t):
-    return '<$ [%s]>' % t
+    return  This_sym_str % t
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+This_sym_str = &#x27;&lt;$ [%s]&gt;&#x27;
+
 def This_sym(t):
-    return &#x27;&lt;$ [%s]&gt;&#x27; % t
+    return  This_sym_str % t
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -546,7 +550,94 @@ for i in range(3):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-As you can see, we can parse corrupt inputs. The next step is how to extract
+We define a `tree_to_str_delta() that indicates the corrections produced.
+
+<!--
+############
+def tree_to_str_delta(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == '<$' and key[2] != ' ':
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append('{s/%s//}' % repr(tree_to_str((key, children, *rest))))
+                elif key == Empty:
+                    assert False
+                    expanded.append('{del}')
+                elif key.startswith(Any_not_str[:4]): # <$![.]>
+                    k = key[4]
+                    expanded.append('{s/%s/%s/}' % (repr(tree_to_str((key, children, *rest))), k))
+                else:
+                    assert False
+            elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
+                expanded.append('{del %s}' % repr(key[3:-2]))
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def tree_to_str_delta(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == &#x27;&lt;$&#x27; and key[2] != &#x27; &#x27;:
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append(&#x27;{s/%s//}&#x27; % repr(tree_to_str((key, children, *rest))))
+                elif key == Empty:
+                    assert False
+                    expanded.append(&#x27;{del}&#x27;)
+                elif key.startswith(Any_not_str[:4]): # &lt;$![.]&gt;
+                    k = key[4]
+                    expanded.append(&#x27;{s/%s/%s/}&#x27; % (repr(tree_to_str((key, children, *rest))), k))
+                else:
+                    assert False
+            elif key[:2] == &#x27;&lt;$&#x27; and key[2] == &#x27; &#x27; and len(children) == 1 and children[0][0] == Empty:
+                expanded.append(&#x27;{del %s}&#x27; % repr(key[3:-2]))
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return &#x27;&#x27;.join(expanded)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie2.extract_a_tree()
+    print(tree_to_str_delta(tree))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+for i in range(3):
+    tree = ie2.extract_a_tree()
+    print(tree_to_str_delta(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As you can see, we can parse corrupt inputs, but the inputs that we parse are
+not necessarily the smallest. The next step is how to extract
 the minimally corrupt parse.
 
 ## The minimally corrupt parse.
@@ -851,7 +942,7 @@ if False:
     ie4 = SimpleExtractor(EarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
     for i in range(3):
         tree = ie4.extract_a_tree()
-        print(tree_to_str(tree))
+        print(tree_to_str_delta(tree))
         print(format_parsetree(tree))
 
 ############
@@ -863,7 +954,7 @@ if False:
     ie4 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
     for i in range(3):
         tree = ie4.extract_a_tree()
-        print(tree_to_str(tree))
+        print(tree_to_str_delta(tree))
         print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -918,7 +1009,9 @@ class EarleyParser(EarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
-            col.add(state.advance())
+            s = state.advance()
+            s.expr = (col.letter, )
+            col.add(s)
 
 ############
 -->
@@ -934,7 +1027,9 @@ class EarleyParser(EarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
-            col.add(state.advance())
+            s = state.advance()
+            s.expr = (col.letter, )
+            col.add(s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1021,7 +1116,7 @@ print_g(covering_grammar_ex)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Testing
+Testing x+y
 
 <!--
 ############
@@ -1029,8 +1124,7 @@ covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symb
 ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+    print(tree_to_str_delta(tree))
 
 
 ############
@@ -1041,8 +1135,31 @@ covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symb
 ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), &#x27;x+y&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
 for i in range(3):
     tree = ie5.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+    print(tree_to_str_delta(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing x+1
+
+<!--
+############
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+for i in range(3):
+    tree = ie5.extract_a_tree()
+    print(tree_to_str_delta(tree))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), &#x27;x+1&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+for i in range(3):
+    tree = ie5.extract_a_tree()
+    print(tree_to_str_delta(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
