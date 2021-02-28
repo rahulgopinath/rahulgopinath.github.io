@@ -423,7 +423,7 @@ class EarleyParser(EarleyParser):
 
 # Our grammars are augmented this way.
 
-def augment_grammar_ext(g, start, Symbols=None):
+def augment_grammar_ex(g, start, Symbols=None):
     if Symbols is None:
         Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[ANy_term]]}
@@ -453,8 +453,18 @@ def augment_grammar_ext(g, start, Symbols=None):
 # Using it.
 
 if __name__ == '__main__':
-    covering_grammar_ex, covering_start_ex = augment_grammar_ext(grammar, START)
+    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
     print_g(covering_grammar_ex)
+
+# Testing
+
+if __name__ == '__main__':
+    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    for i in range(3):
+        tree = ie5.extract_a_tree()
+        print(tree_to_str(tree))
+        print(format_parsetree(tree))
 
 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>

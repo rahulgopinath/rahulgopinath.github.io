@@ -942,7 +942,7 @@ Our grammars are augmented this way.
 
 <!--
 ############
-def augment_grammar_ext(g, start, Symbols=None):
+def augment_grammar_ex(g, start, Symbols=None):
     if Symbols is None:
         Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[ANy_term]]}
@@ -973,7 +973,7 @@ def augment_grammar_ext(g, start, Symbols=None):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def augment_grammar_ext(g, start, Symbols=None):
+def augment_grammar_ex(g, start, Symbols=None):
     if Symbols is None:
         Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[ANy_term]]}
@@ -1007,16 +1007,41 @@ Using it.
 
 <!--
 ############
-covering_grammar_ex, covering_start_ex = augment_grammar_ext(grammar, START)
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
 print_g(covering_grammar_ex)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
+print_g(covering_grammar_ex)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+
+<!--
+############
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+for i in range(3):
+    tree = ie5.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-covering_grammar_ex, covering_start_ex = augment_grammar_ext(grammar, START)
-print_g(covering_grammar_ex)
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie5 = SimpleExtractor(EarleyParser(covering_grammar_ex), &#x27;x+y&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+for i in range(3):
+    tree = ie5.extract_a_tree()
+    print(tree_to_str(tree))
+    print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
