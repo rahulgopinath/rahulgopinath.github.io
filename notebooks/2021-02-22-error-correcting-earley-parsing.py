@@ -11,7 +11,19 @@
 # One of the interesting things about Earley parsers is that it also forms the
 # basis of best known general context-free error correcting parser. A parser is
 # error correcting if it is able to parse corrupt inputs that only partially
-# conform to a given grammar. The particular algorithm we will be examining is
+# conform to a given grammar. For example, given a JSON input such as
+# 
+# ```
+# '[{"abc":[]'
+# ```
+# 
+# The error correcting parser will be able to supply the input that is
+# necesaary to make the input valid. In this case, it will supply `}]`.
+# The algorithm is minimal error correcting if the correction proided is
+# minimal in some sence. For example, if the correction is `, "":[]}]`, the
+# correction is not minimal.
+# 
+# The particular algorithm we will be examining is
 # the minimum distance error correcting parser by Aho et al.[^aho1972minimum].
 # 
 # There are two parts to this algorithm. The first is the idea of a
