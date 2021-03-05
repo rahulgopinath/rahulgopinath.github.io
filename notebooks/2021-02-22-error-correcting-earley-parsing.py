@@ -97,13 +97,7 @@ if __name__ == '__main__':
     print_g(grammar)
 
 # Now, constructing a covering grammar proceeds as follows.
-# First we define how to distinguish nonterminal and terminal symbols
-
-def is_nt(k):
-    if len(k) == 1: return False
-    return (k[0], k[-1]) == ('<', '>')
-
-# Next, we take each terminal symbol in the given grammar. For example, the
+# First, we take each terminal symbol in the given grammar. For example, the
 # below contains all terminal symbols from our `grammar`
 
 if __name__ == '__main__':
@@ -209,19 +203,20 @@ def add_start(g, old_start):
 # we use `Any_not` to produce an any symbol except match. We then have a
 # `Empty` to match the absence of the nonterminal.
 
-def augment_grammar(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
-    Match_any_sym = {Any_one: [[k] for k in Symbols]}
+def augment_grammar(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_sym = {Any_one: [[k] for k in symbols]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
-        Match_any_sym_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+    for kk in symbols:
+        Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -232,6 +227,7 @@ def augment_grammar(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -245,7 +241,7 @@ if __name__ == '__main__':
 # At this point, we are ready to check the covering properties of our grammar.
 
 if __name__ == '__main__':
-    ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start, covering_grammar[covering_start][0])
+    ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start)
     for i in range(3):
         tree = ie.extract_a_tree()
         print(tree_to_str(tree))
@@ -253,7 +249,7 @@ if __name__ == '__main__':
 
 # What about an error?
 if __name__ == '__main__':
-    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
     for i in range(3):
         tree = ie2.extract_a_tree()
         print(tree_to_str(tree))
@@ -290,7 +286,7 @@ def tree_to_str_delta(tree):
 
 # 
 if __name__ == '__main__':
-    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
     for i in range(3):
         tree = ie2.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -405,10 +401,19 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 
 # Finally, we hook up our simple extractor to choose the lowest cost path.
 
-class SimpleExtractor(SimpleExtractor):
+class SimpleExtractorEx(SimpleExtractor):
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        print("->", len(starts))
+        if cursor < len(text) or not starts:
+            raise SyntaxError("at " + repr(cursor))
+        for start in starts:
+            print("correction length:", start.penalty)
+        self.my_forest = parser.parse_forest(parser.table, starts)
+
     def choose_path(self, arr):
-        l = len(arr)
-        i = random.randrange(l)
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
         return res[0][1], None, None
 
@@ -419,7 +424,7 @@ class SimpleExtractor(SimpleExtractor):
 # 
 
 if __name__ == '__main__':
-    ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+    ie3 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start)
     for i in range(3):
         tree = ie3.extract_a_tree()
         print(tree_to_str(tree))
@@ -429,8 +434,8 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     if False:
-        covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-        ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+        covering_grammar, covering_start = augment_grammar(grammar, START, symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+        ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start)
         for i in range(3):
             tree = ie4.extract_a_tree()
             print(tree_to_str_delta(tree))
@@ -476,19 +481,20 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 
 # Our grammars are augmented this way.
 
-def augment_grammar_ex(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+def augment_grammar_ex(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -499,6 +505,7 @@ def augment_grammar_ex(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -512,8 +519,12 @@ if __name__ == '__main__':
 # Testing x+y
 
 if __name__ == '__main__':
-    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+            START,
+            symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+            'x+y',
+            covering_start_ex)
     for i in range(3):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -522,8 +533,12 @@ if __name__ == '__main__':
 # Testing x+1
 
 if __name__ == '__main__':
-    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+    covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+            START,
+            symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+            'x+1',
+            covering_start_ex)
     for i in range(3):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
