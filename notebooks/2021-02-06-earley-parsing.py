@@ -333,6 +333,9 @@ if __name__ == '__main__':
 # the grammar).
 
 class Parser:
+    def recognize_on(self, text, start_symbol):
+        raise NotImplemented()
+
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
 
@@ -735,15 +738,18 @@ if __name__ == '__main__':
 
 class EarleyParser(EarleyParser):
     def parse_on(self, text, start_symbol):
+        starts = self.recognize_on(text, start_symbol)
+        forest = self.parse_forest(self.table, starts)
+        for tree in self.extract_trees(forest):
+            yield tree
+
+    def recognize_on(self, text, start_symbol):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
         if cursor < len(text) or not starts:
             raise SyntaxError("at " + repr(text[cursor:]))
-
-        forest = self.parse_forest(self.table, starts)
-        for tree in self.extract_trees(forest):
-            yield tree
+        return starts
 
 # ### parse_paths
 # 
@@ -1586,10 +1592,7 @@ if __name__ == '__main__':
 
 class LeoParser(LeoParser):
     def parse_on(self, text, start_symbol):
-        cursor, states = self.parse_prefix(text, start_symbol)
-        starts = [s for s in states if s.finished()]
-        if cursor <len(text) or not starts:
-            raise SyntaxError('at: ' + repr(text[cursor:]))
+        starts = self.recognize_on(text, start_symbol)
         self.r_table = self.rearrange(self.table)
         forest = self.parse_forest(self.table, starts)
         for tree in self.extract_trees(forest):
