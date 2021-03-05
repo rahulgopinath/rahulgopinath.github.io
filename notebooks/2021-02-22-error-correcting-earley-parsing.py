@@ -192,10 +192,9 @@ def new_start(old_start):
 
 def add_start(g, old_start):
     g_ = {}
-    g_[corrupt_start(old_start)] = [[old_start], [old_start, Any_plus]]
-    new_s = new_start(old_start)
-    g_[new_s] = [[corrupt_start(old_start)]]
-    return g_, new_s
+    c_start = corrupt_start(old_start)
+    g_[c_start] = [[old_start], [old_start, Any_plus]]
+    return g_, c_start
 
 # Finally we are ready to augment the original given grammar so that what we
 # have is a covering grammar. We first extract the symbols used, then produce
@@ -348,29 +347,12 @@ class Column(Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty > state.penalty:
-                # delete from self.states in fill_chart
-                state.e_col = self
-                self.states.append(state)
-                self._unique[state] = state
+                self._unique[state].penalty = state.penalty
             return self._unique[state]
         self._unique[state] = state
         self.states.append(state)
         state.e_col = self
         return self._unique[state]
-
-# As we find and add our states with lesser penalties, we need to remove the
-# higher penalty states from our list.
-
-class Column(Column):
-    def remove_extra_states(self):
-        my_states = []
-        for state in self._unique:
-            cur_states = [s for s in self.states if s == state]
-            if len(cur_states) > 1:
-                cur_states = sorted(cur_states, key=lambda s: s.penalty)
-            my_states.append(cur_states[0])
-        self.states = my_states
-        return
 
 # We need to call this method at the end of processing of the column.
 
@@ -388,7 +370,6 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
                         if i + 1 >= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            col.remove_extra_states()
             if self.log: print(col, '\n')
         return chart
 
