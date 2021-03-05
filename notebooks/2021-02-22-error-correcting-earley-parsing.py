@@ -213,7 +213,7 @@ def augment_grammar(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
@@ -491,7 +491,7 @@ def augment_grammar_ex(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
