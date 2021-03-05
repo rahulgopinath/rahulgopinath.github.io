@@ -517,6 +517,9 @@ the grammar).
 <!--
 ############
 class Parser:
+    def recognize_on(self, text, start_symbol):
+        raise NotImplemented()
+
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
 
@@ -525,6 +528,9 @@ class Parser:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Parser:
+    def recognize_on(self, text, start_symbol):
+        raise NotImplemented()
+
     def parse_on(self, text, start_symbol):
         raise NotImplemented()
 </textarea><br />
@@ -719,20 +725,24 @@ We add this state to the `chart[0]` to start the parse. Note that the term
 after dot is `<A>`, which will need to be recursively inserted to the column.
 We will see how to do that later.
 
-*Note:* Here, we assume that a single expansion rule `alt` is being passed
-in. This is the traditional implementation. We handle multiple expansion rules
-for start symbol by using multiple charts. Another way to handle multiple
-expansion rules for the start symbol is to seed *all* expansion rules into
-the chart at `column 0`. We will have to then take care of that difference
-while building parse trees. For now, we go with the implementation closest
-to traditional implementation.
+*Note:* In traditional Earley parsing, the starting nonterminal always have
+a single expansion rule. However, in many cases, you want to parse a fragment
+and this rule makes it cumbersome to use Earley parsing. Hence, we have
+opted to allow any nonterminal to be used as the starting nonterminal
+irrespective of whether it has a single rule or not.
+Interestingly, this does not have an impact on the parsing itself, but in
+the extraction of results.
+In essence, we seed *all* expansion rules into of the current start symbol
+to the chart at `column 0`. We will take care of that difference while
+building parse trees.
 
 <!--
 ############
 class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start, alt):
+    def chart_parse(self, tokens, start, alts):
         chart = [self.create_column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(self.create_state(start, alt, 0, chart[0]))
+        for alt in alts:
+            chart[0].add(self.create_state(start, tuple(alt), 0, chart[0]))
         return self.fill_chart(chart)
 
     def create_column(self, i, tok): return Column(i, tok)
@@ -744,9 +754,10 @@ class EarleyParser(EarleyParser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def chart_parse(self, tokens, start, alt):
+    def chart_parse(self, tokens, start, alts):
         chart = [self.create_column(i, tok) for i, tok in enumerate([None, *tokens])]
-        chart[0].add(self.create_state(start, alt, 0, chart[0]))
+        for alt in alts:
+            chart[0].add(self.create_state(start, tuple(alt), 0, chart[0]))
         return self.fill_chart(chart)
 
     def create_column(self, i, tok): return Column(i, tok)
@@ -763,7 +774,7 @@ We seed our initial state in the example
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-v = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+v = ep.chart_parse(list('a'), START, sample_grammar[START])
 print(v[0].states[0])
 
 ############
@@ -773,7 +784,7 @@ print(v[0].states[0])
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-v = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
+v = ep.chart_parse(list(&#x27;a&#x27;), START, sample_grammar[START])
 print(v[0].states[0])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -829,7 +840,7 @@ which will then add the expansions of `<A>`.
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list('a'), START, sample_grammar[START])
 
 for s in chart[0].states:
     print(s)
@@ -841,7 +852,7 @@ for s in chart[0].states:
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list(&#x27;a&#x27;), START, sample_grammar[START])
 
 for s in chart[0].states:
     print(s)
@@ -913,7 +924,7 @@ Here is our continuing example.
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('a'), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list('a'), START, sample_grammar[START])
 ep.predict(chart[0], '<A>', s)
 
 new_state = chart[0].states[1]
@@ -930,7 +941,7 @@ for s in chart[1].states:
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list(&#x27;a&#x27;), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list(&#x27;a&#x27;), START, sample_grammar[START])
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 
 new_state = chart[0].states[1]
@@ -1000,7 +1011,7 @@ Here is our example. We start parsing `ad`. So, we have three columns.
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list('ad'), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list('ad'), START, sample_grammar[START])
 ep.predict(chart[0], '<A>', s)
 for s in chart[0].states:
     print(s)
@@ -1012,7 +1023,7 @@ for s in chart[0].states:
 ep = EarleyParser(sample_grammar)
 ep.fill_chart = lambda s: s
 
-chart = ep.chart_parse(list(&#x27;ad&#x27;), START, tuple(sample_grammar[START][0]))
+chart = ep.chart_parse(list(&#x27;ad&#x27;), START, sample_grammar[START])
 ep.predict(chart[0], &#x27;&lt;A&gt;&#x27;, s)
 for s in chart[0].states:
     print(s)
@@ -1200,7 +1211,7 @@ We can now recognize the given string as part of the language represented by the
 <!--
 ############
 ep = EarleyParser(sample_grammar, log=True)
-columns = ep.chart_parse('adcd', START, tuple(sample_grammar[START][0]))
+columns = ep.chart_parse('adcd', START, sample_grammar[START])
 for c in columns: print(c)
 
 ############
@@ -1208,7 +1219,7 @@ for c in columns: print(c)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar, log=True)
-columns = ep.chart_parse(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
+columns = ep.chart_parse(&#x27;adcd&#x27;, START, sample_grammar[START])
 for c in columns: print(c)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1247,11 +1258,12 @@ trees.
 <!--
 ############
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol, alt):
-        self.table = self.chart_parse(text, start_symbol, alt)
+    def parse_prefix(self, text, start_symbol):
+        alts = [tuple(alt) for alt in self._grammar[start_symbol]]
+        self.table = self.chart_parse(text, start_symbol, alts)
         for col in reversed(self.table):
             states = [st for st in col.states
-                if st.name == start_symbol and st.expr == alt and st.s_col.index == 0
+                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
             ]
             if states:
                 return col.index, states
@@ -1262,11 +1274,12 @@ class EarleyParser(EarleyParser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
-    def parse_prefix(self, text, start_symbol, alt):
-        self.table = self.chart_parse(text, start_symbol, alt)
+    def parse_prefix(self, text, start_symbol):
+        alts = [tuple(alt) for alt in self._grammar[start_symbol]]
+        self.table = self.chart_parse(text, start_symbol, alts)
         for col in reversed(self.table):
             states = [st for st in col.states
-                if st.name == start_symbol and st.expr == alt and st.s_col.index == 0
+                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
             ]
             if states:
                 return col.index, states
@@ -1280,7 +1293,7 @@ Here is an example of using it.
 <!--
 ############
 ep = EarleyParser(sample_grammar)
-cursor, last_states = ep.parse_prefix('adcd', START, tuple(sample_grammar[START][0]))
+cursor, last_states = ep.parse_prefix('adcd', START)
 print(cursor, [str(s) for s in last_states])
 
 ############
@@ -1288,7 +1301,7 @@ print(cursor, [str(s) for s in last_states])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
-cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;, START, tuple(sample_grammar[START][0]))
+cursor, last_states = ep.parse_prefix(&#x27;adcd&#x27;, START)
 print(cursor, [str(s) for s in last_states])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1305,17 +1318,18 @@ each expansion.
 ############
 class EarleyParser(EarleyParser):
     def parse_on(self, text, start_symbol):
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
-            start = next((s for s in states if s.finished()), None)
+        starts = self.recognize_on(text, start_symbol)
+        forest = self.parse_forest(self.table, starts)
+        for tree in self.extract_trees(forest):
+            yield tree
 
-            if cursor < len(text) or not start:
-                #raise SyntaxError("at " + repr(text[cursor:]))
-                continue
+    def recognize_on(self, text, start_symbol):
+        cursor, states = self.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
 
-            forest = self.parse_forest(self.table, start)
-            for tree in self.extract_trees(forest):
-                yield tree
+        if cursor < len(text) or not starts:
+            raise SyntaxError("at " + repr(text[cursor:]))
+        return starts
 
 ############
 -->
@@ -1323,17 +1337,18 @@ class EarleyParser(EarleyParser):
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def parse_on(self, text, start_symbol):
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
-            start = next((s for s in states if s.finished()), None)
+        starts = self.recognize_on(text, start_symbol)
+        forest = self.parse_forest(self.table, starts)
+        for tree in self.extract_trees(forest):
+            yield tree
 
-            if cursor &lt; len(text) or not start:
-                #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
-                continue
+    def recognize_on(self, text, start_symbol):
+        cursor, states = self.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
 
-            forest = self.parse_forest(self.table, start)
-            for tree in self.extract_trees(forest):
-                yield tree
+        if cursor &lt; len(text) or not starts:
+            raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
+        return starts
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1438,9 +1453,12 @@ rule `<D>`.
 
 ### parse_forest
 
-The `parse_forest()` method takes the state which represents the completed
-parse, and determines the possible ways that its expressions corresponded to
-the parsed expression. For example, say we are parsing `1+2+3`, and the
+The `parse_forest()` method takes the states which represents completed
+parses, and determines the possible ways that its expressions corresponded to
+the parsed expression. As we noted, it is here that we take care of multiple
+expansion rules for start symbol. (The `_parse_forest()` accepts a single
+state, and is the main driver that corresponds to traditional implementation,)
+For example, say we are parsing `1+2+3`, and the
 state has `[<expr>,+,<expr>]` in `expr`. It could have been parsed as either
 `[{<expr>:1+2},+,{<expr>:3}]` or `[{<expr>:1},+,{<expr>:2+3}]`.
 
@@ -1448,13 +1466,19 @@ state has `[<expr>,+,<expr>]` in `expr`. It could have been parsed as either
 ############
 class EarleyParser(EarleyParser):
     def forest(self, s, kind, chart):
-        return self.parse_forest(chart, s) if kind == 'n' else (s, [])
+        return self.parse_forest(chart, [s]) if kind == 'n' else (s, [])
 
-    def parse_forest(self, chart, state):
+    def _parse_forest(self, chart, state):
         pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
                                      state.e_col.index) if state.expr else []
-        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
-                            for pathexpr in pathexprs]
+        return (state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
+                            for pathexpr in pathexprs])
+
+    def parse_forest(self, chart, states):
+        names = list({s.name for s in states})
+        assert len(names) == 1
+        forest = [self._parse_forest(chart, state) for state in states]
+        return (names[0], [e for name, expr in forest for e in expr])
 
 ############
 -->
@@ -1462,13 +1486,19 @@ class EarleyParser(EarleyParser):
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def forest(self, s, kind, chart):
-        return self.parse_forest(chart, s) if kind == &#x27;n&#x27; else (s, [])
+        return self.parse_forest(chart, [s]) if kind == &#x27;n&#x27; else (s, [])
 
-    def parse_forest(self, chart, state):
+    def _parse_forest(self, chart, state):
         pathexprs = self.parse_paths(state.expr, chart, state.s_col.index,
                                      state.e_col.index) if state.expr else []
-        return state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
-                            for pathexpr in pathexprs]
+        return (state.name, [[(v, k, chart) for v, k in reversed(pathexpr)]
+                            for pathexpr in pathexprs])
+
+    def parse_forest(self, chart, states):
+        names = list({s.name for s in states})
+        assert len(names) == 1
+        forest = [self._parse_forest(chart, state) for state in states]
+        return (names[0], [e for name, expr in forest for e in expr])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1478,7 +1508,7 @@ Example
 <!--
 ############
 ep = EarleyParser(sample_grammar)
-result = ep.parse_forest(columns, last_states[0])
+result = ep.parse_forest(columns, last_states)
 print(result)
 
 ############
@@ -1486,7 +1516,7 @@ print(result)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = EarleyParser(sample_grammar)
-result = ep.parse_forest(columns, last_states[0])
+result = ep.parse_forest(columns, last_states)
 print(result)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1755,7 +1785,8 @@ An example run.
 ############
 mystring = 'a'
 for grammar in [directly_self_referring, indirectly_self_referring]:
-    forest = EarleyParser(grammar).parse_on(mystring, START)
+    ep = EarleyParser(grammar)
+    forest = ep.parse_on(mystring, START)
     print('recognized', mystring)
     try:
         for tree in forest:
@@ -1770,7 +1801,8 @@ for grammar in [directly_self_referring, indirectly_self_referring]:
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;a&#x27;
 for grammar in [directly_self_referring, indirectly_self_referring]:
-    forest = EarleyParser(grammar).parse_on(mystring, START)
+    ep = EarleyParser(grammar)
+    forest = ep.parse_on(mystring, START)
     print(&#x27;recognized&#x27;, mystring)
     try:
         for tree in forest:
@@ -1793,13 +1825,13 @@ recursion.
 import random
 
 class SimpleExtractor:
-    def __init__(self, parser, text, start_symbol, alt):
+    def __init__(self, parser, text, start_symbol):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, tuple(alt))
-        start = next((s for s in states if s.finished()), None)
-        if cursor < len(text) or not start:
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        if cursor < len(text) or not starts:
             raise SyntaxError("at " + repr(cursor))
-        self.my_forest = parser.parse_forest(parser.table, start)
+        self.my_forest = parser.parse_forest(parser.table, starts)
 
     def extract_a_node(self, forest_node):
         name, paths = forest_node
@@ -1832,13 +1864,13 @@ class SimpleExtractor:
 import random
 
 class SimpleExtractor:
-    def __init__(self, parser, text, start_symbol, alt):
+    def __init__(self, parser, text, start_symbol):
         self.parser = parser
-        cursor, states = parser.parse_prefix(text, start_symbol, tuple(alt))
-        start = next((s for s in states if s.finished()), None)
-        if cursor &lt; len(text) or not start:
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        if cursor &lt; len(text) or not starts:
             raise SyntaxError(&quot;at &quot; + repr(cursor))
-        self.my_forest = parser.parse_forest(parser.table, start)
+        self.my_forest = parser.parse_forest(parser.table, starts)
 
     def extract_a_node(self, forest_node):
         name, paths = forest_node
@@ -1905,15 +1937,13 @@ def tree_to_str(tree):
 
 <!--
 ############
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
-                                  directly_self_referring[START][0])
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START,
-                                  directly_self_referring[START][0])
+de = SimpleExtractor(EarleyParser(directly_self_referring), mystring, START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1943,15 +1973,13 @@ indirect reference
 
 <!--
 ############
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                  indirectly_self_referring[START][0])
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                  indirectly_self_referring[START][0])
+ie = SimpleExtractor(EarleyParser(indirectly_self_referring), mystring, START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2058,8 +2086,8 @@ Initialization of the data-structure in the constructor.
 <!--
 ############
 class EnhancedExtractor(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol, alt):
-        super().__init__(parser, text, start_symbol, alt)
+    def __init__(self, parser, text, start_symbol):
+        super().__init__(parser, text, start_symbol)
         self.choices = choices = ChoiceNode(None, 1)
 
 ############
@@ -2067,8 +2095,8 @@ class EnhancedExtractor(SimpleExtractor):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol, alt):
-        super().__init__(parser, text, start_symbol, alt)
+    def __init__(self, parser, text, start_symbol):
+        super().__init__(parser, text, start_symbol)
         self.choices = choices = ChoiceNode(None, 1)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2231,15 +2259,13 @@ span as that of a parent node with the same nonterminal, it skips the node.
 
 <!--
 ############
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                    indirectly_self_referring[START][0])
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START,
-                                    indirectly_self_referring[START][0])
+ee = EnhancedExtractor(EarleyParser(indirectly_self_referring), mystring, START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2388,11 +2414,12 @@ right recursion. The idea is that before starting the completion step, check
 whether the current item has a deterministic reduction path. If such a path
 exists, add a copy of the topmost element of the deterministic reduction path
 to the current column, and return. If not, perform the original completion step.
-**Definition:** An item is said to be on the deterministic reduction path above `[A→γ.,i]`
-if it is `[B→αA.,k]` with `[B→α.A,k]` being the only item in $$I_i$$ with the
+**Definition:** An item is said to be on the deterministic reduction path above
+$$[A \rightarrow \gamma.,i]$$ if it is $$[B \rightarrow \alpha A.,k]$$ with
+$$[B \rightarrow \alpha.A,k]$$ being the only item in $$I_i$$ with the
 dot in front of $$A$$, or if it is on the deterministic reduction path above
-`[B→αA.,k]`. An item on such a path is called topmost one if there is no item on
-the deterministic reduction path above it[^leo1991a].
+$$[B \rightarrow \alpha A.,k]$$. An item on such a path is called topmost one
+if there is no item on the deterministic reduction path above it[^leo1991a].
 
 Finding a deterministic reduction path is as follows:
 
@@ -2668,7 +2695,7 @@ class LeoParser(LeoParser):
 <!--
 ############
 lp = LeoParser(RR_GRAMMAR)
-columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+columns = lp.chart_parse(mystring, START, RR_GRAMMAR[START])
 print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
 
 ############
@@ -2676,7 +2703,7 @@ print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 lp = LeoParser(RR_GRAMMAR)
-columns = lp.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+columns = lp.chart_parse(mystring, START, RR_GRAMMAR[START])
 print([(str(s), str(lp.get_top(s))) for s in columns[-1].states])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -3151,7 +3178,7 @@ Here is the rearranged table.
 <!--
 ############
 ep = LeoParser(RR_GRAMMAR)
-columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+columns = ep.chart_parse(mystring, START, RR_GRAMMAR[START])
 r_table = ep.rearrange(columns)
 for col in r_table:
     print(col, "\n")
@@ -3161,7 +3188,7 @@ for col in r_table:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ep = LeoParser(RR_GRAMMAR)
-columns = ep.chart_parse(mystring, START, tuple(RR_GRAMMAR[START][0]))
+columns = ep.chart_parse(mystring, START, RR_GRAMMAR[START])
 r_table = ep.rearrange(columns)
 for col in r_table:
     print(col, &quot;\n&quot;)
@@ -3175,19 +3202,11 @@ We save the result of rearrange before going into `parse_forest()`.
 ############
 class LeoParser(LeoParser):
     def parse_on(self, text, start_symbol):
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
-            start = next((s for s in states if s.finished()), None)
-
-            if cursor <len(text) or not start:
-                #raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
-                continue
-
-            self.r_table = self.rearrange(self.table)
-
-            forest = self.parse_forest(self.table, start)
-            for tree in self.extract_trees(forest):
-                yield tree
+        starts = self.recognize_on(text, start_symbol)
+        self.r_table = self.rearrange(self.table)
+        forest = self.parse_forest(self.table, starts)
+        for tree in self.extract_trees(forest):
+            yield tree
 
 ############
 -->
@@ -3195,19 +3214,11 @@ class LeoParser(LeoParser):
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
     def parse_on(self, text, start_symbol):
-        for alt in self._grammar[start_symbol]:
-            cursor, states = self.parse_prefix(text, start_symbol, tuple(alt))
-            start = next((s for s in states if s.finished()), None)
-
-            if cursor &lt;len(text) or not start:
-                #raise SyntaxError(&amp;quot;at &amp;quot; + repr(text[cursor:]))
-                continue
-
-            self.r_table = self.rearrange(self.table)
-
-            forest = self.parse_forest(self.table, start)
-            for tree in self.extract_trees(forest):
-                yield tree
+        starts = self.recognize_on(text, start_symbol)
+        self.r_table = self.rearrange(self.table)
+        forest = self.parse_forest(self.table, starts)
+        for tree in self.extract_trees(forest):
+            yield tree
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3219,22 +3230,24 @@ state, and if it is, expand it to the original sequence of states using
 <!--
 ############
 class LeoParser(LeoParser):
-    def parse_forest(self, chart, state):
-        if isinstance(state, TState):
-            self.expand_tstate(state.back(), state.e_col)
+    def parse_forest(self, chart, states):
+        for state in states:
+            if isinstance(state, TState):
+                self.expand_tstate(state.back(), state.e_col)
 
-        return super().parse_forest(chart, state)
+        return super().parse_forest(chart, states)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LeoParser(LeoParser):
-    def parse_forest(self, chart, state):
-        if isinstance(state, TState):
-            self.expand_tstate(state.back(), state.e_col)
+    def parse_forest(self, chart, states):
+        for state in states:
+            if isinstance(state, TState):
+                self.expand_tstate(state.back(), state.e_col)
 
-        return super().parse_forest(chart, state)
+        return super().parse_forest(chart, states)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
