@@ -386,10 +386,9 @@ def new_start(old_start):
 
 def add_start(g, old_start):
     g_ = {}
-    g_[corrupt_start(old_start)] = [[old_start], [old_start, Any_plus]]
-    new_s = new_start(old_start)
-    g_[new_s] = [[corrupt_start(old_start)]]
-    return g_, new_s
+    c_start = corrupt_start(old_start)
+    g_[c_start] = [[old_start], [old_start, Any_plus]]
+    return g_, c_start
 
 ############
 -->
@@ -403,10 +402,9 @@ def new_start(old_start):
 
 def add_start(g, old_start):
     g_ = {}
-    g_[corrupt_start(old_start)] = [[old_start], [old_start, Any_plus]]
-    new_s = new_start(old_start)
-    g_[new_s] = [[corrupt_start(old_start)]]
-    return g_, new_s
+    c_start = corrupt_start(old_start)
+    g_[c_start] = [[old_start], [old_start, Any_plus]]
+    return g_, c_start
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -429,7 +427,7 @@ def augment_grammar(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
@@ -462,7 +460,7 @@ def augment_grammar(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
@@ -741,10 +739,7 @@ class Column(Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty > state.penalty:
-                # delete from self.states in fill_chart
-                state.e_col = self
-                self.states.append(state)
-                self._unique[state] = state
+                self._unique[state].penalty = state.penalty
             return self._unique[state]
         self._unique[state] = state
         self.states.append(state)
@@ -759,49 +754,12 @@ class Column(Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty &gt; state.penalty:
-                # delete from self.states in fill_chart
-                state.e_col = self
-                self.states.append(state)
-                self._unique[state] = state
+                self._unique[state].penalty = state.penalty
             return self._unique[state]
         self._unique[state] = state
         self.states.append(state)
         state.e_col = self
         return self._unique[state]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-As we find and add our states with lesser penalties, we need to remove the
-higher penalty states from our list.
-
-<!--
-############
-class Column(Column):
-    def remove_extra_states(self):
-        my_states = []
-        for state in self._unique:
-            cur_states = [s for s in self.states if s == state]
-            if len(cur_states) > 1:
-                cur_states = sorted(cur_states, key=lambda s: s.penalty)
-            my_states.append(cur_states[0])
-        self.states = my_states
-        return
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class Column(Column):
-    def remove_extra_states(self):
-        my_states = []
-        for state in self._unique:
-            cur_states = [s for s in self.states if s == state]
-            if len(cur_states) &gt; 1:
-                cur_states = sorted(cur_states, key=lambda s: s.penalty)
-            my_states.append(cur_states[0])
-        self.states = my_states
-        return
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -824,7 +782,6 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
                         if i + 1 >= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            col.remove_extra_states()
             if self.log: print(col, '\n')
         return chart
 
@@ -846,7 +803,6 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
                         if i + 1 &gt;= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            col.remove_extra_states()
             if self.log: print(col, &#x27;\n&#x27;)
         return chart
 </textarea><br />
@@ -1063,7 +1019,7 @@ def augment_grammar_ex(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
@@ -1096,7 +1052,7 @@ def augment_grammar_ex(g, start, symbols=None):
     Match_any_sym_except = {}
     for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
-    Match_empty = {Empty: []}
+    Match_empty = {Empty: [[]]}
 
     Match_a_sym = {}
     for kk in symbols:
