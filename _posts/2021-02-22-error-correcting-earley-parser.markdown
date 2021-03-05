@@ -193,26 +193,7 @@ print_g(grammar)
 <div name='python_canvas'></div>
 </form>
 Now, constructing a covering grammar proceeds as follows.
-First we define how to distinguish nonterminal and terminal symbols
-
-<!--
-############
-def is_nt(k):
-    if len(k) == 1: return False
-    return (k[0], k[-1]) == ('<', '>')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def is_nt(k):
-    if len(k) == 1: return False
-    return (k[0], k[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Next, we take each terminal symbol in the given grammar. For example, the
+First, we take each terminal symbol in the given grammar. For example, the
 below contains all terminal symbols from our `grammar`
 
 <!--
@@ -438,19 +419,20 @@ we use `Any_not` to produce an any symbol except match. We then have a
 
 <!--
 ############
-def augment_grammar(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
-    Match_any_sym = {Any_one: [[k] for k in Symbols]}
+def augment_grammar(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_sym = {Any_one: [[k] for k in symbols]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
-        Match_any_sym_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+    for kk in symbols:
+        Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -461,6 +443,7 @@ def augment_grammar(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -469,19 +452,20 @@ def augment_grammar(g, start, Symbols=None):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def augment_grammar(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
-    Match_any_sym = {Any_one: [[k] for k in Symbols]}
+def augment_grammar(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+    Match_any_sym = {Any_one: [[k] for k in symbols]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
-        Match_any_sym_except[Any_not(kk)] = [[k] for k in Symbols if k != kk]
+    for kk in symbols:
+        Match_any_sym_except[Any_not(kk)] = [[k] for k in symbols if k != kk]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -492,6 +476,7 @@ def augment_grammar(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -520,7 +505,7 @@ At this point, we are ready to check the covering properties of our grammar.
 
 <!--
 ############
-ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start, covering_grammar[covering_start][0])
+ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start)
 for i in range(3):
     tree = ie.extract_a_tree()
     print(tree_to_str(tree))
@@ -530,7 +515,7 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1&#x27;, covering_start, covering_grammar[covering_start][0])
+ie = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1&#x27;, covering_start)
 for i in range(3):
     tree = ie.extract_a_tree()
     print(tree_to_str(tree))
@@ -543,7 +528,7 @@ What about an error?
 
 <!--
 ############
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
 for i in range(3):
     tree = ie2.extract_a_tree()
     print(tree_to_str(tree))
@@ -553,7 +538,7 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start)
 for i in range(3):
     tree = ie2.extract_a_tree()
     print(tree_to_str(tree))
@@ -631,7 +616,7 @@ def tree_to_str_delta(tree):
 
 <!--
 ############
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
 for i in range(3):
     tree = ie2.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -640,7 +625,7 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start)
 for i in range(3):
     tree = ie2.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -893,10 +878,19 @@ Finally, we hook up our simple extractor to choose the lowest cost path.
 
 <!--
 ############
-class SimpleExtractor(SimpleExtractor):
+class SimpleExtractorEx(SimpleExtractor):
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        print("->", len(starts))
+        if cursor < len(text) or not starts:
+            raise SyntaxError("at " + repr(cursor))
+        for start in starts:
+            print("correction length:", start.penalty)
+        self.my_forest = parser.parse_forest(parser.table, starts)
+
     def choose_path(self, arr):
-        l = len(arr)
-        i = random.randrange(l)
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
         return res[0][1], None, None
 
@@ -908,10 +902,19 @@ class SimpleExtractor(SimpleExtractor):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class SimpleExtractor(SimpleExtractor):
+class SimpleExtractorEx(SimpleExtractor):
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        print(&quot;-&gt;&quot;, len(starts))
+        if cursor &lt; len(text) or not starts:
+            raise SyntaxError(&quot;at &quot; + repr(cursor))
+        for start in starts:
+            print(&quot;correction length:&quot;, start.penalty)
+        self.my_forest = parser.parse_forest(parser.table, starts)
+
     def choose_path(self, arr):
-        l = len(arr)
-        i = random.randrange(l)
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
         return res[0][1], None, None
 
@@ -926,7 +929,7 @@ class SimpleExtractor(SimpleExtractor):
 
 <!--
 ############
-ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start, covering_grammar[covering_start][0])
+ie3 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start)
 for i in range(3):
     tree = ie3.extract_a_tree()
     print(tree_to_str(tree))
@@ -936,7 +939,7 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie3 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start, covering_grammar[covering_start][0])
+ie3 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start)
 for i in range(3):
     tree = ie3.extract_a_tree()
     print(tree_to_str(tree))
@@ -950,8 +953,8 @@ Caution, this command will take time. 30 seconds in Mac Book Pro.
 <!--
 ############
 if False:
-    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-    ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start, covering_grammar[covering_start][0])
+    covering_grammar, covering_start = augment_grammar(grammar, START, symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+    ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start)
     for i in range(3):
         tree = ie4.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -962,8 +965,8 @@ if False:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 if False:
-    covering_grammar, covering_start = augment_grammar(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-    ie4 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start, covering_grammar[covering_start][0])
+    covering_grammar, covering_start = augment_grammar(grammar, START, symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+    ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), &#x27;x+y&#x27;, covering_start)
     for i in range(3):
         tree = ie4.extract_a_tree()
         print(tree_to_str_delta(tree))
@@ -1050,19 +1053,20 @@ Our grammars are augmented this way.
 
 <!--
 ############
-def augment_grammar_ex(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+def augment_grammar_ex(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -1073,6 +1077,7 @@ def augment_grammar_ex(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -1081,19 +1086,20 @@ def augment_grammar_ex(g, start, Symbols=None):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def augment_grammar_ex(g, start, Symbols=None):
-    if Symbols is None:
-        Symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
+def augment_grammar_ex(g, start, symbols=None):
+    if symbols is None:
+        symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
 
 
     Match_any_sym_except = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_any_sym_except[Any_not(kk)] = [[Any_not_term % kk]]
     Match_empty = {Empty: []}
 
     Match_a_sym = {}
-    for kk in Symbols:
+    for kk in symbols:
         Match_a_sym[This_sym(kk)] = [
                 [kk],
                 [Any_plus, kk],
@@ -1104,6 +1110,7 @@ def augment_grammar_ex(g, start, Symbols=None):
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
+            **Match_any_sym_plus,
             **Match_a_sym,
             **Match_any_sym_except,
             **Match_empty}, start_s
@@ -1132,8 +1139,12 @@ Testing x+y
 
 <!--
 ############
-covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+y', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+        START,
+        symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+        'x+y',
+        covering_start_ex)
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1143,8 +1154,12 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), &#x27;x+y&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+        START,
+        symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+        &#x27;x+y&#x27;,
+        covering_start_ex)
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1156,8 +1171,12 @@ Testing x+1
 
 <!--
 ############
-covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
-ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), 'x+1', covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+        START,
+        symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
+ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+        'x+1',
+        covering_start_ex)
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
@@ -1166,8 +1185,12 @@ for i in range(3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START, Symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie5 = SimpleExtractor(ErrorCorrectingEarleyParser(covering_grammar_ex), &#x27;x+1&#x27;, covering_start_ex, covering_grammar_ex[covering_start_ex][0])
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+        START,
+        symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+        &#x27;x+1&#x27;,
+        covering_start_ex)
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
