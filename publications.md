@@ -184,7 +184,8 @@ grammars are accurate both in producing and validating targeted inputs.
 
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) (implies _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) and _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png) at ICSE)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4455546.svg)](https://doi.org/10.5281/zenodo.4455546)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4456296.svg)](https://doi.org/10.5281/zenodo.4456296)
+
 
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2021/gopinath2021input.pdf "paper")
