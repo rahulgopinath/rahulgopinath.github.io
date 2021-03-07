@@ -576,7 +576,7 @@ class SimpleExtractorEx(SimpleExtractor):
             print(start.expr, "correction length:", start.penalty)
         # now choose th smallest.
         my_starts = sorted(starts, key=lambda x: x.penalty)
-        print('Choosign smallest penalty:', mystarts[0].penalty)
+        print('Choosing smallest penalty:', mystarts[0].penalty)
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
