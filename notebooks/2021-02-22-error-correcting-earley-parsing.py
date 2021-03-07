@@ -255,7 +255,7 @@ def corrupt_start(old_start):
 def new_start(old_start):
     return '<@ %s>' % old_start[1:-1]
 
-def add_start(g, old_start):
+def add_start(old_start):
     g_ = {}
     c_start = corrupt_start(old_start)
     g_[c_start] = [[old_start], [old_start, Any_plus]]
@@ -263,7 +263,7 @@ def add_start(g, old_start):
 
 # It is used as follows
 
-print_g(add_start(grammar, START))
+print(add_start(grammar, START))
 
 # Finally we are ready to augment the original given grammar so that what we
 # have is a covering grammar. We first extract the symbols used, then produce
@@ -675,7 +675,7 @@ def augment_grammar_ex(g, start, symbols=None):
                 [Empty],
                 [Any_not(kk)]
                 ]
-    start_g, start_s = add_start(g, start)
+    start_g, start_s = add_start(start)
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,

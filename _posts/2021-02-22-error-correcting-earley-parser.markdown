@@ -513,7 +513,7 @@ def corrupt_start(old_start):
 def new_start(old_start):
     return '<@ %s>' % old_start[1:-1]
 
-def add_start(g, old_start):
+def add_start(old_start):
     g_ = {}
     c_start = corrupt_start(old_start)
     g_[c_start] = [[old_start], [old_start, Any_plus]]
@@ -529,7 +529,7 @@ def corrupt_start(old_start):
 def new_start(old_start):
     return &#x27;&lt;@ %s&gt;&#x27; % old_start[1:-1]
 
-def add_start(g, old_start):
+def add_start(old_start):
     g_ = {}
     c_start = corrupt_start(old_start)
     g_[c_start] = [[old_start], [old_start, Any_plus]]
@@ -542,13 +542,13 @@ It is used as follows
 
 <!--
 ############
-print_g(add_start(grammar, START))
+print(add_start(grammar, START))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print_g(add_start(grammar, START))
+print(add_start(grammar, START))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1445,7 +1445,7 @@ def augment_grammar_ex(g, start, symbols=None):
                 [Empty],
                 [Any_not(kk)]
                 ]
-    start_g, start_s = add_start(g, start)
+    start_g, start_s = add_start(start)
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
@@ -1478,7 +1478,7 @@ def augment_grammar_ex(g, start, symbols=None):
                 [Empty],
                 [Any_not(kk)]
                 ]
-    start_g, start_s = add_start(g, start)
+    start_g, start_s = add_start(start)
     return {**start_g,
             **translate_terminals(g),
             **Match_any_sym,
