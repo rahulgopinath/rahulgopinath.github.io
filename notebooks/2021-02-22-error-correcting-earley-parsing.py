@@ -392,7 +392,9 @@ class SimpleExtractorEx(SimpleExtractor):
             raise SyntaxError("at " + repr(cursor))
         for start in starts:
             print("correction length:", start.penalty)
-        self.my_forest = parser.parse_forest(parser.table, starts)
+        # now choose th smallest.
+        my_starts = sorted(starts, key=lambda x: x.penalty)
+        self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
