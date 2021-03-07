@@ -18,9 +18,9 @@ conform to a given grammar. For example, given a JSON input such as
 ```
 
 The error correcting parser will be able to supply the input that is
-necesaary to make the input valid. In this case, it will supply `}]`.
-The algorithm is minimal error correcting if the correction proided is
-minimal in some sence. For example, if the correction is `, "":[]}]`, the
+necessary to make the input valid. In this case, it will supply `}]`.
+The algorithm is minimal error correcting if the correction provided is
+minimal in some sense. For example, if the correction is `, "":[]}]`, the
 correction is not minimal.
 
 The particular algorithm we will be examining is
@@ -1211,7 +1211,7 @@ matches per original terminal symbol.
 Fortunately, there is an optimization possible here. We can set the
 Any_one: `.` and Any_not(a): `!a` to be terminal symbols, and fix the
 terminal match so that we match any character on `.` and except the given
-character (e.g. `a`) on `!a`. What we lose there is generality. THat is, the
+character (e.g. `a`) on `!a`. What we lose there is generality. That is, the
 augmented context-free grammar will no longer be usable by other parsers
 (unless they are augmented got match regular expressions).
 We modify our Earley parser to expect these. First our strings.
@@ -1435,7 +1435,7 @@ for i in range(3):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Here is the (sligltly simplified -- not all space characters are terminals) JSON grammar
+Here is the (slightly simplified -- not all space characters are terminals) JSON grammar
 
 <!--
 ############
@@ -1586,7 +1586,7 @@ if __name__ == &#x27;__main__&#x27;:
 Note that the algorithm for recognition is $$O(n^3)$$. This is a consequence
 of the fact that our covering grammar is simply a context-free grammar, and
 as you can see, there is only a constant size increase in the grammar $$(|G|+ |T|^3)$$
-where $$|G|$$ is the original size, and $$|T|$$ is the numbeer of terminals.
+where $$|G|$$ is the original size, and $$|T|$$ is the number of terminals.
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-22-error-correcting-earley-parsing.py).
 
