@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Error Correcting Earley Parser
 layout: post
 comments: true
@@ -421,7 +421,7 @@ def augment_grammar(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[k] for k in symbols]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
@@ -454,7 +454,7 @@ def augment_grammar(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[k] for k in symbols]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
@@ -503,44 +503,144 @@ At this point, we are ready to check the covering properties of our grammar.
 
 <!--
 ############
-ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start)
-for i in range(3):
-    tree = ie.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+class SimpleExtractor:
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        if cursor < len(text) or not starts:
+            raise SyntaxError("at " + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, starts)
+
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+
+    def choose_path(self, arr):
+        l = len(arr)
+        i = 0
+        return arr[i], i, l
+
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return parse_tree
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1&#x27;, covering_start)
-for i in range(3):
-    tree = ie.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+class SimpleExtractor:
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        if cursor &lt; len(text) or not starts:
+            raise SyntaxError(&quot;at &quot; + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, starts)
+
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+
+    def choose_path(self, arr):
+        l = len(arr)
+        i = 0
+        return arr[i], i, l
+
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return parse_tree
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-What about an error?
+We define a `tree_to_str_fix() that indicates the corrections produced.
 
 <!--
 ############
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
-for i in range(3):
-    tree = ie2.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+def tree_to_str_fix(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == '<$' and key[2] != ' ':
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append('')
+                elif key == Empty:
+                    assert False
+                    expanded.append('{del}')
+                elif key.startswith(Any_not_str[0:4]): # <$![.]>
+                    k = key[4]
+                    expanded.append(k)
+                else:
+                    assert False
+            elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
+                assert key[3] == '['
+                assert key[5] == ']'
+                expanded.append(key[4])
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start)
-for i in range(3):
-    tree = ie2.extract_a_tree()
-    print(tree_to_str(tree))
-    print(format_parsetree(tree))
+def tree_to_str_fix(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == &#x27;&lt;$&#x27; and key[2] != &#x27; &#x27;:
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append(&#x27;&#x27;)
+                elif key == Empty:
+                    assert False
+                    expanded.append(&#x27;{del}&#x27;)
+                elif key.startswith(Any_not_str[0:4]): # &lt;$![.]&gt;
+                    k = key[4]
+                    expanded.append(k)
+                else:
+                    assert False
+            elif key[:2] == &#x27;&lt;$&#x27; and key[2] == &#x27; &#x27; and len(children) == 1 and children[0][0] == Empty:
+                assert key[3] == &#x27;[&#x27;
+                assert key[5] == &#x27;]&#x27;
+                expanded.append(key[4])
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return &#x27;&#x27;.join(expanded)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -562,13 +662,13 @@ def tree_to_str_delta(tree):
                 elif key == Empty:
                     assert False
                     expanded.append('{del}')
-                elif key.startswith(Any_not_str[:4]): # <$![.]>
+                elif key.startswith(Any_not_str[0:4]): # <$![.]>
                     k = key[4]
                     expanded.append('{s/%s/%s/}' % (repr(tree_to_str((key, children, *rest))), k))
                 else:
                     assert False
             elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
-                expanded.append('{del %s}' % repr(key[3:-2]))
+                expanded.append('{missing %s}' % repr(key[4:5]))
             else:
                 to_expand = list(children) + list(to_expand)
         else:
@@ -593,13 +693,13 @@ def tree_to_str_delta(tree):
                 elif key == Empty:
                     assert False
                     expanded.append(&#x27;{del}&#x27;)
-                elif key.startswith(Any_not_str[:4]): # &lt;$![.]&gt;
+                elif key.startswith(Any_not_str[0:4]): # &lt;$![.]&gt;
                     k = key[4]
                     expanded.append(&#x27;{s/%s/%s/}&#x27; % (repr(tree_to_str((key, children, *rest))), k))
                 else:
                     assert False
             elif key[:2] == &#x27;&lt;$&#x27; and key[2] == &#x27; &#x27; and len(children) == 1 and children[0][0] == Empty:
-                expanded.append(&#x27;{del %s}&#x27; % repr(key[3:-2]))
+                expanded.append(&#x27;{missing %s}&#x27; % repr(key[4:5]))
             else:
                 to_expand = list(children) + list(to_expand)
         else:
@@ -614,19 +714,47 @@ def tree_to_str_delta(tree):
 
 <!--
 ############
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
-for i in range(3):
-    tree = ie2.extract_a_tree()
-    print(tree_to_str_delta(tree))
+cstring = '1+1'
+ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+for i in range(1):
+    tree = ie.extract_a_tree()
+    print("string:", cstring, "unparsed:", tree_to_str_fix(tree))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), &#x27;1+1+&#x27;, covering_start)
-for i in range(3):
+cstring = &#x27;1+1&#x27;
+ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+for i in range(1):
+    tree = ie.extract_a_tree()
+    print(&quot;string:&quot;, cstring, &quot;unparsed:&quot;, tree_to_str_fix(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As you can see, the covering grammar can *recognize* the input, but we have no
+guarantee that it will only parse the input corresponding to the original
+grammar.
+What about an error?
+
+<!--
+############
+cstring = '1+1+'
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+for i in range(1):
     tree = ie2.extract_a_tree()
-    print(tree_to_str_delta(tree))
+    print("string:", cstring, "fixed:", tree_to_str_fix(tree))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+cstring = &#x27;1+1+&#x27;
+ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+for i in range(1):
+    tree = ie2.extract_a_tree()
+    print(&quot;string:&quot;, cstring, &quot;fixed:&quot;, tree_to_str_fix(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -644,43 +772,164 @@ penalties. We essentially assign a penalty if any of the following us used.
 * Any use of <$>  : Empty
 * Any use of <$ !{.}>  : Any_not
 
+For getting this to work, we have to reengineer our nullable nonterminals,
+keeping track of the corruptions introduced.
+
 <!--
 ############
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable_ex(g):
+    nullable_keys = {k:(1 if k == Empty else 0) for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys.keys())
+
+    g_cur_ = rem_terminals(g)
+    g_cur = {k:[(alt, 0) for alt in g_cur_[k]] for k in g_cur_}
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            if k in nullable_keys: continue
+            g_alts = []
+            for alt, penalty in g_cur[k]:
+                # find the instances of nxt, then sum up the penalties
+                # then update the penalties.
+                penalty_ = len([t for t in alt if t == nxt]) * nullable_keys[nxt]
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys[k] = penalty + penalty_
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append((alt_, penalty + penalty_))
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+
 class ErrorCorrectingEarleyParser(EarleyParser):
+    def __init__(self, grammar, log = False, **kwargs):
+        self._grammar = grammar
+        self.epsilon = nullable_ex(grammar)
+        self.log = log
+
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
-        my_penalty = state.penalty
-        if state.name ==  Empty:
-            my_penalty = 1
-        elif state.name == Any_one:
-            my_penalty = 1
-        elif state.name.startswith(Any_not_str[:4]):
-            my_penalty = 1
         for st in parent_states:
             s = st.advance()
-            s.penalty += my_penalty
+            s.penalty += state.penalty
             col.add(s)
+
+    def predict(self, col, sym, state):
+        for alt in self._grammar[sym]:
+            col.add(self.create_state(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            s = state.advance()
+            s.penalty += self.epsilon[sym]
+            col.add(s)
+
+    def parse_prefix(self, text, start_symbol):
+        alts = [tuple(alt) for alt in self._grammar[start_symbol]]
+        self.table = self.chart_parse(text, start_symbol, alts)
+        for col in reversed(self.table):
+            states = [st for st in col.states
+                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
+            ]
+            if states:
+                return col.index, states
+        return -1, []
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable_ex(g):
+    nullable_keys = {k:(1 if k == Empty else 0) for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys.keys())
+
+    g_cur_ = rem_terminals(g)
+    g_cur = {k:[(alt, 0) for alt in g_cur_[k]] for k in g_cur_}
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            if k in nullable_keys: continue
+            g_alts = []
+            for alt, penalty in g_cur[k]:
+                # find the instances of nxt, then sum up the penalties
+                # then update the penalties.
+                penalty_ = len([t for t in alt if t == nxt]) * nullable_keys[nxt]
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys[k] = penalty + penalty_
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append((alt_, penalty + penalty_))
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+
 class ErrorCorrectingEarleyParser(EarleyParser):
+    def __init__(self, grammar, log = False, **kwargs):
+        self._grammar = grammar
+        self.epsilon = nullable_ex(grammar)
+        self.log = log
+
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
-        my_penalty = state.penalty
-        if state.name ==  Empty:
-            my_penalty = 1
-        elif state.name == Any_one:
-            my_penalty = 1
-        elif state.name.startswith(Any_not_str[:4]):
-            my_penalty = 1
         for st in parent_states:
             s = st.advance()
-            s.penalty += my_penalty
+            s.penalty += state.penalty
             col.add(s)
+
+    def predict(self, col, sym, state):
+        for alt in self._grammar[sym]:
+            col.add(self.create_state(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            s = state.advance()
+            s.penalty += self.epsilon[sym]
+            col.add(s)
+
+    def parse_prefix(self, text, start_symbol):
+        alts = [tuple(alt) for alt in self._grammar[start_symbol]]
+        self.table = self.chart_parse(text, start_symbol, alts)
+        for col in reversed(self.table):
+            states = [st for st in col.states
+                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
+            ]
+            if states:
+                return col.index, states
+        return -1, []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -693,7 +942,14 @@ class State(State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
-        self.penalty = 0
+        if self.name ==  Empty:
+            self.penalty = 1
+        elif self.name == Any_one:
+            self.penalty = 1
+        elif self.name.startswith(Any_not_str[0:4]): # <$![.]>
+            self.penalty = 1
+        else:
+            self.penalty = 0
 
     def copy(self):
         s = State(self.name, self.expr, self.dot, self.s_col, self.e_col)
@@ -713,7 +969,14 @@ class State(State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
-        self.penalty = 0
+        if self.name ==  Empty:
+            self.penalty = 1
+        elif self.name == Any_one:
+            self.penalty = 1
+        elif self.name.startswith(Any_not_str[0:4]): # &lt;$![.]&gt;
+            self.penalty = 1
+        else:
+            self.penalty = 0
 
     def copy(self):
         s = State(self.name, self.expr, self.dot, self.s_col, self.e_col)
@@ -844,7 +1107,9 @@ class SimpleExtractorEx(SimpleExtractor):
             raise SyntaxError("at " + repr(cursor))
         for start in starts:
             print("correction length:", start.penalty)
-        self.my_forest = parser.parse_forest(parser.table, starts)
+        # now choose th smallest.
+        my_starts = sorted(starts, key=lambda x: x.penalty)
+        self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
@@ -868,7 +1133,9 @@ class SimpleExtractorEx(SimpleExtractor):
             raise SyntaxError(&quot;at &quot; + repr(cursor))
         for start in starts:
             print(&quot;correction length:&quot;, start.penalty)
-        self.my_forest = parser.parse_forest(parser.table, starts)
+        # now choose th smallest.
+        my_starts = sorted(starts, key=lambda x: x.penalty)
+        self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
@@ -980,8 +1247,15 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
+            my_expr = list(state.expr)
+            if my_expr[state.dot] == '$.':
+                my_expr[state.dot] = col.letter
+            elif my_expr[state.dot][0] == '!' and len(my_expr[state.dot]) > 1:
+                my_expr[state.dot] = col.letter
+            else:
+                assert my_expr[state.dot] == col.letter
             s = state.advance()
-            s.expr = (col.letter, )
+            s.expr = tuple(my_expr)
             col.add(s)
 
 ############
@@ -998,8 +1272,15 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
+            my_expr = list(state.expr)
+            if my_expr[state.dot] == &#x27;$.&#x27;:
+                my_expr[state.dot] = col.letter
+            elif my_expr[state.dot][0] == &#x27;!&#x27; and len(my_expr[state.dot]) &gt; 1:
+                my_expr[state.dot] = col.letter
+            else:
+                assert my_expr[state.dot] == col.letter
             s = state.advance()
-            s.expr = (col.letter, )
+            s.expr = tuple(my_expr)
             col.add(s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1013,7 +1294,7 @@ def augment_grammar_ex(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
@@ -1046,7 +1327,7 @@ def augment_grammar_ex(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
@@ -1150,6 +1431,154 @@ ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
 for i in range(3):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is the (sligltly simplified -- not all space characters are terminals) JSON grammar
+
+<!--
+############
+json_grammar = {
+    "<START>": [ ["<json>"] ],
+    "<json>": [ ["<element>"] ],
+    "<value>": [
+        ["<object>"],
+        ["<array>"],
+        ["<string>"],
+        ["<number>"],
+        ["true"],
+        ["false"],
+        ["null"],
+    ],
+    "<object>": [
+        ["{", "<ws>", "<members>", "<ws>", "}"],
+        ["{", "<ws>", "}"]
+        ],
+    "<members>": [
+        ["<member>", ",", "<members>"],
+        ["<member>"]
+    ],
+    "<member>": [ ["<ws>", "<string>", "<ws>", ":", "<element>"] ],
+    "<array>": [
+        ["[", "<ws>", "]"],
+        ["[", "<elements>", "]"],
+    ],
+    "<elements>": [ ["<element>", ",", "<elements>"], ["<element>"], ],
+    "<element>": [ ["<ws>", "<value>", "<ws>"], ],
+    "<string>": [ ["\"","<characters>","\""] ],
+    "<characters>": [ ["<character>", "<characters>"], [] ],
+    "<character>":  [[s] for s in string.printable if s not in {"\"", "\\"}] +
+    [["\\", "<escape>"]],
+    "<escape>": [[c] for c in '"\\/bfnrt"'] + [["u", "<hex>", "<hex>", "<hex>", "<hex>"]],
+    "<hex>": [
+        ["<digit>" ],
+        ["a"], ["b"], ["c"], ["d"], ["e"], ["f"],
+        ["A"], ["B"], ["C"], ["D"], ["E"], ["F"]
+    ],
+    "<number>": [ ["<integer>", "<fraction>", "<exponent>"] ],
+    "<integer>": [
+        ["<onenine>","<digits>"],
+        ["<digit>"],
+        ["-","<digit>"],
+        ["-", "<onenine>","<digits>"],
+    ],
+    "<digits>": [ ["<digit>", "<digits>"], ["<digit>"], ],
+    "<digit>": [ ["0"], ["<onenine>"], ],
+    "<onenine>": [ ["1"],  ["2"],  ["3"],  ["4"],  ["5"], ["6"],  ["7"],  ["8"],  ["9"] ],
+    "<fraction>": [ [".", "<digits>"], [] ],
+    "<exponent>" :[ ["E", "<sign>", "<digits>"], ["e", "<sign>", "<digits>"], [] ],
+    "<sign>": [ ["+"], ["-"], [] ],
+    "<ws>": [ [" ", "<ws>"], [] ]
+}
+
+json_start = '<START>'
+
+if __name__ == '__main__':
+    string = '[{}'
+    covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
+    ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
+            string,
+            covering_start_json)
+    print_g(covering_grammar_json)
+    for i in range(1):
+        tree = ie6.extract_a_tree()
+        print(tree)
+        print(format_parsetree(tree))
+        print(string, ":Fix:", tree_to_str_fix(tree))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+json_grammar = {
+    &quot;&lt;START&gt;&quot;: [ [&quot;&lt;json&gt;&quot;] ],
+    &quot;&lt;json&gt;&quot;: [ [&quot;&lt;element&gt;&quot;] ],
+    &quot;&lt;value&gt;&quot;: [
+        [&quot;&lt;object&gt;&quot;],
+        [&quot;&lt;array&gt;&quot;],
+        [&quot;&lt;string&gt;&quot;],
+        [&quot;&lt;number&gt;&quot;],
+        [&quot;true&quot;],
+        [&quot;false&quot;],
+        [&quot;null&quot;],
+    ],
+    &quot;&lt;object&gt;&quot;: [
+        [&quot;{&quot;, &quot;&lt;ws&gt;&quot;, &quot;&lt;members&gt;&quot;, &quot;&lt;ws&gt;&quot;, &quot;}&quot;],
+        [&quot;{&quot;, &quot;&lt;ws&gt;&quot;, &quot;}&quot;]
+        ],
+    &quot;&lt;members&gt;&quot;: [
+        [&quot;&lt;member&gt;&quot;, &quot;,&quot;, &quot;&lt;members&gt;&quot;],
+        [&quot;&lt;member&gt;&quot;]
+    ],
+    &quot;&lt;member&gt;&quot;: [ [&quot;&lt;ws&gt;&quot;, &quot;&lt;string&gt;&quot;, &quot;&lt;ws&gt;&quot;, &quot;:&quot;, &quot;&lt;element&gt;&quot;] ],
+    &quot;&lt;array&gt;&quot;: [
+        [&quot;[&quot;, &quot;&lt;ws&gt;&quot;, &quot;]&quot;],
+        [&quot;[&quot;, &quot;&lt;elements&gt;&quot;, &quot;]&quot;],
+    ],
+    &quot;&lt;elements&gt;&quot;: [ [&quot;&lt;element&gt;&quot;, &quot;,&quot;, &quot;&lt;elements&gt;&quot;], [&quot;&lt;element&gt;&quot;], ],
+    &quot;&lt;element&gt;&quot;: [ [&quot;&lt;ws&gt;&quot;, &quot;&lt;value&gt;&quot;, &quot;&lt;ws&gt;&quot;], ],
+    &quot;&lt;string&gt;&quot;: [ [&quot;\&quot;&quot;,&quot;&lt;characters&gt;&quot;,&quot;\&quot;&quot;] ],
+    &quot;&lt;characters&gt;&quot;: [ [&quot;&lt;character&gt;&quot;, &quot;&lt;characters&gt;&quot;], [] ],
+    &quot;&lt;character&gt;&quot;:  [[s] for s in string.printable if s not in {&quot;\&quot;&quot;, &quot;\\&quot;}] +
+    [[&quot;\\&quot;, &quot;&lt;escape&gt;&quot;]],
+    &quot;&lt;escape&gt;&quot;: [[c] for c in &#x27;&quot;\\/bfnrt&quot;&#x27;] + [[&quot;u&quot;, &quot;&lt;hex&gt;&quot;, &quot;&lt;hex&gt;&quot;, &quot;&lt;hex&gt;&quot;, &quot;&lt;hex&gt;&quot;]],
+    &quot;&lt;hex&gt;&quot;: [
+        [&quot;&lt;digit&gt;&quot; ],
+        [&quot;a&quot;], [&quot;b&quot;], [&quot;c&quot;], [&quot;d&quot;], [&quot;e&quot;], [&quot;f&quot;],
+        [&quot;A&quot;], [&quot;B&quot;], [&quot;C&quot;], [&quot;D&quot;], [&quot;E&quot;], [&quot;F&quot;]
+    ],
+    &quot;&lt;number&gt;&quot;: [ [&quot;&lt;integer&gt;&quot;, &quot;&lt;fraction&gt;&quot;, &quot;&lt;exponent&gt;&quot;] ],
+    &quot;&lt;integer&gt;&quot;: [
+        [&quot;&lt;onenine&gt;&quot;,&quot;&lt;digits&gt;&quot;],
+        [&quot;&lt;digit&gt;&quot;],
+        [&quot;-&quot;,&quot;&lt;digit&gt;&quot;],
+        [&quot;-&quot;, &quot;&lt;onenine&gt;&quot;,&quot;&lt;digits&gt;&quot;],
+    ],
+    &quot;&lt;digits&gt;&quot;: [ [&quot;&lt;digit&gt;&quot;, &quot;&lt;digits&gt;&quot;], [&quot;&lt;digit&gt;&quot;], ],
+    &quot;&lt;digit&gt;&quot;: [ [&quot;0&quot;], [&quot;&lt;onenine&gt;&quot;], ],
+    &quot;&lt;onenine&gt;&quot;: [ [&quot;1&quot;],  [&quot;2&quot;],  [&quot;3&quot;],  [&quot;4&quot;],  [&quot;5&quot;], [&quot;6&quot;],  [&quot;7&quot;],  [&quot;8&quot;],  [&quot;9&quot;] ],
+    &quot;&lt;fraction&gt;&quot;: [ [&quot;.&quot;, &quot;&lt;digits&gt;&quot;], [] ],
+    &quot;&lt;exponent&gt;&quot; :[ [&quot;E&quot;, &quot;&lt;sign&gt;&quot;, &quot;&lt;digits&gt;&quot;], [&quot;e&quot;, &quot;&lt;sign&gt;&quot;, &quot;&lt;digits&gt;&quot;], [] ],
+    &quot;&lt;sign&gt;&quot;: [ [&quot;+&quot;], [&quot;-&quot;], [] ],
+    &quot;&lt;ws&gt;&quot;: [ [&quot; &quot;, &quot;&lt;ws&gt;&quot;], [] ]
+}
+
+json_start = &#x27;&lt;START&gt;&#x27;
+
+if __name__ == &#x27;__main__&#x27;:
+    string = &#x27;[{}&#x27;
+    covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
+    ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
+            string,
+            covering_start_json)
+    print_g(covering_grammar_json)
+    for i in range(1):
+        tree = ie6.extract_a_tree()
+        print(tree)
+        print(format_parsetree(tree))
+        print(string, &quot;:Fix:&quot;, tree_to_str_fix(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
