@@ -197,7 +197,7 @@ Here is the (slightly simplified -- not all space characters are terminals) JSON
 <!--
 ############
 json_grammar = {
-    "<START>": [ ["<json>"] ],
+    "<start>": [ ["<json>"] ],
     "<json>": [ ["<element>"] ],
     "<value>": [
         ["<object>"],
@@ -249,7 +249,7 @@ json_grammar = {
     "<ws>": [ [" ", "<ws>"], [] ]
 }
 
-json_start = '<START>'
+json_start = '<start>'
 
 
 ############
@@ -257,7 +257,7 @@ json_start = '<START>'
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 json_grammar = {
-    &quot;&lt;START&gt;&quot;: [ [&quot;&lt;json&gt;&quot;] ],
+    &quot;&lt;start&gt;&quot;: [ [&quot;&lt;json&gt;&quot;] ],
     &quot;&lt;json&gt;&quot;: [ [&quot;&lt;element&gt;&quot;] ],
     &quot;&lt;value&gt;&quot;: [
         [&quot;&lt;object&gt;&quot;],
@@ -309,7 +309,7 @@ json_grammar = {
     &quot;&lt;ws&gt;&quot;: [ [&quot; &quot;, &quot;&lt;ws&gt;&quot;], [] ]
 }
 
-json_start = &#x27;&lt;START&gt;&#x27;
+json_start = &#x27;&lt;start&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

@@ -99,7 +99,7 @@ if __name__ == '__main__':
 # Here is the (slightly simplified -- not all space characters are terminals) JSON grammar
 
 json_grammar = {
-    "<START>": [ ["<json>"] ],
+    "<start>": [ ["<json>"] ],
     "<json>": [ ["<element>"] ],
     "<value>": [
         ["<object>"],
@@ -151,7 +151,7 @@ json_grammar = {
     "<ws>": [ [" ", "<ws>"], [] ]
 }
 
-json_start = '<START>'
+json_start = '<start>'
 
 
 # Now, constructing a covering grammar proceeds as follows.
