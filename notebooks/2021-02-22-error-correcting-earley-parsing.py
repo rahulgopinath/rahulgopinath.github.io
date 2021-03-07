@@ -307,6 +307,12 @@ if __name__ == '__main__':
     covering_grammar, covering_start = augment_grammar(grammar, START)
     print_g(covering_grammar)
 
+# Here is the augmented grammar for JSON
+
+if __name__ == '__main__':
+    json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
+    print_g(json_covering_grammar)
+
 # At this point, we are ready to check the covering properties of our grammar.
 
 class SimpleExtractor:
@@ -474,9 +480,13 @@ def nullable_ex(g):
 
 print(nullable_ex(grammar))
 
-# 
+# covering grammar
 
 print(nullable_ex(covering_grammar))
+
+#  JSON covering grammar
+
+print(nullable_ex(json_covering_grammar))
 
 # Now, we attach our nullable function to our parser.
 
@@ -576,7 +586,7 @@ class SimpleExtractorEx(SimpleExtractor):
             print(start.expr, "correction length:", start.penalty)
         # now choose th smallest.
         my_starts = sorted(starts, key=lambda x: x.penalty)
-        print('Choosing smallest penalty:', mystarts[0].penalty)
+        print('Choosing smallest penalty:', my_starts[0].penalty)
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):

@@ -643,6 +643,23 @@ print_g(covering_grammar)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is the augmented grammar for JSON
+
+<!--
+############
+json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
+print_g(json_covering_grammar)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
+print_g(json_covering_grammar)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 At this point, we are ready to check the covering properties of our grammar.
 
 <!--
@@ -1007,7 +1024,7 @@ print(nullable_ex(grammar))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+covering grammar
 
 <!--
 ############
@@ -1018,6 +1035,21 @@ print(nullable_ex(covering_grammar))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(nullable_ex(covering_grammar))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+ JSON covering grammar
+
+<!--
+############
+print(nullable_ex(json_covering_grammar))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(nullable_ex(json_covering_grammar))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1241,7 +1273,7 @@ class SimpleExtractorEx(SimpleExtractor):
             print(start.expr, "correction length:", start.penalty)
         # now choose th smallest.
         my_starts = sorted(starts, key=lambda x: x.penalty)
-        print('Choosing smallest penalty:', mystarts[0].penalty)
+        print('Choosing smallest penalty:', my_starts[0].penalty)
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
@@ -1267,7 +1299,7 @@ class SimpleExtractorEx(SimpleExtractor):
             print(start.expr, &quot;correction length:&quot;, start.penalty)
         # now choose th smallest.
         my_starts = sorted(starts, key=lambda x: x.penalty)
-        print(&#x27;Choosing smallest penalty:&#x27;, mystarts[0].penalty)
+        print(&#x27;Choosing smallest penalty:&#x27;, my_starts[0].penalty)
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
