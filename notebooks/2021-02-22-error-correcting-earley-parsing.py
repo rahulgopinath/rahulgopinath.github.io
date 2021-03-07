@@ -239,20 +239,69 @@ if __name__ == '__main__':
 
 # At this point, we are ready to check the covering properties of our grammar.
 
-if __name__ == '__main__':
-    ie = SimpleExtractor(EarleyParser(covering_grammar), '1+1', covering_start)
-    for i in range(3):
-        tree = ie.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+class SimpleExtractor:
+    def __init__(self, parser, text, start_symbol):
+        self.parser = parser
+        cursor, states = parser.parse_prefix(text, start_symbol)
+        starts = [s for s in states if s.finished()]
+        if cursor < len(text) or not starts:
+            raise SyntaxError("at " + repr(cursor))
+        self.my_forest = parser.parse_forest(parser.table, starts)
 
-# What about an error?
-if __name__ == '__main__':
-    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
-    for i in range(3):
-        tree = ie2.extract_a_tree()
-        print(tree_to_str(tree))
-        print(format_parsetree(tree))
+    def extract_a_node(self, forest_node):
+        name, paths = forest_node
+        if not paths:
+            return ((name, 0, 1), []), (name, [])
+        cur_path, i, l = self.choose_path(paths)
+        child_nodes = []
+        pos_nodes = []
+        for s, kind, chart in cur_path:
+            f = self.parser.forest(s, kind, chart)
+            postree, ntree = self.extract_a_node(f)
+            child_nodes.append(ntree)
+            pos_nodes.append(postree)
+
+        return ((name, i, l), pos_nodes), (name, child_nodes)
+
+    def choose_path(self, arr):
+        l = len(arr)
+        i = 0
+        return arr[i], i, l
+
+    def extract_a_tree(self):
+        pos_tree, parse_tree = self.extract_a_node(self.my_forest)
+        return parse_tree
+
+# We define a `tree_to_str_fix() that indicates the corrections produced.
+
+def tree_to_str_fix(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nt(key):
+            if key[:2] == '<$' and key[2] != ' ':
+                # Empty Any_one Any_plus
+                if key == Any_plus: # start
+                    expanded.append('')
+                elif key == Empty:
+                    assert False
+                    expanded.append('{del}')
+                elif key.startswith(Any_not_str[0:4]): # <$![.]>
+                    k = key[4]
+                    expanded.append(k)
+                else:
+                    assert False
+            elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
+                assert key[3] == '['
+                assert key[5] == ']'
+                expanded.append(key[4])
+            else:
+                to_expand = list(children) + list(to_expand)
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
 
 # We define a `tree_to_str_delta() that indicates the corrections produced.
 
@@ -269,13 +318,13 @@ def tree_to_str_delta(tree):
                 elif key == Empty:
                     assert False
                     expanded.append('{del}')
-                elif key.startswith(Any_not_str[:4]): # <$![.]>
+                elif key.startswith(Any_not_str[0:4]): # <$![.]>
                     k = key[4]
                     expanded.append('{s/%s/%s/}' % (repr(tree_to_str((key, children, *rest))), k))
                 else:
                     assert False
             elif key[:2] == '<$' and key[2] == ' ' and len(children) == 1 and children[0][0] == Empty:
-                expanded.append('{del %s}' % repr(key[3:-2]))
+                expanded.append('{missing %s}' % repr(key[4:5]))
             else:
                 to_expand = list(children) + list(to_expand)
         else:
@@ -285,10 +334,23 @@ def tree_to_str_delta(tree):
 
 # 
 if __name__ == '__main__':
-    ie2 = SimpleExtractor(EarleyParser(covering_grammar), '1+1+', covering_start)
-    for i in range(3):
+    cstring = '1+1'
+    ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+    for i in range(1):
+        tree = ie.extract_a_tree()
+        print("string:", cstring, "unparsed:", tree_to_str_fix(tree))
+
+# As you can see, the covering grammar can *recognize* the input, but we have no
+# guarantee that it will only parse the input corresponding to the original
+# grammar.
+# What about an error?
+ 
+if __name__ == '__main__':
+    cstring = '1+1+'
+    ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+    for i in range(1):
         tree = ie2.extract_a_tree()
-        print(tree_to_str_delta(tree))
+        print("string:", cstring, "fixed:", tree_to_str_fix(tree))
 
 # As you can see, we can parse corrupt inputs, but the inputs that we parse are
 # not necessarily the smallest. The next step is how to extract
@@ -302,23 +364,84 @@ if __name__ == '__main__':
 # * Any use of <$.> : Any_one --- note, Any_plus gets +1 automatically
 # * Any use of <$>  : Empty
 # * Any use of <$ !{.}>  : Any_not
+# 
+# For getting this to work, we have to reengineer our nullable nonterminals,
+# keeping track of the corruptions introduced.
 
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable_ex(g):
+    nullable_keys = {k:(1 if k == Empty else 0) for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys.keys())
+
+    g_cur_ = rem_terminals(g)
+    g_cur = {k:[(alt, 0) for alt in g_cur_[k]] for k in g_cur_}
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            if k in nullable_keys: continue
+            g_alts = []
+            for alt, penalty in g_cur[k]:
+                # find the instances of nxt, then sum up the penalties
+                # then update the penalties.
+                penalty_ = len([t for t in alt if t == nxt]) * nullable_keys[nxt]
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys[k] = penalty + penalty_
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append((alt_, penalty + penalty_))
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
 
 class ErrorCorrectingEarleyParser(EarleyParser):
+    def __init__(self, grammar, log = False, **kwargs):
+        self._grammar = grammar
+        self.epsilon = nullable_ex(grammar)
+        self.log = log
+
     def complete(self, col, state):
         parent_states = [st for st in state.s_col.states
                  if st.at_dot() == state.name]
-        my_penalty = state.penalty
-        if state.name ==  Empty:
-            my_penalty = 1
-        elif state.name == Any_one:
-            my_penalty = 1
-        elif state.name.startswith(Any_not_str[:4]):
-            my_penalty = 1
         for st in parent_states:
             s = st.advance()
-            s.penalty += my_penalty
+            s.penalty += state.penalty
             col.add(s)
+
+    def predict(self, col, sym, state):
+        for alt in self._grammar[sym]:
+            col.add(self.create_state(sym, tuple(alt), 0, col))
+        if sym in self.epsilon:
+            s = state.advance()
+            s.penalty += self.epsilon[sym]
+            col.add(s)
+
+    def parse_prefix(self, text, start_symbol):
+        alts = [tuple(alt) for alt in self._grammar[start_symbol]]
+        self.table = self.chart_parse(text, start_symbol, alts)
+        for col in reversed(self.table):
+            states = [st for st in col.states
+                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
+            ]
+            if states:
+                return col.index, states
+        return -1, []
 
 # This means that we need a new state definition with penalty.
 
@@ -326,7 +449,14 @@ class State(State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
-        self.penalty = 0
+        if self.name ==  Empty:
+            self.penalty = 1
+        elif self.name == Any_one:
+            self.penalty = 1
+        elif self.name.startswith(Any_not_str[0:4]): # <$![.]>
+            self.penalty = 1
+        else:
+            self.penalty = 0
 
     def copy(self):
         s = State(self.name, self.expr, self.dot, self.s_col, self.e_col)
@@ -458,8 +588,15 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 
     def scan(self, col, state, letter):
         if self.match_terminal(letter, col.letter):
+            my_expr = list(state.expr)
+            if my_expr[state.dot] == '$.':
+                my_expr[state.dot] = col.letter
+            elif my_expr[state.dot][0] == '!' and len(my_expr[state.dot]) > 1:
+                my_expr[state.dot] = col.letter
+            else:
+                assert my_expr[state.dot] == col.letter
             s = state.advance()
-            s.expr = (col.letter, )
+            s.expr = tuple(my_expr)
             col.add(s)
 
 # Our grammars are augmented this way.
@@ -468,7 +605,7 @@ def augment_grammar_ex(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[Any_term]]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
@@ -525,6 +662,77 @@ if __name__ == '__main__':
     for i in range(3):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
+
+# Here is the (sligltly simplified -- not all space characters are terminals) JSON grammar
+
+json_grammar = {
+    "<START>": [ ["<json>"] ],
+    "<json>": [ ["<element>"] ],
+    "<value>": [
+        ["<object>"],
+        ["<array>"],
+        ["<string>"],
+        ["<number>"],
+        ["true"],
+        ["false"],
+        ["null"],
+    ],
+    "<object>": [
+        ["{", "<ws>", "<members>", "<ws>", "}"],
+        ["{", "<ws>", "}"]
+        ],
+    "<members>": [
+        ["<member>", ",", "<members>"],
+        ["<member>"]
+    ],
+    "<member>": [ ["<ws>", "<string>", "<ws>", ":", "<element>"] ],
+    "<array>": [
+        ["[", "<ws>", "]"],
+        ["[", "<elements>", "]"],
+    ],
+    "<elements>": [ ["<element>", ",", "<elements>"], ["<element>"], ],
+    "<element>": [ ["<ws>", "<value>", "<ws>"], ],
+    "<string>": [ ["\"","<characters>","\""] ],
+    "<characters>": [ ["<character>", "<characters>"], [] ],
+    "<character>":  [[s] for s in string.printable if s not in {"\"", "\\"}] +
+    [["\\", "<escape>"]],
+    "<escape>": [[c] for c in '"\\/bfnrt"'] + [["u", "<hex>", "<hex>", "<hex>", "<hex>"]],
+    "<hex>": [
+        ["<digit>" ],
+        ["a"], ["b"], ["c"], ["d"], ["e"], ["f"],
+        ["A"], ["B"], ["C"], ["D"], ["E"], ["F"]
+    ],
+    "<number>": [ ["<integer>", "<fraction>", "<exponent>"] ],
+    "<integer>": [
+        ["<onenine>","<digits>"],
+        ["<digit>"],
+        ["-","<digit>"],
+        ["-", "<onenine>","<digits>"],
+    ],
+    "<digits>": [ ["<digit>", "<digits>"], ["<digit>"], ],
+    "<digit>": [ ["0"], ["<onenine>"], ],
+    "<onenine>": [ ["1"],  ["2"],  ["3"],  ["4"],  ["5"], ["6"],  ["7"],  ["8"],  ["9"] ],
+    "<fraction>": [ [".", "<digits>"], [] ],
+    "<exponent>" :[ ["E", "<sign>", "<digits>"], ["e", "<sign>", "<digits>"], [] ],
+    "<sign>": [ ["+"], ["-"], [] ],
+    "<ws>": [ [" ", "<ws>"], [] ]
+}
+
+json_start = '<START>'
+
+if __name__ == '__main__':
+    string = '[{}'
+    covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
+    ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
+            string,
+            covering_start_json)
+    print_g(covering_grammar_json)
+    for i in range(1):
+        tree = ie6.extract_a_tree()
+        print(tree)
+        print(format_parsetree(tree))
+        print(string, ":Fix:", tree_to_str_fix(tree))
+
 
 # Note that the algorithm for recognition is $$O(n^3)$$. This is a consequence
 # of the fact that our covering grammar is simply a context-free grammar, and
