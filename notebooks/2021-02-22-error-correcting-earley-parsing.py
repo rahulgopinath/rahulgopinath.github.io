@@ -206,7 +206,7 @@ def augment_grammar(g, start, symbols=None):
     if symbols is None:
         symbols = [t for k in g for alt in g[k] for t in alt if not is_nt(t)]
     Match_any_sym = {Any_one: [[k] for k in symbols]}
-    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_one, Any_plus]]}
+    Match_any_sym_plus = {Any_plus: [[Any_one], [Any_plus, Any_one]]}
 
 
     Match_any_sym_except = {}
