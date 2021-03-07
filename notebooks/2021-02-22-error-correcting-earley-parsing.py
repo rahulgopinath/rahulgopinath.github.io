@@ -538,7 +538,7 @@ class SimpleExtractorEx(SimpleExtractor):
 
 if __name__ == '__main__':
     ie3 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), '1+1+', covering_start)
-    for i in range(3):
+    for i in range(1):
         tree = ie3.extract_a_tree()
         print(tree_to_str(tree))
         print(format_parsetree(tree))
@@ -549,7 +549,7 @@ if __name__ == '__main__':
     if False:
         covering_grammar, covering_start = augment_grammar(grammar, START, symbols=[i for i in string.printable if i not in '\n\r\t\x0b\x0c'])
         ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start)
-        for i in range(3):
+        for i in range(1):
             tree = ie4.extract_a_tree()
             print(tree_to_str_delta(tree))
             print(format_parsetree(tree))
@@ -645,7 +645,7 @@ if __name__ == '__main__':
     ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
             'x+y',
             covering_start_ex)
-    for i in range(3):
+    for i in range(1):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
 
@@ -659,7 +659,7 @@ if __name__ == '__main__':
     ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
             'x+1',
             covering_start_ex)
-    for i in range(3):
+    for i in range(1):
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
 
