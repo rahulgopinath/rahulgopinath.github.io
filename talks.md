@@ -8,7 +8,7 @@ menu: Talks
 ---
 ##### 2021
 
-* [_The Science of Fuzzing_](#gopinath2021cnrs)<br/>
+* [_Automated Software Testing and Repair_](http://intersection.dsi.cnrs.fr/intersection/resultats-cc-fr.do?campagne=92&section=6&grade=223&phase=ADMAPOUR&conc=06/02)<br/>
   *Gopinath* - CNRS, Franc, (virtual), (TBD), 2021
 
 * [_The Science of Fuzzing_](#gopinath2021melbourne)<br/>
