@@ -9,7 +9,7 @@ menu: Talks
 ##### 2021
 
 * [_Automated Software Testing and Repair_](http://intersection.dsi.cnrs.fr/intersection/resultats-cc-fr.do?campagne=92&section=6&grade=223&phase=ADMAPOUR&conc=06/02)<br/>
-  *Gopinath* - CNRS, Franc, (virtual), (TBD), 2021
+  *Gopinath* - CNRS, France, (virtual), (TBD), 2021
 
 * [_The Science of Fuzzing_](#gopinath2021melbourne)<br/>
   *Gopinath* - The University of Melbourne, Australia, (virtual), (TBD), 2021
