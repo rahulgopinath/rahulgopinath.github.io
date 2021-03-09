@@ -6,6 +6,45 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+##### 2021
+
+* [_The Science of Fuzzing_](#gopinath2021melbourne)<br/>
+  *Gopinath* - The University of Melbourne, Australia, (virtual), (upcoming), 2021
+
+* [_The Science of Fuzzing_](#gopinath2021tudelft)<br/>
+  *Gopinath* - Delft University of Technology, Netherlands, (virtual), Mar 16, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021uwmadison)<br/>
+  *Gopinath* - The University of Wisconsin-Madison, USA, (virtual), Mar 15, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021simonfraser)<br/>
+  *Gopinath* - Simon Fraser University, Canada, (virtual), Mar 11, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
+  *Gopinath* - Auburn University, USA, (virtual), Mar 4, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021sydney)<br/>
+  *Gopinath* - University of Sydney, Australia, (virtual), Feb 19, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
+  *Gopinath* - Portland State University, USA, (virtual), Feb 9, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021imdea)<br/>
+  *Gopinath* - IMDEA, Spain, (virtual), Jan 29, 2021
+
+* [_The Science of Fuzzing_](#gopinath2021psu)<br/>
+  *Gopinath* - Portland State University, USA, (virtual), Jan 6, 2021
+
+##### 2020
+
+* [_The Science of Fuzzing_](#gopinath2020kuleuven)<br/>
+  *Gopinath* - KU Leuven, Belgium, (virtual), Dec 1, 2020
+
+* [_Sample Free Learning of Input Grammars_](#gopinath2020sutd)<br/>
+  *Gopinath* - Singapore University of Technology and Design, (virtual), Nov 17, 2020
+
+* [_The Fuzzing Synergy_](#gopinath2020eurecom)<br/>
+  *Gopinath* - EURECOM, France, (virtual), Nov 6, 2020
 
 ##### 2019
 * [_Learning Grammars without Samples_](https://speakerdeck.com/rahulgopinath/learning-grammars-without-samples)<br/>
@@ -34,6 +73,10 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+
+#### <a id='gopinath2020sutd'></a>[Gopinath: _Sample Free Learning of Input Grammars_ Singapore University of Technology and Design, 2020]()
+
+Efficient and Effective fuzzing requires the availability of the input specification for the program under test. However, such specifications are typically unavailable or inaccurate, limiting the reach of fuzzers. In this talk, I present an end-to-end framework for recovering the input specification for given programs without samples, using such mined specifications for isolating and generalizing failure-inducing inputs, as well as for the precise control of fuzzers.
 
 #### <a id='gopinath2017pygram'></a>[Gopinath: _Pygram: Learning input grammars for Python programs_ TU Darmstadt, Germany (software group retreat), 2017]()
 
