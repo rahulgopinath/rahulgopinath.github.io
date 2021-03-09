@@ -18,7 +18,7 @@ menu: Talks
   *Gopinath* - The University of Wisconsin-Madison, USA, (virtual), Mar 15, 2021
 
 * [_The Science of Fuzzing_](#gopinath2021simonfraser)<br/>
-  *Gopinath* - Simon Fraser University, Canada, (virtual), Mar 11, 2021
+  *Gopinath* - Simon Fraser University, Canada, (virtual), Mar 10, 2021
 
 * [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
   *Gopinath* - Auburn University, USA, (virtual), Mar 4, 2021
