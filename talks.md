@@ -8,8 +8,11 @@ menu: Talks
 ---
 ##### 2021
 
+* [_The Science of Fuzzing_](#gopinath2021cnrs)<br/>
+  *Gopinath* - CNRS, Franc, (virtual), (TBD), 2021
+
 * [_The Science of Fuzzing_](#gopinath2021melbourne)<br/>
-  *Gopinath* - The University of Melbourne, Australia, (virtual), (upcoming), 2021
+  *Gopinath* - The University of Melbourne, Australia, (virtual), (TBD), 2021
 
 * [_The Science of Fuzzing_](#gopinath2021tudelft)<br/>
   *Gopinath* - Delft University of Technology, Netherlands, (virtual), Mar 16, 2021
