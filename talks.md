@@ -27,7 +27,7 @@ menu: Talks
   *Gopinath* - University of Sydney, Australia, (virtual), Feb 19, 2021
 
 * [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
-  *Gopinath* - Portland State University, USA, (virtual), Feb 9, 2021
+  *Gopinath* - CISPA, Germany, (virtual), Feb 9, 2021
 
 * [_The Science of Fuzzing_](#gopinath2021imdea)<br/>
   *Gopinath* - IMDEA, Spain, (virtual), Jan 29, 2021
