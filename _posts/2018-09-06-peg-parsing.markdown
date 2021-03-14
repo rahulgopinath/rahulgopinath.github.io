@@ -1,6 +1,6 @@
 ---
 published: true
-title: Recursive descent parsing with Parsing Expression Grammars (PEG) and Context Free Grammars
+title: Recursive descent parsing with Parsing Expression (PEG) and Context Free (CFG) Grammars
 layout: post
 comments: true
 tags: parsing
