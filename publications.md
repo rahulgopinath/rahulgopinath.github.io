@@ -26,7 +26,7 @@ menu: Publications
   *Gopinath*, Mathis, Zeller, FSE, 2020
 
 * [_Abstracting Failure Inducing Inputs_](#gopinath2020abstracting)<br/>
-  *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA, 2020
+  *Gopinath*, Kampmann, Havrikov, Soremekun, Zeller, ISSTA (ACM Distinguished Paper Award), 2020
 
 * [_Learning Input Tokens for Effective Fuzzing_](#mathis2020learning)<br/>
   Mathis, *Gopinath*, Zeller, ISSTA, 2020
