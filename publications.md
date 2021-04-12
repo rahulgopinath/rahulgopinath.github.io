@@ -165,6 +165,7 @@ guaranteed to be mortal.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icstw2021/schwander2021inducing.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2021/schwander2021inducing.bib "reference")
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/inducing-subtle-mutations-with-program-repair "presentation")
 
 #### <a id='gopinath2021input'></a>[Gopinath, Nemati, Zeller: _Input Algebras_ ICSE, 2021]()
 
