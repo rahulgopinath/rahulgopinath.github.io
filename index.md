@@ -3,7 +3,9 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
-Rahul Gopinath is a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland). He works with [Prof. Dr. Andreas Zeller](https://www.st.cs.uni-saarland.de/zeller/). He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/). The following is a summary of his research.
+Rahul Gopinath is the incoming lecturer at the [University of Sydney](https://www.sydney.edu.au/). He is currently
+a postdoctoral researcher working on static and dynamic analysis of software at [CISPA Saarland University](http://cispa.saarland).
+He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/). The following is a summary of his research.
 <!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
