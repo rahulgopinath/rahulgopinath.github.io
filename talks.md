@@ -7,40 +7,41 @@ weight: 3
 menu: Talks
 ---
 ##### 2021
-
+<!--
 * [_Automated Software Testing and Repair_](http://intersection.dsi.cnrs.fr/intersection/resultats-cc-fr.do?campagne=92&section=6&grade=223&phase=ADMAPOUR&conc=06/02)<br/>
-  *Gopinath* - CNRS, France, (virtual), (TBD), 2021
+  *Gopinath* - CNRS, France, (virtual), (Declined), 2021
 
 * [_The Science of Fuzzing_](#gopinath2021melbourne)<br/>
-  *Gopinath* - The University of Melbourne, Australia, (virtual), (TBD), 2021
+  *Gopinath* - The University of Melbourne, Australia, (Declined), (TBD), 2021
+-->
 
-* [_The Science of Fuzzing_](#gopinath2021tudelft)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - Delft University of Technology, Netherlands, (virtual), Mar 16, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021uwmadison)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - The University of Wisconsin-Madison, USA, (virtual), Mar 15, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021simonfraser)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - Simon Fraser University, Canada, (virtual), Mar 10, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - Auburn University, USA, (virtual), Mar 4, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021sydney)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - University of Sydney, Australia, (virtual), Feb 19, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021cispa)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - CISPA, Germany, (virtual), Feb 9, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021imdea)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - IMDEA, Spain, (virtual), Jan 29, 2021
 
-* [_The Science of Fuzzing_](#gopinath2021psu)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - Portland State University, USA, (virtual), Jan 6, 2021
 
 ##### 2020
 
-* [_The Science of Fuzzing_](#gopinath2020kuleuven)<br/>
+* [_The Science of Fuzzing_](#gopinath2021sf)<br/>
   *Gopinath* - KU Leuven, Belgium, (virtual), Dec 1, 2020
 
 * [_Sample Free Learning of Input Grammars_](#gopinath2020sutd)<br/>
@@ -76,6 +77,37 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+
+#### <a id='gopinath2021sf'></a>[Gopinath: _The Science of Fuzzing_ Job Talk, 2020-2021]()
+
+Fuzzing is a key method for evaluating the robustness of a program
+against malicious inputs. It involves generating and feeding arbitrary
+data to a program, and monitoring the program for catastrophic
+failures. Any failure in the program in processing the data indicates
+a possible vulnerability in the program. Efficient and effective
+fuzzing requires the availability of the input specification for the
+program under test. However, such specifications are typically
+unavailable, obsolete, incomplete, or inaccurate, limiting the reach
+of fuzzers. This has led to a proliferation of hacky recipes by
+different fuzzers to get past the input parsing stage, with each
+recipe working on some but not all programs. That is, fuzzing most
+resembles alchemy than science at this point.
+
+In this talk, I show how to transform fuzzing into a science. I
+present an end-to-end framework for recovering precise input
+specifications of programs.
+Such mined specifications can immediately be used for effective
+exploration of the program input space as well as the space of the
+program behavior, leading to the identification of failure-inducing
+inputs. Next, given any failure-inducing input, I show how to
+generalize such inputs into abstract patterns, precisely identifying
+the failure-causing parts of the input. Any number of such abstract
+patterns can then be combined using the full set of logical
+connectives --- to produce specialized grammars that can be used by
+any grammar fuzzer for precise control of produced inputs and hence
+the expected behavior.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Al4C-goD6kg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 #### <a id='gopinath2020sutd'></a>[Gopinath: _Sample Free Learning of Input Grammars_ Singapore University of Technology and Design, 2020]()
 
