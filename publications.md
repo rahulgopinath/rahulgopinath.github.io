@@ -191,6 +191,7 @@ grammars are accurate both in producing and validating targeted inputs.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2021/gopinath2021input.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2021/gopinath2021input.bib "reference")
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/input-algebras)
 
 #### <a id='gopinath2020mining'></a>[Gopinath, Mathis, Zeller: _Mining Input Grammars from Dynamic Control Flow_ FSE, 2020]()
 
