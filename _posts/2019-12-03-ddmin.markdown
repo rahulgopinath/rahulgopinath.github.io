@@ -172,6 +172,14 @@ def remove_check_each_fragment(instr, part_len, causal):
 <div name='python_canvas'></div>
 </form>
 
+There is a reason this function is split from the main function unlike in the
+original implementation of `ddmin`. The function `remove_check_each_fragment`
+obeys the contract that any string returned by it obeys the contract represented
+by the `causal` function. This means that any test case that is produced by
+`remove_check_each_fragment` will reproduce the specified behavior, and can be
+used for other computations. For example, one may use it for evaluating test
+reduction slippage, or for finding other reductions.
+
 
 ### ddmin()
 
