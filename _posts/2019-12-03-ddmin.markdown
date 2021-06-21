@@ -610,7 +610,7 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
 
-        if '' in grammar[bsymbol]: # empty expansion
+        if [] in grammar[bsymbol]: # empty expansion
             ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in subtrees:
