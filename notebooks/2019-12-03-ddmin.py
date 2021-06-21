@@ -328,7 +328,7 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         # note the choice above.
         ssubtrees.insert(0, (0, (bsymbol, [])))
 
-        for _depth,stree in subtrees:
+        for _depth,stree in ssubtrees:
             with ReplaceNode(biggest_node, stree):
                 s = tree_to_string(tree)
                 if predicate(s):
