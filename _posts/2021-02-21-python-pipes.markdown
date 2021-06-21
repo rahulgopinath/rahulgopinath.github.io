@@ -356,7 +356,7 @@ class F_(Chains):
 </form>
 
 
-What we are essentially saying here is that, a `lambda` within a list (`[lambda s: …]`)
+What we are essentially saying here is that, a `lambda` within a list (`[lambda s: ...]`)
 is treated as a map, while within a set (`{lambda s:, ..}`) is treated as a
 filter.
 
