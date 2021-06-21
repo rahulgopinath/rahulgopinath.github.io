@@ -304,12 +304,13 @@ def subtrees_with_symbol(node, symbol, result=None, depth=0):
 # always work; the tradeoff here is to allow _some_ invalid
 # strings, which is what we do below. If you do not want invalid
 # strings at all use the first one.
+# 
 # (1) empty nonterminal in grammar
 # ```
 #     if [] in grammar[bsymbol]: # empty expansion
 #        ssubtrees.insert(0, (0, (bsymbol, [])))
 # ```
-# (2)
+# (2) allow invalid trees
 # ```
 #     ssubtrees.insert(0, (0, (bsymbol, [])))
 # ```
