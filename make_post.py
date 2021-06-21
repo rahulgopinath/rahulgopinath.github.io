@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# USAGE: ./make_post.py notebooks/2021-02-21-python-pipes.py > _posts/2021-02-21-python-pipes.markdown
 import sys
 import itertools as I
 from html import escape
