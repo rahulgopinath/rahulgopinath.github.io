@@ -610,8 +610,20 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
 
-        if [] in grammar[bsymbol]: # empty expansion
-            ssubtrees.insert(0, (0, (bsymbol, [])))
+        # There is a choice here. The issue is that not all grammars
+        # may indicate a deletable sequence with a single nonterminal.
+        # some may simply indicate that by using two rules like below
+        # <mykey> = <a> <b> <c> | <a> <b>
+        # which indicates <c> may be deleted.
+        # Hence, checking for empty expansion in a nonterminal will not
+        # always work; the tradeoff here is to allow _some_ invalid
+        # strings, which is what we do below. If you do not want invalid
+        # strings at all use the first one.
+        # (1) empty nonterminal in grammar
+        # if [] in grammar[bsymbol]: # empty expansion
+        #    ssubtrees.insert(0, (0, (bsymbol, [])))
+        # (2)
+        ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in subtrees:
             with ReplaceNode(biggest_node, stree):
