@@ -533,7 +533,10 @@ This means that we have to do a bit kludge here.
 The issue is that not all grammars
 may indicate a deletable sequence with a single nonterminal.
 some may simply indicate that by using two rules like below
-<mykey> = <a> <b> <c> | <a> <b>
+```
+<mykey> := <a> <b> <c>
+        |  <a> <b>
+```
 which indicates <c> may be deleted.
 Hence, checking for empty expansion in a nonterminal will not
 always work; the tradeoff here is to allow _some_ invalid
