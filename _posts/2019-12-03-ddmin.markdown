@@ -566,8 +566,8 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
         # note the choice above.
-        if [] in grammar[bsymbol]: # empty expansion
-            ssubtrees.insert(0, (0, (bsymbol, [])))
+        #if [] in grammar[bsymbol]: # empty expansion
+        ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in ssubtrees:
             with ReplaceNode(biggest_node, stree):
@@ -578,7 +578,9 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         if reprocess is not None:
             biggest_node.clear()
             biggest_node.extend(reprocess)
-            add_to_queue(biggest_node, p_q)
+            s1 = tree_to_string(stree)
+            if s1:
+                add_to_queue(biggest_node, p_q)
         else:
             for c in biggest_node[1]:
                 if is_nt(c[0]):
@@ -600,8 +602,8 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
         # note the choice above.
-        if [] in grammar[bsymbol]: # empty expansion
-            ssubtrees.insert(0, (0, (bsymbol, [])))
+        #if [] in grammar[bsymbol]: # empty expansion
+        ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in ssubtrees:
             with ReplaceNode(biggest_node, stree):
@@ -612,7 +614,9 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         if reprocess is not None:
             biggest_node.clear()
             biggest_node.extend(reprocess)
-            add_to_queue(biggest_node, p_q)
+            s1 = tree_to_string(stree)
+            if s1:
+                add_to_queue(biggest_node, p_q)
         else:
             for c in biggest_node[1]:
                 if is_nt(c[0]):
