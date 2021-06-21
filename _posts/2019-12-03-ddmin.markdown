@@ -6,11 +6,8 @@ comments: true
 tags: reducing
 categories: post
 ---
-
-Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).
-
-<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
@@ -19,12 +16,12 @@ Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
-[Pyodide](https://github.com/iodide-project/pyodide/) takes a little time
-to initialize. Please wait until the *Run all* button has a red border.
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
+Note: This is based on the *ddmin* in [the fuzzingbook](https://www.fuzzingbook.org/html/Reducer.html#Delta-Debugging).
 ### About Delta Debugging
 
 Delta Debugging is a method to reduce failure inducing inputs to their
@@ -54,8 +51,6 @@ def test(s):
 
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def test(s):
@@ -66,8 +61,6 @@ def test(s):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Here is an example run:
 
 ```shell
@@ -101,7 +94,6 @@ $ python ddmin.py '<SELECT NAME="priority" MULTIPLE SIZE=7>'
 .  <SELECT 7
 <SELECT>
 ```
-
 ## Implementation
 
 How do we implement this?
@@ -110,14 +102,12 @@ First, the prerequisites:
 
 <!--
 ############
-```python
 import random
 import string
 import re
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import random
@@ -127,24 +117,11 @@ import re
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 ### remove_check_each_fragment()
-
 Given a partition length, we want to split the string into
 that many partitions, remove each partition one at a time from the
 string, and check if for any of them, the `causal()` succeeds. If it
 succeeds for any, then we can skip that section of the string.
-
-<!-- Original
-############
-def remove_check_each_fragment(instr, start, part_len, causal):
-    for i in range(start, len(instr), part_len):
-        stitched =  instr[:i] + instr[i+part_len:]
-        if causal(stitched): return i, stitched
-    return -1, instr
-############
--->
 
 <!--
 ############
@@ -155,9 +132,9 @@ def remove_check_each_fragment(instr, part_len, causal):
         if not causal(stitched):
              pre = pre + instr[i:i+part_len]
     return pre
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def remove_check_each_fragment(instr, part_len, causal):
@@ -171,7 +148,6 @@ def remove_check_each_fragment(instr, part_len, causal):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 There is a reason this function is split from the main function unlike in the
 original implementation of `ddmin`. The function `remove_check_each_fragment`
 obeys the contract that any string returned by it obeys the contract represented
@@ -193,20 +169,6 @@ by half.
 If the partition cannot be halved again (i.e, the last partition length was
 one) or the string has become empty, we stop the iteration.
 
-<!-- Original
-############
-def ddmin(cur_str, causal_fn):
-    start, part_len = 0, len(cur_str) // 2
-    while part_len and cur_str:
-        start, cur_str = remove_check_each_fragment(cur_str, start, part_len,
-                                                    causal_fn)
-        if start == -1:
-            start, part_len = 0, part_len // 2
-
-    return cur_str
-############
--->
-
 <!--
 ############
 def ddmin(cur_str, causal_fn):
@@ -218,10 +180,9 @@ def ddmin(cur_str, causal_fn):
         cur_str = _str
 
     return cur_str
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ddmin(cur_str, causal_fn):
@@ -237,9 +198,6 @@ def ddmin(cur_str, causal_fn):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 The driver.
 
 <!--
@@ -247,9 +205,9 @@ The driver.
 def test(s):
     print("%s %d" % (s, len(s)))
     return set('()') <= set(s)
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def test(s):
@@ -261,17 +219,15 @@ def test(s):
 </form>
 
 
-
 <!--
 ############
 inputstring = ''.join(random.choices(string.digits +
                       string.ascii_letters +
                       string.punctuation, k=1024))
 print(inputstring)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 inputstring = &#x27;&#x27;.join(random.choices(string.digits +
@@ -289,10 +245,9 @@ print(inputstring)
 assert test(inputstring)
 solution = ddmin(inputstring, test)
 print(solution)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 assert test(inputstring)
@@ -302,7 +257,6 @@ print(solution)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 The nice thing is that, if you invoke the driver, you can see the reduction in
 input length in action. Note that our driver is essentially a best case
 scenario. In the worst case, the complexity is $$O(n^2)$$
@@ -338,7 +292,7 @@ Here is the implementation.
 ############
 def ddrmin(cur_str, causal_fn, pre='', post=''):
     if len(cur_str) == 1: return cur_str
-    
+
     part_i = len(cur_str) // 2
     string1, string2 = cur_str[:part_i], cur_str[part_i:]
     if causal_fn(pre + string1 + post):
@@ -348,17 +302,16 @@ def ddrmin(cur_str, causal_fn, pre='', post=''):
     s1 = ddrmin(string1, causal_fn, pre, string2 + post)
     s2 = ddrmin(string2, causal_fn, pre + s1, post)
     return s1 + s2
-    
+
 ddmin = ddrmin
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ddrmin(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
     if len(cur_str) == 1: return cur_str
-    
+
     part_i = len(cur_str) // 2
     string1, string2 = cur_str[:part_i], cur_str[part_i:]
     if causal_fn(pre + string1 + post):
@@ -368,14 +321,12 @@ def ddrmin(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
     s1 = ddrmin(string1, causal_fn, pre, string2 + post)
     s2 = ddrmin(string2, causal_fn, pre + s1, post)
     return s1 + s2
-    
+
 ddmin = ddrmin
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 in languages such as Python which allocates just the bare minimum stack by default. The
 nice thing here is that, since we split the string by half again and again, the maximum
@@ -422,10 +373,9 @@ import sys
 import re
 import copy
 import heapq
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import sys
@@ -436,8 +386,6 @@ import heapq
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### A few helpers
 
 Check if a given token is a noterminal
@@ -451,10 +399,9 @@ def tree_to_string(tree):
     name, children, *rest = tree
     if not is_nt(name): return name
     else: return ''.join([tree_to_string(c) for c in children])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def is_nt(v):
@@ -468,10 +415,7 @@ def tree_to_string(tree):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### We prioritize the smallest trees.
-
 
 <!--
 ############
@@ -480,10 +424,9 @@ def count_leaves(node):
     if not children:
         return 1
     return sum(count_leaves(i) for i in children)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def count_leaves(node):
@@ -495,18 +438,15 @@ def count_leaves(node):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### A priority queue
 
 <!--
 ############
 def add_to_queue(node, q):
     heapq.heappush(q, (count_leaves(node), node))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def add_to_queue(node, q):
@@ -515,10 +455,7 @@ def add_to_queue(node, q):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### A way to tempoararily replace a node in a tree.
-
 
 <!--
 ############
@@ -536,10 +473,9 @@ class ReplaceNode:
     def __exit__(self, *args):
         self.node.clear()
         self.node.extend(self.node_copy)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ReplaceNode:
@@ -560,10 +496,7 @@ class ReplaceNode:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### Find all subtrees with the given symbol
-
 
 <!--
 ############
@@ -575,10 +508,9 @@ def subtrees_with_symbol(node, symbol, result=None, depth=0):
     for c in children:
         subtrees_with_symbol(c, symbol, result, depth+1)
     return result
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def subtrees_with_symbol(node, symbol, result=None, depth=0):
@@ -593,9 +525,29 @@ def subtrees_with_symbol(node, symbol, result=None, depth=0):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 #### The perses algorithm itself.
+
+Note that we do not do the Perses-Normal-Form. Hence, the
+grammar should be amenable to deletion of nonterminals.
+This means that we have to do a bit kludge here.
+The issue is that not all grammars
+may indicate a deletable sequence with a single nonterminal.
+some may simply indicate that by using two rules like below
+<mykey> = <a> <b> <c> | <a> <b>
+which indicates <c> may be deleted.
+Hence, checking for empty expansion in a nonterminal will not
+always work; the tradeoff here is to allow _some_ invalid
+strings, which is what we do below. If you do not want invalid
+strings at all use the first one.
+(1) empty nonterminal in grammar
+```
+    if [] in grammar[bsymbol]: # empty expansion
+       ssubtrees.insert(0, (0, (bsymbol, [])))
+```
+(2)
+```
+    ssubtrees.insert(0, (0, (bsymbol, [])))
+```
 
 <!--
 ############
@@ -609,20 +561,7 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         bsymbol = biggest_node[0]
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
-
-        # There is a choice here. The issue is that not all grammars
-        # may indicate a deletable sequence with a single nonterminal.
-        # some may simply indicate that by using two rules like below
-        # <mykey> = <a> <b> <c> | <a> <b>
-        # which indicates <c> may be deleted.
-        # Hence, checking for empty expansion in a nonterminal will not
-        # always work; the tradeoff here is to allow _some_ invalid
-        # strings, which is what we do below. If you do not want invalid
-        # strings at all use the first one.
-        # (1) empty nonterminal in grammar
-        # if [] in grammar[bsymbol]: # empty expansion
-        #    ssubtrees.insert(0, (0, (bsymbol, [])))
-        # (2)
+        # note the choice above.
         ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in subtrees:
@@ -640,10 +579,9 @@ def perses_delta_debug(grammar, orig_tree, predicate):
                 if is_nt(c[0]):
                     add_to_queue(c, p_q)
     return tree
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def perses_delta_debug(grammar, orig_tree, predicate):
@@ -656,9 +594,8 @@ def perses_delta_debug(grammar, orig_tree, predicate):
         bsymbol = biggest_node[0]
         _root, *subtrees = subtrees_with_symbol(biggest_node, bsymbol)
         ssubtrees = sorted(subtrees, reverse=True)
-
-        if &#x27;&#x27; in grammar[bsymbol]: # empty expansion
-            ssubtrees.insert(0, (0, (bsymbol, [])))
+        # note the choice above.
+        ssubtrees.insert(0, (0, (bsymbol, [])))
 
         for _depth,stree in subtrees:
             with ReplaceNode(biggest_node, stree):
@@ -679,7 +616,6 @@ def perses_delta_debug(grammar, orig_tree, predicate):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 #### The driver
 
 First, we define the predicate. Our predicate is simple. We check if the expression has doubled parenthesis.
@@ -690,10 +626,9 @@ def test_bb(inp):
     if re.match(r'.*[(][(].*[)][)].*', inp):
         return True
     return False
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def test_bb(inp):
@@ -704,8 +639,6 @@ def test_bb(inp):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We have the following grammar
 
 <!--
@@ -720,10 +653,9 @@ EXPR_GRAMMAR = {'<start>': [['<expr>']],
   ['<integer>']],
  '<integer>': [['<digit>', '<integer>'], ['<digit>']],
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 EXPR_GRAMMAR = {&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
@@ -740,17 +672,14 @@ EXPR_GRAMMAR = {&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 And the following input
 
 <!--
 ############
 my_input = '1+((2*3/4))'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = &#x27;1+((2*3/4))&#x27;
@@ -758,17 +687,30 @@ my_input = &#x27;1+((2*3/4))&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We parse and generate a derivation tree as follows
-
 Loading the prerequisite:
-<form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+
+<!--
+############
 "https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl"
-</textarea>
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit', id="python_pre_edit">
+&quot;https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
 </form>
 
+
+<!--
+############
+import earleyparser
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import earleyparser
@@ -778,14 +720,13 @@ import earleyparser
 </form>
 
 
-
 <!--
 ############
-d_tree, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
@@ -793,16 +734,14 @@ d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The derivation tree looks like this
+
 <!--
 ############
 print(d_tree_)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(d_tree_)
@@ -810,6 +749,7 @@ print(d_tree_)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
 
 <!--
 ############
@@ -820,10 +760,9 @@ def modifiable(tree):
       return [name, [modifiable(c) for c in children]]
 
 d_tree = modifiable(d_tree_)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def modifiable(tree):
@@ -837,18 +776,15 @@ d_tree = modifiable(d_tree_)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Now, we are ready to use the `perses_delta_debug()`
 
 <!--
 ############
 tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
 print(tree_to_string(tree))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
@@ -857,11 +793,6 @@ print(tree_to_string(tree))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
-
 ### Is this Enough? (Semantics)
 
 Note that at this point, we can generate syntactically valid inputs to check reduction, but there is no guarantee that they
@@ -900,3 +831,7 @@ can end up making the remaining bits be passed to different choices than origina
 The reason seems to be that, the bugs are usually locally concentrated. That is, once one is able to reproduce the failure pattern, one can fill in
 the remaining parts of the input with randomly generated (but valid) values. Note that skeleton of the input will be generated by the initial choices itself.
 So, the hypothesis strategy seems to be to find edits that reach the pattern to reproduce fast, and then fill in the remaining blanks, which seems to work in practice.
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
