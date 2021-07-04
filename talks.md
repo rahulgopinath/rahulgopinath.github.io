@@ -7,6 +7,10 @@ weight: 3
 menu: Talks
 ---
 ##### 2021
+
+* [_Fuzzing -- from Alchemy to a  Science_](#gopinath2021fuzzing)<br/>
+  *Gopinath* - The University of Passau, Germany, (virtual), June 30, 2021
+
 <!--
 * [_Automated Software Testing and Repair_](http://intersection.dsi.cnrs.fr/intersection/resultats-cc-fr.do?campagne=92&section=6&grade=223&phase=ADMAPOUR&conc=06/02)<br/>
   *Gopinath* - CNRS, France, (virtual), (Declined), 2021
@@ -78,6 +82,31 @@ menu: Talks
 
 ---
 
+#### <a id='gopinath2021fuzzing'></a>[Gopinath: _Fuzzing -- from Alchemy to a Science_ Guest Lecture, 2020-2021]()
+
+Fuzzing is one of the key techniques in the arsenal of a practitioner of
+cyber-security, and is used for evaluating the robustness of programs against
+malicious inputs. To fuzz effectively, the input specification of
+the program under evaluation is practically a requirement.
+However, such specifications are typically unavailable, obsolete, incomplete,
+or inaccurate, limiting the reach of fuzzers. This has led to a proliferation
+of hacky recipes by different fuzzers to get past the input parsing
+stage, with each recipe working on some but not all programs. That is,
+fuzzing most resembles alchemy than science at this point.
+
+In this talk, I show how to transform fuzzing to a science. I present
+an end-to-end framework for recovering precise input specifications of
+programs. Such mined specifications can immediately be used for
+effective exploration of the program input space as well as the space
+of the program behavior, leading to the identification of
+failure-inducing inputs. Next, given any failure-inducing input, I
+show how to generalize such inputs into abstract patterns, precisely
+identifying the failure causing parts of the input. Any number of such
+abstract patterns can then be combined using the full set of logical
+connectives --- to produce specialized grammars that can be used by
+any grammar fuzzer for precise control of produced inputs and hence
+the expected behavior.
+
 #### <a id='gopinath2021sf'></a>[Gopinath: _The Science of Fuzzing_ Job Talk, 2020-2021]()
 
 Fuzzing is a key method for evaluating the robustness of a program
@@ -143,6 +172,8 @@ look at why it is effective. Next, I will examine the limitations to mutation
 analysis, and how these can be mitigated. I will also examine how insights from
 mutation testing may be used in fields such as evaluating type annotations, 
 program repair, and program adaptation.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-from-alchemy-to-a-science)
 
 #### <a id='gopinath2016code'></a>[Gopinath: _Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_ GTAC, 2016]()
 
