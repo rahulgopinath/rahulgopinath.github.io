@@ -107,6 +107,8 @@ connectives --- to produce specialized grammars that can be used by
 any grammar fuzzer for precise control of produced inputs and hence
 the expected behavior.
 
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-from-alchemy-to-a-science)
+
 #### <a id='gopinath2021sf'></a>[Gopinath: _The Science of Fuzzing_ Job Talk, 2020-2021]()
 
 Fuzzing is a key method for evaluating the robustness of a program
@@ -173,7 +175,6 @@ analysis, and how these can be mitigated. I will also examine how insights from
 mutation testing may be used in fields such as evaluating type annotations, 
 program repair, and program adaptation.
 
-[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-from-alchemy-to-a-science)
 
 #### <a id='gopinath2016code'></a>[Gopinath: _Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_ GTAC, 2016]()
 
