@@ -88,18 +88,16 @@ START = '<start>'
 
 def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
     stop = False
-    for k in g:
-        if stop:
+    for i, k in enumerate(g):
+        if i > nmax:
             print('...')
             break
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if rmax(r)]:
-            for i,srule in enumerate(srules):
+        lrules = [len(r) for r in srules if rmax(r)]
+        if lrules:
+            for srule in srules:
                 print('|  ', srule)
-                if i > nmax:
-                    stop = True
-                    break
         else:
             print('|  ','| '.join(srules))
 

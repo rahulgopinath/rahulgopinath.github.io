@@ -161,18 +161,16 @@ The grammar can be printed as follows.
 ############
 def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
     stop = False
-    for k in g:
-        if stop:
+    for i, k in enumerate(g):
+        if i > nmax:
             print('...')
             break
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if rmax(r)]:
-            for i,srule in enumerate(srules):
+        lrules = [len(r) for r in srules if rmax(r)]
+        if lrules:
+            for srule in srules:
                 print('|  ', srule)
-                if i > nmax:
-                    stop = True
-                    break
         else:
             print('|  ','| '.join(srules))
 
@@ -182,18 +180,16 @@ def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
 <textarea cols="40" rows="4" name='python_edit'>
 def print_g(g, rmax=lambda x: len(x) &gt; 3, nmax=100):
     stop = False
-    for k in g:
-        if stop:
+    for i, k in enumerate(g):
+        if i &gt; nmax:
             print(&#x27;...&#x27;)
             break
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if rmax(r)]:
-            for i,srule in enumerate(srules):
+        lrules = [len(r) for r in srules if rmax(r)]
+        if lrules:
+            for srule in srules:
                 print(&#x27;|  &#x27;, srule)
-                if i &gt; nmax:
-                    stop = True
-                    break
         else:
             print(&#x27;|  &#x27;,&#x27;| &#x27;.join(srules))
 </textarea><br />
