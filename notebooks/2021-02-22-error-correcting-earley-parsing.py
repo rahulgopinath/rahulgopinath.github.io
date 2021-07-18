@@ -94,7 +94,7 @@ def print_g(g):
             for srule in srules:
                 print('|  ', srule)
         else:
-            print('| '.join(srules)
+            print('| '.join(srules))
 
 # For example,
 

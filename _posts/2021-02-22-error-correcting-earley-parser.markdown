@@ -167,7 +167,7 @@ def print_g(g):
             for srule in srules:
                 print('|  ', srule)
         else:
-            print('| '.join(srules)
+            print('| '.join(srules))
 
 ############
 -->
@@ -181,7 +181,7 @@ def print_g(g):
             for srule in srules:
                 print(&#x27;|  &#x27;, srule)
         else:
-            print(&#x27;| &#x27;.join(srules)
+            print(&#x27;| &#x27;.join(srules))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
