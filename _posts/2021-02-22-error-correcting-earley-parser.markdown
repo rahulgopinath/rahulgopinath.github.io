@@ -159,13 +159,16 @@ The grammar can be printed as follows.
 
 <!--
 ############
-def print_g(g, nmax=3):
+def print_g(g, rmax=lambda x, len(x) > 3, nmax=100):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) >= nmax]:
-            for srule in srules:
+        if [1 for r in srules if rmax(r)]:
+            for i,srule in enumerate(srules):
                 print('|  ', srule)
+                if i > nmax:
+                    print('...')
+                    break
         else:
             print('|  ','| '.join(srules))
 
@@ -173,13 +176,16 @@ def print_g(g, nmax=3):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def print_g(g, nmax=3):
+def print_g(g, rmax=lambda x, len(x) &gt; 3, nmax=100):
     for k in g:
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) &gt;= nmax]:
-            for srule in srules:
+        if [1 for r in srules if rmax(r)]:
+            for i,srule in enumerate(srules):
                 print(&#x27;|  &#x27;, srule)
+                if i &gt; nmax:
+                    print(&#x27;...&#x27;)
+                    break
         else:
             print(&#x27;|  &#x27;,&#x27;| &#x27;.join(srules))
 </textarea><br />
@@ -420,13 +426,13 @@ def translate_terminals(g):
 
 <!--
 ############
-print_g(translate_terminals(grammar), 9)
+print_g(translate_terminals(grammar), lambda x: len(r) > 9)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print_g(translate_terminals(grammar), 9)
+print_g(translate_terminals(grammar), lambda x: len(r) &gt; 9)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -644,14 +650,14 @@ Here is the augmented grammar
 <!--
 ############
 covering_grammar, covering_start = augment_grammar(grammar, START)
-print_g(covering_grammar)
+print_g(covering_grammar, lambda x: len(x) > 9)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 covering_grammar, covering_start = augment_grammar(grammar, START)
-print_g(covering_grammar)
+print_g(covering_grammar, lambda x: len(x) &gt; 9)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -661,14 +667,14 @@ Here is the augmented grammar for JSON
 <!--
 ############
 json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-print_g(json_covering_grammar)
+print_g(json_covering_grammar, lambda x: len(x) > 9)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-print_g(json_covering_grammar)
+print_g(json_covering_grammar, lambda x: len(x) &gt; 9)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1542,14 +1548,14 @@ Using it.
 <!--
 ############
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
-print_g(covering_grammar_ex)
+print_g(covering_grammar_ex, lambda x: len(x) > 100)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
-print_g(covering_grammar_ex)
+print_g(covering_grammar_ex, lambda x: len(x) &gt; 100)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1626,7 +1632,7 @@ covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, js
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
         covering_start_json)
-print_g(covering_grammar_json)
+print_g(covering_grammar_json, lambda x: len(x) > 100)
 for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)
@@ -1643,7 +1649,7 @@ covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, js
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
         covering_start_json)
-print_g(covering_grammar_json)
+print_g(covering_grammar_json, lambda x: len(x) &gt; 100)
 for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)

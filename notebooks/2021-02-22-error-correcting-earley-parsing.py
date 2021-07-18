@@ -86,13 +86,16 @@ START = '<start>'
 
 # The grammar can be printed as follows.
 
-def print_g(g, nmax=3):
+def print_g(g, rmax=lambda x, len(x) > 3, nmax=100):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) >= nmax]:
-            for srule in srules:
+        if [1 for r in srules if rmax(r)]:
+            for i,srule in enumerate(srules):
                 print('|  ', srule)
+                if i > nmax:
+                    print('...')
+                    break
         else:
             print('|  ','| '.join(srules))
 
@@ -204,7 +207,7 @@ def translate_terminals(g):
 # 
 
 if __name__ == '__main__':
-    print_g(translate_terminals(grammar), 9)
+    print_g(translate_terminals(grammar), lambda x: len(r) > 9)
 
 # How are these nonterminals defined? Each nonterminal has the following
 # expansion rules
@@ -312,13 +315,13 @@ def augment_grammar(g, start, symbols=None):
 
 if __name__ == '__main__':
     covering_grammar, covering_start = augment_grammar(grammar, START)
-    print_g(covering_grammar)
+    print_g(covering_grammar, lambda x: len(x) > 9)
 
 # Here is the augmented grammar for JSON
 
 if __name__ == '__main__':
     json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-    print_g(json_covering_grammar)
+    print_g(json_covering_grammar, lambda x: len(x) > 9)
 
 # At this point, we are ready to check the covering properties of our grammar.
 
@@ -706,7 +709,7 @@ def augment_grammar_ex(g, start, symbols=None):
 
 if __name__ == '__main__':
     covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar, START)
-    print_g(covering_grammar_ex)
+    print_g(covering_grammar_ex, lambda x: len(x) > 100)
 
 # Testing x+y
 
@@ -742,7 +745,7 @@ if __name__ == '__main__':
     ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
             cstring,
             covering_start_json)
-    print_g(covering_grammar_json)
+    print_g(covering_grammar_json, lambda x: len(x) > 100)
     for i in range(1):
         tree = ie6.extract_a_tree()
         print(tree)
