@@ -159,7 +159,7 @@ The grammar can be printed as follows.
 
 <!--
 ############
-def print_g(g, rmax=lambda x, len(x) > 3, nmax=100):
+def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
@@ -176,7 +176,7 @@ def print_g(g, rmax=lambda x, len(x) > 3, nmax=100):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def print_g(g, rmax=lambda x, len(x) &gt; 3, nmax=100):
+def print_g(g, rmax=lambda x: len(x) &gt; 3, nmax=100):
     for k in g:
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]

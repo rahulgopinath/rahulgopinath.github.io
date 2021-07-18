@@ -86,7 +86,7 @@ START = '<start>'
 
 # The grammar can be printed as follows.
 
-def print_g(g, rmax=lambda x, len(x) > 3, nmax=100):
+def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
