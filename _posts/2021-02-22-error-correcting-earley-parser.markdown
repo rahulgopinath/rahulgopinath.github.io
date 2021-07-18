@@ -160,14 +160,18 @@ The grammar can be printed as follows.
 <!--
 ############
 def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
+    stop = False
     for k in g:
+        if stop:
+            print('...')
+            break
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
         if [1 for r in srules if rmax(r)]:
             for i,srule in enumerate(srules):
                 print('|  ', srule)
                 if i > nmax:
-                    print('...')
+                    stop = True
                     break
         else:
             print('|  ','| '.join(srules))
@@ -177,14 +181,18 @@ def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def print_g(g, rmax=lambda x: len(x) &gt; 3, nmax=100):
+    stop = False
     for k in g:
+        if stop:
+            print(&#x27;...&#x27;)
+            break
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
         if [1 for r in srules if rmax(r)]:
             for i,srule in enumerate(srules):
                 print(&#x27;|  &#x27;, srule)
                 if i &gt; nmax:
-                    print(&#x27;...&#x27;)
+                    stop = True
                     break
         else:
             print(&#x27;|  &#x27;,&#x27;| &#x27;.join(srules))
@@ -650,14 +658,14 @@ Here is the augmented grammar
 <!--
 ############
 covering_grammar, covering_start = augment_grammar(grammar, START)
-print_g(covering_grammar, lambda x: len(x) > 9)
+print_g(covering_grammar, lambda x: len(x) > 20)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 covering_grammar, covering_start = augment_grammar(grammar, START)
-print_g(covering_grammar, lambda x: len(x) &gt; 9)
+print_g(covering_grammar, lambda x: len(x) &gt; 20)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

@@ -87,14 +87,18 @@ START = '<start>'
 # The grammar can be printed as follows.
 
 def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
+    stop = False
     for k in g:
+        if stop:
+            print('...')
+            break
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
         if [1 for r in srules if rmax(r)]:
             for i,srule in enumerate(srules):
                 print('|  ', srule)
                 if i > nmax:
-                    print('...')
+                    stop = True
                     break
         else:
             print('|  ','| '.join(srules))
@@ -315,7 +319,7 @@ def augment_grammar(g, start, symbols=None):
 
 if __name__ == '__main__':
     covering_grammar, covering_start = augment_grammar(grammar, START)
-    print_g(covering_grammar, lambda x: len(x) > 9)
+    print_g(covering_grammar, lambda x: len(x) > 20)
 
 # Here is the augmented grammar for JSON
 
