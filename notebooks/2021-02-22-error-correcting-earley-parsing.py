@@ -207,7 +207,7 @@ def translate_terminals(g):
 # 
 
 if __name__ == '__main__':
-    print_g(translate_terminals(grammar), lambda x: len(r) > 9)
+    print_g(translate_terminals(grammar), lambda x: len(x) > 9)
 
 # How are these nonterminals defined? Each nonterminal has the following
 # expansion rules

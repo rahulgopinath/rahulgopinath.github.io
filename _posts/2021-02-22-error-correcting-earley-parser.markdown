@@ -426,13 +426,13 @@ def translate_terminals(g):
 
 <!--
 ############
-print_g(translate_terminals(grammar), lambda x: len(r) > 9)
+print_g(translate_terminals(grammar), lambda x: len(x) > 9)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print_g(translate_terminals(grammar), lambda x: len(r) &gt; 9)
+print_g(translate_terminals(grammar), lambda x: len(x) &gt; 9)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
