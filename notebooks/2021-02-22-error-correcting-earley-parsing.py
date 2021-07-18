@@ -728,6 +728,7 @@ if __name__ == '__main__':
         tree = ie5.extract_a_tree()
         print(tree_to_str_delta(tree))
 
+# 
 if __name__ == '__main__':
     cstring = '[{"abc":[]'
     covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)

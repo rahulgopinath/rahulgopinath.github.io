@@ -1586,7 +1586,27 @@ for i in range(1):
     tree = ie5.extract_a_tree()
     print(tree_to_str_delta(tree))
 
-_name__ == '__main__':
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
+        START,
+        symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
+ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
+        &#x27;x+1&#x27;,
+        covering_start_ex)
+for i in range(1):
+    tree = ie5.extract_a_tree()
+    print(tree_to_str_delta(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
 cstring = '[{"abc":[]'
 covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
@@ -1604,17 +1624,6 @@ for i in range(1):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-covering_grammar_ex, covering_start_ex = augment_grammar_ex(grammar,
-        START,
-        symbols=[i for i in string.printable if i not in &#x27;\n\r\t\x0b\x0c&#x27;])
-ie5 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_ex),
-        &#x27;x+1&#x27;,
-        covering_start_ex)
-for i in range(1):
-    tree = ie5.extract_a_tree()
-    print(tree_to_str_delta(tree))
-
-_name__ == &#x27;__main__&#x27;:
 cstring = &#x27;[{&quot;abc&quot;:[]&#x27;
 covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),

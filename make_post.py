@@ -27,7 +27,8 @@ def split_data(data):
                     skip_empty = False
                     lines.append(line.rstrip())
             if lines:
-                if lines[0] == "if __name__ == '__main__':": lines = lines[1:]
+                if lines[0] == "if __name__ == '__main__':":
+                    lines = lines[1:]
                 # find empty of first line
                 e_l = 0
                 for c in lines[0]:
