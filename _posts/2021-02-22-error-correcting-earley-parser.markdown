@@ -543,13 +543,15 @@ It is used as follows
 
 <!--
 ############
-print(add_start(grammar, START))
+g, c = add_start(START)
+print(g)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(add_start(grammar, START))
+g, c = add_start(START)
+print(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -582,8 +584,9 @@ def augment_grammar(g, start, symbols=None):
                 [Empty],
                 [Any_not(kk)]
                 ]
-    start_g, start_s = add_start(g, start)
+    start_g, start_s = add_start(start)
     return {**start_g,
+            **g,
             **translate_terminals(g),
             **Match_any_sym,
             **Match_any_sym_plus,
@@ -615,8 +618,9 @@ def augment_grammar(g, start, symbols=None):
                 [Empty],
                 [Any_not(kk)]
                 ]
-    start_g, start_s = add_start(g, start)
+    start_g, start_s = add_start(start)
     return {**start_g,
+            **g,
             **translate_terminals(g),
             **Match_any_sym,
             **Match_any_sym_plus,
@@ -1480,6 +1484,7 @@ def augment_grammar_ex(g, start, symbols=None):
                 ]
     start_g, start_s = add_start(start)
     return {**start_g,
+            **g,
             **translate_terminals(g),
             **Match_any_sym,
             **Match_any_sym_plus,
@@ -1513,6 +1518,7 @@ def augment_grammar_ex(g, start, symbols=None):
                 ]
     start_g, start_s = add_start(start)
     return {**start_g,
+            **g,
             **translate_terminals(g),
             **Match_any_sym,
             **Match_any_sym_plus,
