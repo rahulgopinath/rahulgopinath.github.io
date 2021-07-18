@@ -90,11 +90,11 @@ def print_g(g):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) != 1]:
+        if [1 for r in srules if len(r) >= 3]:
             for srule in srules:
                 print('|  ', srule)
         else:
-            print('| '.join(srules))
+            print('|  ','| '.join(srules))
 
 # For example,
 

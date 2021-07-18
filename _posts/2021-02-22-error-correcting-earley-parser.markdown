@@ -163,11 +163,11 @@ def print_g(g):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) != 1]:
+        if [1 for r in srules if len(r) >= 3]:
             for srule in srules:
                 print('|  ', srule)
         else:
-            print('| '.join(srules))
+            print('|  ','| '.join(srules))
 
 ############
 -->
@@ -177,11 +177,11 @@ def print_g(g):
     for k in g:
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) != 1]:
+        if [1 for r in srules if len(r) &gt;= 3]:
             for srule in srules:
                 print(&#x27;|  &#x27;, srule)
         else:
-            print(&#x27;| &#x27;.join(srules))
+            print(&#x27;|  &#x27;,&#x27;| &#x27;.join(srules))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
