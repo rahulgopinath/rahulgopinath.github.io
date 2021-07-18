@@ -6,7 +6,7 @@ comments: true
 tags: parsing, error correcting, context-free
 categories: post
 ---
-**DRAFT**
+**DRAFT** (error in implementation, in process of fixing)
 
 We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
 One of the interesting things about Earley parsers is that it also forms the
@@ -162,8 +162,12 @@ The grammar can be printed as follows.
 def print_g(g):
     for k in g:
         print(k)
-        for rule in g[k]:
-            print('|  ', ' '.join([repr(k) for k in rule]))
+        srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
+        if [1 for r in srules if len(r) != 1]:
+            for srule in srules:
+                print('|  ', srule)
+        else:
+            print('| '.join(srules)
 
 ############
 -->
@@ -172,8 +176,12 @@ def print_g(g):
 def print_g(g):
     for k in g:
         print(k)
-        for rule in g[k]:
-            print(&#x27;|  &#x27;, &#x27; &#x27;.join([repr(k) for k in rule]))
+        srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
+        if [1 for r in srules if len(r) != 1]:
+            for srule in srules:
+                print(&#x27;|  &#x27;, srule)
+        else:
+            print(&#x27;| &#x27;.join(srules)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

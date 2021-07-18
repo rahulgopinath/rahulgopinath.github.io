@@ -6,7 +6,7 @@
 # tags: parsing, error correcting, context-free
 # categories: post
 # ---
-# **DRAFT**
+# **DRAFT** (error in implementation, in process of fixing)
 # 
 # We talked about Earley parsers [previously](/post/2021/02/06/earley-parsing/).
 # One of the interesting things about Earley parsers is that it also forms the
@@ -89,8 +89,12 @@ START = '<start>'
 def print_g(g):
     for k in g:
         print(k)
-        for rule in g[k]:
-            print('|  ', ' '.join([repr(k) for k in rule]))
+        srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
+        if [1 for r in srules if len(r) != 1]:
+            for srule in srules:
+                print('|  ', srule)
+        else:
+            print('| '.join(srules)
 
 # For example,
 
