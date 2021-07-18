@@ -159,11 +159,11 @@ The grammar can be printed as follows.
 
 <!--
 ############
-def print_g(g):
+def print_g(g, nmax=3):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) >= 3]:
+        if [1 for r in srules if len(r) >= nmax]:
             for srule in srules:
                 print('|  ', srule)
         else:
@@ -173,11 +173,11 @@ def print_g(g):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def print_g(g):
+def print_g(g, nmax=3):
     for k in g:
         print(k)
         srules = [&#x27; &#x27;.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) &gt;= 3]:
+        if [1 for r in srules if len(r) &gt;= nmax]:
             for srule in srules:
                 print(&#x27;|  &#x27;, srule)
         else:
@@ -420,13 +420,13 @@ def translate_terminals(g):
 
 <!--
 ############
-print_g(translate_terminals(grammar))
+print_g(translate_terminals(grammar), 9)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print_g(translate_terminals(grammar))
+print_g(translate_terminals(grammar), 9)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

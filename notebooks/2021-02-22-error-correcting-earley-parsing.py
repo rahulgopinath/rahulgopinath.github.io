@@ -86,11 +86,11 @@ START = '<start>'
 
 # The grammar can be printed as follows.
 
-def print_g(g):
+def print_g(g, nmax=3):
     for k in g:
         print(k)
         srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
-        if [1 for r in srules if len(r) >= 3]:
+        if [1 for r in srules if len(r) >= nmax]:
             for srule in srules:
                 print('|  ', srule)
         else:
@@ -204,7 +204,7 @@ def translate_terminals(g):
 # 
 
 if __name__ == '__main__':
-    print_g(translate_terminals(grammar))
+    print_g(translate_terminals(grammar), 9)
 
 # How are these nonterminals defined? Each nonterminal has the following
 # expansion rules
