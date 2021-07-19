@@ -1298,7 +1298,7 @@ Finally, we hook up our simple extractor to choose the lowest cost path.
 <!--
 ############
 class SimpleExtractorEx(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol, log=False):
+    def __init__(self, parser, text, start_symbol, penalty=None, log=False):
         self.parser = parser
         cursor, states = parser.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
@@ -1307,10 +1307,18 @@ class SimpleExtractorEx(SimpleExtractor):
         if log:
             for start in starts:
                 print(start.expr, "correction length:", start.penalty)
-        # now choose th smallest.
-        my_starts = sorted(starts, key=lambda x: x.penalty)
+        # now choose th smallest, or what was given.
+        if penalty is not None:
+            my_starts = [s for s in my_starts if s.penalty == penalty]
+        else:
+            my_starts = sorted(starts, key=lambda x: x.penalty)
+
+        if not my_starts:
+            raise Exception('Invalid penalty', penalty)
+
         if log:
-            print('Choosing smallest penalty:', my_starts[0].penalty)
+            print('Choosing first state with penalty:', my_starts[0].penalty, 'out of', len(my_starts))
+
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
@@ -1326,7 +1334,7 @@ class SimpleExtractorEx(SimpleExtractor):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SimpleExtractorEx(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol, log=False):
+    def __init__(self, parser, text, start_symbol, penalty=None, log=False):
         self.parser = parser
         cursor, states = parser.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
@@ -1335,10 +1343,18 @@ class SimpleExtractorEx(SimpleExtractor):
         if log:
             for start in starts:
                 print(start.expr, &quot;correction length:&quot;, start.penalty)
-        # now choose th smallest.
-        my_starts = sorted(starts, key=lambda x: x.penalty)
+        # now choose th smallest, or what was given.
+        if penalty is not None:
+            my_starts = [s for s in my_starts if s.penalty == penalty]
+        else:
+            my_starts = sorted(starts, key=lambda x: x.penalty)
+
+        if not my_starts:
+            raise Exception(&#x27;Invalid penalty&#x27;, penalty)
+
         if log:
-            print(&#x27;Choosing smallest penalty:&#x27;, my_starts[0].penalty)
+            print(&#x27;Choosing first state with penalty:&#x27;, my_starts[0].penalty, &#x27;out of&#x27;, len(my_starts))
+
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
@@ -1652,7 +1668,7 @@ covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, js
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
         covering_start_json)
-for i in range(2):
+for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)
     print(format_parsetree(tree))
@@ -1668,7 +1684,7 @@ covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, js
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
         covering_start_json)
-for i in range(2):
+for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)
     print(format_parsetree(tree))

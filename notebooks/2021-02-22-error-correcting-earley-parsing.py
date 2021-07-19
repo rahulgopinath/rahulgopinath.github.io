@@ -598,7 +598,7 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 # Finally, we hook up our simple extractor to choose the lowest cost path.
 
 class SimpleExtractorEx(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol, log=False):
+    def __init__(self, parser, text, start_symbol, penalty=None, log=False):
         self.parser = parser
         cursor, states = parser.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
@@ -607,10 +607,18 @@ class SimpleExtractorEx(SimpleExtractor):
         if log:
             for start in starts:
                 print(start.expr, "correction length:", start.penalty)
-        # now choose th smallest.
-        my_starts = sorted(starts, key=lambda x: x.penalty)
+        # now choose th smallest, or what was given.
+        if penalty is not None:
+            my_starts = [s for s in my_starts if s.penalty == penalty]
+        else:
+            my_starts = sorted(starts, key=lambda x: x.penalty)
+
+        if not my_starts:
+            raise Exception('Invalid penalty', penalty)
+
         if log:
-            print('Choosing smallest penalty:', my_starts[0].penalty)
+            print('Choosing first state with penalty:', my_starts[0].penalty, 'out of', len(my_starts))
+
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
@@ -759,7 +767,7 @@ if __name__ == '__main__':
     ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
             cstring,
             covering_start_json)
-    for i in range(2):
+    for i in range(1):
         tree = ie6.extract_a_tree()
         print(tree)
         print(format_parsetree(tree))
