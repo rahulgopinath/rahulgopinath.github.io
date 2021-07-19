@@ -1231,7 +1231,9 @@ class ECColumn(Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty > state.penalty:
-                self._unique[state].penalty = state.penalty
+                self._unique[state] = state
+                self.states.append(state)
+                state.e_col = self
             return self._unique[state]
         self._unique[state] = state
         self.states.append(state)
@@ -1246,7 +1248,9 @@ class ECColumn(Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty &gt; state.penalty:
-                self._unique[state].penalty = state.penalty
+                self._unique[state] = state
+                self.states.append(state)
+                state.e_col = self
             return self._unique[state]
         self._unique[state] = state
         self.states.append(state)
