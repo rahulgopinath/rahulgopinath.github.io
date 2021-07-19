@@ -25,7 +25,8 @@ Initialization completion is indicated by a red border around *Run all* button.
 Combinatory parsing (i.e parsing with [combinators](https://en.wikipedia.org/wiki/Combinatory_logic)) was
 introduced by William H Burge in his seminal work
 [Recursive Programming Techniques -- The systems programming series](https://archive.org/details/recursiveprogram0000burg)
-in 1975. Unfortunately, it took until 2001 for the arrival of [Parsec](/references/#leijen2001parsec), and for combinatory
+in 1975. (It was called _Parsing Relations_ in that book. See page 174).
+Unfortunately, it took until 2001 for the arrival of [Parsec](/references/#leijen2001parsec), and for combinatory
 programming to be noticed by the wider world.
 
 While Parsec is a pretty good library, it is often hard to understand for
