@@ -598,17 +598,19 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 # Finally, we hook up our simple extractor to choose the lowest cost path.
 
 class SimpleExtractorEx(SimpleExtractor):
-    def __init__(self, parser, text, start_symbol):
+    def __init__(self, parser, text, start_symbol, log=False):
         self.parser = parser
         cursor, states = parser.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
         if cursor < len(text) or not starts:
             raise SyntaxError("at " + repr(cursor))
-        for start in starts:
-            print(start.expr, "correction length:", start.penalty)
+        if log:
+            for start in starts:
+                print(start.expr, "correction length:", start.penalty)
         # now choose th smallest.
         my_starts = sorted(starts, key=lambda x: x.penalty)
-        print('Choosing smallest penalty:', my_starts[0].penalty)
+        if log:
+            print('Choosing smallest penalty:', my_starts[0].penalty)
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
@@ -634,7 +636,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     All_ASCII = [i for i in string.printable if i not in '\n\r\t\x0b\x0c']
     covering_grammar, covering_start = augment_grammar(grammar, START, symbols=All_ASCII)
-    ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start)
+    ie4 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar), 'x+y', covering_start, log=True)
     for i in range(1):
         tree = ie4.extract_a_tree()
         print(tree_to_str_fix(tree))
@@ -757,8 +759,7 @@ if __name__ == '__main__':
     ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
             cstring,
             covering_start_json)
-    print_g(covering_grammar_json, lambda x: len(x) > 100)
-    for i in range(1):
+    for i in range(2):
         tree = ie6.extract_a_tree()
         print(tree)
         print(format_parsetree(tree))
