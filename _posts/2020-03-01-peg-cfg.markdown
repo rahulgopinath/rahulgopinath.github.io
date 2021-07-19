@@ -32,8 +32,13 @@ greater than $$O(n^2)$$.
 
 Parsing Expression Grammars (PEGs) are an alternative means of specifying the membership
 criteria for a language. It was formalized by Ford in 2004 [^ford2004parsing].
+Note that while not formalized, it was recognized much earlier that limited
+backtracking can make parsing easy. For example,
 Aho et al.[^aho1972] showed that recognition using TDPL/GTPL which are equivalent
 to PEGs in power can be done in $$O(n)$$ time where $$n$$ is the length of the input.
+Further, Burge[^burge1975] -- (Top down parsing with limited backtracking page 177)
+describes the ordered choice algorithm, and describes the limitations of this
+approach.
 
 The question that one can now ask is, does there exist a context free language such that its recognition can be
 achieved only in greater than $$O(n)$$ time. If such a language exist, then a PEG representation
@@ -63,6 +68,8 @@ machine. The spoiler here is that, PEGs may be in some sense universal [^loff201
 # References
 
 [^aho1972]: Alfred V Aho and Jeffrey D Ullman.The theory of parsing, translation, and compiling. Vol. 1. Prentice-Hall Englewood Cliffs, NJ, 1972
+
+[^burge1975]: William. H. Burge. Recursive programming techniques. Reading, Mass. : Addison-Wesley Pub. Co, 1975
 
 [^chomsky1959the]: Noam Chomsky and Marcel P Schützenberger. “The algebraic theory of context-free languages”. In:Studies in Logic and the Foundations of Mathematics.Vol. 26. Elsevier, 1959, pp. 118–161
 
