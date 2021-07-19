@@ -1309,7 +1309,7 @@ class SimpleExtractorEx(SimpleExtractor):
                 print(start.expr, "correction length:", start.penalty)
         # now choose th smallest, or what was given.
         if penalty is not None:
-            my_starts = [s for s in my_starts if s.penalty == penalty]
+            my_starts = [s for s in starts if s.penalty == penalty]
         else:
             my_starts = sorted(starts, key=lambda x: x.penalty)
 
@@ -1345,7 +1345,7 @@ class SimpleExtractorEx(SimpleExtractor):
                 print(start.expr, &quot;correction length:&quot;, start.penalty)
         # now choose th smallest, or what was given.
         if penalty is not None:
-            my_starts = [s for s in my_starts if s.penalty == penalty]
+            my_starts = [s for s in starts if s.penalty == penalty]
         else:
             my_starts = sorted(starts, key=lambda x: x.penalty)
 
