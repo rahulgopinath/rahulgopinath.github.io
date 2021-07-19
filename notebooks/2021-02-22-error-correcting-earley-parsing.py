@@ -600,11 +600,12 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 class SimpleExtractorEx(SimpleExtractor):
     def __init__(self, parser, text, start_symbol, penalty=None, log=False):
         self.parser = parser
+        self.log = log
         cursor, states = parser.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
         if cursor < len(text) or not starts:
             raise SyntaxError("at " + repr(cursor))
-        if log:
+        if self.log:
             for start in starts:
                 print(start.expr, "correction length:", start.penalty)
         # now choose th smallest, or what was given.
@@ -616,14 +617,19 @@ class SimpleExtractorEx(SimpleExtractor):
         if not my_starts:
             raise Exception('Invalid penalty', penalty)
 
-        if log:
+        if self.log:
             print('Choosing first state with penalty:', my_starts[0].penalty, 'out of', len(my_starts))
 
         self.my_forest = parser.parse_forest(parser.table, [my_starts[0]])
 
     def choose_path(self, arr):
         res = sorted([(self.cost_of_path(a),a) for a in arr], key=lambda a: a[0])
-        return res[0][1], None, None
+        cost = res[0][0]
+        low_res = [c for c in res if c[0] == cost]
+        if self.log:
+            print('Have choice:', len(low_res))
+        v = random.choice(low_res)
+        return v[1], None, None
 
     def cost_of_path(self, p):
         states = [s for s,kind,chart in p if kind == 'n']
