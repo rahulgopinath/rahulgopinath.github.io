@@ -1220,9 +1220,18 @@ class ECState(State):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We need to keep track of the minimum penalty that a state incurred. In
-particular, any time we find a less corrupt parse, we update the penalty.
-We do these in the columns.
+Now, we come to adding a state to the column. If you remember from
+the [earley parser](/post/2021/02/06/earley-parsing/) post, the uniqueness
+check in the `add` prevents unbounded left recursion for nonterminals that
+allow empty expansion.
+There is one complication here. We need to keep track of the minimum penalty
+that a state incurred. In particular, any time we find a less corrupt parse,
+we need to use that penalty. Now, simply updating the penalty of the state
+will not work because child states from the previous state with the higher
+penalty also needs to be updated. So, to force the issue, we simply append
+the new state to the columns state list. We can ignore that that current
+state column state list contains a higher penalty state because at the end,
+the forest builder looks for states with the lowest penalty.
 
 <!--
 ############
