@@ -383,25 +383,25 @@ if __name__ == '__main__':
 
 # Loading the prerequisite:
 
-import sys, imp, os, requests
-import os
-import requests
+import sys, imp
 
-from importlib import util
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, 'exec')
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
 
 def import_file(name, location):
     if "pyodide" in sys.modules:
-        module = imp.new_module(name)
         github_repo = 'https://raw.githubusercontent.com/'
         my_repo = github_repo + 'rahulgopinath/rahulgopinath.github.io'
-        module_str = pyodide.open_url(github_repo + my_repo +
-            '/master/notebooks/%s' % location)
-        pyodide.eval_code(module_str.getvalue(), module.__dict__)
+        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
+        module_str = pyodide.open_url(module_loc)
     else:
-        spec = util.spec_from_file_location(name, './notebooks/%s' % location)
-        module = util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-    return module
+        module_loc = './notebooks/%s' % location
+        with open(module_loc) as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
 
 # caution: this is a horrible temporary hack to load a local file with
 # hyphens, and make it available in the current namespace.
