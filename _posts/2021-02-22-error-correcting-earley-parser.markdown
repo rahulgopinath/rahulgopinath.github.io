@@ -270,9 +270,9 @@ json_grammar = {
         ["<array>"],
         ["<string>"],
         ["<number>"],
-        ["true"],
-        ["false"],
-        ["null"],
+        list("true"),
+        list("false"),
+        list("null"),
     ],
     "<object>": [
         ["{", "<ws>", "<members>", "<ws>", "}"],
@@ -330,9 +330,9 @@ json_grammar = {
         [&quot;&lt;array&gt;&quot;],
         [&quot;&lt;string&gt;&quot;],
         [&quot;&lt;number&gt;&quot;],
-        [&quot;true&quot;],
-        [&quot;false&quot;],
-        [&quot;null&quot;],
+        list(&quot;true&quot;),
+        list(&quot;false&quot;),
+        list(&quot;null&quot;),
     ],
     &quot;&lt;object&gt;&quot;: [
         [&quot;{&quot;, &quot;&lt;ws&gt;&quot;, &quot;&lt;members&gt;&quot;, &quot;&lt;ws&gt;&quot;, &quot;}&quot;],
@@ -718,14 +718,14 @@ Here is the augmented grammar for JSON
 <!--
 ############
 json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-print_g(json_covering_grammar, lambda x: len(x) > 9)
+print_g(json_covering_grammar, lambda x: len(x) > 50, 20)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-print_g(json_covering_grammar, lambda x: len(x) &gt; 9)
+print_g(json_covering_grammar, lambda x: len(x) &gt; 50, 20)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1079,7 +1079,7 @@ def nullable_ex(g):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-This is how it is used
+This is how it is used. We do not expect any nullable keys in grammar.
 
 <!--
 ############
@@ -1375,7 +1375,7 @@ class SimpleExtractorEx(SimpleExtractor):
         cost = res[0][0]
         low_res = [c for c in res if c[0] == cost]
         if self.log:
-            print('Have choice:', len(low_res))
+            print('Choices:<%s> for:' % len(low_res), str(arr[0][0][0]))
         v = random.choice(low_res)
         return v[1], None, None
 
@@ -1417,7 +1417,7 @@ class SimpleExtractorEx(SimpleExtractor):
         cost = res[0][0]
         low_res = [c for c in res if c[0] == cost]
         if self.log:
-            print(&#x27;Have choice:&#x27;, len(low_res))
+            print(&#x27;Choices:&lt;%s&gt; for:&#x27; % len(low_res), str(arr[0][0][0]))
         v = random.choice(low_res)
         return v[1], None, None
 
@@ -1727,7 +1727,7 @@ cstring = '[{"abc":[]'
 covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
-        covering_start_json)
+        covering_start_json, log=True)
 for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)
@@ -1743,7 +1743,7 @@ cstring = &#x27;[{&quot;abc&quot;:[]&#x27;
 covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
 ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
         cstring,
-        covering_start_json)
+        covering_start_json, log=True)
 for i in range(1):
     tree = ie6.extract_a_tree()
     print(tree)

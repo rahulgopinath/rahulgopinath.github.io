@@ -132,9 +132,9 @@ json_grammar = {
         ["<array>"],
         ["<string>"],
         ["<number>"],
-        ["true"],
-        ["false"],
-        ["null"],
+        list("true"),
+        list("false"),
+        list("null"),
     ],
     "<object>": [
         ["{", "<ws>", "<members>", "<ws>", "}"],
@@ -339,7 +339,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     json_covering_grammar, json_covering_start = augment_grammar(json_grammar, json_start)
-    print_g(json_covering_grammar, lambda x: len(x) > 9)
+    print_g(json_covering_grammar, lambda x: len(x) > 50, 20)
 
 # At this point, we are ready to check the covering properties of our grammar.
 
@@ -504,7 +504,7 @@ def nullable_ex(g):
 
     return nullable_keys
 
-# This is how it is used
+# This is how it is used. We do not expect any nullable keys in grammar.
 
 print(nullable_ex(grammar))
 
@@ -644,7 +644,7 @@ class SimpleExtractorEx(SimpleExtractor):
         cost = res[0][0]
         low_res = [c for c in res if c[0] == cost]
         if self.log:
-            print('Have choice:', len(low_res))
+            print('Choices:<%s> for:' % len(low_res), str(arr[0][0][0]))
         v = random.choice(low_res)
         return v[1], None, None
 
@@ -789,7 +789,7 @@ if __name__ == '__main__':
     covering_grammar_json, covering_start_json = augment_grammar_ex(json_grammar, json_start)
     ie6 = SimpleExtractorEx(ErrorCorrectingEarleyParser(covering_grammar_json),
             cstring,
-            covering_start_json)
+            covering_start_json, log=True)
     for i in range(1):
         tree = ie6.extract_a_tree()
         print(tree)
