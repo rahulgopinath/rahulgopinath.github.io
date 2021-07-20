@@ -395,9 +395,9 @@ def import_file(name, location):
     if "pyodide" in sys.modules:
         import pyodide
         github_repo = 'https://raw.githubusercontent.com/'
-        my_repo = github_repo + 'rahulgopinath/rahulgopinath.github.io'
+        my_repo =  'rahulgopinath/rahulgopinath.github.io'
         module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc)
+        module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
         with open(module_loc) as f:
