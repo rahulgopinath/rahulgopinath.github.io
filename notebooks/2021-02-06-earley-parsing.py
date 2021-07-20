@@ -1701,6 +1701,14 @@ if __name__ == '__main__':
         print(repr(tree_to_str(tree)))
         assert mystring9 == tree_to_str(tree)
 
+# Now this is still somewhat slow. Why is that? Note that recognition is
+# $O(n^2)$ and actual parsing is $O(n^3)$. That is, using `parse_prefix()` to
+# check whether a text can be parsed by a given grammar will be much faster than
+# extracting a parse tree. A second issue is that we are building this over
+# Python implemented on top of WASM. Python on its own is fairly slow. On our
+# experiments, [translating the earley parser to Java line by line](https://github.com/vrthra/EarleyJava)
+# resulted in an improvement over 300 times.
+
 # The runnable Python source for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-06-earley-parsing.py).
 # 
 # [^earley1970an]: Earley, Jay. "An efficient context-free parsing algorithm." Communications of the ACM 13.2 (1970): 94-102.
