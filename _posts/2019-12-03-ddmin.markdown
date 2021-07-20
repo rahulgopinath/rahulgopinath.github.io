@@ -303,9 +303,6 @@ def ddrmin(cur_str, causal_fn, pre='', post=''):
     s2 = ddrmin(string2, causal_fn, pre + s1, post)
     return s1 + s2
 
-if __name__ == '__main__':
-    ddmin = ddrmin
-
 ############
 -->
 <form name='python_run_form'>
@@ -322,9 +319,21 @@ def ddrmin(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
     s1 = ddrmin(string1, causal_fn, pre, string2 + post)
     s2 = ddrmin(string2, causal_fn, pre + s1, post)
     return s1 + s2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us redefine our ddmin
 
-if __name__ == &#x27;__main__&#x27;:
-    ddmin = ddrmin
+<!--
+############
+ddmin = ddrmin
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ddmin = ddrmin
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -745,29 +754,14 @@ else:
 
 <!--
 ############
-import earleyparser
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-<!--
-############
-d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+d_tree_, *_ = EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
+d_tree_, *_ = EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -797,9 +791,6 @@ def modifiable(tree):
     else:
       return [name, [modifiable(c) for c in children]]
 
-if __name__ == '__main__':
-    d_tree = modifiable(d_tree_)
-
 ############
 -->
 <form name='python_run_form'>
@@ -809,9 +800,21 @@ def modifiable(tree):
     if not is_nt(name): return [name, []]
     else:
       return [name, [modifiable(c) for c in children]]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using it.
 
-if __name__ == &#x27;__main__&#x27;:
-    d_tree = modifiable(d_tree_)
+<!--
+############
+d_tree = modifiable(d_tree_)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+d_tree = modifiable(d_tree_)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
