@@ -1705,11 +1705,16 @@ for i in range(1):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Note that the algorithm for recognition is $$O(n^3)$$. This is a consequence
+Now, why is this so slow? This is because of the following reasons:
+The algorithm for recognition is $$O(n^3)$$. This is a consequence
 of the fact that our covering grammar is simply a context-free grammar, and
 as you can see, there is only a constant size increase in the grammar $$(|G|+ |T|^3)$$
 where $$|G|$$ is the original size, and $$|T|$$ is the number of terminals.
 
+The second is that we are running the algorithm on Python implemented over
+WASM. Python by itself is fairly slow. In our benchmark on EarleyParser, we
+found that translating a Python parser to Java line by line resulted in an
+improvement over 300 times (t = original/300).
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-22-error-correcting-earley-parsing.py).
 
 [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
