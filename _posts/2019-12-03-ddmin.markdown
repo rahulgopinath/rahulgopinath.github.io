@@ -713,55 +713,81 @@ Loading the prerequisite:
 
 <!--
 ############
-import sys
-if "pyodide" in sys.modules:
-    import pyodide
-    github_repo = 'https://raw.githubusercontent.com/'
-    my_repo = 'rahulgopinath/rahulgopinath.github.io'
-    earley_module_str = pyodide.open_url(github_repo + my_repo +
-            '/master/notebooks/2021-02-06-earley-parsing.py')
-    pyodide.eval_code(earley_module_str.getvalue(), globals())
-else:
-    # caution: this is a horrible temporary hack to load a local file with
-    # hyphens, and make it available in the current namespace.
-    # Dont use it in production.
-    __vars__ = vars(__import__('2021-02-06-earley-parsing'))
-    globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
+import sys, imp, os, requests
+import os
+import requests
+
+from importlib import util
+
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        module = imp.new_module(name)
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo = github_repo + 'rahulgopinath/rahulgopinath.github.io'
+        module_str = pyodide.open_url(github_repo + my_repo +
+            '/master/notebooks/%s' % location)
+        pyodide.eval_code(module_str.getvalue(), module.__dict__)
+    else:
+        spec = util.spec_from_file_location(name, './notebooks/%s' % location)
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return module
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import sys
-if &quot;pyodide&quot; in sys.modules:
-    import pyodide
-    github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
-    my_repo = &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-    earley_module_str = pyodide.open_url(github_repo + my_repo +
-            &#x27;/master/notebooks/2021-02-06-earley-parsing.py&#x27;)
-    pyodide.eval_code(earley_module_str.getvalue(), globals())
-else:
-    # caution: this is a horrible temporary hack to load a local file with
-    # hyphens, and make it available in the current namespace.
-    # Dont use it in production.
-    __vars__ = vars(__import__(&#x27;2021-02-06-earley-parsing&#x27;))
-    globals().update({k:__vars__[k] for k in __vars__ if k not in [&#x27;__name__&#x27;]})
+import sys, imp, os, requests
+import os
+import requests
+
+from importlib import util
+
+def import_file(name, location):
+    if &quot;pyodide&quot; in sys.modules:
+        module = imp.new_module(name)
+        github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
+        my_repo = github_repo + &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
+        module_str = pyodide.open_url(github_repo + my_repo +
+            &#x27;/master/notebooks/%s&#x27; % location)
+        pyodide.eval_code(module_str.getvalue(), module.__dict__)
+    else:
+        spec = util.spec_from_file_location(name, &#x27;./notebooks/%s&#x27; % location)
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return module
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+caution: this is a horrible temporary hack to load a local file with
+hyphens, and make it available in the current namespace.
+Dont use it in production.
 
 <!--
 ############
-d_tree_, *_ = EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
-
+earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-d_tree_, *_ = EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
+earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-parsing.py&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+we parse the file.
+
+<!--
+############
+d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, &#x27;&lt;start&gt;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -781,7 +807,7 @@ print(d_tree_)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+We need to modify the parse tree. So, we change all tuples to list.
 
 <!--
 ############

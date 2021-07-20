@@ -132,16 +132,18 @@ def test(s):
 
 # 
 
-inputstring = ''.join(random.choices(string.digits +
-                      string.ascii_letters +
-                      string.punctuation, k=1024))
-print(inputstring)
+if __name__ == '__main__':
+    inputstring = ''.join(random.choices(string.digits +
+                          string.ascii_letters +
+                          string.punctuation, k=1024))
+    print(inputstring)
 
 # 
 
-assert test(inputstring)
-solution = ddmin(inputstring, test)
-print(solution)
+if __name__ == '__main__':
+    assert test(inputstring)
+    solution = ddmin(inputstring, test)
+    print(solution)
 
 # The nice thing is that, if you invoke the driver, you can see the reduction in
 # input length in action. Note that our driver is essentially a best case
@@ -186,8 +188,11 @@ def ddrmin(cur_str, causal_fn, pre='', post=''):
     s1 = ddrmin(string1, causal_fn, pre, string2 + post)
     s2 = ddrmin(string2, causal_fn, pre + s1, post)
     return s1 + s2
-    
-ddmin = ddrmin
+
+# Let us redefine our ddmin
+
+if __name__ == '__main__':
+    ddmin = ddrmin
 
 # Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 # in languages such as Python which allocates just the bare minimum stack by default. The
@@ -371,28 +376,50 @@ EXPR_GRAMMAR = {'<start>': [['<expr>']],
 
 # And the following input
 
-my_input = '1+((2*3/4))'
+if __name__ == '__main__':
+    my_input = '1+((2*3/4))'
 
 # We parse and generate a derivation tree as follows
 
 # Loading the prerequisite:
 
-"https://rahul.gopinath.org/py/earleyparser-0.0.4-py3-none-any.whl"
+import sys, imp, os, requests
+import os
+import requests
 
-# 
+from importlib import util
 
-import earleyparser
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        module = imp.new_module(name)
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo = github_repo + 'rahulgopinath/rahulgopinath.github.io'
+        module_str = pyodide.open_url(github_repo + my_repo +
+            '/master/notebooks/%s' % location)
+        pyodide.eval_code(module_str.getvalue(), module.__dict__)
+    else:
+        spec = util.spec_from_file_location(name, './notebooks/%s' % location)
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return module
 
-# 
+# caution: this is a horrible temporary hack to load a local file with
+# hyphens, and make it available in the current namespace.
+# Dont use it in production.
 
-d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
+earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 
+# we parse the file.
+
+if __name__ == '__main__':
+    d_tree_, *_ = earleyparser.EarleyParser(EXPR_GRAMMAR).parse_on(my_input, '<start>')
 
 # The derivation tree looks like this
 
-print(d_tree_)
+if __name__ == '__main__':
+    print(d_tree_)
 
-# 
+# We need to modify the parse tree. So, we change all tuples to list.
 
 def modifiable(tree):
     name, children, *rest = tree
@@ -400,12 +427,16 @@ def modifiable(tree):
     else:
       return [name, [modifiable(c) for c in children]]
 
-d_tree = modifiable(d_tree_)
+# using it.
+
+if __name__ == '__main__':
+    d_tree = modifiable(d_tree_)
 
 # Now, we are ready to use the `perses_delta_debug()`
 
-tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
-print(tree_to_string(tree))
+if __name__ == '__main__':
+    tree = perses_delta_debug(EXPR_GRAMMAR, d_tree, test_bb)
+    print(tree_to_string(tree))
 
 # ### Is this Enough? (Semantics)
 # 
