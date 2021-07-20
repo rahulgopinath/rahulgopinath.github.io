@@ -393,6 +393,7 @@ def make_module(modulesource, sourcestr, modname):
 
 def import_file(name, location):
     if "pyodide" in sys.modules:
+        import pyodide
         github_repo = 'https://raw.githubusercontent.com/'
         my_repo = github_repo + 'rahulgopinath/rahulgopinath.github.io'
         module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
