@@ -33,22 +33,39 @@
 # Aho et al. uses Earley parser for their error correcting parser. So, we will
 # follow in their foot steps.
 
-import sys
-if "pyodide" in sys.modules:
-    import pyodide
-    github_repo = 'https://raw.githubusercontent.com/'
-    my_repo = 'rahulgopinath/rahulgopinath.github.io'
-    earley_module_str = pyodide.open_url(github_repo + my_repo +
-            '/master/notebooks/2021-02-06-earley-parsing.py')
-    pyodide.eval_code(earley_module_str.getvalue(), globals())
-else:
-    # caution: this is a horrible temporary hack to load a local file with
-    # hyphens, and make it available in the current namespace.
-    # Dont use it in production.
-    __vars__ = vars(__import__('2021-02-06-earley-parsing'))
-    globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
+import sys, imp
 
-# 
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, 'exec')
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
+
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        import pyodide
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo =  'rahulgopinath/rahulgopinath.github.io'
+        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
+        module_str = pyodide.open_url(module_loc).getvalue()
+    else:
+        module_loc = './notebooks/%s' % location
+        with open(module_loc) as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
+
+
+# Load Earley parser
+
+earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
+
+# Convenience functions
+
+is_nt = earleyparser.is_nt
+format_parsetree = earleyparser.format_parsetree
+rem_terminals = earleyparser.rem_terminals
+tree_to_str = earleyparser.tree_to_str
+ 
 # ## Covering Grammar
 # 
 # The idea from Aho et al. is to first transform the given grammar into a
@@ -422,7 +439,7 @@ def tree_to_str_delta(tree):
 # 
 if __name__ == '__main__':
     cstring = '1+1'
-    ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+    ie = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
     for i in range(1):
         tree = ie.extract_a_tree()
         print(format_parsetree(tree))
@@ -435,7 +452,7 @@ if __name__ == '__main__':
  
 if __name__ == '__main__':
     cstring = '1+1+'
-    ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+    ie2 = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
     for i in range(1):
         tree = ie2.extract_a_tree()
         print(format_parsetree(tree))
@@ -501,7 +518,7 @@ print(nullable_ex(json_covering_grammar))
 
 # Now, we attach our nullable function to our parser.
 
-class ErrorCorrectingEarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(earleyparser.EarleyParser):
     def __init__(self, grammar, log = False, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable_ex(grammar)
@@ -537,7 +554,7 @@ class ErrorCorrectingEarleyParser(ErrorCorrectingEarleyParser):
 # the penalized states as below. We also make sure that the
 # penalties are propagated.
 
-class ECState(State):
+class ECState(earleyparser.State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
@@ -573,7 +590,7 @@ class ECState(State):
 # state column state list contains a higher penalty state because at the end,
 # the forest builder looks for states with the lowest penalty.
 
-class ECColumn(Column):
+class ECColumn(earleyparser.Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty > state.penalty:

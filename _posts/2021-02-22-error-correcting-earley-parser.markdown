@@ -50,44 +50,92 @@ Initialization completion is indicated by a red border around *Run all* button.
 
 <!--
 ############
-import sys
-if "pyodide" in sys.modules:
-    import pyodide
-    github_repo = 'https://raw.githubusercontent.com/'
-    my_repo = 'rahulgopinath/rahulgopinath.github.io'
-    earley_module_str = pyodide.open_url(github_repo + my_repo +
-            '/master/notebooks/2021-02-06-earley-parsing.py')
-    pyodide.eval_code(earley_module_str.getvalue(), globals())
-else:
-    # caution: this is a horrible temporary hack to load a local file with
-    # hyphens, and make it available in the current namespace.
-    # Dont use it in production.
-    __vars__ = vars(__import__('2021-02-06-earley-parsing'))
-    globals().update({k:__vars__[k] for k in __vars__ if k not in ['__name__']})
+import sys, imp
+
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, 'exec')
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
+
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        import pyodide
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo =  'rahulgopinath/rahulgopinath.github.io'
+        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
+        module_str = pyodide.open_url(module_loc).getvalue()
+    else:
+        module_loc = './notebooks/%s' % location
+        with open(module_loc) as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import sys
-if &quot;pyodide&quot; in sys.modules:
-    import pyodide
-    github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
-    my_repo = &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-    earley_module_str = pyodide.open_url(github_repo + my_repo +
-            &#x27;/master/notebooks/2021-02-06-earley-parsing.py&#x27;)
-    pyodide.eval_code(earley_module_str.getvalue(), globals())
-else:
-    # caution: this is a horrible temporary hack to load a local file with
-    # hyphens, and make it available in the current namespace.
-    # Dont use it in production.
-    __vars__ = vars(__import__(&#x27;2021-02-06-earley-parsing&#x27;))
-    globals().update({k:__vars__[k] for k in __vars__ if k not in [&#x27;__name__&#x27;]})
+import sys, imp
+
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
+
+def import_file(name, location):
+    if &quot;pyodide&quot; in sys.modules:
+        import pyodide
+        github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
+        my_repo =  &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
+        module_loc = github_repo + my_repo + &#x27;/master/notebooks/%s&#x27; % location
+        module_str = pyodide.open_url(module_loc).getvalue()
+    else:
+        module_loc = &#x27;./notebooks/%s&#x27; % location
+        with open(module_loc) as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Load Earley parser
 
+<!--
+############
+earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-parsing.py&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Convenience functions
+
+<!--
+############
+is_nt = earleyparser.is_nt
+format_parsetree = earleyparser.format_parsetree
+rem_terminals = earleyparser.rem_terminals
+tree_to_str = earleyparser.tree_to_str
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+is_nt = earleyparser.is_nt
+format_parsetree = earleyparser.format_parsetree
+rem_terminals = earleyparser.rem_terminals
+tree_to_str = earleyparser.tree_to_str
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## Covering Grammar
 
 The idea from Aho et al. is to first transform the given grammar into a
@@ -898,7 +946,7 @@ def tree_to_str_delta(tree):
 <!--
 ############
 cstring = '1+1'
-ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+ie = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
 for i in range(1):
     tree = ie.extract_a_tree()
     print(format_parsetree(tree))
@@ -909,7 +957,7 @@ for i in range(1):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 cstring = &#x27;1+1&#x27;
-ie = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+ie = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
 for i in range(1):
     tree = ie.extract_a_tree()
     print(format_parsetree(tree))
@@ -926,7 +974,7 @@ What about an error?
 <!--
 ############
 cstring = '1+1+'
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+ie2 = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
 for i in range(1):
     tree = ie2.extract_a_tree()
     print(format_parsetree(tree))
@@ -937,7 +985,7 @@ for i in range(1):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 cstring = &#x27;1+1+&#x27;
-ie2 = SimpleExtractor(EarleyParser(covering_grammar), cstring, covering_start)
+ie2 = SimpleExtractor(earleyparser.EarleyParser(covering_grammar), cstring, covering_start)
 for i in range(1):
     tree = ie2.extract_a_tree()
     print(format_parsetree(tree))
@@ -1080,7 +1128,7 @@ Now, we attach our nullable function to our parser.
 
 <!--
 ############
-class ErrorCorrectingEarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(earleyparser.EarleyParser):
     def __init__(self, grammar, log = False, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable_ex(grammar)
@@ -1090,7 +1138,7 @@ class ErrorCorrectingEarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ErrorCorrectingEarleyParser(EarleyParser):
+class ErrorCorrectingEarleyParser(earleyparser.EarleyParser):
     def __init__(self, grammar, log = False, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable_ex(grammar)
@@ -1167,7 +1215,7 @@ penalties are propagated.
 
 <!--
 ############
-class ECState(State):
+class ECState(earleyparser.State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
@@ -1194,7 +1242,7 @@ class ECState(State):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ECState(State):
+class ECState(earleyparser.State):
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
         self.s_col, self.e_col = s_col, e_col
@@ -1235,7 +1283,7 @@ the forest builder looks for states with the lowest penalty.
 
 <!--
 ############
-class ECColumn(Column):
+class ECColumn(earleyparser.Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty > state.penalty:
@@ -1252,7 +1300,7 @@ class ECColumn(Column):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ECColumn(Column):
+class ECColumn(earleyparser.Column):
     def add(self, state):
         if state in self._unique:
             if self._unique[state].penalty &gt; state.penalty:
