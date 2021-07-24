@@ -477,9 +477,6 @@ def count_nodes(node):
         return 0
     return sum(count_nodes(i) for i in children) + 1
 
-if __name__ == '__main__':
-    print(count_nodes(parsed_expr))
-
 ############
 -->
 <form name='python_run_form'>
@@ -489,9 +486,21 @@ def count_nodes(node):
     if not children:
         return 0
     return sum(count_nodes(i) for i in children) + 1
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-if __name__ == &#x27;__main__&#x27;:
-    print(count_nodes(parsed_expr))
+
+<!--
+############
+print(count_nodes(parsed_expr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(count_nodes(parsed_expr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

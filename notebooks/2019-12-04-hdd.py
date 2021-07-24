@@ -229,6 +229,8 @@ def count_nodes(node):
         return 0
     return sum(count_nodes(i) for i in children) + 1
 
+# 
+
 if __name__ == '__main__':
     print(count_nodes(parsed_expr))
 
