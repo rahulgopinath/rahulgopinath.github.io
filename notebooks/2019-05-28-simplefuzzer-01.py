@@ -63,7 +63,7 @@ grammar = {
             ['Y'], ['Z'], ['!'], ['#'], ['$'], ['%'], ['&'], ["'"], ['('], [')'],
             ['*'], ['+'], [','], ['-'], ['.'], ['/'], [':'], [';'], ['<'], ['='],
             ['>'], ['?'], ['@'], ['['], [']'], ['^'], ['_'], ['`'], ['{'], ['|'],
-            ['}'], ['~'], [' '], ['\\"'], ['\\\\'], ['\\/'], ['<unicode>'], ['<escaped>']],
+            ['}'], ['~'], [' '], ['\\"'], ['\\\\'], ['\\/'], ['<escaped>']],
         '<number>': [['<int>', '<frac>', '<exp>']],
         '<int>': [
            ['<digit>'], ['<onenine>', '<digits>'],
@@ -176,5 +176,80 @@ if __name__ == '__main__':
     gf = LimitFuzzer(grammar)
     for i in range(100):
        print(gf.fuzz(key='<start>', max_depth=10))
+
+
+# ## Iterative fuzzer
+
+# One of the problems with the above fuzzer is that we use the Python stack to
+# keep track of the expansion tree. Unfortunately, Python is really limited in
+# terms of the usable stack depth. This can make it hard to generate deeply
+# nested trees. One alternative solution is to handle the stack management
+# ourselves as we show next.
+
+# First, we define an iterative version of the tree_to_string function called `iter_tree_to_str()` as below.
+
+def iter_tree_to_str(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nonterminal(key):
+            #assert children # not necessary
+            to_expand = children + to_expand
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
+
+# You can use it as follows:
+if __name__ == '__main__':
+    print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])]))
+
+# Next, we add the `iter_gen_key()` to `LimitFuzzer`
+
+class LimitFuzzer(LimitFuzzer):
+    def iter_gen_key(self, key, max_depth):
+        def get_def(t):
+            if is_nonterminal(t):
+                return [t, None]
+            else:
+                return [t, []]
+
+        cheap_grammar = {}
+        for k in self.cost:
+            # should we minimize it here? We simply avoid infinities
+            rules = self.grammar[k]
+            min_cost = min([self.cost[k][str(r)] for r in rules])
+            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float('inf')]
+            cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
+
+        root = [key, None]
+        queue = [(0, root)]
+        while queue:
+            # get one item to expand from the queue
+            (depth, item), *queue = queue
+            key = item[0]
+            if item[1] is not None: continue
+            grammar = self.grammar if depth < max_depth else cheap_grammar
+            chosen_rule = random.choice(grammar[key])
+            expansion = [get_def(t) for t in chosen_rule]
+            item[1] = expansion
+            for t in expansion: queue.append((depth+1, t))
+        return root
+
+# Finally, we ensure that the iterative gen_key can be called by defining `iter_fuzz()`.
+
+class LimitFuzzer(LimitFuzzer):
+    def iter_fuzz(self, key='<start>', max_depth=10):
+        self._s = self.iter_gen_key(key=key, max_depth=max_depth)
+        return iter_tree_to_str(self._s)
+
+# Using it
+
+if __name__ == '__main__':
+    gf = LimitFuzzer(grammar)
+    for i in range(10):
+       print(gf.iter_fuzz(key='<start>', max_depth=100))
+
 
 # The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-05-28-simplefuzzer-01.py)

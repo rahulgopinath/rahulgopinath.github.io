@@ -110,7 +110,7 @@ grammar = {
             ['Y'], ['Z'], ['!'], ['#'], ['$'], ['%'], ['&'], ["'"], ['('], [')'],
             ['*'], ['+'], [','], ['-'], ['.'], ['/'], [':'], [';'], ['<'], ['='],
             ['>'], ['?'], ['@'], ['['], [']'], ['^'], ['_'], ['`'], ['{'], ['|'],
-            ['}'], ['~'], [' '], ['\\"'], ['\\\\'], ['\\/'], ['<unicode>'], ['<escaped>']],
+            ['}'], ['~'], [' '], ['\\"'], ['\\\\'], ['\\/'], ['<escaped>']],
         '<number>': [['<int>', '<frac>', '<exp>']],
         '<int>': [
            ['<digit>'], ['<onenine>', '<digits>'],
@@ -163,7 +163,7 @@ grammar = {
             [&#x27;Y&#x27;], [&#x27;Z&#x27;], [&#x27;!&#x27;], [&#x27;#&#x27;], [&#x27;$&#x27;], [&#x27;%&#x27;], [&#x27;&amp;&#x27;], [&quot;&#x27;&quot;], [&#x27;(&#x27;], [&#x27;)&#x27;],
             [&#x27;*&#x27;], [&#x27;+&#x27;], [&#x27;,&#x27;], [&#x27;-&#x27;], [&#x27;.&#x27;], [&#x27;/&#x27;], [&#x27;:&#x27;], [&#x27;;&#x27;], [&#x27;&lt;&#x27;], [&#x27;=&#x27;],
             [&#x27;&gt;&#x27;], [&#x27;?&#x27;], [&#x27;@&#x27;], [&#x27;[&#x27;], [&#x27;]&#x27;], [&#x27;^&#x27;], [&#x27;_&#x27;], [&#x27;`&#x27;], [&#x27;{&#x27;], [&#x27;|&#x27;],
-            [&#x27;}&#x27;], [&#x27;~&#x27;], [&#x27; &#x27;], [&#x27;\\&quot;&#x27;], [&#x27;\\\\&#x27;], [&#x27;\\/&#x27;], [&#x27;&lt;unicode&gt;&#x27;], [&#x27;&lt;escaped&gt;&#x27;]],
+            [&#x27;}&#x27;], [&#x27;~&#x27;], [&#x27; &#x27;], [&#x27;\\&quot;&#x27;], [&#x27;\\\\&#x27;], [&#x27;\\/&#x27;], [&#x27;&lt;escaped&gt;&#x27;]],
         &#x27;&lt;number&gt;&#x27;: [[&#x27;&lt;int&gt;&#x27;, &#x27;&lt;frac&gt;&#x27;, &#x27;&lt;exp&gt;&#x27;]],
         &#x27;&lt;int&gt;&#x27;: [
            [&#x27;&lt;digit&gt;&#x27;], [&#x27;&lt;onenine&gt;&#x27;, &#x27;&lt;digits&gt;&#x27;],
@@ -380,6 +380,7 @@ gf = LimitFuzzer(grammar)
 for i in range(100):
    print(gf.fuzz(key='<start>', max_depth=10))
 
+
 ############
 -->
 <form name='python_run_form'>
@@ -387,6 +388,176 @@ for i in range(100):
 gf = LimitFuzzer(grammar)
 for i in range(100):
    print(gf.fuzz(key=&#x27;&lt;start&gt;&#x27;, max_depth=10))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Iterative fuzzer
+One of the problems with the above fuzzer is that we use the Python stack to
+keep track of the expansion tree. Unfortunately, Python is really limited in
+terms of the usable stack depth. This can make it hard to generate deeply
+nested trees. One alternative solution is to handle the stack management
+ourselves as we show next.
+First, we define an iterative version of the tree_to_string function called `iter_tree_to_str()` as below.
+
+<!--
+############
+def iter_tree_to_str(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nonterminal(key):
+            #assert children # not necessary
+            to_expand = children + to_expand
+        else:
+            assert not children
+            expanded.append(key)
+    return ''.join(expanded)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def iter_tree_to_str(tree):
+    expanded = []
+    to_expand = [tree]
+    while to_expand:
+        (key, children, *rest), *to_expand = to_expand
+        if is_nonterminal(key):
+            #assert children # not necessary
+            to_expand = children + to_expand
+        else:
+            assert not children
+            expanded.append(key)
+    return &#x27;&#x27;.join(expanded)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+You can use it as follows:
+
+<!--
+############
+print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])]))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(iter_tree_to_str((&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;json&gt;&#x27;, [(&#x27;&lt;element&gt;&#x27;, [(&#x27;&lt;ws&gt;&#x27;, [(&#x27;&lt;sp1&gt;&#x27;, [(&#x27; &#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])]), (&#x27;&lt;value&gt;&#x27;, [(&#x27;null&#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])])])]))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we add the `iter_gen_key()` to `LimitFuzzer`
+
+<!--
+############
+class LimitFuzzer(LimitFuzzer):
+    def iter_gen_key(self, key, max_depth):
+        def get_def(t):
+            if is_nonterminal(t):
+                return [t, None]
+            else:
+                return [t, []]
+
+        cheap_grammar = {}
+        for k in self.cost:
+            # should we minimize it here? We simply avoid infinities
+            rules = self.grammar[k]
+            min_cost = min([self.cost[k][str(r)] for r in rules])
+            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float('inf')]
+            cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
+
+        root = [key, None]
+        queue = [(0, root)]
+        while queue:
+            # get one item to expand from the queue
+            (depth, item), *queue = queue
+            key = item[0]
+            if item[1] is not None: continue
+            grammar = self.grammar if depth < max_depth else cheap_grammar
+            chosen_rule = random.choice(grammar[key])
+            expansion = [get_def(t) for t in chosen_rule]
+            item[1] = expansion
+            for t in expansion: queue.append((depth+1, t))
+        return root
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LimitFuzzer(LimitFuzzer):
+    def iter_gen_key(self, key, max_depth):
+        def get_def(t):
+            if is_nonterminal(t):
+                return [t, None]
+            else:
+                return [t, []]
+
+        cheap_grammar = {}
+        for k in self.cost:
+            # should we minimize it here? We simply avoid infinities
+            rules = self.grammar[k]
+            min_cost = min([self.cost[k][str(r)] for r in rules])
+            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float(&#x27;inf&#x27;)]
+            cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
+
+        root = [key, None]
+        queue = [(0, root)]
+        while queue:
+            # get one item to expand from the queue
+            (depth, item), *queue = queue
+            key = item[0]
+            if item[1] is not None: continue
+            grammar = self.grammar if depth &lt; max_depth else cheap_grammar
+            chosen_rule = random.choice(grammar[key])
+            expansion = [get_def(t) for t in chosen_rule]
+            item[1] = expansion
+            for t in expansion: queue.append((depth+1, t))
+        return root
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally, we ensure that the iterative gen_key can be called by defining `iter_fuzz()`.
+
+<!--
+############
+class LimitFuzzer(LimitFuzzer):
+    def iter_fuzz(self, key='<start>', max_depth=10):
+        self._s = self.iter_gen_key(key=key, max_depth=max_depth)
+        return iter_tree_to_str(self._s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LimitFuzzer(LimitFuzzer):
+    def iter_fuzz(self, key=&#x27;&lt;start&gt;&#x27;, max_depth=10):
+        self._s = self.iter_gen_key(key=key, max_depth=max_depth)
+        return iter_tree_to_str(self._s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+gf = LimitFuzzer(grammar)
+for i in range(10):
+   print(gf.iter_fuzz(key='<start>', max_depth=100))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gf = LimitFuzzer(grammar)
+for i in range(10):
+   print(gf.iter_fuzz(key=&#x27;&lt;start&gt;&#x27;, max_depth=100))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
