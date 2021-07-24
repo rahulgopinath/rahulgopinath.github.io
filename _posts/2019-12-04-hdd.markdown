@@ -21,8 +21,8 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-Previously, we discussed how Delta-debug (_ddmin_) worked. However, pure
-_ddmin_ is limited when it comes to structured inputs.
+Previously, we [discussed](/post/2019/12/03/ddmin/) how Delta-debug (_ddmin_)
+worked. However, pure _ddmin_ is limited when it comes to structured inputs.
 One of the problems with the unstructured version of `ddmin()` above is that
 it assumes that parts of the inputs can be cut away, while still retaining
 validity in that it will actually reach the testing function. This, however,
@@ -32,13 +32,14 @@ an error because the key value is `null`, `ddmin()` will try to partition it
 as `[{"a":` followed by `null}]` neither of which are valid. Further, any
 chunk removed from either parts are also likely to be invalid. Hence,
 `ddmin()` will not be able to proceed.
-The solution here is to go for a variant called `Hierarchical Delta Debugging`[^misherghi2006hdd].
+The solution here is to go for a variant called *Hierarchical Delta Debugging*
+[^misherghi2006hdd].
 The basic idea is to first extract the parse tree (either by parsing the input
 using a grammar, or by either relying on a generator to generate the parse
 tree along with the input, or by extracting the parse tree in-flight from the
 target program if it supports it), and then try and apply `ddmin()` on each
 level of the derivation tree. Another notable improvement was invented by
-Herfert et al.[^herfert2017automatically].
+Herfert et al. [^herfert2017automatically].
 In this paper, the authors describe a simple strategy: Try and replace a given
 node by one of its child nodes. This works reasonably well for inputs that are
 context sensitive such as programs that can trigger bugs in compilers.
