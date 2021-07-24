@@ -407,7 +407,7 @@ if __name__ == '__main__':
 # 
 # [^herfert2017automatically]: *Automatically Reducing Tree-Structured Test Inputs*, Satia Herfert, Jibesh Patra, Michael Pradel, ASE 2017
 # 
-# [^sun2018perses] *Perses: Syntax-Guided Program Reduction*, Chengnian Sun, Yuanbo Li, Qirun Zhang, Tianxiao Gu, Zhendong Su, ICSE 2018
+# [^sun2018perses]: *Perses: Syntax-Guided Program Reduction*, Chengnian Sun, Yuanbo Li, Qirun Zhang, Tianxiao Gu, Zhendong Su, ICSE 2018
 # 
-# [^pike2014smartcheck] *SmartCheck: automatic and efficient counterexample reduction and generalization* Lee Pike, Haskell 2014
+# [^pike2014smartcheck]: *SmartCheck: automatic and efficient counterexample reduction and generalization* Lee Pike, Haskell 2014
 
