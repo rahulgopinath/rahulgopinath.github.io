@@ -120,6 +120,10 @@ def unify_rule_inv_t(g, rule):
 if __name__ == '__main__':
     res = unify_key_inv_t(grammar, '<start>')
     print(res)
+
+# The corresponding string is
+
+if __name__ == '__main__':
     print(repr(tree_to_string(res)))
 
 # One problem with the above fuzzer is that it can fail to terminate the
@@ -203,7 +207,7 @@ def iter_tree_to_str(tree):
 
 # You can use it as follows:
 if __name__ == '__main__':
-    print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])]))
+    print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])])))
 
 # Next, we add the `iter_gen_key()` to `LimitFuzzer`
 

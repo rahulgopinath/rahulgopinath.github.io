@@ -259,7 +259,6 @@ Using it
 ############
 res = unify_key_inv_t(grammar, '<start>')
 print(res)
-print(repr(tree_to_string(res)))
 
 ############
 -->
@@ -267,6 +266,20 @@ print(repr(tree_to_string(res)))
 <textarea cols="40" rows="4" name='python_edit'>
 res = unify_key_inv_t(grammar, &#x27;&lt;start&gt;&#x27;)
 print(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The corresponding string is
+
+<!--
+############
+print(repr(tree_to_string(res)))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 print(repr(tree_to_string(res)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -439,13 +452,13 @@ You can use it as follows:
 
 <!--
 ############
-print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])]))
+print(iter_tree_to_str(('<start>', [('<json>', [('<element>', [('<ws>', [('<sp1>', [(' ', [])]), ('<ws>', [])]), ('<value>', [('null', [])]), ('<ws>', [])])])])))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(iter_tree_to_str((&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;json&gt;&#x27;, [(&#x27;&lt;element&gt;&#x27;, [(&#x27;&lt;ws&gt;&#x27;, [(&#x27;&lt;sp1&gt;&#x27;, [(&#x27; &#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])]), (&#x27;&lt;value&gt;&#x27;, [(&#x27;null&#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])])])]))
+print(iter_tree_to_str((&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;json&gt;&#x27;, [(&#x27;&lt;element&gt;&#x27;, [(&#x27;&lt;ws&gt;&#x27;, [(&#x27;&lt;sp1&gt;&#x27;, [(&#x27; &#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])]), (&#x27;&lt;value&gt;&#x27;, [(&#x27;null&#x27;, [])]), (&#x27;&lt;ws&gt;&#x27;, [])])])])))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
