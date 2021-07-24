@@ -104,16 +104,12 @@ fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x2
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Now we produce a reduced tree.
+We first define our input, and make sure that our predicate works
 
 <!--
 ############
 my_input = '1+((2*3/4))'
 assert hdd.expr_double_paren(my_input) == hdd.PRes.success
-expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
-parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
-reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
-
 
 ############
 -->
@@ -121,8 +117,40 @@ reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = &#x27;1+((2*3/4))&#x27;
 assert hdd.expr_double_paren(my_input) == hdd.PRes.success
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, let us make sure that it parses correctly.
+
+<!--
+############
+expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
+parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
+print(parsed_expr)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, &#x27;&lt;start&gt;&#x27;))[0]
+print(parsed_expr)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we use the *perses* reducer to produce a reduced derivation tree.
+
+<!--
+############
+reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

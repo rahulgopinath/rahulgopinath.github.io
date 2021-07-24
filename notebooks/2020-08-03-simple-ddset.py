@@ -49,13 +49,22 @@ earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 hdd = import_file('hdd', '2019-12-04-hdd.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 
-# Now we produce a reduced tree.
+# We first define our input, and make sure that our predicate works
  
 if __name__ == '__main__':
     my_input = '1+((2*3/4))'
     assert hdd.expr_double_paren(my_input) == hdd.PRes.success
+
+# Next, let us make sure that it parses correctly.
+
+if __name__ == '__main__':
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
     parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
+    print(parsed_expr)
+
+# Next, we use the *perses* reducer to produce a reduced derivation tree.
+
+if __name__ == '__main__':
     reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 
  
