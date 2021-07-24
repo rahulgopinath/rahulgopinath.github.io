@@ -417,7 +417,14 @@ First, we define an iterative version of the tree_to_string function called `ite
 
 <!--
 ############
-def iter_tree_to_str(tree):
+def modifiable(tree):
+    name, children, *rest = tree
+    if not is_nt(name): return [name, []]
+    else:
+      return [name, [modifiable(c) for c in children]]
+
+def iter_tree_to_str(tree_):
+    tree = modifiable(tree)
     expanded = []
     to_expand = [tree]
     while to_expand:
@@ -434,7 +441,14 @@ def iter_tree_to_str(tree):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def iter_tree_to_str(tree):
+def modifiable(tree):
+    name, children, *rest = tree
+    if not is_nt(name): return [name, []]
+    else:
+      return [name, [modifiable(c) for c in children]]
+
+def iter_tree_to_str(tree_):
+    tree = modifiable(tree)
     expanded = []
     to_expand = [tree]
     while to_expand:

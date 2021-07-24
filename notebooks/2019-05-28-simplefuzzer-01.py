@@ -192,8 +192,14 @@ if __name__ == '__main__':
 # ourselves as we show next.
 
 # First, we define an iterative version of the tree_to_string function called `iter_tree_to_str()` as below.
+def modifiable(tree):
+    name, children, *rest = tree
+    if not is_nt(name): return [name, []]
+    else:
+      return [name, [modifiable(c) for c in children]]
 
-def iter_tree_to_str(tree):
+def iter_tree_to_str(tree_):
+    tree = modifiable(tree)
     expanded = []
     to_expand = [tree]
     while to_expand:
