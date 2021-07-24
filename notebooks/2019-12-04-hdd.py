@@ -311,7 +311,7 @@ def is_token(val):
 # 3. Each compatible node and the corresponding tree is put back into the priority queue.
 # 4. If no child nodes were found that could replace the current node, then we add each children with the current tree into the priority queue. (If we had to recurse into the child nodes, then the next tree that will get picked will be a different tree.)
 
-def reduction(tree, grammar, predicate):
+def perses_reduction(tree, grammar, predicate):
     first_tuple = (tree, [])
     p_q = []
     add_to_pq(first_tuple, p_q)
@@ -360,7 +360,7 @@ def reduction(tree, grammar, predicate):
 # Using it
 
 if __name__ == '__main__':
-    er = reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
+    er = perses_reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
     display_tree(er)
 
 # ### Is this Enough? (Semantics)

@@ -684,7 +684,7 @@ We finally define the reduction algorithm. The implementation of Perses is given
 
 <!--
 ############
-def reduction(tree, grammar, predicate):
+def perses_reduction(tree, grammar, predicate):
     first_tuple = (tree, [])
     p_q = []
     add_to_pq(first_tuple, p_q)
@@ -734,7 +734,7 @@ def reduction(tree, grammar, predicate):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def reduction(tree, grammar, predicate):
+def perses_reduction(tree, grammar, predicate):
     first_tuple = (tree, [])
     p_q = []
     add_to_pq(first_tuple, p_q)
@@ -787,14 +787,14 @@ Using it
 
 <!--
 ############
-er = reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
+er = perses_reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
 display_tree(er)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-er = reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
+er = perses_reduction(parsed_expr, EXPR_GRAMMAR, expr_double_paren)
 display_tree(er)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
