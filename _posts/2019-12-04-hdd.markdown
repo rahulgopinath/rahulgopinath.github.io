@@ -43,7 +43,7 @@ Herfert et al. [^herfert2017automatically].
 In this paper, the authors describe a simple strategy: Try and replace a given
 node by one of its child nodes. This works reasonably well for inputs that are
 context sensitive such as programs that can trigger bugs in compilers.
-A final algorithm is Perses[^sun2018perses] which uses the program grammar
+A final algorithm is Perses [^sun2018perses] which uses the program grammar
 directly to avoid creating invalid nodes. In this post, I will explain the
 main algorithm of *Perses*. I note that a similar idea was explored by Pike in
 2014[^pike2014smartcheck] albeit for data structures.
