@@ -194,7 +194,7 @@ if __name__ == '__main__':
 # First, we define an iterative version of the tree_to_string function called `iter_tree_to_str()` as below.
 def modifiable(tree):
     name, children, *rest = tree
-    if not is_nt(name): return [name, []]
+    if not is_nonterminal(name): return [name, []]
     else:
       return [name, [modifiable(c) for c in children]]
 

@@ -419,7 +419,7 @@ First, we define an iterative version of the tree_to_string function called `ite
 ############
 def modifiable(tree):
     name, children, *rest = tree
-    if not is_nt(name): return [name, []]
+    if not is_nonterminal(name): return [name, []]
     else:
       return [name, [modifiable(c) for c in children]]
 
@@ -443,7 +443,7 @@ def iter_tree_to_str(tree_):
 <textarea cols="40" rows="4" name='python_edit'>
 def modifiable(tree):
     name, children, *rest = tree
-    if not is_nt(name): return [name, []]
+    if not is_nonterminal(name): return [name, []]
     else:
       return [name, [modifiable(c) for c in children]]
 
