@@ -199,7 +199,7 @@ def modifiable(tree):
       return [name, [modifiable(c) for c in children]]
 
 def iter_tree_to_str(tree_):
-    tree = modifiable(tree)
+    tree = modifiable(tree_)
     expanded = []
     to_expand = [tree]
     while to_expand:
