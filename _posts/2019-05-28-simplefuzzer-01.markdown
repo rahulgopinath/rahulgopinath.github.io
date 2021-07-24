@@ -62,22 +62,22 @@ let us use one of the simplest parsers -- ([A PEG parser](http://rahul.gopinath.
 <!--
 ############
 import random
-def unify_key(grammar, key):
-   return unify_rule(grammar, random.choice(grammar[key])) if key in grammar else [key]
+def unify_key_inv(grammar, key):
+   return unify_rule_inv(grammar, random.choice(grammar[key])) if key in grammar else [key]
 
-def unify_rule(grammar, rule):
-    return sum([unify_key(grammar, token) for token in rule], [])
+def unify_rule_inv(grammar, rule):
+    return sum([unify_key_inv(grammar, token) for token in rule], [])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import random
-def unify_key(grammar, key):
-   return unify_rule(grammar, random.choice(grammar[key])) if key in grammar else [key]
+def unify_key_inv(grammar, key):
+   return unify_rule_inv(grammar, random.choice(grammar[key])) if key in grammar else [key]
 
-def unify_rule(grammar, rule):
-    return sum([unify_key(grammar, token) for token in rule], [])
+def unify_rule_inv(grammar, rule):
+    return sum([unify_key_inv(grammar, token) for token in rule], [])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -195,13 +195,13 @@ The driver is as follows:
 
 <!--
 ############
-print(repr(''.join(unify_key(grammar, '<start>'))))
+print(repr(''.join(unify_key_inv(grammar, '<start>'))))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(repr(&#x27;&#x27;.join(unify_key(grammar, &#x27;&lt;start&gt;&#x27;))))
+print(repr(&#x27;&#x27;.join(unify_key_inv(grammar, &#x27;&lt;start&gt;&#x27;))))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -224,11 +224,11 @@ def tree_to_string(tree):
     else:
         return '' if is_nonterminal(symbol) else symbol
 
-def unify_key(g, key):
-   return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
+def unify_key_inv_t(g, key):
+   return (key, unify_rule_inv_t(g, random.choice(g[key]))) if key in g else (key, [])
 
-def unify_rule(g, rule):
-    return [unify_key(g, token) for token in rule]
+def unify_rule_inv_t(g, rule):
+    return [unify_key_inv_t(g, token) for token in rule]
 
 ############
 -->
@@ -244,11 +244,11 @@ def tree_to_string(tree):
     else:
         return &#x27;&#x27; if is_nonterminal(symbol) else symbol
 
-def unify_key(g, key):
-   return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
+def unify_key_inv_t(g, key):
+   return (key, unify_rule_inv_t(g, random.choice(g[key]))) if key in g else (key, [])
 
-def unify_rule(g, rule):
-    return [unify_key(g, token) for token in rule]
+def unify_rule_inv_t(g, rule):
+    return [unify_key_inv_t(g, token) for token in rule]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -257,7 +257,7 @@ Using it
 
 <!--
 ############
-res = unify_key(grammar, '<start>')
+res = unify_key_inv_t(grammar, '<start>')
 print(res)
 print(repr(tree_to_string(res)))
 
@@ -265,7 +265,7 @@ print(repr(tree_to_string(res)))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-res = unify_key(grammar, &#x27;&lt;start&gt;&#x27;)
+res = unify_key_inv_t(grammar, &#x27;&lt;start&gt;&#x27;)
 print(res)
 print(repr(tree_to_string(res)))
 </textarea><br />

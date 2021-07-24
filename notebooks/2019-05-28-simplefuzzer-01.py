@@ -31,11 +31,11 @@ for i in range(10):
 
 
 import random
-def unify_key(grammar, key):
-   return unify_rule(grammar, random.choice(grammar[key])) if key in grammar else [key]
+def unify_key_inv(grammar, key):
+   return unify_rule_inv(grammar, random.choice(grammar[key])) if key in grammar else [key]
 
-def unify_rule(grammar, rule):
-    return sum([unify_key(grammar, token) for token in rule], [])
+def unify_rule_inv(grammar, rule):
+    return sum([unify_key_inv(grammar, token) for token in rule], [])
 
 # Now, all one needs is a grammar.
 
@@ -91,7 +91,7 @@ grammar = {
 # The driver is as follows:
 
 if __name__ == '__main__':
-    print(repr(''.join(unify_key(grammar, '<start>'))))
+    print(repr(''.join(unify_key_inv(grammar, '<start>'))))
 
 # This grammar fuzzer can be implemented in pretty much any programming language
 # that supports basic data structures.
@@ -109,16 +109,16 @@ def tree_to_string(tree):
     else:
         return '' if is_nonterminal(symbol) else symbol
 
-def unify_key(g, key):
-   return (key, unify_rule(g, random.choice(g[key]))) if key in g else (key, [])
+def unify_key_inv_t(g, key):
+   return (key, unify_rule_inv_t(g, random.choice(g[key]))) if key in g else (key, [])
 
-def unify_rule(g, rule):
-    return [unify_key(g, token) for token in rule]
+def unify_rule_inv_t(g, rule):
+    return [unify_key_inv_t(g, token) for token in rule]
 
 # Using it
 
 if __name__ == '__main__':
-    res = unify_key(grammar, '<start>')
+    res = unify_key_inv_t(grammar, '<start>')
     print(res)
     print(repr(tree_to_string(res)))
 
