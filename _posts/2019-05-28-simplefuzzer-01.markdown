@@ -31,8 +31,9 @@ import random
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
-for i in range(10):
-    print(repr(fuzzer()))
+if __name__ == '__main__':
+    for i in range(10):
+        print(repr(fuzzer()))
 
 ############
 -->
@@ -43,8 +44,9 @@ import random
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return &#x27;&#x27;.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
-for i in range(10):
-    print(repr(fuzzer()))
+if __name__ == &#x27;__main__&#x27;:
+    for i in range(10):
+        print(repr(fuzzer()))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

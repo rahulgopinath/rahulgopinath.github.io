@@ -15,8 +15,9 @@ import random
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
-for i in range(10):
-    print(repr(fuzzer()))
+if __name__ == '__main__':
+    for i in range(10):
+        print(repr(fuzzer()))
 
 # Unfortunately, random fuzzing is not very effective for programs that accept complex
 # input languages such as those that expect JSON or any other structure in their input.
