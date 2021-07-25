@@ -124,10 +124,11 @@ def get_key_minlength(grammar, key, seen):
     if key in seen: return math.inf
     return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
 
-if __name__ == '__main__':
-    cost = {}
-    for k in grammar:
-        cost[k] = get_key_minlength(grammar, k, set())
+# we initialize the cost. This is a global variable for the purpose of this post.
+
+cost = {}
+for k in grammar:
+    cost[k] = get_key_minlength(grammar, k, set())
 
 # That is, we find the minimum expansion length of each key and store it beforehand.
 # Next, we update our `explore` so that if the minimum expansion length in any

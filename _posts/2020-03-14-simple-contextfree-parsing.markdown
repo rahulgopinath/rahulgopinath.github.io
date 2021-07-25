@@ -244,11 +244,6 @@ def get_key_minlength(grammar, key, seen):
     if key in seen: return math.inf
     return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
 
-if __name__ == '__main__':
-    cost = {}
-    for k in grammar:
-        cost[k] = get_key_minlength(grammar, k, set())
-
 ############
 -->
 <form name='python_run_form'>
@@ -260,11 +255,25 @@ def get_key_minlength(grammar, key, seen):
     if key not in grammar: return len(key)
     if key in seen: return math.inf
     return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+we initialize the cost. This is a global variable for the purpose of this post.
 
-if __name__ == &#x27;__main__&#x27;:
-    cost = {}
-    for k in grammar:
-        cost[k] = get_key_minlength(grammar, k, set())
+<!--
+############
+cost = {}
+for k in grammar:
+    cost[k] = get_key_minlength(grammar, k, set())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+cost = {}
+for k in grammar:
+    cost[k] = get_key_minlength(grammar, k, set())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
