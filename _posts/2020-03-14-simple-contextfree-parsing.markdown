@@ -6,9 +6,8 @@ comments: true
 tags: combinators, parsing, cfg
 categories: post
 ---
-
-<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
@@ -22,7 +21,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
 We [previously](/post/2020/03/02/combinatory-parsing/) saw how to parse simple context-free
 languages using combinatory parsers. In another [post](/post/2018/09/06/peg-parsing/), I had
 also detailed how one can do a simple PEG and even a context-free parser. However, these
@@ -51,10 +49,9 @@ which may produce a new set of threads that represent alternative parse directio
 import heapq as H
 import math
 import string
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import heapq as H
@@ -64,7 +61,6 @@ import string
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Our grammar is
 
 <!--
@@ -81,10 +77,9 @@ grammar = {
         "<digit>": [[str(i)] for i in string.digits]
         }
 START = '<start>'
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = {
@@ -98,13 +93,11 @@ grammar = {
         &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
         &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
         }
-START =  &quot;&lt;start&gt;&quot;
+START = &#x27;&lt;start&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 
 
 <!--
@@ -130,8 +123,6 @@ def match(lst, key, grammar):
                     H.heappush(queue, item)
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def match(lst, key, grammar):
@@ -157,8 +148,6 @@ def match(lst, key, grammar):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The `explore()` method is fairly simple. It checks if the given element is a terminal or
 a nonterminal. If it is a terminal, it is checked for a match, and if matched, the current
 parsing point is updated, and returned. If not a match, the current thread is discarded.
@@ -187,10 +176,9 @@ def explore(current, lst):
             new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def explore(current, lst):
@@ -214,7 +202,6 @@ def explore(current, lst):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 The driver would be
 
 <!--
@@ -225,20 +212,15 @@ def forking_parse(arg, grammar, start):
 
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def forking_parse(arg, grammar, start):
     for x in match(list(arg), start, grammar):
         print(x)
-
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 While this can certainly handle left recursion, there is a new problem. The issue is that
 in the case of left recursion, and an incomplete prefix, the threads simply multiply, with
 out any means of actually parsing the input. 
@@ -262,13 +244,13 @@ def get_key_minlength(grammar, key, seen):
     if key in seen: return math.inf
     return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
 
-cost = {}
-for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
+if __name__ == '__main__':
+    cost = {}
+    for k in grammar:
+        cost[k] = get_key_minlength(grammar, k, set())
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def get_rule_minlength(grammar, rule, seen):
@@ -279,14 +261,14 @@ def get_key_minlength(grammar, key, seen):
     if key in seen: return math.inf
     return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
 
-cost = {}
-for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
+if __name__ == &#x27;__main__&#x27;:
+    cost = {}
+    for k in grammar:
+        cost[k] = get_key_minlength(grammar, k, set())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 That is, we find the minimum expansion length of each key and store it beforehand.
 Next, we update our `explore` so that if the minimum expansion length in any
 of the potential threads is larger than the characters remaining, that thread is not
@@ -312,10 +294,9 @@ def explore(current, lst):
             if sum([cost.get(r, len(r)) for d,r in new_rule]) > lst_rem: continue # <-- changed
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def explore(current, lst):
@@ -340,16 +321,14 @@ def explore(current, lst):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 With this, we are now ready to parse any context-free language. Using the driver above:
 
 <!--
 ############
 forking_parse('1+1+', grammar, START)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 forking_parse(&#x27;1+1+&#x27;, grammar, START)
@@ -358,13 +337,13 @@ forking_parse(&#x27;1+1+&#x27;, grammar, START)
 <div name='python_canvas'></div>
 </form>
 
+
 <!--
 ############
 forking_parse('1+1+1', grammar, START)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 forking_parse(&#x27;1+1+1&#x27;, grammar, START)
@@ -372,90 +351,14 @@ forking_parse(&#x27;1+1+1&#x27;, grammar, START)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 As you can see, we can successfully use left recursive grammars. Note that this is still a
 recognizer. Turning it into a parser is not very difficult, and may be handled in a future post.
 
-### Complete code:
-
-```python
-import heapq as H
-import math
-import string
-grammar = {
-        "<start>": [["<E>"]],
-        "<E>": [
-            ["<E>", "+", "<E>"],
-            ["<E>", "-", "<E>"],
-            ["(", "<E>", ")"],
-            ["<digits>"],
-            ],
-        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
-        "<digit>": [[str(i)] for i in string.digits]
-        }
-
-
-def get_rule_minlength(grammar, rule, seen):
-    return sum([get_key_minlength(grammar, k, seen) for k in rule])
-
-def get_key_minlength(grammar, key, seen):
-    if key not in grammar: return len(key)
-    if key in seen: return math.inf
-    return min([get_rule_minlength(grammar, r, seen | {key}) for r in grammar[key]])
-
-cost = {}
-for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
-    
-def explore(current, lst):
-    (lst_rem, depth), rule = current
-    lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
-
-    if key not in grammar:
-        if key != lst[lst_idx]:
-            return []
-        else:
-            return [((lst_rem - len(key), math.inf), rule[1:])]
-    else:
-        expansions = grammar[key]
-        ret = []
-        for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
-            if sum([cost.get(r, len(r)) for d,r in new_rule]) > lst_rem: continue
-            ret.append(((lst_rem, depth + 1), new_rule))
-        return ret
-        
-def match(lst, key, grammar):
-    queue = [((len(lst), 0), [(0, key)])]
-    while queue:
-        current = H.heappop(queue)
-        rlst = explore(current, lst)
-        for item in rlst:
-            (lst_rem, _depth), rule = item
-            lst_idx = len(lst) - lst_rem
-            if lst_idx == len(lst):
-                if not rule:
-                    yield 'parsed: ' + str(lst_idx)
-                else:
-                    # (check for epsilons)
-                    H.heappush(queue, item)
-            else:
-                if not rule: # incomplete parse
-                    continue
-                else:
-                    H.heappush(queue, item)
-
-
-def main(arg):
-    for x in match(list(arg), '<start>', grammar):
-        print(x)
-
-import sys
-main(sys.argv[1])
-```
-
+The complete code is available here.
 **Note:** 
 I implemented it to scratch an itch, without first checking the literature about similar parsing techniques. However, now that I have implemented it, this technique seems similar to [GLL](https://github.com/djspiewak/gll-combinators#theory)). While my implmentation is 
 inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS (fairly easy to implement in that it is about how to maintain the `rule` structure as a tree with common prefix) can help the situation.
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
