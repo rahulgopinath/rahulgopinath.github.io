@@ -37,18 +37,46 @@ I will be showing how to do these things in the upcoming posts.
 ## The Implementation (tested in Python 3.6.8)
 
 First, we import everything we need.
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
-```python
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+<!--
+############
 import string
 import ast
-import astunparse
 import sys
-import json
 import builtins
 from functools import reduce
 import importlib
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import string
+import ast
+import sys
+import builtins
+from functools import reduce
+import importlib
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The basic idea is to make use of the Python infrastructure as much as possible. That is,
 we do not want to implement things that are not related to the actual interpretation.
 Hence, we use the Python parsing infrastructure exposed by the `ast` module that parses
@@ -64,7 +92,8 @@ The `walk()` method is at the heart of our interpreter. Given the AST,
 It iterates through the statements, and evaluates each by invoking the corresponding method.
 If the method is not implemented, it raises a `SynErr` which is derived from `SyntaxError`.
 
-```python
+<!--
+############
 class SynErr(SyntaxError): pass
 
 class PyMCInterpreter:
@@ -74,18 +103,47 @@ class PyMCInterpreter:
         if hasattr(self, res):
             return getattr(self,res)(node)
         raise SynErr('walk: Not Implemented in %s' % type(node))
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SynErr(SyntaxError): pass
+
+class PyMCInterpreter:
+    def walk(self, node):
+        if node is None: return
+        res = &quot;on_%s&quot; % node.__class__.__name__.lower()
+        if hasattr(self, res):
+            return getattr(self,res)(node)
+        raise SynErr(&#x27;walk: Not Implemented in %s&#x27; % type(node))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 We provide `eval()` which converts a given string to its AST, and calls
 `walk()`. It is possible to write a parser of our own, as I have [shown before](/2018/09/06/peg-parsing/)
 which can get us the AST. However, as I mentioned earlier, we use the Python infrastructure where possible.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def eval(self, src):
         return self.walk(ast.parse(src))
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def eval(self, src):
+        return self.walk(ast.parse(src))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### The Pythonic data structures.
 
 We need to define data. For the primitive data types, we only implement `string` and `number` for now.
@@ -93,20 +151,44 @@ These are trivial as it is a direct translation of the AST values.
 
 ##### Str(string s)
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_str(self, node):
         return node.s
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_str(self, node):
+        return node.s
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Number(object n)
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_num(self, node):
         return node.n
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_num(self, node):
+        return node.n
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Containers
 
 Essentially, we want to be able to make use of all pythonic
@@ -120,7 +202,8 @@ Hence, we first `walk()` the elements, and add the results.
 
 ##### List(elts)
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_list(self, node):
         res = []
@@ -128,11 +211,27 @@ class PyMCInterpreter(PyMCInterpreter):
             v = self.walk(p)
             res.append(v)
         return res
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_list(self, node):
+        res = []
+        for p in node.elts:
+            v = self.walk(p)
+            res.append(v)
+        return res
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Tuple(elts)
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_tuple(self, node):
         res = []
@@ -140,7 +239,22 @@ class PyMCInterpreter(PyMCInterpreter):
             v = self.walk(p)
             res.append(v)
         return res
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_tuple(self, node):
+        res = []
+        for p in node.elts:
+            v = self.walk(p)
+            res.append(v)
+        return res
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Containers provide the ability to access their contained items via `Subscript`.
 
 ##### Subscript(expr value, slice slice, expr_context ctx)
@@ -148,7 +262,8 @@ Containers provide the ability to access their contained items via `Subscript`.
 The tuple and list provide a means to access its elements via
 subscript. The subscript requires a special `Index` value as input, which is also defined below.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_subscript(self, node):
         value = self.walk(node.value)
@@ -157,38 +272,85 @@ class PyMCInterpreter(PyMCInterpreter):
 
     def on_index(self, node):
         return self.walk(node.value)
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_subscript(self, node):
+        value = self.walk(node.value)
+        slic = self.walk(node.slice)
+        return value[slic]
+
+    def on_index(self, node):
+        return self.walk(node.value)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Attribute(expr value, identifier attr, expr_context ctx)
 
 Similar to subscript for arrays, objects provide attribute access.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_attribute(self, node):
         obj = self.walk(node.value)
         attr = node.attr
         return getattr(obj, attr)
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_attribute(self, node):
+        obj = self.walk(node.value)
+        attr = node.attr
+        return getattr(obj, attr)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Simple control flow statements
-
 The `return`, `break` and `continue` are implemented as exceptions.
 
-```python
+<!--
+############
 class Return(Exception):
     def __init__(self, val): self.__dict__.update(locals())
-    
+
 class Break(Exception):
     def __init__(self): pass
 
 class Continue(Exception):
     def __init__(self): pass
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Return(Exception):
+    def __init__(self, val): self.__dict__.update(locals())
+
+class Break(Exception):
+    def __init__(self): pass
+
+class Continue(Exception):
+    def __init__(self): pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Implementation
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_return(self, node):
         raise Return(self.walk(node.value))
@@ -201,8 +363,28 @@ class PyMCInterpreter(PyMCInterpreter):
 
     def on_pass(self, node):
         pass
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_return(self, node):
+        raise Return(self.walk(node.value))
+
+    def on_break(self, node):
+        raise Break(self.walk(node.value))
+
+    def on_continue(self, node):
+        raise Continue(self.walk(node.value))
+
+    def on_pass(self, node):
+        pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The difference between `break` and `continue` is in how they are handled in the
 loop statemens as in `While` below. The `return` is handled in the `Call` part.
 
@@ -211,7 +393,6 @@ loop statemens as in `While` below. The `return` is handled in the `Call` part.
 Only basic loops and conditionals -- `while()` and `if()` are implemented.
 
 ##### While(expr test, stmt* body, stmt* orelse)
-
 Implementing the `While` loop is fairly straight forward. The `while.body` is
 a list of statements that need to be interpreted if the `while.test` is `True`.
 The `break` and `continue` statements provide a way to either stop the execution
@@ -220,7 +401,8 @@ or to restart it.
 As can be seen, these are *statements* rather than *expressions*, which means that
 their return value is not important. Hence, we do not return anything.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_while(self, node):
         while self.walk(node.test):
@@ -231,14 +413,32 @@ class PyMCInterpreter(PyMCInterpreter):
                 break
             except Continue:
                 continue
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_while(self, node):
+        while self.walk(node.test):
+            try:
+                for b in node.body:
+                    self.walk(b)
+            except Break:
+                break
+            except Continue:
+                continue
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### If(expr test, stmt* body, stmt* orelse)
 
 The `If` statement is similar to `While`. We check `if.test` and if `True`,
 execute the `if.body`. If `False`, we execute the `if.orelse`.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
 
     def on_if(self, node):
@@ -248,8 +448,25 @@ class PyMCInterpreter(PyMCInterpreter):
             res = None
             for b in body:
                 res = self.walk(b)
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+
+    def on_if(self, node):
+        v = self.walk(node.test)
+        body = node.body if v else node.orelse
+        if body:
+            res = None
+            for b in body:
+                res = self.walk(b)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### The scope and symbol table
 
 Now we come to a slightly more complex part. We want to define a symbol table. The reason
@@ -262,7 +479,8 @@ The most intuitive is the lexical scoping convention. Hence, we implement lexica
 but with a restriction: If we modify a variable in parent scopes, then the new variable is
 created in current scope.
 
-```python
+<!--
+############
 class Scope:
     def __init__(self, parent=None, table=None):
         self.table = table
@@ -281,8 +499,34 @@ class Scope:
         if i in self.table: return self.table[i]
         if self.parent is None: return None
         return self.parent[i]
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Scope:
+    def __init__(self, parent=None, table=None):
+        self.table = table
+        self.children = []
+        self.parent = parent
+
+    def new_child(table):
+        return Scope(parent=self, table=table)
+
+    def __setitem__(self, i, v):
+        # choice here. We can check and set then named variable (if any)
+        # in parent scopes. See `nonlocal` in Python
+        self.table[i] = v
+
+    def __getitem__(self, i):
+        if i in self.table: return self.table[i]
+        if self.parent is None: return None
+        return self.parent[i]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Hooking up the symbol table
 
 We allow the user to load a pre-defined symbol table. We
@@ -295,7 +539,8 @@ root.
 
 We will discuss the OP statements later.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def __init__(self, symtable, args):
         self.unaryop = UnaryOP
@@ -308,25 +553,58 @@ class PyMCInterpreter(PyMCInterpreter):
         setattr(self.symtable['sys'], 'argv', args)
 
         self.symtable = Scope(parent=self.symtable, table=symtable)
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def __init__(self, symtable, args):
+        self.unaryop = UnaryOP
+        self.binop = BinOP
+        self.cmpop = CmpOP
+        self.boolop = BoolOP
+
+        self.symtable = Scope(parent=None, table=builtins.__dict__)
+        self.symtable[&#x27;sys&#x27;] = ast.Module(ast.Pass())
+        setattr(self.symtable[&#x27;sys&#x27;], &#x27;argv&#x27;, args)
+
+        self.symtable = Scope(parent=self.symtable, table=symtable)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### The following statements use symbol table.
 
 ##### Name(identifier id, expr_context ctx)
 
 Retrieving a referenced symbol is simple enough.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_name(self, node):
         return self.symtable[node.id]
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_name(self, node):
+        return self.symtable[node.id]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Assign(expr* targets, expr value)
 
 Python allows multi-target assignments. The problem is that, the type of the `value` received may be different based on
 whether the statement is multi-target or single-target. Hence, we split both kinds.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_assign(self, node):
         value = self.walk(node.value)
@@ -336,8 +614,25 @@ class PyMCInterpreter(PyMCInterpreter):
         else:
             for t,v in zip(tgts, value):
                 self.symtable[t] = v
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_assign(self, node):
+        value = self.walk(node.value)
+        tgts = [t.id for t in node.targets]
+        if len(tgts) == 1:
+            self.symtable[tgts[0]] = value
+        else:
+            for t,v in zip(tgts, value):
+                self.symtable[t] = v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Call(expr func, expr* args, keyword* keywords)
 
 During function calls, we need to make sure that the functions that
@@ -351,7 +646,8 @@ current one after the call.
 
 Note that we handle the `return` exception here.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_call(self, node):
         func = self.walk(node.func)
@@ -374,42 +670,103 @@ class PyMCInterpreter(PyMCInterpreter):
                 return e.val
             finally:
                 self.symtable = oldsyms
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_call(self, node):
+        func = self.walk(node.func)
+        args = [self.walk(a) for a in node.args]
+        if str(type(func)) == &quot;&lt;class &#x27;builtin_function_or_method&#x27;&gt;&quot;:
+            return func(*args)
+        elif str(type(func)) == &quot;&lt;class &#x27;type&#x27;&gt;&quot;:
+            return func(*args)
+        else:
+            [fname, argument, returns, fbody, symtable] = func
+            argnames = [a.arg for a in argument.args]
+            defs= dict(zip(argnames, args))
+            oldsyms = self.symtable
+            self.symtable = Scope(parent=symtable, table=defs)
+            try:
+                for i in fbody:
+                    res = self.walk(i)
+                return res
+            except Return as e:
+                return e.val
+            finally:
+                self.symtable = oldsyms
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)
 
 The function definition itself is quite simple. We simply update the symbol table with the given values.
 Note that because we implement *lexical scoping*, we have to maintain the scoping references during creation.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_functiondef(self, node):
         fname = node.name
         args = node.args
         returns = node.returns
         self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_functiondef(self, node):
+        fname = node.name
+        args = node.args
+        returns = node.returns
+        self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ##### Import(alias* names)
 
 Import is similar to a definition except that we want to update the symbol table
 with predefined values.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_import(self, node):
         for im in node.names:
             if im.name == 'sys': continue
             v = importlib.import_module(im.name)
             self.symtable[im.name] = v
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_import(self, node):
+        for im in node.names:
+            if im.name == &#x27;sys&#x27;: continue
+            v = importlib.import_module(im.name)
+            self.symtable[im.name] = v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Arithmetic Expressions
 
 The arithmetic expressions are proxied directly to corresponding Python operators.
 
 ##### Expr(expr value)
-```python
+
+<!--
+############
 UnaryOP = {
           ast.Invert: lambda a: ~a,
           ast.Not: lambda a: not a,
@@ -469,15 +826,83 @@ class PyMCInterpreter(PyMCInterpreter):
 
     def on_binop(self, node):
         return self.binop[type(node.op)](self.walk(node.left), self.walk(node.right))
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+UnaryOP = {
+          ast.Invert: lambda a: ~a,
+          ast.Not: lambda a: not a,
+          ast.UAdd: lambda a: +a,
+          ast.USub: lambda a: -a
+}
+
+BinOP = {
+          ast.Add: lambda a, b: a + b,
+          ast.Sub: lambda a, b: a - b,
+          ast.Mult:  lambda a, b: a * b,
+          ast.MatMult:  lambda a, b: a @ b,
+          ast.Div: lambda a, b: a / b,
+          ast.Mod: lambda a, b: a % b,
+          ast.Pow: lambda a, b: a ** b,
+          ast.LShift:  lambda a, b: a &lt;&lt; b,
+          ast.RShift: lambda a, b: a &gt;&gt; b,
+          ast.BitOr: lambda a, b: a | b,
+          ast.BitXor: lambda a, b: a ^ b,
+          ast.BitAnd: lambda a, b: a &amp; b,
+          ast.FloorDiv: lambda a, b: a // b
+}
+
+CmpOP = {
+          ast.Eq: lambda a, b: a == b,
+          ast.NotEq: lambda a, b: a != b,
+          ast.Lt: lambda a, b: a &lt; b,
+          ast.LtE: lambda a, b: a &lt;= b,
+          ast.Gt: lambda a, b: a &gt; b,
+          ast.GtE: lambda a, b: a &gt;= b,
+          ast.Is: lambda a, b: a is b,
+          ast.IsNot: lambda a, b: a is not b,
+          ast.In: lambda a, b: a in b,
+          ast.NotIn: lambda a, b: a not in b
+}
+
+BoolOP = {
+          ast.And: lambda a, b: a and b,
+          ast.Or: lambda a, b: a or b
+}
+
+class PyMCInterpreter(PyMCInterpreter):
+    def on_expr(self, node):
+        return self.walk(node.value)
+
+    def on_compare(self, node):
+        hd = self.walk(node.left)
+        op = node.ops[0]
+        tl = self.walk(node.comparators[0])
+        return self.cmpop[type(op)](hd, tl)
+
+    def on_unaryop(self, node):
+        return self.unaryop[type(node.op)](self.walk(node.operand))
+
+    def on_boolop(self, node):
+        return reduce(self.boolop[type(node.op)], [self.walk(n) for n in node.values])
+
+    def on_binop(self, node):
+        return self.binop[type(node.op)](self.walk(node.left), self.walk(node.right))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Modules
 
 ##### Module(stmt* body)
 
 The complete AST is wrapped in a Module statement.
 
-```python
+<!--
+############
 class PyMCInterpreter(PyMCInterpreter):
     def on_module(self, node):
         # return value of module is the last statement
@@ -485,9 +910,22 @@ class PyMCInterpreter(PyMCInterpreter):
         for p in node.body:
             res = self.walk(p)
         return res
-```
 
-
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_module(self, node):
+        # return value of module is the last statement
+        res = None
+        for p in node.body:
+            res = self.walk(p)
+        return res
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### The driver
 
 ```python
@@ -496,10 +934,11 @@ if __name__ == '__main__':
     v = expr.eval(open(sys.argv[1]).read())
     print(v)
 ```
-
 ### An example
 
-```python
+<!--
+############
+triangle_py = """\
 import sys
 def triangle(a, b, c):
     if a == b:
@@ -523,10 +962,64 @@ def main(arg):
 if __name__ == '__main__':
     main(sys.argv[1])
     pass
-```
+"""
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+triangle_py = &quot;&quot;&quot;\
+import sys
+def triangle(a, b, c):
+    if a == b:
+        if b == c:
+            return &#x27;Equilateral&#x27;
+        else:
+            return &#x27;Isosceless&#x27;
+    else:
+        if b == c:
+            return &quot;Isosceles&quot;
+        else:
+            if a == c:
+                return &quot;Isosceles&quot;
+            else:
+                return &quot;Scalene&quot;
+def main(arg):
+    v = arg.split(&#x27; &#x27;)
+    v = triangle(int(v[0]), int(v[1]), int(v[2]))
+    print(v)
+
+if __name__ == &#x27;__main__&#x27;:
+    main(sys.argv[1])
+    pass
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Usage
-
 ```shell
 $ python3 interp.py triangle.py '1 2 3'
 ```
+
+<!--
+############
+expr = PyMCInterpreter({'__name__':'__main__'}, ['triangle_py', '1 2 3'])
+v = expr.eval(triangle_py)
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+expr = PyMCInterpreter({&#x27;__name__&#x27;:&#x27;__main__&#x27;}, [&#x27;triangle_py&#x27;, &#x27;1 2 3&#x27;])
+v = expr.eval(triangle_py)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
