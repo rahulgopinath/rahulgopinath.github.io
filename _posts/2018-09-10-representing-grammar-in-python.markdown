@@ -116,17 +116,8 @@ def nonterminals(production):
 <div name='python_canvas'></div>
 </form>
 But is there a better way? Ideally, one would like to define the grammar like one defines the class, so that it feels part of the language.
-One mechanism we can (ab)use is the type annotations. Specifically in `Python 3.7` one can use the postponed evaluation of annotations to accomplish a DSL as below, with grammar keys as attributes of the grammar class. Unfortunately, to be able to use that,
-we need to place import `from __future__ import annotations` at the top of the
-file. So, while we can do that in practice, it is difficult to do that in this
-blog post form. Hence, I put the contents of my grammar into a string, and
-evaluate that string instead.
-
-<!--
-############
-s = """
-from __future__ import annotations
-
+One mechanism we can (ab)use is the type annotations. Specifically in `Python 3.7` one can use the postponed evaluation of annotations to accomplish a DSL as below, with grammar keys as attributes of the grammar class.
+```python
 class expr(grammar):
     start: '{expr}'
     expr: '{term} + {term}' | '{term} - {term}'
@@ -134,29 +125,7 @@ class expr(grammar):
     factor: '( {expr} )' | '{integer}'
     integer: '{digit} {integer}' | '{digit}'
     digit: '0' | '1' | '2'
-"""
-exec(s)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-s = &quot;&quot;&quot;
-from __future__ import annotations
-
-class expr(grammar):
-    start: &#x27;{expr}&#x27;
-    expr: &#x27;{term} + {term}&#x27; | &#x27;{term} - {term}&#x27;
-    term: &#x27;{factor} * {term}&#x27; | &#x27;factor / {term}&#x27;
-    factor: &#x27;( {expr} )&#x27; | &#x27;{integer}&#x27;
-    integer: &#x27;{digit} {integer}&#x27; | &#x27;{digit}&#x27;
-    digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
-&quot;&quot;&quot;
-exec(s)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
+```
 The annotations lets us access the types of each class as a string, that can be evaluated separately. The `grammar` class is defined as follows:
 
 <!--
@@ -200,6 +169,47 @@ class grammar:
 
     def keys(self):
         return self.__annotations__.keys()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Unfortunately, to be able to use the annotation feature,
+we need to place import `from __future__ import annotations` at the top of the
+file. So, while we can do that in practice, it is difficult to do that in this
+blog post form. Hence, I put the contents of my grammar into a string, and
+evaluate that string instead.
+
+<!--
+############
+s = """
+from __future__ import annotations
+
+class expr(grammar):
+    start: '{expr}'
+    expr: '{term} + {term}' | '{term} - {term}'
+    term: '{factor} * {term}' | 'factor / {term}'
+    factor: '( {expr} )' | '{integer}'
+    integer: '{digit} {integer}' | '{digit}'
+    digit: '0' | '1' | '2'
+"""
+exec(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;
+from __future__ import annotations
+
+class expr(grammar):
+    start: &#x27;{expr}&#x27;
+    expr: &#x27;{term} + {term}&#x27; | &#x27;{term} - {term}&#x27;
+    term: &#x27;{factor} * {term}&#x27; | &#x27;factor / {term}&#x27;
+    factor: &#x27;( {expr} )&#x27; | &#x27;{integer}&#x27;
+    integer: &#x27;{digit} {integer}&#x27; | &#x27;{digit}&#x27;
+    digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
+&quot;&quot;&quot;
+exec(s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
