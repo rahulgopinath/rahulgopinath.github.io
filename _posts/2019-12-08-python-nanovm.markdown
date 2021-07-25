@@ -6,7 +6,21 @@ comments: true
 tags: vm
 categories: post
 ---
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 *Tested in Python 3.6.8*
 
 In the [previous post](/post/2019/12/07/python-mci/), I described how one can write
@@ -38,10 +52,20 @@ to disassemble Python bytecode from the compiled bytecode. Note that the package
 [xdis](https://pypi.org/project/xdis/) may be a better module here (it is a drop
 in replacement).
 
-```python
+<!--
+############
 import dis
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import dis
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 As in the [MCI](/post/2019/12/07/python-mci/), we try to use as much of the
 Python infrastructure as possible. Hence, we use the Python compiler to compile
 source files into bytecode, and we only interpret the bytecode. One can
@@ -50,10 +74,20 @@ strings to byte code as follows.
 
 ### Compilation
 
-```python
+<!--
+############
 my_code = compile('2+v', filename='', mode='eval')
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;2+v&#x27;, filename=&#x27;&#x27;, mode=&#x27;eval&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The `mode` can be one of `eval` -- which evaluates expressions, `exec` --
 which executes a sequence of statements, and `single` -- which is a limited form
 of `exec`. Their difference can be seen below.
@@ -61,122 +95,175 @@ of `exec`. Their difference can be seen below.
 
 #### compile(mode=eval)
 
-```python
->>> v = 1
->>> my_code = compile('2+v', filename='', mode='eval')
->>> dis.dis(my_code)
-  1           0 LOAD_CONST               0 (2)
-              2 LOAD_NAME                0 (v)
-              4 BINARY_ADD
-              6 RETURN_VALUE
->>> eval(my_code)
-3
-```
+<!--
+############
+v = 1
+my_code = compile('2+v', filename='', mode='eval')
+dis.dis(my_code)
+print(eval(my_code))
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = 1
+my_code = compile(&#x27;2+v&#x27;, filename=&#x27;&#x27;, mode=&#x27;eval&#x27;)
+dis.dis(my_code)
+print(eval(my_code))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 That is, the return value is the result of addition.
 
 #### compile(mode=exec)
 
-```python
->>> my_code = compile('2+v', filename='', mode='exec')
->>> dis.dis(my_code)
-  1           0 LOAD_CONST               0 (2)
-              2 LOAD_NAME                0 (v)
-              4 BINARY_ADD
-              6 POP_TOP
-              8 LOAD_CONST               1 (None)
-             10 RETURN_VALUE
->>> eval(my_code)
->>> 
-```
+<!--
+############
+my_code = compile('2+v', filename='', mode='exec')
+dis.dis(my_code)
+print(eval(my_code))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;2+v&#x27;, filename=&#x27;&#x27;, mode=&#x27;exec&#x27;)
+dis.dis(my_code)
+print(eval(my_code))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The top of the stack is popped off on execution. That is,
 it is treated as a statement. This mode is used for evaluating a series of
 statements none of which will return a value when `eval()` is called.
 
-```python
->>> my_code = compile('v=1;x=2+v', filename='', mode='eval')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "", line 1
-    v=1;x=2+v
-     ^
-SyntaxError: invalid syntax
->>> my_code = compile('v=1;x=2+v', filename='', mode='exec')
->>> dis.dis(my_code)
-  1           0 LOAD_CONST               0 (1)
-              2 STORE_NAME               0 (v)
-              4 LOAD_CONST               1 (2)
-              6 LOAD_NAME                0 (v)
-              8 BINARY_ADD
-             10 STORE_NAME               1 (x)
-             12 LOAD_CONST               2 (None)
-             14 RETURN_VALUE
->>> eval(my_code)
->>> x
-3
-```
+<!--
+############
+try:
+    my_code = compile('v=1;x=2+v', filename='', mode='eval')
+except SyntaxError as e:
+    print(e)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+try:
+    my_code = compile(&#x27;v=1;x=2+v&#x27;, filename=&#x27;&#x27;, mode=&#x27;eval&#x27;)
+except SyntaxError as e:
+    print(e)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using exec
+
+<!--
+############
+my_code = compile('v=1;x=2+v', filename='', mode='exec')
+dis.dis(my_code)
+eval(my_code)
+print(x)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;v=1;x=2+v&#x27;, filename=&#x27;&#x27;, mode=&#x27;exec&#x27;)
+dis.dis(my_code)
+eval(my_code)
+print(x)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### compile(mode=single)
 
 The `single` mode is a restricted version of `exec`. It is applicable for a
 single line *statement*, which can even be constructed by stitching multiple
 statements together with semicolons.
 
-```python
->>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='single')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "", line 1
-    v=1
-      ^
-SyntaxError: multiple statements found while compiling a single statement
->>> my_code = compile('v=1\nx=2+v\nx', filename='', mode='exec')
-```
+<!--
+############
+try:
+    my_code = compile('v=1\nx=2+v\nx', filename='', mode='single')
+except SyntaxError as e:
+    print(e)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+try:
+    my_code = compile(&#x27;v=1\nx=2+v\nx&#x27;, filename=&#x27;&#x27;, mode=&#x27;single&#x27;)
+except SyntaxError as e:
+    print(e)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+my_code = compile('v=1\nx=2+v\nx', filename='', mode='exec')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;v=1\nx=2+v\nx&#x27;, filename=&#x27;&#x27;, mode=&#x27;exec&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The main difference is in the return value. In the case of `exec`, the stack is
 cleared before return, which means only the side effects remain.
 
-```python
->>> my_code = compile('v=1;x=2+v;x', filename='', mode='exec')
->>> dis.dis(my_code)
-  1           0 LOAD_CONST               0 (1)
-              2 STORE_NAME               0 (v)
-              4 LOAD_CONST               1 (2)
-              6 LOAD_NAME                0 (v)
-              8 BINARY_ADD
-             10 STORE_NAME               1 (x)
-             12 LOAD_NAME                1 (x)
-             14 POP_TOP
-             16 LOAD_CONST               2 (None)
-             18 RETURN_VALUE
->>> eval(my_code)
-```
+<!--
+############
+my_code = compile('v=1;x=2+v;x', filename='', mode='exec')
+dis.dis(my_code)
+print(eval(my_code))
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;v=1;x=2+v;x&#x27;, filename=&#x27;&#x27;, mode=&#x27;exec&#x27;)
+dis.dis(my_code)
+print(eval(my_code))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 In the case of `single`, the last value in the stack is printed before return.
 As before, nothing is returned.
 
-```python
->>> my_code = compile('v=1;x=2+v;x', filename='', mode='single')
->>> dis.dis(my_code)
-  1           0 LOAD_CONST               0 (1)
-              2 STORE_NAME               0 (v)
-              4 LOAD_CONST               1 (2)
-              6 LOAD_NAME                0 (v)
-              8 BINARY_ADD
-             10 STORE_NAME               1 (x)
-             12 LOAD_NAME                1 (x)
-             14 PRINT_EXPR
-             16 LOAD_CONST               2 (None)
-             18 RETURN_VALUE
->>> eval(my_code)
-3
-```
+<!--
+############
+my_code = compile('v=1;x=2+v;x', filename='', mode='single')
+dis.dis(my_code)
+print(eval(my_code))
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_code = compile(&#x27;v=1;x=2+v;x&#x27;, filename=&#x27;&#x27;, mode=&#x27;single&#x27;)
+dis.dis(my_code)
+print(eval(my_code))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Arithmetic operations
-
 Next, we define all the simple arithmetic and boolean operators as below.
 
-```python
+<!--
+############
 mathops = {
           'BINARY_ADD': lambda a, b: a + b,
           'BINARY_SUBTRACT': lambda a, b: a - b,
@@ -196,13 +283,39 @@ mathops = {
           'UNARY_NOT': lambda a: not a,
           'UNARY_INVERT': lambda a: ~a
         }
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mathops = {
+          &#x27;BINARY_ADD&#x27;: lambda a, b: a + b,
+          &#x27;BINARY_SUBTRACT&#x27;: lambda a, b: a - b,
+          &#x27;BINARY_MULTIPLY&#x27;:  lambda a, b: a * b,
+          &#x27;BINARY_MATRIX_MULTIPLY&#x27;:  lambda a, b: a @ b,
+          &#x27;BINARY_TRUE_DIVIDE&#x27;: lambda a, b: a / b,
+          &#x27;BINARY_MODULO&#x27;: lambda a, b: a % b,
+          &#x27;BINARY_POWER&#x27;: lambda a, b: a ** b,
+          &#x27;BINARY_LSHIFT&#x27;:  lambda a, b: a &lt;&lt; b,
+          &#x27;BINARY_RSHIFT&#x27;: lambda a, b: a &gt;&gt; b,
+          &#x27;BINARY_OR&#x27;: lambda a, b: a | b,
+          &#x27;BINARY_XOR&#x27;: lambda a, b: a ^ b,
+          &#x27;BINARY_AND&#x27;: lambda a, b: a &amp; b,
+          &#x27;BINARY_FLOOR_DIVIDE&#x27;: lambda a, b: a // b,
+          &#x27;UNARY_POSITIVE&#x27;: lambda a: a,
+          &#x27;UNARY_NEGATIVE&#x27;: lambda a: -a,
+          &#x27;UNARY_NOT&#x27;: lambda a: not a,
+          &#x27;UNARY_INVERT&#x27;: lambda a: ~a
+        }
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Boolean operations
-
 Similar to arithmetic operations, we define all logical operators.
 
-```python
+<!--
+############
 boolops = {
         '<' : lambda a, b: a < b,
         '<=': lambda a, b: a <= b,
@@ -215,32 +328,64 @@ boolops = {
         'is' :lambda a, b: a is b,
         'is not': lambda a, b: a is not b,
         }
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+boolops = {
+        &#x27;&lt;&#x27; : lambda a, b: a &lt; b,
+        &#x27;&lt;=&#x27;: lambda a, b: a &lt;= b,
+        &#x27;==&#x27;: lambda a, b: a == b,
+        &#x27;!=&#x27;: lambda a, b: a != b,
+        &#x27;&gt;&#x27; : lambda a, b: a &gt; b,
+        &#x27;&gt;=&#x27;: lambda a, b: a &gt;= b,
+        &#x27;in&#x27;: lambda a, b: a in b,
+        &#x27;not in&#x27;: lambda a, b: a not in b,
+        &#x27;is&#x27; :lambda a, b: a is b,
+        &#x27;is not&#x27;: lambda a, b: a is not b,
+        }
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### The `Code`
-
 The compiled bytecode is of type `code`. 
 
-```python
->>> my_code.__class__
-<class 'code'>
-```
+<!--
+############
+print(my_code.__class__)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(my_code.__class__)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 It contains the following attributes
 
-```python
->>> [o for o in dir(my_code) if o[0] != '_']
-['co_argcount', 'co_cellvars', 'co_code', 'co_consts', 'co_filename', 
-'co_firstlineno', 'co_flags', 'co_freevars', 'co_kwonlyargcount', 
-'co_lnotab', 'co_name', 'co_names', 'co_nlocals', 'co_stacksize', 
-'co_varnames']
-```
+<!--
+############
+print([o for o in dir(my_code) if o[0] != '_'])
 
-
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print([o for o in dir(my_code) if o[0] != &#x27;_&#x27;])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Since it is a read-only data structure, and we want to modify it, we will use a
 proxy class `Code` to wrap it. We copy over the minimum attributes needed.
 
-```python
+<!--
+############
 class Code:
     def __init__(self, code):
         self.code = code
@@ -248,15 +393,30 @@ class Code:
         self.co_names = list(code.co_names)
         self.co_varnames = list(code.co_varnames)
         self.opcodes = list(dis.get_instructions(self.code))
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Code:
+    def __init__(self, code):
+        self.code = code
+        self.co_consts = list(code.co_consts)
+        self.co_names = list(code.co_names)
+        self.co_varnames = list(code.co_varnames)
+        self.opcodes = list(dis.get_instructions(self.code))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### The virtual machine
 
 As can be inferred from the `dis` output, the Python Virtual Machine is a stack
 based machine. So we define a bare bones virtual machine that can use a stack
 as below.
 
-```python
+<!--
+############
 class Vm:
     def __init__(self, local=[]):
         self.stack = []
@@ -280,20 +440,63 @@ class Vm:
             self.local.append(self.stack.pop())
         else:
             self.local[i] = self.stack.pop()
-```
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm:
+    def __init__(self, local=[]):
+        self.stack = []
+        self.block_stack = []
+        self.local = local
+
+    def i_pop_top(self, i): self.stack.pop()
+    def i_load_global(self, i): self.stack.append(self.code.co_names[i])
+    def i_load_name(self, i): self.stack.append(self.code.co_names[i])
+    def i_store_name(self, i):
+        if len(self.local) &lt; i + 1:
+            assert len(self.local) == i
+            self.local.append(self.stack.pop())
+        else:
+            self.local[i] = self.stack.pop()
+    def i_load_const(self, i): self.stack.append(self.code.co_consts[i])
+    def i_load_fast(self, i): self.stack.append(self.local[i])
+    def i_store_fast(self, i):
+        if len(self.local) &lt; i + 1:
+            assert len(self.local) == i
+            self.local.append(self.stack.pop())
+        else:
+            self.local[i] = self.stack.pop()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The return instruction is simply a pop of the stack.
-   
-```python
+
+<!--
+############
 class Vm(Vm):
     def i_return_value(self, i):
         return self.stack.pop()
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+    def i_return_value(self, i):
+        return self.stack.pop()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Now, we define how a function is called. We need to extract the
 function and args, and pass the execution to the called function.
 
-```python
+<!--
+############
 class Vm(Vm):
     def i_call_function(self, i):
         nargs = i + 1
@@ -318,12 +521,43 @@ class Vm(Vm):
                 v = Vm(args).bytes(myfn)
                 v.i()
                 self.stack.append(v.result)
-```
 
-
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+    def i_call_function(self, i):
+        nargs = i + 1
+        fn, *args = self.stack[-nargs:]
+        self.stack = self.stack[:len(self.stack)-nargs]
+        if type(fn) == tuple:
+            qname, myfn_code, p = fn
+            v = Vm(args).bytes(myfn_code)
+            v.i()
+            self.stack.append(v.result)
+        elif fn in self.code.co_names:
+            v = dict(zip(self.code.co_names, self.local))
+            if fn not in v:
+                l = {**globals(), **locals()}
+                if fn not in l: raise Exception(&#x27;Function[%s] not found&#x27; % str(fn))
+                myfn = l[fn]
+                v = Vm(args).bytes(myfn.__code__)
+                v.i()
+                self.stack.append(v.result)
+            else:
+                (name, myfn, p) = v[fn]
+                v = Vm(args).bytes(myfn)
+                v.i()
+                self.stack.append(v.result)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Implementing *COMPARE_OP*
 
-```python
+<!--
+############
 class Vm(Vm):
     def i_compare_op(self, opname):
         op = dis.cmp_op[opname]
@@ -333,11 +567,28 @@ class Vm(Vm):
         self.stack = self.stack[:len(self.stack)-nargs]
         v = fn(*args)
         self.stack.append(v)
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+    def i_compare_op(self, opname):
+        op = dis.cmp_op[opname]
+        fn = boolops[op]
+        nargs = 2
+        args = self.stack[-nargs:]
+        self.stack = self.stack[:len(self.stack)-nargs]
+        v = fn(*args)
+        self.stack.append(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Implementing jumps
 
-```python
+<!--
+############
 class Vm(Vm):
 
     def i_pop_jump_if_true(self, i, ins):
@@ -353,11 +604,34 @@ class Vm(Vm):
     def i_jump_absolute(self, i, ins):
         # each instruction is two bytes long
         return i // 2
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+
+    def i_pop_jump_if_true(self, i, ins):
+        v = self.stack.pop()
+        if v: return i // 2
+        return ins + 1
+
+    def i_pop_jump_if_false(self, i, ins):
+        v = self.stack.pop()
+        if not v: return i // 2
+        return ins + 1
+
+    def i_jump_absolute(self, i, ins):
+        # each instruction is two bytes long
+        return i // 2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Implementing loops
 
-```python
+<!--
+############
 class Vm(Vm):
     def i_setup_loop(self, i):
         # not sure.
@@ -384,11 +658,45 @@ class Vm(Vm):
         qname = self.stack.pop()
         code = self.stack.pop()
         self.stack.append((qname, code, p))
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+    def i_setup_loop(self, i):
+        # not sure.
+        self.block_stack.append(i)
+
+    def i_pop_block(self, i):
+        # not sure.
+        self.block_stack.pop()
+
+    def i_make_function(self, i):
+        p = None
+        if i == 0x01:
+            # tuple of default args in positional order
+            p = self.stack.pop()
+        elif i == 0x02:
+            # a dict of kw only args and vals
+            p = self.stack.pop()
+        elif i == 0x04:
+            # an annotation dict
+            p = self.stack.pop()
+        elif i == 0x08:
+            # closure
+            p = self.stack.pop()
+        qname = self.stack.pop()
+        code = self.stack.pop()
+        self.stack.append((qname, code, p))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Wrappers
 
-```python
+<!--
+############
 class Vm(Vm):
 
     def statement(self, my_str, kind='exec'):
@@ -396,11 +704,26 @@ class Vm(Vm):
 
     def expr(self, my_str, kind='eval'):
         return self.bytes(compile(my_str, '<>', kind))
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+
+    def statement(self, my_str, kind=&#x27;exec&#x27;):
+        return self.bytes(compile(my_str, &#x27;&lt;&gt;&#x27;, kind))
+
+    def expr(self, my_str, kind=&#x27;eval&#x27;):
+        return self.bytes(compile(my_str, &#x27;&lt;&gt;&#x27;, kind))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Translation of bytes to corresponding functions.
 
-```python
+<!--
+############
 class Vm(Vm):
     def bytes(self, code):
         self.fnops = {
@@ -429,11 +752,51 @@ class Vm(Vm):
                 }
         self.code = Code(code)
         return self
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Vm(Vm):
+    def bytes(self, code):
+        self.fnops = {
+                &#x27;LOAD_GLOBAL&#x27;: self.i_load_global,
+                &#x27;LOAD_FAST&#x27;: self.i_load_fast,
+                &#x27;STORE_FAST&#x27;: self.i_store_fast,
+                &#x27;LOAD_NAME&#x27;: self.i_load_name,
+                &#x27;STORE_NAME&#x27;: self.i_store_name,
+                &#x27;LOAD_CONST&#x27;: self.i_load_const,
+                &#x27;RETURN_VALUE&#x27;: self.i_return_value,
+                &#x27;CALL_FUNCTION&#x27;: self.i_call_function,
+                &#x27;COMPARE_OP&#x27;: self.i_compare_op,
+                }
+        self.jmpops = {
+                &#x27;POP_JUMP_IF_TRUE&#x27;:  self.i_pop_jump_if_true,
+                &#x27;POP_JUMP_IF_FALSE&#x27;: self.i_pop_jump_if_false,
+                &#x27;JUMP_ABSOLUTE&#x27;: self.i_jump_absolute
+                }
+        self.blockops = {
+                &#x27;SETUP_LOOP&#x27;: self.i_setup_loop,
+                &#x27;POP_TOP&#x27;: self.i_pop_top,
+                }
+        self.otherops = {
+                &#x27;MAKE_FUNCTION&#x27; : self.i_make_function,
+                &#x27;POP_BLOCK&#x27;: self.i_pop_block,
+                }
+        self.code = Code(code)
+        return self
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The interpreter itself
 
-```python
+<!--
+############
+def log(*args):
+    #print(*args)
+    pass
+
 class Vm(Vm):
     def i(self):
         ops = self.code.opcodes
@@ -469,11 +832,58 @@ class Vm(Vm):
 
     def result():
         return self.result
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def log(*args):
+    #print(*args)
+    pass
+
+class Vm(Vm):
+    def i(self):
+        ops = self.code.opcodes
+        ins = 0
+        while ins &lt; len(ops):
+            i = ops[ins]
+            log(ins,i.opname, i.arg, i.is_jump_target)
+            if i.opname in mathops:
+                fn = mathops[i.opname]
+                nargs = fn.__code__.co_argcount
+                args = self.stack[-nargs:]
+                self.stack = self.stack[:len(self.stack)-nargs]
+                v = fn(*args)
+                self.stack.append(v)
+            elif i.opname in self.fnops:
+                fn = self.fnops[i.opname]
+                self.result = fn(i.arg)
+            elif i.opname in self.jmpops:
+                fn = self.jmpops[i.opname]
+                ins = fn(i.arg, ins)
+                assert ops[i.arg//2].is_jump_target
+                continue
+            elif i.opname in self.blockops:
+                fn = self.blockops[i.opname]
+                fn(i.arg)
+            elif i.opname in self.otherops:
+                fn = self.otherops[i.opname]
+                fn(i.arg)
+            else:
+                assert False
+            ins += 1
+        return self
+
+    def result():
+        return self.result
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### A few example functions
-        
-```python
+
+<!--
+############
 def my_add(a, b):
     return a + b
 
@@ -488,11 +898,33 @@ def gcd(a, b):
         a = b
         b = c % b
     return a
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def my_add(a, b):
+    return a + b
+
+def gcd(a, b):
+    if a&lt;b:
+        c = a
+        a = b
+        b = c
+
+    while b != 0 :
+        c = a
+        a = b
+        b = c % b
+    return a
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### A driver
 
-```python
+<!--
+############
 v = Vm().expr('my_add(2, 3)').i()
 print(v.result)
 v = Vm().expr('gcd(12, 15)').i()
@@ -506,4 +938,27 @@ print(v.result)
 v = Vm().expr('(lambda a, b: a+b)(2, 3)').i()
 print(v.result)
 
-```
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = Vm().expr(&#x27;my_add(2, 3)&#x27;).i()
+print(v.result)
+v = Vm().expr(&#x27;gcd(12, 15)&#x27;).i()
+print(v.result)
+
+v = Vm()
+v.statement(&#x27;def x(a, b): return a+b&#x27;).i()
+v.expr(&#x27;x(1,2)&#x27;).i()
+print(v.result)
+
+v = Vm().expr(&#x27;(lambda a, b: a+b)(2, 3)&#x27;).i()
+print(v.result)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
