@@ -21,8 +21,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-*Tested in Python 3.6.8*
-
 In the [previous post](/post/2019/12/07/python-mci/), I described how one can write
 an interpreter for the Python language in Python. However, Python itself is not
 implemented as a direct interpreter for the AST. Rather, Python AST is compiled
