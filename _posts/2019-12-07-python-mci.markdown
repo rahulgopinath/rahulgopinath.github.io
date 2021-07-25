@@ -189,6 +189,25 @@ class PyMCInterpreter(PyMCInterpreter):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+##### Constant(constant value, string? kind)
+
+<!--
+############
+class PyMCInterpreter(PyMCInterpreter):
+    def on_constant(self, node):
+        return node.value
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyMCInterpreter(PyMCInterpreter):
+    def on_constant(self, node):
+        return node.value
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Containers
 
 Essentially, we want to be able to make use of all pythonic

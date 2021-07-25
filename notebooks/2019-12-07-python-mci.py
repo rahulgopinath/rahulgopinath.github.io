@@ -105,6 +105,12 @@ class PyMCInterpreter(PyMCInterpreter):
         return node.n
 
 
+# ##### Constant(constant value, string? kind)
+
+class PyMCInterpreter(PyMCInterpreter):
+    def on_constant(self, node):
+        return node.value
+
 # #### Containers
 # 
 # Essentially, we want to be able to make use of all pythonic
