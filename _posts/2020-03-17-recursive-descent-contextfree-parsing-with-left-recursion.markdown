@@ -609,9 +609,6 @@ def peg_main(to_parse):
     assert (len(to_parse) - result[0]) == 0
     print(result[1])
 
-if __name__ == '__main__':
-    peg_main('123+(45+1)')
-
 ############
 -->
 <form name='python_run_form'>
@@ -678,9 +675,21 @@ def peg_main(to_parse):
     result = p.unify_key(&#x27;&lt;start&gt;&#x27;, to_parse, 0, 0)
     assert (len(to_parse) - result[0]) == 0
     print(result[1])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-if __name__ == &#x27;__main__&#x27;:
-    peg_main(&#x27;123+(45+1)&#x27;)
+
+<!--
+############
+peg_main('123+(45+1)')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+peg_main(&#x27;123+(45+1)&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
