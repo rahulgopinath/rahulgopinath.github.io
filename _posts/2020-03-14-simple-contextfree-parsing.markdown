@@ -354,7 +354,7 @@ forking_parse(&#x27;1+1+1&#x27;, grammar, START)
 As you can see, we can successfully use left recursive grammars. Note that this is still a
 recognizer. Turning it into a parser is not very difficult, and may be handled in a future post.
 
-The complete code is available here.
+The complete code is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2020-03-14-simple-contextfree-parsing.py).
 **Note:** 
 I implemented it to scratch an itch, without first checking the literature about similar parsing techniques. However, now that I have implemented it, this technique seems similar to [GLL](https://github.com/djspiewak/gll-combinators#theory)). While my implmentation is 
 inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS (fairly easy to implement in that it is about how to maintain the `rule` structure as a tree with common prefix) can help the situation.
