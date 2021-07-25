@@ -10,7 +10,24 @@ categories: post
 Previously, we had [discussed](/post/2018/09/06/peg-parsing/) how a simple PEG parser, and a CFG parser can be constructed. At that time, I had mentioned that left-recursion was still to be implemented. Here is one way to implement left recursion correctly for the CFG parser.
 
 For ease of reference, here was our original parser.
-```python
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
+<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+<!--
+############
 class cfg_parse:
     def __init__(self, grammar):
         self.grammar = grammar
@@ -42,18 +59,73 @@ class cfg_parse:
             tfroms = new_tfroms
         return tfroms
 
-def main(to_parse):
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class cfg_parse:
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def unify_key(self, key, text, tfrom):
+        if key not in self.grammar:
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
+            else:
+                return []
+        else:
+            tfroms_ = []
+            rules = self.grammar[key]
+            for rule in rules:
+                new_tfroms = self.unify_rule(rule, text, tfrom)
+                for at, nt in new_tfroms:
+                    tfroms_.append((at, (key, nt)))
+            return tfroms_
+        assert False
+
+    def unify_rule(self, parts, text, tfrom):
+        tfroms = [(tfrom, [])]
+        for part in parts:
+            new_tfroms = []
+            for at, nt in tfroms:
+                tfs = self.unify_key(part, text, at)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
+        return tfroms
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+def old_cfg_main(to_parse):
     p = cfg_parse(term_grammar)
     result = p.unify_key('<start>', to_parse, 0)
     for l,till in result:
         if l == len(to_parse):
             print(till)
 
-if __name__ == '__main__':
-    main(sys.argv[1])
-```
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def old_cfg_main(to_parse):
+    p = cfg_parse(term_grammar)
+    result = p.unify_key(&#x27;&lt;start&gt;&#x27;, to_parse, 0)
+    for l,till in result:
+        if l == len(to_parse):
+            print(till)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 This will of course fail when given a grammar such as below:
-```python
+
+<!--
+############
 import string
 grammar = {
     "<start>": [ ["<E>"] ],
@@ -68,7 +140,29 @@ grammar = {
     "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
     "<digit>": [[str(i)] for i in string.digits]
 }
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import string
+grammar = {
+    &quot;&lt;start&gt;&quot;: [ [&quot;&lt;E&gt;&quot;] ],
+    &quot;&lt;E&gt;&quot;: [
+        [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;*&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;/&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
+        [&quot;&lt;digits&gt;&quot;],
+        ],
+    &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+    &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The problem here is that `<E>` is left recursive. So, a naive implementation such as above does not know when to stop recursing when
 it tries to unify `<E>`. The solution here is to look for *any* means to identify that the recursion has gone on longer than necessary.
 Here is one such technique. The idea is to look at the minimum number of characters necessary to complete parsing if we use a 
@@ -81,7 +175,8 @@ any of the rules corresponding to it. The minimum length of a rule is the sum of
 
 (Another way to think about the minimum length is as the length of the minimal string produced when the grammar is used as a producer starting from the given nonterminal. The reason for `infinity` for recursion becomes clear --- the producer cannot terminate.).
 
-```python
+<!--
+############
 import math
 class cfg_parse:
     def __init__(self, grammar):
@@ -95,16 +190,52 @@ class cfg_parse:
         if key not in self.grammar: return len(key)
         if key in seen: return math.inf
         return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import math
+class cfg_parse:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.min_len = {k: self._key_minlength(k, set()) for k in grammar}
+
+    def _rule_minlength(self, rule, seen):
+        return sum([self._key_minlength(k, seen) for k in rule])
+
+    def _key_minlength(self, key, seen):
+        if key not in self.grammar: return len(key)
+        if key in seen: return math.inf
+        return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The length of multiple keys can be computed as follows
-```python
+
+<!--
+############
 class cfg_parse(cfg_parse):
     def len_of_parts(self, parts):
         return sum(self.min_len.get(p, len(p)) for p in parts)
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class cfg_parse(cfg_parse):
+    def len_of_parts(self, parts):
+        return sum(self.min_len.get(p, len(p)) for p in parts)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Now, all it remains is to intelligently stop parsing whenever the minimum length of the remaining parts
 to parse becomes larger than the length of the remaining text.
-```python
+
+<!--
+############
 class cfg_parse(cfg_parse):
     def unify_key(self, key, text, tfrom, min_length):
         if key not in self.grammar:
@@ -135,33 +266,106 @@ class cfg_parse(cfg_parse):
                     new_tfroms.append((at_, nt + [nt_]))
             tfroms = new_tfroms
         return tfroms
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class cfg_parse(cfg_parse):
+    def unify_key(self, key, text, tfrom, min_length):
+        if key not in self.grammar:
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
+            else:
+                return []
+        else:
+            tfroms_ = []
+            rules = self.grammar[key]
+            for rule in rules:
+                new_tfroms = self.unify_rule(rule, text, tfrom, min_length)
+                for at, nt in new_tfroms:
+                    tfroms_.append((at, (key, nt)))
+            return tfroms_
+        assert False
+
+    def unify_rule(self, parts, text, tfrom, min_len):
+        tfroms = [(tfrom, [])]
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            new_tfroms = []
+            for at, nt in tfroms:
+                if len_of_remaining + at &gt;= len(text):
+                    continue
+                tfs = self.unify_key(part, text, at, len_of_remaining)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
+        return tfroms
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The driver
-```python
-import sys
-def main(to_parse):
+
+<!--
+############
+def cfg_main(to_parse):
     p = cfg_parse(grammar)
-    result = p.unify_key('<start>', to_parse, [(0, [])], 0)
+    #result = p.unify_key('<start>', to_parse, [(0, [])], 0)
+    result = p.unify_key('<start>', to_parse, 0, 0)
     for l,till in result:
         if l == len(to_parse):
             print(till)
 
-if __name__ == '__main__':
-    main(sys.argv[1])
-```
-Usage:
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def cfg_main(to_parse):
+    p = cfg_parse(grammar)
+    #result = p.unify_key(&#x27;&lt;start&gt;&#x27;, to_parse, [(0, [])], 0)
+    result = p.unify_key(&#x27;&lt;start&gt;&#x27;, to_parse, 0, 0)
+    for l,till in result:
+        if l == len(to_parse):
+            print(till)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 It correctly accepts valid strings
-```shell
-$ python3  cfgparse.py '112*(4+(3-4))'
-('<start>', [('<E>', [('<E>', [('<digits>', [('<digits>', [('<digits>', [('<digit>', [('1', [])])]), ('<digit>', [('1', [])])]), ('<digit>', [('2', [])])])]), ('*', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('4', [])])])]), ('+', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('3', [])])])]), ('-', []), ('<E>', [('<digits>', [('<digit>', [('4', [])])])])]), (')', [])])]), (')', [])])])])
-```
+
+<!--
+############
+cfg_main('112*(4+(3-4))')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+cfg_main(&#x27;112*(4+(3-4))&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 and correctly rejects invalid ones
-```shell
-$ python3  cfgparse.py '112(4+(3-4))'
-```
+
+<!--
+############
+cfg_main('112(4+(3-4))')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+cfg_main(&#x27;112(4+(3-4))&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Note that our implementation relies on there being a minimal length. What if there are empty string derivations? Unfortunately, our parser can fail in these scenarios:
 
-```python
+<!--
+############
 ABgrammar = {
         '<start>': [['<A>']],
         '<A>': [
@@ -174,7 +378,27 @@ Agrammar = {
         '<start>': [['<A>']],
         '<A>': [['<A>'], ['a']],
 }
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ABgrammar = {
+        &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+        &#x27;&lt;A&gt;&#x27;: [
+            [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;],
+            [&#x27;a&#x27;]],
+        &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;], [&#x27;&#x27;]]
+}
+
+Agrammar = {
+        &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+        &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]],
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The issue is empty strings causing the minimal length to be zero. So, we are unable to make progress. One option
 is to completely remove empty strings from the grammar. While that is a better option than refactoring out left
 recursion, it is a bit unsatisfying. Is there a better way?
@@ -184,7 +408,9 @@ always have to make progress (the non-progress-making left recursions can be gen
 left recursion, so we can discard the non-progress-making left recursions). That means that one would never
 have more number of recursions of the same key than there are remaining letters. Here is an attempt to implement this
 stopping condition.
-```python
+
+<!--
+############
 import copy
 class cfg_parse(cfg_parse):
     def unify_key(self, key, text, tfrom, min_len, seen):
@@ -237,7 +463,67 @@ class cfg_parse(cfg_parse):
                     new_tfroms.append((at_, nt + [nt_]))
             tfroms = new_tfroms
         return tfroms
-```
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import copy
+class cfg_parse(cfg_parse):
+    def unify_key(self, key, text, tfrom, min_len, seen):
+        if key not in self.grammar:
+            if text[tfrom:].startswith(key):
+                return [(tfrom + len(key), (key, []))]
+            else:
+                return []
+        else:
+            tfroms_ = []
+            rules = self.grammar[key]
+            for rule in rules:
+                new_tfroms = self.unify_rule(rule, text, tfrom, min_len, seen)
+                tfroms_.extend(new_tfroms)
+            return tfroms_
+
+    def unify_rule(self, parts, text, tfrom, min_len, seen):
+        tfroms = [tfrom]
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            new_tfroms = []
+
+            if self.len_of_parts(parts[i+1:]) == 0:
+                if part in seen and (seen[part][0] + seen[part][1]) &gt; len(text):
+                    # each call to a left recursion should consume at least
+                    # one token. So, if we count from where the left
+                    # recursion originally started (todo),
+                    # that + #recursions should be &lt;= len(text)
+                    return []
+
+            for at, nt in tfroms:
+                # if current parse + the minimum required length is &gt; length of
+                # text then no more parsing. (progress)
+                if at + len_of_remaining &gt; len(text):
+                    continue
+
+                # if the remaining parts have a minimum length zero, then
+                # we wont be able to use our progress to curtail the recursion.
+                # so use the number of recursions instead.
+                if self.len_of_parts(parts[i+1:]) == 0:
+                    my_seen = copy.deepcopy(seen)
+                    if part in my_seen:
+                        my_seen[part][1] += 1
+                    else:
+                        my_seen[part] = [at, 0]
+                else:
+                    my_seen = {}
+                tfs = self.unify_key(part, text, at, len_of_remaining, my_seen)
+                for at_, nt_ in tfs:
+                    new_tfroms.append((at_, nt + [nt_]))
+            tfroms = new_tfroms
+        return tfroms
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 This seems to work. However, one question remains unanswered. One could in
 principle use the second stopping condition on its own, without the first one.
 So, why use the first stopping condition at all? The reason is that, in my
@@ -258,7 +544,8 @@ each character position for the nonterminals applied (starting) at that position
 
 Can we apply the same technique on a PEG parser? Here is one implementation
 
-```python
+<!--
+############
 import math
 import sys
 import functools
@@ -294,7 +581,7 @@ class peg_parse:
 
     def len_of_parts(self, parts):
         return sum(self.min_len.get(p, len(p)) for p in parts)
-        
+
     @functools.lru_cache(maxsize=None)
     def unify_key(self, key, text, at, min_len):
         if key not in self.grammar:
@@ -316,21 +603,93 @@ class peg_parse:
             results.append(res)
         return tfrom, results
 
-def main(to_parse):
+def peg_main(to_parse):
     p = peg_parse(expr_grammar)
     result = p.unify_key('<start>', to_parse, 0, 0)
     assert (len(to_parse) - result[0]) == 0
     print(result[1])
 
-if __name__ == '__main__': main(sys.argv[1])                                                                                      
-```
-Using it:
-```shell
-$ python3 peg.py '123+(45+1)'
-('<start>', [('<E>', [('<E>', [('<digits>', [('<digit>', [('1', [])]), ('<digits>', [('<digit>', [('2', [])]), ('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<E>', [('(', []), ('<E>', [('<E>', [('<digits>', [('<digit>', [('4', [])]), ('<digits>', [('<digit>', [('5', [])])])])]), ('+', []), ('<E>', [('<digits>', [('<digit>', [('1', [])])])])]), (')', [])])])])
-```
+if __name__ == '__main__':
+    peg_main('123+(45+1)')
 
-Note that restricting the recursion using input length has been well known from the sixities[^1]. The latest research by Frost et. al [^2] suggests a limit of `m * (1 + |s|)` where `m` is the number of nonterminals in the grammar and `|s|` is the length of input.
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import math
+import sys
+import functools
+import string
 
-[^1]: Susumu Kuno. _The predictive analyzer and a path elimination technique_ Communications of ACM, 1965
-[^2]: Richard A. Frost, Rahmatullah Hafiz, and Paul C. Callaghan. Modular and efficient top-down parsing for ambiguous left recursive grammars. IWPT 2007
+expr_grammar = {
+    &quot;&lt;start&gt;&quot;: [ [&quot;&lt;E&gt;&quot;] ],
+    &quot;&lt;E&gt;&quot;: [
+        [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;*&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;&lt;E&gt;&quot;, &quot;/&quot;, &quot;&lt;E&gt;&quot;],
+        [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
+        [&quot;&lt;digits&gt;&quot;],
+        ],
+    &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digit&gt;&quot;, &quot;&lt;digits&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+    &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+}
+
+class peg_parse:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.grammar = grammar
+        self.min_len = {k: self._key_minlength(k, set()) for k in grammar}
+
+    def _rule_minlength(self, rule, seen):
+        return sum([self._key_minlength(k, seen) for k in rule])
+
+    def _key_minlength(self, key, seen):
+        if key not in self.grammar: return len(key)
+        if key in seen: return math.inf
+        return min([self._rule_minlength(r, seen | {key}) for r in self.grammar[key]])
+
+    def len_of_parts(self, parts):
+        return sum(self.min_len.get(p, len(p)) for p in parts)
+
+    @functools.lru_cache(maxsize=None)
+    def unify_key(self, key, text, at, min_len):
+        if key not in self.grammar:
+            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+        rules = self.grammar[key]
+        for rule in rules:
+            l, res = self.unify_rule(rule, text, at, min_len)
+            if res is not None: return l, (key, res)
+        return (0, None)
+
+    def unify_rule(self, parts, text, tfrom, min_len):
+        results = []
+        for i,part in enumerate(parts):
+            len_of_remaining = self.len_of_parts(parts[i+1:]) + min_len
+            if len_of_remaining + tfrom &gt;= len(text):
+                return tfrom, None
+            tfrom, res = self.unify_key(part, text, tfrom, len_of_remaining)
+            if res is None: return tfrom, None
+            results.append(res)
+        return tfrom, results
+
+def peg_main(to_parse):
+    p = peg_parse(expr_grammar)
+    result = p.unify_key(&#x27;&lt;start&gt;&#x27;, to_parse, 0, 0)
+    assert (len(to_parse) - result[0]) == 0
+    print(result[1])
+
+if __name__ == &#x27;__main__&#x27;:
+    peg_main(&#x27;123+(45+1)&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Note that restricting the recursion using input length has been well known from the sixities[^kuno1965the]. The latest research by Frost et. al [^frost2007modular] suggests a limit of `m * (1 + |s|)` where `m` is the number of nonterminals in the grammar and `|s|` is the length of input.
+
+[^kuno1965the]: Susumu Kuno. _The predictive analyzer and a path elimination technique_ Communications of ACM, 1965
+[^frost2007modular]: Richard A. Frost, Rahmatullah Hafiz, and Paul C. Callaghan. Modular and efficient top-down parsing for ambiguous left recursive grammars. IWPT 2007
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
