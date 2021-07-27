@@ -1065,32 +1065,41 @@ sampling.
 ############
 import random
 
-if __name__ == '__main__':
-    key_node_g = key_get_def('<start>', E1, 5)
-    print(key_node_g.count)
-    at = random.randint(0,key_node_g.count)
-    print('at:', at)
-    strings = key_extract_strings(key_node_g)
-    print("strting[%d]" % at, repr(strings[at]))
-    string = key_get_string_at(key_node_g, at)
-    print(repr(string))
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+key_node_g = key_get_def('<start>', E1, 5)
+print(key_node_g.count)
+at = random.randint(0,key_node_g.count)
+print('at:', at)
+strings = key_extract_strings(key_node_g)
+print("strting[%d]" % at, repr(strings[at]))
+string = key_get_string_at(key_node_g, at)
+print(repr(string))
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import random
-
-if __name__ == &#x27;__main__&#x27;:
-    key_node_g = key_get_def(&#x27;&lt;start&gt;&#x27;, E1, 5)
-    print(key_node_g.count)
-    at = random.randint(0,key_node_g.count)
-    print(&#x27;at:&#x27;, at)
-    strings = key_extract_strings(key_node_g)
-    print(&quot;strting[%d]&quot; % at, repr(strings[at]))
-    string = key_get_string_at(key_node_g, at)
-    print(repr(string))
+key_node_g = key_get_def(&#x27;&lt;start&gt;&#x27;, E1, 5)
+print(key_node_g.count)
+at = random.randint(0,key_node_g.count)
+print(&#x27;at:&#x27;, at)
+strings = key_extract_strings(key_node_g)
+print(&quot;strting[%d]&quot; % at, repr(strings[at]))
+string = key_get_string_at(key_node_g, at)
+print(repr(string))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
