@@ -276,9 +276,125 @@ def get_strings_of_length_in_rule(rule, grammar, l_str):
 # Using it.
 
 if __name__ == '__main__':
-    strings = get_strings_of_length_in_definition('<start>', G, 3)
+    strings = get_strings_of_length_in_definition('<start>', G, 2)
     print("len:", len(strings))
     print(strings)
+
+# The problem with these implementations is tht it is horribly naive. Each call
+# recomputes the wohle set of strings or the count again and again. However,
+# many nonterminals are reused again and again, which means that we should be
+# sharing the results. Let us see how we can memoize the resuls of these calls.
+# 
+# ## A Memoized Implementation.
+# 
+# ### Counting the number of strings
+#
+# We first define a data structure to keep the key nodes. Such nodes help us to
+# identify the corresponding rules of the given key that generates strings of
+# `l_str` size.
+
+class KeyNode:
+    def __init__(self, token, l_str, count, rules):
+        self.token = token
+        self.l_str = l_str
+        self.count = count
+        self.rules = rules
+
+    def __str__(self):
+        return "key: %s <%d> count:%d" % (repr(self.token), self.l_str, self.count)
+
+    def __repr__(self):
+        return "key: %s <%d> count:%d" % (repr(self.token), self.l_str, self.count)
+
+# We also define a data structure to keep the rule nodes. Such rules contain
+# both the head `token` as well as the `tail`, the `l_str` as well as the count
+
+class RuleNode:
+    def __init__(self, key, tail, l_str, count):
+        self.key = key
+        self.tail = tail
+        self.l_str = l_str
+        self.count = count
+        assert count
+
+    def __str__(self):
+        return "head: %s tail: (%s) <%d> count:%d" % (repr(self.key.token), repr(self.tail), self.l_str, self.count)
+
+    def __repr__(self):
+        return "head: %s tail: (%s) <%d> count:%d" % (repr(self.key.token), repr(self.tail), self.l_str, self.count)
+
+# globals
+
+rule_strs = { }
+
+key_strs = { }
+
+EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
+
+# ### Populating the linked data structure.
+# 
+# This follows the same skeleton as our previous functions. Firt the keys
+
+def key_get_def(key, grammar, l_str):
+    if (key, l_str) in key_strs: return key_strs[(key, l_str)]
+
+    if key not in grammar:
+        if l_str == len(key):
+            key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+            return key_strs[(key, l_str)]
+        else:
+            key_strs[(key, l_str)] = EmptyKey
+            return key_strs[(key, l_str)]
+    # number strings in definition = sum of number of strings in rules
+    rules = grammar[key]
+    s = []
+    count = 0
+    for rule in rules:
+        s_s = rules_get_def(rule, grammar, l_str) # returns RuleNode (should it return array?)
+        for s_ in s_s:
+            assert s_.count
+            count += s_.count
+            s.append(s_)
+    key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+    return key_strs[(key, l_str)]
+
+# Now the rules.
+
+def rules_get_def(rule_, grammar, l_str):
+    rule = tuple(rule_)
+    if not rule: return []
+    if (rule, l_str) in rule_strs: return rule_strs[(rule, l_str)]
+
+    token, *tail = rule
+    if not tail:
+        s_ = key_get_def(token, grammar, l_str)
+        if not s_.count: return []
+        return [RuleNode(key=s_, tail=[], l_str=l_str, count=s_.count)]
+
+    sum_rule = []
+    count = 0
+    for l_str_x in range(1, l_str+1):
+        s_ = key_get_def(token, grammar, l_str_x)
+        if not s_.count: continue
+
+        rem = rules_get_def(tail, grammar, l_str - l_str_x)
+        count_ = 0
+        for r in rem:
+            count_ += s_.count * r.count
+
+        if count_:
+            count += count_
+            rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
+            sum_rule.append(rn)
+    rule_strs[(rule, l_str)] = sum_rule
+    return rule_strs[(rule, l_str)]
+
+# Using it.
+
+if __name__ == '__main__':
+    key_node = key_get_def('<start>', G, 2)
+    print("len:", key_node.count)
+
 
 # Indeed, there are a number of papers [^madhavan2015automating] that tackle this.
 # 
