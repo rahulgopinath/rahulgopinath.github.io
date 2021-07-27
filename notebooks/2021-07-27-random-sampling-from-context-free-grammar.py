@@ -130,20 +130,99 @@ for i in range(10):
 # way the context-free grammar is written. 
 #
 # Another case is when one wants to compare the agreement between two grammars.
+# I talked about this [before](/post/2021/01/28/grammar-inference/).
 # As you can see from the above cases, the same language can be described by
 # different grammars, and it is undecidable in general whether two context-free
-# grammars describe the same language [^barhilel1961on]. So, we often have to
-# go for statistical means. Indeed, there are a number of papers [^madhavan2015automating]
-# that tackle this.
+# grammars describe the same language [^barhilel1961on]. So, we will have to
+# go for statistical means.
 
+# To start with, we need to be able to randomly sample from the strings that can
+# be produced from the grammar. So, the minimal requirement is as follows:
+# 
+# * We need to be able to randomly sample a string that can be generated from
+#   the grammar.
+#
+# To make this happen, let us split this into two simpler requirements:
+# 
+# * We can find the number of strings of a given size that can be produced from
+#   the grammar.
+# 
+# * We can enumerate the strings that can be produced from the grammar, and
+#   pick a specific string given its index in the enumeration.
+#
+# Once we have both these abilities, then we can combine them to provide random
+# sampling of derived strings. So, let us see how to achieve that.
+#
+# ## A Naive Implementation.
+# 
+# As a first step, let us implement a way to generate all strings of a given
+# size. Here, in `get_strings_of_length_in_definition()`, we pass in the key,
+# the grammar and the length of the string expected.
+# 
+# For generating a string from a key, we first check if it is a `terminal`
+# symbol. If it is, then there is only one choice. That symbol is the string.
+# The constraint is that the length of the string should be as given by `l_str`.
+# if not, then we find all the expansion rules of the corresponding definition
+# and generate strings from each expansion of the given size `l_str`; the
+# concatenation of which is the required string list.
 
+def get_strings_of_length_in_definition(key, grammar, l_str):
+    if not fuzzer.is_nonterminal(key):
+        if l_str == len(key):
+            return [key]
+        else:
+            return []
+    # number strings in definition = sum of number of strings in rules
+    rules = grammar[key]
+    s = []
+    for rule in rules:
+        s_ = get_strings_of_length_in_rule(rule, grammar, l_str)
+        s.extend(s_)
+    return s
 
+# Next, we come to the rule implementation given by `get_strings_of_length_in_rule()`
+# Here, we treat each rule as a head followed by a tail. The token is the first
+# symbol in the rule. The idea is that, the strings that are generated from this
+# rule will have one of the strings generated from the token followed by one of
+# the strings generated from the rest of the rule. This also provides us with the
+# base case. If the rule is empty, we are done.
+# if it is not the base case, then we first extract the strings from the token
+# head, then extract the strings from the tail, and concatenate them pairwise.
+# 
+# The complication here is the number of characters expected in the string. We
+# can divide the number of characters --- `l_str` between the head and the tail.
+# That is, if the string from head takes up `x` characters, then we can only
+# have `l_str - x` characters in the tail. To handle this, we produce a loop
+# with all possible splits between head and tail. Of course not all possible
+# splits may be satisfiable. Whenever we detect an impossible split --- by
+# noticing that `s_` is empty, we skip the loop.
 
+def get_strings_of_length_in_rule(rule, grammar, l_str):
+    if not rule: return []
 
+    token, *tail = rule
+    if not tail:
+        return get_strings_of_length_in_definition(token, grammar, l_str)
 
+    sum_rule = []
+    for l_str_x in range(l_str+1): # inclusive
+        s_ = get_strings_of_length_in_definition(token, grammar, l_str_x)
+        if not s_: continue
 
+        rem = get_strings_of_length_in_rule(tail, grammar, l_str - l_str_x)
+        for s1 in s_:
+            for sr in rem:
+                sum_rule.append(s1 + sr)
+    return sum_rule
 
+# Using it.
 
+if __name__ == '__main__':
+    strings = get_strings_of_length_in_definition('<start>', G, 2)
+    print(strings)
+
+# Indeed, there are a number of papers [^madhavan2015automating] that tackle this.
+# 
 # # References
 # 
 # [^barhilel1961on] Bar-Hillel, Yehoshua, Micha Perles, and Eli Shamir. "On formai properties oî simple phreise structure grammars." STUF-Language Typology and Universals 14.1-4 (1961): 143-172.
