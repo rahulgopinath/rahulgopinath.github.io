@@ -395,6 +395,100 @@ if __name__ == '__main__':
     key_node = key_get_def('<start>', G, 2)
     print("len:", key_node.count)
 
+# We can ofcourse extract the same things from this data structure
+# 
+# ### Count
+
+def key_get_count(key_node):
+    if not key_node.rules: return 1
+    slen = 0
+    for rule in key_node.rules:
+        s = rule_get_count(rule)
+        slen += s
+    return slen
+
+def rule_get_count(rule_node):
+    slen = 0
+    s_k = key_get_count(rule_node.key)
+    for rule in rule_node.tail:
+        s_t = rule_get_count(rule)
+        slen = s_k * s_t
+    if not rule_node.tail:
+        slen += s_k
+    return slen
+
+# Using it.
+if __name__ == '__main__':
+    count = key_get_count(key_node)
+    print("len:", count)
+
+# ### Strings
+
+def key_extract_strings(key_node):
+    # key node has a set of rules
+    if not key_node.rules: return [key_node.token]
+    strings = []
+    for rule in key_node.rules:
+        s = rule_extract_strings(rule)
+        if s:
+            strings.extend(s)
+    return strings
+
+def rule_extract_strings(rule_node):
+    strings = []
+    s_k = key_extract_strings(rule_node.key)
+    for rule in rule_node.tail:
+        s_t = rule_extract_strings(rule)
+        for s1 in s_k:
+            for s2 in s_t:
+                strings.append(s1 + s2)
+    if not rule_node.tail:
+        strings.extend(s_k)
+    return strings
+
+if __name__ == '__main__':
+    strings = key_extract_strings(key_node)
+    print("len:", len(strings))
+
+# ### Random Sample
+# 
+# But more usefully, we can now use it to randomly sample any particular string
+
+def key_get_string_at(key_node, at):
+    assert at < key_node.count
+    if not key_node.rules: return key_node.token
+    at_ = 0
+    for rule in key_node.rules:
+        if at < (at_ + rule.count):
+            return rule_get_string_at(rule, at - at_)
+        else:
+            at_ += rule.count
+    return None
+
+def rule_get_string_at(rule_node, at):
+    assert at < rule_node.count
+    if not rule_node.tail:
+        s_k = key_get_string_at(rule_node.key, at)
+        return s_k
+
+    len_s_k = rule_node.key.count
+    at_ = 0
+    for rule in rule_node.tail:
+        for i in range(len_s_k):
+            if at < (at_ + rule.count):
+                s_k = key_get_string_at(rule_node.key, i)
+                return s_k + rule_get_string_at(rule, at - at_)
+            else:
+                at_ += rule.count
+    return None
+
+if __name__ == '__main__':
+    at = 3
+    strings = key_extract_strings(key_node)
+    print("strting[%d]" % at, repr(strings[at]))
+
+    string = key_get_string_at(key_node, at)
+    print(repr(string))
 
 # Indeed, there are a number of papers [^madhavan2015automating] that tackle this.
 # 
