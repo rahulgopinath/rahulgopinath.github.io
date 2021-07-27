@@ -528,6 +528,8 @@ if __name__ == '__main__':
 # Bertoni et al. shows[^bertoni1991the] shows that for some inherrently
 # ambiguous languages, the problem becomes intractable.
 # 
+# The code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-07-27-random-sampling-from-context-free-grammar.py).
+
 # # References
 # 
 # [^barhilel1961on]: Bar-Hillel, Yehoshua, Micha Perles, and Eli Shamir. "On formal properties of simple phrase structure grammars." STUF-Language Typology and Universals 14.1-4 (1961): 143-172.
