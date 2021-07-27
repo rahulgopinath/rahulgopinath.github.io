@@ -490,7 +490,16 @@ if __name__ == '__main__':
     string = key_get_string_at(key_node, at)
     print(repr(string))
 
-# Indeed, there are a number of papers [^madhavan2015automating] that tackle this.
+# There are a few limitations to this algorithm. The first is that it does
+# not take into account epsilons -- that is empty derivations. It can be
+# argued that it is not that big of a concern since any context-free grammar
+# can be made epsilon free. The next limitation is bigger. This implementation
+# does not take into account ambiguity in grammar where multiple derivation
+# trees can result in the same string. This means that such strings will be
+# more likely to appear than other strings.
+# While there are a number of papers [^madhavan2015automating] that tackle
+# the issue of statistical sampling, with better runtime and space
+# characteristics, we are not aware of any that fixes both issues. 
 # 
 # # References
 # 
