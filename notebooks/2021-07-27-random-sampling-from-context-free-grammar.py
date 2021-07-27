@@ -50,9 +50,10 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 
 # The generated strings (which generate random integers) are as follows
 
-gf = fuzzer.LimitFuzzer(G)
-for i in range(10):
-    print(gf.fuzz('<start>'))
+if __name__ == '__main__':
+    gf = fuzzer.LimitFuzzer(G)
+    for i in range(10):
+        print(gf.fuzz('<start>'))
 
 # As you can see, there are more single digits in the output than
 # longer integers. Almost half of the generated strings are single character.
@@ -70,9 +71,10 @@ G2 = {
 
 # and run it again
 
-gf = fuzzer.LimitFuzzer(G2)
-for i in range(10):
-    print(gf.fuzz('<start>'))
+if __name__ == '__main__':
+    gf = fuzzer.LimitFuzzer(G2)
+    for i in range(10):
+        print(gf.fuzz('<start>'))
 
 # you will notice a lot more three digit wide binary numbers are produced. In
 # fact, now, more than one third of the generated strings are likely to be three
@@ -109,17 +111,19 @@ E2 = {
 } 
 
 # Now, let us look at the generated strings. The first:
-print("E1")
-e1f = fuzzer.LimitFuzzer(E1)
-for i in range(10):
-    print(e1f.fuzz('<start>', max_depth=1))
+if __name__ == '__main__':
+    print("E1")
+    e1f = fuzzer.LimitFuzzer(E1)
+    for i in range(10):
+        print(e1f.fuzz('<start>', max_depth=1))
 
 # And the second:
 
-print("E2")
-e2f = fuzzer.LimitFuzzer(E2)
-for i in range(10):
-    print(e2f.fuzz('<start>', max_depth=1))
+if __name__ == '__main__':
+    print("E2")
+    e2f = fuzzer.LimitFuzzer(E2)
+    for i in range(10):
+        print(e2f.fuzz('<start>', max_depth=1))
 
 # Notice that both grammars describe exactly the same language, but the
 # first one has a higher proportion of multiplications and divisions while the
@@ -416,6 +420,7 @@ def rule_get_count(rule_node):
     return slen
 
 # Using it.
+
 if __name__ == '__main__':
     count = key_get_count(key_node)
     print("len:", count)
@@ -443,6 +448,8 @@ def rule_extract_strings(rule_node):
     if not rule_node.tail:
         strings.extend(s_k)
     return strings
+
+# Using it.
 
 if __name__ == '__main__':
     strings = key_extract_strings(key_node)
@@ -479,6 +486,8 @@ def rule_get_string_at(rule_node, at):
             else:
                 at_ += rule.count
     return None
+
+# Using it.
 
 if __name__ == '__main__':
     at = 3

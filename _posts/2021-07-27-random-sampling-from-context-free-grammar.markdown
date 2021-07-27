@@ -916,10 +916,6 @@ def rule_extract_strings(rule_node):
         strings.extend(s_k)
     return strings
 
-if __name__ == '__main__':
-    strings = key_extract_strings(key_node)
-    print("len:", len(strings))
-
 ############
 -->
 <form name='python_run_form'>
@@ -945,10 +941,23 @@ def rule_extract_strings(rule_node):
     if not rule_node.tail:
         strings.extend(s_k)
     return strings
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
 
-if __name__ == &#x27;__main__&#x27;:
-    strings = key_extract_strings(key_node)
-    print(&quot;len:&quot;, len(strings))
+<!--
+############
+strings = key_extract_strings(key_node)
+print("len:", len(strings))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+strings = key_extract_strings(key_node)
+print(&quot;len:&quot;, len(strings))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -987,14 +996,6 @@ def rule_get_string_at(rule_node, at):
                 at_ += rule.count
     return None
 
-if __name__ == '__main__':
-    at = 3
-    strings = key_extract_strings(key_node)
-    print("strting[%d]" % at, repr(strings[at]))
-
-    string = key_get_string_at(key_node, at)
-    print(repr(string))
-
 ############
 -->
 <form name='python_run_form'>
@@ -1026,14 +1027,31 @@ def rule_get_string_at(rule_node, at):
             else:
                 at_ += rule.count
     return None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
 
-if __name__ == &#x27;__main__&#x27;:
-    at = 3
-    strings = key_extract_strings(key_node)
-    print(&quot;strting[%d]&quot; % at, repr(strings[at]))
+<!--
+############
+at = 3
+strings = key_extract_strings(key_node)
+print("strting[%d]" % at, repr(strings[at]))
 
-    string = key_get_string_at(key_node, at)
-    print(repr(string))
+string = key_get_string_at(key_node, at)
+print(repr(string))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+at = 3
+strings = key_extract_strings(key_node)
+print(&quot;strting[%d]&quot; % at, repr(strings[at]))
+
+string = key_get_string_at(key_node, at)
+print(repr(string))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
