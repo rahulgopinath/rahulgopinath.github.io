@@ -131,4 +131,21 @@ for i in range(10):
 #
 # Another case is when one wants to compare the agreement between two grammars.
 # As you can see from the above cases, the same language can be described by
-# different grammars, and it is undecidable.
+# different grammars, and it is undecidable in general whether two context-free
+# grammars describe the same language [^barhilel1961on]. So, we often have to
+# go for statistical means. Indeed, there are a number of papers [^madhavan2015automating]
+# that tackle this.
+
+
+
+
+
+
+
+
+
+# # References
+# 
+# [^barhilel1961on] Bar-Hillel, Yehoshua, Micha Perles, and Eli Shamir. "On formai properties oî simple phreise structure grammars." STUF-Language Typology and Universals 14.1-4 (1961): 143-172.
+#
+# [^madhavan2015automating] Madhavan, Ravichandhran, et al. "Automating grammar comparison." Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications. 2015.
