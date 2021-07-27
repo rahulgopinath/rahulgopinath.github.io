@@ -497,6 +497,18 @@ if __name__ == '__main__':
     string = key_get_string_at(key_node, at)
     print(repr(string))
 
+# Let us try more interesting grammars
+
+if __name__ == '__main__':
+    key_node_g = key_get_def('<start>', E1, 5)
+    print(key_node_g.count)
+    at = 101
+    strings = key_extract_strings(key_node_g)
+    print("strting[%d]" % at, repr(strings[at]))
+    string = key_get_string_at(key_node_g, at)
+    print(repr(string))
+
+
 # There are a few limitations to this algorithm. The first is that it does
 # not take into account epsilons -- that is empty derivations. It can be
 # argued that it is not that big of a concern since any context-free grammar
