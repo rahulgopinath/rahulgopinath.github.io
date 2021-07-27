@@ -455,9 +455,9 @@ if __name__ == '__main__':
     strings = key_extract_strings(key_node)
     print("len:", len(strings))
 
-# ### Random Sample
+# ### Random Access
 # 
-# But more usefully, we can now use it to randomly sample any particular string
+# But more usefully, we can now use it to randomly access any particular string
 
 def key_get_string_at(key_node, at):
     assert at < key_node.count
@@ -497,12 +497,18 @@ if __name__ == '__main__':
     string = key_get_string_at(key_node, at)
     print(repr(string))
 
-# Let us try more interesting grammars
+# ### Random Sampling
+# 
+# Once we have random access of a given string, we can turn it to random
+# sampling. 
+
+import random
 
 if __name__ == '__main__':
     key_node_g = key_get_def('<start>', E1, 5)
     print(key_node_g.count)
-    at = 101
+    at = random.randint(0,key_node_g.count)
+    print('at:', at)
     strings = key_extract_strings(key_node_g)
     print("strting[%d]" % at, repr(strings[at]))
     string = key_get_string_at(key_node_g, at)
