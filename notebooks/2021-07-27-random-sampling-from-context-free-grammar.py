@@ -60,7 +60,7 @@ for i in range(10):
 # longer integers. Almost half of the generated strings are single character.
 # If we modify our grammar as below
 
-G = {
+G2 = {
     "<start>" : [["<digits>"]],
     "<digits>" : [["<digit>", "<digits>"],
                   ["<digit>"],
@@ -72,7 +72,7 @@ G = {
 
 # and run it again
 
-gf = fuzzer.LimitFuzzer(G)
+gf = fuzzer.LimitFuzzer(G2)
 for i in range(10):
     print(gf.fuzz('<start>'))
 
@@ -197,7 +197,7 @@ def rule_get_num_strings(rule, grammar, l_str):
         return key_get_num_strings(token, grammar, l_str)
 
     sum_rule = 0
-    for l_str_x in range(l_str+1): # inclusive
+    for l_str_x in range(1, l_str+1): # inclusive
         s_ = key_get_num_strings(token, grammar, l_str_x)
         if s_ == 0: continue
 
@@ -263,7 +263,7 @@ def get_strings_of_length_in_rule(rule, grammar, l_str):
         return get_strings_of_length_in_definition(token, grammar, l_str)
 
     sum_rule = []
-    for l_str_x in range(l_str+1): # inclusive
+    for l_str_x in range(1,l_str+1): # inclusive
         s_ = get_strings_of_length_in_definition(token, grammar, l_str_x)
         if not s_: continue
 
@@ -284,6 +284,6 @@ if __name__ == '__main__':
 # 
 # # References
 # 
-# [^barhilel1961on] Bar-Hillel, Yehoshua, Micha Perles, and Eli Shamir. "On formai properties oî simple phreise structure grammars." STUF-Language Typology and Universals 14.1-4 (1961): 143-172.
+# [^barhilel1961on] Bar-Hillel, Yehoshua, Micha Perles, and Eli Shamir. "On formal properties of simple phrase structure grammars." STUF-Language Typology and Universals 14.1-4 (1961): 143-172.
 #
 # [^madhavan2015automating] Madhavan, Ravichandhran, et al. "Automating grammar comparison." Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications. 2015.
