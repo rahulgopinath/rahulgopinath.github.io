@@ -656,7 +656,7 @@ if __name__ == '__main__':
 # does not take into account ambiguity in grammar where multiple derivation
 # trees can result in the same string. This means that such strings will be
 # more likely to appear than other strings.
-# While there are a number of papers [^madhavan2015automating] that tackle
+# While there are a number of papers [^madhavan2015automating] [^mckenzie1997the] [^mckenzie1997generating] [^mairson1994generating] [^hickey1983uniform] that tackle
 # the issue of statistical sampling, with better runtime and space
 # characteristics, we are not aware of any that fixes both issues.
 # Bertoni et al. shows[^bertoni1991the] shows that for some inherrently
@@ -671,3 +671,12 @@ if __name__ == '__main__':
 # [^madhavan2015automating]: Madhavan, Ravichandhran, et al. "Automating grammar comparison." Proceedings of the 2015 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications. 2015.
 # 
 # [^bertoni1991the]: Bertoni, Alberto, Massimiliano Goldwurm, and Nicoletta Sabadini. "The complexity of computing the number of strings of given length in context-free languages." Theoretical Computer Science 86.2 (1991): 325-342.
+#
+# [^mckenzie1997the]: McKenzie, Bruce. "The Generation of Strings from a CFG using a Functional Language." (1997).
+#
+# [^mckenzie1997generating]: McKenzie, Bruce. "Generating strings at random from a context free grammar." (1997).
+# 
+# [^hickey1983uniform]: Hickey, Timothy, and Jacques Cohen. "Uniform random generation of strings in a context-free language." SIAM Journal on Computing 12.4 (1983): 645-655.
+#
+# [^mairson1994generating]: Harry G. Mairson. Generating words in a context-free language uniformly at random. Information Processing Letters, 49(2):95{99, 28 January 1994
+
