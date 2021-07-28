@@ -1217,8 +1217,8 @@ class RandomSampleCFG:
         assert n > 0
         if n not in self.ds:
             self.produce_shared_forest(start, n)
-        total_count = sum([self.ds[l].count for l in self.ds])
-        choice = random.randint(0, n)
+        total_count = sum([self.ds[l].count for l in self.ds if l <= n])
+        choice = random.randint(0, total_count)
         my_choice = choice
         for i in range(1, n+1):
             c = self.ds[i].count
@@ -1336,8 +1336,8 @@ class RandomSampleCFG:
         assert n &gt; 0
         if n not in self.ds:
             self.produce_shared_forest(start, n)
-        total_count = sum([self.ds[l].count for l in self.ds])
-        choice = random.randint(0, n)
+        total_count = sum([self.ds[l].count for l in self.ds if l &lt;= n])
+        choice = random.randint(0, total_count)
         my_choice = choice
         for i in range(1, n+1):
             c = self.ds[i].count
