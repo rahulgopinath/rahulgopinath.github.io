@@ -636,7 +636,7 @@ class RandomSampleCFG:
             if my_choice >= c:
                 my_choice -= c
             else:
-                return self.key_get_string_at(self.ds[i], my_choice)
+                return choice, self.key_get_string_at(self.ds[i], my_choice)
         assert False
 
 # Using it.
@@ -646,8 +646,8 @@ if __name__ == '__main__':
     rscfg.produce_shared_forest('<start>', max_len)
     for i in range(10):
         at = random.randint(1, max_len) # at least 1 length
-        string = rscfg.random_sample('<start>', at)
-        print("mystring:", repr(string), "at:", at)
+        v, string = rscfg.random_sample('<start>', at)
+        print("mystring:", repr(string), "at:", v, "upto:", at)
 
 # There are a few limitations to this algorithm. The first is that it does
 # not take into account epsilons -- that is empty derivations. It can be

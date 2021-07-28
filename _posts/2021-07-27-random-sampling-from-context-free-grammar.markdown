@@ -1087,7 +1087,6 @@ print("strting[%d]" % at, repr(strings[at]))
 string = key_get_string_at(key_node_g, at)
 print(repr(string))
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -1100,6 +1099,280 @@ strings = key_extract_strings(key_node_g)
 print(&quot;strting[%d]&quot; % at, repr(strings[at]))
 string = key_get_string_at(key_node_g, at)
 print(repr(string))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This is random sampling from restricted set --- the set of derivation strings 
+of a given length. How do we extend this to lengths up to a given length?
+The idea is that for generating strings of length up to `n`, we produce and
+use nonterminals that generate strings of length up to `n-x` where `x` is the
+length of first terminals in expansions. This means that we can build the
+`key_node` data structures recursively from 1 to `n`, and most of the parts
+will be shared between the `key_node` data structures of different lengths.
+
+<!--
+############
+class RandomSampleCFG:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.rule_strs = { }
+        self.key_strs = { }
+        self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
+        self.ds = {}
+
+    def key_get_def(self, key, l_str):
+        if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
+
+        if key not in self.grammar:
+            if l_str == len(key):
+                self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+                return self.key_strs[(key, l_str)]
+            else:
+                self.key_strs[(key, l_str)] = EmptyKey
+                return self.key_strs[(key, l_str)]
+        # number strings in definition = sum of number of strings in rules
+        rules = self.grammar[key]
+        s = []
+        count = 0
+        for rule in rules:
+            s_s = self.rules_get_def(rule, l_str) # returns RuleNode (should it return array?)
+            for s_ in s_s:
+                assert s_.count
+                count += s_.count
+                s.append(s_)
+        self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        return self.key_strs[(key, l_str)]
+
+    # Now the rules.
+
+    def rules_get_def(self, rule_, l_str):
+        rule = tuple(rule_)
+        if not rule: return []
+        if (rule, l_str) in rule_strs: return rule_strs[(rule, l_str)]
+
+        token, *tail = rule
+        if not tail:
+            s_ = self.key_get_def(token, l_str)
+            if not s_.count: return []
+            return [RuleNode(key=s_, tail=[], l_str=l_str, count=s_.count)]
+
+        sum_rule = []
+        count = 0
+        for l_str_x in range(1, l_str+1):
+            s_ = self.key_get_def(token, l_str_x)
+            if not s_.count: continue
+
+            rem = self.rules_get_def(tail, l_str - l_str_x)
+            count_ = 0
+            for r in rem:
+                count_ += s_.count * r.count
+
+            if count_:
+                count += count_
+                rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
+                sum_rule.append(rn)
+        rule_strs[(rule, l_str)] = sum_rule
+        return rule_strs[(rule, l_str)]
+
+    def key_get_string_at(self, key_node, at):
+        assert at < key_node.count
+        if not key_node.rules: return key_node.token
+        at_ = 0
+        for rule in key_node.rules:
+            if at < (at_ + rule.count):
+                return self.rule_get_string_at(rule, at - at_)
+            else:
+                at_ += rule.count
+        assert False
+
+    def rule_get_string_at(self, rule_node, at):
+        assert at < rule_node.count
+        if not rule_node.tail:
+            s_k = self.key_get_string_at(rule_node.key, at)
+            return s_k
+
+        len_s_k = rule_node.key.count
+        at_ = 0
+        for rule in rule_node.tail:
+            for i in range(len_s_k):
+                if at < (at_ + rule.count):
+                    s_k = self.key_get_string_at(rule_node.key, i)
+                    return s_k + self.rule_get_string_at(rule, at - at_)
+                else:
+                    at_ += rule.count
+        assert False
+
+    # produce a shared key forest.
+    def produce_shared_forest(self, start, upto):
+        for length in range(1, upto+1):
+            if length in self.ds: continue
+            key_node_g = self.key_get_def('<start>', length)
+            count = key_node_g.count
+            self.ds[length] = key_node_g
+        return self.ds
+
+    # randomly sample from 1 up to `n` length.
+    def random_sample(self, start, n):
+        assert n > 0
+        if n not in self.ds:
+            self.produce_shared_forest(start, n)
+        total_count = sum([self.ds[l].count for l in self.ds])
+        choice = random.randint(0, n)
+        my_choice = choice
+        for i in range(1, n+1):
+            c = self.ds[i].count
+            if my_choice >= c:
+                my_choice -= c
+            else:
+                return choice, self.key_get_string_at(self.ds[i], my_choice)
+        assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RandomSampleCFG:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.rule_strs = { }
+        self.key_strs = { }
+        self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
+        self.ds = {}
+
+    def key_get_def(self, key, l_str):
+        if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
+
+        if key not in self.grammar:
+            if l_str == len(key):
+                self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+                return self.key_strs[(key, l_str)]
+            else:
+                self.key_strs[(key, l_str)] = EmptyKey
+                return self.key_strs[(key, l_str)]
+        # number strings in definition = sum of number of strings in rules
+        rules = self.grammar[key]
+        s = []
+        count = 0
+        for rule in rules:
+            s_s = self.rules_get_def(rule, l_str) # returns RuleNode (should it return array?)
+            for s_ in s_s:
+                assert s_.count
+                count += s_.count
+                s.append(s_)
+        self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        return self.key_strs[(key, l_str)]
+
+    # Now the rules.
+
+    def rules_get_def(self, rule_, l_str):
+        rule = tuple(rule_)
+        if not rule: return []
+        if (rule, l_str) in rule_strs: return rule_strs[(rule, l_str)]
+
+        token, *tail = rule
+        if not tail:
+            s_ = self.key_get_def(token, l_str)
+            if not s_.count: return []
+            return [RuleNode(key=s_, tail=[], l_str=l_str, count=s_.count)]
+
+        sum_rule = []
+        count = 0
+        for l_str_x in range(1, l_str+1):
+            s_ = self.key_get_def(token, l_str_x)
+            if not s_.count: continue
+
+            rem = self.rules_get_def(tail, l_str - l_str_x)
+            count_ = 0
+            for r in rem:
+                count_ += s_.count * r.count
+
+            if count_:
+                count += count_
+                rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
+                sum_rule.append(rn)
+        rule_strs[(rule, l_str)] = sum_rule
+        return rule_strs[(rule, l_str)]
+
+    def key_get_string_at(self, key_node, at):
+        assert at &lt; key_node.count
+        if not key_node.rules: return key_node.token
+        at_ = 0
+        for rule in key_node.rules:
+            if at &lt; (at_ + rule.count):
+                return self.rule_get_string_at(rule, at - at_)
+            else:
+                at_ += rule.count
+        assert False
+
+    def rule_get_string_at(self, rule_node, at):
+        assert at &lt; rule_node.count
+        if not rule_node.tail:
+            s_k = self.key_get_string_at(rule_node.key, at)
+            return s_k
+
+        len_s_k = rule_node.key.count
+        at_ = 0
+        for rule in rule_node.tail:
+            for i in range(len_s_k):
+                if at &lt; (at_ + rule.count):
+                    s_k = self.key_get_string_at(rule_node.key, i)
+                    return s_k + self.rule_get_string_at(rule, at - at_)
+                else:
+                    at_ += rule.count
+        assert False
+
+    # produce a shared key forest.
+    def produce_shared_forest(self, start, upto):
+        for length in range(1, upto+1):
+            if length in self.ds: continue
+            key_node_g = self.key_get_def(&#x27;&lt;start&gt;&#x27;, length)
+            count = key_node_g.count
+            self.ds[length] = key_node_g
+        return self.ds
+
+    # randomly sample from 1 up to `n` length.
+    def random_sample(self, start, n):
+        assert n &gt; 0
+        if n not in self.ds:
+            self.produce_shared_forest(start, n)
+        total_count = sum([self.ds[l].count for l in self.ds])
+        choice = random.randint(0, n)
+        my_choice = choice
+        for i in range(1, n+1):
+            c = self.ds[i].count
+            if my_choice &gt;= c:
+                my_choice -= c
+            else:
+                return choice, self.key_get_string_at(self.ds[i], my_choice)
+        assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+rscfg = RandomSampleCFG(E1)
+max_len = 10
+rscfg.produce_shared_forest('<start>', max_len)
+for i in range(10):
+    at = random.randint(1, max_len) # at least 1 length
+    v, string = rscfg.random_sample('<start>', at)
+    print("mystring:", repr(string), "at:", v, "upto:", at)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rscfg = RandomSampleCFG(E1)
+max_len = 10
+rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
+for i in range(10):
+    at = random.randint(1, max_len) # at least 1 length
+    v, string = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+    print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
