@@ -659,7 +659,8 @@ if __name__ == '__main__':
 # more likely to appear than other strings.
 # While there are a number of papers [^madhavan2015automating] [^mckenzie1997the] [^mckenzie1997generating] [^mairson1994generating] [^hickey1983uniform] that tackle
 # the issue of statistical sampling, with better runtime and space
-# characteristics, we are not aware of any that fixes both issues.
+# characteristics, we are not aware of any that fixes both issues
+# (Gore et al.[^gore1997a] is notable for showing an _almost_ result).
 # Bertoni et al. shows[^bertoni1991the] shows that for some inherrently
 # ambiguous languages, the problem becomes intractable.
 # 
@@ -680,4 +681,5 @@ if __name__ == '__main__':
 # [^hickey1983uniform]: Hickey, Timothy, and Jacques Cohen. "Uniform random generation of strings in a context-free language." SIAM Journal on Computing 12.4 (1983): 645-655.
 #
 # [^mairson1994generating]: Harry G. Mairson. Generating words in a context-free language uniformly at random. Information Processing Letters, 49(2):95{99, 28 January 1994
-
+#
+# [^gore1997a]: Gore, Vivek, et al. "A quasi-polynomial-time algorithm for sampling words from a context-free language." Information and Computation 134.1 (1997): 59-74.
