@@ -7,7 +7,7 @@ tags: pipes, python
 categories: post
 ---
 
-In one of the [previous posts](/post/2019/05/28/simplefuzzer-01/) I talked about
+In the [previous [post](/post/2019/05/28/simplefuzzer-01/) I talked about
 how to generate input strings from any given context-free grammar. While that
 algorithm is quite useful for fuzzing, one of the problems with that algorithm
 is that the strings produced from that grammar is skewed toward shallow strings.
@@ -1387,7 +1387,8 @@ more likely to appear than other strings.
 While there are a number of papers [^madhavan2015automating] [^mckenzie1997the] [^mckenzie1997generating] [^mairson1994generating] [^hickey1983uniform] that tackle
 the issue of statistical sampling, with better runtime and space
 characteristics, we are not aware of any that fixes both issues
-(Gore et al.[^gore1997a] is notable for showing an _almost_ result).
+(Gore et al.[^gore1997a] is notable for showing an _almost uniform random
+sampling_ result).
 Bertoni et al. shows[^bertoni1991the] shows that for some inherrently
 ambiguous languages, the problem becomes intractable.
 
