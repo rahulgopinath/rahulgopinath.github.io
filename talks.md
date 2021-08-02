@@ -6,7 +6,10 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+
 ##### 2021
+* [_GAP Interview_](https://www.youtube.com/watch?v=HyIdD3V4mnA&t=2617s)<br/>
+  *Rigger and Gopinath* - Getting Academic Positions (GAP) Interviewing Series: Rahul Gopinath (University of Sydney), (virtual), July 21, 2021
 
 * [_Fuzzing -- from Alchemy to a  Science_](#gopinath2021fuzzing)<br/>
   *Gopinath* - The University of Passau, Germany, (virtual), June 30, 2021
