@@ -618,7 +618,7 @@ class RandomSampleCFG:
     def produce_shared_forest(self, start, upto):
         for length in range(1, upto+1):
             if length in self.ds: continue
-            key_node_g = self.key_get_def('<start>', length)
+            key_node_g = self.key_get_def(start, length)
             count = key_node_g.count
             self.ds[length] = key_node_g
         return self.ds
