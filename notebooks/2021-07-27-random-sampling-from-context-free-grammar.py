@@ -629,7 +629,7 @@ class RandomSampleCFG:
         if n not in self.ds:
             self.produce_shared_forest(start, n)
         total_count = sum([self.ds[l].count for l in self.ds if l <= n])
-        choice = random.randint(0, total_count)
+        choice = random.randint(0, total_count-1)
         my_choice = choice
         for i in range(1, n+1):
             c = self.ds[i].count
