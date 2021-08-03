@@ -1702,7 +1702,7 @@ if __name__ == '__main__':
         assert mystring9 == tree_to_str(tree)
 
 # Now this is still somewhat slow. Why is that? Note that recognition is
-# $O(n^2)$ and actual parsing is $O(n^3)$. That is, using `parse_prefix()` to
+# $$O(n^2)$$ and actual parsing is $$O(n^3)$$. That is, using `parse_prefix()` to
 # check whether a text can be parsed by a given grammar will be much faster than
 # extracting a parse tree. A second issue is that we are building this over
 # Python implemented on top of WASM. Python on its own is fairly slow. On our
