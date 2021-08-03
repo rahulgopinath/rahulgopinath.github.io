@@ -7,7 +7,7 @@
 # categories: post
 # ---
 # 
-# In the [previous [post](/post/2019/05/28/simplefuzzer-01/) I talked about
+# In the previous [post](/post/2019/05/28/simplefuzzer-01/) I talked about
 # how to generate input strings from any given context-free grammar. While that
 # algorithm is quite useful for fuzzing, one of the problems with that algorithm
 # is that the strings produced from that grammar is skewed toward shallow strings.
