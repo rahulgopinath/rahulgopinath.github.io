@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Random Sampling of Strings from Context-Free Grammar
+# title: Uniform Random Sampling of Strings from Context-Free Grammar
 # layout: post
 # comments: true
 # tags: pipes, python
