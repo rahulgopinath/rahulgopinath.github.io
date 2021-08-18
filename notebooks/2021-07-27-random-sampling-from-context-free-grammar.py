@@ -560,7 +560,7 @@ class RandomSampleCFG:
     def rules_get_def(self, rule_, l_str):
         rule = tuple(rule_)
         if not rule: return []
-        if (rule, l_str) in rule_strs: return rule_strs[(rule, l_str)]
+        if (rule, l_str) in self.rule_strs: return self.rule_strs[(rule, l_str)]
 
         token, *tail = rule
         if not tail:
@@ -583,8 +583,8 @@ class RandomSampleCFG:
                 count += count_
                 rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
                 sum_rule.append(rn)
-        rule_strs[(rule, l_str)] = sum_rule
-        return rule_strs[(rule, l_str)]
+        self.rule_strs[(rule, l_str)] = sum_rule
+        return self.rule_strs[(rule, l_str)]
 
     def key_get_string_at(self, key_node, at):
         assert at < key_node.count
