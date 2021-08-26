@@ -569,10 +569,10 @@ print(strings)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The problem with these implementations is tht it is horribly naive. Each call
-recomputes the wohle set of strings or the count again and again. However,
+The problem with these implementations is that it is horribly naive. Each call
+recomputes the whole set of strings or the count again and again. However,
 many nonterminals are reused again and again, which means that we should be
-sharing the results. Let us see how we can memoize the resuls of these calls.
+sharing the results. Let us see how we can memoize the results of these calls.
 
 ## A Memoized Implementation.
 
@@ -824,7 +824,7 @@ print(&quot;len:&quot;, key_node.count)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We can ofcourse extract the same things from this data structure
+We can of course extract the same things from this data structure
 
 ### Count
 
@@ -1110,6 +1110,13 @@ use nonterminals that generate strings of length up to `n-x` where `x` is the
 length of first terminals in expansions. This means that we can build the
 `key_node` data structures recursively from 1 to `n`, and most of the parts
 will be shared between the `key_node` data structures of different lengths.
+Another issue this algorithm has is that it fails when there is left
+recursion. However, it is fairly easy to solve as I showed in a previous
+[post](/post/2020/03/17/recursive-descent-contextfree-parsing-with-left-recursion/).
+The idea is that there is a maximum limit to the number of useful recursions.
+Frost et. al.[^frost2007modular] suggests a limit of `m * (1 + |s|)` where `m`
+is the number of nonterminals in the grammar and `|s|` is the length of input.
+So, we use that here for limiting the recursion.
 
 <!--
 ############
@@ -1120,6 +1127,8 @@ class RandomSampleCFG:
         self.key_strs = { }
         self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
         self.ds = {}
+        self.recursion_ctr = {}
+        self.count_nonterminals = len(grammar.keys())
 
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
@@ -1132,7 +1141,18 @@ class RandomSampleCFG:
                 self.key_strs[(key, l_str)] = EmptyKey
                 return self.key_strs[(key, l_str)]
         # number strings in definition = sum of number of strings in rules
-        rules = self.grammar[key]
+        if key not in self.recursion_ctr: self.recursion_ctr[key] = 0
+
+        self.recursion_ctr[key] += 1
+
+        limit = self.count_nonterminals * (1 + l_str) # m * (1 + |s|)
+        # remove left-recursive rules -- assumes no epsilon
+        if self.recursion_ctr[key] > limit:
+            rules = [r for r in self.grammar[key] if r[0] != key]
+        else:
+            rules = self.grammar[key] # can contain left recursion
+
+
         s = []
         count = 0
         for rule in rules:
@@ -1239,6 +1259,8 @@ class RandomSampleCFG:
         self.key_strs = { }
         self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
         self.ds = {}
+        self.recursion_ctr = {}
+        self.count_nonterminals = len(grammar.keys())
 
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
@@ -1251,7 +1273,18 @@ class RandomSampleCFG:
                 self.key_strs[(key, l_str)] = EmptyKey
                 return self.key_strs[(key, l_str)]
         # number strings in definition = sum of number of strings in rules
-        rules = self.grammar[key]
+        if key not in self.recursion_ctr: self.recursion_ctr[key] = 0
+
+        self.recursion_ctr[key] += 1
+
+        limit = self.count_nonterminals * (1 + l_str) # m * (1 + |s|)
+        # remove left-recursive rules -- assumes no epsilon
+        if self.recursion_ctr[key] &gt; limit:
+            rules = [r for r in self.grammar[key] if r[0] != key]
+        else:
+            rules = self.grammar[key] # can contain left recursion
+
+
         s = []
         count = 0
         for rule in rules:
@@ -1377,6 +1410,52 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+What about a left-recursive grammar?
+
+<!--
+############
+LRG = {
+"<start>": [
+    ["<L>"]],
+"<L>": [
+    ["A"],
+    ["<L>","B"]]
+}
+
+if __name__ == '__main__':
+    rscfg = RandomSampleCFG(LRG)
+    max_len = 10
+    rscfg.produce_shared_forest('<start>', max_len)
+    for i in range(10):
+        at = random.randint(1, max_len) # at least 1 length
+        v, string = rscfg.random_sample('<start>', at)
+        print("mystring:", repr(string), "at:", v, "upto:", at)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+LRG = {
+&quot;&lt;start&gt;&quot;: [
+    [&quot;&lt;L&gt;&quot;]],
+&quot;&lt;L&gt;&quot;: [
+    [&quot;A&quot;],
+    [&quot;&lt;L&gt;&quot;,&quot;B&quot;]]
+}
+
+if __name__ == &#x27;__main__&#x27;:
+    rscfg = RandomSampleCFG(LRG)
+    max_len = 10
+    rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
+    for i in range(10):
+        at = random.randint(1, max_len) # at least 1 length
+        v, string = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+        print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 There are a few limitations to this algorithm. The first is that it does
 not take into account epsilons -- that is empty derivations. It can be
 argued that it is not that big of a concern since any context-free grammar
@@ -1389,7 +1468,7 @@ the issue of statistical sampling, with better runtime and space
 characteristics, we are not aware of any that fixes both issues
 (Gore et al.[^gore1997a] is notable for showing an _almost uniform random
 sampling_ result).
-Bertoni et al. shows[^bertoni1991the] shows that for some inherrently
+Bertoni et al. shows[^bertoni1991the] shows that for some inherently
 ambiguous languages, the problem becomes intractable.
 
 The code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-07-27-random-sampling-from-context-free-grammar.py).
@@ -1405,6 +1484,7 @@ The code for this post is available [here](https://github.com/rahulgopinath/rahu
 [^hickey1983uniform]: Hickey, Timothy, and Jacques Cohen. "Uniform random generation of strings in a context-free language." SIAM Journal on Computing 12.4 (1983): 645-655.
 [^mairson1994generating]: Harry G. Mairson. Generating words in a context-free language uniformly at random. Information Processing Letters, 49(2):95{99, 28 January 1994
 [^gore1997a]: Gore, Vivek, et al. "A quasi-polynomial-time algorithm for sampling words from a context-free language." Information and Computation 134.1 (1997): 59-74.
+[^frost2007modular]: Richard A. Frost, Rahmatullah Hafiz, and Paul C. Callaghan. Modular and efficient top-down parsing for ambiguous left recursive grammars. IWPT 2007
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
