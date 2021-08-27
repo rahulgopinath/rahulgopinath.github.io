@@ -1197,11 +1197,11 @@ class RandomSampleCFG:
 
     def key_get_string_at(self, key_node, at):
         assert at < key_node.count
-        if not key_node.rules: return key_node.token
+        if not key_node.rules: return (key_node.token, [])
         at_ = 0
         for rule in key_node.rules:
             if at < (at_ + rule.count):
-                return self.rule_get_string_at(rule, at - at_)
+                return (key_node.token, self.rule_get_string_at(rule, at - at_))
             else:
                 at_ += rule.count
         assert False
@@ -1210,7 +1210,7 @@ class RandomSampleCFG:
         assert at < rule_node.count
         if not rule_node.tail:
             s_k = self.key_get_string_at(rule_node.key, at)
-            return s_k
+            return [s_k]
 
         len_s_k = rule_node.key.count
         at_ = 0
@@ -1218,7 +1218,7 @@ class RandomSampleCFG:
             for i in range(len_s_k):
                 if at < (at_ + rule.count):
                     s_k = self.key_get_string_at(rule_node.key, i)
-                    return s_k + self.rule_get_string_at(rule, at - at_)
+                    return [s_k] + self.rule_get_string_at(rule, at - at_)
                 else:
                     at_ += rule.count
         assert False
@@ -1329,11 +1329,11 @@ class RandomSampleCFG:
 
     def key_get_string_at(self, key_node, at):
         assert at &lt; key_node.count
-        if not key_node.rules: return key_node.token
+        if not key_node.rules: return (key_node.token, [])
         at_ = 0
         for rule in key_node.rules:
             if at &lt; (at_ + rule.count):
-                return self.rule_get_string_at(rule, at - at_)
+                return (key_node.token, self.rule_get_string_at(rule, at - at_))
             else:
                 at_ += rule.count
         assert False
@@ -1342,7 +1342,7 @@ class RandomSampleCFG:
         assert at &lt; rule_node.count
         if not rule_node.tail:
             s_k = self.key_get_string_at(rule_node.key, at)
-            return s_k
+            return [s_k]
 
         len_s_k = rule_node.key.count
         at_ = 0
@@ -1350,7 +1350,7 @@ class RandomSampleCFG:
             for i in range(len_s_k):
                 if at &lt; (at_ + rule.count):
                     s_k = self.key_get_string_at(rule_node.key, i)
-                    return s_k + self.rule_get_string_at(rule, at - at_)
+                    return [s_k] + self.rule_get_string_at(rule, at - at_)
                 else:
                     at_ += rule.count
         assert False
@@ -1392,7 +1392,8 @@ max_len = 10
 rscfg.produce_shared_forest('<start>', max_len)
 for i in range(10):
     at = random.randint(1, max_len) # at least 1 length
-    v, string = rscfg.random_sample('<start>', at)
+    v, tree = rscfg.random_sample('<start>', at)
+    string = fuzzer.tree_to_string(tree)
     print("mystring:", repr(string), "at:", v, "upto:", at)
 
 ############
@@ -1404,7 +1405,8 @@ max_len = 10
 rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
 for i in range(10):
     at = random.randint(1, max_len) # at least 1 length
-    v, string = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+    v, tree = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+    string = fuzzer.tree_to_string(tree)
     print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1428,7 +1430,8 @@ if __name__ == '__main__':
     rscfg.produce_shared_forest('<start>', max_len)
     for i in range(10):
         at = random.randint(1, max_len) # at least 1 length
-        v, string = rscfg.random_sample('<start>', at)
+        v, tree = rscfg.random_sample('<start>', at)
+        string = fuzzer.tree_to_string(tree)
         print("mystring:", repr(string), "at:", v, "upto:", at)
 
 
@@ -1450,7 +1453,8 @@ if __name__ == &#x27;__main__&#x27;:
     rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
     for i in range(10):
         at = random.randint(1, max_len) # at least 1 length
-        v, string = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+        v, tree = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+        string = fuzzer.tree_to_string(tree)
         print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
