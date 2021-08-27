@@ -672,7 +672,7 @@ if __name__ == '__main__':
         string = fuzzer.tree_to_string(tree)
         print("mystring:", repr(string), "at:", v, "upto:", at)
 
-# What about a left-recursive grammar?
+# What about a left-recursive grammar? Here is an example:
 
 LRG = {
 "<start>": [
@@ -681,6 +681,8 @@ LRG = {
     ["A"],
     ["<L>","B"]]
 }
+
+# Using it.
 
 if __name__ == '__main__':
     rscfg = RandomSampleCFG(LRG)

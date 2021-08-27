@@ -1412,7 +1412,7 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-What about a left-recursive grammar?
+What about a left-recursive grammar? Here is an example:
 
 <!--
 ############
@@ -1423,17 +1423,6 @@ LRG = {
     ["A"],
     ["<L>","B"]]
 }
-
-if __name__ == '__main__':
-    rscfg = RandomSampleCFG(LRG)
-    max_len = 10
-    rscfg.produce_shared_forest('<start>', max_len)
-    for i in range(10):
-        at = random.randint(1, max_len) # at least 1 length
-        v, tree = rscfg.random_sample('<start>', at)
-        string = fuzzer.tree_to_string(tree)
-        print("mystring:", repr(string), "at:", v, "upto:", at)
-
 
 ############
 -->
@@ -1446,16 +1435,36 @@ LRG = {
     [&quot;A&quot;],
     [&quot;&lt;L&gt;&quot;,&quot;B&quot;]]
 }
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
 
-if __name__ == &#x27;__main__&#x27;:
-    rscfg = RandomSampleCFG(LRG)
-    max_len = 10
-    rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
-    for i in range(10):
-        at = random.randint(1, max_len) # at least 1 length
-        v, tree = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
-        string = fuzzer.tree_to_string(tree)
-        print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
+<!--
+############
+rscfg = RandomSampleCFG(LRG)
+max_len = 10
+rscfg.produce_shared_forest('<start>', max_len)
+for i in range(10):
+    at = random.randint(1, max_len) # at least 1 length
+    v, tree = rscfg.random_sample('<start>', at)
+    string = fuzzer.tree_to_string(tree)
+    print("mystring:", repr(string), "at:", v, "upto:", at)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rscfg = RandomSampleCFG(LRG)
+max_len = 10
+rscfg.produce_shared_forest(&#x27;&lt;start&gt;&#x27;, max_len)
+for i in range(10):
+    at = random.randint(1, max_len) # at least 1 length
+    v, tree = rscfg.random_sample(&#x27;&lt;start&gt;&#x27;, at)
+    string = fuzzer.tree_to_string(tree)
+    print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v, &quot;upto:&quot;, at)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
