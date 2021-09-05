@@ -21,7 +21,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-As the [The Hitchhiker’s Guide to Python! [notes](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments),
+As the *The Hitchhiker’s Guide to Python!* [notes](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments),
 The way Python default parameters work is a constant source of annoyance and
 bugs. For example,
 

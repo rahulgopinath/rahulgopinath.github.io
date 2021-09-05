@@ -7,7 +7,7 @@
 # categories: post
 # ---
 
-# As the [The Hitchhiker’s Guide to Python! [notes](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments),
+# As the *The Hitchhiker’s Guide to Python!* [notes](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments),
 # The way Python default parameters work is a constant source of annoyance and
 # bugs. For example,
 
