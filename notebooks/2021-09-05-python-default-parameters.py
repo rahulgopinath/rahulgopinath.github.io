@@ -113,4 +113,4 @@ print(my_other_list)
 # when using type hints. However, one may be able to work around it
 # by using a wrapper function.
 #
-# The full code is here.
+# The full code is [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-05-python-default-parameters.py).
