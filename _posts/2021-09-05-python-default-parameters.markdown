@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Fixing Python Default Parameters
 layout: post
 comments: true
