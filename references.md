@@ -33,6 +33,8 @@ weight: 2
 
 ##### 2011
 
+* <a id='papadakis2011automatically' href='#papadakis2011automatically'> Mike Papadakis, Nicos Malevris *Automatically Performing Weak Mutation with the Aid of: Symbolic Execution, Concolic and Search Based Testing*, Software Quality Journal, 2011
+
 * <a id='jia2011an' href='#jia2011an'>Jia Y.,  Harman M., *An Analysis and Survey of the Development of Mutation Testing*, IEEE TSE 2011.</a>
 
 ##### 2010
