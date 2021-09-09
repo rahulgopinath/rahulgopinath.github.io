@@ -35,7 +35,12 @@ The seminar is conducted along with Prof. Dr. Andreas Zeller and Dr. Rafael Dutr
 ## Phase II
 
 6) _A review of reverse debugging (Time-travel Debugging)_ by Engblom [1](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.338.3420&rep=rep1&type=pdf)
+
 7) _Compiler Validation via Equivalence Modulo Inputs (EMI)_ by Le, Afshari, Su [1](https://www.cs.ucdavis.edu/~su/publications/emi.pdf)
+
 8) _MultiSE: Multi-Path Symbolic Execution using Value Summaries (MultiSE)_ by Sen, Necula, Gong, Choi [1](https://people.eecs.berkeley.edu/~ksen/papers/multise.pdf)
+
 9) _Smart Greybox Fuzzing (AFLSmart)_ by Pham, Böhme, Santosa, Caciulescu, Roychoudhury [1](https://arxiv.org/pdf/1811.09447.pdf)
+
 10) _FormatFuzzer: Effective Fuzzing of Binary File Formats (FormatFuzzer)_ by Dutra, Gopinath, Zeller [1](https://dl.cispa.de/s/3q2PyqP7rqZzrNn)
+
