@@ -232,6 +232,7 @@ def mark_unique_nodes(node, suffix, counter=None):
         assert not children
         return (symbol, children, *abstract)
 
+# Using
 
 if __name__ == '__main__':
     unique_pattern_tree = mark_unique_nodes(pattern, 'F1')

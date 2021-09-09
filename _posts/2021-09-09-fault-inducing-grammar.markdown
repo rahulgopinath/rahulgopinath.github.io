@@ -461,11 +461,6 @@ def mark_unique_nodes(node, suffix, counter=None):
         assert not children
         return (symbol, children, *abstract)
 
-
-if __name__ == '__main__':
-    unique_pattern_tree = mark_unique_nodes(pattern, 'F1')
-    ddset.display_abstract_tree(unique_pattern_tree)
-
 ############
 -->
 <form name='python_run_form'>
@@ -486,11 +481,23 @@ def mark_unique_nodes(node, suffix, counter=None):
     else:
         assert not children
         return (symbol, children, *abstract)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
 
+<!--
+############
+unique_pattern_tree = mark_unique_nodes(pattern, 'F1')
+ddset.display_abstract_tree(unique_pattern_tree)
 
-if __name__ == &#x27;__main__&#x27;:
-    unique_pattern_tree = mark_unique_nodes(pattern, &#x27;F1&#x27;)
-    ddset.display_abstract_tree(unique_pattern_tree)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+unique_pattern_tree = mark_unique_nodes(pattern, &#x27;F1&#x27;)
+ddset.display_abstract_tree(unique_pattern_tree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
