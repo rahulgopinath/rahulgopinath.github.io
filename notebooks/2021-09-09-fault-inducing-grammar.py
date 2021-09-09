@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
-    parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
+    parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 
 # Then reduce input
 
@@ -183,8 +183,26 @@ if __name__ == '__main__':
 # expansion rule can reach the characterizing node, all that is required is that
 # one of the nonterminals in that rule guarantees reachability.
 
-def reach_suffix(nt, suffix):
-    return '<%s %s>' % (nt[1:-1], suffix)
+
+def tsplit(token):
+    assert token[0], token[-1] == ('<', '>')
+    front, *back = token[1:-1].split(None, 1)
+    return front, ' '.join(back)
+
+def refinement(token):
+    return tsplit(token)[1].strip()
+
+def is_refined_key(key):
+    assert fuzzer.is_nonterminal(key)
+    return (' ' in key)
+
+def stem(token):
+    return tsplit(token)[0].strip()
+
+def refine_base_key(k, prefix):
+    assert fuzzer.is_nonterminal(k)
+    assert is_base_key(k)
+    return '<%s %s>' % (stem(k), prefix)
 
 def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
     rules = grammar[key]
@@ -197,10 +215,10 @@ def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
         else:
             # at each position, insert the cnodesym
             for pos in positions:
-                new_rule = [reach_suffix(t, suffix)
+                new_rule = [refine_base_key(t, suffix)
                             if pos == p else t for p,t in enumerate(rule)]
                 my_rules.append(new_rule)
-    return (reach_suffix(key, suffix), my_rules)
+    return (refine_base_key(key, suffix), my_rules)
 
 
 if __name__ == '__main__':
@@ -292,7 +310,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     reach_g, reach_s = insert_atleast_one_cnode_into_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
-    reaching_sym = reach_suffix(key_f, fname)
+    reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
     return grammar_gc(combined_grammar), reach_s
@@ -301,7 +319,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
 
 if __name__ == '__main__':
     cnode = pattern[1][0][1][0][1][0]
-    g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, '<start>', cnode, 'F1')
+    g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1')
     print()
     print('start:', s)
     for k in g:
@@ -358,9 +376,10 @@ def find_characterizing_node(fault_tree, grammar, start, fn):
 
 # Usage
 if __name__ == '__main__':
-    node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
-    ddset.display_abstract_tree(node)
+    fnode = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+    ddset.display_abstract_tree(fnode)
 
 # That is, we found the correct characterizing node.
 if __name__ == '__main__':
     ddset.display_abstract_tree(cnode)
+

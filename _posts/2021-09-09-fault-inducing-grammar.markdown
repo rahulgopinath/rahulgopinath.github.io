@@ -125,14 +125,14 @@ We first parse the input
 <!--
 ############
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
-parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
+parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
-parsed_expr = list(expr_parser.parse_on(my_input, &#x27;&lt;start&gt;&#x27;))[0]
+parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -375,8 +375,25 @@ one of the nonterminals in that rule guarantees reachability.
 
 <!--
 ############
-def reach_suffix(nt, suffix):
-    return '<%s %s>' % (nt[1:-1], suffix)
+def tsplit(token):
+    assert token[0], token[-1] == ('<', '>')
+    front, *back = token[1:-1].split(None, 1)
+    return front, ' '.join(back)
+
+def refinement(token):
+    return tsplit(token)[1].strip()
+
+def is_refined_key(key):
+    assert fuzzer.is_nonterminal(key)
+    return (' ' in key)
+
+def stem(token):
+    return tsplit(token)[0].strip()
+
+def refine_base_key(k, prefix):
+    assert fuzzer.is_nonterminal(k)
+    assert is_base_key(k)
+    return '<%s %s>' % (stem(k), prefix)
 
 def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
     rules = grammar[key]
@@ -389,10 +406,10 @@ def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
         else:
             # at each position, insert the cnodesym
             for pos in positions:
-                new_rule = [reach_suffix(t, suffix)
+                new_rule = [refine_base_key(t, suffix)
                             if pos == p else t for p,t in enumerate(rule)]
                 my_rules.append(new_rule)
-    return (reach_suffix(key, suffix), my_rules)
+    return (refine_base_key(key, suffix), my_rules)
 
 
 if __name__ == '__main__':
@@ -407,8 +424,25 @@ if __name__ == '__main__':
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def reach_suffix(nt, suffix):
-    return &#x27;&lt;%s %s&gt;&#x27; % (nt[1:-1], suffix)
+def tsplit(token):
+    assert token[0], token[-1] == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+    front, *back = token[1:-1].split(None, 1)
+    return front, &#x27; &#x27;.join(back)
+
+def refinement(token):
+    return tsplit(token)[1].strip()
+
+def is_refined_key(key):
+    assert fuzzer.is_nonterminal(key)
+    return (&#x27; &#x27; in key)
+
+def stem(token):
+    return tsplit(token)[0].strip()
+
+def refine_base_key(k, prefix):
+    assert fuzzer.is_nonterminal(k)
+    assert is_base_key(k)
+    return &#x27;&lt;%s %s&gt;&#x27; % (stem(k), prefix)
 
 def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
     rules = grammar[key]
@@ -421,10 +455,10 @@ def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
         else:
             # at each position, insert the cnodesym
             for pos in positions:
-                new_rule = [reach_suffix(t, suffix)
+                new_rule = [refine_base_key(t, suffix)
                             if pos == p else t for p,t in enumerate(rule)]
                 my_rules.append(new_rule)
-    return (reach_suffix(key, suffix), my_rules)
+    return (refine_base_key(key, suffix), my_rules)
 
 
 if __name__ == &#x27;__main__&#x27;:
@@ -596,7 +630,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     reach_g, reach_s = insert_atleast_one_cnode_into_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
-    reaching_sym = reach_suffix(key_f, fname)
+    reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
     return grammar_gc(combined_grammar), reach_s
@@ -630,7 +664,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     reach_g, reach_s = insert_atleast_one_cnode_into_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
-    reaching_sym = reach_suffix(key_f, fname)
+    reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
     return grammar_gc(combined_grammar), reach_s
@@ -643,7 +677,7 @@ The new grammar is as follows
 <!--
 ############
 cnode = pattern[1][0][1][0][1][0]
-g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, '<start>', cnode, 'F1')
+g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1')
 print()
 print('start:', s)
 for k in g:
@@ -657,7 +691,7 @@ for k in g:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 cnode = pattern[1][0][1][0][1][0]
-g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, &#x27;&lt;start&gt;&#x27;, cnode, &#x27;F1&#x27;)
+g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, &#x27;F1&#x27;)
 print()
 print(&#x27;start:&#x27;, s)
 for k in g:
@@ -760,15 +794,15 @@ Usage
 
 <!--
 ############
-node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
-ddset.display_abstract_tree(node)
+fnode = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+ddset.display_abstract_tree(fnode)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, &#x27;&lt;start&gt;&#x27;, hdd.expr_double_paren)
-ddset.display_abstract_tree(node)
+fnode = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+ddset.display_abstract_tree(fnode)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -778,6 +812,7 @@ That is, we found the correct characterizing node.
 <!--
 ############
 ddset.display_abstract_tree(cnode)
+
 ############
 -->
 <form name='python_run_form'>
