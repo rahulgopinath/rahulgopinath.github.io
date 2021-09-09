@@ -81,6 +81,13 @@ def ddset_simple(reduced_tree, grammar, predicate):
   ta = get_abstract_tree(reduced_tree, vals)
   return tree_to_str_a(ta)
 
+# If we do only want the abstract tree, we have another function `ddset_abstract()`
+
+def ddset_abstract(reduced_tree, grammar, predicate):
+  vals = generalize(reduced_tree, [], [], grammar, predicate)
+  ta = get_abstract_tree(reduced_tree, vals)
+  return ta
+
 # The `generalize()` procedure tries to generalize a given tree recursively. For that, it starts at the root node, and replaces the node with
 # a randomly generated tree rooted at the same node. It tries that a configurable number of times, and if the tree can be replaced each time
 # without failure, then we mark the path as abstract. If not, we descent into its children and try the same. While generating a new tree, any
