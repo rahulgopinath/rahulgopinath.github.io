@@ -467,6 +467,9 @@ def get_children(node):
     if is_node_abstract(node): return []
     return fuzzer.get_children(node)
 
+def display_abstract_tree(node, format_node=fuzzer.format_node):
+    fuzzer.display_tree(node, get_children=get_children, format_node=format_node)
+
 ############
 -->
 <form name='python_run_form'>
@@ -474,6 +477,9 @@ def get_children(node):
 def get_children(node):
     if is_node_abstract(node): return []
     return fuzzer.get_children(node)
+
+def display_abstract_tree(node, format_node=fuzzer.format_node):
+    fuzzer.display_tree(node, get_children=get_children, format_node=format_node)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -483,14 +489,14 @@ The tree
 <!--
 ############
 pattern = ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
-fuzzer.display_tree(pattern, get_children=get_children)
+display_abstract_tree(pattern)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 pattern = ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
-fuzzer.display_tree(pattern, get_children=get_children)
+display_abstract_tree(pattern)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
