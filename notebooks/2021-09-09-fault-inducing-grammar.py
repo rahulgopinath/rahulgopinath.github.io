@@ -683,7 +683,6 @@ if __name__ == '__main__':
 
 
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
-#% --
 
 import sympy
 
@@ -1048,7 +1047,8 @@ def complete(grammar, start, log=False):
     grammar_, start_ = grammar_gc(grammar, start)
     return grammar_, start_
 
-#% --
+# Usage
+
 if __name__ == '__main__':
     g_, s_ = complete(g, s)
     gf = fuzzer.LimitFuzzer(g_)
