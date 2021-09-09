@@ -230,6 +230,8 @@ EXPR_GRAMMAR = {
  '<integer>': [['<digit>', '<integer>'], ['<digit>']],
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
 
+EXPR_START = '<start>'
+
 ############
 -->
 <form name='python_run_form'>
@@ -249,6 +251,8 @@ EXPR_GRAMMAR = {
               [&#x27;&lt;integer&gt;&#x27;]],
  &#x27;&lt;integer&gt;&#x27;: [[&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;integer&gt;&#x27;], [&#x27;&lt;digit&gt;&#x27;]],
  &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;], [&#x27;2&#x27;], [&#x27;3&#x27;], [&#x27;4&#x27;], [&#x27;5&#x27;], [&#x27;6&#x27;], [&#x27;7&#x27;], [&#x27;8&#x27;], [&#x27;9&#x27;]]}
+
+EXPR_START = &#x27;&lt;start&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -276,7 +280,7 @@ Now, let us define an input, and parse it
 ############
 my_input = '1+((2*3/4))'
 expr_parser = parser.peg_parse(EXPR_GRAMMAR)
-tfrom, parsed_expr = expr_parser.unify_key('<start>', my_input, 0)
+tfrom, parsed_expr = expr_parser.unify_key(EXPR_START, my_input, 0)
 print(parsed_expr)
 display_tree(parsed_expr)
 
@@ -286,7 +290,7 @@ display_tree(parsed_expr)
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = &#x27;1+((2*3/4))&#x27;
 expr_parser = parser.peg_parse(EXPR_GRAMMAR)
-tfrom, parsed_expr = expr_parser.unify_key(&#x27;&lt;start&gt;&#x27;, my_input, 0)
+tfrom, parsed_expr = expr_parser.unify_key(EXPR_START, my_input, 0)
 print(parsed_expr)
 display_tree(parsed_expr)
 </textarea><br />

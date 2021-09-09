@@ -130,6 +130,8 @@ EXPR_GRAMMAR = {
  '<integer>': [['<digit>', '<integer>'], ['<digit>']],
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
 
+EXPR_START = '<start>'
+
 # define a display_tree function
 
 def display_tree(tree):
@@ -140,7 +142,7 @@ def display_tree(tree):
 if __name__ == '__main__':
     my_input = '1+((2*3/4))'
     expr_parser = parser.peg_parse(EXPR_GRAMMAR)
-    tfrom, parsed_expr = expr_parser.unify_key('<start>', my_input, 0)
+    tfrom, parsed_expr = expr_parser.unify_key(EXPR_START, my_input, 0)
     print(parsed_expr)
     display_tree(parsed_expr)
 
