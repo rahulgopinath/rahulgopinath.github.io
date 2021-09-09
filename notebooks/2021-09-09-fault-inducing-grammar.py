@@ -292,11 +292,11 @@ if __name__ == '__main__':
 def pattern_grammar(cnode, fname):
     unique_pattern_tree = mark_unique_nodes(cnode, fname)
     pattern_g, pattern_s = unique_cnode_to_grammar(unique_pattern_tree)
-    return pattern_g, pattern_s
+    return pattern_g, pattern_s, unique_pattern_tree
 
 # Using it.
 if __name__ == '__main__':
-    pattern_g,pattern_s = pattern_grammar(pattern, 'F1')
+    pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
     print('start:', pattern_s)
     for k in pattern_g:
         print(k)
@@ -316,16 +316,16 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
-def grammar_gc(grammar):
+def grammar_gc(grammar, start):
     g = {}
     for k in grammar:
         if grammar[k]:
             g[k] = grammar[k]
-    return g
+    return g, start
 
 def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
-    pattern_g, pattern_s = pattern_grammar(cnode, fname)
+    pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
 
     reachable_keys = reachable_dict(grammar)
     reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
@@ -334,7 +334,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
-    return grammar_gc(combined_grammar), reach_s
+    return grammar_gc(combined_grammar, reach_s)
 
 # The new grammar is as follows
 
@@ -537,7 +537,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
         negated_rules = unmatch_definition_in_pattern_grammar(refined_rules, base_rules)
         negated_grammar[nl_key] = negated_rules
     # this needs to be negated with original fault TODO:
-    return negated_grammar, negate_key(pattern_start)
+    return {**negated_grammar, **pattern_grammar} , negate_key(pattern_start)
 
 # Using
 
@@ -566,17 +566,21 @@ def and_keys(k1, k2):
     return '<%s and(%s,%s)>' % (stem(k1), refinement(k1), refinement(k2))
 
 
-def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
+def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
     reachable_keys = reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar)
+
     new_grammar = {}
-    keys_that_can_reach_fault = reachable_keys[normalize(pattern_start)]
+
+    my_key = normalize(pattern_start)
+    # which keys can reach pattern_start?
+    keys_that_can_reach_fault = [k for k in reachable_keys if my_key in reachable_keys[k]]
+    #for k in keys_that_can_reach_fault: assert my_key in reachable_keys[k]
     new_g = {}
-    nk = negate_suffix(refinement(pattern_start))
     for k in nomatch_g: 
         new_rules = []
         for rule in nomatch_g[k]:
-            new_rule = [and_suffix(t, nk) if t in keys_that_can_reach_fault else t for t in rule]
+            new_rule = [and_suffix(t, nfault_suffix) if t in keys_that_can_reach_fault else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
     return new_g, negate_key(pattern_start)
@@ -585,7 +589,7 @@ def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
 
 if __name__ == '__main__':
     print()
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR)
+    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR, 'neg(F1)')
     # next we need to conjunct
     print('start:', nomatch_s)
     for k in nomatch_g:
@@ -593,24 +597,32 @@ if __name__ == '__main__':
         for r in nomatch_g[k]:
             print('    ', r)
 
+
+def tokens(g):
+    ts = []
+    for k in g:
+        for r in g[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t): ts.append(t)
+    return ts
 # At this point, we can now define our 1negated_grammar()`
 # The new grammar is as follows
 
 def no_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
-    pattern_g, pattern_s = pattern_grammar(cnode, fname)
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, grammar)
+    pattern_g, pattern_s, tr = pattern_grammar(cnode, fname)
+    negated_suffix = negate_suffix(fname)
+    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, grammar, negated_suffix)
 
     reachable_keys = reachable_dict(grammar)
-    #reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
-    negated_suffix = negate_suffix(fname)
+    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
     unreach_g, unreach_s = unreachable_grammar(grammar, start_symbol, key_f, negated_suffix, reachable_keys)
 
-    combined_grammar = {**grammar, **pattern_g, **nomatch_g, **unreach_g}
+    combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
     unreaching_sym = refine_base_key(key_f, negated_suffix)
     combined_grammar[unreaching_sym] = unreach_g[unreaching_sym] + nomatch_g[nomatch_s] # TODO verify
 
-    return grammar_gc(combined_grammar), unreach_s
+    return grammar_gc(combined_grammar, unreach_s)
 
 # Using it.
 
@@ -866,31 +878,6 @@ def undefined_keys(grammar):
     keys = find_all_nonterminals(grammar)
     return [k for k in keys if k not in grammar]
 
-def reconstruct_neg_fault(grammar, key, bexpr):
-    f_key = bexpr.with_key(key)
-    #nf_key = negate_key(f_key)
-    #assert nf_key in grammar
-    base_grammar, base_start = normalize_grammar(grammar), normalize(key)
-    g1_, s1, r1 = reconstruct_rules_from_bexpr(key, bexpr.negate(), grammar)
-    g1, saved_keys, undef_keys  = remove_unused(g1_, s1)
-    g, s, r = negate_grammar_(g1, s1, base_grammar, base_start)
-    g[f_key] = g[s]
-    assert s in g, s
-    g = {**grammar, **g1, **g, **saved_keys}
-    return g, f_key, undefined_keys(g)
-
-
-def reconstruct_neg_neg_bexpr(grammar, key, bexpr):
-    g = copy_grammar(grammar)
-    nn_key = bexpr.with_key(key)
-    assert nn_key not in grammar
-    n_key = negate_key(nn_key)
-    assert n_key in grammar
-    base_grammar, base_start = normalize_grammar(grammar), normalize(key)
-    rules, refs = negate_definition(grammar[n_key], base_grammar[base_start], False)
-    g[nn_key] = rules
-    return g, nn_key, undefined_keys(g)
-
 def reconstruct_neg_bexpr(grammar, key, bexpr):
     fst = bexpr.op_fst()
     base_grammar, base_start = normalize_grammar(grammar), normalize(key)
@@ -1014,7 +1001,7 @@ def complete(grammar, start, log=False):
         if key not in reachable_keys[start]: continue
         grammar = reconstruct_key(key, grammar, log)
     grammar_, start_ = grammar_gc(grammar, start)
-    return grammar_
+    return grammar_, start_
 
 #% --
 if __name__ == '__main__':
