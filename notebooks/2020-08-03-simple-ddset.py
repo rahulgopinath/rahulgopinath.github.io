@@ -60,12 +60,13 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
     parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
-    print(parsed_expr)
+    fuzzer.display_tree(parsed_expr)
 
 # Next, we use the *perses* reducer to produce a reduced derivation tree.
 
 if __name__ == '__main__':
     reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+    fuzzer.display_tree(reduced_expr_tree)
 
  
 # Now we are ready to call our generalizer, which takes the expression tree, the grammar, and the predicate, and returns the generalized pattern.

@@ -127,7 +127,7 @@ Next, let us make sure that it parses correctly.
 ############
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
-print(parsed_expr)
+fuzzer.display_tree(parsed_expr)
 
 ############
 -->
@@ -135,7 +135,7 @@ print(parsed_expr)
 <textarea cols="40" rows="4" name='python_edit'>
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, &#x27;&lt;start&gt;&#x27;))[0]
-print(parsed_expr)
+fuzzer.display_tree(parsed_expr)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -145,6 +145,7 @@ Next, we use the *perses* reducer to produce a reduced derivation tree.
 <!--
 ############
 reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+fuzzer.display_tree(reduced_expr_tree)
 
 
 ############
@@ -152,6 +153,7 @@ reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+fuzzer.display_tree(reduced_expr_tree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
