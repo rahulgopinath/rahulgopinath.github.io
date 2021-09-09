@@ -167,7 +167,7 @@ The `ddset_simple()` is implemented as follows:
 ############
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
-  ta = get_abstract_tree(reduced_expr_tree, vals)
+  ta = get_abstract_tree(reduced_tree, vals)
   return tree_to_str_a(ta)
 
 ############
@@ -176,7 +176,7 @@ def ddset_simple(reduced_tree, grammar, predicate):
 <textarea cols="40" rows="4" name='python_edit'>
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
-  ta = get_abstract_tree(reduced_expr_tree, vals)
+  ta = get_abstract_tree(reduced_tree, vals)
   return tree_to_str_a(ta)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

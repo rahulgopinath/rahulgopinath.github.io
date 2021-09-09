@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
-  ta = get_abstract_tree(reduced_expr_tree, vals)
+  ta = get_abstract_tree(reduced_tree, vals)
   return tree_to_str_a(ta)
 
 # The `generalize()` procedure tries to generalize a given tree recursively. For that, it starts at the root node, and replaces the node with
