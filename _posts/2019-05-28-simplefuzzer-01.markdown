@@ -272,6 +272,129 @@ print(res)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We now want a way to display this tree. We can do that as follows
+We first define a simple option holder class.
+
+<!--
+############
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can now define our default drawing options for displaying a tree.
+The default options include the vertical (|), the horizontal (--)
+and the how the last line is represented (+)
+
+<!--
+############
+OPTIONS   = O(V='|', H='--', L='+')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+OPTIONS   = O(V=&#x27;|&#x27;, H=&#x27;--&#x27;, L=&#x27;+&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We want to display the tree. This is simply `display_tree`.
+
+<!--
+############
+def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1], options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1], options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The `display_tree` calls `format_tree` which is defined as follows
+
+<!--
+############
+def format_tree(node, format_node, get_children, options, prefix=''):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + '   '
+        yield from format_child(child, next_prefix, format_node, get_children, options, prefix, False)
+    last_prefix = prefix + '    '
+    yield from format_child(last_child, last_prefix, format_node, get_children, options, prefix, True)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def format_tree(node, format_node, get_children, options, prefix=&#x27;&#x27;):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + &#x27;   &#x27;
+        yield from format_child(child, next_prefix, format_node, get_children, options, prefix, False)
+    last_prefix = prefix + &#x27;    &#x27;
+    yield from format_child(last_child, last_prefix, format_node, get_children, options, prefix, True)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The format_tree in turn calls the format_child to format a particular child node.
+
+<!--
+############
+def format_child(child, next_prefix, format_node, get_children, options, prefix, last):
+    sep = (options.L if last else options.V)
+    yield prefix + sep + options.H + ' ' + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def format_child(child, next_prefix, format_node, get_children, options, prefix, last):
+    sep = (options.L if last else options.V)
+    yield prefix + sep + options.H + &#x27; &#x27; + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can now show the tree
+
+<!--
+############
+display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The corresponding string is
 
 <!--

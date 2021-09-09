@@ -122,6 +122,46 @@ if __name__ == '__main__':
     res = unify_key_inv_t(grammar, '<start>')
     print(res)
 
+# We now want a way to display this tree. We can do that as follows
+# We first define a simple option holder class.
+class O:
+    def __init__(self, **keys): self.__dict__.update(keys)
+
+# We can now define our default drawing options for displaying a tree.
+# The default options include the vertical (|), the horizontal (--)
+# and the how the last line is represented (+)
+OPTIONS   = O(V='|', H='--', L='+')
+
+# We want to display the tree. This is simply `display_tree`.
+
+def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1], options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+
+# The `display_tree` calls `format_tree` which is defined as follows
+
+def format_tree(node, format_node, get_children, options, prefix=''):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + '   '
+        yield from format_child(child, next_prefix, format_node, get_children, options, prefix, False)
+    last_prefix = prefix + '    '
+    yield from format_child(last_child, last_prefix, format_node, get_children, options, prefix, True)
+
+# The format_tree in turn calls the format_child to format a particular child node.
+
+def format_child(child, next_prefix, format_node, get_children, options, prefix, last):
+    sep = (options.L if last else options.V)
+    yield prefix + sep + options.H + ' ' + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+
+# We can now show the tree
+if __name__ == '__main__':
+    display_tree(res)
+
 # The corresponding string is
 
 if __name__ == '__main__':
