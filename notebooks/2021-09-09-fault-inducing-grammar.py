@@ -433,7 +433,7 @@ if __name__ == '__main__':
 # unreachable grammar.
 
 def negate_suffix(fault):
-    return 'neg(%s)>' % fault
+    return 'neg(%s)' % fault
 
 def unreachable_key(grammar, key, cnodesym, negated_suffix, reachable):
     rules = grammar[key]
@@ -499,7 +499,7 @@ def rule_normalized_difference(rulesA, rulesB):
     return rem_rulesA
 
 
-def unmatch_a_refined_rule_in_pattern_grammar(refined_rule, fault_key):
+def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
@@ -508,12 +508,12 @@ def unmatch_a_refined_rule_in_pattern_grammar(refined_rule, fault_key):
         negated_rules.append(r)
     return negated_rules
 
-def unmatch_definition_in_pattern_grammar(fault_key, refined_rules, base_rules):
+def unmatch_definition_in_pattern_grammar(refined_rules, base_rules):
     # Given the set of rules, we take one rule at a time,
     # and generate the negated rule set from that.
     negated_rules_refined = []
     for ruleR in refined_rules:
-        neg_rules = unmatch_a_refined_rule_in_pattern_grammar(ruleR, fault_key)
+        neg_rules = unmatch_a_refined_rule_in_pattern_grammar(ruleR)
         negated_rules_refined.extend(neg_rules)
 
     # Finally, we need to add the other non-matching rules to the pattern def.
@@ -532,7 +532,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
         base_rules = base_grammar[normal_l_key]
         refined_rules = pattern_grammar[l_key]
 
-        negated_rules = unmatch_definition_in_pattern_grammar(fault_key, refined_rules, base_rules)
+        negated_rules = unmatch_definition_in_pattern_grammar(refined_rules, base_rules)
         negated_grammar[nl_key] = negated_rules
     # this needs to be negated with original fault TODO:
     return negated_grammar, negate_key(pattern_start)
@@ -552,20 +552,44 @@ if __name__ == '__main__':
 # pattern is not directly matchable, but also that the pattern cannot be
 # embedded. For that we simply conjunct it with `neg(F1)`
 
-def negated_pattern_grammar(pattern_grammar, pattern_start, cnode, base_grammar):
+def and_suffix(k1, suffix):
+    if is_base_key(k1):
+        return '<%s %s>' % (stem(k1), suffix)
+    return '<%s and(%s,%s)>' % (stem(k1), refinement(k1), suffix)
+
+def and_keys(k1, k2):
+    if k1 == k2: return k1
+    if not refinement(k1): return k2
+    if not refinement(k2): return k1
+    return '<%s and(%s,%s)>' % (stem(k1), refinement(k1), refinement(k2))
+
+
+def negated_pattern_grammar(pattern_grammar, pattern_start, fault_key, base_grammar):
     reachable_keys = reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_g, pattern_s, base_grammar)
     new_grammar = {}
-    fault_key = cnode[0]
-    keys_that_can_reach_fault = reachable_keys[fault_key]
+    keys_that_can_reach_fault = reachable_keys[normalize(fault_key)]
     new_g = {}
+    nk = negate_suffix(refinement(fault_key))
     for k in nomatch_g: 
         new_rules = []
         for rule in nomatch_g[k]:
-            new_rule = [and_neg_(t, fault_key) if t in keys_that_can_reach_fault else t for t in rule]
+            new_rule = [and_suffix(t, nk) if t in keys_that_can_reach_fault else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
-    return new_g
+    return new_g, negate_key(pattern_start)
+
+# Using
+
+if __name__ == '__main__':
+    print()
+    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, '<factor F1>', hdd.EXPR_GRAMMAR)
+    # next we need to conjunct
+    print('start:', nomatch_s)
+    for k in nomatch_g:
+        print(k)
+        for r in nomatch_g[k]:
+            print('    ', r)
 
 
 # # And
@@ -582,7 +606,7 @@ def conjoin_ruleset(rulesetA, rulesetB):
             elif is_base_key(t1) and is_base_key(t2):
                 AandB_rule.append(t1)
             else:
-                k = conj(t1, t2, simplify=True)
+                k = and_keys(t1, t2, simplify=True)
                 AandB_rule.append(k)
         rules.append(AandB_rule)
     return rules
@@ -608,7 +632,7 @@ def and_grammars_(g1, s1, g2, s2):
         # define and(k1, k2)
         if normalize(k1) != normalize(k2): continue
         # find matching rules
-        and_key = conj(k1, k2)
+        and_key = and_keys(k1, k2)
         g[and_key] = and_rules(g1[k1], g2[k2])
-    return g, conj(s1, s2)
+    return g, and_keys(s1, s2)
 
