@@ -316,7 +316,10 @@ def format_node(node):
     if key and (key[0], key[-1]) ==  ('<', '>'): return key
     return repr(key)
 
-def display_tree(node, format_node=format_node, get_children=lambda x: x[1], options=OPTIONS):
+def get_children(node):
+    return node[1]
+
+def display_tree(node, format_node=format_node, get_children=get_children, options=OPTIONS):
     print(format_node(node))
     for line in format_tree(node, format_node, get_children, options):
         print(line)
@@ -330,7 +333,10 @@ def format_node(node):
     if key and (key[0], key[-1]) ==  (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return key
     return repr(key)
 
-def display_tree(node, format_node=format_node, get_children=lambda x: x[1], options=OPTIONS):
+def get_children(node):
+    return node[1]
+
+def display_tree(node, format_node=format_node, get_children=get_children, options=OPTIONS):
     print(format_node(node))
     for line in format_tree(node, format_node, get_children, options):
         print(line)
