@@ -184,7 +184,8 @@ if __name__ == '__main__':
 # reach the characterizing node. On the other hand, for a guarantee that an
 # expansion rule can reach the characterizing node, all that is required is that
 # one of the nonterminals in that rule guarantees reachability.
-
+#
+# We start with a few helper functions
 
 def tsplit(token):
     assert token[0], token[-1] == ('<', '>')
@@ -209,6 +210,8 @@ def refine_base_key(k, prefix):
     assert is_base_key(k)
     return '<%s %s>' % (stem(k), prefix)
 
+# Defining the `reachable_key()`
+
 def reachable_key(grammar, key, cnodesym, suffix, reachable):
     rules = grammar[key]
     my_rules = []
@@ -225,6 +228,7 @@ def reachable_key(grammar, key, cnodesym, suffix, reachable):
                 my_rules.append(new_rule)
     return (refine_base_key(key, suffix), my_rules)
 
+# It is used as follows
 
 if __name__ == '__main__':
     for key in hdd.EXPR_GRAMMAR:
@@ -287,7 +291,7 @@ if __name__ == '__main__':
         for r in g[k]:
             print('    ', r)
 
-# The pattern grammar
+# We define `pattern_grammar()` that wraps both calls.
 
 def pattern_grammar(cnode, fname):
     unique_pattern_tree = mark_unique_nodes(cnode, fname)
@@ -295,6 +299,7 @@ def pattern_grammar(cnode, fname):
     return pattern_g, pattern_s, unique_pattern_tree
 
 # Using it.
+
 if __name__ == '__main__':
     pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
     print('start:', pattern_s)
@@ -303,7 +308,7 @@ if __name__ == '__main__':
         for r in pattern_g[k]:
             print('    ', r)
 
-# Given the reaching grammar, and the pattern grammar, we can combine them to
+# Given the reaching grammar and the pattern grammar, we can combine them to
 # produce the complete grammar
 
 def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
@@ -316,12 +321,52 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
+# Since some of the keys may not have any definition left in it,
+
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
 def grammar_gc(grammar, start):
-    g = {}
-    for k in grammar:
-        if grammar[k]:
-            g[k] = grammar[k]
+    g, removed = remove_empty_keys(grammar)
     return g, start
+
+# At this point we are ready to define our `atleast_one_fault_grammar()`
 
 def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
