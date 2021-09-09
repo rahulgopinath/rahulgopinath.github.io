@@ -360,3 +360,7 @@ def find_characterizing_node(fault_tree, grammar, start, fn):
 if __name__ == '__main__':
     node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
     ddset.display_abstract_tree(node)
+
+# That is, we found the correct characterizing node.
+if __name__ == '__main__':
+    ddset.display_abstract_tree(cnode)

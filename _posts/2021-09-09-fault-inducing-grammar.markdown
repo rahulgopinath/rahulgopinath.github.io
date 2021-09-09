@@ -762,12 +762,27 @@ Usage
 ############
 node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
 ddset.display_abstract_tree(node)
+
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, &#x27;&lt;start&gt;&#x27;, hdd.expr_double_paren)
 ddset.display_abstract_tree(node)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+That is, we found the correct characterizing node.
+
+<!--
+############
+ddset.display_abstract_tree(cnode)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ddset.display_abstract_tree(cnode)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
