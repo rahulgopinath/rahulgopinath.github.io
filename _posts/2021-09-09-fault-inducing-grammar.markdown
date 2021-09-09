@@ -668,6 +668,8 @@ This grammar is now guaranteed to produce at least one instance of the character
 gf = fuzzer.LimitFuzzer(g)
 for i in range(10):
     print(gf.iter_fuzz(key=s, max_depth=10))
+
+
 ############
 -->
 <form name='python_run_form'>
@@ -679,6 +681,19 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+This seems to work. However, there is a wrinkle. Note that we found the characterizing node
+as this node `pattern[1][0][1][0][1][0]`, which is a factor node. But why not
+any of the other nodes? for example, why not `pattern` itself? Indeed, the effectiveness of
+our specialized grammar is dependent on finding as small a characterizing node
+as possible that fully captures the fault. So, how do we automate it?
+The idea is fairly simple. We start from the root of the fault inducing pattern.
+We know that this pattern fully captures the predicate. That is, any valid input
+generated from this pattern by filling in the abstract nodes is guaranteed to
+produce the failure. Next, we move to the children of this node. If the node
+is abstract, we return immediately. If however, the child is not abstract, we
+let the child be the characterizing node, and try to reproduce the failure. If
+the failure is not reproduced, we move to the next child. If the failure is
+reproduced we recurse deeper into the current child.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
