@@ -702,6 +702,77 @@ let the child be the characterizing node, and try to reproduce the failure. If
 the failure is not reproduced, we move to the next child. If the failure is
 reproduced we recurse deeper into the current child.
 
+<!--
+############
+def find_characterizing_node(fault_tree, grammar, start, fn):
+    if ddset.is_node_abstract(fault_tree): return None
+    if not fuzzer.is_nonterminal(fault_tree[0]): return None
+    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, 'F1')
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        string = gf.iter_fuzz(key=s, max_depth=10)
+        rval = fn(string)
+        if rval == hdd.PRes.failed:
+            return None
+        elif rval == hdd.PRes.invalid:
+            continue
+        else:
+            continue
+
+    node, children, rest = fault_tree
+    for c in children:
+        v = find_characterizing_node(c, grammar, start, fn)
+        if v is not None:
+            return v
+    return fault_tree
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def find_characterizing_node(fault_tree, grammar, start, fn):
+    if ddset.is_node_abstract(fault_tree): return None
+    if not fuzzer.is_nonterminal(fault_tree[0]): return None
+    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, &#x27;F1&#x27;)
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        string = gf.iter_fuzz(key=s, max_depth=10)
+        rval = fn(string)
+        if rval == hdd.PRes.failed:
+            return None
+        elif rval == hdd.PRes.invalid:
+            continue
+        else:
+            continue
+
+    node, children, rest = fault_tree
+    for c in children:
+        v = find_characterizing_node(c, grammar, start, fn)
+        if v is not None:
+            return v
+    return fault_tree
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Usage
+
+<!--
+############
+node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
+ddset.display_abstract_tree(node)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, &#x27;&lt;start&gt;&#x27;, hdd.expr_double_paren)
+ddset.display_abstract_tree(node)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>

@@ -333,3 +333,30 @@ if __name__ == '__main__':
 # the failure is not reproduced, we move to the next child. If the failure is
 # reproduced we recurse deeper into the current child.
 
+def find_characterizing_node(fault_tree, grammar, start, fn):
+    if ddset.is_node_abstract(fault_tree): return None
+    if not fuzzer.is_nonterminal(fault_tree[0]): return None
+    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, 'F1')
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        string = gf.iter_fuzz(key=s, max_depth=10)
+        rval = fn(string)
+        if rval == hdd.PRes.failed:
+            return None
+        elif rval == hdd.PRes.invalid:
+            continue
+        else:
+            continue
+
+    node, children, rest = fault_tree
+    for c in children:
+        v = find_characterizing_node(c, grammar, start, fn)
+        if v is not None:
+            return v
+    return fault_tree
+
+
+# Usage
+if __name__ == '__main__':
+    node = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, '<start>', hdd.expr_double_paren)
+    ddset.display_abstract_tree(node)
