@@ -463,6 +463,42 @@ With this, we are ready to extract our pattern.
 
 <!--
 ############
+def get_children(node):
+    if is_node_abstract(node): return []
+    return fuzzer.get_children(node)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_children(node):
+    if is_node_abstract(node): return []
+    return fuzzer.get_children(node)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The tree
+
+<!--
+############
+pattern = ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+fuzzer.display_tree(pattern, get_children=get_children)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+pattern = ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+fuzzer.display_tree(pattern, get_children=get_children)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The pattern
+
+<!--
+############
 pattern = ddset_simple(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 print(pattern)
 
