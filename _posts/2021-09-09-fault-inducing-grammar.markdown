@@ -392,7 +392,6 @@ def stem(token):
 
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
-    assert is_base_key(k)
     return '<%s %s>' % (stem(k), prefix)
 
 def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
@@ -441,7 +440,6 @@ def stem(token):
 
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
-    assert is_base_key(k)
     return &#x27;&lt;%s %s&gt;&#x27; % (stem(k), prefix)
 
 def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
