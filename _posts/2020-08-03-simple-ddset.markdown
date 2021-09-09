@@ -512,12 +512,6 @@ print(pattern)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-This prints:
-```bash
-$ python ddset_simple.py
-((<expr>))
-```
-
 So, given that this algorithm is much simpler than the original, why should we use the
 original algorithm? The problem is that when the input is a file in a programming language,
 one also needs to take into account the semantics. That is, the generated input needs to be

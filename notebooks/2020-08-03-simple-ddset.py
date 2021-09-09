@@ -209,13 +209,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     pattern = ddset_simple(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
     print(pattern)
-
-# This prints:
-# ```bash
-# $ python ddset_simple.py
-# ((<expr>))
-# ```
-# 
+ 
 # So, given that this algorithm is much simpler than the original, why should we use the
 # original algorithm? The problem is that when the input is a file in a programming language,
 # one also needs to take into account the semantics. That is, the generated input needs to be
