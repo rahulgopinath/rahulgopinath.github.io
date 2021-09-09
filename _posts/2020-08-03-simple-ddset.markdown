@@ -170,7 +170,7 @@ The `ddset_simple()` is implemented as follows:
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
   ta = get_abstract_tree(reduced_tree, vals)
-  return tree_to_str_a(ta)
+  return abstract_tree_to_str(ta)
 
 ############
 -->
@@ -179,7 +179,7 @@ def ddset_simple(reduced_tree, grammar, predicate):
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
   ta = get_abstract_tree(reduced_tree, vals)
-  return tree_to_str_a(ta)
+  return abstract_tree_to_str(ta)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -383,23 +383,23 @@ Finally, the converter from an abstract tree to a string expression
 
 <!--
 ############
-def tree_to_str_a(tree):
+def abstract_tree_to_str(tree):
     name, children, *general_ = tree
     if not fuzzer.is_nonterminal(name): return name
     if is_node_abstract(tree):
         return name
-    return ''.join([tree_to_str_a(c) for c in children])
+    return ''.join([abstract_tree_to_str(c) for c in children])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def tree_to_str_a(tree):
+def abstract_tree_to_str(tree):
     name, children, *general_ = tree
     if not fuzzer.is_nonterminal(name): return name
     if is_node_abstract(tree):
         return name
-    return &#x27;&#x27;.join([tree_to_str_a(c) for c in children])
+    return &#x27;&#x27;.join([abstract_tree_to_str(c) for c in children])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

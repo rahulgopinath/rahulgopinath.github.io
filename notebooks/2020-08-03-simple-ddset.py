@@ -80,7 +80,7 @@ if __name__ == '__main__':
 def ddset_simple(reduced_tree, grammar, predicate):
   vals = generalize(reduced_tree, [], [], grammar, predicate)
   ta = get_abstract_tree(reduced_tree, vals)
-  return tree_to_str_a(ta)
+  return abstract_tree_to_str(ta)
 
 # If we do only want the abstract tree, we have another function `ddset_abstract()`
 
@@ -163,12 +163,12 @@ def generate_random_value(grammar, key):
 
 # Finally, the converter from an abstract tree to a string expression
 
-def tree_to_str_a(tree):
+def abstract_tree_to_str(tree):
     name, children, *general_ = tree
     if not fuzzer.is_nonterminal(name): return name
     if is_node_abstract(tree):
         return name
-    return ''.join([tree_to_str_a(c) for c in children])
+    return ''.join([abstract_tree_to_str(c) for c in children])
 
 # We also need a few library functions for marking some nodes concrete and some abstract.
 
