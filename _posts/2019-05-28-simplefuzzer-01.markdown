@@ -311,7 +311,12 @@ We want to display the tree. This is simply `display_tree`.
 
 <!--
 ############
-def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1], options=OPTIONS):
+def format_node(node):
+    key = node[0]
+    if key and (key[0], key[-1]) ==  ('<', '>'): return key
+    return repr(key)
+
+def display_tree(node, format_node=format_node, get_children=lambda x: x[1], options=OPTIONS):
     print(format_node(node))
     for line in format_tree(node, format_node, get_children, options):
         print(line)
@@ -320,7 +325,12 @@ def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: 
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def display_tree(node, format_node=lambda x: repr(x[0]), get_children=lambda x: x[1], options=OPTIONS):
+def format_node(node):
+    key = node[0]
+    if key and (key[0], key[-1]) ==  (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return key
+    return repr(key)
+
+def display_tree(node, format_node=format_node, get_children=lambda x: x[1], options=OPTIONS):
     print(format_node(node))
     for line in format_tree(node, format_node, get_children, options):
         print(line)
