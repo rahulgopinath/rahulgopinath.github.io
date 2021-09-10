@@ -89,7 +89,8 @@ def unreachable_key(grammar, key, cnodesym, negated_suffix, reachable):
             # not embeddable here. We can add this rule.
             my_rules.append(rule)
         else:
-            new_rule = [gatleast.refine_base_key(t, negated_suffix) if p in positions else t for p,t in enumerate(rule)]
+            new_rule = [gatleast.refine_base_key(t, negated_suffix)
+                    if p in positions else t for p,t in enumerate(rule)]
             my_rules.append(new_rule)
     return (gatleast.refine_base_key(key, negated_suffix), my_rules)
 
@@ -98,7 +99,8 @@ def unreachable_key(grammar, key, cnodesym, negated_suffix, reachable):
 if __name__ == '__main__':
     reaching = gatleast.reachable_dict(hdd.EXPR_GRAMMAR)
     for key in hdd.EXPR_GRAMMAR:
-        fk, rules = unreachable_key(hdd.EXPR_GRAMMAR, key, '<factor>', negate_suffix('F1'), reaching)
+        fk, rules = unreachable_key(hdd.EXPR_GRAMMAR, key, '<factor>',
+                                    negate_suffix('F1'), reaching)
         print(fk)
         for r in rules:
             print('    ', r)
@@ -130,7 +132,8 @@ def negate_key(k):
 def rule_normalized_difference(rulesA, rulesB):
     rem_rulesA = rulesA
     for ruleB in rulesB:
-        rem_rulesA = [rA for rA in rem_rulesA if not gmultiple.normalized_rule_match(rA, ruleB)]
+        rem_rulesA = [rA for rA in rem_rulesA
+                if not gmultiple.normalized_rule_match(rA, ruleB)]
     return rem_rulesA
 
 def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
@@ -166,7 +169,8 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
         base_rules = base_grammar[normal_l_key]
         refined_rules = pattern_grammar[l_key]
 
-        negated_rules = unmatch_definition_in_pattern_grammar(refined_rules, base_rules)
+        negated_rules = unmatch_definition_in_pattern_grammar(refined_rules,
+                                                              base_rules)
         negated_grammar[nl_key] = negated_rules
     # this needs to be negated with original fault TODO:
     return {**negated_grammar, **pattern_grammar} , negate_key(pattern_start)
@@ -175,7 +179,8 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
 
 if __name__ == '__main__':
     pattern_g,pattern_s, t = gatleast.pattern_grammar(gatleast.ETREE_DPAREN, 'F1')
-    nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR)
+    nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_g,
+                                                   pattern_s, hdd.EXPR_GRAMMAR)
     gatleast.display_grammar(nomatch_g, nomatch_s)
 
 # Now, for negated pattern grammars, not only do we need to make sure that the
@@ -189,19 +194,22 @@ def and_suffix(k1, suffix):
 
 def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
     reachable_keys = gatleast.reachable_dict(base_grammar)
-    nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar)
+    nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar,
+                                                   pattern_start, base_grammar)
 
     new_grammar = {}
 
     my_key = gmultiple.normalize(pattern_start)
     # which keys can reach pattern_start?
-    keys_that_can_reach_fault = [k for k in reachable_keys if my_key in reachable_keys[k]]
+    keys_that_can_reach_fault = [k for k in reachable_keys
+                                if my_key in reachable_keys[k]]
     #for k in keys_that_can_reach_fault: assert my_key in reachable_keys[k]
     new_g = {}
     for k in nomatch_g: 
         new_rules = []
         for rule in nomatch_g[k]:
-            new_rule = [and_suffix(t, nfault_suffix) if t in keys_that_can_reach_fault else t for t in rule]
+            new_rule = [and_suffix(t, nfault_suffix)
+                        if t in keys_that_can_reach_fault else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
     return new_g, negate_key(pattern_start)
@@ -209,7 +217,8 @@ def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault
 # Using
 
 if __name__ == '__main__':
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR, 'neg(F1)')
+    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s,
+                                                hdd.EXPR_GRAMMAR, 'neg(F1)')
     # next we need to conjunct
     gatleast.display_grammar(nomatch_g, nomatch_s)
 
@@ -220,11 +229,14 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
     pattern_g, pattern_s, tr = gatleast.pattern_grammar(cnode, fname)
     negated_suffix = negate_suffix(fname)
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, grammar, negated_suffix)
+    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g,
+                                pattern_s, grammar, negated_suffix)
 
     reachable_keys = gatleast.reachable_dict(grammar)
-    reach_g, reach_s = gatleast.reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
-    unreach_g, unreach_s = unreachable_grammar(grammar, start_symbol, key_f, negated_suffix, reachable_keys)
+    reach_g, reach_s = gatleast.reachable_grammar(grammar,
+                                start_symbol, key_f, fname, reachable_keys)
+    unreach_g, unreach_s = unreachable_grammar(grammar,
+                                start_symbol, key_f, negated_suffix, reachable_keys)
 
     combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
     unreaching_sym = gatleast.refine_base_key(key_f, negated_suffix)
