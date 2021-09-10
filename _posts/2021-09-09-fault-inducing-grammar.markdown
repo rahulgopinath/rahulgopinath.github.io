@@ -789,13 +789,6 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
-if __name__ == '__main__':
-    characterizing_node = pattern[1][0][1][0][1][0]
-    my_key_f = characterizing_node[0]
-    reaching = reachable_dict(hdd.EXPR_GRAMMAR)
-    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
-    display_grammar(reach_g, reach_s)
-
 ############
 -->
 <form name='python_run_form'>
@@ -809,13 +802,29 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         if key == start: s_key = fk
         new_grammar[fk] = rules
     return new_grammar, s_key
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
 
-if __name__ == &#x27;__main__&#x27;:
-    characterizing_node = pattern[1][0][1][0][1][0]
-    my_key_f = characterizing_node[0]
-    reaching = reachable_dict(hdd.EXPR_GRAMMAR)
-    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, &#x27;F1&#x27;, reaching)
-    display_grammar(reach_g, reach_s)
+<!--
+############
+characterizing_node = pattern[1][0][1][0][1][0]
+my_key_f = characterizing_node[0]
+reaching = reachable_dict(hdd.EXPR_GRAMMAR)
+reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
+display_grammar(reach_g, reach_s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+characterizing_node = pattern[1][0][1][0][1][0]
+my_key_f = characterizing_node[0]
+reaching = reachable_dict(hdd.EXPR_GRAMMAR)
+reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, &#x27;F1&#x27;, reaching)
+display_grammar(reach_g, reach_s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

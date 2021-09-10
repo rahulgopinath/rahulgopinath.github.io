@@ -376,6 +376,8 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
+# Using it
+
 if __name__ == '__main__':
     characterizing_node = pattern[1][0][1][0][1][0]
     my_key_f = characterizing_node[0]
