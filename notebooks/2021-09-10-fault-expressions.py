@@ -21,6 +21,10 @@
 
 import sympy
 
+# **Note** sympy may not load immediately. If you get errors, and the sympy
+# import seems to not have been executed, try clicking on
+# the [run] button again.
+
 # Our language is a simple language of boolean algebra. That is, it is the
 # langauge of expressions in the specialization for a nonterminal such as `<A and(f1,f2)>`
 # It is defined by the following grammar.
