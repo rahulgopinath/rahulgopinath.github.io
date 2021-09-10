@@ -176,6 +176,7 @@ represents a *complete* abstract input. The only general part here is
 produce `((1))`, `((2 + 3))` etc. but these are not the only possible
 errors. Indeed, our original error: '1+((2*3/4))' does not fit this
 template. So, how can we rectify this limitation?
+# A grammar with at least one fault inducing fragment
 The basic idea is that if we can find a `characterizing node` of the
 abstract fault tree, such that the presence of the abstract subtree
 in the input guarantees the failure, then we can modify the grammar such
@@ -189,7 +190,7 @@ abstract nonterminals with concrete values.
 
 On the other hand, this gives us an idea. What if we modify the grammar
 such that at least one instance of such a nonterminal is present? Such
-a grammar is called the `reaching_grammar`.
+a grammar is called the `reachable_grammar`.
 To produce a reaching grammar, first we need to find what nonterminals are
 reachable from the expansion of a given nonterminal.
 A nonterminal `<A>` is reachable from another nonterminal `<B>` if and only
@@ -372,6 +373,7 @@ all that we need to ensure is that *all* the expansion rules of start can
 reach the characterizing node. On the other hand, for a guarantee that an
 expansion rule can reach the characterizing node, all that is required is that
 one of the nonterminals in that rule guarantees reachability.
+We start with a few helper functions
 
 <!--
 ############
@@ -387,37 +389,16 @@ def is_refined_key(key):
     assert fuzzer.is_nonterminal(key)
     return (' ' in key)
 
+def is_base_key(key):
+    return not is_refined_key(key)
+
 def stem(token):
     return tsplit(token)[0].strip()
 
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
+    assert is_base_key(k)
     return '<%s %s>' % (stem(k), prefix)
-
-def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
-    rules = grammar[key]
-    my_rules = []
-    for rule in grammar[key]:
-        positions = get_reachable_positions(rule, cnodesym, reachable)
-        if not positions: # make it len(positions) >= n if necessary
-            # skip this rule because we can not embed the fault here.
-            continue
-        else:
-            # at each position, insert the cnodesym
-            for pos in positions:
-                new_rule = [refine_base_key(t, suffix)
-                            if pos == p else t for p,t in enumerate(rule)]
-                my_rules.append(new_rule)
-    return (refine_base_key(key, suffix), my_rules)
-
-
-if __name__ == '__main__':
-    for key in hdd.EXPR_GRAMMAR:
-        fk, rules = insert_atleast_one_cnode_into_key(hdd.EXPR_GRAMMAR, key, '<factor>', 'F1', reaching)
-        print(fk)
-        for r in rules:
-            print('    ', r)
-        print()
 
 ############
 -->
@@ -435,19 +416,30 @@ def is_refined_key(key):
     assert fuzzer.is_nonterminal(key)
     return (&#x27; &#x27; in key)
 
+def is_base_key(key):
+    return not is_refined_key(key)
+
 def stem(token):
     return tsplit(token)[0].strip()
 
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
+    assert is_base_key(k)
     return &#x27;&lt;%s %s&gt;&#x27; % (stem(k), prefix)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Defining the `reachable_key()`
 
-def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable):
+<!--
+############
+def reachable_key(grammar, key, cnodesym, suffix, reachable):
     rules = grammar[key]
     my_rules = []
     for rule in grammar[key]:
         positions = get_reachable_positions(rule, cnodesym, reachable)
-        if not positions: # make it len(positions) &gt;= n if necessary
+        if not positions:
             # skip this rule because we can not embed the fault here.
             continue
         else:
@@ -458,14 +450,50 @@ def insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
                 my_rules.append(new_rule)
     return (refine_base_key(key, suffix), my_rules)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def reachable_key(grammar, key, cnodesym, suffix, reachable):
+    rules = grammar[key]
+    my_rules = []
+    for rule in grammar[key]:
+        positions = get_reachable_positions(rule, cnodesym, reachable)
+        if not positions:
+            # skip this rule because we can not embed the fault here.
+            continue
+        else:
+            # at each position, insert the cnodesym
+            for pos in positions:
+                new_rule = [refine_base_key(t, suffix)
+                            if pos == p else t for p,t in enumerate(rule)]
+                my_rules.append(new_rule)
+    return (refine_base_key(key, suffix), my_rules)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+It is used as follows
 
-if __name__ == &#x27;__main__&#x27;:
-    for key in hdd.EXPR_GRAMMAR:
-        fk, rules = insert_atleast_one_cnode_into_key(hdd.EXPR_GRAMMAR, key, &#x27;&lt;factor&gt;&#x27;, &#x27;F1&#x27;, reaching)
-        print(fk)
-        for r in rules:
-            print(&#x27;    &#x27;, r)
-        print()
+<!--
+############
+for key in hdd.EXPR_GRAMMAR:
+    fk, rules = reachable_key(hdd.EXPR_GRAMMAR, key, '<factor>', 'F1', reaching)
+    print(fk)
+    for r in rules:
+        print('    ', r)
+    print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for key in hdd.EXPR_GRAMMAR:
+    fk, rules = reachable_key(hdd.EXPR_GRAMMAR, key, &#x27;&lt;factor&gt;&#x27;, &#x27;F1&#x27;, reaching)
+    print(fk)
+    for r in rules:
+        print(&#x27;    &#x27;, r)
+    print()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -598,74 +626,214 @@ for k in g:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Given the reaching grammar, and the pattern grammar, we can combine them to
-produce the complete grammar
+We define `pattern_grammar()` that wraps both calls.
 
 <!--
 ############
-def insert_atleast_one_cnode_into_grammar(grammar, start, cnodesym, suffix, reachable):
-    new_grammar = {}
-    s_key = None
-    for key in grammar:
-        fk, rules = insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
-        assert fk not in new_grammar
-        if key == start: s_key = fk
-        new_grammar[fk] = rules
-    return new_grammar, s_key
-
-def grammar_gc(grammar):
-    g = {}
-    for k in grammar:
-        if grammar[k]:
-            g[k] = grammar[k]
-    return g
-
-def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
-    key_f = cnode[0]
+def pattern_grammar(cnode, fname):
     unique_pattern_tree = mark_unique_nodes(cnode, fname)
     pattern_g, pattern_s = unique_cnode_to_grammar(unique_pattern_tree)
-    reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = insert_atleast_one_cnode_into_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
-
-    combined_grammar = {**grammar, **pattern_g, **reach_g}
-    reaching_sym = refine_base_key(key_f, fname)
-    combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
-
-    return grammar_gc(combined_grammar), reach_s
+    return pattern_g, pattern_s, unique_pattern_tree
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def insert_atleast_one_cnode_into_grammar(grammar, start, cnodesym, suffix, reachable):
+def pattern_grammar(cnode, fname):
+    unique_pattern_tree = mark_unique_nodes(cnode, fname)
+    pattern_g, pattern_s = unique_cnode_to_grammar(unique_pattern_tree)
+    return pattern_g, pattern_s, unique_pattern_tree
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
+print('start:', pattern_s)
+for k in pattern_g:
+    print(k)
+    for r in pattern_g[k]:
+        print('    ', r)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+pattern_g,pattern_s, t = pattern_grammar(pattern, &#x27;F1&#x27;)
+print(&#x27;start:&#x27;, pattern_s)
+for k in pattern_g:
+    print(k)
+    for r in pattern_g[k]:
+        print(&#x27;    &#x27;, r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Given the reaching grammar and the pattern grammar, we can combine them to
+produce the complete grammar
+
+<!--
+############
+def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
     new_grammar = {}
     s_key = None
     for key in grammar:
-        fk, rules = insert_atleast_one_cnode_into_key(grammar, key, cnodesym, suffix, reachable)
+        fk, rules = reachable_key(grammar, key, cnodesym, suffix, reachable)
         assert fk not in new_grammar
         if key == start: s_key = fk
         new_grammar[fk] = rules
     return new_grammar, s_key
 
-def grammar_gc(grammar):
-    g = {}
-    for k in grammar:
-        if grammar[k]:
-            g[k] = grammar[k]
-    return g
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
+    new_grammar = {}
+    s_key = None
+    for key in grammar:
+        fk, rules = reachable_key(grammar, key, cnodesym, suffix, reachable)
+        assert fk not in new_grammar
+        if key == start: s_key = fk
+        new_grammar[fk] = rules
+    return new_grammar, s_key
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Since some of the keys may not have any definition left in it,
 
+<!--
+############
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
+def grammar_gc(grammar, start):
+    g, removed = remove_empty_keys(grammar)
+    return g, start
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
+def grammar_gc(grammar, start):
+    g, removed = remove_empty_keys(grammar)
+    return g, start
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+At this point we are ready to define our `atleast_one_fault_grammar()`
+
+<!--
+############
 def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
-    unique_pattern_tree = mark_unique_nodes(cnode, fname)
-    pattern_g, pattern_s = unique_cnode_to_grammar(unique_pattern_tree)
+    pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
+
     reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = insert_atleast_one_cnode_into_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
     reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
-    return grammar_gc(combined_grammar), reach_s
+    return grammar_gc(combined_grammar, reach_s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
+    key_f = cnode[0]
+    pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
+
+    reachable_keys = reachable_dict(grammar)
+    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+
+    combined_grammar = {**grammar, **pattern_g, **reach_g}
+    reaching_sym = refine_base_key(key_f, fname)
+    combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
+
+    return grammar_gc(combined_grammar, reach_s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -820,6 +988,12 @@ ddset.display_abstract_tree(cnode)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+At this point, we have the ability to guarantee that a failure inducing
+fragment is present in any inputs produced. In later posts I will discuss how
+combine multiple such fragments together using `and`, `or` or `negation`. I
+will also discuss how to ensure `at most` one fragment in the input and
+`exactly` one fragment or `exactly n` fragments.
+As before, the runnable source of this notebook can be found [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-09-fault-inducing-grammar.py)
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
