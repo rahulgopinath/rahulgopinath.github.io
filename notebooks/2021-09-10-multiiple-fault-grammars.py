@@ -8,11 +8,18 @@
 # ---
 
 # In my previous post on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
-# I explained how one can inseert failure inducing inputs in a given grammar.
+# I explained the deficiency of abstract failure inducing inputs mined using
+# DDSet, and showed how to overcome that by inserting that abstract (evocative)
+# pattern into a grammar, producing evocative grammars that guarantee that the
+# evocative fragment is present in any input generated.
+#
+# However, what if one wants to produce inputs that contain two evocative
+# fragments? This is what we will discuss in this post.
 # 
 # As before, let us start with importing our required modules.
 
 import sys, imp
+import itertools as I
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -38,26 +45,137 @@ earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 hdd = import_file('hdd', '2019-12-04-hdd.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
+gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 
 # # Produing inputs with two fault inducing fragments guaranteed to be present.
+#
+# From the previous post [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
+# we extracted two evocative subtrees
 
-import itertools as I
+if __name__ == '__main__':
+    print(ddset.abstract_tree_to_str(gatleast.ETREE_DPAREN))
+    ddset.display_abstract_tree(gatleast.ETREE_DPAREN)
+    print()
+    print(ddset.abstract_tree_to_str(gatleast.ETREE_DZERO))
+    ddset.display_abstract_tree(gatleast.ETREE_DZERO)
 
-# ## Similar rules
-def conjoin_ruleset(rulesetA, rulesetB):
+# We now want to produce a grammar such that any input produced from that
+# grammar is guaranteed to contain both evocative subtrees. First, let us
+# extract the corresponding grammars. Here is the first one
+
+if __name__ == '__main__':
+    g1, s1 = gatleast.grammar_gc(gatleast.atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
+    gatleast.display_grammar(g1, s1)
+
+# Here is the second grammar.
+
+if __name__ == '__main__':
+    g2, s2 = gatleast.grammar_gc(gatleast.atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
+    gatleast.display_grammar(g2, s2)
+
+# Now, we want to combine these grammars. Remember that a gramamr has a set of
+# definitions that correspond to nonterminals, and each definition has a set of
+# rules. We start from the rules. If we want to combine two grammars, we need
+# to make sure that any input produced from the combined grammar is also parsed
+# by the original grammars. That is, any rule from the combined grammar should
+# have a corresponding rule in the original grammars. This gives us the
+# algorithm for combining two rules. First, we can only combine rules that have
+# similar base representation. That is, if ruleA is `[<A f1>, <B f2>, 'T']` 
+# where '<A>' and '<B>' are nonterminals and 'T' is a terminal<
+# and ruleB is `[<A f1>, <C f3>]`, these can't have a combination in the
+# combined grammar. On the other hand, if ruleB is `[<A f3>, <B f4> 'T']`
+# then, a combined rule of `[<A f1 & f3>, <B f2 & f4>, 'T']` can infact
+# represent both parent rules. That is, when combining two rules from different,
+# grammars, their combination is empty if they have different base
+# representation.
+#
+# ## Combining tokens
+# If they have the same base representation, then we only have to deal with how
+# to combine the nonterminal symbols. The terminal symbols are exactly the same
+# in parent rules as well as combined rule. So, given two tokens, we can
+# combine them as follows.
+
+def and_nonterminals(k1, k2):
+    b1, s1 = gatleast.tsplit(k1)
+    b2, s2 = gatleast.tsplit(k2)
+    assert b1 == b2
+    if not s1: return k2
+    if not s2: return k1
+    if s1 == s2: return k1
+    return '<%s and(%s,%s)>' % (b1, s1, s2)
+
+def and_tokens(t1, t2):
+    if not fuzzer.is_nonterminal(t1): return t1
+    return and_nonterminals(t1, t2)
+
+# Using it.
+
+if __name__ == '__main__':
+    print(and_tokens('C', 'C'))
+    print(and_tokens('<A>', '<A f1>'))
+    print(and_tokens('<A f2>', '<A f1>'))
+
+# ## Combining rules
+# Next, we define combination for rules
+
+def and_rules(ruleA, ruleB):
+    AandB_rule = []
+    for t1,t2 in zip(ruleA, ruleB):
+        AandB_rule.append(and_tokens(t1, t2))
+    return AandB_rule
+
+# Using it.
+if __name__ == '__main__':
+    print(and_rules(['<A>', '<B f1>', 'C'], ['<A f1>', '<B>', 'C']))
+    print(and_rules(['<A f2>', '<B f1>', 'C'], ['<A f1>', '<B f3>', 'C']))
+    print(and_rules(['<A f1>', '<B f1>', 'C'], ['<A f1>', '<B f3>', 'C']))
+
+# ## Combining rulesets
+# 
+# Next, our grammars may contain multiple rules that represent the same base
+# rule. All the rules that represent the same base rule is called a ruleset.
+# combining two rulesets is done by producing a new ruleset that contains all
+# possible pairs of rules from the parent ruleset.
+
+def and_ruleset(rulesetA, rulesetB):
     rules = []
     for ruleA,ruleB in I.product(rulesetA, rulesetB):
-        AandB_rule = []
-        for t1,t2 in zip(ruleA, ruleB):
-            if not fuzzer.is_nonterminal(t1):
-                AandB_rule.append(t1)
-            elif is_base_key(t1) and is_base_key(t2):
-                AandB_rule.append(t1)
-            else:
-                k = and_keys(t1, t2, simplify=True)
-                AandB_rule.append(k)
+        AandB_rule = and_rules(ruleA, ruleB)
         rules.append(AandB_rule)
     return rules
+
+# Using it.
+if __name__ == '__main__':
+    A = [['<A>', '<B f1>', 'C'], ['<A f1>', '<B>', 'C']]
+    B = [['<A f2>', '<B f1>', 'C'], ['<A f1>', '<B f3>', 'C']]
+    C = [['<A f1>', '<B f1>', 'C'], ['<A f1>', '<B f3>', 'C']]
+    for k in and_ruleset(A, B): print(k)
+    print()
+    for k in and_ruleset(A, C): print(k)
+    print()
+    for k in and_ruleset(B, C): print(k)
+    print()
+
+# Next, we define a few helper functions that collects all rulesets
+
+def normalize(key):
+    if gatleast.is_base_key(key): return key
+    return '<%s>' % gatleast.stem(key)
+
+def normalize_grammar(g):
+    return {normalize(k):list({tuple([normalize(t) if fuzzer.is_nonterminal(t) else t for t in r]) for r in g[k]}) for k in g}
+
+def rule_to_normalized_rule(rule):
+    return [normalize(t) if fuzzer.is_nonterminal(t) else t for t in rule]
+
+def normalized_rule_match(r1, r2):
+    return rule_to_normalized_rule(r1) == rule_to_normalized_rule(r2)
+
+def rule_normalized_difference(rulesA, rulesB):
+    rem_rulesA = rulesA
+    for ruleB in rulesB:
+        rem_rulesA = [rA for rA in rem_rulesA if not normalized_rule_match(rA, ruleB)]
+    return rem_rulesA
 
 def get_rulesets(rules):
     rulesets = {}
@@ -67,34 +185,58 @@ def get_rulesets(rules):
         rulesets[nr].append(rule)
     return rulesets
 
-# ## And rules for same keys.
-def and_rules(rulesA, rulesB):
+# ## definition combinations
+# Now, we can define the combination of definitions as follows.
+
+def and_definitions(rulesA, rulesB):
     AandB_rules = []
-    # key is the rule pattern
-    rulesetsA = get_rulesets(rulesA)
-    rulesetsB = get_rulesets(rulesB)
+    rulesetsA, rulesetsB = get_rulesets(rulesA), get_rulesets(rulesB)
     # drop any rules that are not there in both.
     keys = set(rulesetsA.keys()) & set(rulesetsB.keys())
     for k in keys:
-        new_rules = conjoin_ruleset(rulesetsA[k], rulesetsB[k])
+        new_rules = and_ruleset(rulesetsA[k], rulesetsB[k])
         AandB_rules.extend(new_rules)
     return AandB_rules
+
+# Using it.
+
+if __name__ == '__main__':
+    expr1 = [r for k in g1 if 'expr' in k for r in g1[k]]
+    expr2 = [r for k in g2 if 'expr' in k for r in g2[k]]
+    for k in and_definitions(expr1, expr2):
+        print(k)
+    print()
+
+# ## grammar combination
+# We can now define our grammar combination as follows.
 
 def and_grammars_(g1, s1, g2, s2):
     g1_keys = g1.keys()
     g2_keys = g2.keys()
     g = {**g1, **g2}
-    # now get the matching keys for each pair.
     for k1,k2 in I.product(g1_keys, g2_keys):
-        # define and(k1, k2)
         if normalize(k1) != normalize(k2): continue
-        # find matching rules for similar keys
-        and_key = and_keys(k1, k2)
-        g[and_key] = and_rules(g1[k1], g2[k2])
-    return g, and_keys(s1, s2)
+        and_key = and_tokens(k1, k2)
+        g[and_key] = and_definitions(g1[k1], g2[k2])
+    return g, and_tokens(s1, s2)
+
+# Using it.
+if __name__ == '__main__':
+    combined_g, combined_s = gatleast.grammar_gc(and_grammars_(g1, s1, g2, s2))
+    gatleast.display_grammar(combined_g, combined_s)
 
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
+# Using it.
+if __name__ == '__main__':
+    combined_f = fuzzer.LimitFuzzer(combined_g)
+    for i in range(10):
+        v = combined_f.iter_fuzz(key=combined_s, max_depth=10)
+        assert gatleast.expr_div_by_zero(v)
+        assert hdd.expr_double_paren(v)
+        print(v)
 
+
+# --
 import sympy
 
 class LitB:
@@ -160,7 +302,7 @@ class BExpr:
 
     def with_key(self, k):
         s = self.simple()
-        if s: return '<%s %s>' % (stem(k), s)
+        if s: return '<%s %s>' % (gatleast.stem(k), s)
         return normalize(k)
 
     def _simplify(self):
