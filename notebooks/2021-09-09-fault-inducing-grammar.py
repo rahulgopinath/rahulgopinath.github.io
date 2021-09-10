@@ -29,8 +29,9 @@
 # failure inducing inputs is a mouthful, let us call these abstract failure
 # inducing inputs **evocative patterns** for short. In this post, we will see
 # how to transform such an **evocative pattern** to an **evocative grammar** that is
-# guaranteed to produce *evocative inputs* in all contexts that are guaranteed
-# (statistically) to induce failures.
+# guaranteed to produce *evocative inputs* (that is, each input contains an
+# **evocative fragment**) in all contexts that are guaranteed (statistically) to
+# induce failures.
 # 
 # As before, let us start with importing our required modules.
 
