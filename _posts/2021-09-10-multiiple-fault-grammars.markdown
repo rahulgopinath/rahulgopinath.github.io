@@ -108,7 +108,7 @@ gatleast = import_file(&#x27;gatleast&#x27;, &#x27;2021-09-09-fault-inducing-gra
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-# Produing inputs with two fault inducing fragments guaranteed to be present.
+# Producing inputs with two fault inducing fragments guaranteed to be present.
 From the previous post [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
 we extracted two evocative subtrees
 
@@ -658,7 +658,7 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## OR
+## Producing inputs with at least one of the two fault inducing fragments guaranteed to be present.
 How do we construct grammars that are guaranteed to contain at least one of
 the evocative patterns? This is actually much less complicated than `and`
 The idea is simply using the distributive law. A definition is simply

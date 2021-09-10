@@ -48,7 +48,7 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 
-# # Produing inputs with two fault inducing fragments guaranteed to be present.
+# # Producing inputs with two fault inducing fragments guaranteed to be present.
 #
 # From the previous post [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
 # we extracted two evocative subtrees
@@ -298,7 +298,7 @@ if __name__ == '__main__':
         assert hdd.expr_double_paren(v)
         print(v)
 
-# ## OR
+# ## Producing inputs with at least one of the two fault inducing fragments guaranteed to be present.
 # How do we construct grammars that are guaranteed to contain at least one of
 # the evocative patterns? This is actually much less complicated than `and`
 #
