@@ -283,21 +283,31 @@ def unique_cnode_to_grammar(tree, grammar=None):
 
 # We can convert this to grammar, but first, to display the grammar properly, we
 # define `display_grammar()`
+
+def display_rule(rule, pre, verbose):
+    if verbose > -1:
+        v = (' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        s = '%s|   %s' % (pre, v)
+        print(s)
+
+def display_definition(grammar, key, r, verbose):
+    if verbose > -1: print(key,'::=')
+    for rule in grammar[key]:
+        r += 1
+        if verbose > 1:
+            pre = r
+        else:
+            pre = ''
+        display_rule(rule, pre, verbose)
+    return r
+
 def display_grammar(grammar, start, verbose=0):
     r = 0
     k = 0
     print('start:', start)
     for key in grammar:
         k += 1
-        if verbose > -1: print(key,'::=')
-        for rule in grammar[key]:
-            r += 1
-            if verbose > 1:
-                pre = r
-            else:
-                pre = ''
-            if verbose > -1:
-                print('%s|   ' % pre, ' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        r = display_definition(grammar, key, r, verbose)
         if verbose > 0:
             print(k, r)
     print(k, r)

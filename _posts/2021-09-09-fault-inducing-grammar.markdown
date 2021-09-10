@@ -606,21 +606,30 @@ define `display_grammar()`
 
 <!--
 ############
+def display_rule(rule, pre, verbose):
+    if verbose > -1:
+        v = (' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        s = '%s|   %s' % (pre, v)
+        print(s)
+
+def display_definition(grammar, key, r, verbose):
+    if verbose > -1: print(key,'::=')
+    for rule in grammar[key]:
+        r += 1
+        if verbose > 1:
+            pre = r
+        else:
+            pre = ''
+        display_rule(rule, pre, verbose)
+    return r
+
 def display_grammar(grammar, start, verbose=0):
     r = 0
     k = 0
     print('start:', start)
     for key in grammar:
         k += 1
-        if verbose > -1: print(key,'::=')
-        for rule in grammar[key]:
-            r += 1
-            if verbose > 1:
-                pre = r
-            else:
-                pre = ''
-            if verbose > -1:
-                print('%s|   ' % pre, ' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        r = display_definition(grammar, key, r, verbose)
         if verbose > 0:
             print(k, r)
     print(k, r)
@@ -633,21 +642,30 @@ if __name__ == '__main__':
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def display_rule(rule, pre, verbose):
+    if verbose &gt; -1:
+        v = (&#x27; &#x27;.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        s = &#x27;%s|   %s&#x27; % (pre, v)
+        print(s)
+
+def display_definition(grammar, key, r, verbose):
+    if verbose &gt; -1: print(key,&#x27;::=&#x27;)
+    for rule in grammar[key]:
+        r += 1
+        if verbose &gt; 1:
+            pre = r
+        else:
+            pre = &#x27;&#x27;
+        display_rule(rule, pre, verbose)
+    return r
+
 def display_grammar(grammar, start, verbose=0):
     r = 0
     k = 0
     print(&#x27;start:&#x27;, start)
     for key in grammar:
         k += 1
-        if verbose &gt; -1: print(key,&#x27;::=&#x27;)
-        for rule in grammar[key]:
-            r += 1
-            if verbose &gt; 1:
-                pre = r
-            else:
-                pre = &#x27;&#x27;
-            if verbose &gt; -1:
-                print(&#x27;%s|   &#x27; % pre, &#x27; &#x27;.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        r = display_definition(grammar, key, r, verbose)
         if verbose &gt; 0:
             print(k, r)
     print(k, r)
