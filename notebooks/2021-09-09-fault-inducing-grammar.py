@@ -528,6 +528,32 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     ddset.display_abstract_tree(evocative_subtree)
 
+# We save this subtree for later use.
+
+ETREE_DPAREN = ('<factor>',
+        [('(', [], {'abstract': False}),
+         ('<expr>',
+             [('<term>',
+                 [('<factor>',
+                     [('(', [], {'abstract': False}),
+                      ('<expr>', [('<term>',
+                          [('<factor>',
+                              [('<integer>',
+                                  [('<digit>',
+                                      [('4', [],
+                                          {'abstract': False})],
+                                      {'abstract': False})],
+                                  {'abstract': False})],
+                              {'abstract': False})],
+                          {'abstract': False})],
+                          {'abstract': True}),
+                      (')', [],
+                          {'abstract': False})],
+                      {'abstract': False})],
+                 {'abstract': False})],
+             {'abstract': False}),
+         (')', [], {'abstract': False})], {'abstract': False})
+
 # Here is another evocative pattern, but we define a different predicate.
 
 def expr_div_by_zero(input_str):
@@ -561,6 +587,26 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
     ddset.display_abstract_tree(etree2)
+
+# We save this evocative pattern for later use.
+ETREE_DZERO = ('<term>',
+        [('<factor>',
+            [('<integer>',
+                [('<digit>', [('2', [], {'abstract': False})],
+                    {'abstract': False})],
+                {'abstract': False})],
+            {'abstract': True}),
+            ('/', [], {'abstract': False}),
+            ('<term>',
+                [('<factor>',
+                    [('<integer>',
+                        [('<digit>', [('0', [],
+                            {'abstract': False})],
+                            {'abstract': False})],
+                        {'abstract': False})],
+                    {'abstract': False})],
+                {'abstract': False})],
+            {'abstract': False})
 
 # The new grammar is as follows
 

@@ -1147,6 +1147,65 @@ ddset.display_abstract_tree(evocative_subtree)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We save this subtree for later use.
+
+<!--
+############
+ETREE_DPAREN = ('<factor>',
+        [('(', [], {'abstract': False}),
+         ('<expr>',
+             [('<term>',
+                 [('<factor>',
+                     [('(', [], {'abstract': False}),
+                      ('<expr>', [('<term>',
+                          [('<factor>',
+                              [('<integer>',
+                                  [('<digit>',
+                                      [('4', [],
+                                          {'abstract': False})],
+                                      {'abstract': False})],
+                                  {'abstract': False})],
+                              {'abstract': False})],
+                          {'abstract': False})],
+                          {'abstract': True}),
+                      (')', [],
+                          {'abstract': False})],
+                      {'abstract': False})],
+                 {'abstract': False})],
+             {'abstract': False}),
+         (')', [], {'abstract': False})], {'abstract': False})
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ETREE_DPAREN = (&#x27;&lt;factor&gt;&#x27;,
+        [(&#x27;(&#x27;, [], {&#x27;abstract&#x27;: False}),
+         (&#x27;&lt;expr&gt;&#x27;,
+             [(&#x27;&lt;term&gt;&#x27;,
+                 [(&#x27;&lt;factor&gt;&#x27;,
+                     [(&#x27;(&#x27;, [], {&#x27;abstract&#x27;: False}),
+                      (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;term&gt;&#x27;,
+                          [(&#x27;&lt;factor&gt;&#x27;,
+                              [(&#x27;&lt;integer&gt;&#x27;,
+                                  [(&#x27;&lt;digit&gt;&#x27;,
+                                      [(&#x27;4&#x27;, [],
+                                          {&#x27;abstract&#x27;: False})],
+                                      {&#x27;abstract&#x27;: False})],
+                                  {&#x27;abstract&#x27;: False})],
+                              {&#x27;abstract&#x27;: False})],
+                          {&#x27;abstract&#x27;: False})],
+                          {&#x27;abstract&#x27;: True}),
+                      (&#x27;)&#x27;, [],
+                          {&#x27;abstract&#x27;: False})],
+                      {&#x27;abstract&#x27;: False})],
+                 {&#x27;abstract&#x27;: False})],
+             {&#x27;abstract&#x27;: False}),
+         (&#x27;)&#x27;, [], {&#x27;abstract&#x27;: False})], {&#x27;abstract&#x27;: False})
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Here is another evocative pattern, but we define a different predicate.
 
 <!--
@@ -1243,6 +1302,55 @@ ddset.display_abstract_tree(etree2)
 <textarea cols="40" rows="4" name='python_edit'>
 etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
 ddset.display_abstract_tree(etree2)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We save this evocative pattern for later use.
+
+<!--
+############
+ETREE_DZERO = ('<term>',
+        [('<factor>',
+            [('<integer>',
+                [('<digit>', [('2', [], {'abstract': False})],
+                    {'abstract': False})],
+                {'abstract': False})],
+            {'abstract': True}),
+            ('/', [], {'abstract': False}),
+            ('<term>',
+                [('<factor>',
+                    [('<integer>',
+                        [('<digit>', [('0', [],
+                            {'abstract': False})],
+                            {'abstract': False})],
+                        {'abstract': False})],
+                    {'abstract': False})],
+                {'abstract': False})],
+            {'abstract': False})
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ETREE_DZERO = (&#x27;&lt;term&gt;&#x27;,
+        [(&#x27;&lt;factor&gt;&#x27;,
+            [(&#x27;&lt;integer&gt;&#x27;,
+                [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [], {&#x27;abstract&#x27;: False})],
+                    {&#x27;abstract&#x27;: False})],
+                {&#x27;abstract&#x27;: False})],
+            {&#x27;abstract&#x27;: True}),
+            (&#x27;/&#x27;, [], {&#x27;abstract&#x27;: False}),
+            (&#x27;&lt;term&gt;&#x27;,
+                [(&#x27;&lt;factor&gt;&#x27;,
+                    [(&#x27;&lt;integer&gt;&#x27;,
+                        [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;0&#x27;, [],
+                            {&#x27;abstract&#x27;: False})],
+                            {&#x27;abstract&#x27;: False})],
+                        {&#x27;abstract&#x27;: False})],
+                    {&#x27;abstract&#x27;: False})],
+                {&#x27;abstract&#x27;: False})],
+            {&#x27;abstract&#x27;: False})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
