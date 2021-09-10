@@ -14,7 +14,8 @@
 # evocative fragment is present in any input generated.
 #
 # However, what if one wants to produce inputs that contain two evocative
-# fragments? This is what we will discuss in this post.
+# fragments? or wants to produce inputs that are guaranteed to contain at least
+# one of them? This is what we will discuss in this post.
 # 
 # As before, let us start with importing our required modules.
 
