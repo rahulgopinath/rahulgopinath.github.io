@@ -1,3 +1,50 @@
+# ---
+# published: true
+# title: Specializing Grammars for Not Inducing A Fault
+# layout: post
+# comments: true
+# tags: python
+# categories: post
+# ---
+
+# In my previous post on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
+# I explained the deficiency of abstract failure inducing inputs mined using
+# DDSet, and showed how to overcome that by inserting that abstract (evocative)
+# pattern into a grammar, producing evocative grammars that guarantee that the
+# evocative fragment is present in any input generated.
+#
+# As before, let us start with importing our required modules.
+
+import sys, imp
+import itertools as I
+
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, 'exec')
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
+
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        import pyodide
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo =  'rahulgopinath/rahulgopinath.github.io'
+        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
+        module_str = pyodide.open_url(module_loc).getvalue()
+    else:
+        module_loc = './notebooks/%s' % location
+        with open(module_loc) as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
+
+# We import the following modules
+earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
+hdd = import_file('hdd', '2019-12-04-hdd.py')
+fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
+ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
+gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
+gmultiple = import_file('gmultiple', '2021-09-10-multiiple-fault-grammars.py')
+
 # # A grammar with no fault inducing fragments.
 #
 # A similar procedure can be used to make sure that no failure inducing
@@ -36,18 +83,19 @@ def unreachable_key(grammar, key, cnodesym, negated_suffix, reachable):
     rules = grammar[key]
     my_rules = []
     for rule in grammar[key]:
-        positions = get_reachable_positions(rule, cnodesym, reachable)
+        positions = gatleast.get_reachable_positions(rule, cnodesym, reachable)
         if not positions:
             # not embeddable here. We can add this rule.
             my_rules.append(rule)
         else:
-            new_rule = [refine_base_key(t, negated_suffix) if p in positions else t for p,t in enumerate(rule)]
+            new_rule = [gatleast.refine_base_key(t, negated_suffix) if p in positions else t for p,t in enumerate(rule)]
             my_rules.append(new_rule)
-    return (refine_base_key(key, negated_suffix), my_rules)
+    return (gatleast.refine_base_key(key, negated_suffix), my_rules)
 
 # Using it.
 
 if __name__ == '__main__':
+    reaching = gatleast.reachable_dict(hdd.EXPR_GRAMMAR)
     for key in hdd.EXPR_GRAMMAR:
         fk, rules = unreachable_key(hdd.EXPR_GRAMMAR, key, '<factor>', negate_suffix('F1'), reaching)
         print(fk)
@@ -76,32 +124,22 @@ def unreachable_grammar(grammar, start, cnodesym, negated_suffix, reachable):
 # that the original fault is not reachable from any of the nonterminals.
 
 def negate_key(k):
-    return '<%s %s>' % (stem(k), negate_suffix(refinement(k)))
-
-def normalize(key):
-    if is_base_key(key): return key
-    return '<%s>' % stem(key)
+    return '<%s %s>' % (gatleast.stem(k), negate_suffix(gatleast.refinement(k)))
 
 def normalize_grammar(g):
-    return {normalize(k):list({tuple([normalize(t) if fuzzer.is_nonterminal(t) else t for t in r]) for r in g[k]}) for k in g}
-
-def rule_to_normalized_rule(rule):
-    return [normalize(t) if fuzzer.is_nonterminal(t) else t for t in rule]
-
-def normalized_rule_match(r1, r2):
-    return rule_to_normalized_rule(r1) == rule_to_normalized_rule(r2)
+    return {gmultiple.normalize(k):list({tuple([gmultiple.normalize(t) if fuzzer.is_nonterminal(t) else t for t in r]) for r in g[k]}) for k in g}
 
 def rule_normalized_difference(rulesA, rulesB):
     rem_rulesA = rulesA
     for ruleB in rulesB:
-        rem_rulesA = [rA for rA in rem_rulesA if not normalized_rule_match(rA, ruleB)]
+        rem_rulesA = [rA for rA in rem_rulesA if not gmultiple.normalized_rule_match(rA, ruleB)]
     return rem_rulesA
 
 def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
-        if is_base_key(token): continue
+        if gatleast.is_base_key(token): continue
         r = [negate_key(t) if i==pos else t for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
@@ -126,7 +164,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
         l_rule = pattern_grammar[l_key][0]
         nl_key = negate_key(l_key)
         # find all rules that do not match, and add to negated_grammar,
-        normal_l_key = normalize(l_key)
+        normal_l_key = gmultiple.normalize(l_key)
         base_rules = base_grammar[normal_l_key]
         refined_rules = pattern_grammar[l_key]
 
@@ -138,6 +176,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
 # Using
 
 if __name__ == '__main__':
+    pattern_g,pattern_s, t = gatleast.pattern_grammar(gatleast.ETREE_DPAREN, 'F1')
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR)
     # next we need to conjunct
     print('start:', nomatch_s)
@@ -151,24 +190,17 @@ if __name__ == '__main__':
 # embedded. For that we simply conjunct it with `neg(F1)`
 
 def and_suffix(k1, suffix):
-    if is_base_key(k1):
-        return '<%s %s>' % (stem(k1), suffix)
-    return '<%s and(%s,%s)>' % (stem(k1), refinement(k1), suffix)
-
-def and_keys(k1, k2):
-    if k1 == k2: return k1
-    if not refinement(k1): return k2
-    if not refinement(k2): return k1
-    return '<%s and(%s,%s)>' % (stem(k1), refinement(k1), refinement(k2))
-
+    if gatleast.is_base_key(k1):
+        return '<%s %s>' % (gatleast.stem(k1), suffix)
+    return '<%s and(%s,%s)>' % (gatleast.stem(k1), gatleast.refinement(k1), suffix)
 
 def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
-    reachable_keys = reachable_dict(base_grammar)
+    reachable_keys = gatleast.reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar)
 
     new_grammar = {}
 
-    my_key = normalize(pattern_start)
+    my_key = gmultiple.normalize(pattern_start)
     # which keys can reach pattern_start?
     keys_that_can_reach_fault = [k for k in reachable_keys if my_key in reachable_keys[k]]
     #for k in keys_that_can_reach_fault: assert my_key in reachable_keys[k]
@@ -206,25 +238,25 @@ def tokens(g):
 
 def no_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
-    pattern_g, pattern_s, tr = pattern_grammar(cnode, fname)
+    pattern_g, pattern_s, tr = gatleast.pattern_grammar(cnode, fname)
     negated_suffix = negate_suffix(fname)
     nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, grammar, negated_suffix)
 
-    reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+    reachable_keys = gatleast.reachable_dict(grammar)
+    reach_g, reach_s = gatleast.reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
     unreach_g, unreach_s = unreachable_grammar(grammar, start_symbol, key_f, negated_suffix, reachable_keys)
 
     combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
-    unreaching_sym = refine_base_key(key_f, negated_suffix)
+    unreaching_sym = gatleast.refine_base_key(key_f, negated_suffix)
     combined_grammar[unreaching_sym] = unreach_g[unreaching_sym] + nomatch_g[nomatch_s] # TODO verify
 
-    return grammar_gc(combined_grammar, unreach_s)
+    return combined_grammar, unreach_s
 
 # Using it.
 
 if __name__ == '__main__':
-    cnode = pattern[1][0][1][0][1][0]
-    g, s = no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1')
+    cnode = gatleast.ETREE_DPAREN
+    g, s = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1'))
     print()
     print('start:', s)
     for k in g:
