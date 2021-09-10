@@ -181,7 +181,7 @@ The basic idea is that if we can find a `characterizing node` of the
 abstract fault tree, such that the presence of the abstract subtree
 in the input guarantees the failure, then we can modify the grammar such
 that this abstract subtree is always present. That is, for any input
-from such a grammar, at least one instance of the abstract failure iducing
+from such a grammar, at least one instance of the abstract failure inducing
 subtree will be present. This is fairly easy to do if the generated tree
 contains a nonterminal of the same kind as that of the characterizing node.
 Simply replace that node with the characterizing node, and fill in the
@@ -307,7 +307,7 @@ That is, only `<digit>` and `<integer>` are reachable from the expansion of
 nonterminal `<integer>`
 ## Reachable positions.
 Next, given a characterizing node, we want to find what tokens of the grammar
-can can actually embed such a node.
+can actually embed such a node.
 
 <!--
 ############
@@ -499,8 +499,11 @@ for key in hdd.EXPR_GRAMMAR:
 <div name='python_canvas'></div>
 </form>
 ## Pattern Grammar
-Next, we need to ensure that our characterizing node can form a unique subtree
-For that, all we need to do is that all nodes except abstract are named uniquely.
+Next, we need to ensure that our characterizing node can form a unique subtree.
+For that, all we need to do is that all nodes are named uniquely.
+Not all nodes in the characterizing node needs unique names however. DDSet
+produces trees such that some nodes in the tree are left abstract. We leave
+these with the original node names.
 
 <!--
 ############
@@ -807,52 +810,29 @@ any rule that uses it will also by definition have no possible expansions.
 This has consequences during generation, forcing us to abandon partially
 constructed trees. Hence, we define a `grammar_gc()`
 ## Cleanup of the grammar
+Let us make sure that we are operating on a copy of the grammar.
+
+<!--
+############
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we find the empty keys in the grammar that do not have a definition.
 
 <!--
 ############
 def find_empty_keys(g):
     return [k for k in g if not g[k]]
-
-def remove_key(k, g):
-    new_g = {}
-    for k_ in g:
-        if k_ == k:
-            continue
-        else:
-            new_rules = []
-            for rule in g[k_]:
-                new_rule = []
-                for t in rule:
-                    if t == k:
-                        # skip this rule
-                        new_rule = None
-                        break
-                    else:
-                        new_rule.append(t)
-                if new_rule is not None:
-                    new_rules.append(new_rule)
-            new_g[k_] = new_rules
-    return new_g
-
-
-def copy_grammar(g):
-    return {k:[[t for t in r] for r in g[k]] for k in g}
-
-def remove_empty_keys(g):
-    new_g = copy_grammar(g)
-    removed_keys = []
-    empty_keys = find_empty_keys(new_g)
-    while empty_keys:
-        for k in empty_keys:
-            removed_keys.append(k)
-            new_g = remove_key(k, new_g)
-        empty_keys = find_empty_keys(new_g)
-    return new_g, removed_keys
-
-def grammar_gc(g):
-    grammar, start = g
-    new_grammar, removed = remove_empty_keys(grammar)
-    return new_grammar, start
 
 ############
 -->
@@ -860,46 +840,97 @@ def grammar_gc(g):
 <textarea cols="40" rows="4" name='python_edit'>
 def find_empty_keys(g):
     return [k for k in g if not g[k]]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, we need to remove such empty definitions, which also means any rules that
+refer to the corresponding nonterminals also have to be removed. The
+`remove_nonterminal` function takes a nonterminal, and removes its references
+from the given grammar.
 
-def remove_key(k, g):
+<!--
+############
+def remove_nonterminal(nt, g):
     new_g = {}
     for k_ in g:
-        if k_ == k:
-            continue
-        else:
-            new_rules = []
-            for rule in g[k_]:
-                new_rule = []
-                for t in rule:
-                    if t == k:
-                        # skip this rule
-                        new_rule = None
-                        break
-                    else:
-                        new_rule.append(t)
-                if new_rule is not None:
-                    new_rules.append(new_rule)
-            new_g[k_] = new_rules
+        if k_ == nt: continue
+        new_rules = []
+        for rule in g[k_]:
+            if any(t == nt for t in rule): continue
+            new_rules.append(rule)
+        new_g[k_] = new_rules
     return new_g
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def remove_nonterminal(nt, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == nt: continue
+        new_rules = []
+        for rule in g[k_]:
+            if any(t == nt for t in rule): continue
+            new_rules.append(rule)
+        new_g[k_] = new_rules
+    return new_g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+When removing a rule, it can also happen that the corresponding nonterminal
+may be left with no further rules. Hence, we need to
+define finding and removing empty nonterminals from the grammar recursively.
 
-def copy_grammar(g):
-    return {k:[[t for t in r] for r in g[k]] for k in g}
-
-def remove_empty_keys(g):
+<!--
+############
+def remove_empty_nonterminals(g):
     new_g = copy_grammar(g)
     removed_keys = []
     empty_keys = find_empty_keys(new_g)
     while empty_keys:
         for k in empty_keys:
             removed_keys.append(k)
-            new_g = remove_key(k, new_g)
+            new_g = remove_nonterminal(k, new_g)
         empty_keys = find_empty_keys(new_g)
     return new_g, removed_keys
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def remove_empty_nonterminals(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_nonterminal(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+These gives us the `grammar_gc()`
+
+<!--
+############
 def grammar_gc(g):
     grammar, start = g
-    new_grammar, removed = remove_empty_keys(grammar)
+    new_grammar, removed = remove_empty_nonterminals(grammar)
+    return new_grammar, start
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def grammar_gc(g):
+    grammar, start = g
+    new_grammar, removed = remove_empty_nonterminals(grammar)
     return new_grammar, start
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
