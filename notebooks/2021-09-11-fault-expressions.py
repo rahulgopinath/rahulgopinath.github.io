@@ -7,19 +7,44 @@
 # categories: post
 # ---
 
-# In my previous post on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
-# I explained the deficiency of abstract failure inducing inputs mined using
-# DDSet, and showed how to overcome that by inserting that abstract (evocative)
-# pattern into a grammar, producing evocative grammars that guarantee that the
-# evocative fragment is present in any input generated.
-#
-# However, what if one wants to produce inputs that contain two evocative
-# fragments? This is what we will discuss in this post.
+# In my previous posts on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
+# and [multiple faults](/post/2021/09/10/multiiple-fault-grammars/) I introduced
+# the evocative patterns and how to combine them using `and`. As our expressions
+# keep growing in complexity, we need a better way to mange them. This post
+# introduces a language for the suffixes so that we will have an easier time
+# managing them.
 # 
 # As before, let us start with importing our required modules.
 
+#@mpmath-1.2.1-py3-none-any.whl
+#@sympy-1.8-py3-none-any.whl
+
+import sympy
+
+# Our language is a simple language of boolean algebra. That is, it is the
+# langauge of expressions in the specialization for a nonterminal such as `<A and(f1,f2)>`
+# It is defined by the following grammar.
+
+import string
+BEXPR_GRAMMAR = {
+    '<start>': [['<bexpr>']],
+    '<bexpr>': [
+        ['<bop>', '(', '<bexpr>', ',', '<bexpr>', ')'],
+        ['<bop>',  '(', '<bexpr>', ',', '<bexpr>', ')'],
+        ['<bop>', '(', '<bexpr>', ')'],
+        ['<fault>']],
+    '<bop>' : [list('and'), list('or'), list('neg')],
+    '<fault>': [['<letters>'], []],
+    '<letters>': [
+        ['<letter>'],
+        ['<letter>', '<letters>']],
+    '<letter>': [[i] for i in (string.ascii_lowercase + string.ascii_uppercase + string.digits) + '_+*.-']
+}
+BEXPR_START = '<start>'
+
+# We need the ability to parse any expressions. So, let us load the parser
+
 import sys, imp
-import itertools as I
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -40,33 +65,31 @@ def import_file(name, location):
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 
-# We import the following modules
+# The parser
+
 earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-hdd = import_file('hdd', '2019-12-04-hdd.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 
-# # Produing inputs with two fault inducing fragments guaranteed to be present.
-#
-# From the previous post [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
-# we extracted two evocative subtrees
-
-if __name__ == '__main__':
-    print(ddset.abstract_tree_to_str(gatleast.ETREE_DPAREN))
-    ddset.display_abstract_tree(gatleast.ETREE_DPAREN)
-    print()
-    print(ddset.abstract_tree_to_str(gatleast.ETREE_DZERO))
-    ddset.display_abstract_tree(gatleast.ETREE_DZERO)
-
-import sympy
+# Next, we need a data structure to represent the boolean language.
+# First we represent our literals using `LitB` class.
 
 class LitB:
     def __init__(self, a): self.a = a
     def __str__(self): return self.a
 
+# There are two boolean literals. The top and the bottom. The top literal
+# also (T) essentially indicates that there is no specialization of the base
+# nonterminal. For e.g. `<A>` is a top literal.
+# Hence, we indicate it by an empty string.
+
 TrueB = LitB('')
+
+# The bottom literal indicates that there are no possible members for this
+# particular nonterminal. For e.g. <A _|_> indicates that this is empty.
+# We indicate it by the empty symbol _|_.
+
 FalseB = LitB('_|_')
+
+# Next, we define the standard teerms of the boolean algebra. `or(.,.)`, `and(.,.)` and `neg(.)`
 
 class OrB:
     def __init__(self, a): self.l = a
@@ -81,23 +104,7 @@ class B:
     def __init__(self, a): self.a = a
     def __str__(self): return str(self.a)
 
-
-import string
-BEXPR_GRAMMAR = {
-    '<start>': [['<bexpr>']],
-    '<bexpr>': [
-        ['<bop>', '(', '<bexpr>', ',', '<bexpr>', ')'],
-        ['<bop>',  '(', '<bexpr>', ',', '<bexpr>', ')'],
-        ['<bop>', '(', '<bexpr>', ')'],
-        ['<fault>']],
-    '<bop>' : [list('and'), list('or'), list('neg')],
-    '<fault>': [['<letters>'], []],
-    '<letters>': [
-        ['<letter>'],
-        ['<letter>', '<letters>']],
-    '<letter>': [[i] for i in (string.ascii_lowercase + string.ascii_uppercase + string.digits) + '_+*.-']
-}
-BEXPR_START = '<start>'
+# Next, we come to the actual representative class.
 
 class BExpr:
     def __init__(self, s):

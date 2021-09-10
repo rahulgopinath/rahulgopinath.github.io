@@ -11,10 +11,15 @@ def split_data(data):
     processed_data = []
     for chunk in chunks:
         if chunk[0][0] == '#': # comment chunk
-            assert chunk[0][1] == ' '
-            # remove extra newlines.
-            comment = ''.join([line[2:] for line in chunk])
-            processed_data.append(('comment', comment))
+            if chunk[0][1] == ' ':
+                # remove extra newlines.
+                comment = ''.join([line[2:] for line in chunk])
+                processed_data.append(('comment', comment))
+            elif chunk[0][1] == '@':
+                wheels = [line[2:].strip() for line in chunk]
+                processed_data.append(('wheel', wheels))
+            else:
+                assert False
         else:
 
             skip_empty = True
@@ -62,6 +67,14 @@ Initialization completion is indicated by a red border around *Run all* button.
 </form>
 ''')
             first_comment = False
+        if kind == 'wheel':
+            p('''
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+%s
+</textarea>
+</form>
+''' % '\n'.join(['"%s"' % l for l in chunk]))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
             p('''
