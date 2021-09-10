@@ -1027,7 +1027,9 @@ This grammar is now guaranteed to produce at least one instance of the character
 ############
 gf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(gf.iter_fuzz(key=s, max_depth=10))
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    assert hdd.expr_double_paren(v)
+    print(v)
 
 
 ############
@@ -1036,7 +1038,9 @@ for i in range(10):
 <textarea cols="40" rows="4" name='python_edit'>
 gf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(gf.iter_fuzz(key=s, max_depth=10))
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    assert hdd.expr_double_paren(v)
+    print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1266,7 +1270,9 @@ This grammar is now guaranteed to produce at least one instance of a divide by z
 ############
 gf2 = fuzzer.LimitFuzzer(g2)
 for i in range(10):
-    print(gf2.iter_fuzz(key=s2, max_depth=10))
+    v = gf2.iter_fuzz(key=s2, max_depth=10)
+    assert expr_div_by_zero(v)
+    print(v)
 
 
 ############
@@ -1275,7 +1281,9 @@ for i in range(10):
 <textarea cols="40" rows="4" name='python_edit'>
 gf2 = fuzzer.LimitFuzzer(g2)
 for i in range(10):
-    print(gf2.iter_fuzz(key=s2, max_depth=10))
+    v = gf2.iter_fuzz(key=s2, max_depth=10)
+    assert expr_div_by_zero(v)
+    print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

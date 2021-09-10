@@ -474,7 +474,9 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
-        print(gf.iter_fuzz(key=s, max_depth=10))
+        v = gf.iter_fuzz(key=s, max_depth=10)
+        assert hdd.expr_double_paren(v)
+        print(v)
 
 
 # This seems to work. However, there is a wrinkle. Note that we set the
@@ -571,7 +573,9 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     gf2 = fuzzer.LimitFuzzer(g2)
     for i in range(10):
-        print(gf2.iter_fuzz(key=s2, max_depth=10))
+        v = gf2.iter_fuzz(key=s2, max_depth=10)
+        assert expr_div_by_zero(v)
+        print(v)
 
 
 # At this point, we have the ability to guarantee that a evocative 
