@@ -454,6 +454,7 @@ if __name__ == '__main__':
 
 import itertools as I
 
+# ## Similar rules
 def conjoin_ruleset(rulesetA, rulesetB):
     rules = []
     for ruleA,ruleB in I.product(rulesetA, rulesetB):
@@ -477,6 +478,7 @@ def get_rulesets(rules):
         rulesets[nr].append(rule)
     return rulesets
 
+# ## And rules for same keys.
 def and_rules(rulesA, rulesB):
     AandB_rules = []
     # key is the rule pattern
@@ -497,7 +499,7 @@ def and_grammars_(g1, s1, g2, s2):
     for k1,k2 in I.product(g1_keys, g2_keys):
         # define and(k1, k2)
         if normalize(k1) != normalize(k2): continue
-        # find matching rules
+        # find matching rules for similar keys
         and_key = and_keys(k1, k2)
         g[and_key] = and_rules(g1[k1], g2[k2])
     return g, and_keys(s1, s2)
