@@ -4,7 +4,6 @@ import sys
 import itertools as I
 from html import escape
 
-def p(v): sys.stdout.buffer.write(v.encode('utf8'))
 
 def split_data(data):
     chunks = [list(g) for k,g in I.groupby(data, key=lambda line: line[0] == '#')]
@@ -83,15 +82,24 @@ Initialization completion is indicated by a red border around *Run all* button.
 <div name='python_canvas'></div>
 </form>
 ''')
+import os.path
+from contextlib import redirect_stdout
+
+def p(v):
+    sys.stdout.buffer.write(v.encode('utf8'))
 
 def main(args):
     fn =  args[0]
+    postname = '_posts/%s.markdown' % os.path.splitext(os.path.basename(fn))[0]
+    print('Writing to:', postname, file=sys.stderr)
     with open(fn, 'r', encoding='utf-8') as f:
         data = f.readlines()
     result = split_data(data)
 
-    print_data(result)
-    p('''
+    with open(postname, 'w+') as f:
+        with redirect_stdout(f):
+            print_data(result)
+            p('''
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
