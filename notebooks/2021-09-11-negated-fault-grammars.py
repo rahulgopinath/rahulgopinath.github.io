@@ -259,6 +259,7 @@ if __name__ == '__main__':
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
+        # this will not necessarily work. Can you identify why?
         #assert hdd.expr_double_paren(v) == hdd.PRes.failed
         print(v)
 
