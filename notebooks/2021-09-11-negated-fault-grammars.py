@@ -11,7 +11,9 @@
 # I explained the deficiency of abstract failure inducing inputs mined using
 # DDSet, and showed how to overcome that by inserting that abstract (evocative)
 # pattern into a grammar, producing evocative grammars that guarantee that the
-# evocative fragment is present in any input generated.
+# evocative fragment is present in any input generated. In this post, I will show
+# how to do the opposite. That is, how to generate grammars that guarantee that
+# evocative fragments are not present.
 #
 # As before, let us start with importing our required modules.
 
