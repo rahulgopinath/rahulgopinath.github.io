@@ -393,7 +393,7 @@ class ReconstructRules:
         d1, s1, _ = self.reconstruct_rules_from_bexpr(key, fst)
         assert fst != snd
         d2, s2, _ = self.reconstruct_rules_from_bexpr(key, snd)
-        or_rules = gmultiple.or_definitions(d1, d2)
+        or_rules = d1 + d2 #gmultiple.or_definitions(d1, d2)
         g = {**grammar, **{f_key: or_rules}}
         return g, f_key, undefined_keys(g)
 
@@ -403,24 +403,25 @@ if __name__ == '__main__':
     my_bexpr = BExpr('and(D1,Z1)')
     grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
     rr = ReconstructRules(grammar)
-    g1, s1, remaining = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
-    gatleast.display_grammar(g1,s1)
+    d1, s1, remaining = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
+    print(d1,s1)
     print("remaining:", remaining)
-    rr = ReconstructRules(g1)
-    g2, s1, remaining = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
-    gatleast.display_grammar(g2,s1)
+    rr = ReconstructRules({**grammar, **{s1:d1}})
+    d2, s1, remaining = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
+    print(d2,s1)
     print("remaining:", remaining)
 
     my_bexpr = BExpr('or(D1,Z1)')
     grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
     rr = ReconstructRules(grammar)
-    g1, s1, remaining = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
-    gatleast.display_grammar(g1,s1)
+    d1, s1, remaining = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
+    print(d1,s1)
     print("remaining:", remaining)
-    rr = ReconstructRules(g1)
-    g2, s1, remaining = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
-    gatleast.display_grammar(g2,s1)
-    print("remaining:", remaining)
+    if remaining:
+        rr = ReconstructRules({**grammar, **{s1:d1}})
+        d2, s1, remaining = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
+        print(d2,s1)
+        print("remaining:", remaining)
 
 # We now define the complete reconstruction
 
@@ -434,13 +435,16 @@ class ReconstructRules(ReconstructRules):
             if log: print('reconstructing:', key_to_reconstruct)
             if key_to_reconstruct in defined:
                 raise Exception('Key found:', key_to_reconstruct)
+                #keys = undefined_keys(self.grammar)
+                #continue
             defined.add(key_to_reconstruct)
             bexpr = BExpr(gatleast.refinement(key_to_reconstruct))
             nrek = gmultiple.normalize(key_to_reconstruct)
             if bexpr.simple():
                 nkey = bexpr.with_key(key_to_reconstruct)
                 if log: print('simplified_to:', nkey)
-                self.grammar, s, _ = self.reconstruct_rules_from_bexpr(nrek, bexpr)
+                d, s, _ = self.reconstruct_rules_from_bexpr(nrek, bexpr)
+                self.grammar = {**self.grammar, **d}
             else:
                 nkey = nrek # base key
             assert nkey in self.grammar
@@ -466,7 +470,7 @@ if __name__ == '__main__':
         print(v)
 
     grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G}
-    g_, s_ = complete(grammar, '<start or(D1,Z1)>')
+    g_, s_ = complete(grammar, '<start or(D1,Z1)>', True)
     gf = fuzzer.LimitFuzzer(g_)
     for i in range(10):
         v = gf.iter_fuzz(key=s_, max_depth=10)
