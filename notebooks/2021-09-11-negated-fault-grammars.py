@@ -127,9 +127,6 @@ def unreachable_grammar(grammar, start, cnodesym, negated_suffix, reachable):
 def negate_key(k):
     return '<%s %s>' % (gatleast.stem(k), negate_suffix(gatleast.refinement(k)))
 
-def normalize_grammar(g):
-    return {gmultiple.normalize(k):list({tuple([gmultiple.normalize(t) if fuzzer.is_nonterminal(t) else t for t in r]) for r in g[k]}) for k in g}
-
 def rule_normalized_difference(rulesA, rulesB):
     rem_rulesA = rulesA
     for ruleB in rulesB:
@@ -179,12 +176,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
 if __name__ == '__main__':
     pattern_g,pattern_s, t = gatleast.pattern_grammar(gatleast.ETREE_DPAREN, 'F1')
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR)
-    # next we need to conjunct
-    print('start:', nomatch_s)
-    for k in nomatch_g:
-        print(k)
-        for r in nomatch_g[k]:
-            print('    ', r)
+    gatleast.display_grammar(nomatch_g, nomatch_s)
 
 # Now, for negated pattern grammars, not only do we need to make sure that the
 # pattern is not directly matchable, but also that the pattern cannot be
@@ -245,13 +237,7 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
 if __name__ == '__main__':
     cnode = gatleast.ETREE_DPAREN
     g, s = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1'))
-    print()
-    print('start:', s)
-    for k in g:
-        print(k)
-        for r in g[k]:
-            print('    ', r)
-
+    gatleast.display_grammar(g, s)
 
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
 
