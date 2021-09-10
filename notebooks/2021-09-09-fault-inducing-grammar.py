@@ -532,6 +532,8 @@ def expr_div_by_zero(input_str):
     if '/0' in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
 
+# Check the assertion
+
 if __name__ == '__main__':
     my_input2 = '1+((2*3)/0)'
     assert expr_div_by_zero(my_input2) == hdd.PRes.success

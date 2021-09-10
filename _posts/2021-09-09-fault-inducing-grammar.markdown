@@ -1151,10 +1151,6 @@ def expr_div_by_zero(input_str):
     if '/0' in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
 
-if __name__ == '__main__':
-    my_input2 = '1+((2*3)/0)'
-    assert expr_div_by_zero(my_input2) == hdd.PRes.success
-
 ############
 -->
 <form name='python_run_form'>
@@ -1162,10 +1158,23 @@ if __name__ == '__main__':
 def expr_div_by_zero(input_str):
     if &#x27;/0&#x27; in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Check the assertion
 
-if __name__ == &#x27;__main__&#x27;:
-    my_input2 = &#x27;1+((2*3)/0)&#x27;
-    assert expr_div_by_zero(my_input2) == hdd.PRes.success
+<!--
+############
+my_input2 = '1+((2*3)/0)'
+assert expr_div_by_zero(my_input2) == hdd.PRes.success
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_input2 = &#x27;1+((2*3)/0)&#x27;
+assert expr_div_by_zero(my_input2) == hdd.PRes.success
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
