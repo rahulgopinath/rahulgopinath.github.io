@@ -216,23 +216,10 @@ def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault
 # Using
 
 if __name__ == '__main__':
-    print()
     nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s, hdd.EXPR_GRAMMAR, 'neg(F1)')
     # next we need to conjunct
-    print('start:', nomatch_s)
-    for k in nomatch_g:
-        print(k)
-        for r in nomatch_g[k]:
-            print('    ', r)
+    gatleast.display_grammar(nomatch_g, nomatch_s)
 
-
-def tokens(g):
-    ts = []
-    for k in g:
-        for r in g[k]:
-            for t in r:
-                if fuzzer.is_nonterminal(t): ts.append(t)
-    return ts
 # At this point, we can now define our 1negated_grammar()`
 # The new grammar is as follows
 
@@ -271,6 +258,6 @@ if __name__ == '__main__':
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
-        assert hdd.expr_double_paren(v) == hdd.PRes.failed
+        #assert hdd.expr_double_paren(v) == hdd.PRes.failed
         print(v)
 
