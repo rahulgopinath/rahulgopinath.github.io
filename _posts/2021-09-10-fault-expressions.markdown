@@ -351,74 +351,12 @@ fuzzer.display_tree(b._tree)
 Now, we need to define how to simplify boolean expressions. For example,
 we want to simplify `and(and(f1,f2),f1)` to just `and(f1,f2)`. Since this
 is already offered by `sympy` we use that.
+First we define a procedure that given the parse tree, converts it to a sympy
+expression.
 
 <!--
 ############
 class BExpr(BExpr):
-    def simple(self):
-        if self._simple is None:
-            self._simple = str(self._convert_sympy_to_bexpr(self._sympy))
-        return self._simple
-
-    def _simplify(self):
-        e0, defs = self._convert_to_sympy(self._tree)
-        e1 = sympy.to_dnf(e0)
-        e2 = self._convert_sympy_to_bexpr(e1)
-        v = str(e2)
-        my_keys = [k for k in defs]
-        for k in my_keys:
-            del defs[k]
-        return v, e1
-
-    def _flatten(self, bexprs):
-        assert bexprs[0] == '<bexprs>'
-        if len(bexprs[1]) == 1:
-            return [bexprs[1][0]]
-        else:
-            assert len(bexprs[1]) == 3
-            a = bexprs[1][0]
-            comma = bexprs[1][1]
-            rest = bexprs[1][2]
-            return [a] + self._flatten(rest)
-
-    def _convert_sympy_to_bexpr(self, sexpr, log=False):
-        if isinstance(sexpr, sympy.Symbol):
-            return B(str(sexpr))
-        elif isinstance(sexpr, sympy.Not):
-            return NegB(self._convert_sympy_to_bexpr(sexpr.args[0]))
-        elif isinstance(sexpr, sympy.And):
-            a = sexpr.args[0]
-            b = sexpr.args[1]
-            if isinstance(a, sympy.Not):
-                if str(a.args[0]) == str(b): return FalseB # F & ~F == _|_
-            elif isinstance(b, sympy.Not):
-                if str(b.args[0]) == str(a): return FalseB # F & ~F == _|_
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
-            assert sym_vars
-            if FalseB in sym_vars: return FalseB # if bottom is present in and, that is the result
-            if TrueB in sym_vars:
-                sym_vars = [s for s in sym_vars if s != TrueB] # base def does not do anything in and.
-                if not sym_vars: return TrueB
-            return AndB(sym_vars)
-        elif isinstance(sexpr, sympy.Or):
-            a = sexpr.args[0]
-            b = sexpr.args[1]
-            if isinstance(a, sympy.Not):
-                if str(a.args[0]) == str(b): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(b)
-            elif isinstance(b, sympy.Not):
-                if str(b.args[0]) == str(a): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(a)
-
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
-            assert sym_vars
-            if TrueB in sym_vars: return TrueB # if original def is present in or, that is the result
-            if FalseB in sym_vars:
-                sym_vars = [s for s in sym_vars if s != FalseB]
-                if not sym_vars: return FalseB
-            return OrB(sym_vars)
-        else:
-            if log: print(repr(sexpr))
-            assert False
-
     def _convert_to_sympy(self, bexpr_tree, symargs=None):
         def get_op(node):
             assert node[0] == '<bop>', node[0]
@@ -462,28 +400,8 @@ class BExpr(BExpr):
             else:
                 assert False
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class BExpr(BExpr):
-    def simple(self):
-        if self._simple is None:
-            self._simple = str(self._convert_sympy_to_bexpr(self._sympy))
-        return self._simple
-
-    def _simplify(self):
-        e0, defs = self._convert_to_sympy(self._tree)
-        e1 = sympy.to_dnf(e0)
-        e2 = self._convert_sympy_to_bexpr(e1)
-        v = str(e2)
-        my_keys = [k for k in defs]
-        for k in my_keys:
-            del defs[k]
-        return v, e1
-
     def _flatten(self, bexprs):
-        assert bexprs[0] == &#x27;&lt;bexprs&gt;&#x27;
+        assert bexprs[0] == '<bexprs>'
         if len(bexprs[1]) == 1:
             return [bexprs[1][0]]
         else:
@@ -493,44 +411,11 @@ class BExpr(BExpr):
             rest = bexprs[1][2]
             return [a] + self._flatten(rest)
 
-    def _convert_sympy_to_bexpr(self, sexpr, log=False):
-        if isinstance(sexpr, sympy.Symbol):
-            return B(str(sexpr))
-        elif isinstance(sexpr, sympy.Not):
-            return NegB(self._convert_sympy_to_bexpr(sexpr.args[0]))
-        elif isinstance(sexpr, sympy.And):
-            a = sexpr.args[0]
-            b = sexpr.args[1]
-            if isinstance(a, sympy.Not):
-                if str(a.args[0]) == str(b): return FalseB # F &amp; ~F == _|_
-            elif isinstance(b, sympy.Not):
-                if str(b.args[0]) == str(a): return FalseB # F &amp; ~F == _|_
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
-            assert sym_vars
-            if FalseB in sym_vars: return FalseB # if bottom is present in and, that is the result
-            if TrueB in sym_vars:
-                sym_vars = [s for s in sym_vars if s != TrueB] # base def does not do anything in and.
-                if not sym_vars: return TrueB
-            return AndB(sym_vars)
-        elif isinstance(sexpr, sympy.Or):
-            a = sexpr.args[0]
-            b = sexpr.args[1]
-            if isinstance(a, sympy.Not):
-                if str(a.args[0]) == str(b): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(b)
-            elif isinstance(b, sympy.Not):
-                if str(b.args[0]) == str(a): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(a)
-
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
-            assert sym_vars
-            if TrueB in sym_vars: return TrueB # if original def is present in or, that is the result
-            if FalseB in sym_vars:
-                sym_vars = [s for s in sym_vars if s != FalseB]
-                if not sym_vars: return FalseB
-            return OrB(sym_vars)
-        else:
-            if log: print(repr(sexpr))
-            assert False
-
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class BExpr(BExpr):
     def _convert_to_sympy(self, bexpr_tree, symargs=None):
         def get_op(node):
             assert node[0] == &#x27;&lt;bop&gt;&#x27;, node[0]
@@ -573,6 +458,150 @@ class BExpr(BExpr):
                 return sympy.Not(a), symargs
             else:
                 assert False
+
+    def _flatten(self, bexprs):
+        assert bexprs[0] == &#x27;&lt;bexprs&gt;&#x27;
+        if len(bexprs[1]) == 1:
+            return [bexprs[1][0]]
+        else:
+            assert len(bexprs[1]) == 3
+            a = bexprs[1][0]
+            comma = bexprs[1][1]
+            rest = bexprs[1][2]
+            return [a] + self._flatten(rest)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we defien the revserse. Given the sympy expression, we define a
+procedure to convert it to the boolean datastructure.
+
+<!--
+############
+class BExpr(BExpr):
+    def _convert_sympy_to_bexpr(self, sexpr, log=False):
+        if isinstance(sexpr, sympy.Symbol):
+            return B(str(sexpr))
+        elif isinstance(sexpr, sympy.Not):
+            return NegB(self._convert_sympy_to_bexpr(sexpr.args[0]))
+        elif isinstance(sexpr, sympy.And):
+            a = sexpr.args[0]
+            b = sexpr.args[1]
+            if isinstance(a, sympy.Not):
+                if str(a.args[0]) == str(b): return FalseB # F & ~F == _|_
+            elif isinstance(b, sympy.Not):
+                if str(b.args[0]) == str(a): return FalseB # F & ~F == _|_
+            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            assert sym_vars
+            if FalseB in sym_vars: return FalseB # if bottom is present in and, that is the result
+            if TrueB in sym_vars:
+                sym_vars = [s for s in sym_vars if s != TrueB] # base def does not do anything in and.
+                if not sym_vars: return TrueB
+            return AndB(sym_vars)
+        elif isinstance(sexpr, sympy.Or):
+            a = sexpr.args[0]
+            b = sexpr.args[1]
+            if isinstance(a, sympy.Not):
+                if str(a.args[0]) == str(b): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(b)
+            elif isinstance(b, sympy.Not):
+                if str(b.args[0]) == str(a): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(a)
+
+            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            assert sym_vars
+            if TrueB in sym_vars: return TrueB # if original def is present in or, that is the result
+            if FalseB in sym_vars:
+                sym_vars = [s for s in sym_vars if s != FalseB]
+                if not sym_vars: return FalseB
+            return OrB(sym_vars)
+        else:
+            if log: print(repr(sexpr))
+            assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class BExpr(BExpr):
+    def _convert_sympy_to_bexpr(self, sexpr, log=False):
+        if isinstance(sexpr, sympy.Symbol):
+            return B(str(sexpr))
+        elif isinstance(sexpr, sympy.Not):
+            return NegB(self._convert_sympy_to_bexpr(sexpr.args[0]))
+        elif isinstance(sexpr, sympy.And):
+            a = sexpr.args[0]
+            b = sexpr.args[1]
+            if isinstance(a, sympy.Not):
+                if str(a.args[0]) == str(b): return FalseB # F &amp; ~F == _|_
+            elif isinstance(b, sympy.Not):
+                if str(b.args[0]) == str(a): return FalseB # F &amp; ~F == _|_
+            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            assert sym_vars
+            if FalseB in sym_vars: return FalseB # if bottom is present in and, that is the result
+            if TrueB in sym_vars:
+                sym_vars = [s for s in sym_vars if s != TrueB] # base def does not do anything in and.
+                if not sym_vars: return TrueB
+            return AndB(sym_vars)
+        elif isinstance(sexpr, sympy.Or):
+            a = sexpr.args[0]
+            b = sexpr.args[1]
+            if isinstance(a, sympy.Not):
+                if str(a.args[0]) == str(b): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(b)
+            elif isinstance(b, sympy.Not):
+                if str(b.args[0]) == str(a): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(a)
+
+            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            assert sym_vars
+            if TrueB in sym_vars: return TrueB # if original def is present in or, that is the result
+            if FalseB in sym_vars:
+                sym_vars = [s for s in sym_vars if s != FalseB]
+                if not sym_vars: return FalseB
+            return OrB(sym_vars)
+        else:
+            if log: print(repr(sexpr))
+            assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally, we stitch them together.
+
+<!--
+############
+class BExpr(BExpr):
+    def simple(self):
+        if self._simple is None:
+            self._simple = str(self._convert_sympy_to_bexpr(self._sympy))
+        return self._simple
+
+    def _simplify(self):
+        e0, defs = self._convert_to_sympy(self._tree)
+        e1 = sympy.to_dnf(e0)
+        e2 = self._convert_sympy_to_bexpr(e1)
+        v = str(e2)
+        my_keys = [k for k in defs]
+        for k in my_keys:
+            del defs[k]
+        return v, e1
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class BExpr(BExpr):
+    def simple(self):
+        if self._simple is None:
+            self._simple = str(self._convert_sympy_to_bexpr(self._sympy))
+        return self._simple
+
+    def _simplify(self):
+        e0, defs = self._convert_to_sympy(self._tree)
+        e1 = sympy.to_dnf(e0)
+        e2 = self._convert_sympy_to_bexpr(e1)
+        v = str(e2)
+        my_keys = [k for k in defs]
+        for k in my_keys:
+            del defs[k]
+        return v, e1
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
