@@ -601,27 +601,60 @@ def unique_cnode_to_grammar(tree, grammar=None):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We can convert this to grammar
+We can convert this to grammar, but first, to display the grammar properly, we
+define `display_grammar()`
 
 <!--
 ############
-g,s = unique_cnode_to_grammar(unique_pattern_tree)
-print('start:', s)
-for k in g:
-    print(k)
-    for r in g[k]:
-        print('    ', r)
+def display_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    print('start:', start)
+    for key in grammar:
+        k += 1
+        if verbose > -1: print(key,'::=')
+        for rule in grammar[key]:
+            r += 1
+            if verbose > 1:
+                pre = r
+            else:
+                pre = ''
+            if verbose > -1:
+                print('%s|   ' % pre, ' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        if verbose > 0:
+            print(k, r)
+    print(k, r)
+
+if __name__ == '__main__':
+    g,s = unique_cnode_to_grammar(unique_pattern_tree)
+    display_grammar(g,s)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g,s = unique_cnode_to_grammar(unique_pattern_tree)
-print(&#x27;start:&#x27;, s)
-for k in g:
-    print(k)
-    for r in g[k]:
-        print(&#x27;    &#x27;, r)
+def display_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    print(&#x27;start:&#x27;, start)
+    for key in grammar:
+        k += 1
+        if verbose &gt; -1: print(key,&#x27;::=&#x27;)
+        for rule in grammar[key]:
+            r += 1
+            if verbose &gt; 1:
+                pre = r
+            else:
+                pre = &#x27;&#x27;
+            if verbose &gt; -1:
+                print(&#x27;%s|   &#x27; % pre, &#x27; &#x27;.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        if verbose &gt; 0:
+            print(k, r)
+    print(k, r)
+
+if __name__ == &#x27;__main__&#x27;:
+    g,s = unique_cnode_to_grammar(unique_pattern_tree)
+    display_grammar(g,s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -652,22 +685,14 @@ Using it.
 <!--
 ############
 pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
-print('start:', pattern_s)
-for k in pattern_g:
-    print(k)
-    for r in pattern_g[k]:
-        print('    ', r)
+display_grammar(pattern_g, pattern_s)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 pattern_g,pattern_s, t = pattern_grammar(pattern, &#x27;F1&#x27;)
-print(&#x27;start:&#x27;, pattern_s)
-for k in pattern_g:
-    print(k)
-    for r in pattern_g[k]:
-        print(&#x27;    &#x27;, r)
+display_grammar(pattern_g, pattern_s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -726,6 +751,13 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
+if __name__ == '__main__':
+    characterizing_node = pattern[1][0][1][0][1][0]
+    my_key_f = characterizing_node[0]
+    reaching = reachable_dict(hdd.EXPR_GRAMMAR)
+    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
+    display_grammar(reach_g, reach_s)
+
 ############
 -->
 <form name='python_run_form'>
@@ -739,6 +771,118 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         if key == start: s_key = fk
         new_grammar[fk] = rules
     return new_grammar, s_key
+
+if __name__ == &#x27;__main__&#x27;:
+    characterizing_node = pattern[1][0][1][0][1][0]
+    my_key_f = characterizing_node[0]
+    reaching = reachable_dict(hdd.EXPR_GRAMMAR)
+    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, &#x27;F1&#x27;, reaching)
+    display_grammar(reach_g, reach_s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here, you will notice a problem:
+There are a few nonterminals such as `<integer F1>` that do not have a
+definition. That is, it has no expansion (not even empty expansion). So,
+any rule that uses it will also by definition have no possible expansions.
+This has consequences during generation, forcing us to abandon partially
+constructed trees. Hence, we define a `grammar_gc()`
+## Cleanup of the grammar
+
+<!--
+############
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
+def grammar_gc(g):
+    grammar, start = g
+    new_grammar, removed = remove_empty_keys(grammar)
+    return new_grammar, start
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
+def grammar_gc(g):
+    grammar, start = g
+    new_grammar, removed = remove_empty_keys(grammar)
+    return new_grammar, start
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -784,28 +928,15 @@ The new grammar is as follows
 
 <!--
 ############
-cnode = pattern[1][0][1][0][1][0]
-g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1')
-print()
-print('start:', s)
-for k in g:
-    print(k)
-    for r in g[k]:
-        print('    ', r)
-
+g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, characterizing_node, 'F1'))
+display_grammar(g, s)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-cnode = pattern[1][0][1][0][1][0]
-g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, &#x27;F1&#x27;)
-print()
-print(&#x27;start:&#x27;, s)
-for k in g:
-    print(k)
-    for r in g[k]:
-        print(&#x27;    &#x27;, r)
+g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, characterizing_node, &#x27;F1&#x27;))
+display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -849,7 +980,7 @@ reproduced we recurse deeper into the current child.
 def find_characterizing_node(fault_tree, grammar, start, fn):
     if ddset.is_node_abstract(fault_tree): return None
     if not fuzzer.is_nonterminal(fault_tree[0]): return None
-    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, 'F1')
+    g, s = grammar_gc(atleast_one_fault_grammar(grammar, start, fault_tree, 'F1'))
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         string = gf.iter_fuzz(key=s, max_depth=10)
@@ -876,7 +1007,7 @@ def find_characterizing_node(fault_tree, grammar, start, fn):
 def find_characterizing_node(fault_tree, grammar, start, fn):
     if ddset.is_node_abstract(fault_tree): return None
     if not fuzzer.is_nonterminal(fault_tree[0]): return None
-    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, &#x27;F1&#x27;)
+    g, s = grammar_gc(atleast_one_fault_grammar(grammar, start, fault_tree, &#x27;F1&#x27;))
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         string = gf.iter_fuzz(key=s, max_depth=10)
@@ -919,13 +1050,13 @@ That is, we found the correct characterizing node.
 
 <!--
 ############
-ddset.display_abstract_tree(cnode)
+ddset.display_abstract_tree(characterizing_node)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ddset.display_abstract_tree(cnode)
+ddset.display_abstract_tree(characterizing_node)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

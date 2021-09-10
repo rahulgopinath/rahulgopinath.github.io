@@ -281,15 +281,30 @@ def unique_cnode_to_grammar(tree, grammar=None):
     grammar[name].append(tokens)
     return grammar, tree[0]
 
-# We can convert this to grammar
+# We can convert this to grammar, but first, to display the grammar properly, we
+# define `display_grammar()`
+def display_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    print('start:', start)
+    for key in grammar:
+        k += 1
+        if verbose > -1: print(key,'::=')
+        for rule in grammar[key]:
+            r += 1
+            if verbose > 1:
+                pre = r
+            else:
+                pre = ''
+            if verbose > -1:
+                print('%s|   ' % pre, ' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
+        if verbose > 0:
+            print(k, r)
+    print(k, r)
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
-    print('start:', s)
-    for k in g:
-        print(k)
-        for r in g[k]:
-            print('    ', r)
+    display_grammar(g,s)
 
 # We define `pattern_grammar()` that wraps both calls.
 
@@ -302,11 +317,7 @@ def pattern_grammar(cnode, fname):
 
 if __name__ == '__main__':
     pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
-    print('start:', pattern_s)
-    for k in pattern_g:
-        print(k)
-        for r in pattern_g[k]:
-            print('    ', r)
+    display_grammar(pattern_g, pattern_s)
 
 # We define a procedure to reverse our pattern grammar to ensure we can
 # get back our tree.
@@ -336,6 +347,67 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
+if __name__ == '__main__':
+    characterizing_node = pattern[1][0][1][0][1][0]
+    my_key_f = characterizing_node[0]
+    reaching = reachable_dict(hdd.EXPR_GRAMMAR)
+    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
+    display_grammar(reach_g, reach_s)
+
+# Here, you will notice a problem:
+#
+# There are a few nonterminals such as `<integer F1>` that do not have a
+# definition. That is, it has no expansion (not even empty expansion). So,
+# any rule that uses it will also by definition have no possible expansions.
+# This has consequences during generation, forcing us to abandon partially
+# constructed trees. Hence, we define a `grammar_gc()`
+
+# ## Cleanup of the grammar
+
+def find_empty_keys(g):
+    return [k for k in g if not g[k]]
+
+def remove_key(k, g):
+    new_g = {}
+    for k_ in g:
+        if k_ == k:
+            continue
+        else:
+            new_rules = []
+            for rule in g[k_]:
+                new_rule = []
+                for t in rule:
+                    if t == k:
+                        # skip this rule
+                        new_rule = None
+                        break
+                    else:
+                        new_rule.append(t)
+                if new_rule is not None:
+                    new_rules.append(new_rule)
+            new_g[k_] = new_rules
+    return new_g
+
+
+def copy_grammar(g):
+    return {k:[[t for t in r] for r in g[k]] for k in g}
+
+def remove_empty_keys(g):
+    new_g = copy_grammar(g)
+    removed_keys = []
+    empty_keys = find_empty_keys(new_g)
+    while empty_keys:
+        for k in empty_keys:
+            removed_keys.append(k)
+            new_g = remove_key(k, new_g)
+        empty_keys = find_empty_keys(new_g)
+    return new_g, removed_keys
+
+def grammar_gc(g):
+    grammar, start = g
+    new_grammar, removed = remove_empty_keys(grammar)
+    return new_grammar, start
+
 # At this point we are ready to define our `atleast_one_fault_grammar()`
 
 def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
@@ -354,15 +426,8 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
 # The new grammar is as follows
 
 if __name__ == '__main__':
-    cnode = pattern[1][0][1][0][1][0]
-    g, s = atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, cnode, 'F1')
-    print()
-    print('start:', s)
-    for k in g:
-        print(k)
-        for r in g[k]:
-            print('    ', r)
-
+    g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, characterizing_node, 'F1'))
+    display_grammar(g, s)
 
 # This grammar is now guaranteed to produce at least one instance of the characterizing node.
 
@@ -390,7 +455,7 @@ if __name__ == '__main__':
 def find_characterizing_node(fault_tree, grammar, start, fn):
     if ddset.is_node_abstract(fault_tree): return None
     if not fuzzer.is_nonterminal(fault_tree[0]): return None
-    g, s = atleast_one_fault_grammar(grammar, start, fault_tree, 'F1')
+    g, s = grammar_gc(atleast_one_fault_grammar(grammar, start, fault_tree, 'F1'))
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         string = gf.iter_fuzz(key=s, max_depth=10)
@@ -417,7 +482,7 @@ if __name__ == '__main__':
 
 # That is, we found the correct characterizing node.
 if __name__ == '__main__':
-    ddset.display_abstract_tree(cnode)
+    ddset.display_abstract_tree(characterizing_node)
 
 # At this point, we have the ability to guarantee that a failure inducing
 # fragment is present in any inputs produced. In later posts I will discuss how
