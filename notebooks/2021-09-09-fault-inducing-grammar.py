@@ -336,51 +336,6 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
         new_grammar[fk] = rules
     return new_grammar, s_key
 
-# Since some of the keys may not have any definition left in it,
-
-def find_empty_keys(g):
-    return [k for k in g if not g[k]]
-
-def remove_key(k, g):
-    new_g = {}
-    for k_ in g:
-        if k_ == k:
-            continue
-        else:
-            new_rules = []
-            for rule in g[k_]:
-                new_rule = []
-                for t in rule:
-                    if t == k:
-                        # skip this rule
-                        new_rule = None
-                        break
-                    else:
-                        new_rule.append(t)
-                if new_rule is not None:
-                    new_rules.append(new_rule)
-            new_g[k_] = new_rules
-    return new_g
-
-
-def copy_grammar(g):
-    return {k:[[t for t in r] for r in g[k]] for k in g}
-
-def remove_empty_keys(g):
-    new_g = copy_grammar(g)
-    removed_keys = []
-    empty_keys = find_empty_keys(new_g)
-    while empty_keys:
-        for k in empty_keys:
-            removed_keys.append(k)
-            new_g = remove_key(k, new_g)
-        empty_keys = find_empty_keys(new_g)
-    return new_g, removed_keys
-
-def grammar_gc(grammar, start):
-    g, removed = remove_empty_keys(grammar)
-    return g, start
-
 # At this point we are ready to define our `atleast_one_fault_grammar()`
 
 def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
@@ -394,7 +349,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     reaching_sym = refine_base_key(key_f, fname)
     combined_grammar[reaching_sym] = reach_g[reaching_sym] + pattern_g[pattern_s]
 
-    return grammar_gc(combined_grammar, reach_s)
+    return combined_grammar, reach_s
 
 # The new grammar is as follows
 
