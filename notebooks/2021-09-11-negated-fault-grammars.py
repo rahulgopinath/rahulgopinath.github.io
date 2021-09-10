@@ -267,3 +267,10 @@ if __name__ == '__main__':
 
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
 
+if __name__ == '__main__':
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = gf.iter_fuzz(key=s, max_depth=10)
+        assert hdd.expr_double_paren(v) == hdd.PRes.failed
+        print(v)
+
