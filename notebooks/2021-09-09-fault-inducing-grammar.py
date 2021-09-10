@@ -14,8 +14,24 @@
 # failure inducing input such as say `'((4))'`, which can again be abstracted to
 # produce the expression `((<expr>))` which precisely defines the fault
 # inducing input. Such an input is quite useful for the developers to understand
-# why a failure occurred. 
-
+# why a failure occurred.
+# 
+# However, such inputs are insufficient from a testing perspective. For example,
+# such a pattern fails to capture the contexts in which the doubled parenthesis
+# can appear, and hence induce the failure. That is, how do we use the
+# pattern `((<expr>))` to produce inputs such as `'1+((2*3/4))'`? This is what
+# this post will discuss.
+# 
+# Note that the guarantee of inducing failures is statistical. That is, the
+# abstract input is mined by evaluating produced
+# inputs for failure a fixed (configurable) number of times. It is possible that
+# some rare inputs may still fail to induce the failure. Since abstract possibly
+# failure inducing inputs is a mouthful, let us call these abstract failure
+# inducing inputs **evocative patterns** for short. In this post, we will see
+# how to transform such an **evocative pattern** to an **evocative grammar** that is
+# guaranteed to produce *evocative inputs* in all contexts that are guaranteed
+# (statistically) to induce failures.
+# 
 # As before, let us start with importing our required modules.
 
 import sys, imp
@@ -76,13 +92,13 @@ if __name__ == '__main__':
 # errors. Indeed, our original error: '1+((2*3/4))' does not fit this
 # template. So, how can we rectify this limitation?
 
-# # A grammar with at least one fault inducing fragment
+# # A grammar that produces at least one evocative fragment per input generated.
 
 # The basic idea is that if we can find a `characterizing node` of the
 # abstract fault tree, such that the presence of the abstract subtree
 # in the input guarantees the failure, then we can modify the grammar such
 # that this abstract subtree is always present. That is, for any input
-# from such a grammar, at least one instance of the abstract failure inducing
+# from such a grammar, at least one instance of the evocative 
 # subtree will be present. This is fairly easy to do if the generated tree
 # contains a nonterminal of the same kind as that of the characterizing node.
 # Simply replace that node with the characterizing node, and fill in the
@@ -460,7 +476,7 @@ if __name__ == '__main__':
 # our specialized grammar is dependent on finding as small a characterizing node
 # as possible that fully captures the fault. So, how do we automate it?
 #
-# The idea is fairly simple. We start from the root of the fault inducing pattern.
+# The idea is fairly simple. We start from the root of the evocative pattern.
 # We know that this pattern fully captures the predicate. That is, any valid input
 # generated from this pattern by filling in the abstract nodes is guaranteed to
 # produce the failure. Next, we move to the children of this node. If the node
@@ -501,7 +517,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     ddset.display_abstract_tree(characterizing_node)
 
-# At this point, we have the ability to guarantee that a failure inducing
+# At this point, we have the ability to guarantee that a evocative 
 # fragment is present in any inputs produced. In later posts I will discuss how
 # combine multiple such fragments together using `and`, `or` or `negation`. I
 # will also discuss how to ensure `at most` one fragment in the input and
