@@ -308,6 +308,21 @@ if __name__ == '__main__':
         for r in pattern_g[k]:
             print('    ', r)
 
+# We define a procedure to reverse our pattern grammar to ensure we can
+# get back our tree.
+
+
+def pattern_grammar_to_tree(g, s):
+    rules = g[s]
+    assert len(rules) == 1
+    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+
+# The tree can be recovered thus.
+
+if __name__ == '__main__':
+    c_tree = pattern_grammar_to_tree(pattern_g,pattern_s)
+    fuzzer.display_tree(c_tree)
+
 # Given the reaching grammar and the pattern grammar, we can combine them to
 # produce the complete grammar
 

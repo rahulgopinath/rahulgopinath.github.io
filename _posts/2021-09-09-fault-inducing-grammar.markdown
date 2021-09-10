@@ -672,6 +672,45 @@ for k in pattern_g:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We define a procedure to reverse our pattern grammar to ensure we can
+get back our tree.
+
+<!--
+############
+def pattern_grammar_to_tree(g, s):
+    rules = g[s]
+    assert len(rules) == 1
+    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def pattern_grammar_to_tree(g, s):
+    rules = g[s]
+    assert len(rules) == 1
+    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The tree can be recovered thus.
+
+<!--
+############
+c_tree = pattern_grammar_to_tree(pattern_g,pattern_s)
+fuzzer.display_tree(c_tree)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+c_tree = pattern_grammar_to_tree(pattern_g,pattern_s)
+fuzzer.display_tree(c_tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Given the reaching grammar and the pattern grammar, we can combine them to
 produce the complete grammar
 
