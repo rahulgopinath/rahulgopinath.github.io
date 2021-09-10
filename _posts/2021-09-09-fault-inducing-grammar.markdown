@@ -1143,6 +1143,134 @@ ddset.display_abstract_tree(evocative_subtree)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is another evocative pattern, but we define a different predicate.
+
+<!--
+############
+def expr_div_by_zero(input_str):
+    if '/0' in input_str: return hdd.PRes.success
+    else: return hdd.PRes.failed
+
+if __name__ == '__main__':
+    my_input2 = '1+((2*3)/0)'
+    assert expr_div_by_zero(my_input2) == hdd.PRes.success
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def expr_div_by_zero(input_str):
+    if &#x27;/0&#x27; in input_str: return hdd.PRes.success
+    else: return hdd.PRes.failed
+
+if __name__ == &#x27;__main__&#x27;:
+    my_input2 = &#x27;1+((2*3)/0)&#x27;
+    assert expr_div_by_zero(my_input2) == hdd.PRes.success
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We first parse the input as before
+
+<!--
+############
+parsed_expr2 = list(expr_parser.parse_on(my_input2, hdd.EXPR_START))[0]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+parsed_expr2 = list(expr_parser.parse_on(my_input2, hdd.EXPR_START))[0]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Then reduce input
+
+<!--
+############
+reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally, extract the evocative pattern.
+
+<!--
+############
+evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+ddset.display_abstract_tree(evocative_pattern2)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+ddset.display_abstract_tree(evocative_pattern2)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Then extract the evocative subtree
+
+<!--
+############
+etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+ddset.display_abstract_tree(etree2)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+ddset.display_abstract_tree(etree2)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The new grammar is as follows
+
+<!--
+############
+g2, s2 = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, etree2, 'F2'))
+display_grammar(g2, s2)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g2, s2 = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, etree2, &#x27;F2&#x27;))
+display_grammar(g2, s2)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This grammar is now guaranteed to produce at least one instance of a divide by zero.
+
+<!--
+############
+gf2 = fuzzer.LimitFuzzer(g2)
+for i in range(10):
+    print(gf2.iter_fuzz(key=s2, max_depth=10))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gf2 = fuzzer.LimitFuzzer(g2)
+for i in range(10):
+    print(gf2.iter_fuzz(key=s2, max_depth=10))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 At this point, we have the ability to guarantee that a evocative 
 fragment is present in any inputs produced. In later posts I will discuss how
 combine multiple such fragments together using `and`, `or` or `negation`. I

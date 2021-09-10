@@ -526,6 +526,52 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     ddset.display_abstract_tree(evocative_subtree)
 
+# Here is another evocative pattern, but we define a different predicate.
+
+def expr_div_by_zero(input_str):
+    if '/0' in input_str: return hdd.PRes.success
+    else: return hdd.PRes.failed
+
+if __name__ == '__main__':
+    my_input2 = '1+((2*3)/0)'
+    assert expr_div_by_zero(my_input2) == hdd.PRes.success
+
+# We first parse the input as before
+
+if __name__ == '__main__':
+    parsed_expr2 = list(expr_parser.parse_on(my_input2, hdd.EXPR_START))[0]
+
+# Then reduce input
+
+if __name__ == '__main__':
+    reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+
+# Finally, extract the evocative pattern.
+
+if __name__ == '__main__':
+    evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+    ddset.display_abstract_tree(evocative_pattern2)
+
+# Then extract the evocative subtree
+
+if __name__ == '__main__':
+    etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+    ddset.display_abstract_tree(etree2)
+
+# The new grammar is as follows
+
+if __name__ == '__main__':
+    g2, s2 = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, etree2, 'F2'))
+    display_grammar(g2, s2)
+
+# This grammar is now guaranteed to produce at least one instance of a divide by zero.
+
+if __name__ == '__main__':
+    gf2 = fuzzer.LimitFuzzer(g2)
+    for i in range(10):
+        print(gf2.iter_fuzz(key=s2, max_depth=10))
+
+
 # At this point, we have the ability to guarantee that a evocative 
 # fragment is present in any inputs produced. In later posts I will discuss how
 # combine multiple such fragments together using `and`, `or` or `negation`. I
