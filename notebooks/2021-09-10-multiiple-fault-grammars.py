@@ -67,11 +67,53 @@ if __name__ == '__main__':
     g1, s1 = gatleast.grammar_gc(gatleast.atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
     gatleast.display_grammar(g1, s1)
 
+# We save this for later
+
+EXPR_DPAREN_S = '<start D1>'
+EXPR_DPAREN_G = {
+        '<start>': [['<expr>']],
+        '<expr>': [['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
+        '<term>': [['<factor>', '*', '<term>'], ['<factor>', '/', '<term>'], ['<factor>']],
+        '<factor>': [['+', '<factor>'], ['-', '<factor>'], ['(', '<expr>', ')'], ['<integer>', '.', '<integer>'], ['<integer>']],
+        '<integer>': [['<digit>', '<integer>'], ['<digit>']],
+        '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']],
+        '<factor D1_0>': [['(', '<expr D1_1>', ')']],
+        '<expr D1_1>': [['<term D1_2>']],
+        '<term D1_2>': [['<factor D1_3>']],
+        '<factor D1_3>': [['(', '<expr>', ')']],
+        '<start D1>': [['<expr D1>']],
+        '<expr D1>': [['<term D1>', '+', '<expr>'], ['<term>', '+', '<expr D1>'], ['<term D1>', '-', '<expr>'], ['<term>', '-', '<expr D1>'], ['<term D1>']],
+        '<term D1>': [['<factor D1>', '*', '<term>'], ['<factor>', '*', '<term D1>'], ['<factor D1>', '/', '<term>'], ['<factor>', '/', '<term D1>'], ['<factor D1>']],
+        '<factor D1>': [['+', '<factor D1>'], ['-', '<factor D1>'], ['(', '<expr D1>', ')'], ['(', '<expr D1_1>', ')']]
+} 
+
+
 # Here is the second grammar.
 
 if __name__ == '__main__':
     g2, s2 = gatleast.grammar_gc(gatleast.atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
     gatleast.display_grammar(g2, s2)
+
+# We save this for later
+
+EXPR_DZERO_S = '<start Z1>'
+EXPR_DZERO_G = {
+        '<start>': [['<expr>']],
+        '<expr>': [['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
+        '<term>': [['<factor>', '*', '<term>'], ['<factor>', '/', '<term>'], ['<factor>']],
+        '<factor>': [['+', '<factor>'], ['-', '<factor>'], ['(', '<expr>', ')'], ['<integer>', '.', '<integer>'], ['<integer>']],
+        '<integer>': [['<digit>', '<integer>'], ['<digit>']],
+        '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']],
+        '<term Z1_0>': [['<factor>', '/', '<term Z1_1>']],
+        '<term Z1_1>': [['<factor Z1_2>']],
+        '<factor Z1_2>': [['<integer Z1_3>']],
+        '<integer Z1_3>': [['<digit Z1_4>']],
+        '<digit Z1_4>': [['0']],
+        '<start Z1>': [['<expr Z1>']],
+        '<expr Z1>': [['<term Z1>', '+', '<expr>'], ['<term>', '+', '<expr Z1>'], ['<term Z1>', '-', '<expr>'], ['<term>', '-', '<expr Z1>'], ['<term Z1>']],
+        '<term Z1>': [['<factor Z1>', '*', '<term>'], ['<factor>', '*', '<term Z1>'], ['<factor Z1>', '/', '<term>'], ['<factor>', '/', '<term Z1>'], ['<factor Z1>'], ['<factor>', '/', '<term Z1_1>']],
+        '<factor Z1>': [['+', '<factor Z1>'], ['-', '<factor Z1>'], ['(', '<expr Z1>', ')']]
+}
 
 # Now, we want to combine these grammars. Remember that a gramamr has a set of
 # definitions that correspond to nonterminals, and each definition has a set of
