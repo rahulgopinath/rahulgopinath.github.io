@@ -30,7 +30,8 @@
 # inducing inputs **evocative patterns** for short. In this post, we will see
 # how to transform such an **evocative pattern** to an **evocative grammar** that is
 # guaranteed to produce *evocative inputs* (that is, each input contains an
-# **evocative fragment**) in all contexts that are guaranteed (statistically) to
+# **evocative fragment** and the derivation tree of the input contains an
+# **evocative subtree**) in all contexts that are guaranteed (statistically) to
 # induce failures.
 # 
 # As before, let us start with importing our required modules.
@@ -82,8 +83,8 @@ if __name__ == '__main__':
 # Finally, extract the abstract pattern.
 
 if __name__ == '__main__':
-    pattern = ddset.ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
-    ddset.display_abstract_tree(pattern)
+    evocative_pattern = ddset.ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+    ddset.display_abstract_tree(evocative_pattern)
 
 # However, it does not actually tell you in what all
 # circumstances the failure can be reproduced. The problem is that it
@@ -95,15 +96,16 @@ if __name__ == '__main__':
 
 # # A grammar that produces at least one evocative fragment per input generated.
 
-# The basic idea is that if we can find a `characterizing node` of the
-# abstract fault tree, such that the presence of the abstract subtree
-# in the input guarantees the failure, then we can modify the grammar such
-# that this abstract subtree is always present. That is, for any input
+# The basic idea is that if we can find an *abstract subtree* of the 
+# evocative pattern derivation tree, such that the presence of this abstract
+# subtree in the input guarantees the failure, then we can modify the grammar
+# such that this abstract subtree is always present (we call the abstract
+# subtree an **evocative subtree**). That is, for any input
 # from such a grammar, at least one instance of the evocative 
 # subtree will be present. This is fairly easy to do if the generated tree
-# contains a nonterminal of the same kind as that of the characterizing node.
-# Simply replace that node with the characterizing node, and fill in the
-# abstract nonterminals with concrete values.
+# contains a nonterminal of the same kind as that of the top node of the evocative subtree.
+# Simply replace that node with the evocative subtree, and fill in the
+# abstract nonterminals in the evocative subtree with concrete expansions.
 
 # ## Reachable Grammar
 # 
@@ -163,8 +165,10 @@ if __name__ == '__main__':
 
 # ## Reachable positions.
 
-# Next, given a characterizing node, we want to find what tokens of the grammar
-# can actually embed such a node.
+# Next, given an evocative subtree, we want to find what tokens of the grammar
+# can actually embed such a subtree. We call the top node of an evocative
+# subtree its characterizing node, and the nonterminal the characterizing
+# nonterminal of the evocative subtree.
 
 def get_reachable_positions(rule, fkey, reachable):
     positions = []
@@ -174,8 +178,8 @@ def get_reachable_positions(rule, fkey, reachable):
             positions.append(i)
     return positions
 
-# Say we assume that `<factor>` is the characterizing node. Here are the
-# locations in grammar where one can embed the characterizing node.
+# Say we assume that `<factor>` is the characterizing nonterminal. Here are the
+# locations in grammar where one can embed the evocative subtree.
 
 if __name__ == '__main__':
     for k in hdd.EXPR_GRAMMAR:
@@ -188,18 +192,18 @@ if __name__ == '__main__':
 # ## Insertion Grammar
 
 # Given the insertion locations, can we produce a grammar such that we can
-# *guarantee* that *at least one* instance of characterizing node can be inserted?
+# *guarantee* that *at least one* instance of evocative subtree can be inserted?
 # To do that, all we need to guarantee is that the start node in any derivation
-# tree can *reach* the characterizing node.
+# tree can *reach* the characterizing nonterminal.
 #
 # For now, let us call our fault `F1`. Let us indicate that our start symbol
-# guarantees reachability of characterizing node by specializing it. So, our new
+# guarantees reachability of characterizing nonterminal by specializing it. So, our new
 # start symbol is `<start F1>`
 # 
-# Next, for the start symbol to guarantee reachability to characterizing node,
+# Next, for the start symbol to guarantee reachability to characterizing nonterminal,
 # all that we need to ensure is that *all* the expansion rules of start can
-# reach the characterizing node. On the other hand, for a guarantee that an
-# expansion rule can reach the characterizing node, all that is required is that
+# reach the characterizing nonterminal. On the other hand, for a guarantee that an
+# expansion rule can reach the characterizing nonterminal, all that is required is that
 # one of the nonterminals in that rule guarantees reachability.
 #
 # We start with a few helper functions
@@ -256,9 +260,9 @@ if __name__ == '__main__':
         print()
 
 # ## Pattern Grammar
-# Next, we need to ensure that our characterizing node can form a unique subtree.
-# For that, all we need to do is that all nodes are named uniquely.
-# Not all nodes in the characterizing node needs unique names however. DDSet
+# Next, we need to ensure that our evocative subtree can form a unique subtree.
+# For that, all we need to do is that all nodes in the subtree are named uniquely.
+# Not all nodes in the evocative subtree needs unique names however. DDSet
 # produces trees such that some nodes in the tree are left abstract. We leave
 # these with the original node names.
 
@@ -282,7 +286,7 @@ def mark_unique_nodes(node, suffix, counter=None):
 # Using
 
 if __name__ == '__main__':
-    unique_pattern_tree = mark_unique_nodes(pattern, 'F1')
+    unique_pattern_tree = mark_unique_nodes(evocative_pattern, 'F1')
     ddset.display_abstract_tree(unique_pattern_tree)
 
 # We can extract a unique pattern grammar from this tree.
@@ -346,7 +350,7 @@ def pattern_grammar(cnode, fname):
 # Using it.
 
 if __name__ == '__main__':
-    pattern_g,pattern_s, t = pattern_grammar(pattern, 'F1')
+    pattern_g,pattern_s, t = pattern_grammar(evocative_pattern, 'F1')
     display_grammar(pattern_g, pattern_s)
 
 # We define a procedure to reverse our pattern grammar to ensure we can
@@ -380,8 +384,8 @@ def reachable_grammar(grammar, start, cnodesym, suffix, reachable):
 # Using it
 
 if __name__ == '__main__':
-    characterizing_node = pattern[1][0][1][0][1][0]
-    my_key_f = characterizing_node[0]
+    evocative_subtree = evocative_pattern[1][0][1][0][1][0]
+    my_key_f = evocative_subtree[0]
     reaching = reachable_dict(hdd.EXPR_GRAMMAR)
     reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
     display_grammar(reach_g, reach_s)
@@ -462,7 +466,7 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
 # The new grammar is as follows
 
 if __name__ == '__main__':
-    g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, characterizing_node, 'F1'))
+    g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, evocative_subtree, 'F1'))
     display_grammar(g, s)
 
 # This grammar is now guaranteed to produce at least one instance of the characterizing node.
@@ -473,22 +477,23 @@ if __name__ == '__main__':
         print(gf.iter_fuzz(key=s, max_depth=10))
 
 
-# This seems to work. However, there is a wrinkle. Note that we found the characterizing node
-# as this node `pattern[1][0][1][0][1][0]`, which is a factor node. But why not
-# any of the other nodes? for example, why not `pattern` itself? Indeed, the effectiveness of
-# our specialized grammar is dependent on finding as small a characterizing node
+# This seems to work. However, there is a wrinkle. Note that we set the
+# evocative subtree as this subtree `pattern[1][0][1][0][1][0]`, which is a
+# `<factor>` node. But why not any of the other subtrees? for example, why not
+# `evocative_pattern` itself? Indeed, the effectiveness of
+# our specialized grammar is dependent on finding as small a evocative subtree
 # as possible that fully captures the fault. So, how do we automate it?
 #
 # The idea is fairly simple. We start from the root of the evocative pattern.
 # We know that this pattern fully captures the predicate. That is, any valid input
-# generated from this pattern by filling in the abstract nodes is guaranteed to
-# produce the failure. Next, we move to the children of this node. If the node
-# is abstract, we return immediately. If however, the child is not abstract, we
-# let the child be the characterizing node, and try to reproduce the failure. If
-# the failure is not reproduced, we move to the next child. If the failure is
-# reproduced we recurse deeper into the current child.
+# generated from this pattern by filling in the abstract nodes is (statistically)
+# guaranteed to produce the failure. Next, we move to the children of this node.
+# If the node is abstract, we return immediately. If however, the child is not
+# abstract, we let the child be the evocative subtree, and try to reproduce the
+# failure. If the failure is not reproduced, we move to the next child. If the
+# failure is reproduced we recurse deeper into the current child.
 
-def find_characterizing_node(fault_tree, grammar, start, fn):
+def find_evocative_subtree(fault_tree, grammar, start, fn):
     if ddset.is_node_abstract(fault_tree): return None
     if not fuzzer.is_nonterminal(fault_tree[0]): return None
     g, s = grammar_gc(atleast_one_fault_grammar(grammar, start, fault_tree, 'F1'))
@@ -505,7 +510,7 @@ def find_characterizing_node(fault_tree, grammar, start, fn):
 
     node, children, rest = fault_tree
     for c in children:
-        v = find_characterizing_node(c, grammar, start, fn)
+        v = find_evocative_subtree(c, grammar, start, fn)
         if v is not None:
             return v
     return fault_tree
@@ -513,12 +518,13 @@ def find_characterizing_node(fault_tree, grammar, start, fn):
 
 # Usage
 if __name__ == '__main__':
-    fnode = find_characterizing_node(pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
-    ddset.display_abstract_tree(fnode)
+    etree = find_evocative_subtree(evocative_pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+    ddset.display_abstract_tree(etree)
 
-# That is, we found the correct characterizing node.
+# That is, we found the correct evocative subtree. We can confirm this by
+# comparing it against the subtree we identified manually.
 if __name__ == '__main__':
-    ddset.display_abstract_tree(characterizing_node)
+    ddset.display_abstract_tree(evocative_subtree)
 
 # At this point, we have the ability to guarantee that a evocative 
 # fragment is present in any inputs produced. In later posts I will discuss how
