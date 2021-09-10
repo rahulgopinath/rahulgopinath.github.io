@@ -21,12 +21,12 @@
 
 import sympy
 
-# **Note** sympy may not load immediately. If you get errors, and the sympy
-# import seems to not have been executed, try clicking on
-# the [run] button again.
-
+# **Note** `sympy` may not load immediately. Either click on the [run] button
+# first before you click the [run all] or if you get errors, and the `sympy`
+# import seems to not have been executed, try clicking on the [run] button again.
+#
 # Our language is a simple language of boolean algebra. That is, it is the
-# langauge of expressions in the specialization for a nonterminal such as `<A and(f1,f2)>`
+# language of expressions in the specialization for a nonterminal such as `<A and(f1,f2)>`
 # It is defined by the following grammar.
 
 import string
@@ -101,7 +101,7 @@ TrueB = LitB('')
 
 FalseB = LitB('_|_')
 
-# Next, we define the standard teerms of the boolean algebra. `or(.,.)`, `and(.,.)` and `neg(.)`
+# Next, we define the standard terms of the boolean algebra. `or(.,.)`, `and(.,.)` and `neg(.)`
 
 class OrB:
     def __init__(self, a): self.l = a
@@ -116,7 +116,7 @@ class B:
     def __init__(self, a): self.a = a
     def __str__(self): return str(self.a)
 
-# We then come to the actual representative class. The clas is initialized by
+# We then come to the actual representative class. The class is initialized by
 # providing it with a boolean expression.
 
 class BExpr:
@@ -208,8 +208,8 @@ class BExpr(BExpr):
             rest = bexprs[1][2]
             return [a] + self._flatten(rest)
 
-# Next, we defien the revserse. Given the sympy expression, we define a
-# procedure to convert it to the boolean datastructure.
+# Next, we define the reverse. Given the `sympy` expression, we define a
+# procedure to convert it to the boolean data-structure.
 
 class BExpr(BExpr):
     def _convert_sympy_to_bexpr(self, sexpr, log=False):
@@ -274,20 +274,20 @@ if __name__ == '__main__':
     b = BExpr('and(and(f1,f2),f1)')
     print(b.simple())
 
-# We now need to come to one of the main reasons for the existance of
+# We now need to come to one of the main reasons for the existence of
 # this class. In later posts, we will see that we will need to
 # recreate a given nonterminal given the basic building blocks, and
 # the boolean expression of the nonterminal. So, what we will do is
 # to first parse the boolean expression using `BExpr`, then use
 # `sympy` to simplify (as we have shown above), then unwrap the
-# sympy one layer at a time, noting the operator used. When we
+# `sympy` one layer at a time, noting the operator used. When we
 # come to the faults (or their negations) themselves, we return
 # back from negation with their definitions from the original grammars,
 # and as we return from each layer, we reconstruct the required
-# expression from the given nonterminal definitons (or newly built ones)>
+# expression from the given nonterminal definitions (or newly built ones)>
 # 
 # The `get_operator()` returns the
-# outer operator, `op_fst()` returns the firt operator if the
+# outer operator, `op_fst()` returns the first operator if the
 # operator was a negation (and throws exception if it is used
 # otherwise, and `op_fst_snd()` returns the first and second
 # parameters for the outer `and` or `or`.
