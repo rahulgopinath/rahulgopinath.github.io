@@ -22,6 +22,7 @@
 
 import sys, imp
 import itertools as I
+import sympy
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')

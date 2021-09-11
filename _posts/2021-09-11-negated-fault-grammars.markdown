@@ -41,6 +41,7 @@ As before, let us start with importing our required modules.
 ############
 import sys, imp
 import itertools as I
+import sympy
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -67,6 +68,7 @@ def import_file(name, location):
 <textarea cols="40" rows="4" name='python_edit'>
 import sys, imp
 import itertools as I
+import sympy
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
