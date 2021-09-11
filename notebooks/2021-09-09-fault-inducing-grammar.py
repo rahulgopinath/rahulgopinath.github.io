@@ -600,26 +600,20 @@ if __name__ == '__main__':
     display_var(etree2)
 
 # We save this evocative pattern for later use.
-ETREE_DZERO = ('<factor>',
- [('(', [], {'abstract': False}),
-  ('<expr>',
-   [('<term>',
-     [('<factor>',
-       [('<integer>',
-         [('<digit>', [('2', [], {'abstract': False})], {'abstract': False})],
-         {'abstract': False})],
-       {'abstract': True}),
-      ('/', [], {'abstract': False}),
-      ('<term>',
-       [('<factor>',
-         [('<integer>',
-           [('<digit>', [('0', [], {'abstract': False})], {'abstract': False})],
-           {'abstract': False})],
-         {'abstract': False})],
+ETREE_DZERO = ('<term>',
+ [('<factor>',
+   [('<integer>',
+     [('<digit>', [('2', [], {'abstract': False})], {'abstract': False})],
+     {'abstract': False})],
+   {'abstract': True}),
+  ('/', [], {'abstract': False}),
+  ('<term>',
+   [('<factor>',
+     [('<integer>',
+       [('<digit>', [('0', [], {'abstract': False})], {'abstract': False})],
        {'abstract': False})],
      {'abstract': False})],
-   {'abstract': False}),
-  (')', [], {'abstract': False})],
+   {'abstract': False})],
  {'abstract': False}) 
 
 # The new grammar is as follows
