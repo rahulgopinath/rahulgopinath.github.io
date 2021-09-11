@@ -45,7 +45,8 @@ hdd = import_file('hdd', '2019-12-04-hdd.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-gmultiple = import_file('gmultiple', '2021-09-10-multiiple-fault-grammars.py')
+gmultiple = import_file('gmultiple', '2021-09-10-multiple-fault-grammars.py')
+gexpr = import_file('gexpr', '2021-09-11-fault-expressions.py')
 
 # # A grammar with no fault inducing fragments.
 #
@@ -126,7 +127,7 @@ def unreachable_grammar(grammar, start, cnodesym, negated_suffix, reachable):
 # specific pattern in the current expansion. Next, we also need to make sure
 # that the original fault is not reachable from any of the nonterminals.
 
-def negate_key(k):
+def negate_nonterminal(k):
     return '<%s %s>' % (gatleast.stem(k), negate_suffix(gatleast.refinement(k)))
 
 def rule_normalized_difference(rulesA, rulesB):
@@ -141,7 +142,7 @@ def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_key(t) if i==pos else t for i,t in enumerate(refined_rule)]
+        r = [negate_nonterminal(t) if i==pos else t for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
 
@@ -163,7 +164,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
     negated_grammar = {}
     for l_key in pattern_grammar:
         l_rule = pattern_grammar[l_key][0]
-        nl_key = negate_key(l_key)
+        nl_key = negate_nonterminal(l_key)
         # find all rules that do not match, and add to negated_grammar,
         normal_l_key = gmultiple.normalize(l_key)
         base_rules = base_grammar[normal_l_key]
@@ -172,8 +173,7 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
         negated_rules = unmatch_definition_in_pattern_grammar(refined_rules,
                                                               base_rules)
         negated_grammar[nl_key] = negated_rules
-    # this needs to be negated with original fault TODO:
-    return {**negated_grammar, **pattern_grammar} , negate_key(pattern_start)
+    return {**negated_grammar, **pattern_grammar} , negate_nonterminal(pattern_start)
 
 # Using
 
@@ -192,7 +192,7 @@ def and_suffix(k1, suffix):
         return '<%s %s>' % (gatleast.stem(k1), suffix)
     return '<%s and(%s,%s)>' % (gatleast.stem(k1), gatleast.refinement(k1), suffix)
 
-def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
+def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
     reachable_keys = gatleast.reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar,
                                                    pattern_start, base_grammar)
@@ -212,12 +212,12 @@ def negated_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault
                         if t in keys_that_can_reach_fault else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
-    return new_g, negate_key(pattern_start)
+    return new_g, negate_nonterminal(pattern_start)
 
 # Using
 
 if __name__ == '__main__':
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g, pattern_s,
+    nomatch_g, nomatch_s = negate_pattern_grammar(pattern_g, pattern_s,
                                                 hdd.EXPR_GRAMMAR, 'neg(F1)')
     # next we need to conjunct
     gatleast.display_grammar(nomatch_g, nomatch_s)
@@ -229,7 +229,7 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
     key_f = cnode[0]
     pattern_g, pattern_s, tr = gatleast.pattern_grammar(cnode, fname)
     negated_suffix = negate_suffix(fname)
-    nomatch_g, nomatch_s = negated_pattern_grammar(pattern_g,
+    nomatch_g, nomatch_s = negate_pattern_grammar(pattern_g,
                                 pattern_s, grammar, negated_suffix)
 
     reachable_keys = gatleast.reachable_dict(grammar)
@@ -311,4 +311,149 @@ if __name__ == '__main__':
         v = fuzzer.tree_to_string(t)
         assert check_doubled_paren(v) == hdd.PRes.failed
         print(v)
+
+# ## Negation of full evocative expressions
+#
+# Negation of a single pattern is useful, but we may also want
+# to negate larger expressions such as say `neg(or(and(f1,f2),f3))`
+#
+# ## Nonterminals
+# Let us start with negating nonterminals.
+
+def negate_refinement(ref):
+    return 'neg(%s)' % ref
+
+def negate_nonterminal(key):
+    stem, refinement = gatleast.tsplit(key)
+    assert refinement
+    return '<%s %s>' % (stem, negate_refinement(refinement))
+
+# ### Negating a rule
+# 
+# Negating a rule produces as many rules as there are specialized
+# nonterminals in that rule.
+
+def specialized_positions(rule):
+    positions = []
+    for i,t in enumerate(rule):
+        if not gatleast.is_nonterminal(t):
+            continue
+        if gatleast.is_base_key(t):
+            continue
+        positions.append(i)
+    return positions
+
+def negate_rule(rule):
+    positions = specialized_positions(rule)
+    new_rules = []
+    for p in positions:
+        new_rule = [negate_nonterminal(t)
+                        if i == p else t for i,t in enumerate(rule)]
+        new_rules.append(new_rule)
+    return new_rules
+
+# ### Negation of a ruleset
+# 
+# negation of a ruleset is based on boolean algebra.
+# say a definition is `S = R1 | R2 | R3` then,
+# `neg(S)` is `neg(R1) & neg(R2) & neg(R3)`. Since each
+# `neg(R)` results in multiple `r` we apply distributive
+# law. That is,
+#
+# `(r1|r2|r3) & (r4|r5|r6) & (r7|r8|r9)`
+#
+# This gives r1&r4&r7 | r1&r4&r8 | etc.
+
+def and_all_rules_to_one(rules):
+    new_rule, *rules = rules
+    while rules:
+        r,*rules = rules
+        new_rule = gmultiple.and_rules(new_rule, r)
+    return new_rule
+
+def negate_ruleset(rules):
+    negated_rules_set = [negate_rule(ruleR) for ruleR in rules]
+    negated_rules = []
+    for rules in I.product(*negated_rules_set):
+        r = and_all_rules_to_one(rules)
+        negated_rules.append(r)
+    return negated_rules
+
+# ### Negation of a definition.
+#
+# Negating a defintion adds any rules in the base that is not
+# part of the specialized definition. Then, we negate each
+# ruleset. Further, each nonterminal in rule is conjuncted
+# ith the specialization.
+
+def negate_definition(specialized_key, rules, grammar):
+    refined_rulesets = gmultiple.get_rulesets(refined_rules)
+    base_key = gmultiple.normalize(specialized_key)
+    base_rules = grammar[base_key]
+    refinement = gatleast.refinement(specialized_key)
+
+    # todo -- check if refined_rulesets key is in the right format.
+    negated_rules = [r for r in base_rules if r not in refined_rulesets]
+
+    for rule_rep in refined_rulesets:
+        new_nrules = negate_ruleset(refined_rulesets[rule_rep])
+        negated_rules.extend(new_nrules)
+
+    conj_negated_rules = []
+    for rule in negated_rules:
+        conj_rule = [gmultiple.and_suffix(t, refinement)
+                        if gatleast.is_nonterminal(t) else t for t in rule]
+        conj_negated_rules.append(conj_rule)
+
+    return conj_negated_rules
+
+# ### Construction of a grammar negation.
+#
+# At this point, we are ready to construct a negated grammar.
+# For negated grammars, we can simply return the grammar and negated start
+# and let the reconstruction happen in `complete()`
+
+def negate_grammar_(grammar, start):
+    nstart = negate_nonterminal(start)
+    return grammar, nstart
+
+#  We extend ReconstructRules with negation
+
+def get_base_grammar(g):
+    return {k:g[k] for k in g if gatleast.is_base_key(k)}
+
+class ReconstructRules(gexpr.ReconstructRules):
+    def reconstruct_neg_bexpr(self, key, bexpr):
+        fst = bexpr.op_fst()
+        base_grammar = get_base_grammar(self.grammar)
+        f_key = bexpr.with_key(key)
+        # if bexpr is not complex, that is, either f1 or neg(f1)
+        # then f_key should bw in grammar.
+        assert '(' not in f_key and ')' not in f_key
+        # else, reconstruct.
+        d, s = self.reconstruct_rules_from_bexpr(key, fst)
+        d1, s1 = negate_definition(d, s, base_grammar)
+        return d1, s1 
+
+# We redefine `complete()`
+
+def complete(grammar, start, log=False):
+    rr = ReconstructRules(grammar)
+    grammar, start = gatleast.grammar_gc(rr.reconstruct_key(start, log))
+    return grammar, start
+
+# Using it.
+
+if __name__ == '__main__':
+    cnode = gatleast.ETREE_DPAREN
+    g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
+    g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
+    grammar ={**hdd.EXPR_GRAMMAR, **g1,**g2}
+    g_, s_ = complete(grammar, '<start neg(or(D1,Z1))>')
+    gf = fuzzer.LimitFuzzer(g_)
+    for i in range(10):
+        v = gf.iter_fuzz(key=s_, max_depth=10)
+        assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, v
+        print(v)
+
 
