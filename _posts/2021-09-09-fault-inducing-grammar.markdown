@@ -1211,7 +1211,7 @@ Here is another evocative pattern, but we define a different predicate.
 <!--
 ############
 def expr_div_by_zero(input_str):
-    if '/0' in input_str: return hdd.PRes.success
+    if '/0)' in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
 
 ############
@@ -1219,7 +1219,7 @@ def expr_div_by_zero(input_str):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def expr_div_by_zero(input_str):
-    if &#x27;/0&#x27; in input_str: return hdd.PRes.success
+    if &#x27;/0)&#x27; in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

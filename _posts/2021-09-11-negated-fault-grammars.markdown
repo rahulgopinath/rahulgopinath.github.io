@@ -942,39 +942,6 @@ A better check for div by zero
 
 <!--
 ############
-import string
-
-def check_div_zero(v):
-    for i in string.digits:
-        if i == '0': continue
-        v = v.replace('0%s' % i, '1')
-        v = v.replace('0.', '1.')
-    if '/0' in v:
-        return hdd.PRes.success
-    return hdd.PRes.failed
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import string
-
-def check_div_zero(v):
-    for i in string.digits:
-        if i == &#x27;0&#x27;: continue
-        v = v.replace(&#x27;0%s&#x27; % i, &#x27;1&#x27;)
-        v = v.replace(&#x27;0.&#x27;, &#x27;1.&#x27;)
-    if &#x27;/0&#x27; in v:
-        return hdd.PRes.success
-    return hdd.PRes.failed
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-
-<!--
-############
 cnode = gatleast.ETREE_DPAREN
 g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
 g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
@@ -984,7 +951,7 @@ gf = fuzzer.LimitFuzzer(g_)
 for i in range(100):
     t = gf.iter_gen_key(key=s_, max_depth=10)
     v = fuzzer.tree_to_string(t)
-    assert check_div_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
+    assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
     print(v)
 
 
@@ -1001,7 +968,7 @@ gf = fuzzer.LimitFuzzer(g_)
 for i in range(100):
     t = gf.iter_gen_key(key=s_, max_depth=10)
     v = fuzzer.tree_to_string(t)
-    assert check_div_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
+    assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
     print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

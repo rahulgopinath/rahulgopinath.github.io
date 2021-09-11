@@ -557,7 +557,7 @@ ETREE_DPAREN = ('<factor>',
 # Here is another evocative pattern, but we define a different predicate.
 
 def expr_div_by_zero(input_str):
-    if '/0' in input_str: return hdd.PRes.success
+    if '/0)' in input_str: return hdd.PRes.success
     else: return hdd.PRes.failed
 
 # Check the assertion

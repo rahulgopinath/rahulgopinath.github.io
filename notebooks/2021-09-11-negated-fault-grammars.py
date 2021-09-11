@@ -448,19 +448,6 @@ def complete(grammar, start, log=False):
 
 # A better check for div by zero
 
-import string
-
-def check_div_zero(v):
-    for i in string.digits:
-        if i == '0': continue
-        v = v.replace('0%s' % i, '1')
-        v = v.replace('0.', '1.')
-    if '/0' in v:
-        return hdd.PRes.success
-    return hdd.PRes.failed
-
-# 
-
 if __name__ == '__main__':
     cnode = gatleast.ETREE_DPAREN
     g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
@@ -471,7 +458,7 @@ if __name__ == '__main__':
     for i in range(100):
         t = gf.iter_gen_key(key=s_, max_depth=10)
         v = fuzzer.tree_to_string(t)
-        assert check_div_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
+        assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
         print(v)
 
 
