@@ -36,7 +36,7 @@
 # 
 # As before, let us start with importing our required modules.
 
-import sys, imp
+import sys, imp, pprint
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -588,25 +588,37 @@ if __name__ == '__main__':
     etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
     ddset.display_abstract_tree(etree2)
 
+# prettyprinting
+
+def display_var(v)
+    pp = pprint.PrettyPrinter(indent=1)
+    pp.pprint(v)
+
+if __name__ == '__main__':
+    display_var(etree2)
+
 # We save this evocative pattern for later use.
-ETREE_DZERO = ('<term>',
-        [('<factor>',
-            [('<integer>',
-                [('<digit>', [('2', [], {'abstract': False})],
-                    {'abstract': False})],
-                {'abstract': False})],
-            {'abstract': True}),
-            ('/', [], {'abstract': False}),
-            ('<term>',
-                [('<factor>',
-                    [('<integer>',
-                        [('<digit>', [('0', [],
-                            {'abstract': False})],
-                            {'abstract': False})],
-                        {'abstract': False})],
-                    {'abstract': False})],
-                {'abstract': False})],
-            {'abstract': False})
+ETREE_DZERO = ('<factor>',
+ [('(', [], {'abstract': False}),
+  ('<expr>',
+   [('<term>',
+     [('<factor>',
+       [('<integer>',
+         [('<digit>', [('2', [], {'abstract': False})], {'abstract': False})],
+         {'abstract': False})],
+       {'abstract': True}),
+      ('/', [], {'abstract': False}),
+      ('<term>',
+       [('<factor>',
+         [('<integer>',
+           [('<digit>', [('0', [], {'abstract': False})], {'abstract': False})],
+           {'abstract': False})],
+         {'abstract': False})],
+       {'abstract': False})],
+     {'abstract': False})],
+   {'abstract': False}),
+  (')', [], {'abstract': False})],
+ {'abstract': False}) 
 
 # The new grammar is as follows
 

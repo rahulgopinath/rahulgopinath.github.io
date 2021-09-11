@@ -52,7 +52,7 @@ As before, let us start with importing our required modules.
 
 <!--
 ############
-import sys, imp
+import sys, imp, pprint
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -77,7 +77,7 @@ def import_file(name, location):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import sys, imp
+import sys, imp, pprint
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
@@ -1306,51 +1306,82 @@ ddset.display_abstract_tree(etree2)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We save this evocative pattern for later use.
+prettyprinting
 
 <!--
 ############
-ETREE_DZERO = ('<term>',
-        [('<factor>',
-            [('<integer>',
-                [('<digit>', [('2', [], {'abstract': False})],
-                    {'abstract': False})],
-                {'abstract': False})],
-            {'abstract': True}),
-            ('/', [], {'abstract': False}),
-            ('<term>',
-                [('<factor>',
-                    [('<integer>',
-                        [('<digit>', [('0', [],
-                            {'abstract': False})],
-                            {'abstract': False})],
-                        {'abstract': False})],
-                    {'abstract': False})],
-                {'abstract': False})],
-            {'abstract': False})
+def display_var(v)
+    pp = pprint.PrettyPrinter(indent=1)
+    pp.pprint(v)
+
+if __name__ == '__main__':
+    display_var(etree2)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-ETREE_DZERO = (&#x27;&lt;term&gt;&#x27;,
-        [(&#x27;&lt;factor&gt;&#x27;,
-            [(&#x27;&lt;integer&gt;&#x27;,
-                [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [], {&#x27;abstract&#x27;: False})],
-                    {&#x27;abstract&#x27;: False})],
-                {&#x27;abstract&#x27;: False})],
-            {&#x27;abstract&#x27;: True}),
-            (&#x27;/&#x27;, [], {&#x27;abstract&#x27;: False}),
-            (&#x27;&lt;term&gt;&#x27;,
-                [(&#x27;&lt;factor&gt;&#x27;,
-                    [(&#x27;&lt;integer&gt;&#x27;,
-                        [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;0&#x27;, [],
-                            {&#x27;abstract&#x27;: False})],
-                            {&#x27;abstract&#x27;: False})],
-                        {&#x27;abstract&#x27;: False})],
-                    {&#x27;abstract&#x27;: False})],
-                {&#x27;abstract&#x27;: False})],
-            {&#x27;abstract&#x27;: False})
+def display_var(v)
+    pp = pprint.PrettyPrinter(indent=1)
+    pp.pprint(v)
+
+if __name__ == &#x27;__main__&#x27;:
+    display_var(etree2)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We save this evocative pattern for later use.
+
+<!--
+############
+ETREE_DZERO = ('<factor>',
+ [('(', [], {'abstract': False}),
+  ('<expr>',
+   [('<term>',
+     [('<factor>',
+       [('<integer>',
+         [('<digit>', [('2', [], {'abstract': False})], {'abstract': False})],
+         {'abstract': False})],
+       {'abstract': True}),
+      ('/', [], {'abstract': False}),
+      ('<term>',
+       [('<factor>',
+         [('<integer>',
+           [('<digit>', [('0', [], {'abstract': False})], {'abstract': False})],
+           {'abstract': False})],
+         {'abstract': False})],
+       {'abstract': False})],
+     {'abstract': False})],
+   {'abstract': False}),
+  (')', [], {'abstract': False})],
+ {'abstract': False})
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ETREE_DZERO = (&#x27;&lt;factor&gt;&#x27;,
+ [(&#x27;(&#x27;, [], {&#x27;abstract&#x27;: False}),
+  (&#x27;&lt;expr&gt;&#x27;,
+   [(&#x27;&lt;term&gt;&#x27;,
+     [(&#x27;&lt;factor&gt;&#x27;,
+       [(&#x27;&lt;integer&gt;&#x27;,
+         [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [], {&#x27;abstract&#x27;: False})], {&#x27;abstract&#x27;: False})],
+         {&#x27;abstract&#x27;: False})],
+       {&#x27;abstract&#x27;: True}),
+      (&#x27;/&#x27;, [], {&#x27;abstract&#x27;: False}),
+      (&#x27;&lt;term&gt;&#x27;,
+       [(&#x27;&lt;factor&gt;&#x27;,
+         [(&#x27;&lt;integer&gt;&#x27;,
+           [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;0&#x27;, [], {&#x27;abstract&#x27;: False})], {&#x27;abstract&#x27;: False})],
+           {&#x27;abstract&#x27;: False})],
+         {&#x27;abstract&#x27;: False})],
+       {&#x27;abstract&#x27;: False})],
+     {&#x27;abstract&#x27;: False})],
+   {&#x27;abstract&#x27;: False}),
+  (&#x27;)&#x27;, [], {&#x27;abstract&#x27;: False})],
+ {&#x27;abstract&#x27;: False})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
