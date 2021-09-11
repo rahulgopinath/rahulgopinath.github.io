@@ -240,10 +240,24 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
 
     combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
     unreaching_sym = gatleast.refine_base_key(key_f, negated_suffix)
-    combined_grammar[unreaching_sym] = unreach_g[unreaching_sym] + nomatch_g[nomatch_s] # TODO verify
-
+    combined_grammar[unreaching_sym] = nomatch_g[nomatch_s]
+    
     return combined_grammar, unreach_s
 
+# We cant add `unreach_g[unreaching_sym]` to `combined_grammar[unreaching_sym]`
+# because it will then match
+# ```
+# [['<factor neg(F1)>',
+#         [['(', []],
+#          ['<expr neg(F1)>',
+#              [['<term neg(F1)>',
+#                  [['<factor neg(F1)>',
+#                      [['(', []],
+#                       ['<expr neg(F1)>', ],
+#                       [')', []]]]]]]],
+#          [')',    []]]]]
+# ```
+#
 # Using it.
 
 if __name__ == '__main__':
@@ -256,8 +270,8 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
-        v = gf.iter_fuzz(key=s, max_depth=10)
+        t = gf.iter_gen_key(key=s, max_depth=10)
+        v = fuzzer.tree_to_string(t)
         # this will not necessarily work. Can you identify why?
-        #assert hdd.expr_double_paren(v) == hdd.PRes.failed
+        assert hdd.expr_double_paren(v) == hdd.PRes.failed, (v,t)
         print(v)
-
