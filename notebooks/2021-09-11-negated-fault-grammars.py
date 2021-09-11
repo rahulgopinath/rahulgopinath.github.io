@@ -268,10 +268,47 @@ if __name__ == '__main__':
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
 
 if __name__ == '__main__':
+    failed = []
     gf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         t = gf.iter_gen_key(key=s, max_depth=10)
         v = fuzzer.tree_to_string(t)
         # this will not necessarily work. Can you identify why?
-        assert hdd.expr_double_paren(v) == hdd.PRes.failed, (v,t)
+        if hdd.expr_double_paren(v) != hdd.PRes.failed:
+            failed.append((v,t))
         print(v)
+    print(len(failed))
+
+# The problem here is that our evocative pattern did not fully capture the behavior
+# of `hdd.expr_double_paren`. Rather, it only captured the essence of a single
+# input that contained a doubled parenthesis. In this case, `((4))`. We would
+# have a different evocative pattern if we had started with say `((4)+(1))`.
+# 
+# For simplicity, let us construct another function that checks the double
+# parenthesis we abstracted.
+
+import re
+def check_doubled_paren(val):
+    while '((' in val and '))' in val:
+        val = re.sub(r'[^()]+','X', val)
+        if '((X))' in val:
+            return hdd.PRes.success
+        val = val.replace(r'(X)', '')
+    return hdd.PRes.failed
+
+# Checks
+
+if __name__ == '__main__':
+    assert check_doubled_paren('((1))') == hdd.PRes.success
+    assert check_doubled_paren('((1)+(2))') == hdd.PRes.failed
+
+# Now we can try the grammar again.
+
+if __name__ == '__main__':
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        t = gf.iter_gen_key(key=s, max_depth=10)
+        v = fuzzer.tree_to_string(t)
+        assert check_doubled_paren(v) == hdd.PRes.failed
+        print(v)
+

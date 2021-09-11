@@ -548,13 +548,98 @@ This grammar is now guaranteed not to produce any instance of the characterizing
 
 <!--
 ############
+failed = []
 gf = fuzzer.LimitFuzzer(g)
 for i in range(10):
     t = gf.iter_gen_key(key=s, max_depth=10)
     v = fuzzer.tree_to_string(t)
     # this will not necessarily work. Can you identify why?
-    assert hdd.expr_double_paren(v) == hdd.PRes.failed, (v,t)
+    if hdd.expr_double_paren(v) != hdd.PRes.failed:
+        failed.append((v,t))
     print(v)
+print(len(failed))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+failed = []
+gf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    t = gf.iter_gen_key(key=s, max_depth=10)
+    v = fuzzer.tree_to_string(t)
+    # this will not necessarily work. Can you identify why?
+    if hdd.expr_double_paren(v) != hdd.PRes.failed:
+        failed.append((v,t))
+    print(v)
+print(len(failed))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The problem here is that our evocative pattern did not fully capture the behavior
+of `hdd.expr_double_paren`. Rather, it only captured the essence of a single
+input that contained a doubled parenthesis. In this case, `((4))`. We would
+have a different evocative pattern if we had started with say `((4)+(1))`.
+
+For simplicity, let us construct another function that checks the double
+parenthesis we abstracted.
+
+<!--
+############
+import re
+def check_doubled_paren(val):
+    while '((' in val and '))' in val:
+        val = re.sub(r'[^()]+','X', val)
+        if '((X))' in val:
+            return hdd.PRes.success
+        val = val.replace(r'(X)', '')
+    return hdd.PRes.failed
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import re
+def check_doubled_paren(val):
+    while &#x27;((&#x27; in val and &#x27;))&#x27; in val:
+        val = re.sub(r&#x27;[^()]+&#x27;,&#x27;X&#x27;, val)
+        if &#x27;((X))&#x27; in val:
+            return hdd.PRes.success
+        val = val.replace(r&#x27;(X)&#x27;, &#x27;&#x27;)
+    return hdd.PRes.failed
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Checks
+
+<!--
+############
+assert check_doubled_paren('((1))') == hdd.PRes.success
+assert check_doubled_paren('((1)+(2))') == hdd.PRes.failed
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+assert check_doubled_paren(&#x27;((1))&#x27;) == hdd.PRes.success
+assert check_doubled_paren(&#x27;((1)+(2))&#x27;) == hdd.PRes.failed
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now we can try the grammar again.
+
+<!--
+############
+gf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    t = gf.iter_gen_key(key=s, max_depth=10)
+    v = fuzzer.tree_to_string(t)
+    assert check_doubled_paren(v) == hdd.PRes.failed
+    print(v)
+
 ############
 -->
 <form name='python_run_form'>
@@ -563,8 +648,7 @@ gf = fuzzer.LimitFuzzer(g)
 for i in range(10):
     t = gf.iter_gen_key(key=s, max_depth=10)
     v = fuzzer.tree_to_string(t)
-    # this will not necessarily work. Can you identify why?
-    assert hdd.expr_double_paren(v) == hdd.PRes.failed, (v,t)
+    assert check_doubled_paren(v) == hdd.PRes.failed
     print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
