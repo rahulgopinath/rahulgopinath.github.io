@@ -1310,7 +1310,7 @@ prettyprinting
 
 <!--
 ############
-def display_var(v)
+def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
 
@@ -1321,7 +1321,7 @@ if __name__ == '__main__':
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def display_var(v)
+def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
 

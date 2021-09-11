@@ -590,7 +590,7 @@ if __name__ == '__main__':
 
 # prettyprinting
 
-def display_var(v)
+def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
 
