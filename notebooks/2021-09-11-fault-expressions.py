@@ -8,7 +8,7 @@
 # ---
 
 # In my previous posts on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
-# and [multiple faults](/post/2021/09/10/multiiple-fault-grammars/) I introduced
+# and [multiple faults](/post/2021/09/10/multiple-fault-grammars/) I introduced
 # the evocative patterns and how to combine them using `and`. As our expressions
 # keep growing in complexity, we need a better way to mange them. This post
 # introduces a language for the suffixes so that we will have an easier time
@@ -79,7 +79,7 @@ def import_file(name, location):
 earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-gmultiple = import_file('gmultiple', '2021-09-10-multiiple-fault-grammars.py')
+gmultiple = import_file('gmultiple', '2021-09-10-multiple-fault-grammars.py')
 hdd = import_file('hdd', '2019-12-04-hdd.py')
 # Next, we need a data structure to represent the boolean language.
 # First we represent our literals using `LitB` class.
@@ -398,8 +398,7 @@ class ReconstructRules:
         d1, s1 = self.reconstruct_rules_from_bexpr(key, fst)
         d2, s2 = self.reconstruct_rules_from_bexpr(key, snd)
         and_rules = gmultiple.and_definitions(d1, d2)
-        g = {**self.grammar, **{f_key: and_rules}}
-        return g[f_key], f_key
+        return and_rules, f_key
 
     def reconstruct_or_bexpr(self, key, bexpr):
         fst, snd = bexpr.op_fst_snd()
@@ -408,8 +407,7 @@ class ReconstructRules:
         assert fst != snd
         d2, s2 = self.reconstruct_rules_from_bexpr(key, snd)
         or_rules = gmultiple.or_definitions(d1, d2)
-        g = {**grammar, **{f_key: or_rules}}
-        return g[f_key], f_key
+        return or_rules, f_key
 
 # Using
 
