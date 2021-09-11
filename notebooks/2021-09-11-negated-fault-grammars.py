@@ -17,9 +17,6 @@
 #
 # As before, let us start with importing our required modules.
 
-#@mpmath-1.2.1-py3-none-any.whl
-#@sympy-1.8-py3-none-any.whl
-
 import sys, imp
 import itertools as I
 import sympy
