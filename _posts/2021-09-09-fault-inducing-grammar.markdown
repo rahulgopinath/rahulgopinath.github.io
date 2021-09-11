@@ -1314,9 +1314,6 @@ def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
 
-if __name__ == '__main__':
-    display_var(etree2)
-
 ############
 -->
 <form name='python_run_form'>
@@ -1324,9 +1321,21 @@ if __name__ == '__main__':
 def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using
 
-if __name__ == &#x27;__main__&#x27;:
-    display_var(etree2)
+<!--
+############
+display_var(etree2)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+display_var(etree2)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
