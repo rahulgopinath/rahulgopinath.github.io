@@ -28,6 +28,7 @@ function runit(mypre, mycanvas, editor) {
    mypre.innerHTML = '';
 
    pyodide.globals.__canvas__ = draw;
+
    try {
      pyodide.runPythonAsync(prog)
           .then(output => {
@@ -53,6 +54,9 @@ $('[name="python_edit"]').each(function(idx) {
 
 languagePluginLoader.then(() => { 
   pyodide.loadPackage(['micropip']).then(() => {
+    pyodide.loadPackage('/resources/pyodide/full/3.9/mpmath.js')
+    pyodide.loadPackage('/resources/pyodide/full/3.9/sympy.js')
+
     var imports_ = $(document).find('#python_pre_edit')
     var imports_lst = [];
     if (imports_.length > 0) {

@@ -13,8 +13,8 @@ algorithm is quite useful for fuzzing, one of the problems with that algorithm
 is that the strings produced from that grammar is skewed toward shallow strings.
 
 For example, consider this grammar:
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
-<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">

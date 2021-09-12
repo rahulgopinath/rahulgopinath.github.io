@@ -50,8 +50,8 @@ def print_data(processed_data):
             p(chunk)
             if first_comment:
                 p('''\
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
-<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">

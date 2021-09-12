@@ -37,8 +37,8 @@ I will be showing how to do these things in the upcoming posts.
 ## The Implementation (tested in Python 3.6.8)
 
 First, we import everything we need.
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.8/';</script>
-<script src="/resources/pyodide/full/3.8/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
