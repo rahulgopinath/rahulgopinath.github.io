@@ -274,8 +274,8 @@ if __name__ == '__main__':
     gatleast.display_grammar(g, s)
 
 # This grammar is now guaranteed not to produce any instance of the characterizing node.
-# However, as you can see the grammar is not complete. We will look at how to
-# complete these grammars later.
+# However, as you can see the grammar is not complete. For completing the
+# grammar We need to rely on `reconstruction` that we discussed in the last post.
 #
 # Aside: Let us construct another function that checks the double
 # parenthesis we abstracted.

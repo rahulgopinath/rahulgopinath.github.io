@@ -387,7 +387,13 @@ def and_suffix(k1, suffix):
         return '<%s %s>' % (gatleast.stem(k1), suffix)
     return '<%s and(%s,%s)>' % (gatleast.stem(k1), gatleast.refinement(k1), suffix)
 
-def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
+def base_rep(t):
+    if fuzzer.is_nonterminal(t):
+        return gmultiple.normalize(t)
+    return t
+
+def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar,
+        nfault_suffix):
     reachable_keys = gatleast.reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar,
                                                    pattern_start, base_grammar)
@@ -404,7 +410,8 @@ def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_
         new_rules = []
         for rule in nomatch_g[k]:
             new_rule = [and_suffix(t, nfault_suffix)
-                        if t in keys_that_can_reach_fault else t for t in rule]
+                        if base_rep(t) in keys_that_can_reach_fault
+                        else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
     return new_g, negate_nonterminal(pattern_start)
@@ -418,7 +425,13 @@ def and_suffix(k1, suffix):
         return &#x27;&lt;%s %s&gt;&#x27; % (gatleast.stem(k1), suffix)
     return &#x27;&lt;%s and(%s,%s)&gt;&#x27; % (gatleast.stem(k1), gatleast.refinement(k1), suffix)
 
-def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_suffix):
+def base_rep(t):
+    if fuzzer.is_nonterminal(t):
+        return gmultiple.normalize(t)
+    return t
+
+def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar,
+        nfault_suffix):
     reachable_keys = gatleast.reachable_dict(base_grammar)
     nomatch_g, nomatch_s = unmatch_pattern_grammar(pattern_grammar,
                                                    pattern_start, base_grammar)
@@ -435,7 +448,8 @@ def negate_pattern_grammar(pattern_grammar, pattern_start, base_grammar, nfault_
         new_rules = []
         for rule in nomatch_g[k]:
             new_rule = [and_suffix(t, nfault_suffix)
-                        if t in keys_that_can_reach_fault else t for t in rule]
+                        if base_rep(t) in keys_that_can_reach_fault
+                        else t for t in rule]
             new_rules.append(new_rule)
         new_g[k] = new_rules
     return new_g, negate_nonterminal(pattern_start)
@@ -547,44 +561,9 @@ gatleast.display_grammar(g, s)
 <div name='python_canvas'></div>
 </form>
 This grammar is now guaranteed not to produce any instance of the characterizing node.
-
-<!--
-############
-failed = []
-gf = fuzzer.LimitFuzzer(g)
-for i in range(10):
-    t = gf.iter_gen_key(key=s, max_depth=10)
-    v = fuzzer.tree_to_string(t)
-    # this will not necessarily work. Can you identify why?
-    if hdd.expr_double_paren(v) != hdd.PRes.failed:
-        failed.append((v,t))
-    print(v)
-print(len(failed))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-failed = []
-gf = fuzzer.LimitFuzzer(g)
-for i in range(10):
-    t = gf.iter_gen_key(key=s, max_depth=10)
-    v = fuzzer.tree_to_string(t)
-    # this will not necessarily work. Can you identify why?
-    if hdd.expr_double_paren(v) != hdd.PRes.failed:
-        failed.append((v,t))
-    print(v)
-print(len(failed))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-The problem here is that our evocative pattern did not fully capture the behavior
-of `hdd.expr_double_paren`. Rather, it only captured the essence of a single
-input that contained a doubled parenthesis. In this case, `((4))`. We would
-have a different evocative pattern if we had started with say `((4)+(1))`.
-
-For simplicity, let us construct another function that checks the double
+However, as you can see the grammar is not complete. For completing the
+grammar We need to rely on `reconstruction` that we discussed in the last post.
+Aside: Let us construct another function that checks the double
 parenthesis we abstracted.
 
 <!--
@@ -627,31 +606,6 @@ assert check_doubled_paren('((1)+(2))') == hdd.PRes.failed
 <textarea cols="40" rows="4" name='python_edit'>
 assert check_doubled_paren(&#x27;((1))&#x27;) == hdd.PRes.success
 assert check_doubled_paren(&#x27;((1)+(2))&#x27;) == hdd.PRes.failed
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Now we can try the grammar again.
-
-<!--
-############
-gf = fuzzer.LimitFuzzer(g)
-for i in range(10):
-    t = gf.iter_gen_key(key=s, max_depth=10)
-    v = fuzzer.tree_to_string(t)
-    assert check_doubled_paren(v) == hdd.PRes.failed
-    print(v)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-gf = fuzzer.LimitFuzzer(g)
-for i in range(10):
-    t = gf.iter_gen_key(key=s, max_depth=10)
-    v = fuzzer.tree_to_string(t)
-    assert check_doubled_paren(v) == hdd.PRes.failed
-    print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
