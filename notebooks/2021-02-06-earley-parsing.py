@@ -856,40 +856,45 @@ class EarleyParser(EarleyParser):
 
 # We need a way to display parse trees.
 
-import itertools as I
 
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
 
-Options = O(F='|', L='+', V='|', H='-', NL='\n')
+OPTIONS   = O(V='│', H='─', L='└', J = '├')
 
-def format_newlines(prefix, formatted_node):
-    replacement = ''.join([Options.NL, '\n', prefix])
-    return formatted_node.replace('\n', replacement)
+def format_node(node):
+    key = node[0]
+    if key and (key[0], key[-1]) ==  ('<', '>'): return key
+    return repr(key)
 
-def format_tree(node, format_node, get_children, prefix=''):
-    children = list(get_children(node))
-    next_prefix = ''.join([prefix, Options.V, '   '])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = ''.join([prefix, '    '])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
+def get_children(node):
+    return node[1]
 
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
-    return '\n'.join(lines)
+def display_tree(node, format_node=format_node, get_children=get_children,
+                 options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+
+def format_tree(node, format_node, get_children, options, prefix=''):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + '   '
+        yield from format_child(child, next_prefix, format_node, get_children,
+                                options, prefix, False)
+    last_prefix = prefix + '    '
+    yield from format_child(last_child, last_prefix, format_node, get_children,
+                            options, prefix, True)
+
+def format_child(child, next_prefix, format_node, get_children, options, 
+                 prefix, last):
+    sep = (options.L if last else options.J)
+    yield prefix + sep + options.H + ' ' + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+
+format_parsetree = display_tree
 
 # Displaying the tree
 
@@ -913,6 +918,8 @@ if __name__ == '__main__':
 # That is, we need to extract all derivation trees.
 # We enhance our `extract_trees()` as below.
 # 
+
+import itertools as I
 
 class EarleyParser(EarleyParser):
     def extract_trees(self, forest_node):
@@ -1000,14 +1007,14 @@ class SimpleExtractor:
             postree, ntree = self.extract_a_node(f)
             child_nodes.append(ntree)
             pos_nodes.append(postree)
-        
+
         return ((name, i, l), pos_nodes), (name, child_nodes)
-    
+
     def choose_path(self, arr):
         l = len(arr)
         i = random.randrange(l)
         return arr[i], i, l
-    
+
     def extract_a_tree(self):
         pos_tree, parse_tree = self.extract_a_node(self.my_forest)
         return parse_tree
@@ -1084,7 +1091,7 @@ class ChoiceNode:
                 return None
             return self._p.increment()
         return self
-    
+
     def finished(self):
         return self._chosen >= self._total
 
@@ -1607,7 +1614,7 @@ class LeoParser(LeoParser):
         for state in states:
             if isinstance(state, TState):
                 self.expand_tstate(state.back(), state.e_col)
-        
+
         return super().parse_forest(chart, states)
 
 # This completes our implementation of `LeoParser `.

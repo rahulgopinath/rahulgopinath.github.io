@@ -1560,79 +1560,87 @@ We need a way to display parse trees.
 
 <!--
 ############
-import itertools as I
-
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
 
-Options = O(F='|', L='+', V='|', H='-', NL='\n')
+OPTIONS   = O(V='│', H='─', L='└', J = '├')
 
-def format_newlines(prefix, formatted_node):
-    replacement = ''.join([Options.NL, '\n', prefix])
-    return formatted_node.replace('\n', replacement)
+def format_node(node):
+    key = node[0]
+    if key and (key[0], key[-1]) ==  ('<', '>'): return key
+    return repr(key)
 
-def format_tree(node, format_node, get_children, prefix=''):
-    children = list(get_children(node))
-    next_prefix = ''.join([prefix, Options.V, '   '])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield ''.join([prefix, Options.F, Options.H, Options.H, ' ', fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = ''.join([prefix, '    '])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield ''.join([prefix, Options.L, Options.H, Options.H, ' ', fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
+def get_children(node):
+    return node[1]
 
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [''],)
-    return '\n'.join(lines)
+def display_tree(node, format_node=format_node, get_children=get_children,
+                 options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+
+def format_tree(node, format_node, get_children, options, prefix=''):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + '   '
+        yield from format_child(child, next_prefix, format_node, get_children,
+                                options, prefix, False)
+    last_prefix = prefix + '    '
+    yield from format_child(last_child, last_prefix, format_node, get_children,
+                            options, prefix, True)
+
+def format_child(child, next_prefix, format_node, get_children, options,
+                 prefix, last):
+    sep = (options.L if last else options.J)
+    yield prefix + sep + options.H + ' ' + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+
+format_parsetree = display_tree
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import itertools as I
-
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
-    def __repr__(self): return str(self.__dict__)
 
-Options = O(F=&#x27;|&#x27;, L=&#x27;+&#x27;, V=&#x27;|&#x27;, H=&#x27;-&#x27;, NL=&#x27;\n&#x27;)
+OPTIONS   = O(V=&#x27;│&#x27;, H=&#x27;─&#x27;, L=&#x27;└&#x27;, J = &#x27;├&#x27;)
 
-def format_newlines(prefix, formatted_node):
-    replacement = &#x27;&#x27;.join([Options.NL, &#x27;\n&#x27;, prefix])
-    return formatted_node.replace(&#x27;\n&#x27;, replacement)
+def format_node(node):
+    key = node[0]
+    if key and (key[0], key[-1]) ==  (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return key
+    return repr(key)
 
-def format_tree(node, format_node, get_children, prefix=&#x27;&#x27;):
-    children = list(get_children(node))
-    next_prefix = &#x27;&#x27;.join([prefix, Options.V, &#x27;   &#x27;])
-    for child in children[:-1]:
-        fml = format_newlines(next_prefix, format_node(child))
-        yield &#x27;&#x27;.join([prefix, Options.F, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(child, format_node, get_children, next_prefix)
-        for result in tree:
-            yield result
-    if children:
-        last_prefix = &#x27;&#x27;.join([prefix, &#x27;    &#x27;])
-        fml = format_newlines(last_prefix, format_node(children[-1]))
-        yield &#x27;&#x27;.join([prefix, Options.L, Options.H, Options.H, &#x27; &#x27;, fml])
-        tree = format_tree(children[-1], format_node, get_children, last_prefix)
-        for result in tree:
-            yield result
+def get_children(node):
+    return node[1]
 
-def format_parsetree(node,
-          format_node=lambda x: repr(x[0]),
-          get_children=lambda x: x[1]):
-    lines = I.chain([format_node(node)], format_tree(node, format_node, get_children), [&#x27;&#x27;],)
-    return &#x27;\n&#x27;.join(lines)
+def display_tree(node, format_node=format_node, get_children=get_children,
+                 options=OPTIONS):
+    print(format_node(node))
+    for line in format_tree(node, format_node, get_children, options):
+        print(line)
+
+def format_tree(node, format_node, get_children, options, prefix=&#x27;&#x27;):
+    children = get_children(node)
+    if not children: return
+    *children, last_child = children
+    for child in children:
+        next_prefix = prefix + options.V + &#x27;   &#x27;
+        yield from format_child(child, next_prefix, format_node, get_children,
+                                options, prefix, False)
+    last_prefix = prefix + &#x27;    &#x27;
+    yield from format_child(last_child, last_prefix, format_node, get_children,
+                            options, prefix, True)
+
+def format_child(child, next_prefix, format_node, get_children, options,
+                 prefix, last):
+    sep = (options.L if last else options.J)
+    yield prefix + sep + options.H + &#x27; &#x27; + format_node(child)
+    yield from format_tree(child, format_node, get_children, options, next_prefix)
+
+format_parsetree = display_tree
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1686,6 +1694,8 @@ We enhance our `extract_trees()` as below.
 
 <!--
 ############
+import itertools as I
+
 class EarleyParser(EarleyParser):
     def extract_trees(self, forest_node):
         name, paths = forest_node
@@ -1700,6 +1710,8 @@ class EarleyParser(EarleyParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import itertools as I
+
 class EarleyParser(EarleyParser):
     def extract_trees(self, forest_node):
         name, paths = forest_node
