@@ -109,7 +109,7 @@ def print_g(g, rmax=lambda x: len(x) > 3, nmax=100):
             print('...')
             break
         print(k)
-        srules = [' '.join([repr(k) for k in rule]) for rule in g[k]]
+        srules = [' '.join([k if is_nt(k) else repr(k) for k in rule]) for rule in g[k]]
         lrules = [len(r) for r in srules if rmax(r)]
         if lrules:
             for srule in srules:
