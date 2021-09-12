@@ -124,15 +124,16 @@ if __name__ == '__main__':
 
 # We now want a way to display this tree. We can do that as follows
 # We first define a simple option holder class.
+
+
 class O:
     def __init__(self, **keys): self.__dict__.update(keys)
 
 # We can now define our default drawing options for displaying a tree.
 # The default options include the vertical (|), the horizontal (--)
 # and the how the last line is represented (+)
-OPTIONS   = O(V='|', H='--', L='+')
 
-# We want to display the tree. This is simply `display_tree`.
+OPTIONS   = O(V='│', H='─', L='└', J = '├')
 
 def format_node(node):
     key = node[0]
@@ -142,7 +143,10 @@ def format_node(node):
 def get_children(node):
     return node[1]
 
-def display_tree(node, format_node=format_node, get_children=get_children, options=OPTIONS):
+# We want to display the tree. This is simply `display_tree`.
+
+def display_tree(node, format_node=format_node, get_children=get_children,
+                 options=OPTIONS):
     print(format_node(node))
     for line in format_tree(node, format_node, get_children, options):
         print(line)
@@ -155,14 +159,15 @@ def format_tree(node, format_node, get_children, options, prefix=''):
     *children, last_child = children
     for child in children:
         next_prefix = prefix + options.V + '   '
-        yield from format_child(child, next_prefix, format_node, get_children, options, prefix, False)
+        yield from format_child(child, next_prefix, format_node, get_children,
+                                options, prefix, False)
     last_prefix = prefix + '    '
-    yield from format_child(last_child, last_prefix, format_node, get_children, options, prefix, True)
+    yield from format_child(last_child, last_prefix, format_node, get_children,
+                            options, prefix, True)
 
-# The format_tree in turn calls the format_child to format a particular child node.
-
-def format_child(child, next_prefix, format_node, get_children, options, prefix, last):
-    sep = (options.L if last else options.V)
+def format_child(child, next_prefix, format_node, get_children, options,
+                 prefix, last):
+    sep = (options.L if last else options.J)
     yield prefix + sep + options.H + ' ' + format_node(child)
     yield from format_tree(child, format_node, get_children, options, next_prefix)
 
