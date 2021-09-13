@@ -659,7 +659,10 @@ def recurse_grammar(grammar, key, order, undefined=None):
         for token in rule:
             if not fuzzer.is_nonterminal(token): continue
             if token not in grammar:
-                undefined[token] = key
+                if token in undefined:
+                    undefined[token].append(key)
+                else:
+                    undefined[token] = [key]
                 continue
             if token not in order:
                 order.append(token)
@@ -693,7 +696,7 @@ def display_grammar(grammar, start, verbose=0):
     if undefined:
         print('[undefined keys]')
         for key in undefined:
-            print(key, undefined[key])
+            print(key, 'in', undefined[key])
 
     print('keys:', k, 'rules:', r)
 
@@ -730,7 +733,10 @@ def recurse_grammar(grammar, key, order, undefined=None):
         for token in rule:
             if not fuzzer.is_nonterminal(token): continue
             if token not in grammar:
-                undefined[token] = key
+                if token in undefined:
+                    undefined[token].append(key)
+                else:
+                    undefined[token] = [key]
                 continue
             if token not in order:
                 order.append(token)
@@ -764,7 +770,7 @@ def display_grammar(grammar, start, verbose=0):
     if undefined:
         print(&#x27;[undefined keys]&#x27;)
         for key in undefined:
-            print(key, undefined[key])
+            print(key, &#x27;in&#x27;, undefined[key])
 
     print(&#x27;keys:&#x27;, k, &#x27;rules:&#x27;, r)
 
