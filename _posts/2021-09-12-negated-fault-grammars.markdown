@@ -92,10 +92,8 @@ We import the following modules
 
 <!--
 ############
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 hdd = import_file('hdd', '2019-12-04-hdd.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 gmultiple = import_file('gmultiple', '2021-09-10-multiple-fault-grammars.py')
 gexpr = import_file('gexpr', '2021-09-11-fault-expressions.py')
@@ -104,10 +102,8 @@ gexpr = import_file('gexpr', '2021-09-11-fault-expressions.py')
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-parsing.py&#x27;)
 hdd = import_file(&#x27;hdd&#x27;, &#x27;2019-12-04-hdd.py&#x27;)
 fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
-ddset = import_file(&#x27;ddset&#x27;, &#x27;2020-08-03-simple-ddset.py&#x27;)
 gatleast = import_file(&#x27;gatleast&#x27;, &#x27;2021-09-09-fault-inducing-grammar.py&#x27;)
 gmultiple = import_file(&#x27;gmultiple&#x27;, &#x27;2021-09-10-multiple-fault-grammars.py&#x27;)
 gexpr = import_file(&#x27;gexpr&#x27;, &#x27;2021-09-11-fault-expressions.py&#x27;)
@@ -615,284 +611,14 @@ assert check_doubled_paren(&#x27;((1)+(2))&#x27;) == hdd.PRes.failed
 </form>
 ## Negation of full evocative expressions
 Negation of a single pattern is useful, but we may also want
-to negate larger expressions such as say `neg(or(and(f1,f2),f3))`
-## Nonterminals
-Let us start with negating nonterminals.
-
-<!--
-############
-def negate_refinement(ref):
-    return 'neg(%s)' % ref
-
-def negate_nonterminal(key):
-    stem, refinement = gatleast.tsplit(key)
-    assert refinement
-    return '<%s %s>' % (stem, negate_refinement(refinement))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def negate_refinement(ref):
-    return &#x27;neg(%s)&#x27; % ref
-
-def negate_nonterminal(key):
-    stem, refinement = gatleast.tsplit(key)
-    assert refinement
-    return &#x27;&lt;%s %s&gt;&#x27; % (stem, negate_refinement(refinement))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Negating a rule
-
-Negating a rule produces as many rules as there are specialized
-nonterminals in that rule.
-
-<!--
-############
-def specialized_positions(rule):
-    positions = []
-    for i,t in enumerate(rule):
-        if not fuzzer.is_nonterminal(t):
-            continue
-        if gatleast.is_base_key(t):
-            continue
-        positions.append(i)
-    return positions
-
-def negate_rule(rule):
-    positions = specialized_positions(rule)
-    new_rules = []
-    for p in positions:
-        new_rule = [negate_nonterminal(t)
-                        if i == p else t for i,t in enumerate(rule)]
-        new_rules.append(new_rule)
-    return new_rules
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def specialized_positions(rule):
-    positions = []
-    for i,t in enumerate(rule):
-        if not fuzzer.is_nonterminal(t):
-            continue
-        if gatleast.is_base_key(t):
-            continue
-        positions.append(i)
-    return positions
-
-def negate_rule(rule):
-    positions = specialized_positions(rule)
-    new_rules = []
-    for p in positions:
-        new_rule = [negate_nonterminal(t)
-                        if i == p else t for i,t in enumerate(rule)]
-        new_rules.append(new_rule)
-    return new_rules
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Negation of a ruleset
-
-negation of a ruleset is based on boolean algebra.
-say a definition is `S = R1 | R2 | R3` then,
-`neg(S)` is `neg(R1) & neg(R2) & neg(R3)`. Since each
-`neg(R)` results in multiple `r` we apply distributive
-law. That is,
-`(r1|r2|r3) & (r4|r5|r6) & (r7|r8|r9)`
-This gives r1&r4&r7 | r1&r4&r8 | etc.
-
-<!--
-############
-def and_all_rules_to_one(rules):
-    new_rule, *rules = rules
-    while rules:
-        r,*rules = rules
-        new_rule = gmultiple.and_rules(new_rule, r)
-    return new_rule
-
-def negate_ruleset(rules):
-    negated_rules_set = [negate_rule(ruleR) for ruleR in rules]
-    negated_rules = []
-    for rules in I.product(*negated_rules_set):
-        r = and_all_rules_to_one(rules)
-        negated_rules.append(r)
-    return negated_rules
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def and_all_rules_to_one(rules):
-    new_rule, *rules = rules
-    while rules:
-        r,*rules = rules
-        new_rule = gmultiple.and_rules(new_rule, r)
-    return new_rule
-
-def negate_ruleset(rules):
-    negated_rules_set = [negate_rule(ruleR) for ruleR in rules]
-    negated_rules = []
-    for rules in I.product(*negated_rules_set):
-        r = and_all_rules_to_one(rules)
-        negated_rules.append(r)
-    return negated_rules
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Negation of a definition.
-Negating a defintion adds any rules in the base that is not
-part of the specialized definition. Then, we negate each
-ruleset. Further, each nonterminal in rule is conjuncted
-ith the specialization.
-
-<!--
-############
-def negate_definition(specialized_key, refined_rules, grammar):
-    refined_rulesets = gmultiple.get_rulesets(refined_rules)
-    base_key = gmultiple.normalize(specialized_key)
-    base_rules = grammar[base_key]
-    refinement = gatleast.refinement(specialized_key)
-
-    # todo -- check if refined_rulesets key is in the right format.
-    negated_rules = [r for r in base_rules if tuple(r) not in refined_rulesets]
-
-    for rule_rep in refined_rulesets:
-        new_nrules = negate_ruleset(refined_rulesets[rule_rep])
-        negated_rules.extend(new_nrules)
-
-    conj_negated_rules = []
-    for rule in negated_rules:
-        conj_rule = [and_suffix(t, refinement)
-                        if fuzzer.is_nonterminal(t) else t for t in rule]
-        conj_negated_rules.append(conj_rule)
-
-    return conj_negated_rules
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def negate_definition(specialized_key, refined_rules, grammar):
-    refined_rulesets = gmultiple.get_rulesets(refined_rules)
-    base_key = gmultiple.normalize(specialized_key)
-    base_rules = grammar[base_key]
-    refinement = gatleast.refinement(specialized_key)
-
-    # todo -- check if refined_rulesets key is in the right format.
-    negated_rules = [r for r in base_rules if tuple(r) not in refined_rulesets]
-
-    for rule_rep in refined_rulesets:
-        new_nrules = negate_ruleset(refined_rulesets[rule_rep])
-        negated_rules.extend(new_nrules)
-
-    conj_negated_rules = []
-    for rule in negated_rules:
-        conj_rule = [and_suffix(t, refinement)
-                        if fuzzer.is_nonterminal(t) else t for t in rule]
-        conj_negated_rules.append(conj_rule)
-
-    return conj_negated_rules
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Construction of a grammar negation.
-At this point, we are ready to construct a negated grammar.
-For negated grammars, we can simply return the grammar and negated start
-and let the reconstruction happen in `complete()`
-
-<!--
-############
-def negate_grammar_(grammar, start):
-    nstart = negate_nonterminal(start)
-    defs = negate_definition(nstart, grammar[start], grammar)
-    grammar[nstart] = defs
-    return grammar, nstart
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def negate_grammar_(grammar, start):
-    nstart = negate_nonterminal(start)
-    defs = negate_definition(nstart, grammar[start], grammar)
-    grammar[nstart] = defs
-    return grammar, nstart
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
- We extend ReconstructRules with negation
-
-<!--
-############
-def get_base_grammar(g):
-    return {k:g[k] for k in g if gatleast.is_base_key(k)}
-
-class ReconstructRules(gexpr.ReconstructRules):
-    def reconstruct_neg_bexpr(self, key, bexpr):
-        fst = bexpr.op_fst()
-        base_grammar = get_base_grammar(self.grammar)
-        f_key = bexpr.with_key(key)
-        # if bexpr is not complex, that is, either f1 or neg(f1)
-        # then f_key should bw in grammar.
-        assert '(' not in f_key and ')' not in f_key
-        # else, reconstruct.
-        d, s = self.reconstruct_rules_from_bexpr(key, fst)
-        d1, s1 = negate_definition(d, s, base_grammar)
-        return d1, s1
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def get_base_grammar(g):
-    return {k:g[k] for k in g if gatleast.is_base_key(k)}
-
-class ReconstructRules(gexpr.ReconstructRules):
-    def reconstruct_neg_bexpr(self, key, bexpr):
-        fst = bexpr.op_fst()
-        base_grammar = get_base_grammar(self.grammar)
-        f_key = bexpr.with_key(key)
-        # if bexpr is not complex, that is, either f1 or neg(f1)
-        # then f_key should bw in grammar.
-        assert &#x27;(&#x27; not in f_key and &#x27;)&#x27; not in f_key
-        # else, reconstruct.
-        d, s = self.reconstruct_rules_from_bexpr(key, fst)
-        d1, s1 = negate_definition(d, s, base_grammar)
-        return d1, s1
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We redefine `complete()`
-
-<!--
-############
-def complete(grammar, start, log=False):
-    rr = ReconstructRules(grammar)
-    grammar, start = gatleast.grammar_gc(rr.reconstruct_key(start, log))
-    return grammar, start
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def complete(grammar, start, log=False):
-    rr = ReconstructRules(grammar)
-    grammar, start = gatleast.grammar_gc(rr.reconstruct_key(start, log))
-    return grammar, start
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it.
+to negate larger expressions such as say `neg(or(and(f1,f2),f3))`. However, we
+do not need to implement the complete negation as before. Instead, we can rely
+on the fact that our evocative expressions are simply boolean expressions.
+That is, expressions such `neg(or(A,B))` can be simplified as
+`and(neg(A),neg(B))` and `neg(and(A,B))` can be simplified as
+`or(neg(A),neg(B))`. This means that we do not need to implement the negation
+beyond negating simple faults.
+Here is an example of how it works.
 
 <!--
 ############
@@ -900,12 +626,24 @@ cnode = gatleast.ETREE_DPAREN
 g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
 g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
 grammar ={**hdd.EXPR_GRAMMAR, **g1,**g2}
-g_, s_ = complete(grammar, '<start neg(or(D1,Z1))>')
+g_, s_ = gexpr.complete(grammar, '<start neg(or(D1,Z1))>')
+gatleast.display_grammar(g_,s_)
+print()
 gf = fuzzer.LimitFuzzer(g_)
 for i in range(100):
     t = gf.iter_gen_key(key=s_, max_depth=10)
     v = fuzzer.tree_to_string(t)
     assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
+    print(v)
+
+g_, s_ = gexpr.complete(grammar, '<start neg(and(D1,Z1))>')
+gatleast.display_grammar(g_,s_)
+print()
+gf = fuzzer.LimitFuzzer(g_)
+for i in range(100):
+    t = gf.iter_gen_key(key=s_, max_depth=10)
+    v = fuzzer.tree_to_string(t)
+    assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed or check_doubled_paren(v) == hdd.PRes.failed, (v, t)
     print(v)
 
 
@@ -917,12 +655,24 @@ cnode = gatleast.ETREE_DPAREN
 g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, &#x27;D1&#x27;))
 g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, &#x27;Z1&#x27;))
 grammar ={**hdd.EXPR_GRAMMAR, **g1,**g2}
-g_, s_ = complete(grammar, &#x27;&lt;start neg(or(D1,Z1))&gt;&#x27;)
+g_, s_ = gexpr.complete(grammar, &#x27;&lt;start neg(or(D1,Z1))&gt;&#x27;)
+gatleast.display_grammar(g_,s_)
+print()
 gf = fuzzer.LimitFuzzer(g_)
 for i in range(100):
     t = gf.iter_gen_key(key=s_, max_depth=10)
     v = fuzzer.tree_to_string(t)
     assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed and check_doubled_paren(v) == hdd.PRes.failed, (v, t)
+    print(v)
+
+g_, s_ = gexpr.complete(grammar, &#x27;&lt;start neg(and(D1,Z1))&gt;&#x27;)
+gatleast.display_grammar(g_,s_)
+print()
+gf = fuzzer.LimitFuzzer(g_)
+for i in range(100):
+    t = gf.iter_gen_key(key=s_, max_depth=10)
+    v = fuzzer.tree_to_string(t)
+    assert gatleast.expr_div_by_zero(v) == hdd.PRes.failed or check_doubled_paren(v) == hdd.PRes.failed, (v, t)
     print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
