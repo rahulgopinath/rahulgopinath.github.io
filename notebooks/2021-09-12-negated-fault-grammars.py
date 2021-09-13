@@ -416,12 +416,11 @@ class ReconstructRules(gexpr.ReconstructRules):
         base_grammar = get_base_grammar(self.grammar)
         f_key = bexpr.with_key(key)
         # if bexpr is not complex, that is, either f1 or neg(f1)
-        # then f_key should bw in grammar.
-        assert '(' not in f_key and ')' not in f_key
+        # then f_key should be in grammar.
         # else, reconstruct.
         d, s = self.reconstruct_rules_from_bexpr(key, fst)
-        d1, s1 = negate_definition(d, s, base_grammar)
-        return d1, s1 
+        d1 = negate_definition(s, d, base_grammar)
+        return d1, f_key
 
 # We redefine `complete()`
 
@@ -438,6 +437,8 @@ if __name__ == '__main__':
     g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
     grammar ={**hdd.EXPR_GRAMMAR, **g1,**g2}
     g_, s_ = complete(grammar, '<start neg(or(D1,Z1))>')
+    gatleast.display_grammar(g_,s_)
+    print()
     gf = fuzzer.LimitFuzzer(g_)
     for i in range(100):
         t = gf.iter_gen_key(key=s_, max_depth=10)
