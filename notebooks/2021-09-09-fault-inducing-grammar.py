@@ -373,7 +373,9 @@ def display_grammar(grammar, start, verbose=0):
     if undefined:
         print('[undefined keys]')
         for key in undefined:
-            print(key, 'in', undefined[key])
+            print(key, 'defined in')
+            for k in undefined[key]:
+                print(' ', k)
 
     print('keys:', k, 'rules:', r)
 
