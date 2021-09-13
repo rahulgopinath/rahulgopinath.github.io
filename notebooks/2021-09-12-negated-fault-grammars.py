@@ -39,7 +39,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding='utf-8') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 
@@ -322,7 +322,7 @@ def negate_nonterminal(key):
 def specialized_positions(rule):
     positions = []
     for i,t in enumerate(rule):
-        if not gatleast.is_nonterminal(t):
+        if not fuzzer.is_nonterminal(t):
             continue
         if gatleast.is_base_key(t):
             continue
@@ -372,14 +372,14 @@ def negate_ruleset(rules):
 # ruleset. Further, each nonterminal in rule is conjuncted
 # ith the specialization.
 
-def negate_definition(specialized_key, rules, grammar):
+def negate_definition(specialized_key, refined_rules, grammar):
     refined_rulesets = gmultiple.get_rulesets(refined_rules)
     base_key = gmultiple.normalize(specialized_key)
     base_rules = grammar[base_key]
     refinement = gatleast.refinement(specialized_key)
 
     # todo -- check if refined_rulesets key is in the right format.
-    negated_rules = [r for r in base_rules if r not in refined_rulesets]
+    negated_rules = [r for r in base_rules if tuple(r) not in refined_rulesets]
 
     for rule_rep in refined_rulesets:
         new_nrules = negate_ruleset(refined_rulesets[rule_rep])
@@ -387,8 +387,8 @@ def negate_definition(specialized_key, rules, grammar):
 
     conj_negated_rules = []
     for rule in negated_rules:
-        conj_rule = [gmultiple.and_suffix(t, refinement)
-                        if gatleast.is_nonterminal(t) else t for t in rule]
+        conj_rule = [and_suffix(t, refinement)
+                        if fuzzer.is_nonterminal(t) else t for t in rule]
         conj_negated_rules.append(conj_rule)
 
     return conj_negated_rules
@@ -401,6 +401,8 @@ def negate_definition(specialized_key, rules, grammar):
 
 def negate_grammar_(grammar, start):
     nstart = negate_nonterminal(start)
+    defs = negate_definition(nstart, grammar[start], grammar)
+    grammar[nstart] = defs
     return grammar, nstart
 
 #  We extend ReconstructRules with negation
@@ -428,7 +430,7 @@ def complete(grammar, start, log=False):
     grammar, start = gatleast.grammar_gc(rr.reconstruct_key(start, log))
     return grammar, start
 
-# A better check for div by zero
+# Using it.
 
 if __name__ == '__main__':
     cnode = gatleast.ETREE_DPAREN
