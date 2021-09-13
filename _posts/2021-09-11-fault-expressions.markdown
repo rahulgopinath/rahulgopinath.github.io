@@ -21,6 +21,9 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+This post is the implementation of my paper [*Input Algebras*](https://rahul.gopinath.org/publications/#gopinath2021input)
+
 In my previous posts on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
 and [multiple faults](/post/2021/09/10/multiple-fault-grammars/) I introduced
 the evocative patterns and how to combine them using `and`. As our expressions

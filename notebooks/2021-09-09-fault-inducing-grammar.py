@@ -7,6 +7,9 @@
 # categories: post
 # ---
 
+# 
+# This post is the implementation of my paper [*Input Algebras*](https://rahul.gopinath.org/publications/#gopinath2021input)
+# 
 # In my previous post on [DDSet](/post/2020/08/03/simple-ddset/) I explained how
 # one can abstract failure inducing inputs. The idea is that given an input such
 # as `'1+((2*3/4))'` which induces a
@@ -53,7 +56,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding='utf8') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 

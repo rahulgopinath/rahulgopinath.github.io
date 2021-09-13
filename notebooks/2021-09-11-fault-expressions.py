@@ -7,6 +7,9 @@
 # categories: post
 # ---
 
+# 
+# This post is the implementation of my paper [*Input Algebras*](https://rahul.gopinath.org/publications/#gopinath2021input)
+# 
 # In my previous posts on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
 # and [multiple faults](/post/2021/09/10/multiple-fault-grammars/) I introduced
 # the evocative patterns and how to combine them using `and`. As our expressions

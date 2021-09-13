@@ -7,6 +7,9 @@
 # categories: post
 # ---
 
+# 
+# This post is the implementation of my paper [*Input Algebras*](https://rahul.gopinath.org/publications/#gopinath2021input)
+# 
 # In my previous post on [inducing faults](/post/2021/09/09/fault-inducing-grammar/)
 # I explained the deficiency of abstract failure inducing inputs mined using
 # DDSet, and showed how to overcome that by inserting that abstract (evocative)
