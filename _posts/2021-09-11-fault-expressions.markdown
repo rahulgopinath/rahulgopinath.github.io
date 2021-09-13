@@ -127,7 +127,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding='utf-8') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 
@@ -152,7 +152,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding=&#x27;utf-8&#x27;) as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 </textarea><br />

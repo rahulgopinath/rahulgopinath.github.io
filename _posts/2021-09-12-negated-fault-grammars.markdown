@@ -54,7 +54,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding='utf-8') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 
@@ -81,7 +81,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc) as f:
+        with open(module_loc, encoding=&#x27;utf-8&#x27;) as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 </textarea><br />
@@ -654,7 +654,7 @@ nonterminals in that rule.
 def specialized_positions(rule):
     positions = []
     for i,t in enumerate(rule):
-        if not gatleast.is_nonterminal(t):
+        if not fuzzer.is_nonterminal(t):
             continue
         if gatleast.is_base_key(t):
             continue
@@ -677,7 +677,7 @@ def negate_rule(rule):
 def specialized_positions(rule):
     positions = []
     for i,t in enumerate(rule):
-        if not gatleast.is_nonterminal(t):
+        if not fuzzer.is_nonterminal(t):
             continue
         if gatleast.is_base_key(t):
             continue
@@ -753,14 +753,14 @@ ith the specialization.
 
 <!--
 ############
-def negate_definition(specialized_key, rules, grammar):
+def negate_definition(specialized_key, refined_rules, grammar):
     refined_rulesets = gmultiple.get_rulesets(refined_rules)
     base_key = gmultiple.normalize(specialized_key)
     base_rules = grammar[base_key]
     refinement = gatleast.refinement(specialized_key)
 
     # todo -- check if refined_rulesets key is in the right format.
-    negated_rules = [r for r in base_rules if r not in refined_rulesets]
+    negated_rules = [r for r in base_rules if tuple(r) not in refined_rulesets]
 
     for rule_rep in refined_rulesets:
         new_nrules = negate_ruleset(refined_rulesets[rule_rep])
@@ -768,8 +768,8 @@ def negate_definition(specialized_key, rules, grammar):
 
     conj_negated_rules = []
     for rule in negated_rules:
-        conj_rule = [gmultiple.and_suffix(t, refinement)
-                        if gatleast.is_nonterminal(t) else t for t in rule]
+        conj_rule = [and_suffix(t, refinement)
+                        if fuzzer.is_nonterminal(t) else t for t in rule]
         conj_negated_rules.append(conj_rule)
 
     return conj_negated_rules
@@ -778,14 +778,14 @@ def negate_definition(specialized_key, rules, grammar):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def negate_definition(specialized_key, rules, grammar):
+def negate_definition(specialized_key, refined_rules, grammar):
     refined_rulesets = gmultiple.get_rulesets(refined_rules)
     base_key = gmultiple.normalize(specialized_key)
     base_rules = grammar[base_key]
     refinement = gatleast.refinement(specialized_key)
 
     # todo -- check if refined_rulesets key is in the right format.
-    negated_rules = [r for r in base_rules if r not in refined_rulesets]
+    negated_rules = [r for r in base_rules if tuple(r) not in refined_rulesets]
 
     for rule_rep in refined_rulesets:
         new_nrules = negate_ruleset(refined_rulesets[rule_rep])
@@ -793,8 +793,8 @@ def negate_definition(specialized_key, rules, grammar):
 
     conj_negated_rules = []
     for rule in negated_rules:
-        conj_rule = [gmultiple.and_suffix(t, refinement)
-                        if gatleast.is_nonterminal(t) else t for t in rule]
+        conj_rule = [and_suffix(t, refinement)
+                        if fuzzer.is_nonterminal(t) else t for t in rule]
         conj_negated_rules.append(conj_rule)
 
     return conj_negated_rules
@@ -811,6 +811,8 @@ and let the reconstruction happen in `complete()`
 ############
 def negate_grammar_(grammar, start):
     nstart = negate_nonterminal(start)
+    defs = negate_definition(nstart, grammar[start], grammar)
+    grammar[nstart] = defs
     return grammar, nstart
 
 ############
@@ -819,6 +821,8 @@ def negate_grammar_(grammar, start):
 <textarea cols="40" rows="4" name='python_edit'>
 def negate_grammar_(grammar, start):
     nstart = negate_nonterminal(start)
+    defs = negate_definition(nstart, grammar[start], grammar)
+    grammar[nstart] = defs
     return grammar, nstart
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -888,7 +892,7 @@ def complete(grammar, start, log=False):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-A better check for div by zero
+Using it.
 
 <!--
 ############
