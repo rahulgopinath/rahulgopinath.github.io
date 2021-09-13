@@ -651,16 +651,51 @@ def display_definition(grammar, key, r, verbose):
         display_rule(rule, pre, verbose)
     return r
 
+def recurse_grammar(grammar, key, order, undefined=None):
+    undefined = undefined or {}
+    rules = sorted(grammar[key])
+    old_len = len(order)
+    for rule in rules:
+        for token in rule:
+            if not fuzzer.is_nonterminal(token): continue
+            if token not in grammar:
+                undefined[token] = key
+                continue
+            if token not in order:
+                order.append(token)
+    new = order[old_len:]
+    for ckey in new:
+        recurse_grammar(grammar, ckey, order, undefined)
+    return undefined
+
+def sort_grammar(grammar, start_symbol):
+    order = [start_symbol]
+    undefined = recurse_grammar(grammar, start_symbol, order)
+    return order, [k for k in grammar if k not in order], undefined
+
 def display_grammar(grammar, start, verbose=0):
     r = 0
     k = 0
-    print('start:', start)
-    for key in grammar:
+    order, not_used, undefined = sort_grammar(grammar, start)
+    print('[start]:', start)
+    for key in order:
         k += 1
         r = display_definition(grammar, key, r, verbose)
         if verbose > 0:
             print(k, r)
-    print(k, r)
+
+    if not_used:
+        print('[not_used]')
+        for key in not_used:
+            r = display_definition(grammar, key, r, verbose)
+            if verbose > 0:
+                print(k, r)
+    if undefined:
+        print('[undefined keys]')
+        for key in undefined:
+            print(key, undefined[key])
+
+    print('keys:', k, 'rules:', r)
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
@@ -687,16 +722,51 @@ def display_definition(grammar, key, r, verbose):
         display_rule(rule, pre, verbose)
     return r
 
+def recurse_grammar(grammar, key, order, undefined=None):
+    undefined = undefined or {}
+    rules = sorted(grammar[key])
+    old_len = len(order)
+    for rule in rules:
+        for token in rule:
+            if not fuzzer.is_nonterminal(token): continue
+            if token not in grammar:
+                undefined[token] = key
+                continue
+            if token not in order:
+                order.append(token)
+    new = order[old_len:]
+    for ckey in new:
+        recurse_grammar(grammar, ckey, order, undefined)
+    return undefined
+
+def sort_grammar(grammar, start_symbol):
+    order = [start_symbol]
+    undefined = recurse_grammar(grammar, start_symbol, order)
+    return order, [k for k in grammar if k not in order], undefined
+
 def display_grammar(grammar, start, verbose=0):
     r = 0
     k = 0
-    print(&#x27;start:&#x27;, start)
-    for key in grammar:
+    order, not_used, undefined = sort_grammar(grammar, start)
+    print(&#x27;[start]:&#x27;, start)
+    for key in order:
         k += 1
         r = display_definition(grammar, key, r, verbose)
         if verbose &gt; 0:
             print(k, r)
-    print(k, r)
+
+    if not_used:
+        print(&#x27;[not_used]&#x27;)
+        for key in not_used:
+            r = display_definition(grammar, key, r, verbose)
+            if verbose &gt; 0:
+                print(k, r)
+    if undefined:
+        print(&#x27;[undefined keys]&#x27;)
+        for key in undefined:
+            print(key, undefined[key])
+
+    print(&#x27;keys:&#x27;, k, &#x27;rules:&#x27;, r)
 
 if __name__ == &#x27;__main__&#x27;:
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
