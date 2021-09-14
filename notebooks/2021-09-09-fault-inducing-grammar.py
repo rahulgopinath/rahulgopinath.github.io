@@ -230,7 +230,7 @@ def stem(token):
     return tsplit(token)[0].strip()
 
 def normalize(token):
-    assert fuzzer.is_nonterminal(k)
+    assert fuzzer.is_nonterminal(token)
     if is_base_key(token): return token
     return '<%s>' % stem(token)
 
