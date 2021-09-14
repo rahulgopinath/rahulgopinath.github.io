@@ -1,0 +1,1 @@
+for i in notebooks/*.py; do iconv -f utf-8 -t ascii//TRANSLIT $i > x/$i;done
