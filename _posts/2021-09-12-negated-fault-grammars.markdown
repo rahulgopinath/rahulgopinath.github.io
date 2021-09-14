@@ -514,7 +514,8 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
     # So, what we will do, is to make sure that the combined rules do not either
     # reach the negated patterns nor do the match the negated patterns.
 
-    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym], nomatch_g[nomatch_s])
+    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym],
+                                            nomatch_g[nomatch_s])
 
     combined_grammar[unreaching_sym] = anded_defs
 
@@ -556,7 +557,8 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
     # So, what we will do, is to make sure that the combined rules do not either
     # reach the negated patterns nor do the match the negated patterns.
 
-    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym], nomatch_g[nomatch_s])
+    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym],
+                                            nomatch_g[nomatch_s])
 
     combined_grammar[unreaching_sym] = anded_defs
 
