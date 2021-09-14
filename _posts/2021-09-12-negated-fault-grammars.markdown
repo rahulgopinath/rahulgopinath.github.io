@@ -477,7 +477,7 @@ gatleast.display_grammar(nomatch_g, nomatch_s)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-At this point, we can now define our 1negated_grammar()`
+At this point, we can now define our `negated_grammar()`
 The new grammar is as follows
 
 <!--

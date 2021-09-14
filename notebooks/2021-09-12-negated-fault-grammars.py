@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # next we need to conjunct
     gatleast.display_grammar(nomatch_g, nomatch_s)
 
-# At this point, we can now define our 1negated_grammar()`
+# At this point, we can now define our `negated_grammar()`
 # The new grammar is as follows
 
 def no_fault_grammar(grammar, start_symbol, cnode, fname):
