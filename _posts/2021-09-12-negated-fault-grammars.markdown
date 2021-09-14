@@ -497,7 +497,25 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
 
     combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
     unreaching_sym = gatleast.refine_base_key(key_f, negated_suffix)
-    combined_grammar[unreaching_sym] = nomatch_g[nomatch_s]
+
+    # We cant add `unreach_g[unreaching_sym]` directly to
+    # `combined_grammar[unreaching_sym]` because it will then match
+    # ```
+    # [['<factor neg(F1)>',
+    #         [['(', []],
+    #          ['<expr neg(F1)>',
+    #              [['<term neg(F1)>',
+    #                  [['<factor neg(F1)>',
+    #                      [['(', []],
+    #                       ['<expr neg(F1)>', ],
+    #                       [')', []]]]]]]],
+    #          [')',    []]]]]
+    # ```
+    # So, what we will do, is to get the negated pattern grammar top rules,
+    # then `and` each rule with each rule in `combined_grammar[unreaching_sym]`
+    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym], nomatch_g[nomatch_s])
+
+    combined_grammar[unreaching_sym] = anded_defs
 
     return combined_grammar, unreach_s
 
@@ -520,26 +538,31 @@ def no_fault_grammar(grammar, start_symbol, cnode, fname):
 
     combined_grammar = {**grammar, **nomatch_g, **reach_g, **unreach_g}
     unreaching_sym = gatleast.refine_base_key(key_f, negated_suffix)
-    combined_grammar[unreaching_sym] = nomatch_g[nomatch_s]
+
+    # We cant add `unreach_g[unreaching_sym]` directly to
+    # `combined_grammar[unreaching_sym]` because it will then match
+    # ```
+    # [[&#x27;&lt;factor neg(F1)&gt;&#x27;,
+    #         [[&#x27;(&#x27;, []],
+    #          [&#x27;&lt;expr neg(F1)&gt;&#x27;,
+    #              [[&#x27;&lt;term neg(F1)&gt;&#x27;,
+    #                  [[&#x27;&lt;factor neg(F1)&gt;&#x27;,
+    #                      [[&#x27;(&#x27;, []],
+    #                       [&#x27;&lt;expr neg(F1)&gt;&#x27;, ],
+    #                       [&#x27;)&#x27;, []]]]]]]],
+    #          [&#x27;)&#x27;,    []]]]]
+    # ```
+    # So, what we will do, is to get the negated pattern grammar top rules,
+    # then `and` each rule with each rule in `combined_grammar[unreaching_sym]`
+    anded_defs = gmultiple.and_definitions(unreach_g[unreaching_sym], nomatch_g[nomatch_s])
+
+    combined_grammar[unreaching_sym] = anded_defs
 
     return combined_grammar, unreach_s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We cant add `unreach_g[unreaching_sym]` to `combined_grammar[unreaching_sym]`
-because it will then match
-```
-[['<factor neg(F1)>',
-        [['(', []],
-         ['<expr neg(F1)>',
-             [['<term neg(F1)>',
-                 [['<factor neg(F1)>',
-                     [['(', []],
-                      ['<expr neg(F1)>', ],
-                      [')', []]]]]]]],
-         [')',    []]]]]
-```
 Using it.
 
 <!--
