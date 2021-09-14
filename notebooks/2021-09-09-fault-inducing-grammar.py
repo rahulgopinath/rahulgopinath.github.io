@@ -229,6 +229,11 @@ def is_base_key(key):
 def stem(token):
     return tsplit(token)[0].strip()
 
+def normalize(token):
+    assert fuzzer.is_nonterminal(k)
+    if is_base_key(token): return token
+    return '<%s>' % stem(token)
+
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
     assert is_base_key(k)
@@ -296,7 +301,7 @@ if __name__ == '__main__':
 
 def unique_cnode_to_grammar(tree, grammar=None):
     if grammar is None: grammar = {}
-    if ddset.is_node_abstract(tree): return grammar
+    if ddset.is_node_abstract(tree): return grammar, normalize(tree[0])
     name, children, *rest = tree
     tokens = []
     if name not in grammar: grammar[name] = []

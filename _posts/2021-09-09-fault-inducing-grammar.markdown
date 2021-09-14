@@ -420,6 +420,11 @@ def is_base_key(key):
 def stem(token):
     return tsplit(token)[0].strip()
 
+def normalize(token):
+    assert fuzzer.is_nonterminal(k)
+    if is_base_key(token): return token
+    return '<%s>' % stem(token)
+
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
     assert is_base_key(k)
@@ -446,6 +451,11 @@ def is_base_key(key):
 
 def stem(token):
     return tsplit(token)[0].strip()
+
+def normalize(token):
+    assert fuzzer.is_nonterminal(k)
+    if is_base_key(token): return token
+    return &#x27;&lt;%s&gt;&#x27; % stem(token)
 
 def refine_base_key(k, prefix):
     assert fuzzer.is_nonterminal(k)
@@ -596,7 +606,7 @@ We can extract a unique pattern grammar from this tree.
 ############
 def unique_cnode_to_grammar(tree, grammar=None):
     if grammar is None: grammar = {}
-    if ddset.is_node_abstract(tree): return grammar
+    if ddset.is_node_abstract(tree): return grammar, normalize(tree[0])
     name, children, *rest = tree
     tokens = []
     if name not in grammar: grammar[name] = []
@@ -614,7 +624,7 @@ def unique_cnode_to_grammar(tree, grammar=None):
 <textarea cols="40" rows="4" name='python_edit'>
 def unique_cnode_to_grammar(tree, grammar=None):
     if grammar is None: grammar = {}
-    if ddset.is_node_abstract(tree): return grammar
+    if ddset.is_node_abstract(tree): return grammar, normalize(tree[0])
     name, children, *rest = tree
     tokens = []
     if name not in grammar: grammar[name] = []
