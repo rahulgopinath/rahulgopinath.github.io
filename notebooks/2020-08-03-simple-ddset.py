@@ -231,6 +231,6 @@ if __name__ == '__main__':
 # `ddsetsimple` when compared to 10340 executions for the ddset from the paper (discounting covarying
 # fragments).
 # 
-# The full code is available [here](https://github.com/vrthra/ddset/blob/master/simple/SimpleDDSet.py)
+# The full code is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2020-08-03-simple-ddset.py)
 # 
 # [^gopinath2020abstracting]: Rahul Gopinath, Alexander Kampmann, Nikolas Havrikov, Ezekiel Soremekun, Andreas Zeller, "Abstracting Failure Inducing Inputs" ISSTA 2020 URL:<https://rahul.gopinath.org/publications/#gopinath2020abstracting>
