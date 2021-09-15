@@ -133,19 +133,9 @@ def fix_params(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         original_defaults = func.__defaults__
-        new_defaults = []
-        for val in func.__defaults__:
-            if callable(val):
-                sig = inspect.signature(val)
-                if sig.parameters == {}:
-                    new_defaults.append(val())
-                else:
-                    new_defaults.append(val)
-            else:
-                new_defaults.append(val)
-
-        func.__defaults__ = tuple(new_defaults)
-
+        func.__defaults__ = tuple([val()
+            if callable(val) and not inspect.signature(val).parameters
+            else val for val in func.__defaults__])
         rval = func(*args, **kwargs)
         func.__defaults__ = original_defaults
         return rval
@@ -163,19 +153,9 @@ def fix_params(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         original_defaults = func.__defaults__
-        new_defaults = []
-        for val in func.__defaults__:
-            if callable(val):
-                sig = inspect.signature(val)
-                if sig.parameters == {}:
-                    new_defaults.append(val())
-                else:
-                    new_defaults.append(val)
-            else:
-                new_defaults.append(val)
-
-        func.__defaults__ = tuple(new_defaults)
-
+        func.__defaults__ = tuple([val()
+            if callable(val) and not inspect.signature(val).parameters
+            else val for val in func.__defaults__])
         rval = func(*args, **kwargs)
         func.__defaults__ = original_defaults
         return rval
