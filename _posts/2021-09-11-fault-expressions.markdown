@@ -826,10 +826,11 @@ class ReconstructRules:
                 return self.reconstruct_or_bexpr(key, bexpr)
             elif operator == 'neg':
                 return self.reconstruct_neg_bexpr(key, bexpr)
-            elif operator == '':
-                assert False
             else:
-                assert False
+                return self.reconstruct_orig_bexpr(key, bexpr)
+
+    def reconstruct_orig_bexpr(self, key, bexpr):
+        assert False
 
     def reconstruct_neg_bexpr(self, key, bexpr):
         assert False
@@ -872,10 +873,11 @@ class ReconstructRules:
                 return self.reconstruct_or_bexpr(key, bexpr)
             elif operator == &#x27;neg&#x27;:
                 return self.reconstruct_neg_bexpr(key, bexpr)
-            elif operator == &#x27;&#x27;:
-                assert False
             else:
-                assert False
+                return self.reconstruct_orig_bexpr(key, bexpr)
+
+    def reconstruct_orig_bexpr(self, key, bexpr):
+        assert False
 
     def reconstruct_neg_bexpr(self, key, bexpr):
         assert False
