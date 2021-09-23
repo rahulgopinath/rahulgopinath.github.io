@@ -30,20 +30,14 @@ function runit(mypre, mycanvas, editor) {
    pyodide.globals.__canvas__ = draw;
 
    try {
-     pyodide.runPythonAsync(prog)
-          .then(output => {
-             console.log('success');
-             outf(output);
-             editor.display.wrapper.style.border = '1px solid black';
-          })
-          .catch((err) => {
-             console.log(err.toString());
-             errf(err.toString());
-             editor.display.wrapper.style.border = '1px solid red'
-          });
+     output = pyodide.runPython(prog);
+     console.log('success');
+     outf(output);
+     editor.display.wrapper.style.border = '1px solid black';
    } catch (err) {
+       console.log(err.toString());
        errf(err.toString());
-       editor.display.wrapper.style.border = '2px solid red'
+       editor.display.wrapper.style.border = '1px solid red';
    }
 }
 
