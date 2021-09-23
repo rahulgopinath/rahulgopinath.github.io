@@ -239,7 +239,7 @@ class PyodideLoader(MyLoader):
         import pyodide
         github_repo = 'https://raw.githubusercontent.com/'
         my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        m_loc = github_repo + my_repo + '/master/notebooks/%s' % m_loc
+        m_loc = github_repo + my_repo + '/master/%s' % m_loc
         return pyodide.open_url(m_loc).getvalue()
 
 ############
@@ -252,7 +252,7 @@ class PyodideLoader(MyLoader):
         import pyodide
         github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
         my_repo =  &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-        m_loc = github_repo + my_repo + &#x27;/master/notebooks/%s&#x27; % m_loc
+        m_loc = github_repo + my_repo + &#x27;/master/%s&#x27; % m_loc
         return pyodide.open_url(m_loc).getvalue()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

@@ -122,7 +122,7 @@ class PyodideLoader(MyLoader):
         import pyodide
         github_repo = 'https://raw.githubusercontent.com/'
         my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        m_loc = github_repo + my_repo + '/master/notebooks/%s' % m_loc
+        m_loc = github_repo + my_repo + '/master/%s' % m_loc
         return pyodide.open_url(m_loc).getvalue()
 
 # ## Importer
