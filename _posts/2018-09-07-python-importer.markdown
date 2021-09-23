@@ -87,7 +87,7 @@ class MetaPathFinderInWeb(importlib.abc.MetaPathFinder):
 ## Loaders
 Next we define our own loaders. A loader only needs to provide two functions
 `create_module(self, spec)` which returns an new module e.g. `types.ModuleType(m_name)`
-and exec_module(self, module)` which executes the code of our module in the
+and `exec_module(self, module)` which executes the code of our module in the
 module object passed in as the parameter. While we can do this, there is a
 better way. Python provides a number of specialized implementations of this
 class that provides a lot of functionalities we need.
