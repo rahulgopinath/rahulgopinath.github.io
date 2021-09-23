@@ -380,8 +380,12 @@ to work with this grammar.
 <!--
 ############
 if 'pyodide' in sys.modules:
-    import micropip
-    await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
+    async def piipinstall():
+        import micropip
+        import asyncio
+        await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(pipinstall())
 import moduleloader
 moduleloader.Importer(['notebooks/2019-05-28-simplefuzzer-01.py'])
 import simplefuzzer01
@@ -391,8 +395,12 @@ import simplefuzzer01
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 if &#x27;pyodide&#x27; in sys.modules:
-    import micropip
-    await micropip.install(&#x27;/py/moduleloader-0.1.0-py3-none-any.whl&#x27;)
+    async def piipinstall():
+        import micropip
+        import asyncio
+        await micropip.install(&#x27;/py/moduleloader-0.1.0-py3-none-any.whl&#x27;)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(pipinstall())
 import moduleloader
 moduleloader.Importer([&#x27;notebooks/2019-05-28-simplefuzzer-01.py&#x27;])
 import simplefuzzer01

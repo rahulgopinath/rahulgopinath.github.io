@@ -180,8 +180,12 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     if 'pyodide' in sys.modules:
-        import micropip
-        await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
+        async def piipinstall():
+            import micropip
+            import asyncio
+            await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(pipinstall())
     import moduleloader
     moduleloader.Importer(['notebooks/2019-05-28-simplefuzzer-01.py'])
     import simplefuzzer01
