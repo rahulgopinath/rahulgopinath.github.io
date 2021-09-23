@@ -380,9 +380,9 @@ to work with this grammar.
 <!--
 ############
 if 'pyodide' in sys.modules:
-    async def piipinstall():
-        import micropip
-        import asyncio
+    import micropip
+    import asyncio
+    async def pipinstall():
         await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(pipinstall())
@@ -395,9 +395,9 @@ import simplefuzzer01
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 if &#x27;pyodide&#x27; in sys.modules:
-    async def piipinstall():
-        import micropip
-        import asyncio
+    import micropip
+    import asyncio
+    async def pipinstall():
         await micropip.install(&#x27;/py/moduleloader-0.1.0-py3-none-any.whl&#x27;)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(pipinstall())

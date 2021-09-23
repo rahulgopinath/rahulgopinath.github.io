@@ -180,9 +180,9 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     if 'pyodide' in sys.modules:
-        async def piipinstall():
-            import micropip
-            import asyncio
+        import micropip
+        import asyncio
+        async def pipinstall():
             await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
         loop = asyncio.get_event_loop()
         loop.run_until_complete(pipinstall())
