@@ -33,8 +33,8 @@ greater than $$O(n^2)$$.
 Parsing Expression Grammars (PEGs) are an alternative means of specifying the membership
 criteria for a language. It was formalized by Ford in 2004 [^ford2004parsing].
 Note that while not formalized, it was recognized much earlier that limited
-backtracking can make parsing easy. For example,
-Aho et al.[^aho1972] showed that recognition using TDPL/GTPL which are equivalent
+backtracking can make parsing easy. For example, it is the technique used in META II by Schorre[^schorre1964meta] in 1965. 
+Further, Aho et al.[^aho1972] showed that recognition using TDPL/GTPL which are equivalent
 to PEGs in power can be done in $$O(n)$$ time where $$n$$ is the length of the input.
 Further, Burge[^burge1975] -- (Top down parsing with limited backtracking page 177)
 describes the ordered choice algorithm, and describes the limitations of this
@@ -90,3 +90,5 @@ machine. The spoiler here is that, PEGs may be in some sense universal [^loff201
 [^tomita1985an]: Masaru Tomita. “An Efficient Context-Free Parsing Algorithm for Natural Languages.” In:IJCAI. Vol. 2.1985, pp. 756–764
 
 [^loff2019the]: Bruno Loff, Nelma Moreira, Rogério Reis "The computational power of parsing expression grammars" 2019  	arXiv:1902.08272 .URL:<https://arxiv.org/abs/1902.08272>
+
+[^schorre1964meta]: Schorre, D. V."META II: A Syntax-Oriented Compiler Writing Language." In Proceedings of the 1964 19th ACM National Conference, 1964. URL: http://doi.acm.org/10.1145/800257.808896
