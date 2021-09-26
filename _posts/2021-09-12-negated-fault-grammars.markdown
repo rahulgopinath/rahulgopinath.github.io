@@ -261,12 +261,37 @@ def rule_normalized_difference(rulesA, rulesB):
                 if not gmultiple.normalized_rule_match(rA, ruleB)]
     return rem_rulesA
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def negate_nonterminal(k):
+    return &#x27;&lt;%s %s&gt;&#x27; % (gatleast.stem(k), negate_suffix(gatleast.refinement(k)))
+
+def rule_normalized_difference(rulesA, rulesB):
+    rem_rulesA = rulesA
+    for ruleB in rulesB:
+        rem_rulesA = [rA for rA in rem_rulesA
+                if not gmultiple.normalized_rule_match(rA, ruleB)]
+    return rem_rulesA
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For unmatching a refined rule in a pattern grammar, we simply can look at
+refinements necessary, and produce rules such that each produced rule will
+*not* match the pattern at a specific point. No further restrictions on
+the rule is necessary. So, we can use the base nonterminal there.
+
+<!--
+############
 def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_nonterminal(t) if i==pos else t for i,t in enumerate(refined_rule)]
+        r = [negate_nonterminal(t) if i==pos else gmultiple.normalize(t)
+                for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
 
@@ -303,22 +328,13 @@ def unmatch_pattern_grammar(pattern_grammar, pattern_start, base_grammar):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def negate_nonterminal(k):
-    return &#x27;&lt;%s %s&gt;&#x27; % (gatleast.stem(k), negate_suffix(gatleast.refinement(k)))
-
-def rule_normalized_difference(rulesA, rulesB):
-    rem_rulesA = rulesA
-    for ruleB in rulesB:
-        rem_rulesA = [rA for rA in rem_rulesA
-                if not gmultiple.normalized_rule_match(rA, ruleB)]
-    return rem_rulesA
-
 def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_nonterminal(t) if i==pos else t for i,t in enumerate(refined_rule)]
+        r = [negate_nonterminal(t) if i==pos else gmultiple.normalize(t)
+                for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
 

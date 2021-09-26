@@ -139,12 +139,18 @@ def rule_normalized_difference(rulesA, rulesB):
                 if not gmultiple.normalized_rule_match(rA, ruleB)]
     return rem_rulesA
 
+# For unmatching a refined rule in a pattern grammar, we simply can look at
+# refinements necessary, and produce rules such that each produced rule will
+# *not* match the pattern at a specific point. No further restrictions on
+# the rule is necessary. So, we can use the base nonterminal there.
+
 def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     negated_rules = []
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_nonterminal(t) if i==pos else t for i,t in enumerate(refined_rule)]
+        r = [negate_nonterminal(t) if i==pos else gmultiple.normalize(t)
+                for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
 
