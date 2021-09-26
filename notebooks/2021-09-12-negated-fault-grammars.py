@@ -149,7 +149,8 @@ def unmatch_a_refined_rule_in_pattern_grammar(refined_rule):
     for pos,token in enumerate(refined_rule):
         if not fuzzer.is_nonterminal(token): continue
         if gatleast.is_base_key(token): continue
-        r = [negate_nonterminal(t) if i==pos else gmultiple.normalize(t)
+        r = [negate_nonterminal(t) if i==pos else
+                (gmultiple.normalize(t) if fuzzer.is_nonterminal(t) else t)
                 for i,t in enumerate(refined_rule)]
         negated_rules.append(r)
     return negated_rules
