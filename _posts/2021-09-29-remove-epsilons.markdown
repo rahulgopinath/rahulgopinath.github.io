@@ -595,7 +595,7 @@ rscfg = grandom.RandomSampleCFG(gs.grammar)
 max_len = 10
 rscfg.produce_shared_forest(gs.start, max_len)
 for i in range(10):
-    v, tree = rscfg.random_sample(gs.start, 5)
+    v, tree = rscfg.random_sample(gs.start, 10)
     string = fuzzer.tree_to_string(tree)
     print("mystring:", repr(string), "at:", v)
 
@@ -607,7 +607,7 @@ rscfg = grandom.RandomSampleCFG(gs.grammar)
 max_len = 10
 rscfg.produce_shared_forest(gs.start, max_len)
 for i in range(10):
-    v, tree = rscfg.random_sample(gs.start, 5)
+    v, tree = rscfg.random_sample(gs.start, 10)
     string = fuzzer.tree_to_string(tree)
     print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v)
 </textarea><br />
