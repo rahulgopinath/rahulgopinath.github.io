@@ -571,6 +571,7 @@ Using the complete epsilon remover.
 gs = GrammarShrinker(jsonG, jsonS)
 gs.remove_epsilon_rules()
 gatleast.display_grammar(gs.grammar, gs.start)
+
 ############
 -->
 <form name='python_run_form'>
@@ -582,6 +583,7 @@ gatleast.display_grammar(gs.grammar, gs.start)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+As before, the runnable source of this notebook is [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-29-remove-epsilons.py).
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
