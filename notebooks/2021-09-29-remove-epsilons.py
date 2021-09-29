@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Remove Empty (Epsilon) Rules From a Grammar.
+# title: Remove Empty (Epsilon) Rules From a Context-Free Grammar.
 # layout: post
 # comments: true
 # tags: python
