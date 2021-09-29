@@ -592,10 +592,10 @@ We can now count the strings produced by the epsilon free grammar
 <!--
 ############
 rscfg = grandom.RandomSampleCFG(gs.grammar)
-max_len = 10
+max_len = 5
 rscfg.produce_shared_forest(gs.start, max_len)
 for i in range(10):
-    v, tree = rscfg.random_sample(gs.start, 10)
+    v, tree = rscfg.random_sample(gs.start, 5)
     string = fuzzer.tree_to_string(tree)
     print("mystring:", repr(string), "at:", v)
 
@@ -604,10 +604,10 @@ for i in range(10):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 rscfg = grandom.RandomSampleCFG(gs.grammar)
-max_len = 10
+max_len = 5
 rscfg.produce_shared_forest(gs.start, max_len)
 for i in range(10):
-    v, tree = rscfg.random_sample(gs.start, 10)
+    v, tree = rscfg.random_sample(gs.start, 5)
     string = fuzzer.tree_to_string(tree)
     print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v)
 </textarea><br />
