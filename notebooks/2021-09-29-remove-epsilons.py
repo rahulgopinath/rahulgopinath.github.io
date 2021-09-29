@@ -91,6 +91,7 @@ grandom = import_file('grandom', '2021-07-27-random-sampling-from-context-free-g
 class GrammarShrinker:
     def __init__(self, grammar, start):
         self.grammar, self.start = grammar, start
+        self.processed = set()
 
     def remove_empty_rule_keys(self):
         while True:
@@ -142,13 +143,13 @@ if __name__ == '__main__':
 # the corresponding keys, so that we can generate corresponding rules.
 
 class GrammarShrinker(GrammarShrinker):
-    def rule_combinations(self, rule, keys):
+    def rule_combinations(self, rule, keys, cur_key):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a:
+                if a or cur_key not in self.processed:
                     combinations.append(a)
         new_rules = []
         for combination in combinations:
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     zrule = newG['<spaceZ>'][0]
     print('Rule to produce combinations:', zrule)
     erules = gs.find_epsilon_rules()
-    comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+    comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<spaceZ>')
     for c in comb:
         print('', c)
 
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     zrule = jsonG['<member>'][0]
     erules = gs.find_epsilon_rules()
     print('Rule to produce combinations:', zrule)
-    comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+    comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<member>')
     for c in comb:
         print('', c)
 
@@ -240,12 +241,13 @@ class GrammarShrinker(GrammarShrinker):
             for e_key, index in e_rules:
                 del self.grammar[e_key][index]
                 assert self.grammar[e_key]
+                self.processed.add(e_key)
 
             for key in self.grammar:
                 rules_hash = {}
                 for rule in self.grammar[key]:
                     # find e_key positions.
-                    combs = self.rule_combinations(rule, [k for k,i in e_rules])
+                    combs = self.rule_combinations(rule, [k for k,i in e_rules], key)
                     for nrule in combs:
                         rules_hash[str(nrule)] = nrule
                 self.grammar[key] = [rules_hash[k] for k in rules_hash]

@@ -198,6 +198,7 @@ be expanded, and hence we will have an invalid grammar.
 class GrammarShrinker:
     def __init__(self, grammar, start):
         self.grammar, self.start = grammar, start
+        self.processed = set()
 
     def remove_empty_rule_keys(self):
         while True:
@@ -219,6 +220,7 @@ class GrammarShrinker:
 class GrammarShrinker:
     def __init__(self, grammar, start):
         self.grammar, self.start = grammar, start
+        self.processed = set()
 
     def remove_empty_rule_keys(self):
         while True:
@@ -321,13 +323,13 @@ the corresponding keys, so that we can generate corresponding rules.
 <!--
 ############
 class GrammarShrinker(GrammarShrinker):
-    def rule_combinations(self, rule, keys):
+    def rule_combinations(self, rule, keys, cur_key):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a:
+                if a or cur_key not in self.processed:
                     combinations.append(a)
         new_rules = []
         for combination in combinations:
@@ -340,13 +342,13 @@ class GrammarShrinker(GrammarShrinker):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GrammarShrinker(GrammarShrinker):
-    def rule_combinations(self, rule, keys):
+    def rule_combinations(self, rule, keys, cur_key):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a:
+                if a or cur_key not in self.processed:
                     combinations.append(a)
         new_rules = []
         for combination in combinations:
@@ -365,7 +367,7 @@ gs = GrammarShrinker(newG, newS)
 zrule = newG['<spaceZ>'][0]
 print('Rule to produce combinations:', zrule)
 erules = gs.find_epsilon_rules()
-comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<spaceZ>')
 for c in comb:
     print('', c)
 
@@ -377,7 +379,7 @@ gs = GrammarShrinker(newG, newS)
 zrule = newG[&#x27;&lt;spaceZ&gt;&#x27;][0]
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
 erules = gs.find_epsilon_rules()
-comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+comb = gs.rule_combinations(zrule, [k for k,rule in erules], &#x27;&lt;spaceZ&gt;&#x27;)
 for c in comb:
     print(&#x27;&#x27;, c)
 </textarea><br />
@@ -501,7 +503,7 @@ gs = GrammarShrinker(jsonG, jsonS)
 zrule = jsonG['<member>'][0]
 erules = gs.find_epsilon_rules()
 print('Rule to produce combinations:', zrule)
-comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<member>')
 for c in comb:
     print('', c)
 
@@ -513,7 +515,7 @@ gs = GrammarShrinker(jsonG, jsonS)
 zrule = jsonG[&#x27;&lt;member&gt;&#x27;][0]
 erules = gs.find_epsilon_rules()
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
-comb = gs.rule_combinations(zrule, [k for k,rule in erules])
+comb = gs.rule_combinations(zrule, [k for k,rule in erules], &#x27;&lt;member&gt;&#x27;)
 for c in comb:
     print(&#x27;&#x27;, c)
 </textarea><br />
@@ -533,12 +535,13 @@ class GrammarShrinker(GrammarShrinker):
             for e_key, index in e_rules:
                 del self.grammar[e_key][index]
                 assert self.grammar[e_key]
+                self.processed.add(e_key)
 
             for key in self.grammar:
                 rules_hash = {}
                 for rule in self.grammar[key]:
                     # find e_key positions.
-                    combs = self.rule_combinations(rule, [k for k,i in e_rules])
+                    combs = self.rule_combinations(rule, [k for k,i in e_rules], key)
                     for nrule in combs:
                         rules_hash[str(nrule)] = nrule
                 self.grammar[key] = [rules_hash[k] for k in rules_hash]
@@ -557,12 +560,13 @@ class GrammarShrinker(GrammarShrinker):
             for e_key, index in e_rules:
                 del self.grammar[e_key][index]
                 assert self.grammar[e_key]
+                self.processed.add(e_key)
 
             for key in self.grammar:
                 rules_hash = {}
                 for rule in self.grammar[key]:
                     # find e_key positions.
-                    combs = self.rule_combinations(rule, [k for k,i in e_rules])
+                    combs = self.rule_combinations(rule, [k for k,i in e_rules], key)
                     for nrule in combs:
                         rules_hash[str(nrule)] = nrule
                 self.grammar[key] = [rules_hash[k] for k in rules_hash]
