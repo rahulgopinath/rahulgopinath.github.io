@@ -146,6 +146,7 @@ class GrammarShrinker(GrammarShrinker):
     def rule_combinations(self, rule, keys, cur_key):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
+        if (cur_key, tuple(rule)) in self.processed: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
@@ -155,6 +156,7 @@ class GrammarShrinker(GrammarShrinker):
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
             new_rules.append(new_rule)
+        self.processed.add((cur_key, tuple(rule)))
         return new_rules
 
 # We can use it thus:
