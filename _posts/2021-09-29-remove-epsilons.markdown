@@ -21,8 +21,8 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-In the previous post about [uniform random sampling from grammars](https://rahul.gopinath.org/post/2021/07/27/random-sampling-from-context-free-grammar/)
-I mentioned that the algorithm expects an *epsilon-free*` grammar. That is,
+In the previous post about [uniform random sampling from grammars](https://rahul.gopinath.org/post/2021/07/27/random-sampling-from-context-free-grammar/),
+I mentioned that the algorithm expects an *epsilon-free* grammar. That is,
 the grammar should contain no empty rules. Unfortunately, empty rules are
 quite useful for describing languages. For example, to specify that we need
 zero or more white space characters, the following definition of `<spaceZ>`
@@ -118,6 +118,7 @@ We also load a few prerequisites
 ############
 import sys, imp
 import itertools as I
+import random
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -144,6 +145,7 @@ def import_file(name, location):
 <textarea cols="40" rows="4" name='python_edit'>
 import sys, imp
 import itertools as I
+import random
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
@@ -173,6 +175,7 @@ We import the following modules
 ############
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
+grandom = import_file('grandom', '2021-07-27-random-sampling-from-context-free-grammar.py')
 
 ############
 -->
@@ -180,6 +183,7 @@ gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 <textarea cols="40" rows="4" name='python_edit'>
 fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
 gatleast = import_file(&#x27;gatleast&#x27;, &#x27;2021-09-09-fault-inducing-grammar.py&#x27;)
+grandom = import_file(&#x27;grandom&#x27;, &#x27;2021-07-27-random-sampling-from-context-free-grammar.py&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -579,6 +583,33 @@ gatleast.display_grammar(gs.grammar, gs.start)
 gs = GrammarShrinker(jsonG, jsonS)
 gs.remove_epsilon_rules()
 gatleast.display_grammar(gs.grammar, gs.start)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can now count the strings produced by the epsilon free grammar
+
+<!--
+############
+rscfg = grandom.RandomSampleCFG(gs.grammar)
+max_len = 10
+rscfg.produce_shared_forest(gs.start, max_len)
+for i in range(10):
+    v, tree = rscfg.random_sample(gs.start, 5)
+    string = fuzzer.tree_to_string(tree)
+    print("mystring:", repr(string), "at:", v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rscfg = grandom.RandomSampleCFG(gs.grammar)
+max_len = 10
+rscfg.produce_shared_forest(gs.start, max_len)
+for i in range(10):
+    v, tree = rscfg.random_sample(gs.start, 5)
+    string = fuzzer.tree_to_string(tree)
+    print(&quot;mystring:&quot;, repr(string), &quot;at:&quot;, v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

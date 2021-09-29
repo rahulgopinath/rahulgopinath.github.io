@@ -7,8 +7,8 @@
 # categories: post
 # ---
 
-# In the previous post about [uniform random sampling from grammars](https://rahul.gopinath.org/post/2021/07/27/random-sampling-from-context-free-grammar/)
-# I mentioned that the algorithm expects an *epsilon-free*` grammar. That is,
+# In the previous post about [uniform random sampling from grammars](https://rahul.gopinath.org/post/2021/07/27/random-sampling-from-context-free-grammar/),
+# I mentioned that the algorithm expects an *epsilon-free* grammar. That is,
 # the grammar should contain no empty rules. Unfortunately, empty rules are
 # quite useful for describing languages. For example, to specify that we need
 # zero or more white space characters, the following definition of `<spaceZ>`
@@ -56,6 +56,7 @@ emptyS = '<start>'
 
 import sys, imp
 import itertools as I
+import random
 
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
@@ -79,6 +80,7 @@ def import_file(name, location):
 # We import the following modules
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
+grandom = import_file('grandom', '2021-07-27-random-sampling-from-context-free-grammar.py')
 
 # Note that we still need an empty expansion inside the definition. i.e `[[]]`.
 # Leaving `<empty>` without an expansion, i.e. `[]` means that `<empty>` can't
@@ -254,5 +256,16 @@ if __name__ == '__main__':
     gs = GrammarShrinker(jsonG, jsonS)
     gs.remove_epsilon_rules()
     gatleast.display_grammar(gs.grammar, gs.start)
+
+# We can now count the strings produced by the epsilon free grammar
+
+if __name__ == '__main__':
+    rscfg = grandom.RandomSampleCFG(gs.grammar)
+    max_len = 10 
+    rscfg.produce_shared_forest(gs.start, max_len)
+    for i in range(10):
+        v, tree = rscfg.random_sample(gs.start, 5)
+        string = fuzzer.tree_to_string(tree)
+        print("mystring:", repr(string), "at:", v)
 
 # As before, the runnable source of this notebook is [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-29-remove-epsilons.py).
