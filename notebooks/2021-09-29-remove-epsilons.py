@@ -147,8 +147,9 @@ class GrammarShrinker(GrammarShrinker):
         if not positions: return [rule]
         combinations = []
         for n in range(len(rule)+1):
-            a = list(I.combinations(positions, n))
-            combinations.extend(a)
+            for a in I.combinations(positions, n):
+                if a:
+                    combinations.append(a)
         new_rules = []
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
