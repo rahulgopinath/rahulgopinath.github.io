@@ -1,6 +1,6 @@
 ---
 published: true
-title: Remove empty (epsilon) rules from a grammar.
+title: Remove Empty (Epsilon) Rules From a Grammar.
 layout: post
 comments: true
 tags: python
