@@ -335,12 +335,12 @@ class GrammarShrinker(GrammarShrinker):
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a:
-                    combinations.append(a)
+                combinations.append(a)
         new_rules = []
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
-            new_rules.append(new_rule)
+            if new_rule:
+                new_rules.append(new_rule)
         return new_rules
 
 ############
@@ -354,12 +354,12 @@ class GrammarShrinker(GrammarShrinker):
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a:
-                    combinations.append(a)
+                combinations.append(a)
         new_rules = []
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
-            new_rules.append(new_rule)
+            if new_rule:
+                new_rules.append(new_rule)
         return new_rules
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
