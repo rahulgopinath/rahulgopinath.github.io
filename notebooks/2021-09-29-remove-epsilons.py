@@ -82,11 +82,15 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 grandom = import_file('grandom', '2021-07-27-random-sampling-from-context-free-grammar.py')
 
+# ## Remove empty keys
+# First, we implement removing empty keys that have empty expansions.
+# In the above `<empty>` is such a key.
+#
 # Note that we still need an empty expansion inside the definition. i.e `[[]]`.
 # Leaving `<empty>` without an expansion, i.e. `[]` means that `<empty>` can't
 # be expanded, and hence we will have an invalid grammar.
+# That is, `<empty>: []` is not a valid definition.
 
-# ## Remove empty keys
 
 class GrammarShrinker:
     def __init__(self, grammar, start):
@@ -114,9 +118,15 @@ if __name__ == '__main__':
     gatleast.display_grammar(newG, newS)
 
 # Now we are ready to tackle the more complex part: That of removing epsilon
-# rules. First, we need to identify such rules that are empty.
+# rules. First, we need to identify such rules that can become empty, and
+# hence the corresponding keys that can become empty.
 #
 # ## Finding empty (epsilon) rules
+# The idea is as follows, We keep a set of nullable nonterminals. For each
+# rule, we check if all the tokens in the rule are nullable (i.e in the nullable
+# set). If all are (i.e `all(t in my_epsilons for t in r)`), then, this rule
+# is nullable. If there are `any` nullable rules for a key, then the key is
+# nullable. We process these keys until there are no more new keys.
 
 def find_epsilons(g):
     q = [k for k in g if [] in g[k]]
@@ -144,6 +154,20 @@ if __name__ == '__main__':
 
 # Now that we can find epsilon rules, we need generate all combinations of
 # the corresponding keys, so that we can generate corresponding rules.
+# The idea is that for any given rule with nullable nonterminals in it,
+# you need to generate all combinations of possible rules where some of
+# such nonterminals are missing. That is, if given
+# `[<A> <E1> <B> <E2> <C> <E3>]`, you need to generate these rules.
+#
+# ```
+# [<A> <E1> <B> <E2> <C> <E3>]
+# [<A> <B> <E2> <C> <E3>]
+# [<A> <B> <C> <E3>]
+# [<A> <B> <C>]
+# [<A> <E1> <B> <C> <E3>]
+# [<A> <E1> <B> <C>]
+# [<A> <E1> <B> <E2> <C>]
+# ```
 
 class GrammarShrinker(GrammarShrinker):
     def rule_combinations(self, rule, keys):
@@ -164,9 +188,9 @@ class GrammarShrinker(GrammarShrinker):
 
 if __name__ == '__main__':
     gs = GrammarShrinker(newG, newS)
-    zrule = newG['<spaceZ>'][0]
+    zrule = ['<A>', '<E1>', '<B>', '<E2>', '<C>', '<E3>']
     print('Rule to produce combinations:', zrule)
-    ekeys = gs.find_empty_keys()
+    ekeys = ['<E1>', '<E2>', '<E3>']
     comb = gs.rule_combinations(zrule, ekeys)
     for c in comb:
         print('', c)

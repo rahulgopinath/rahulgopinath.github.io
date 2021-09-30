@@ -188,10 +188,13 @@ grandom = import_file(&#x27;grandom&#x27;, &#x27;2021-07-27-random-sampling-from
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Remove empty keys
+First, we implement removing empty keys that have empty expansions.
+In the above `<empty>` is such a key.
 Note that we still need an empty expansion inside the definition. i.e `[[]]`.
 Leaving `<empty>` without an expansion, i.e. `[]` means that `<empty>` can't
 be expanded, and hence we will have an invalid grammar.
-## Remove empty keys
+That is, `<empty>: []` is not a valid definition.
 
 <!--
 ############
@@ -258,8 +261,14 @@ gatleast.display_grammar(newG, newS)
 <div name='python_canvas'></div>
 </form>
 Now we are ready to tackle the more complex part: That of removing epsilon
-rules. First, we need to identify such rules that are empty.
+rules. First, we need to identify such rules that can become empty, and
+hence the corresponding keys that can become empty.
 ## Finding empty (epsilon) rules
+The idea is as follows, We keep a set of nullable nonterminals. For each
+rule, we check if all the tokens in the rule are nullable (i.e in the nullable
+set). If all are (i.e `all(t in my_epsilons for t in r)`), then, this rule
+is nullable. If there are `any` nullable rules for a key, then the key is
+nullable. We process these keys until there are no more new keys.
 
 <!--
 ############
@@ -325,6 +334,19 @@ for key in e_keys:
 </form>
 Now that we can find epsilon rules, we need generate all combinations of
 the corresponding keys, so that we can generate corresponding rules.
+The idea is that for any given rule with nullable nonterminals in it,
+you need to generate all combinations of possible rules where some of
+such nonterminals are missing. That is, if given
+`[<A> <E1> <B> <E2> <C> <E3>]`, you need to generate these rules.
+```
+[<A> <E1> <B> <E2> <C> <E3>]
+[<A> <B> <E2> <C> <E3>]
+[<A> <B> <C> <E3>]
+[<A> <B> <C>]
+[<A> <E1> <B> <C> <E3>]
+[<A> <E1> <B> <C>]
+[<A> <E1> <B> <E2> <C>]
+```
 
 <!--
 ############
@@ -370,9 +392,9 @@ We can use it thus:
 <!--
 ############
 gs = GrammarShrinker(newG, newS)
-zrule = newG['<spaceZ>'][0]
+zrule = ['<A>', '<E1>', '<B>', '<E2>', '<C>', '<E3>']
 print('Rule to produce combinations:', zrule)
-ekeys = gs.find_empty_keys()
+ekeys = ['<E1>', '<E2>', '<E3>']
 comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print('', c)
@@ -382,9 +404,9 @@ for c in comb:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GrammarShrinker(newG, newS)
-zrule = newG[&#x27;&lt;spaceZ&gt;&#x27;][0]
+zrule = [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;E1&gt;&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;&lt;E2&gt;&#x27;, &#x27;&lt;C&gt;&#x27;, &#x27;&lt;E3&gt;&#x27;]
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
-ekeys = gs.find_empty_keys()
+ekeys = [&#x27;&lt;E1&gt;&#x27;, &#x27;&lt;E2&gt;&#x27;, &#x27;&lt;E3&gt;&#x27;]
 comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print(&#x27;&#x27;, c)
