@@ -135,7 +135,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf-8') as f:
+        with open(module_loc, encoding='ascii') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 
@@ -162,7 +162,7 @@ def import_file(name, location):
         module_str = pyodide.open_url(module_loc).getvalue()
     else:
         module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc, encoding=&#x27;utf-8&#x27;) as f:
+        with open(module_loc, encoding=&#x27;ascii&#x27;) as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
 </textarea><br />
@@ -198,7 +198,6 @@ be expanded, and hence we will have an invalid grammar.
 class GrammarShrinker:
     def __init__(self, grammar, start):
         self.grammar, self.start = grammar, start
-        self.processed = set()
 
     def remove_empty_rule_keys(self):
         while True:
@@ -220,7 +219,6 @@ class GrammarShrinker:
 class GrammarShrinker:
     def __init__(self, grammar, start):
         self.grammar, self.start = grammar, start
-        self.processed = set()
 
     def remove_empty_rule_keys(self):
         while True:
@@ -263,33 +261,93 @@ Now we are ready to tackle the more complex part: That of removing epsilon
 rules. First, we need to identify such rules that are empty.
 ## Finding empty (epsilon) rules
 
+We use the technique from the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html#Nullable) here.
+
 <!--
 ############
+def fixpoint(f):
+    def helper(arg):
+        while True:
+            sarg = str(arg)
+            arg_ = f(arg)
+            if str(arg_) == sarg:
+                return arg
+            arg = arg_
+
+    return helper
+
+def rules(grammar):
+    return [(key, choice)
+            for key, choices in grammar.items()
+            for choice in choices]
+
+def terminals(grammar):
+    return set(token
+               for key, choice in rules(grammar)
+               for token in choice if token not in grammar)
+
+def nullable_expr(expr, nullables):
+    return all(token in nullables for token in expr)
+
+def nullable(grammar):
+    productions = rules(grammar)
+
+    @fixpoint
+    def nullable_(nullables):
+        for A, expr in productions:
+            if nullable_expr(expr, nullables):
+                nullables |= {A}
+        return (nullables)
+
+    return nullable_({tuple()})
+
 class GrammarShrinker(GrammarShrinker):
-    def find_epsilon_rules(self):
-        e_rules = []
-        for key in self.grammar:
-            if key == self.start: continue
-            rules = self.grammar[key]
-            for i, r in enumerate(rules):
-                if not r:
-                    e_rules.append((key, i))
-        return e_rules
+    def find_empty_keys(self):
+        return [k for k in nullable(self.grammar) if k]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def fixpoint(f):
+    def helper(arg):
+        while True:
+            sarg = str(arg)
+            arg_ = f(arg)
+            if str(arg_) == sarg:
+                return arg
+            arg = arg_
+
+    return helper
+
+def rules(grammar):
+    return [(key, choice)
+            for key, choices in grammar.items()
+            for choice in choices]
+
+def terminals(grammar):
+    return set(token
+               for key, choice in rules(grammar)
+               for token in choice if token not in grammar)
+
+def nullable_expr(expr, nullables):
+    return all(token in nullables for token in expr)
+
+def nullable(grammar):
+    productions = rules(grammar)
+
+    @fixpoint
+    def nullable_(nullables):
+        for A, expr in productions:
+            if nullable_expr(expr, nullables):
+                nullables |= {A}
+        return (nullables)
+
+    return nullable_({tuple()})
+
 class GrammarShrinker(GrammarShrinker):
-    def find_epsilon_rules(self):
-        e_rules = []
-        for key in self.grammar:
-            if key == self.start: continue
-            rules = self.grammar[key]
-            for i, r in enumerate(rules):
-                if not r:
-                    e_rules.append((key, i))
-        return e_rules
+    def find_empty_keys(self):
+        return [k for k in nullable(self.grammar) if k]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -299,20 +357,20 @@ We can use it thus:
 <!--
 ############
 gs = GrammarShrinker(newG, newS)
-erules = gs.find_epsilon_rules()
-print('Empty rules:')
-for key,rule in erules:
-    print('',key,rule)
+e_keys = gs.find_empty_keys()
+print('Emptyable keys:')
+for key in e_keys:
+    print('',key)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GrammarShrinker(newG, newS)
-erules = gs.find_epsilon_rules()
-print(&#x27;Empty rules:&#x27;)
-for key,rule in erules:
-    print(&#x27;&#x27;,key,rule)
+e_keys = gs.find_empty_keys()
+print(&#x27;Emptyable keys:&#x27;)
+for key in e_keys:
+    print(&#x27;&#x27;,key)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -323,20 +381,18 @@ the corresponding keys, so that we can generate corresponding rules.
 <!--
 ############
 class GrammarShrinker(GrammarShrinker):
-    def rule_combinations(self, rule, keys, cur_key):
+    def rule_combinations(self, rule, keys):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
-        if (cur_key, tuple(rule)) in self.processed: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a or cur_key not in self.processed:
+                if a:
                     combinations.append(a)
         new_rules = []
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
             new_rules.append(new_rule)
-        self.processed.add((cur_key, tuple(rule)))
         return new_rules
 
 ############
@@ -344,20 +400,18 @@ class GrammarShrinker(GrammarShrinker):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GrammarShrinker(GrammarShrinker):
-    def rule_combinations(self, rule, keys, cur_key):
+    def rule_combinations(self, rule, keys):
         positions = [i for i,t in enumerate(rule) if t in keys]
         if not positions: return [rule]
-        if (cur_key, tuple(rule)) in self.processed: return [rule]
         combinations = []
         for n in range(len(rule)+1):
             for a in I.combinations(positions, n):
-                if a or cur_key not in self.processed:
+                if a:
                     combinations.append(a)
         new_rules = []
         for combination in combinations:
             new_rule = [t for i,t in enumerate(rule) if i not in combination]
             new_rules.append(new_rule)
-        self.processed.add((cur_key, tuple(rule)))
         return new_rules
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -370,8 +424,8 @@ We can use it thus:
 gs = GrammarShrinker(newG, newS)
 zrule = newG['<spaceZ>'][0]
 print('Rule to produce combinations:', zrule)
-erules = gs.find_epsilon_rules()
-comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<spaceZ>')
+ekeys = gs.find_empty_keys()
+comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print('', c)
 
@@ -382,8 +436,8 @@ for c in comb:
 gs = GrammarShrinker(newG, newS)
 zrule = newG[&#x27;&lt;spaceZ&gt;&#x27;][0]
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
-erules = gs.find_epsilon_rules()
-comb = gs.rule_combinations(zrule, [k for k,rule in erules], &#x27;&lt;spaceZ&gt;&#x27;)
+ekeys = gs.find_empty_keys()
+comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print(&#x27;&#x27;, c)
 </textarea><br />
@@ -505,9 +559,9 @@ Extract combinations.
 ############
 gs = GrammarShrinker(jsonG, jsonS)
 zrule = jsonG['<member>'][0]
-erules = gs.find_epsilon_rules()
+ekeys = gs.find_empty_keys()
 print('Rule to produce combinations:', zrule)
-comb = gs.rule_combinations(zrule, [k for k,rule in erules], '<member>')
+comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print('', c)
 
@@ -517,9 +571,9 @@ for c in comb:
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GrammarShrinker(jsonG, jsonS)
 zrule = jsonG[&#x27;&lt;member&gt;&#x27;][0]
-erules = gs.find_epsilon_rules()
+ekeys = gs.find_empty_keys()
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
-comb = gs.rule_combinations(zrule, [k for k,rule in erules], &#x27;&lt;member&gt;&#x27;)
+comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
     print(&#x27;&#x27;, c)
 </textarea><br />
@@ -532,23 +586,22 @@ Here comes the last part, which stitches all these together.
 ############
 class GrammarShrinker(GrammarShrinker):
     def remove_epsilon_rules(self):
-        while True:
-            self.remove_empty_rule_keys()
-            e_rules = self.find_epsilon_rules()
-            if not e_rules: break
-            for e_key, index in e_rules:
+        self.remove_empty_rule_keys()
+        e_keys = self.find_empty_keys()
+        for e_key in e_keys:
+            positions = [i for i,r in enumerate(self.grammar[e_key]) if not r]
+            for index in positions:
                 del self.grammar[e_key][index]
-                assert self.grammar[e_key]
-                self.processed.add(e_key)
+            assert self.grammar[e_key]
 
-            for key in self.grammar:
-                rules_hash = {}
-                for rule in self.grammar[key]:
-                    # find e_key positions.
-                    combs = self.rule_combinations(rule, [k for k,i in e_rules], key)
-                    for nrule in combs:
-                        rules_hash[str(nrule)] = nrule
-                self.grammar[key] = [rules_hash[k] for k in rules_hash]
+        for key in self.grammar:
+            rules_hash = {}
+            for rule in self.grammar[key]:
+                # find e_key positions.
+                combs = self.rule_combinations(rule, e_keys)
+                for nrule in combs:
+                    rules_hash[str(nrule)] = nrule
+            self.grammar[key] = [rules_hash[k] for k in rules_hash]
 
 
 ############
@@ -557,23 +610,22 @@ class GrammarShrinker(GrammarShrinker):
 <textarea cols="40" rows="4" name='python_edit'>
 class GrammarShrinker(GrammarShrinker):
     def remove_epsilon_rules(self):
-        while True:
-            self.remove_empty_rule_keys()
-            e_rules = self.find_epsilon_rules()
-            if not e_rules: break
-            for e_key, index in e_rules:
+        self.remove_empty_rule_keys()
+        e_keys = self.find_empty_keys()
+        for e_key in e_keys:
+            positions = [i for i,r in enumerate(self.grammar[e_key]) if not r]
+            for index in positions:
                 del self.grammar[e_key][index]
-                assert self.grammar[e_key]
-                self.processed.add(e_key)
+            assert self.grammar[e_key]
 
-            for key in self.grammar:
-                rules_hash = {}
-                for rule in self.grammar[key]:
-                    # find e_key positions.
-                    combs = self.rule_combinations(rule, [k for k,i in e_rules], key)
-                    for nrule in combs:
-                        rules_hash[str(nrule)] = nrule
-                self.grammar[key] = [rules_hash[k] for k in rules_hash]
+        for key in self.grammar:
+            rules_hash = {}
+            for rule in self.grammar[key]:
+                # find e_key positions.
+                combs = self.rule_combinations(rule, e_keys)
+                for nrule in combs:
+                    rules_hash[str(nrule)] = nrule
+            self.grammar[key] = [rules_hash[k] for k in rules_hash]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

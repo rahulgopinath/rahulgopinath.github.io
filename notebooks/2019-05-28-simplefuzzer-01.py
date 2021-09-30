@@ -133,7 +133,7 @@ class O:
 # The default options include the vertical (|), the horizontal (--)
 # and the how the last line is represented (+)
 
-OPTIONS   = O(V='│', H='─', L='└', J = '├')
+OPTIONS   = O(V='|', H='-', L='+', J = '+')
 
 def format_node(node):
     key = node[0]
