@@ -261,93 +261,41 @@ Now we are ready to tackle the more complex part: That of removing epsilon
 rules. First, we need to identify such rules that are empty.
 ## Finding empty (epsilon) rules
 
-We use the technique from the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html#Nullable) here.
-
 <!--
 ############
-def fixpoint(f):
-    def helper(arg):
-        while True:
-            sarg = str(arg)
-            arg_ = f(arg)
-            if str(arg_) == sarg:
-                return arg
-            arg = arg_
-
-    return helper
-
-def rules(grammar):
-    return [(key, choice)
-            for key, choices in grammar.items()
-            for choice in choices]
-
-def terminals(grammar):
-    return set(token
-               for key, choice in rules(grammar)
-               for token in choice if token not in grammar)
-
-def nullable_expr(expr, nullables):
-    return all(token in nullables for token in expr)
-
-def nullable(grammar):
-    productions = rules(grammar)
-
-    @fixpoint
-    def nullable_(nullables):
-        for A, expr in productions:
-            if nullable_expr(expr, nullables):
-                nullables |= {A}
-        return (nullables)
-
-    return nullable_({tuple()})
+def find_epsilons(g):
+    q = [k for k in g if [] in g[k]]
+    my_epsilons = set(q)
+    while q:
+        ekey, *q = q
+        nq = [k for k in g if any(all(t in my_epsilons for t in r) for r in g[k])
+                if k not in my_epsilons]
+        my_epsilons.update(nq)
+        q += nq
+    return my_epsilons
 
 class GrammarShrinker(GrammarShrinker):
     def find_empty_keys(self):
-        return [k for k in nullable(self.grammar) if k]
+        return find_epsilons(self.grammar)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def fixpoint(f):
-    def helper(arg):
-        while True:
-            sarg = str(arg)
-            arg_ = f(arg)
-            if str(arg_) == sarg:
-                return arg
-            arg = arg_
-
-    return helper
-
-def rules(grammar):
-    return [(key, choice)
-            for key, choices in grammar.items()
-            for choice in choices]
-
-def terminals(grammar):
-    return set(token
-               for key, choice in rules(grammar)
-               for token in choice if token not in grammar)
-
-def nullable_expr(expr, nullables):
-    return all(token in nullables for token in expr)
-
-def nullable(grammar):
-    productions = rules(grammar)
-
-    @fixpoint
-    def nullable_(nullables):
-        for A, expr in productions:
-            if nullable_expr(expr, nullables):
-                nullables |= {A}
-        return (nullables)
-
-    return nullable_({tuple()})
+def find_epsilons(g):
+    q = [k for k in g if [] in g[k]]
+    my_epsilons = set(q)
+    while q:
+        ekey, *q = q
+        nq = [k for k in g if any(all(t in my_epsilons for t in r) for r in g[k])
+                if k not in my_epsilons]
+        my_epsilons.update(nq)
+        q += nq
+    return my_epsilons
 
 class GrammarShrinker(GrammarShrinker):
     def find_empty_keys(self):
-        return [k for k in nullable(self.grammar) if k]
+        return find_epsilons(self.grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -558,8 +506,9 @@ Extract combinations.
 <!--
 ############
 gs = GrammarShrinker(jsonG, jsonS)
-zrule = jsonG['<member>'][0]
 ekeys = gs.find_empty_keys()
+print('Emptyable:', ekeys)
+zrule = jsonG['<member>'][0]
 print('Rule to produce combinations:', zrule)
 comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
@@ -570,8 +519,9 @@ for c in comb:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GrammarShrinker(jsonG, jsonS)
-zrule = jsonG[&#x27;&lt;member&gt;&#x27;][0]
 ekeys = gs.find_empty_keys()
+print(&#x27;Emptyable:&#x27;, ekeys)
+zrule = jsonG[&#x27;&lt;member&gt;&#x27;][0]
 print(&#x27;Rule to produce combinations:&#x27;, zrule)
 comb = gs.rule_combinations(zrule, ekeys)
 for c in comb:
