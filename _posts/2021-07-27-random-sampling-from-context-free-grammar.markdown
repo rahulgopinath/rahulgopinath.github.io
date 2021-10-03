@@ -1064,7 +1064,6 @@ sampling.
 <!--
 ############
 import random
-
 ############
 -->
 <form name='python_run_form'>
@@ -1120,6 +1119,8 @@ So, we use that here for limiting the recursion.
 
 <!--
 ############
+import bisect
+
 class RandomSampleCFG:
     def __init__(self, grammar):
         self.grammar = grammar
@@ -1232,26 +1233,53 @@ class RandomSampleCFG:
             self.ds[length] = key_node_g
         return self.ds
 
-    # randomly sample from 1 up to `n` length.
-    def random_sample(self, start, n):
-        assert n > 0
-        if n not in self.ds:
-            self.produce_shared_forest(start, n)
-        total_count = sum([self.ds[l].count for l in self.ds if l <= n])
-        choice = random.randint(0, total_count-1)
-        my_choice = choice
+    def compute_cached_index(self, n, cache):
+        cache.clear()
+        index = 0
         for i in range(1, n+1):
             c = self.ds[i].count
-            if my_choice >= c:
-                my_choice -= c
-            else:
-                return choice, self.key_get_string_at(self.ds[i], my_choice)
-        assert False
+            if c:
+                cache[index] = self.ds[i]
+                index += c
+        total_count = sum([self.ds[l].count for l in self.ds if l <= n])
+        assert index == total_count
+        return cache
+
+    def get_total_count(self, cache):
+        last = list(cache.keys())[-1]
+        return cache[last].count + last
+
+
+    # randomly sample from 1 up to `l` length.
+    def random_sample(self, start, l, cache=None):
+        assert l > 0
+        if l not in self.ds:
+            self.produce_shared_forest(start, l)
+        if cache is None:
+            cache = self.compute_cached_index(l, {})
+        total_count = self.get_total_count(cache)
+        choice = random.randint(0, total_count-1)
+        my_choice = choice
+        # get the cache index that is closest.
+        index = bisect.bisect_right(list(cache.keys()), choice)
+        cindex = list(cache.keys())[index-1]
+        my_choice = choice - cindex # -1
+        return choice, self.key_get_string_at(cache[cindex], my_choice)
+
+    # randomly sample n items from 1 up to `l` length.
+    def random_samples(self, start, l, n):
+        cache = {}
+        lst = []
+        for i in range(n):
+            lst.append(self.random_sample(start, l, cache))
+        return lst
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import bisect
+
 class RandomSampleCFG:
     def __init__(self, grammar):
         self.grammar = grammar
@@ -1364,21 +1392,46 @@ class RandomSampleCFG:
             self.ds[length] = key_node_g
         return self.ds
 
-    # randomly sample from 1 up to `n` length.
-    def random_sample(self, start, n):
-        assert n &gt; 0
-        if n not in self.ds:
-            self.produce_shared_forest(start, n)
-        total_count = sum([self.ds[l].count for l in self.ds if l &lt;= n])
-        choice = random.randint(0, total_count-1)
-        my_choice = choice
+    def compute_cached_index(self, n, cache):
+        cache.clear()
+        index = 0
         for i in range(1, n+1):
             c = self.ds[i].count
-            if my_choice &gt;= c:
-                my_choice -= c
-            else:
-                return choice, self.key_get_string_at(self.ds[i], my_choice)
-        assert False
+            if c:
+                cache[index] = self.ds[i]
+                index += c
+        total_count = sum([self.ds[l].count for l in self.ds if l &lt;= n])
+        assert index == total_count
+        return cache
+
+    def get_total_count(self, cache):
+        last = list(cache.keys())[-1]
+        return cache[last].count + last
+
+
+    # randomly sample from 1 up to `l` length.
+    def random_sample(self, start, l, cache=None):
+        assert l &gt; 0
+        if l not in self.ds:
+            self.produce_shared_forest(start, l)
+        if cache is None:
+            cache = self.compute_cached_index(l, {})
+        total_count = self.get_total_count(cache)
+        choice = random.randint(0, total_count-1)
+        my_choice = choice
+        # get the cache index that is closest.
+        index = bisect.bisect_right(list(cache.keys()), choice)
+        cindex = list(cache.keys())[index-1]
+        my_choice = choice - cindex # -1
+        return choice, self.key_get_string_at(cache[cindex], my_choice)
+
+    # randomly sample n items from 1 up to `l` length.
+    def random_samples(self, start, l, n):
+        cache = {}
+        lst = []
+        for i in range(n):
+            lst.append(self.random_sample(start, l, cache))
+        return lst
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
