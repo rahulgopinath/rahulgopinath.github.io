@@ -16,12 +16,12 @@ One of the options available is to write a preprocessor stage before the interpr
 to Python. That is, you can use *Macropy* to modify the source code at compile time. Unfortunately,
 using *Macropy* is a little cumbersome. Macropy uses
 [import hooks](https://macropy3.readthedocs.io/en/latest/overview.html) for rewriting the AST on the
-fly, which means that when you invoke the intrpreter directly on the source code, Macropy does not
+fly, which means that when you invoke the interpreter directly on the source code, Macropy does not
 get a chance to rewrite the source code.
 
 One may use decorators to modify the AST of functions. However, the issue there is that, your source
 has to pass through the Python parser first. Sometimes, you want a feature that is syntactically
-different (e.g. implementing a `switch` statement) or a `with` *expression* or a multiline *lambda*.
+different (e.g. implementing a `switch` statement) or a `with` *expression* or a multi-line *lambda*.
 
 So, is there a better way?
 
@@ -31,7 +31,7 @@ Turns out, there is!. Python [allows](https://www.python.org/dev/peps/pep-0263/)
 #!/usr/bin/env python
 # coding: UTF-8
 ```
-The interesting part here is that, the decoder `UTF-8` is simply a Python library flie typically found in the encodings directory, which
+The interesting part here is that, the decoder `UTF-8` is simply a Python library file typically found in the encodings directory, which
 can be found as follows:
 
 ```python
@@ -194,7 +194,7 @@ def getregentry():
 
 ### Making it parsable
 
-To make it parsable, we simply have to repalce `grammar ` with `def `
+To make it parsable, we simply have to replace `grammar ` with `def `
 
 ```python
 def make_it_parsable(source):
