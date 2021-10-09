@@ -120,6 +120,12 @@ Software Modification_](#christi2019evaluating)<br/>
 
 ## Technical Reports
 
+* [_FormatFuzzer: Effective Fuzzing of Binary File Formats_](#dutra2021formatfuzzer)<br/>
+   *Dutra*, *Gopinath*, *Zeller*, 2021
+
+* [_Fuzzing with Fast Failure Feedback_](#gopinath2020fuzzing)<br/>
+   *Gopinath*, *Bendrissou*, *Mathis*, *Zeller*, 2020
+
 * [_Inferring Input Grammars from Dynamic Control Flow_](#gopinath2019inferring)<br/>
    *Gopinath*, *Mathis*, *Zeller*, 2019
 
@@ -229,6 +235,14 @@ is with the corresponding fault of the pattern grammar.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2021/gopinath2021input.bib "reference")
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/input-algebras)
 
+#### <a id='dutra2021formatfuzzer'></a>[Dutra, Gopinath, Zeller: _FormatFuzzer: Effective Fuzzing of Binary File Formats_ 2021]()
+
+Effective fuzzing of programs that process structured binary inputs, such as multimedia files, is a challenging task, since those programs expect a very specific input format. Existing fuzzers, however, are mostly format-agnostic, which makes them versatile, but also ineffective when a specific format is required. We present FormatFuzzer, a generator for format-specific fuzzers. FormatFuzzer takes as input a binary template (a format specification used by the 010 Editor) and compiles it into C++ code that acts as parser, mutator, and highly efficient generator of inputs conforming to the rules of the language. The resulting format-specific fuzzer can be used as a standalone producer or mutator in black-box settings, where no guidance from the program is available. In addition, by providing mutable decision seeds, it can be easily integrated with arbitrary format-agnostic fuzzers such as AFL to make them format-aware. In our evaluation on complex formats such as MP4 or ZIP, FormatFuzzer showed to be a highly effective producer of valid inputs that also detected previously unknown memory errors in ffmpeg and timidity. 
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2109.11277 "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2021/dutra2021formatfuzzer.bib "reference")
+
+
 #### <a id='gopinath2020mining'></a>[Gopinath, Mathis, Zeller: _Mining Input Grammars from Dynamic Control Flow_ FSE, 2020]()
 
 One of the key properties of a program is its input specification. Having a
@@ -331,6 +345,14 @@ TinyC, and JS compared to AFL.
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issta2020/mathis2020learning.bib "reference")
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://www.slideshare.net/BjrnMathis/lfuzzer-learning-input-tokens-for-effective-fuzzing-237085021 "presentation")
 
+#### <a id='gopinath2020fuzzing'></a>[Gopinath, Bendrissou, Mathis, Zeller: _Fuzzing with Fast Failure Feedback_ 2020]()
+
+Fuzzing -- testing programs with random inputs -- has become the prime technique to detect bugs and vulnerabilities in programs. To generate inputs that cover new functionality, fuzzers require execution feedback from the program -- for instance, the coverage obtained by previous inputs, or the conditions that need to be resolved to cover new branches. If such execution feedback is not available, though, fuzzing can only rely on chance, which is ineffective. In this paper, we introduce a novel fuzzing technique that relies on failure feedback only -- that is, information on whether an input is valid or not, and if not, where the error occurred. Our bFuzzer tool enumerates byte after byte of the input space and tests the program until it finds valid prefixes, and continues exploration from these prefixes. Since no instrumentation or execution feedback is required, bFuzzer is language agnostic and the required tests execute very quickly. We evaluate our technique on five subjects, and show that bFuzzer is effective and efficient even in comparison to its white-box counterpart.
+
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2012.13516 "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2020/gopinath2020fuzzing.bib "reference")
+
+
 #### <a id='ahmed2020using'></a>[Holmes, Ahmed, Brindescu, Gopinath, Zhang, Groce: _Using Relative Lines of Code to Guide Automated Test Generation for Python_ TOSEM, 2020]()
 
 Raw lines of code (LOC) is a metric that does not, at first glance, seem extremely
@@ -403,6 +425,7 @@ effort than simply labeling three test cases as undo-related.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/qrs2019/christi2019evaluating.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/qrs2019/christi2019evaluating.bib "reference")
+
 
 
 #### <a id='gopinath2019inferring'></a>[Gopinath, Mathis, Zeller: _Inferring Input Grammars from Dynamic Control Flow_ 2019]()
