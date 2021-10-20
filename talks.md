@@ -8,6 +8,9 @@ menu: Talks
 ---
 
 ##### 2021
+* [_Input Languages for Effective and Focused Fuzzing_](#dutra2021input)<br/>
+  *Dutra and Gopinath* - FuzzCon Europe, (virtual), October 21, 2021
+
 * [_GAP Interview_](https://www.youtube.com/watch?v=HyIdD3V4mnA&t=2617s)<br/>
   *Rigger and Gopinath* - Getting Academic Positions (GAP) Interviewing Series: Rahul Gopinath (University of Sydney), (virtual), July 21, 2021
 
@@ -84,6 +87,28 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+
+#### <a id='dutra2021input'></a>[Dutra & Gopinath: _Input Languages for Effective and Focused Fuzzing_ FuzzCon Europe 2021]()
+
+In this talk, we present several ways in which fuzzers can be enhanced with an
+input language specification, in order to enable focused fuzzing and reach
+deeper parts of the code. First, we focus on input languages which are expressed
+as context-free grammars, as well as refinements of such grammars. Here, we show
+how those grammars can be mined from the program execution, as well as
+abstracted to capture particular behaviors, such as a failure-inducing pattern.
+We also show how the original input grammar can be refined to produce the
+pattern of interest, or even a boolean combination of such patterns, enabling a
+full algebra of inputs. Next, we focus on the fuzzing of binary file formats,
+such as MP4 or ZIP. We show how such formats can be effectively represented using
+binary templates, which are a format specification used by the 010 Editor.
+Our new tool FormatFuzzer can turn those binary templates into highly efficient
+parsers, mutators and generators for the specified format. This can be
+integrated into existing fuzzers such as AFL++ to boost their efficacy and
+detect new memory errors.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://codeintelligence.clickmeeting.com/fuzzcon-europe-2021)
+<!-- [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-from-alchemy-to-a-science)-->
+
 
 #### <a id='gopinath2021fuzzing'></a>[Gopinath: _Fuzzing -- from Alchemy to a Science_ Guest Lecture, 2020-2021]()
 
