@@ -1,11 +1,14 @@
 # ---
 # published: true
-# title: Converting a Regular Expression to Regular Grammar
+# title: Fuzzing With Regular Expressions
 # layout: post
 # comments: true
 # tags: python
 # categories: post
 # ---
+
+# Say you want to produce inputs from a regular expression. How do you turn
+# a regular expression into a generator?
 
 import sys, imp, pprint, string
 
@@ -146,6 +149,25 @@ class RegexToGrammar:
         grammar[nkey] = [[key1, key2]]
         return nkey
 
+    def convert_plus(self, node, grammar):
+        key, children = node
+        assert len(children) == 2
+        key, children = children[0] # the 1 is *
+        # could be one of paren, alpha and bracket
+        if key == '<regexparen>':
+            assert len(children) == 3 # (<expr>)
+            key = self.convert(children[1], grammar)
+            nkey = self.new_key()
+            grammar[nkey] = [[key, nkey], [nkey]]
+            return nkey
+        elif key == '<alpha>':
+            nkey = self.new_key()
+            grammar[nkey] = [[children[0][0], nkey], [nkey]]
+            return nkey
+        elif key == '<bracket>':
+            assert False
+        assert False
+
     def convert_star(self, node, grammar):
         key, children = node
         assert len(children) == 2
@@ -155,7 +177,7 @@ class RegexToGrammar:
             assert len(children) == 3 # (<expr>)
             key = self.convert(children[1], grammar)
             nkey = self.new_key()
-            grammar[nkey] = [[key, nkey]]
+            grammar[nkey] = [[key, nkey], []]
             return nkey
         elif key == '<alpha>':
             nkey = self.new_key()
@@ -163,10 +185,7 @@ class RegexToGrammar:
             return nkey
         elif key == '<bracket>':
             assert False
-        key = self.convert(children[0], grammar)
-        nkey = self.new_key()
-        grammar[nkey] = [[key, nkey]]
-        return nkey
+        assert False
 
     def convert_alpha(self, node, grammar):
         key, children = node
