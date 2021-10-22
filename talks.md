@@ -106,8 +106,8 @@ parsers, mutators and generators for the specified format. This can be
 integrated into existing fuzzers such as AFL++ to boost their efficacy and
 detect new memory errors.
 
-<!--[<em class="fa fa-desktop" aria-hidden="true"></em>](https://codeintelligence.clickmeeting.com/fuzzcon-europe-2021)-->
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/input-languages-for-effective-and-focused-fuzzing)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kaastMal2iw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 #### <a id='gopinath2021fuzzing'></a>[Gopinath: _Fuzzing -- from Alchemy to a Science_ Guest Lecture, 2020-2021]()
