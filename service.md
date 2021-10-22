@@ -34,12 +34,16 @@ menu: Service
 * [_ISSRE 2020_](http://2020.issre.net/research-committees.html)<br/>
   PC Member
 
+
 ##### 2019
 
 * [_Mutation Workshopp 2019_](https://mutation-workshop.github.io/2019/)<br/>
   PC Chair
 
 * [_ISSRE 2019_](https://2019.issre.net/research-pc.html)<br/>
+  PC Member
+
+* [_ASE/SRC 2019_](https://2019.ase-conferences.org/committee/ase-2019-student-research-competition-program-committee)<br/>
   PC Member
 
 ##### 2018
@@ -49,6 +53,10 @@ menu: Service
 
 * [_ISSRE 2018_](https://2018.issre.net/research-pc.html)<br/>
   PC Member
+
+<!--* [_VL/HCC 2018 (Posters)__]()<br/>
+  PC Member -->
+
 
 ##### 2017
 
