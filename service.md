@@ -1,10 +1,10 @@
 ---
 layout: publications
-title : Community
-header : Community
+title : Service
+header : Service
 group: navigation
 weight: 5
-menu: Community
+menu: Service
 ---
 
 ##### 2022
