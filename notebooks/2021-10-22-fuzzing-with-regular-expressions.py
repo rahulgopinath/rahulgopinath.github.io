@@ -349,6 +349,7 @@ class RegexToGrammar(RegexToGrammar):
 # ```
 # <X> ::= a <X>
 #       | a
+# ```
 
 class RegexToGrammar(RegexToGrammar):
     def convert_regexstar(self, node, grammar):

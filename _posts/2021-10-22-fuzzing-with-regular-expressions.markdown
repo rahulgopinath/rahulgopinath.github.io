@@ -123,7 +123,6 @@ stands for at least one match of the preceding basic expression.
   <exp>   ::=  <unitexp>
             |  <regexstar>
             |  <regexplus>
-
   <unitexp>::= <alpha>
             |  <bracket>
             |  <dot>
@@ -668,7 +667,7 @@ For `<regexstar>` the regular expression grammar is
 Given a regular expression `a*`, this gets translated to
 ```
 <X> ::= a <X>
-      | 
+      |
 ```
 For `<regexplus>` the regular expression grammar is
 ```
@@ -678,6 +677,7 @@ Given a regular expression `a+`, this gets translated to
 ```
 <X> ::= a <X>
       | a
+```
 
 <!--
 ############
