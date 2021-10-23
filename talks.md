@@ -11,7 +11,7 @@ menu: Talks
 * [_Input Languages for Effective and Focused Fuzzing_](#dutra2021input)<br/>
   *Dutra and Gopinath* - FuzzCon Europe, (virtual), October 21, 2021
 
-* [_GAP Interview_](https://www.youtube.com/watch?v=HyIdD3V4mnA&t=2617s)<br/>
+* [_GAP Interview_](#rigger2021gap)<br/>
   *Rigger and Gopinath* - Getting Academic Positions (GAP) Interviewing Series: Rahul Gopinath (University of Sydney), (virtual), July 21, 2021
 
 * [_Fuzzing -- from Alchemy to a  Science_](#gopinath2021fuzzing)<br/>
