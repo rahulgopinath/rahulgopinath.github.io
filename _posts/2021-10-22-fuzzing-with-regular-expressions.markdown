@@ -606,11 +606,12 @@ gatleast.display_grammar(g, s)
 <div name='python_canvas'></div>
 </form>
 ## <exp>
+Next, we define the `<exp>`
+```
   <exp>   ::=  <unitexp>
             |  <regexstar>
             |  <regexplus>
-
-Next, we define the `<exp>`
+```
 
 <!--
 ############
@@ -649,8 +650,10 @@ class RegexToGrammar(RegexToGrammar):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+```
    <regexstar> ::= <unitexp> `*`
    <regexplus> ::= <unitexp> `+`
+```
 
 <!--
 ############
@@ -728,8 +731,10 @@ gatleast.display_grammar(g, s)
 One basic operation of regular expressions is concatenation. It matches
 two patterns in sequence. We convert
 concatenation to a rule containing two corresponding nonterminals.
+```
   <cex>   ::= <exp>
             | <exp> <cex>
+```
 
 <!--
 ############

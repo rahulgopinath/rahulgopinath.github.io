@@ -301,11 +301,12 @@ if __name__ == '__main__':
     gatleast.display_grammar(g, s)
 
 # ## <exp>
+# Next, we define the `<exp>`
+# ```
 #   <exp>   ::=  <unitexp>
 #             |  <regexstar>
 #             |  <regexplus>
-# 
-# Next, we define the `<exp>`
+# ```
 
 class RegexToGrammar(RegexToGrammar):
     def convert_exp(self, node, grammar):
@@ -321,8 +322,10 @@ class RegexToGrammar(RegexToGrammar):
             assert False
         return key
 
+# ```
 #    <regexstar> ::= <unitexp> `*`
 #    <regexplus> ::= <unitexp> `+`
+# ```
 
 class RegexToGrammar(RegexToGrammar):
     def convert_regexstar(self, node, grammar):
@@ -357,8 +360,10 @@ if __name__ == '__main__':
 # One basic operation of regular expressions is concatenation. It matches
 # two patterns in sequence. We convert
 # concatenation to a rule containing two corresponding nonterminals.
+# ```
 #   <cex>   ::= <exp>
 #             | <exp> <cex>
+# ```
 
 class RegexToGrammar(RegexToGrammar):
     def convert_cex(self, node, grammar):
