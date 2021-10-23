@@ -379,7 +379,11 @@ class RegexToGrammar(RegexToGrammar):
 <div name='python_canvas'></div>
 </form>
 The most basic regular expression is the character itself. We convert
-it to a nonterminal that defines the single character
+it to a nonterminal that defines the single character. That is,
+`a` gets translated to
+```
+<X> ::= `a`
+```
 
 <!--
 ############
@@ -437,7 +441,8 @@ gatleast.display_grammar(g, s)
 </form>
 The next basic regular expression is the brackets, which matches any
 character inside the brackets `[...]`. We convert
-it to a nonterminal that defines the single character
+it to a nonterminal that defines the single character. The following
+is the regex grammar.
 ```
   <bracket> ::= `[` <singlechars> `]`
   <singlechars>::= <singlechar><singlechars>
@@ -447,6 +452,10 @@ it to a nonterminal that defines the single character
   <escbkt>     ::= `[`
                  | `]`
                  | `\`
+```
+Given the regex `[abc]`, this regex is converted to the following grammar
+```
+<X> ::= `a` | `b` | `c`
 ```
 
 <!--
@@ -652,10 +661,23 @@ class RegexToGrammar(RegexToGrammar):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+For `<regexstar>` the regular expression grammar is
 ```
    <regexstar> ::= <unitexp> `*`
+```
+Given a regular expression `a*`, this gets translated to
+```
+<X> ::= a <X>
+      | 
+```
+For `<regexplus>` the regular expression grammar is
+```
    <regexplus> ::= <unitexp> `+`
 ```
+Given a regular expression `a+`, this gets translated to
+```
+<X> ::= a <X>
+      | a
 
 <!--
 ############
@@ -733,9 +755,16 @@ gatleast.display_grammar(g, s)
 One basic operation of regular expressions is concatenation. It matches
 two patterns in sequence. We convert
 concatenation to a rule containing two corresponding nonterminals.
+The regular expression grammar is
 ```
   <cex>   ::= <exp>
             | <exp> <cex>
+```
+Given a regular expression `ab`, this gets converted into
+```
+<X> := a
+<Y> := b
+<Z> := <X> <Y>
 ```
 
 <!--
@@ -808,6 +837,13 @@ Next, we define our top level converter.
 ```
   <regex> ::= <cex>
             | <cex> `|` <regex>
+```
+Given a regular expression `a|b`, this gets converted into
+```
+<X> := a
+<Y> := b
+<Z> := <X>
+     | <Y>
 ```
 
 <!--
@@ -892,6 +928,10 @@ elements inside it as one.
 ```
 <parenexp> ::= `(` <regex> `)`
 ```
+Given a parenthesis expression `(a)`, this gets translated to
+```
+<X> = a
+```
 
 <!--
 ############
@@ -899,10 +939,7 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regexparen(self, node, grammar):
         key, children = node
         assert len(children) == 3
-        key = self.convert_regex(children[1], grammar)
-        nkey = self.new_key()
-        grammar[nkey] = [[key]]
-        return nkey
+        return self.convert_regex(children[1], grammar)
 
 ############
 -->
@@ -912,10 +949,7 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regexparen(self, node, grammar):
         key, children = node
         assert len(children) == 3
-        key = self.convert_regex(children[1], grammar)
-        nkey = self.new_key()
-        grammar[nkey] = [[key]]
-        return nkey
+        return self.convert_regex(children[1], grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
