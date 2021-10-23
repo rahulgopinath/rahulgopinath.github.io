@@ -62,10 +62,10 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 #
 # The basic regular expression unit is a single character, standing for itself.
 # One may also have a bracket expression `[...]` which matches the list of
-# characetrs inside the brackets, or a single `.` which matches any character.
+# characters inside the brackets, or a single `.` which matches any character.
 #
-# However, one can also have more complex units such as a paranthesized regex
-# `(...)`, a basic expression followed by kleene star `*` which stands for any
+# However, one can also have more complex units such as a parenthesized regex
+# `(...)`, a basic expression followed by Kleene star `*` which stands for any
 # number of matches including none, and a basic expression followed by `+` which
 # stands for at least one match of the preceding basic expression.
 #
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     gatleast.display_grammar(g, s)
 
 # ## <cex>
-# One basic operation of regular expressions is contatenation. It matches
+# One basic operation of regular expressions is concatenation. It matches
 # two patterns in sequence. We convert
 # concatenation to a rule containing two corresponding nonterminals.
 #   <cex>   ::= <exp>
