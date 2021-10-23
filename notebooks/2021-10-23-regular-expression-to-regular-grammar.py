@@ -88,24 +88,41 @@ def regular_union(g1, s1, g2, s2):
 
 def regular_catenation(g1, s1, g2, s2):
     assert_disjoint(g1, g2)
-    # find all terminal rules in g1
-    terminal_rules = []
     new_g = {}
     for k in g1:
         new_rules = []
         new_g[k] = new_rules
         for r in g1[k]:
             if len(r) == 0: # epsilon
-                terminal_rules.append(r)
                 new_rules.extend(g2[s2])
             elif len(r) == 1 and not fuzzer.is_nonterminal(r[0]):
-                terminal_rules.append(r)
                 new_rules.append(r + [s2])
             else:
                 new_rules.append(r)
     return new_g, s1
 
-# 
+# ## Kleene Plus of Regular Grammars
+# For every terminating rule in g, add $$ A -> a S $$ where S is the
+# start symbol. For Kleene Star, add epsilon to the language.
+
+def regular_kleeneplus(g1, s1):
+    # find all terminal rules in g1
+    new_g = {}
+    for k in g1:
+        new_rules = []
+        new_g[k] = new_rules
+        for r in g1[k]:
+            if len(r) == 0: # epsilon
+                new_rules.append([])
+                new_rules.extend(g2[s2])
+            elif len(r) == 1 and not fuzzer.is_nonterminal(r[0]):
+                new_rules.append(r)
+                new_rules.append(r + [s2])
+            else:
+                new_rules.append(r)
+    return new_g, s1
+
+
 
 class RegexToRGrammar(rxfuzzer.RegexToGrammar):
     def convert_unitexp(self, node, grammar):
