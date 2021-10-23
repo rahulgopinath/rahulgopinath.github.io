@@ -947,9 +947,7 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Producing inputs from a regular expression this way is quite useful. However,
-when we convert a regular expression to a grammar, it would be really great
-if the grammar is a *regular grammar*.
+The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-22-fuzzing-with-regular-expressions.py)
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
