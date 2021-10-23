@@ -138,6 +138,7 @@ REGEX_GRAMMAR = {
     ],
     '<regex>' : [
         ['<cex>', '|', '<regex>'],
+        ['<cex>', '|'],
         ['<cex>']
     ],
     '<cex>' : [
@@ -179,7 +180,7 @@ REGEX_GRAMMAR = {
     '<dot>': [
         ['.'],
     ],
-    '<alpha>' : [[c] for c in string.printable if c not in '[]()*+.'],
+    '<alpha>' : [[c] for c in string.printable if c not in '[]()*+.|'],
     '<char>' : [[c] for c in string.printable if c not in '[]\\'],
 }
 REGEX_START = '<start>'
@@ -194,6 +195,7 @@ REGEX_GRAMMAR = {
     ],
     &#x27;&lt;regex&gt;&#x27; : [
         [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;, &#x27;&lt;regex&gt;&#x27;],
+        [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;],
         [&#x27;&lt;cex&gt;&#x27;]
     ],
     &#x27;&lt;cex&gt;&#x27; : [
@@ -235,7 +237,7 @@ REGEX_GRAMMAR = {
     &#x27;&lt;dot&gt;&#x27;: [
         [&#x27;.&#x27;],
     ],
-    &#x27;&lt;alpha&gt;&#x27; : [[c] for c in string.printable if c not in &#x27;[]()*+.&#x27;],
+    &#x27;&lt;alpha&gt;&#x27; : [[c] for c in string.printable if c not in &#x27;[]()*+.|&#x27;],
     &#x27;&lt;char&gt;&#x27; : [[c] for c in string.printable if c not in &#x27;[]\\&#x27;],
 }
 REGEX_START = &#x27;&lt;start&gt;&#x27;
@@ -247,7 +249,7 @@ Let us see if we can parse a small regular expression.
 
 <!--
 ############
-my_input = '(a|b)+(c)*'
+my_input = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
@@ -256,7 +258,7 @@ fuzzer.display_tree(parsed_expr)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;(a|b)+(c)*&#x27;
+my_input = &#x27;(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)&#x27;
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
@@ -817,11 +819,17 @@ class RegexToGrammar(RegexToGrammar):
         key = self.convert_cex(child, grammar)
         rules = [[key]]
         if children:
-            assert len(children) == 2
-            key2 = self.convert_regex(children[1], grammar)
-            rules.append([key2])
+            if len(children) == 2:
+                key2 = self.convert_regex(children[1], grammar)
+                rules.append([key2])
+            elif len(children) == 1:
+                rules.append(['<empty>'])
+            else:
+                assert False
         nkey = self.new_key()
         grammar[nkey] = rules
+        if '<empty>' not in grammar:
+            grammar['<empty>'] = [[]]
         return nkey
 
 ############
@@ -835,11 +843,17 @@ class RegexToGrammar(RegexToGrammar):
         key = self.convert_cex(child, grammar)
         rules = [[key]]
         if children:
-            assert len(children) == 2
-            key2 = self.convert_regex(children[1], grammar)
-            rules.append([key2])
+            if len(children) == 2:
+                key2 = self.convert_regex(children[1], grammar)
+                rules.append([key2])
+            elif len(children) == 1:
+                rules.append([&#x27;&lt;empty&gt;&#x27;])
+            else:
+                assert False
         nkey = self.new_key()
         grammar[nkey] = rules
+        if &#x27;&lt;empty&gt;&#x27; not in grammar:
+            grammar[&#x27;&lt;empty&gt;&#x27;] = [[]]
         return nkey
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -938,12 +952,25 @@ s, g = RegexToGrammar().to_grammar(my_input)
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
     print(rgf.fuzz(s))
+my_input = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)'
+print(my_input)
+s, g = RegexToGrammar().to_grammar(my_input)
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    print(rgf.fuzz(s))
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = &#x27;(ab|c)[.][de]+.&#x27;
+print(my_input)
+s, g = RegexToGrammar().to_grammar(my_input)
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    print(rgf.fuzz(s))
+my_input = &#x27;(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)&#x27;
 print(my_input)
 s, g = RegexToGrammar().to_grammar(my_input)
 rgf = fuzzer.LimitFuzzer(g)

@@ -87,6 +87,7 @@ REGEX_GRAMMAR = {
     ],
     '<regex>' : [
         ['<cex>', '|', '<regex>'],
+        ['<cex>', '|'],
         ['<cex>']
     ],
     '<cex>' : [
@@ -128,7 +129,7 @@ REGEX_GRAMMAR = {
     '<dot>': [
         ['.'],
     ],
-    '<alpha>' : [[c] for c in string.printable if c not in '[]()*+.'],
+    '<alpha>' : [[c] for c in string.printable if c not in '[]()*+.|'],
     '<char>' : [[c] for c in string.printable if c not in '[]\\'],
 }
 REGEX_START = '<start>'
@@ -136,7 +137,7 @@ REGEX_START = '<start>'
 # Let us see if we can parse a small regular expression.
 
 if __name__ == '__main__':
-    my_input = '(a|b)+(c)*'
+    my_input = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
     fuzzer.display_tree(parsed_expr)
@@ -403,11 +404,17 @@ class RegexToGrammar(RegexToGrammar):
         key = self.convert_cex(child, grammar)
         rules = [[key]]
         if children:
-            assert len(children) == 2
-            key2 = self.convert_regex(children[1], grammar)
-            rules.append([key2])
+            if len(children) == 2:
+                key2 = self.convert_regex(children[1], grammar)
+                rules.append([key2])
+            elif len(children) == 1:
+                rules.append(['<empty>'])
+            else:
+                assert False
         nkey = self.new_key()
         grammar[nkey] = rules
+        if '<empty>' not in grammar:
+            grammar['<empty>'] = [[]]
         return nkey
 
 # Using it
@@ -454,5 +461,12 @@ if __name__ == '__main__':
     rgf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         print(rgf.fuzz(s))
+    my_input = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)'
+    print(my_input)
+    s, g = RegexToGrammar().to_grammar(my_input)
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        print(rgf.fuzz(s))
+
 
 # The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-22-fuzzing-with-regular-expressions.py)
