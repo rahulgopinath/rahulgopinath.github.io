@@ -155,7 +155,7 @@ class RegexToGrammar:
         self.counter = 0
 
     def parse(self, inex):
-        parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+        parsed_expr = list(self.parser.parse_on(inex, REGEX_START))[0]
         return parsed_expr
 
     def new_key(self):
