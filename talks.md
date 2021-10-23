@@ -109,6 +109,11 @@ detect new memory errors.
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/input-languages-for-effective-and-focused-fuzzing)
 <iframe width="560" height="315" src="https://www.youtube.com/embed/kaastMal2iw?start=967" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+
+### <a id='rigger2021gap'></a> [Rigger: _GAP Interview_ (virtual), 2021]()<br/>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/HyIdD3V4mnA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 #### <a id='gopinath2021fuzzing'></a>[Gopinath: _Fuzzing -- from Alchemy to a Science_ Guest Lecture, 2020-2021]()
 
 Fuzzing is one of the key techniques in the arsenal of a practitioner of
