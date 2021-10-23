@@ -232,6 +232,7 @@ if __name__ == '__main__':
 #   <escbkt>     ::= `[`
 #                  | `]`
 #                  | `\`
+# ```
 
 class RegexToGrammar(RegexToGrammar):
     def extract_char(self, node):
