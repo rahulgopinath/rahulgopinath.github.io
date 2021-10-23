@@ -292,8 +292,7 @@ class RegexToGrammar:
         key, children = parsed
         assert key == '<start>'
         assert len(children) == 1
-        grammar = {}
-        start = self.convert_regex(children[0], grammar)
+        start, grammar = self.convert_regex(children[0])
         return start, grammar
 
 ############
@@ -319,8 +318,7 @@ class RegexToGrammar:
         key, children = parsed
         assert key == &#x27;&lt;start&gt;&#x27;
         assert len(children) == 1
-        grammar = {}
-        start = self.convert_regex(children[0], grammar)
+        start, grammar = self.convert_regex(children[0])
         return start, grammar
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -339,40 +337,40 @@ converters
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_unitexp(self, node, grammar):
+    def convert_unitexp(self, node):
         _key, children = node
         key = children[0][0]
         if key == '<alpha>':
-            return self.convert_alpha(children[0], grammar)
+            return self.convert_alpha(children[0])
         elif key == '<bracket>':
-            return self.convert_bracket(children[0], grammar)
+            return self.convert_bracket(children[0])
         elif key == '<dot>':
-            return self.convert_dot(children[0], grammar)
+            return self.convert_dot(children[0])
         elif key == '<parenexp>':
-            return self.convert_regexparen(children[0], grammar)
+            return self.convert_regexparen(children[0])
         else:
             assert False
-        return key
+        assert False
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_unitexp(self, node, grammar):
+    def convert_unitexp(self, node):
         _key, children = node
         key = children[0][0]
         if key == &#x27;&lt;alpha&gt;&#x27;:
-            return self.convert_alpha(children[0], grammar)
+            return self.convert_alpha(children[0])
         elif key == &#x27;&lt;bracket&gt;&#x27;:
-            return self.convert_bracket(children[0], grammar)
+            return self.convert_bracket(children[0])
         elif key == &#x27;&lt;dot&gt;&#x27;:
-            return self.convert_dot(children[0], grammar)
+            return self.convert_dot(children[0])
         elif key == &#x27;&lt;parenexp&gt;&#x27;:
-            return self.convert_regexparen(children[0], grammar)
+            return self.convert_regexparen(children[0])
         else:
             assert False
-        return key
+        assert False
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -387,24 +385,22 @@ it to a nonterminal that defines the single character. That is,
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_alpha(self, node, grammar):
+    def convert_alpha(self, node):
         key, children = node
         assert key == '<alpha>'
         nkey = self.new_key()
-        grammar[nkey] = [[children[0][0]]]
-        return nkey
+        return nkey, {nkey: [[children[0][0]]]}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_alpha(self, node, grammar):
+    def convert_alpha(self, node):
         key, children = node
         assert key == &#x27;&lt;alpha&gt;&#x27;
         nkey = self.new_key()
-        grammar[nkey] = [[children[0][0]]]
-        return nkey
+        return nkey, {nkey: [[children[0][0]]]}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -418,8 +414,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 
 ############
@@ -431,8 +426,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -481,14 +475,13 @@ class RegexToGrammar(RegexToGrammar):
         else:
             return [char]
 
-    def convert_bracket(self, node, grammar):
+    def convert_bracket(self, node):
         key, children = node
         assert key == '<bracket>'
         assert len(children) == 3
         nkey = self.new_key()
         chars = self.extract_singlechars(children[1])
-        grammar[nkey] = [[c] for c in  chars]
-        return nkey
+        return nkey, {nkey: [[c] for c in  chars]}
 
 ############
 -->
@@ -516,14 +509,13 @@ class RegexToGrammar(RegexToGrammar):
         else:
             return [char]
 
-    def convert_bracket(self, node, grammar):
+    def convert_bracket(self, node):
         key, children = node
         assert key == &#x27;&lt;bracket&gt;&#x27;
         assert len(children) == 3
         nkey = self.new_key()
         chars = self.extract_singlechars(children[1])
-        grammar[nkey] = [[c] for c in  chars]
-        return nkey
+        return nkey, {nkey: [[c] for c in  chars]}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -537,8 +529,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 
 ############
@@ -550,8 +541,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -562,26 +552,22 @@ Next, we define the `<dot>`
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_dot(self, node, grammar):
+    def convert_dot(self, node):
         key, children = node
         assert key == '<dot>'
         assert children[0][0] == '.'
-        if '<dot>' not in grammar:
-            grammar['<dot>'] = [[c] for c in string.printable]
-        return '<dot>'
+        return '<dot>', {'<dot>':[[c] for c in string.printable]}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_dot(self, node, grammar):
+    def convert_dot(self, node):
         key, children = node
         assert key == &#x27;&lt;dot&gt;&#x27;
         assert children[0][0] == &#x27;.&#x27;
-        if &#x27;&lt;dot&gt;&#x27; not in grammar:
-            grammar[&#x27;&lt;dot&gt;&#x27;] = [[c] for c in string.printable]
-        return &#x27;&lt;dot&gt;&#x27;
+        return &#x27;&lt;dot&gt;&#x27;, {&#x27;&lt;dot&gt;&#x27;:[[c] for c in string.printable]}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -595,8 +581,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 
 ############
@@ -608,8 +593,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_unitexp(parsed_expr, g)
+s, g = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -626,36 +610,36 @@ Next, we define the `<exp>`
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_exp(self, node, grammar):
+    def convert_exp(self, node):
         _key, children = node
         key = children[0][0]
         if key == '<unitexp>':
-            return self.convert_unitexp(children[0], grammar)
+            return self.convert_unitexp(children[0])
         elif key == '<regexstar>':
-            return self.convert_regexstar(children[0], grammar)
+            return self.convert_regexstar(children[0])
         elif key == '<regexplus>':
-            return self.convert_regexplus(children[0], grammar)
+            return self.convert_regexplus(children[0])
         else:
             assert False
-        return key
+        assert False
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_exp(self, node, grammar):
+    def convert_exp(self, node):
         _key, children = node
         key = children[0][0]
         if key == &#x27;&lt;unitexp&gt;&#x27;:
-            return self.convert_unitexp(children[0], grammar)
+            return self.convert_unitexp(children[0])
         elif key == &#x27;&lt;regexstar&gt;&#x27;:
-            return self.convert_regexstar(children[0], grammar)
+            return self.convert_regexstar(children[0])
         elif key == &#x27;&lt;regexplus&gt;&#x27;:
-            return self.convert_regexplus(children[0], grammar)
+            return self.convert_regexplus(children[0])
         else:
             assert False
-        return key
+        assert False
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -682,42 +666,38 @@ Given a regular expression `a+`, this gets translated to
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_regexstar(self, node, grammar):
+    def convert_regexstar(self, node):
         key, children = node
         assert len(children) == 2
-        key = self.convert_unitexp(children[0], grammar)
+        key, g = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        grammar[nkey] = [[key, nkey], []]
-        return nkey
+        return nkey, {**g, **{nkey: [[key, nkey], []]}}
 
-    def convert_regexplus(self, node, grammar):
+    def convert_regexplus(self, node):
         key, children = node
         assert len(children) == 2
-        key = self.convert_unitexp(children[0], grammar)
+        key, g = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        grammar[nkey] = [[key, nkey], [key]]
-        return nkey
+        return nkey, {**g, **{nkey: [[key, nkey], [key]]}}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_regexstar(self, node, grammar):
+    def convert_regexstar(self, node):
         key, children = node
         assert len(children) == 2
-        key = self.convert_unitexp(children[0], grammar)
+        key, g = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        grammar[nkey] = [[key, nkey], []]
-        return nkey
+        return nkey, {**g, **{nkey: [[key, nkey], []]}}
 
-    def convert_regexplus(self, node, grammar):
+    def convert_regexplus(self, node):
         key, children = node
         assert len(children) == 2
-        key = self.convert_unitexp(children[0], grammar)
+        key, g = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        grammar[nkey] = [[key, nkey], [key]]
-        return nkey
+        return nkey, {**g, **{nkey: [[key, nkey], [key]]}}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -731,8 +711,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, '<exp>'))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_exp(parsed_expr, g)
+s,g = RegexToGrammar().convert_exp(parsed_expr)
 gatleast.display_grammar(g, s)
 
 ############
@@ -744,8 +723,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;exp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_exp(parsed_expr, g)
+s,g = RegexToGrammar().convert_exp(parsed_expr)
 gatleast.display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -770,36 +748,36 @@ Given a regular expression `ab`, this gets converted into
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_cex(self, node, grammar):
+    def convert_cex(self, node):
         key, children = node
         child, *children = children
-        key = self.convert_exp(child, grammar)
+        key, g = self.convert_exp(child)
         rule = [key]
         if children:
             assert len(children) == 1
-            key2 = self.convert_cex(children[0], grammar)
+            key2, g2 = self.convert_cex(children[0])
             rule.append(key2)
+            g = {**g, **g2}
         nkey = self.new_key()
-        grammar[nkey] = [rule]
-        return nkey
+        return nkey, {**g, **{nkey: [rule]}}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_cex(self, node, grammar):
+    def convert_cex(self, node):
         key, children = node
         child, *children = children
-        key = self.convert_exp(child, grammar)
+        key, g = self.convert_exp(child)
         rule = [key]
         if children:
             assert len(children) == 1
-            key2 = self.convert_cex(children[0], grammar)
+            key2, g2 = self.convert_cex(children[0])
             rule.append(key2)
+            g = {**g, **g2}
         nkey = self.new_key()
-        grammar[nkey] = [rule]
-        return nkey
+        return nkey, {**g, **{nkey: [rule]}}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -813,8 +791,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, '<cex>'))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_cex(parsed_expr, g)
+s,g = RegexToGrammar().convert_cex(parsed_expr)
 gatleast.display_grammar(g, s)
 
 ############
@@ -826,8 +803,7 @@ print(my_input)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;cex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
-g = {}
-s = RegexToGrammar().convert_cex(parsed_expr, g)
+s,g = RegexToGrammar().convert_cex(parsed_expr)
 gatleast.display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -849,48 +825,44 @@ Given a regular expression `a|b`, this gets converted into
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_regex(self, node, grammar):
+    def convert_regex(self, node):
         key, children = node
         child, *children = children
-        key = self.convert_cex(child, grammar)
+        key,g = self.convert_cex(child)
         rules = [[key]]
         if children:
             if len(children) == 2:
-                key2 = self.convert_regex(children[1], grammar)
+                key2, g2 = self.convert_regex(children[1])
                 rules.append([key2])
+                g = {**g, **g2}
             elif len(children) == 1:
-                rules.append(['<empty>'])
+                rules.append([])
             else:
                 assert False
         nkey = self.new_key()
-        grammar[nkey] = rules
-        if '<empty>' not in grammar:
-            grammar['<empty>'] = [[]]
-        return nkey
+        return nkey, {**g, **{nkey: rules}}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_regex(self, node, grammar):
+    def convert_regex(self, node):
         key, children = node
         child, *children = children
-        key = self.convert_cex(child, grammar)
+        key,g = self.convert_cex(child)
         rules = [[key]]
         if children:
             if len(children) == 2:
-                key2 = self.convert_regex(children[1], grammar)
+                key2, g2 = self.convert_regex(children[1])
                 rules.append([key2])
+                g = {**g, **g2}
             elif len(children) == 1:
-                rules.append([&#x27;&lt;empty&gt;&#x27;])
+                rules.append([])
             else:
                 assert False
         nkey = self.new_key()
-        grammar[nkey] = rules
-        if &#x27;&lt;empty&gt;&#x27; not in grammar:
-            grammar[&#x27;&lt;empty&gt;&#x27;] = [[]]
-        return nkey
+        return nkey, {**g, **{nkey: rules}}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -936,20 +908,20 @@ Given a parenthesis expression `(a)`, this gets translated to
 <!--
 ############
 class RegexToGrammar(RegexToGrammar):
-    def convert_regexparen(self, node, grammar):
+    def convert_regexparen(self, node):
         key, children = node
         assert len(children) == 3
-        return self.convert_regex(children[1], grammar)
+        return self.convert_regex(children[1])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToGrammar(RegexToGrammar):
-    def convert_regexparen(self, node, grammar):
+    def convert_regexparen(self, node):
         key, children = node
         assert len(children) == 3
-        return self.convert_regex(children[1], grammar)
+        return self.convert_regex(children[1])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -991,7 +963,7 @@ print(my_input)
 s, g = RegexToGrammar().to_grammar(my_input)
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(rgf.fuzz(s))
+    print(repr(rgf.fuzz(s)))
 
 
 ############
@@ -1009,7 +981,7 @@ print(my_input)
 s, g = RegexToGrammar().to_grammar(my_input)
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(rgf.fuzz(s))
+    print(repr(rgf.fuzz(s)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
