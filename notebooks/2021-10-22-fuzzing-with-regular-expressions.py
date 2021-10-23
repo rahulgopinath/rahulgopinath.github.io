@@ -168,8 +168,8 @@ class RegexToGrammar:
         key, children = parsed
         assert key == '<start>'
         assert len(children) == 1
-        start, grammar = self.convert_regex(children[0])
-        return start, grammar
+        grammar, start = self.convert_regex(children[0])
+        return grammar, start
 
 # ## <unitexp>
 # We first define our basic unit. The exp converter, which delegates to other
@@ -209,7 +209,7 @@ class RegexToGrammar(RegexToGrammar):
         key, children = node
         assert key == '<alpha>'
         nkey = self.new_key()
-        return nkey, {nkey: [[children[0][0]]]}
+        return {nkey: [[children[0][0]]]}, nkey
 
 # Using it
 
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
-    s, g = RegexToGrammar().convert_unitexp(parsed_expr)
+    g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
 
 # The next basic regular expression is the brackets, which matches any
@@ -269,7 +269,7 @@ class RegexToGrammar(RegexToGrammar):
         assert len(children) == 3
         nkey = self.new_key()
         chars = self.extract_singlechars(children[1])
-        return nkey, {nkey: [[c] for c in  chars]}
+        return {nkey: [[c] for c in  chars]}, nkey
 
 # Using it
 
@@ -279,7 +279,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
-    s, g = RegexToGrammar().convert_unitexp(parsed_expr)
+    g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
 
 # Next, we define the `<dot>`
@@ -289,7 +289,7 @@ class RegexToGrammar(RegexToGrammar):
         key, children = node
         assert key == '<dot>'
         assert children[0][0] == '.'
-        return '<dot>', {'<dot>':[[c] for c in string.printable]}
+        return {'<dot>':[[c] for c in string.printable]}, '<dot>'
 
 # Using it
 
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
-    s, g = RegexToGrammar().convert_unitexp(parsed_expr)
+    g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
 
 # ## <exp>
@@ -349,14 +349,14 @@ class RegexToGrammar(RegexToGrammar):
         assert len(children) == 2
         key, g = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        return nkey, {**g, **{nkey: [[key, nkey], []]}}
+        return {**g, **{nkey: [[key, nkey], []]}}, nkey
 
     def convert_regexplus(self, node):
         key, children = node
         assert len(children) == 2
-        key, g = self.convert_unitexp(children[0])
+        g, key = self.convert_unitexp(children[0])
         nkey = self.new_key()
-        return nkey, {**g, **{nkey: [[key, nkey], [key]]}}
+        return {**g, **{nkey: [[key, nkey], [key]]}}, nkey
 
 # Using it.
 
@@ -366,7 +366,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, '<exp>'))[0]
     fuzzer.display_tree(parsed_expr)
-    s,g = RegexToGrammar().convert_exp(parsed_expr)
+    g, s = RegexToGrammar().convert_exp(parsed_expr)
     gatleast.display_grammar(g, s)
 
 # ## <cex>
@@ -389,15 +389,15 @@ class RegexToGrammar(RegexToGrammar):
     def convert_cex(self, node):
         key, children = node
         child, *children = children
-        key, g = self.convert_exp(child)
+        g, key = self.convert_exp(child)
         rule = [key]
         if children:
             assert len(children) == 1
-            key2, g2 = self.convert_cex(children[0])
+            g2, key2 = self.convert_cex(children[0])
             rule.append(key2)
             g = {**g, **g2}
         nkey = self.new_key()
-        return nkey, {**g, **{nkey: [rule]}}
+        return {**g, **{nkey: [rule]}}, nkey
 
 # Using it
 if __name__ == '__main__':
@@ -406,7 +406,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, '<cex>'))[0]
     fuzzer.display_tree(parsed_expr)
-    s,g = RegexToGrammar().convert_cex(parsed_expr)
+    g, s = RegexToGrammar().convert_cex(parsed_expr)
     gatleast.display_grammar(g, s)
 
 # Next, we define our top level converter.
@@ -427,11 +427,11 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regex(self, node):
         key, children = node
         child, *children = children
-        key,g = self.convert_cex(child)
+        g, key = self.convert_cex(child)
         rules = [[key]]
         if children:
             if len(children) == 2:
-                key2, g2 = self.convert_regex(children[1])
+                g2, key2 = self.convert_regex(children[1])
                 rules.append([key2])
                 g = {**g, **g2}
             elif len(children) == 1:
@@ -439,7 +439,7 @@ class RegexToGrammar(RegexToGrammar):
             else:
                 assert False
         nkey = self.new_key()
-        return nkey, {**g, **{nkey: rules}}
+        return {**g, **{nkey: rules}}, nkey
 
 # Using it
 if __name__ == '__main__':
@@ -448,7 +448,7 @@ if __name__ == '__main__':
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
     parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
     fuzzer.display_tree(parsed_expr)
-    s, g = RegexToGrammar().to_grammar(my_input)
+    g, s = RegexToGrammar().to_grammar(my_input)
     gatleast.display_grammar(g, s)
 
 # Next, we define our <parenexp>
@@ -473,7 +473,7 @@ class RegexToGrammar(RegexToGrammar):
 if __name__ == '__main__':
     my_input = '(abc)'
     print(my_input)
-    s, g = RegexToGrammar().to_grammar(my_input)
+    g, s = RegexToGrammar().to_grammar(my_input)
     gatleast.display_grammar(g, s)
 
 # At this point, we have our full grammar, and we can use it to generate inputs
@@ -482,13 +482,13 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     my_input = '(ab|c)[.][de]+.'
     print(my_input)
-    s, g = RegexToGrammar().to_grammar(my_input)
+    g, s = RegexToGrammar().to_grammar(my_input)
     rgf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         print(rgf.fuzz(s))
     my_input = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)'
     print(my_input)
-    s, g = RegexToGrammar().to_grammar(my_input)
+    g, s = RegexToGrammar().to_grammar(my_input)
     rgf = fuzzer.LimitFuzzer(g)
     for i in range(10):
         print(repr(rgf.fuzz(s)))
