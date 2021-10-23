@@ -435,9 +435,17 @@ class RegexToGrammar(RegexToGrammar):
 if __name__ == '__main__':
     my_input = '(abc)'
     print(my_input)
-    regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
-    fuzzer.display_tree(parsed_expr)
     s, g = RegexToGrammar().to_grammar(my_input)
     gatleast.display_grammar(g, s)
+
+# At this point, we have our full grammar, and we can use it to generate inputs
+# as below
+
+if __name__ == '__main__':
+    my_input = '(ab|c)[.][de]+.'
+    print(my_input)
+    s, g = RegexToGrammar().to_grammar(my_input)
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        print(rgf.fuzz(s))
 
