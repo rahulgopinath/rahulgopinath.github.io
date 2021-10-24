@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Fuzzing With Regular Expressions
+# title: Regular Expression to Regular Grammar
 # layout: post
 # comments: true
 # tags: python
