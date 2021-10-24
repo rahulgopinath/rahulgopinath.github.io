@@ -248,18 +248,18 @@ Let us see if we can parse a small regular expression.
 
 <!--
 ############
-my_input = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
+my_re = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)&#x27;
+my_re = &#x27;(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)&#x27;
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -409,25 +409,37 @@ Using it
 
 <!--
 ############
-my_input = 'a'
-print(my_input)
+my_re = 'a'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;a&#x27;
-print(my_input)
+my_re = &#x27;a&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -524,25 +536,36 @@ Using it
 
 <!--
 ############
-my_input = '[abc\\\\d\\[e\\].]'
-print(my_input)
+my_re = '[abc\\\\d\\[e\\].]'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;[abc\\\\d\\[e\\].]&#x27;
-print(my_input)
+my_re = &#x27;[abc\\\\d\\[e\\].]&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -576,25 +599,37 @@ Using it
 
 <!--
 ############
-my_input = '.'
-print(my_input)
+my_re = '.'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;.&#x27;
-print(my_input)
+my_re = &#x27;.&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;unitexp&gt;&#x27;))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_unitexp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -706,25 +741,37 @@ Using it.
 
 <!--
 ############
-my_input = '.+'
-print(my_input)
+my_re = '.+'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, '<exp>'))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, '<exp>'))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_exp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;.+&#x27;
-print(my_input)
+my_re = &#x27;.+&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;exp&gt;&#x27;))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;exp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_exp(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -786,25 +833,37 @@ Using it
 
 <!--
 ############
-my_input = '[ab].'
-print(my_input)
+my_re = '[ab].'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, '<cex>'))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, '<cex>'))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_cex(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;[ab].&#x27;
-print(my_input)
+my_re = &#x27;[ab].&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, &#x27;&lt;cex&gt;&#x27;))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;cex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 g, s = RegexToGrammar().convert_cex(parsed_expr)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -871,25 +930,37 @@ Using it
 
 <!--
 ############
-my_input = 'ab|c'
-print(my_input)
+my_re = 'ab|c'
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
-g, s = RegexToGrammar().to_grammar(my_input)
+g, s = RegexToGrammar().to_grammar(my_re)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;ab|c&#x27;
-print(my_input)
+my_re = &#x27;ab|c&#x27;
+print(my_re)
 regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
 fuzzer.display_tree(parsed_expr)
-g, s = RegexToGrammar().to_grammar(my_input)
+g, s = RegexToGrammar().to_grammar(my_re)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -930,19 +1001,31 @@ Using it
 
 <!--
 ############
-my_input = '(abc)'
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
+my_re = '(abc)'
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;(abc)&#x27;
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
+my_re = &#x27;(abc)&#x27;
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
 gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -952,36 +1035,49 @@ as below
 
 <!--
 ############
-my_input = '(ab|c)[.][de]+.'
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
+my_re = '(ab|c)[.][de]+.'
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
+# check it has worked
+import re
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(rgf.fuzz(s))
-my_input = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)'
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
-rgf = fuzzer.LimitFuzzer(g)
-for i in range(10):
-    print(repr(rgf.fuzz(s)))
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
 
+# Let us try the original regex
+my_re = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789/-]+|)'
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_input = &#x27;(ab|c)[.][de]+.&#x27;
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
+my_re = &#x27;(ab|c)[.][de]+.&#x27;
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
+# check it has worked
+import re
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(rgf.fuzz(s))
-my_input = &#x27;(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)&#x27;
-print(my_input)
-g, s = RegexToGrammar().to_grammar(my_input)
+    v = rgf.fuzz(s)
+    assert re.match(my_re, v), v
+
+# Let us try the original regex
+my_re = &#x27;(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789/-]+|)&#x27;
+print(my_re)
+g, s = RegexToGrammar().to_grammar(my_re)
 rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
-    print(repr(rgf.fuzz(s)))
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

@@ -137,9 +137,9 @@ REGEX_START = '<start>'
 # Let us see if we can parse a small regular expression.
 
 if __name__ == '__main__':
-    my_input = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
+    my_re = '(https|http|ftp)://[a-zA-Z0-9.]+(/[a-zA-Z0-9-/]+|)'
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
     fuzzer.display_tree(parsed_expr)
 
 # While a regular expression parse tree is technically sufficient to produce
@@ -214,13 +214,19 @@ class RegexToGrammar(RegexToGrammar):
 # Using it
 
 if __name__ == '__main__':
-    my_input = 'a'
-    print(my_input)
+    my_re = 'a'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
     g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # The next basic regular expression is the brackets, which matches any
 # character inside the brackets `[...]`. We convert
@@ -274,13 +280,19 @@ class RegexToGrammar(RegexToGrammar):
 # Using it
 
 if __name__ == '__main__':
-    my_input = '[abc\\\\d\\[e\\].]'
-    print(my_input)
+    my_re = '[abc\\\\d\\[e\\].]'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
     g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
+
 
 # Next, we define the `<dot>`
 
@@ -294,13 +306,19 @@ class RegexToGrammar(RegexToGrammar):
 # Using it
 
 if __name__ == '__main__':
-    my_input = '.'
-    print(my_input)
+    my_re = '.'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, '<unitexp>'))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
     fuzzer.display_tree(parsed_expr)
     g, s = RegexToGrammar().convert_unitexp(parsed_expr)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # ## <exp>
 # Next, we define the `<exp>`
@@ -361,13 +379,19 @@ class RegexToGrammar(RegexToGrammar):
 # Using it.
 
 if __name__ == '__main__':
-    my_input = '.+'
-    print(my_input)
+    my_re = '.+'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, '<exp>'))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, '<exp>'))[0]
     fuzzer.display_tree(parsed_expr)
     g, s = RegexToGrammar().convert_exp(parsed_expr)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # ## <cex>
 # One basic operation of regular expressions is concatenation. It matches
@@ -401,13 +425,19 @@ class RegexToGrammar(RegexToGrammar):
 
 # Using it
 if __name__ == '__main__':
-    my_input = '[ab].'
-    print(my_input)
+    my_re = '[ab].'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, '<cex>'))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, '<cex>'))[0]
     fuzzer.display_tree(parsed_expr)
     g, s = RegexToGrammar().convert_cex(parsed_expr)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # Next, we define our top level converter.
 # ```
@@ -443,13 +473,19 @@ class RegexToGrammar(RegexToGrammar):
 
 # Using it
 if __name__ == '__main__':
-    my_input = 'ab|c'
-    print(my_input)
+    my_re = 'ab|c'
+    print(my_re)
     regex_parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
-    parsed_expr = list(regex_parser.parse_on(my_input, REGEX_START))[0]
+    parsed_expr = list(regex_parser.parse_on(my_re, REGEX_START))[0]
     fuzzer.display_tree(parsed_expr)
-    g, s = RegexToGrammar().to_grammar(my_input)
+    g, s = RegexToGrammar().to_grammar(my_re)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # Next, we define our <parenexp>
 # A parenthesis is simply a grouping construct that groups all
@@ -471,27 +507,39 @@ class RegexToGrammar(RegexToGrammar):
 # Using it
 
 if __name__ == '__main__':
-    my_input = '(abc)'
-    print(my_input)
-    g, s = RegexToGrammar().to_grammar(my_input)
+    my_re = '(abc)'
+    print(my_re)
+    g, s = RegexToGrammar().to_grammar(my_re)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
 # At this point, we have our full grammar, and we can use it to generate inputs
 # as below
 
 if __name__ == '__main__':
-    my_input = '(ab|c)[.][de]+.'
-    print(my_input)
-    g, s = RegexToGrammar().to_grammar(my_input)
+    my_re = '(ab|c)[.][de]+.'
+    print(my_re)
+    g, s = RegexToGrammar().to_grammar(my_re)
+    # check it has worked
+    import re
     rgf = fuzzer.LimitFuzzer(g)
     for i in range(10):
-        print(rgf.fuzz(s))
-    my_input = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789-/]+|)'
-    print(my_input)
-    g, s = RegexToGrammar().to_grammar(my_input)
-    rgf = fuzzer.LimitFuzzer(g)
-    for i in range(10):
-        print(repr(rgf.fuzz(s)))
+        v = rgf.fuzz(s)
+        assert re.match(my_re, v), v
 
+    # Let us try the original regex
+    my_re = '(https|http|ftp)://[abcdABCD01234567899.]+(:[01234567899]+|)(/[abcdzABCDZ0123456789/-]+|)'
+    print(my_re)
+    g, s = RegexToGrammar().to_grammar(my_re)
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        print(repr(v))
+        assert re.match(my_re, v), v
 
 # The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-22-fuzzing-with-regular-expressions.py)
