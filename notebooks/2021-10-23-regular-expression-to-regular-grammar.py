@@ -97,21 +97,28 @@ def regular_union(g1, s1, g2, s2):
 # Using it
 
 if __name__ == '__main__':
+    my_re1 = 'a1(b1(c1)|b1)'
     g1 = {
             '<start1>' : [['<A1>']],
-            '<A1>' : [['a', '<B1>']],
-            '<B1>' : [['b','<C1>'], ['d']],
-            '<C1>' : [['c']]
+            '<A1>' : [['a1', '<B1>']],
+            '<B1>' : [['b1','<C1>'], ['b1']],
+            '<C1>' : [['c1']]
             }
+    my_re2 = 'a2(b2)|a2'
     g2 = {
             '<start2>' : [['<A2>']],
-            '<A2>' : [['a', '<B2>'], ['b']],
-            '<B2>' : [['c'], ['d']]
+            '<A2>' : [['a2', '<B2>'], ['a2']],
+            '<B2>' : [['b2']]
             }
     g, s = regular_union(g1, '<start1>', g2, '<start2>')
     print(s)
     gatleast.display_grammar(g, s)
-
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re1, v) or re.match(my_re2, v), v
 # ## Concatenation of Regular Grammars
 # 
 # Next, given two regular grammars g1 g2, such that
@@ -141,11 +148,13 @@ def regular_catenation(g1, s1, g2, s2):
 # Using it
 
 if __name__ == '__main__':
+    my_re3 = '1(2(3|5))'
     g3 = {
             '<start3>' : [['1', '<A3>']],
             '<A3>' : [['2', '<B3>']],
             '<B3>' : [['3'], ['5']]
             }
+    my_re4 = 'a(b(c|d)|b)'
     g4 = {
             '<start4>' : [['a', '<A4>']],
             '<A4>' : [['b', '<B4>'], ['b']],
@@ -154,6 +163,12 @@ if __name__ == '__main__':
     g, s = regular_catenation(g3, '<start3>', g4, '<start4>')
     print(s)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re3 + my_re4, v), v
 
 # ## Kleene Plus of Regular Grammars
 #
@@ -180,9 +195,16 @@ def regular_kleeneplus(g1, s1):
 # Using it
 
 if __name__ == '__main__':
+    my_re1plus = '(%s)+' % my_re1
     g, s = regular_kleeneplus(g1, '<start1>')
     print(s)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert re.match(my_re1plus, v), v
 
 # ## Kleene Star of Regular Grammars
 # For Kleene Star, add epsilon to the language.
@@ -195,9 +217,16 @@ def regular_kleenestar(g1, s1):
 # Using it
 
 if __name__ == '__main__':
-    g, s = regular_kleeneplus(g1, '<start1>')
+    my_re1star = '(%s)+' % my_re1
+    g, s = regular_kleenestar(g1, '<start1>')
     print(s)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        assert (re.match(my_re1star, v) or v == ''), v 
 
 # At this point, we have all operations  necessary to convert a regular
 # expression to a regular grammar directly. We first define the class
@@ -280,9 +309,16 @@ class RegexToRGrammar(RegexToRGrammar):
 # Using it
 
 if __name__ == '__main__':
-    my_input = '(abc)'
-    print(my_input)
-    g, s = RegexToRGrammar().to_grammar(my_input)
+    my_re = 'x(a|b|c)+'
+    print(my_re)
+    g, s = RegexToRGrammar().to_grammar(my_re)
     gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        print(repr(v))
+        assert re.match(my_re, v), v 
 
 # The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)
