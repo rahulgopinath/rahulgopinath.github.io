@@ -28,14 +28,15 @@ one detail is unsatisfying. The grammar produced is a context-free grammar.
 Regular expressions actually correspond to regular grammars (which
 are strictly less powerful than context-free grammars).
 For reference, a context-free grammar is a grammar where the rules are of
-the form $$ A -> \alpha $$ where $$A$$ is a single nonterminal symbol and
-$$ \alpha $$ is any sequence of terminal or nonterminal symbols
-(including $$\epsilon$$ (empty)).
+the form $$ A \rightarrow \alpha $$ where $$A$$ is a single nonterminal symbol
+and $$ \alpha $$ is any sequence of terminal or nonterminal symbols
+including $$\epsilon$$ (empty).
 A regular grammar on the other hand, is a grammar where the rules can take one
 of the following forms:
 * $$ A \rightarrow a $$
 * $$ A \rightarrow a B $$
 * $$ A \rightarrow \epsilon $$
+
 where $$ A $$  and $$ B $$ are nonterminal symbols, $$ a $$ is a terminal
 symbol, and $$ \epsilon $$ is the empty string.
 So, why is producing a context-free grammar instead of regular grammar
@@ -121,6 +122,7 @@ rxfuzzer = import_file(&#x27;rxfuzzer&#x27;, &#x27;2021-10-22-fuzzing-with-regul
 </form>
 We want to produce regular grammars directly from regular expressions.
 The translations of the basic operations are given by:
+
 | RE                    | RG                                                  |
 |-----------------------|-----------------------------------------------------|
 | `e`                   | $$ S \rightarrow e $$                               |
@@ -128,6 +130,7 @@ The translations of the basic operations are given by:
 | `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
 | `e+`                  | $$ S \rightarrow e S | e        $$                  |
 | `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
+ 
 ## Union of Regular Grammars
 
 Given two regular grammars such that their nonterminals do not overlap,
