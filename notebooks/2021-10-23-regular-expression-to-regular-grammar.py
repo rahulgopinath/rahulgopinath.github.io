@@ -67,15 +67,7 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
 
 # We want to produce regular grammars directly from regular expressions.
-# The translations of the basic operations are given by:
 # 
-# | RE                    | RG                                                  |
-# |-----------------------|-----------------------------------------------------|
-# | `e`                   | $$ S \rightarrow e $$                               |
-# | `e|f`                 | $$ S \rightarrow e \mid f $$                        |
-# | `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
-# | `e+`                  | $$ S \rightarrow e S \mid e        $$               |
-# | `e*`                  | $$ S \rightarrow e S \mid \epsilon $$               |
 #  
 # ## Union of Regular Grammars
 # 
@@ -240,9 +232,6 @@ class RegexToRGrammar(rxfuzzer.RegexToGrammar):
 #  <cex>   ::= <exp>
 #            | <exp> <cex> 
 # ```
-# | RE                    | RG                                                  |
-# |-----------------------|-----------------------------------------------------|
-# | `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
 
 class RegexToRGrammar(RegexToRGrammar):
     def convert_cex(self, node):
@@ -261,9 +250,6 @@ class RegexToRGrammar(RegexToRGrammar):
 #   <regex> ::= <cex>
 #             | <cex> `|` <regex>
 # ```
-# | RE                    | RG                                                  |
-# |-----------------------|-----------------------------------------------------|
-# | `e|f`                 | $$ S \rightarrow e | f $$                           |
 
 class RegexToRGrammar(RegexToRGrammar):
     def convert_regex(self, node):
@@ -283,10 +269,6 @@ class RegexToRGrammar(RegexToRGrammar):
 # ```
 #    <regexplus> ::= <unitexp> `+`
 # ```
-# | RE                    | RG                                                  |
-# |-----------------------|-----------------------------------------------------|
-# | `e+`                  | $$ S \rightarrow e S | e        $$                  |
-# | `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
 
 class RegexToRGrammar(RegexToRGrammar):
     def convert_regexplus(self, node):

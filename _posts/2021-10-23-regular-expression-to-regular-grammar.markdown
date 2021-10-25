@@ -121,15 +121,7 @@ rxfuzzer = import_file(&#x27;rxfuzzer&#x27;, &#x27;2021-10-22-fuzzing-with-regul
 <div name='python_canvas'></div>
 </form>
 We want to produce regular grammars directly from regular expressions.
-The translations of the basic operations are given by:
 
-| RE                    | RG                                                  |
-|-----------------------|-----------------------------------------------------|
-| `e`                   | $$ S \rightarrow e $$                               |
-| `e|f`                 | $$ S \rightarrow e \mid f $$                        |
-| `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
-| `e+`                  | $$ S \rightarrow e S \mid e        $$               |
-| `e*`                  | $$ S \rightarrow e S \mid \epsilon $$               |
  
 ## Union of Regular Grammars
 
@@ -488,9 +480,6 @@ class RegexToRGrammar(rxfuzzer.RegexToGrammar):
  <cex>   ::= <exp>
            | <exp> <cex> 
 ```
-| RE                    | RG                                                  |
-|-----------------------|-----------------------------------------------------|
-| `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
 
 <!--
 ############
@@ -531,9 +520,6 @@ class RegexToRGrammar(RegexToRGrammar):
   <regex> ::= <cex>
             | <cex> `|` <regex>
 ```
-| RE                    | RG                                                  |
-|-----------------------|-----------------------------------------------------|
-| `e|f`                 | $$ S \rightarrow e | f $$                           |
 
 <!--
 ############
@@ -577,10 +563,6 @@ class RegexToRGrammar(RegexToRGrammar):
 ```
    <regexplus> ::= <unitexp> `+`
 ```
-| RE                    | RG                                                  |
-|-----------------------|-----------------------------------------------------|
-| `e+`                  | $$ S \rightarrow e S | e        $$                  |
-| `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
 
 <!--
 ############
