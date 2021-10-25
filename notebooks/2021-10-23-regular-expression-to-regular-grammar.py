@@ -72,10 +72,10 @@ rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.
 # | RE                    | RG                                                  |
 # |-----------------------|-----------------------------------------------------|
 # | `e`                   | $$ S \rightarrow e $$                               |
-# | `e|f`                 | $$ S \rightarrow e | f $$                           |
+# | `e|f`                 | $$ S \rightarrow e \mid f $$                        |
 # | `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
-# | `e+`                  | $$ S \rightarrow e S | e        $$                  |
-# | `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
+# | `e+`                  | $$ S \rightarrow e S \mid e        $$               |
+# | `e*`                  | $$ S \rightarrow e S \mid \epsilon $$               |
 #  
 # ## Union of Regular Grammars
 # 
@@ -123,13 +123,13 @@ if __name__ == '__main__':
 
 # ## Concatenation of Regular Grammars
 # 
-# Next, given two regular grammars g1 g2, such that
+# Next, given two regular grammars $$G1$$ and $$G2$$ such that
 # their nonterminals do not overlap, producing a concatenation grammar is as
-# follows: We collect all terminating rules from g1 which looks like
-# $$ A \\rightarrow a $$ where
-# $$ a $$ is a terminal symbol. We then transform them to $$ A -> a S2 $$
-# where $$ S2 $$ is the start symbol of g2. If epsilon was present in one of the
-# rules of gA, then we simply produce $$ A \rightarrow S2 $$.
+# follows: We collect all terminating rules from $$G1$$ which looks like
+# $$ A \rightarrow a $$ where
+# $$ a $$ is a terminal symbol. We then transform them to $$ A \rightarrow a S2 $$
+# where $$ S2 $$ is the start symbol of $$G2$$. If $$ \epsilon $$ was present in
+# one of the rules of $$G1$$, then we simply produce $$ A \rightarrow S2 $$.
 
 def regular_catenation(g1, s1, g2, s2):
     assert not key_intersection(g1, g2)
@@ -174,8 +174,8 @@ if __name__ == '__main__':
 
 # ## Kleene Plus of Regular Grammars
 #
-# For every terminating rule in g, add $$ A \rightarrow a S $$ where S is the
-# start symbol.
+# For every terminating rule in $$G$$, add $$ A \rightarrow a S $$ where $$S$$
+# is the start symbol.
 
 def regular_kleeneplus(g1, s1):
     new_g = {}

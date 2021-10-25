@@ -126,10 +126,10 @@ The translations of the basic operations are given by:
 | RE                    | RG                                                  |
 |-----------------------|-----------------------------------------------------|
 | `e`                   | $$ S \rightarrow e $$                               |
-| `e|f`                 | $$ S \rightarrow e | f $$                           |
+| `e|f`                 | $$ S \rightarrow e \mid f $$                        |
 | `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
-| `e+`                  | $$ S \rightarrow e S | e        $$                  |
-| `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
+| `e+`                  | $$ S \rightarrow e S \mid e        $$               |
+| `e*`                  | $$ S \rightarrow e S \mid \epsilon $$               |
  
 ## Union of Regular Grammars
 
@@ -227,13 +227,13 @@ for i in range(10):
 </form>
 ## Concatenation of Regular Grammars
 
-Next, given two regular grammars g1 g2, such that
+Next, given two regular grammars $$G1$$ and $$G2$$ such that
 their nonterminals do not overlap, producing a concatenation grammar is as
-follows: We collect all terminating rules from g1 which looks like
-$$ A \\rightarrow a $$ where
-$$ a $$ is a terminal symbol. We then transform them to $$ A -> a S2 $$
-where $$ S2 $$ is the start symbol of g2. If epsilon was present in one of the
-rules of gA, then we simply produce $$ A \rightarrow S2 $$.
+follows: We collect all terminating rules from $$G1$$ which looks like
+$$ A \rightarrow a $$ where
+$$ a $$ is a terminal symbol. We then transform them to $$ A \rightarrow a S2 $$
+where $$ S2 $$ is the start symbol of $$G2$$. If $$ \epsilon $$ was present in
+one of the rules of $$G1$$, then we simply produce $$ A \rightarrow S2 $$.
 
 <!--
 ############
@@ -332,8 +332,8 @@ for i in range(10):
 <div name='python_canvas'></div>
 </form>
 ## Kleene Plus of Regular Grammars
-For every terminating rule in g, add $$ A \rightarrow a S $$ where S is the
-start symbol.
+For every terminating rule in $$G$$, add $$ A \rightarrow a S $$ where $$S$$
+is the start symbol.
 
 <!--
 ############
