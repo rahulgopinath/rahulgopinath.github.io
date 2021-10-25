@@ -80,8 +80,8 @@ rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.
 def key_intersection(g1, g2):
     return [k for k in g1 if k in g2]
 
-def regular_union(g1, s1, g2, s2):
-    assert not key_intersection(g1, g2)
+def regular_union(g1, s1, g2, s2, verify=True):
+    if verify: assert not key_intersection(g1, g2)
     new_s = '<%s>' % (s1[1:-1] + s2[1:-1])
     assert new_s not in g1
     assert new_s not in g2
@@ -123,8 +123,8 @@ if __name__ == '__main__':
 # where $$ S2 $$ is the start symbol of $$G2$$. If $$ \epsilon $$ was present in
 # one of the rules of $$G1$$, then we simply produce $$ A \rightarrow S2 $$.
 
-def regular_catenation(g1, s1, g2, s2):
-    assert not key_intersection(g1, g2)
+def regular_catenation(g1, s1, g2, s2, verify=True):
+    if verify: assert not key_intersection(g1, g2)
     new_g = {}
     for k in g1:
         new_rules = []
@@ -166,25 +166,19 @@ if __name__ == '__main__':
 
 # ## Kleene Plus of Regular Grammars
 #
-# For every terminating rule in $$G$$, add $$ A \rightarrow a S $$ where $$S$$
+# Given a nonterminal symbol and the grammar in which it is defined, the
+# Kleene plus is simply a regular concatenation of the nontrerminal with
+# itself, with a regular union of its own rules. The small difference here
+# from regular concatenation is that, when we concatenate the nonterminal with
+# itself, we do not need to check for disjointness of nonterminals, because the
+# definitions of other nonterminals are exactly the same.
+# That is, For every terminating rule in $$G$$, add $$ A \rightarrow a S $$ where $$S$$
 # is the start symbol.
 
 def regular_kleeneplus(g1, s1):
-    new_g = {}
-    for k in g1:
-        new_rules = []
-        new_g[k] = new_rules
-        for r in g1[k]:
-            if len(r) == 0: # epsilon
-                new_rules.append([])
-                #new_rules.extend(g1[s2])
-                new_rules.append([s1])
-            elif len(r) == 1 and not fuzzer.is_nonterminal(r[0]):
-                new_rules.append(r)
-                new_rules.append(r + [s1])
-            else:
-                new_rules.append(r)
-    return new_g, s1
+    gn, gs = regular_catenation(g1, s1, g1, s1, verify=False)
+    new_g, new_s = regular_union(gn, gs, g1, s1, verify=False)
+    return new_g, new_s
 
 # Using it
 
@@ -205,7 +199,8 @@ if __name__ == '__main__':
 
 def regular_kleenestar(g1, s1):
     g, s = regular_kleeneplus(g1, s1)
-    g[s].append([])
+    if [] not in g[s]:
+        g[s].append([])
     return g, s
 
 # Using it
