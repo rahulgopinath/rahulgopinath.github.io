@@ -330,8 +330,6 @@ itself, with a regular union of its own rules. The small difference here
 from regular concatenation is that, when we concatenate the nonterminal with
 itself, we do not need to check for disjointness of nonterminals, because the
 definitions of other nonterminals are exactly the same.
-That is, For every terminating rule in $$G$$, add $$ A \rightarrow a S $$ where $$S$$
-is the start symbol.
 
 <!--
 ############
