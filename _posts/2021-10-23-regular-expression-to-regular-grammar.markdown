@@ -25,24 +25,27 @@ In the [previous post](/post/2021/10/22/fuzzing-with-regular-expressions/), we
 discussed how to produce a grammar out of regular expressions. This is
 useful to make the regular expression a generator of matching inputs. However,
 one detail is unsatisfying. The grammar produced is a context-free grammar.
-Regular expressions actually corresond to regular grammars (which
+Regular expressions actually correspond to regular grammars (which
 are strictly less powerful than context-free grammars).
 For reference, a context-free grammar is a grammar where the rules are of
-the format $$ A -> \alpha $$ where $$A$$ is a single nonterminal symbol and
+the form $$ A -> \alpha $$ where $$A$$ is a single nonterminal symbol and
 $$ \alpha $$ is any sequence of terminal or nonterminal symbols
-(including empty).
+(including $$\epsilon$$ (empty)).
 A regular grammar on the other hand, is a grammar where the rules can take one
-of the following forms: $$ A -> a $$ or $$ A -> a B $$ or $$ A -> \epsilon $$
-where $$ A $$  and $$ B $$ are nonterminal symbols, and $$ a $$ is a terminal
-symbol and $$ \epsilon $$ is the empty string.
+of the following forms:
+* $$ A \rightarrow a $$
+* $$ A \rightarrow a B $$
+* $$ A \rightarrow \epsilon $$
+where $$ A $$  and $$ B $$ are nonterminal symbols, $$ a $$ is a terminal
+symbol, and $$ \epsilon $$ is the empty string.
 So, why is producing a context-free grammar instead of regular grammar
 unsatisfying? Because such regular grammars have more interesting properties
-such as being closed under intersection and negation. By using a context-free
-grammar, we miss out on such properties.
+such as being closed under intersection and complement. By using a
+context-free grammar, we miss out on such properties.
 Hence, it would be really good if we could
 translate the regular expression directly into a regular grammar. This is what
 we will do in this post.
-We start with importing the prerequiesites
+We start with importing the prerequisites
 
 <!--
 ############
@@ -116,18 +119,15 @@ rxfuzzer = import_file(&#x27;rxfuzzer&#x27;, &#x27;2021-10-22-fuzzing-with-regul
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We want to produce regular grammars directly from regular expressions. A
-regular expression, as we have seen in the previous posts, has two basic
-operations to combine two sub expressions. Given two regular expressions
-`A` and `B`, it can be combined using `|` to produce `A | B` which matches
-either `A` or `B`. That is, a union of matches of `A` and `B`.
-Secondly, given `A` and `B`, we can concat them to produce
-`A B` which matches `A` first, and then `B`.
-Finally, regular expressions also allow repetitions. That is, given a regular
-expression `A`, `A+` denotes one or more matches of `A`. Similarly `A*`
-denotes zero or more matches of `A`.
-If we can produce regular grammars for these operations, we can have produce
-regular grammar.  So, we first tackle union of two regular grammars
+We want to produce regular grammars directly from regular expressions.
+The translations of the basic operations are given by:
+| RE                    | RG                                                  |
+|-----------------------|-----------------------------------------------------|
+| `e`                   | $$ S \rightarrow e $$                               |
+| `e|f`                 | $$ S \rightarrow e | f $$                           |
+| `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
+| `e+`                  | $$ S \rightarrow e S | e        $$                  |
+| `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
 ## Union of Regular Grammars
 
 Given two regular grammars such that their nonterminals do not overlap,
@@ -191,6 +191,7 @@ rgf = fuzzer.LimitFuzzer(g)
 for i in range(10):
     v = rgf.fuzz(s)
     assert re.match(my_re1, v) or re.match(my_re2, v), v
+
 ############
 -->
 <form name='python_run_form'>
@@ -226,10 +227,10 @@ for i in range(10):
 Next, given two regular grammars g1 g2, such that
 their nonterminals do not overlap, producing a concatenation grammar is as
 follows: We collect all terminating rules from g1 which looks like
-$$ A -> a $$ where
-$$ a $$ is a terminal symbol. We then trasnform them to $$ A -> a S2 $$
+$$ A \\rightarrow a $$ where
+$$ a $$ is a terminal symbol. We then transform them to $$ A -> a S2 $$
 where $$ S2 $$ is the start symbol of g2. If epsilon was present in one of the
-rules of gA, then we simply produce $$ A -> S2 $$.
+rules of gA, then we simply produce $$ A \rightarrow S2 $$.
 
 <!--
 ############
@@ -328,7 +329,7 @@ for i in range(10):
 <div name='python_canvas'></div>
 </form>
 ## Kleene Plus of Regular Grammars
-For every terminating rule in g, add $$ A -> a S $$ where S is the
+For every terminating rule in g, add $$ A \rightarrow a S $$ where S is the
 start symbol.
 
 <!--
@@ -408,7 +409,7 @@ for i in range(10):
 <div name='python_canvas'></div>
 </form>
 ## Kleene Star of Regular Grammars
-For Kleene Star, add epsilon to the language.
+For Kleene Star, add $$ \epsilon $$ to the language.
 
 <!--
 ############
@@ -484,12 +485,9 @@ class RegexToRGrammar(rxfuzzer.RegexToGrammar):
  <cex>   ::= <exp>
            | <exp> <cex> 
 ```
-The translation is:
-```
-<X> := a
-<Y> := b
-<Z> := <X> . <Y>
-```
+| RE                    | RG                                                  |
+|-----------------------|-----------------------------------------------------|
+| `ef`                  | $$ S \rightarrow e A$$, $$ A \rightarrow f $$       |
 
 <!--
 ############
@@ -530,12 +528,9 @@ class RegexToRGrammar(RegexToRGrammar):
   <regex> ::= <cex>
             | <cex> `|` <regex>
 ```
-```
-<X> := a
-<Y> := b
-<Z> := <X>
-     | <Y>
-```
+| RE                    | RG                                                  |
+|-----------------------|-----------------------------------------------------|
+| `e|f`                 | $$ S \rightarrow e | f $$                           |
 
 <!--
 ############
@@ -579,10 +574,10 @@ class RegexToRGrammar(RegexToRGrammar):
 ```
    <regexplus> ::= <unitexp> `+`
 ```
-```
-<X> ::= a <X>
-      | a
-```
+| RE                    | RG                                                  |
+|-----------------------|-----------------------------------------------------|
+| `e+`                  | $$ S \rightarrow e S | e        $$                  |
+| `e*`                  | $$ S \rightarrow e S | \epsilon $$                  |
 
 <!--
 ############
