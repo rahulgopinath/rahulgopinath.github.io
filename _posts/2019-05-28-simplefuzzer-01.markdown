@@ -296,7 +296,7 @@ and the how the last line is represented (+)
 
 <!--
 ############
-OPTIONS   = O(V='│', H='─', L='└', J = '├')
+OPTIONS   = O(V='|', H='-', L='+', J = '+')
 
 def format_node(node):
     key = node[0]
@@ -310,7 +310,7 @@ def get_children(node):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-OPTIONS   = O(V=&#x27;│&#x27;, H=&#x27;─&#x27;, L=&#x27;└&#x27;, J = &#x27;├&#x27;)
+OPTIONS   = O(V=&#x27;|&#x27;, H=&#x27;-&#x27;, L=&#x27;+&#x27;, J = &#x27;+&#x27;)
 
 def format_node(node):
     key = node[0]
@@ -449,6 +449,7 @@ class LimitFuzzer:
         if key not in self.grammar: return key
         if depth > max_depth:
             clst = sorted([(self.cost[key][str(rule)], rule) for rule in self.grammar[key]])
+            assert clst[0][0] != float('inf'), clst
             rules = [r for c,r in clst if c == clst[0][0]]
         else:
             rules = self.grammar[key]
@@ -496,6 +497,7 @@ class LimitFuzzer:
         if key not in self.grammar: return key
         if depth &gt; max_depth:
             clst = sorted([(self.cost[key][str(rule)], rule) for rule in self.grammar[key]])
+            assert clst[0][0] != float(&#x27;inf&#x27;), clst
             rules = [r for c,r in clst if c == clst[0][0]]
         else:
             rules = self.grammar[key]

@@ -204,6 +204,7 @@ class LimitFuzzer:
         if key not in self.grammar: return key
         if depth > max_depth:
             clst = sorted([(self.cost[key][str(rule)], rule) for rule in self.grammar[key]])
+            assert clst[0][0] != float('inf'), clst
             rules = [r for c,r in clst if c == clst[0][0]]
         else:
             rules = self.grammar[key]

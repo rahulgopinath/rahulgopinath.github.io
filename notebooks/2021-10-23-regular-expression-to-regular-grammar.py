@@ -131,7 +131,6 @@ def regular_catenation(g1, s1, g2, s2, verify=True):
         new_g[k] = new_rules
         for r in g1[k]:
             if len(r) == 0: # epsilon
-                #new_rules.extend(g2[s2])
                 new_rules.append([s2])
             elif len(r) == 1 and not fuzzer.is_nonterminal(r[0]):
                 new_rules.append(r + [s2])
