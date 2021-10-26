@@ -131,6 +131,9 @@ class BExpr:
             self._simple = None
             self._sympy = None
 
+    def create_new(self, s):
+        return BExpr(s)
+
     def _parse(self, k):
         bexpr_parser = earleyparser.EarleyParser(BEXPR_GRAMMAR)
         bparse_tree = list(bexpr_parser.parse_on(k, start_symbol=BEXPR_START))[0]
@@ -302,15 +305,15 @@ class BExpr(BExpr):
     def op_fst(self):
         op = self.get_operator()
         assert op == 'neg'
-        bexpr = BExpr(None)
+        bexpr = self.create_new(None)
         bexpr._sympy = self._sympy.args[0]
         return bexpr
 
     def op_fst_snd(self):
-        bexpr = BExpr(None)
+        bexpr = self.create_new(None)
         bexpr._sympy = self._sympy.args[0]
 
-        bexpr_rest = BExpr(None)
+        bexpr_rest = self.create_new(None)
         op = self.get_operator()
 
         if op == 'and':
@@ -334,7 +337,7 @@ class BExpr(BExpr):
             return normalize(k)
 
     def negate(self):
-        bexpr = BExpr(None)
+        bexpr = self.create_new(None)
         bexpr._sympy = sympy.Not(self._sympy).simplify()
         return bexpr
 
