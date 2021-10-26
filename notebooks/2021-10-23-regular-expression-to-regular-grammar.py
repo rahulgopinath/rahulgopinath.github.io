@@ -293,7 +293,9 @@ if __name__ == '__main__':
         assert re.match(my_re, v), v 
 
 # At this point, the grammar may still contain degenerate rules
-# of the form $$ A \rightarrow B $$. We need to clean that up.
+# of the form $$ A \rightarrow B $$. We need to clean that up so
+# that rules follow one of $$ A \rightarrow a B $$ or $$ A \rightarrow a $$ 
+# or $$ A \rightarrow \epsilon $$.
 
 class RegexToRGrammar(RegexToRGrammar):
     def is_degenerate_rule(self, rule):
@@ -309,9 +311,9 @@ class RegexToRGrammar(RegexToRGrammar):
                 new_rules = []
                 new_g[k] = new_rules
                 for r in g[k]:
-                    if is_degenerate_rule(r):
+                    if self.is_degenerate_rule(r):
                         new_r = g[r[0]]
-                        if is_degenerate_rule(new_r): cont = True
+                        if self.is_degenerate_rule(new_r): cont = True
                         new_rules.extend(new_r)
                     else:
                         new_rules.append(r)
@@ -324,5 +326,20 @@ class RegexToRGrammar(RegexToRGrammar):
         assert len(children) == 1
         grammar, start = self.convert_regex(children[0])
         return self.cleanup_regular_grammar(grammar, start)
+
+# Using it
+
+if __name__ == '__main__':
+    my_re = '(a|b|c)+(de|f)*'
+    print(my_re)
+    g, s = RegexToRGrammar().to_grammar(my_re)
+    gatleast.display_grammar(g, s)
+    # check it has worked
+    import re
+    rgf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        v = rgf.fuzz(s)
+        print(repr(v))
+        assert re.match(my_re, v), v 
 
 # The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)

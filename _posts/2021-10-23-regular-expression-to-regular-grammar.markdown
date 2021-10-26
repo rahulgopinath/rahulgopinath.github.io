@@ -618,7 +618,9 @@ for i in range(10):
 <div name='python_canvas'></div>
 </form>
 At this point, the grammar may still contain degenerate rules
-of the form $$ A \rightarrow B $$. We need to clean that up.
+of the form $$ A \rightarrow B $$. We need to clean that up so
+that rules follow one of $$ A \rightarrow a B $$ or $$ A \rightarrow a $$ 
+or $$ A \rightarrow \epsilon $$.
 
 <!--
 ############
@@ -636,9 +638,9 @@ class RegexToRGrammar(RegexToRGrammar):
                 new_rules = []
                 new_g[k] = new_rules
                 for r in g[k]:
-                    if is_degenerate_rule(r):
+                    if self.is_degenerate_rule(r):
                         new_r = g[r[0]]
-                        if is_degenerate_rule(new_r): cont = True
+                        if self.is_degenerate_rule(new_r): cont = True
                         new_rules.extend(new_r)
                     else:
                         new_rules.append(r)
@@ -670,9 +672,9 @@ class RegexToRGrammar(RegexToRGrammar):
                 new_rules = []
                 new_g[k] = new_rules
                 for r in g[k]:
-                    if is_degenerate_rule(r):
+                    if self.is_degenerate_rule(r):
                         new_r = g[r[0]]
-                        if is_degenerate_rule(new_r): cont = True
+                        if self.is_degenerate_rule(new_r): cont = True
                         new_rules.extend(new_r)
                     else:
                         new_rules.append(r)
@@ -685,6 +687,41 @@ class RegexToRGrammar(RegexToRGrammar):
         assert len(children) == 1
         grammar, start = self.convert_regex(children[0])
         return self.cleanup_regular_grammar(grammar, start)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+my_re = '(a|b|c)+(de|f)*'
+print(my_re)
+g, s = RegexToRGrammar().to_grammar(my_re)
+gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;(a|b|c)+(de|f)*&#x27;
+print(my_re)
+g, s = RegexToRGrammar().to_grammar(my_re)
+gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
