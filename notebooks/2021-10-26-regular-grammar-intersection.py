@@ -169,19 +169,59 @@ def and_definitions(d1, d2):
         new_keys.extend(nks)
     return new_rules
 
-def reconstruct_key(key, g):
-    pass
+def or_definitions(d1, d2):
+    return d1 + d2
 
-def intersect_grammars(g1, s1, g2, s2):
-    ss = intersect_nonterminals(s1, s2)
-    remaining_keys = [ss]
-    g = {**g1, **g2}
-    while remaining_keys:
-        key, *remaining_keys = remaining_keys
-        if key in g: continue
-        g, s, remaining = reconstruct_key(key, g)
-        remaining_keys.extend(remaining)
-    return g, ss
+def negate_nonterminal(k): return '<neg(%s)>' % k[1:-1]
+
+def negate_keys_in_rule(rule):
+    if len(rule) == 0:
+        return rule
+    elif len(rule) == 1:
+        assert not fuzzer.is_nonterminal(rule[0])
+        return rule
+    else:
+        assert not fuzzer.is_nonterminal(rule[0])
+        assert fuzzer.is_nonterminal(rule[1])
+        return [rule[0], negate_nonterminal(rule[1])]
+
+def negate_ruleset(rules):
+    new_rules = []
+    for rule in rules:
+        r = negate_keys_in_rule(rule)
+        new_rules.append(r)
+    return new_rules
+
+def conjunct_ruleset(rules):
+    first, *rules = rules
+    while rules:
+        cur, *rules = rules
+        first = intersect_rules(first, cur)
+    return first
+
+def negate_definition(d1, terminal_symbols):
+    # for negating a definition, we negate each ruleset
+    # separately, and add any characters that were left
+    # over.
+    # what about presence of epsilon rule? An epsilon
+    # rule adds just one element to the language. An
+    # empty string. So, we will not match that single
+    # element.
+
+
+    rule_sets1 = split_to_rulesets(d1)
+    remaining_chars = [c for c in terminal_symbols if c not in rule_sets1]
+    new_rules = [[c, '<.*>'] for c in remaining_chars]
+    for rules in rule_sets1:
+        nrs = negate_ruleset(rules)
+        crule = conjunct_ruleset(nrs)
+        new_rules.append(nrs)
+
+    # should we add emtpy rule match or not?
+    if [] not in d1:
+        new_rules.append([])
+    return new_rules
+
 
 class ReconstructRules:
     def __init__(self, grammar):
