@@ -270,7 +270,7 @@ It returns any new keys created, along with the new rule
 
 <!--
 ############
-def rule_catenation(rule, s2):
+def catenate_rule_to_key(rule, s2):
     if len(rule) == 0: # epsilon
         return [], [s2]
     elif len(rule) == 1:
@@ -285,7 +285,7 @@ def rule_catenation(rule, s2):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def rule_catenation(rule, s2):
+def catenate_rule_to_key(rule, s2):
     if len(rule) == 0: # epsilon
         return [], [s2]
     elif len(rule) == 1:
@@ -316,7 +316,7 @@ def catenate_grammar(g1, s1, g2, s2, verify=True):
 
         new_rules = []
         for r in g1[k]:
-            uks, new_rule = rule_catenation(r, s2)
+            uks, new_rule = catenate_rule_to_key(r, s2)
             new_rules.append(new_rule)
             keys.extend(uks)
 
@@ -342,7 +342,7 @@ def catenate_grammar(g1, s1, g2, s2, verify=True):
 
         new_rules = []
         for r in g1[k]:
-            uks, new_rule = rule_catenation(r, s2)
+            uks, new_rule = catenate_rule_to_key(r, s2)
             new_rules.append(new_rule)
             keys.extend(uks)
 
