@@ -136,11 +136,11 @@ grammars.
 def key_intersection(g1, g2):
     return [k for k in g1 if k in g2]
 
-def nonterminal_union(k, s): return '<%s+%s>' % (k[1:-1], s[1:-1])
+def union_nonterminals(k, s): return '<or(%s,%s)>' % (k[1:-1], s[1:-1])
 
-def regular_union(g1, s1, g2, s2, verify=True):
+def union_grammars(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
-    new_s = nonterminal_union(s1, s2)
+    new_s = union_nonterminals(s1, s2)
     assert new_s not in g1
     assert new_s not in g2
     return {**g1, **g2, **{new_s: (list(g1[s1]) + list(g2[s2]))}}, new_s
@@ -152,11 +152,11 @@ def regular_union(g1, s1, g2, s2, verify=True):
 def key_intersection(g1, g2):
     return [k for k in g1 if k in g2]
 
-def nonterminal_union(k, s): return &#x27;&lt;%s+%s&gt;&#x27; % (k[1:-1], s[1:-1])
+def union_nonterminals(k, s): return &#x27;&lt;or(%s,%s)&gt;&#x27; % (k[1:-1], s[1:-1])
 
-def regular_union(g1, s1, g2, s2, verify=True):
+def union_grammars(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
-    new_s = nonterminal_union(s1, s2)
+    new_s = union_nonterminals(s1, s2)
     assert new_s not in g1
     assert new_s not in g2
     return {**g1, **g2, **{new_s: (list(g1[s1]) + list(g2[s2]))}}, new_s
@@ -181,7 +181,7 @@ g2 = {
         '<A2>' : [['a2', '<B2>'], ['a2']],
         '<B2>' : [['b2']]
         }
-g, s = regular_union(g1, '<start1>', g2, '<start2>')
+g, s = union_grammars(g1, '<start1>', g2, '<start2>')
 print(s)
 gatleast.display_grammar(g, s)
 # check it has worked
@@ -208,7 +208,7 @@ g2 = {
         &#x27;&lt;A2&gt;&#x27; : [[&#x27;a2&#x27;, &#x27;&lt;B2&gt;&#x27;], [&#x27;a2&#x27;]],
         &#x27;&lt;B2&gt;&#x27; : [[&#x27;b2&#x27;]]
         }
-g, s = regular_union(g1, &#x27;&lt;start1&gt;&#x27;, g2, &#x27;&lt;start2&gt;&#x27;)
+g, s = union_grammars(g1, &#x27;&lt;start1&gt;&#x27;, g2, &#x27;&lt;start2&gt;&#x27;)
 print(s)
 gatleast.display_grammar(g, s)
 # check it has worked
@@ -234,7 +234,7 @@ one of the rules of $$G1$$, then we simply produce $$ A \rightarrow S2 $$.
 We can take a shortcut if we are willing to reuse the start key. For example,
 the below computes the regular catenation of grammars, by reusing the start key.
 ```
-def regular_catenation(g1, s1, g2, s2, verify=True):
+def catenate_grammar(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
     new_g = {}
     for k in g1:
@@ -254,13 +254,13 @@ principled fashion. We start with catenation of nonterminals.
 
 <!--
 ############
-def nonterminal_catenation(k, s): return '<%s.%s>' % (k[1:-1], s[1:-1])
+def catenate_nonterminals(k, s): return '<%s.%s>' % (k[1:-1], s[1:-1])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def nonterminal_catenation(k, s): return &#x27;&lt;%s.%s&gt;&#x27; % (k[1:-1], s[1:-1])
+def catenate_nonterminals(k, s): return &#x27;&lt;%s.%s&gt;&#x27; % (k[1:-1], s[1:-1])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -277,9 +277,9 @@ def rule_catenation(rule, s2):
         if not fuzzer.is_nonterminal(rule[0]):
             return [], rule + [s2]
         else: # degenerate
-            return [rule[0]], [nonterminal_catenation(rule[0], s2)]
+            return [rule[0]], [catenate_nonterminals(rule[0], s2)]
     else:
-        return [rule[1]], [rule[0], nonterminal_catenation(rule[1], s2)]
+        return [rule[1]], [rule[0], catenate_nonterminals(rule[1], s2)]
 
 ############
 -->
@@ -292,9 +292,9 @@ def rule_catenation(rule, s2):
         if not fuzzer.is_nonterminal(rule[0]):
             return [], rule + [s2]
         else: # degenerate
-            return [rule[0]], [nonterminal_catenation(rule[0], s2)]
+            return [rule[0]], [catenate_nonterminals(rule[0], s2)]
     else:
-        return [rule[1]], [rule[0], nonterminal_catenation(rule[1], s2)]
+        return [rule[1]], [rule[0], catenate_nonterminals(rule[1], s2)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -303,7 +303,7 @@ Finally, we define our regular catenation of two grammars.
 
 <!--
 ############
-def regular_catenation(g1, s1, g2, s2, verify=True):
+def catenate_grammar(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
     new_g = {}
     keys = [s1]
@@ -320,16 +320,16 @@ def regular_catenation(g1, s1, g2, s2, verify=True):
             new_rules.append(new_rule)
             keys.extend(uks)
 
-        k_ = nonterminal_catenation(k, s2)
+        k_ = catenate_nonterminals(k, s2)
         new_g[k_] = new_rules
-    ks = nonterminal_catenation(s1, s2)
+    ks = catenate_nonterminals(s1, s2)
     return {**g2, **new_g}, ks
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def regular_catenation(g1, s1, g2, s2, verify=True):
+def catenate_grammar(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
     new_g = {}
     keys = [s1]
@@ -346,9 +346,9 @@ def regular_catenation(g1, s1, g2, s2, verify=True):
             new_rules.append(new_rule)
             keys.extend(uks)
 
-        k_ = nonterminal_catenation(k, s2)
+        k_ = catenate_nonterminals(k, s2)
         new_g[k_] = new_rules
-    ks = nonterminal_catenation(s1, s2)
+    ks = catenate_nonterminals(s1, s2)
     return {**g2, **new_g}, ks
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -370,7 +370,7 @@ g4 = {
         '<A4>' : [['b', '<B4>'], ['b']],
         '<B4>' : [['c'], ['d']]
         }
-g, s = regular_catenation(g3, '<start3>', g4, '<start4>')
+g, s = catenate_grammar(g3, '<start3>', g4, '<start4>')
 print(s)
 gatleast.display_grammar(g, s)
 # check it has worked
@@ -396,7 +396,7 @@ g4 = {
         &#x27;&lt;A4&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;B4&gt;&#x27;], [&#x27;b&#x27;]],
         &#x27;&lt;B4&gt;&#x27; : [[&#x27;c&#x27;], [&#x27;d&#x27;]]
         }
-g, s = regular_catenation(g3, &#x27;&lt;start3&gt;&#x27;, g4, &#x27;&lt;start4&gt;&#x27;)
+g, s = catenate_grammar(g3, &#x27;&lt;start3&gt;&#x27;, g4, &#x27;&lt;start4&gt;&#x27;)
 print(s)
 gatleast.display_grammar(g, s)
 # check it has worked
@@ -423,7 +423,7 @@ grammar.
 ############
 def regular_kleeneplus(g1, s1):
     s1plus = '<%s.>' % s1[1:-1]
-    gn, sn = regular_catenation(g1, s1, g1, s1plus, verify=False)
+    gn, sn = catenate_grammar(g1, s1, g1, s1plus, verify=False)
     gn[s1plus] = gn[sn]
     gn[s1plus].extend(g1[s1])
     return gn, s1plus
@@ -434,7 +434,7 @@ def regular_kleeneplus(g1, s1):
 <textarea cols="40" rows="4" name='python_edit'>
 def regular_kleeneplus(g1, s1):
     s1plus = &#x27;&lt;%s.&gt;&#x27; % s1[1:-1]
-    gn, sn = regular_catenation(g1, s1, g1, s1plus, verify=False)
+    gn, sn = catenate_grammar(g1, s1, g1, s1plus, verify=False)
     gn[s1plus] = gn[sn]
     gn[s1plus].extend(g1[s1])
     return gn, s1plus
@@ -563,7 +563,7 @@ class RegexToRGrammar(RegexToRGrammar):
         if children:
             assert len(children) == 1
             g2, key2 = self.convert_cex(children[0])
-            g, s = regular_catenation(g1, s1, g2, key2)
+            g, s = catenate_grammar(g1, s1, g2, key2)
             return g, s
         else:
             return g1, s1
@@ -580,7 +580,7 @@ class RegexToRGrammar(RegexToRGrammar):
         if children:
             assert len(children) == 1
             g2, key2 = self.convert_cex(children[0])
-            g, s = regular_catenation(g1, s1, g2, key2)
+            g, s = catenate_grammar(g1, s1, g2, key2)
             return g, s
         else:
             return g1, s1
@@ -603,7 +603,7 @@ class RegexToRGrammar(RegexToRGrammar):
         if not children: return g1, s1
         if len(children) == 2:
             g2, s2 = self.convert_regex(children[1])
-            g, s = regular_union(g1, s1, g2, s2)
+            g, s = union_grammars(g1, s1, g2, s2)
             return g, s
         else:
             assert len(children) == 1
@@ -622,7 +622,7 @@ class RegexToRGrammar(RegexToRGrammar):
         if not children: return g1, s1
         if len(children) == 2:
             g2, s2 = self.convert_regex(children[1])
-            g, s = regular_union(g1, s1, g2, s2)
+            g, s = union_grammars(g1, s1, g2, s2)
             return g, s
         else:
             assert len(children) == 1
