@@ -292,4 +292,37 @@ if __name__ == '__main__':
         print(repr(v))
         assert re.match(my_re, v), v 
 
+# At this point, the grammar may still contain degenerate rules
+# of the form $$ A \rightarrow B $$. We need to clean that up.
+
+class RegexToRGrammar(RegexToRGrammar):
+    def is_degenerate_rule(self, rule):
+        return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
+
+    def cleanup_regular_grammar(self, g, s):
+        # assumes no cycle
+        cont = True
+        while cont:
+            cont = False
+            new_g = {}
+            for k in g:
+                new_rules = []
+                new_g[k] = new_rules
+                for r in g[k]:
+                    if is_degenerate_rule(r):
+                        new_r = g[r[0]]
+                        if is_degenerate_rule(new_r): cont = True
+                        new_rules.extend(new_r)
+                    else:
+                        new_rules.append(r)
+            return new_g, s
+
+    def to_grammar(self, my_re):
+        parsed = self.parse(my_re)
+        key, children = parsed
+        assert key == '<start>'
+        assert len(children) == 1
+        grammar, start = self.convert_regex(children[0])
+        return self.cleanup_regular_grammar(grammar, start)
+
 # The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)
