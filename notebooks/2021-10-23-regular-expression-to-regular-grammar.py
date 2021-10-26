@@ -80,11 +80,11 @@ rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.
 def key_intersection(g1, g2):
     return [k for k in g1 if k in g2]
 
-def key_union(k, s): return '<%s+%s>' % (k[1:-1], s[1:-1])
+def nonterminal_union(k, s): return '<%s+%s>' % (k[1:-1], s[1:-1])
 
 def regular_union(g1, s1, g2, s2, verify=True):
     if verify: assert not key_intersection(g1, g2)
-    new_s = key_union(s1, s2)
+    new_s = nonterminal_union(s1, s2)
     assert new_s not in g1
     assert new_s not in g2
     return {**g1, **g2, **{new_s: (list(g1[s1]) + list(g2[s2]))}}, new_s
