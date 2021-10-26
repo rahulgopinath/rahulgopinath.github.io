@@ -342,6 +342,10 @@ class Column:
         return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
             str(state) for state in self.states if state.finished()))
 
+    def to_repr(self):
+        return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
+            str(state) for state in self.states))
+
     def add(self, state):
         if state in self._unique:
             return self._unique[state]
@@ -362,6 +366,10 @@ class Column:
     def __str__(self):
         return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
             str(state) for state in self.states if state.finished()))
+
+    def to_repr(self):
+        return &quot;%s chart[%d]\n%s&quot; % (self.letter, self.index, &quot;\n&quot;.join(
+            str(state) for state in self.states))
 
     def add(self, state):
         if state in self._unique:
@@ -1179,7 +1187,7 @@ class EarleyParser(EarleyParser):
                         if i + 1 >= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            if self.log: print(col, '\n')
+            if self.log: print(col.to_repr(), '\n')
         return chart
 
 ############
@@ -1200,7 +1208,7 @@ class EarleyParser(EarleyParser):
                         if i + 1 &gt;= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            if self.log: print(col, &#x27;\n&#x27;)
+            if self.log: print(col.to_repr(), &#x27;\n&#x27;)
         return chart
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

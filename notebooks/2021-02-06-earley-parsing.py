@@ -254,6 +254,10 @@ class Column:
         return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
             str(state) for state in self.states if state.finished()))
 
+    def to_repr(self):
+        return "%s chart[%d]\n%s" % (self.letter, self.index, "\n".join(
+            str(state) for state in self.states))
+
     def add(self, state):
         if state in self._unique:
             return self._unique[state]
@@ -681,7 +685,7 @@ class EarleyParser(EarleyParser):
                         if i + 1 >= len(chart):
                             continue
                         self.scan(chart[i + 1], state, sym)
-            if self.log: print(col, '\n')
+            if self.log: print(col.to_repr(), '\n')
         return chart
 
 # We can now recognize the given string as part of the language represented by the grammar.
