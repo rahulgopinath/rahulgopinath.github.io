@@ -737,24 +737,36 @@ Using it.
 
 <!--
 ############
+gatleast.display_grammar(g1, s1)
 g, s = canonical_regular_grammar(g1, s1)
 gatleast.display_grammar(g, s)
 
+print('________')
+
+gatleast.display_grammar(g2, s2)
 g, s = canonical_regular_grammar(g2, s2)
 gatleast.display_grammar(g, s)
 
+print('________')
+gatleast.display_grammar(g3, s3)
 g, s = canonical_regular_grammar(g3, s3)
 gatleast.display_grammar(g, s)
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+gatleast.display_grammar(g1, s1)
 g, s = canonical_regular_grammar(g1, s1)
 gatleast.display_grammar(g, s)
 
+print(&#x27;________&#x27;)
+
+gatleast.display_grammar(g2, s2)
 g, s = canonical_regular_grammar(g2, s2)
 gatleast.display_grammar(g, s)
 
+print(&#x27;________&#x27;)
+gatleast.display_grammar(g3, s3)
 g, s = canonical_regular_grammar(g3, s3)
 gatleast.display_grammar(g, s)
 </textarea><br />

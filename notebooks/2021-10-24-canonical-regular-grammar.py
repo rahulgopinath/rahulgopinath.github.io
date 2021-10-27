@@ -342,11 +342,17 @@ def canonical_regular_grammar(g0, s0):
 # Using it.
 
 if __name__ == '__main__':
+   gatleast.display_grammar(g1, s1)
    g, s = canonical_regular_grammar(g1, s1)
    gatleast.display_grammar(g, s)
 
+   print('________')
+
+   gatleast.display_grammar(g2, s2)
    g, s = canonical_regular_grammar(g2, s2)
    gatleast.display_grammar(g, s)
 
+   print('________')
+   gatleast.display_grammar(g3, s3)
    g, s = canonical_regular_grammar(g3, s3)
    gatleast.display_grammar(g, s)
