@@ -110,9 +110,9 @@ if __name__ == '__main__':
 
 # ## Removing terminal sequences
 # A terminal sequence is a sequence of terminal symbols in a rule. For example,
-# in the rule $$ A \rightarrow a b c B $$, $$ a b c $$ is a terminal sequence.
+# in the rule $$ <A> \rightarrow a b c <B> $$, $$ a b c $$ is a terminal sequence.
 # We want to replace such sequences by a new nonterminal. For example,
-# $$ A \rightarrow a Aa $$, $$ Aa \rightarrow b Aab $$, $$ Aab \rightarrow c B $$.
+# $$ <A> \rightarrow a <Aa> $$, $$ <Aa> \rightarrow b <Aab> $$, $$ <Aab> \rightarrow c <B> $$.
 
 
 def get_split_key(k, terminal):
