@@ -57,21 +57,26 @@ rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.p
 
 # There are only two patterns of rules in canonical regular grammars.
 #
-# 1. $$ A -> aB $$
-# 3. $$ A -> \epsilon $$
+# 1. $$ A \rightarrow aB $$
+# 3. $$ A \rightarrow \epsilon $$
 #
 # The idea is that when evaluating intersection of the start symbol,
 # pair up all rules that start with the same terminal symbol.
 # Only the intersecion of these would exist in the resulting grammar.
 # The intersection of
+#
 # ```
 # <A1> ::= a <B1>
 # ```
+#
 # and
+
 # ```
 # <A2> ::= a <B2>
 # ```
+#
 # is simply
+#
 # ```
 # <and(A1,A2)> ::= a <and(B1,B2)>
 # ```
@@ -133,6 +138,7 @@ if __name__ == '__main__':
         print(e.as_key())
 
 # ## Conjuction of two regular grammars
+# 
 # Next, we define the conjunction of two regular grammars in the canonical
 # format. We will define the conjunction of two definitions, and at the end
 # discuss how to stitch it together for the complete grammar. The nice thing
@@ -153,6 +159,7 @@ if __name__ == '__main__':
     print(k)
 
 # ### The rules
+# 
 # We only provide conjunction for those rules whose initial chars are the same
 # or it is an empty rule.
 
@@ -221,6 +228,7 @@ if __name__ == '__main__':
     print(rules)
 
 # ## Disjunction of two regular grammars
+# 
 # For disjunction, the strategy is the same.
 
 # ### Disjunction of nonterminal symbols

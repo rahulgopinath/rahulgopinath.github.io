@@ -115,8 +115,8 @@ rxcanonical = import_file(&#x27;rxcanonical&#x27;, &#x27;2021-10-24-canonical-re
 <div name='python_canvas'></div>
 </form>
 There are only two patterns of rules in canonical regular grammars.
-1. $$ A -> aB $$
-3. $$ A -> \epsilon $$
+1. $$ A \rightarrow aB $$
+3. $$ A \rightarrow \epsilon $$
 The idea is that when evaluating intersection of the start symbol,
 pair up all rules that start with the same terminal symbol.
 Only the intersecion of these would exist in the resulting grammar.
@@ -272,6 +272,7 @@ for s in strings:
 <div name='python_canvas'></div>
 </form>
 ## Conjuction of two regular grammars
+
 Next, we define the conjunction of two regular grammars in the canonical
 format. We will define the conjunction of two definitions, and at the end
 discuss how to stitch it together for the complete grammar. The nice thing
@@ -316,6 +317,7 @@ print(k)
 <div name='python_canvas'></div>
 </form>
 ### The rules
+
 We only provide conjunction for those rules whose initial chars are the same
 or it is an empty rule.
 
@@ -474,6 +476,7 @@ print(rules)
 <div name='python_canvas'></div>
 </form>
 ## Disjunction of two regular grammars
+
 For disjunction, the strategy is the same.
 ### Disjunction of nonterminal symbols
 
