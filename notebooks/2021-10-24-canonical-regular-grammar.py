@@ -144,13 +144,6 @@ def split_multi_terminal_rule(rule, k):
     else:
         assert False
 
-    #if len(r) > 2:
-    #split_multi_terminal_rule(rule[2:])
-
-    #new_rule = [r[0], new_key]
-    #return {**{new_key: [new_rule]}, }
-
-
 def remove_multi_terminals(g, s):
     new_g = defaultdict(list)
     for k in g:
