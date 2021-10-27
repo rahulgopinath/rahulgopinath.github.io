@@ -34,6 +34,20 @@ our prerequisites.
 ############
 import sys, imp, pprint, string
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import sys, imp, pprint, string
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+<details>
+<summary>Import Machinery</summary>
+
+<!--
+############
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
     newmodule = imp.new_module(modname)
@@ -57,8 +71,6 @@ def import_file(name, location):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import sys, imp, pprint, string
-
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
     newmodule = imp.new_module(modname)
@@ -81,6 +93,7 @@ def import_file(name, location):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+</details>
 We import the following modules
 
 <!--

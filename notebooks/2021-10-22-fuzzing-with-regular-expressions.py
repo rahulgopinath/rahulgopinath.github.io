@@ -18,6 +18,9 @@
 
 import sys, imp, pprint, string
 
+# <details>
+# <summary>Import Machinery</summary>
+
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
     newmodule = imp.new_module(modname)
@@ -36,6 +39,8 @@ def import_file(name, location):
         with open(module_loc, encoding='utf8') as f:
             module_str = f.read()
     return make_module(module_str, module_loc, name)
+
+# </details>
 
 # We import the following modules
 
