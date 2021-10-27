@@ -34,67 +34,31 @@ our prerequisites.
 ############
 import sys, imp, pprint, string
 
+def make_module(modulesource, sourcestr, modname):
+    codeobj = compile(modulesource, sourcestr, 'exec')
+    newmodule = imp.new_module(modname)
+    exec(codeobj, newmodule.__dict__)
+    return newmodule
+
+def import_file(name, location):
+    if "pyodide" in sys.modules:
+        import pyodide
+        github_repo = 'https://raw.githubusercontent.com/'
+        my_repo =  'rahulgopinath/rahulgopinath.github.io'
+        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
+        module_str = pyodide.open_url(module_loc).getvalue()
+    else:
+        module_loc = './notebooks/%s' % location
+        with open(module_loc, encoding='utf8') as f:
+            module_str = f.read()
+    return make_module(module_str, module_loc, name)
+
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import sys, imp, pprint, string
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-<details>
-<summary>Import Machinery; Please make sure to open and run</summary>
-<p>
-  
-```
 
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-```
-
-
-<!--
-############
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
     newmodule = imp.new_module(modname)
@@ -117,9 +81,6 @@ def import_file(name, location):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-</p>
-</details>
 We import the following modules
 
 <!--
