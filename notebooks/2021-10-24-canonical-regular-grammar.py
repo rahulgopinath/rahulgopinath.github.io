@@ -62,14 +62,15 @@ gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
 
-# 
-
+# ## Remove degenerate rules
+# A degenerate rule is a rule with a format $$ A \rightarrow B $$ where $$ A $$
+# and $$ B $$ are nonterminals in the grammar. The way to eliminate such
+# nonterminals is to recursively merge the rules of $$ B $$ to the rules of $$ A $$.
 
 def is_degenerate_rule(rule):
     return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
 
 def remove_degenerate_rules(g, s):
-    # assumes no cycle
     cont = True
     while cont:
         cont = False
@@ -87,13 +88,88 @@ def remove_degenerate_rules(g, s):
                     new_rules.append(r)
         return new_g, s
 
+# Using it
+
+if __name__ == '__main__':
+   g1 = {
+        '<start1>' : [['<A1>']],
+        '<A1>' : [['a1', '<B1>']],
+        '<B1>' : [['b1','<C1>'], ['<C1>']],
+        '<C1>' : [['c1']]
+   }
+   s1 = '<start1>'
+   g, s = remove_degenerate_rules(g1, s1)
+   gatleast.display_grammar(g, s)
+
+# ## Removing terminal sequences
+# A terminal sequence is a sequence of terminal symbols in a rule. For example,
+# in the rule $$ A \rightarrow a b c B $$, $$ a b c $$ is a terminal sequence.
+# We want to replace such sequences by a new nonterminal. For example,
+# $$ A \rightarrow a Aa $$, $$ Aa \rightarrow b Aab $$, $$ Aab \rightarrow c B $$.
+
 from collections import defaultdict
 
-def split_to_rulesets(rules):
+def get_split_key(k, terminal):
+    return '<%s_%s>' % (k[1:-1], terminal)
+
+def split_multi_terminal_rule(rule, k):
+    if len(rule) == 0:
+        return k, [(k, [rule])]
+    elif len(rule) == 1:
+        assert not fuzzer.is_nonterminal(rule[0])
+        return k, [(k, [rule])]
+    elif len(rule) > 1:
+        terminal = rule[0]
+        tok = rule[1]
+        if fuzzer.is_nonterminal(tok):
+            assert len(rule) == 2
+            return k, [(k, [rule])]
+        else:
+            kn, ngl = split_multi_terminal_rule(rule[1:], get_split_key(k, terminal))
+            new_rule = [terminal, kn]
+            return k, ([(k, [new_rule])] + ngl)
+    else:
+        assert False
+
+    #if len(r) > 2:
+    #split_multi_terminal_rule(rule[2:])
+
+    #new_rule = [r[0], new_key]
+    #return {**{new_key: [new_rule]}, }
+
+
+def remove_multi_terminals(g, s):
+    new_g = defaultdict(list)
+    for k in g:
+        for r in g[k]:
+            nk, lst = split_multi_terminal_rule(r, k)
+            for k, rules in lst:
+                new_g[k].extend(rules)
+            assert nk in new_g
+    return new_g, s
+
+# Using it
+
+if __name__ == '__main__':
+   g2 = {
+        '<start1>' : [['a1', 'a2', 'a3', '<A1>']],
+        '<A1>' : [['a1', '<B1>'], ['b1', 'b2']],
+        '<B1>' : [['b1','<C1>'], ['b2', '<C1>']],
+        '<C1>' : [['c1'], []]
+   }
+   s2 = '<start1>'
+   g, s = remove_multi_terminals(g2, s2)
+   gatleast.display_grammar(g, s)
+
+# ## Collapse similar starting rules
+# First we split any given definition into rulesets that start wit the same
+# terminal symbol.
+
+def definition_split_to_rulesets(d1):
     rule_sets = defaultdict(list)
-    for r in rules:
+    for r in d1:
         if len(r) > 0:
-            assert not fuzzer.is_nonterminal(r[0]) # no degenerate
+            assert not fuzzer.is_nonterminal(r[0]) # no degenerate rules
             rule_sets[r[0]].append(r)
         else:
             rule_sets[''].append(r)
@@ -117,12 +193,13 @@ def join_rules(rules):
     return tuple(keys), [terminal, new_key]
 
 def construct_keys(new_key, g):
+    pass
 
 def collapse_similar_starting_rules(g, s):
     new_g = defaultdict(list)
     keys_to_construct = []
     for k in g:
-        rsets = split_to_rulesets(g[k])
+        rsets = definition_split_to_rulesets(g[k])
         # each ruleset will get one rule
         for c in rsets:
             keys_to_combine, new_rule = join_rules(rsets[c])
@@ -137,23 +214,6 @@ def collapse_similar_starting_rules(g, s):
         new_keys, new_g = construct_keys(cur_key_lst, {**g, **new_g})
         keys_to_construct.extend(new_keys)
     return new_g, s
-
-def remove_multi_terminals(g, s):
-    new_g = defaltdict(list)
-    for k in g:
-        for r in g[k]:
-            if len(r) > 1:
-                tok = r[1]
-                if not fuzzer.is_nonterminal(tok):
-                    new_key = '<%s_%s>' % (k[1:-1], tok)
-                    new_rule = [r[0], new_key]
-
-                    new_g[new_key].append(r[1:])
-                    new_g[k].append(new_rule)
-                else:
-                    new_g[k].append(r)
-            else:
-                new_g[k].append(r)
 
 def canonical_regular_grammar(g0, s0):
     g1, s1 = remove_degenerate_rules(g0, s0)
