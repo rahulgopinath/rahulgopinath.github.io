@@ -146,6 +146,7 @@ in the nonterminals. So, we define our grammar first.
 ############
 import string
 EMPTY_NT = '<_>'
+ALL_NT = '<.*>'
 BEXPR_GRAMMAR = {
     '<start>': [['<', '<bexpr>', '>']],
     '<bexpr>': [
@@ -172,6 +173,7 @@ BEXPR_START = '<start>'
 <textarea cols="40" rows="4" name='python_edit'>
 import string
 EMPTY_NT = &#x27;&lt;_&gt;&#x27;
+ALL_NT = &#x27;&lt;.*&gt;&#x27;
 BEXPR_GRAMMAR = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;&#x27;, &#x27;&lt;bexpr&gt;&#x27;, &#x27;&gt;&#x27;]],
     &#x27;&lt;bexpr&gt;&#x27;: [
@@ -1061,52 +1063,52 @@ Using
 
 <!--
 ############
-my_re1 = 'a1(b1(c1)|b1)'
 g_empty = {EMPTY_NT: [[]]}
+g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
 g1 = {
         '<start1>' : [['0', '<A1>']],
         '<A1>' : [['a', '<B1>']],
-        '<B1>' : [['b','<C1>'], ['b', '<D1>']],
-        '<C1>' : [['c1', '<D1>']],
+        '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+        '<C1>' : [['c', '<D1>']],
         '<D1>' : [[]],
         }
 s1 = '<start1>'
-my_re2 = 'a2(b2)|a2'
 g2 = {
         '<start2>' : [['0', '<A2>']],
-        '<A2>' : [['a', '<B2>'], ['a2', '<D2>']],
+        '<A2>' : [['a', '<B2>'], ['b', '<D2>']],
         '<B2>' : [['b', '<D2>']],
-        '<D2>' : [[]],
+        '<D2>' : [['c', '<E2>']],
+        '<E2>' : [[]],
         }
 s2 = '<start2>'
 s1_s2 = and_nonterminals(s1, s2)
-g, s = complete({**g1, **g2, **g_empty}, s1_s2, True)
+g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
 gatleast.display_grammar(g,s)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_re1 = &#x27;a1(b1(c1)|b1)&#x27;
 g_empty = {EMPTY_NT: [[]]}
+g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
 g1 = {
         &#x27;&lt;start1&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A1&gt;&#x27;]],
         &#x27;&lt;A1&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B1&gt;&#x27;]],
-        &#x27;&lt;B1&gt;&#x27; : [[&#x27;b&#x27;,&#x27;&lt;C1&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;D1&gt;&#x27;]],
-        &#x27;&lt;C1&gt;&#x27; : [[&#x27;c1&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;B1&gt;&#x27; : [[&#x27;b&#x27;,&#x27;&lt;C1&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;C1&gt;&#x27; : [[&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
         &#x27;&lt;D1&gt;&#x27; : [[]],
         }
 s1 = &#x27;&lt;start1&gt;&#x27;
-my_re2 = &#x27;a2(b2)|a2&#x27;
 g2 = {
         &#x27;&lt;start2&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A2&gt;&#x27;]],
-        &#x27;&lt;A2&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B2&gt;&#x27;], [&#x27;a2&#x27;, &#x27;&lt;D2&gt;&#x27;]],
+        &#x27;&lt;A2&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B2&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;D2&gt;&#x27;]],
         &#x27;&lt;B2&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;D2&gt;&#x27;]],
-        &#x27;&lt;D2&gt;&#x27; : [[]],
+        &#x27;&lt;D2&gt;&#x27; : [[&#x27;c&#x27;, &#x27;&lt;E2&gt;&#x27;]],
+        &#x27;&lt;E2&gt;&#x27; : [[]],
         }
 s2 = &#x27;&lt;start2&gt;&#x27;
 s1_s2 = and_nonterminals(s1, s2)
-g, s = complete({**g1, **g2, **g_empty}, s1_s2, True)
+g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
 gatleast.display_grammar(g,s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

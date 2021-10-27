@@ -86,6 +86,7 @@ rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.p
 
 import string
 EMPTY_NT = '<_>'
+ALL_NT = '<.*>'
 BEXPR_GRAMMAR = {
     '<start>': [['<', '<bexpr>', '>']],
     '<bexpr>': [
@@ -481,26 +482,26 @@ def complete(grammar, start, log=False):
 # Using
 
 if __name__ == '__main__':
-    my_re1 = 'a1(b1(c1)|b1)'
     g_empty = {EMPTY_NT: [[]]}
+    g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
     g1 = {
             '<start1>' : [['0', '<A1>']],
             '<A1>' : [['a', '<B1>']],
-            '<B1>' : [['b','<C1>'], ['b', '<D1>']],
-            '<C1>' : [['c1', '<D1>']],
+            '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+            '<C1>' : [['c', '<D1>']],
             '<D1>' : [[]],
             }
     s1 = '<start1>'
-    my_re2 = 'a2(b2)|a2'
     g2 = {
             '<start2>' : [['0', '<A2>']],
-            '<A2>' : [['a', '<B2>'], ['a2', '<D2>']],
+            '<A2>' : [['a', '<B2>'], ['b', '<D2>']],
             '<B2>' : [['b', '<D2>']],
-            '<D2>' : [[]],
+            '<D2>' : [['c', '<E2>']],
+            '<E2>' : [[]],
             }
     s2 = '<start2>'
     s1_s2 = and_nonterminals(s1, s2)
-    g, s = complete({**g1, **g2, **g_empty}, s1_s2, True)
+    g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
     gatleast.display_grammar(g,s)
 
 # The runnable code for this post is available
