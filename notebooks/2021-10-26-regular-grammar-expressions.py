@@ -101,6 +101,10 @@ BEXPR_GRAMMAR = {
 }
 BEXPR_START = '<start>'
 
+# We also need the set of all terminal symbols. We define it as follows
+
+TERMINAL_SYMBOLS = list('abcdefg') #list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
 # Next, we define our expression class
 class BExpr(gexpr.BExpr):
     def create_new(self, e): return BExpr(e)
@@ -116,6 +120,7 @@ class BExpr(gexpr.BExpr):
         return '<%s>' % s
 
 # Ensure that it works
+
 if __name__ == '__main__':
     strings = [
             '<1>',
@@ -128,12 +133,30 @@ if __name__ == '__main__':
         print(e.as_key())
 
 # ## Conjuction of two regular grammars
+# Next, we define the conjunction of two regular grammars in the canonical
+# format. We will define the conjunction of two definitions, and at the end
+# discuss how to stitch it together for the complete grammar. The nice thing
+# here is that, because our grammar is in the canonical format, conjunction
+# disjunction and negation is really simple, and follows roughtly the same
+# framework.
+# 
+# ### Nonterminals symbols
 
 def and_nonterminals(k1, k2):
+    if k1 == k2: return k1
     return '<and(%s,%s)>' % (k1[1:-1], k2[1:-1])
 
+# Ensure that it works
+
+if __name__ == '__main__':
+    k = and_nonterminals('<A>', '<B>')
+    print(k)
+
+# ### The rules
+# We only provide conjunction for those rules whose initial chars are the same
+# or it is an empty rule.
+
 def and_rules(r1, r2):
-    # the initial chars are the same
     if not r1:
         assert not r2
         return None, [] # epsilon
@@ -142,6 +165,18 @@ def and_rules(r1, r2):
     assert len(r2) != 1
     nk = and_nonterminals(r1[1], r2[1])
     return nk, [r1[0], nk]
+
+# Ensure that it works
+
+if __name__ == '__main__':
+    k, r = and_rules([], [])
+    print(k, r)
+    k, r = and_rules(['a', '<A>'], ['a', '<B>'])
+    print(k, r)
+    k, r = and_rules(['a', '<A>'], ['a', '<A>'])
+    print(k, r)
+
+# ### The Definition
 
 def get_leading_terminal(rule):
     if not rule: return ''
@@ -162,8 +197,47 @@ def and_definitions(d1, d2):
             new_keys.append(new_key)
     return new_rules
 
+# Ensure that it works
+
+if __name__ == '__main__':
+    g1 = {
+         '<start1>' : [['a1', '<A1>']],
+         '<A1>' : [['b1', '<B1>'], ['c1', '<C1>']],
+         '<B1>' : [['c1','<C1>']],
+         '<C1>' : [[]]
+    }
+    g2 = {
+         '<start2>' : [['a1', '<A2>']],
+         '<A2>' : [['b1', '<B2>'], ['d1', '<C2>']],
+         '<B2>' : [['c1','<C2>'], []],
+         '<C2>' : [[]]
+    }
+
+    rules = and_definitions(g1['<start1>'], g2['<start2>'])
+    print(rules)
+    rules = and_definitions(g1['<A1>'], g2['<A2>'])
+    print(rules)
+    rules = and_definitions(g1['<B1>'], g2['<B2>'])
+    print(rules)
+
+# ## Disjunction of two regular grammars
+# For disjunction, the strategy is the same.
+
+# ### Disjunction of nonterminal symbols
+
 def or_nonterminals(k1, k2):
+    if k1 == k2: return k1
     return '<or(%s,%s)>' % (k1[1:-1], k2[1:-1])
+
+# Ensure that it works
+
+if __name__ == '__main__':
+    k = or_nonterminals('<A>', '<B>')
+    print(k)
+    k = or_nonterminals('<A>', '<A>')
+    print(k)
+
+# ### Disjunction of rules
 
 def or_rules(r1, r2):
     # the initial chars are the same
@@ -176,6 +250,18 @@ def or_rules(r1, r2):
     nk = or_nonterminals(r1[1], r2[1])
     return nk, [r1[0], nk]
 
+# Ensure that it works
+
+if __name__ == '__main__':
+    k, r = and_rules([], [])
+    print(k, r)
+    k, r = or_rules(['a', '<A>'], ['a', '<B>'])
+    print(k, r)
+    k, r = or_rules(['a', '<A>'], ['a', '<A>'])
+    print(k, r)
+
+# ### Disjunction of definitions
+
 def or_definitions(d1, d2):
     # first find the rules with same starting terminal symbol.
     paired1 = {get_leading_terminal(r):r for r in d1}
@@ -187,12 +273,43 @@ def or_definitions(d1, d2):
     p2 = [c for c in paired2 if c not in paired1]
     for terminal in p0:
         new_key, kunion = or_rules(paired1[terminal], paired2[terminal])
-        new_rules.append(intersected)
+        new_rules.append(kunion)
         if new_key is not None:
             new_keys.append(new_key)
     return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
 
+if __name__ == '__main__':
+    g3 = {
+         '<start3>' : [['a1', '<A3>']],
+         '<A3>' : [['b1', '<B3>'], ['c1', '<C3>']],
+         '<B3>' : [['c1','<C3>']],
+         '<C3>' : [[]]
+    }
+    g4 = {
+         '<start4>' : [['a1', '<A4>']],
+         '<A4>' : [['b1', '<B4>'], ['d1', '<C4>']],
+         '<B4>' : [['c1','<C4>'], []],
+         '<C4>' : [[]]
+    }
+
+    rules = or_definitions(g3['<start3>'], g4['<start4>'])
+    print(rules)
+    rules = or_definitions(g3['<A3>'], g4['<A4>'])
+    print(rules)
+    rules = or_definitions(g3['<B3>'], g4['<B4>'])
+    print(rules)
+
+# ## Negation
+
 def negate_nonterminal(k): return '<neg(%s)>' % k[1:-1]
+
+# Ensure that it works
+
+if __name__ == '__main__':
+    k = negate_nonterminal('<A>')
+    print(k)
+
+# ### Negate a single rule
 
 def negate_key_in_rule(rule):
     if len(rule) == 0: return None
@@ -201,7 +318,17 @@ def negate_key_in_rule(rule):
     assert fuzzer.is_nonterminal(rule[1])
     return [rule[0], negate_nonterminal(rule[1])]
 
-def negate_definition(d1, terminal_symbols):
+# Ensure that it works
+
+if __name__ == '__main__':
+    r = negate_key_in_rule(['a', '<A>'])
+    print(r)
+    r = negate_key_in_rule([])
+    print(r)
+
+# ### Negate a definition
+
+def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
     # for negating a definition, we negate each ruleset
     # separately, and add any characters that were left
     # over.
@@ -228,6 +355,26 @@ def negate_definition(d1, terminal_symbols):
     if [] not in d1:
         new_rules.append([])
     return new_rules
+
+# Using it
+
+if __name__ == '__main__':
+    g4 = {
+         '<start3>' : [['a', '<A3>']],
+         '<A3>' : [['b', '<B3>'], ['c', '<C3>']],
+         '<B3>' : [['c','<C3>']],
+         '<C3>' : [[]]
+    }
+
+    rules = negate_definition(g4['<start3>'])
+    print(rules)
+    rules = negate_definition(g4['<A3>'])
+    print(rules)
+    rules = negate_definition(g4['<B3>'])
+    print(rules)
+
+# ## Complete
+# Now, stitching it all together
 
 class ReconstructRules:
     def __init__(self, grammar):
@@ -329,20 +476,22 @@ if __name__ == '__main__':
     g1 = {
             '<start1>' : [['0', '<A1>']],
             '<A1>' : [['a', '<B1>']],
-            '<B1>' : [['b','<C1>'], ['b']],
-            '<C1>' : [['c1']]
+            '<B1>' : [['b','<C1>'], ['b', '<D1>']],
+            '<C1>' : [['c1', '<D1>']],
+            '<D1>' : [[]],
             }
     s1 = '<start1>'
     my_re2 = 'a2(b2)|a2'
     g2 = {
             '<start2>' : [['0', '<A2>']],
-            '<A2>' : [['a', '<B2>'], ['a2']],
-            '<B2>' : [['b']]
+            '<A2>' : [['a', '<B2>'], ['a2', '<D2>']],
+            '<B2>' : [['b', '<D2>']],
+            '<D2>' : [[]],
             }
     s2 = '<start2>'
     s1_s2 = and_nonterminals(s1, s2)
     g, s = complete({**g1, **g2, **g_empty}, s1_s2, True)
-    print(s)
     gatleast.display_grammar(g,s)
 
-# The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)
+# The runnable code for this post is available
+# [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
