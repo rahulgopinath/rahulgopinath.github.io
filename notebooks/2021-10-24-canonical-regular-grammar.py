@@ -20,7 +20,6 @@
 # a canonical format for regular grammars, to which any regular grammar can
 # be converted to.
 #
-# * $$ A \rightarrow a $$
 # * $$ A \rightarrow a B $$
 # * $$ A \rightarrow \epsilon $$
 # 
@@ -81,8 +80,11 @@ def remove_degenerate_rules(g, s):
             for r in g[k]:
                 if is_degenerate_rule(r):
                     if r[0] == k: continue # self recursion
-                    new_r = g[r[0]]
-                    if is_degenerate_rule(new_r): cont = True
+                    new_rs = g[r[0]]
+                    for new_r in new_rs:
+                        if is_degenerate_rule(new_r):
+                            cont = True
+                            break
                     new_rules.extend(new_r)
                 else:
                     new_rules.append(r)
@@ -95,7 +97,7 @@ if __name__ == '__main__':
         '<start1>' : [['<A1>']],
         '<A1>' : [['a1', '<B1>']],
         '<B1>' : [['b1','<C1>'], ['<C1>']],
-        '<C1>' : [['c1']]
+        '<C1>' : [['c1'], ['<C1>']]
    }
    s1 = '<start1>'
    g, s = remove_degenerate_rules(g1, s1)
@@ -161,8 +163,59 @@ if __name__ == '__main__':
    g, s = remove_multi_terminals(g2, s2)
    gatleast.display_grammar(g, s)
 
+# ## Add empty rule
+# If there are any rules of the form $$ A \rightarrow b $$, we replace it by
+# $$ A \rightarrow b E $$, $$ E \rightarrow \epsilon $$. The reason for doing
+# this is to make sure that we have a single termination point.
+
+EMPTY_NT = '<_>'
+def add_empty_rule(g, s):
+    new_g = defaultdict(list)
+    new_g[EMPTY_NT] = [[]]
+    for k in g:
+        for r in g[k]:
+            if len(r) == 1:
+                tok = r[0]
+                assert fuzzer.is_terminal(tok)
+                new_g[k].append([tok, EMPTY_NT])
+            else:
+                new_g[k].append(r)
+    return new_g, s
+
 # ## Collapse similar starting rules
-# First we split any given definition into rulesets that start wit the same
+# Here, the idea is to join any set of rules of the form
+# $$ A \rightarrow b B $$, $$ A \rightarrow b C $$ to $$ A \rightarrow b or(B,C) $$.
+# First, we define how to join rules that all have the same terminal symbol
+# as the starting token.
+
+def join_keys(keys):
+    return '<or(%s)>' % ','.join([k[1:-1] for k in  keys])
+
+def join_rules(rules):
+    if len(rules) == 1: return (), rules[0]
+    terminal = rules[0][0]
+    assert all(r[0] == terminal for r in rules)
+    keys = []
+    for r in rules:
+        if len(r) > 1:
+            keys.append(r[1])
+        else:
+            keys.append('')
+    new_key = join_keys(keys)
+    return tuple(keys), [terminal, new_key]
+
+# Using it.
+
+if __name__ == '__main__':
+    rules = [
+            ['a', '<A>'],
+            ['a', '<B>'],
+            ['a', '<C>'],
+    ]
+    k, new_rule = join_rules(rules)
+    print(k, '::=', new_rule)
+
+# Next, we split any given definition into rulesets that start wit the same
 # terminal symbol.
 
 def definition_split_to_rulesets(d1):
@@ -175,25 +228,65 @@ def definition_split_to_rulesets(d1):
             rule_sets[''].append(r)
     return rule_sets
 
-def join_keys(keys):
-    return 'or(%s)' % ','.join(keys)
 
-def join_rules(rules):
-    # produce rules that combine their second nonterminal
-    # and return the new key with `or(.,.)`
-    terminal = rules[0][1]
-    assert all(r[0] == terminal for r in rules)
-    keys = []
-    for r in rules:
-        if len(r) > 1:
-            keys.append(r[1])
-        else:
-            keys.append('')
-    new_key = join_keys(keys)
-    return tuple(keys), [terminal, new_key]
+# Using it.
 
-def construct_keys(new_key, g):
-    pass
+if __name__ == '__main__':
+    rules = [
+            ['a', '<A>'],
+            ['a', '<B>'],
+            ['b', '<C>'],
+            ['b', '<D>'],
+    ]
+    rule_sets = definition_split_to_rulesets(rules)
+    for c in rule_sets:
+        print(c, rule_sets[c])
+
+# Given a list of keys, construct their `or(.)` from the
+# given grammar.
+
+def construct_merged_keys(merge_keys, g):
+    new_key = join_keys(merge_keys)
+    new_def = []
+    keys_to_construct = []
+    for k in merge_keys:
+        new_def.extend(g[k])
+    rsets = definition_split_to_rulesets(new_def)
+    new_rules = []
+    for c in rsets:
+        if not c:
+            new_rules.append([])
+            continue
+        keys_to_combine, new_rule = join_rules(rsets[c])
+        new_rules.append(new_rule)
+        if keys_to_combine:
+            keys_to_construct.append(keys_to_combine)
+    return keys_to_construct, {new_key: new_rules}
+
+
+# Using it.
+
+if __name__ == '__main__':
+   g3 = {
+        '<start1>' : [
+            ['a1', '<A1>'],
+            ['a1', '<A2>'],
+            ['a1', '<A3>']
+            ],
+        '<A1>' : [['b1', '<B1>']],
+        '<A2>' : [['b2', '<B1>']],
+        '<A3>' : [['b3', '<B1>']],
+        '<B1>' : [['b1','<C1>'],
+                  ['b2', '<C1>']],
+        '<C1>' : [['c1'], []]
+   }
+   s3 = '<start1>'
+   for k in [['<A1>', '<B1>'],
+             ['<A1>', '<C1>']]:
+       new_keys, g = construct_merged_keys(k, g3)
+       gatleast.display_grammar(g, join_keys(k))
+
+# defining the rule collapse.
 
 def collapse_similar_starting_rules(g, s):
     new_g = defaultdict(list)
@@ -204,21 +297,46 @@ def collapse_similar_starting_rules(g, s):
         for c in rsets:
             keys_to_combine, new_rule = join_rules(rsets[c])
             new_g[k].append(new_rule)
-            keys_to_construct.append(keys_to_combine)
+            if keys_to_combine:
+                keys_to_construct.append(keys_to_combine)
 
     seen_keys = set()
     while keys_to_construct:
-        cur_key_lst, *keys_to_construct = keys_to_construct
-        if cur_key_lst in seen_keys: continue
-        seen_keys.add(cur_key_lst)
-        new_keys, new_g = construct_keys(cur_key_lst, {**g, **new_g})
+        merge_keys, *keys_to_construct = keys_to_construct
+        if merge_keys in seen_keys: continue
+        seen_keys.add(merge_keys)
+        new_keys, g_ = construct_merged_keys(merge_keys, new_g)
+        new_g = {**new_g, **g_}
         keys_to_construct.extend(new_keys)
     return new_g, s
 
+
+# Using it.
+
+if __name__ == '__main__':
+   g, s = collapse_similar_starting_rules(g3, s3)
+   gatleast.display_grammar(g, s)
+
+#  Now, all together.
 def canonical_regular_grammar(g0, s0):
     g1, s1 = remove_degenerate_rules(g0, s0)
-    g1, s1 = remove_multi_terminals(g0, s0)
-    g2, s2 = collapse_similar_starting_rules(g1, s1)
 
-    return g2, s2
+    #
+    g2, s2 = remove_multi_terminals(g1, s1)
+    g3, s3 = add_empty_rule(g2, s2)
+    #
 
+    g4, s4 = collapse_similar_starting_rules(g3, s3)
+    return g4, s4
+
+# Using it.
+
+if __name__ == '__main__':
+   g, s = canonical_regular_grammar(g1, s1)
+   gatleast.display_grammar(g, s)
+
+   g, s = canonical_regular_grammar(g2, s2)
+   gatleast.display_grammar(g, s)
+
+   g, s = canonical_regular_grammar(g3, s3)
+   gatleast.display_grammar(g, s)
