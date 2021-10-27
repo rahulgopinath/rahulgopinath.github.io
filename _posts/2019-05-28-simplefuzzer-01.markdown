@@ -216,6 +216,9 @@ can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
 <!--
 ############
+def is_terminal(v):
+    return (v[0], v[-1]) != ('<', '>')
+
 def is_nonterminal(v):
     return (v[0], v[-1]) == ('<', '>')
 
@@ -236,6 +239,9 @@ def unify_rule_inv_t(g, rule):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def is_terminal(v):
+    return (v[0], v[-1]) != (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+
 def is_nonterminal(v):
     return (v[0], v[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
 
@@ -296,7 +302,7 @@ and the how the last line is represented (+)
 
 <!--
 ############
-OPTIONS   = O(V='│', H='─', L='└', J = '├')
+OPTIONS   = O(V='|', H='-', L='+', J = '+')
 
 def format_node(node):
     key = node[0]
@@ -310,7 +316,7 @@ def get_children(node):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-OPTIONS   = O(V=&#x27;│&#x27;, H=&#x27;─&#x27;, L=&#x27;└&#x27;, J = &#x27;├&#x27;)
+OPTIONS   = O(V=&#x27;|&#x27;, H=&#x27;-&#x27;, L=&#x27;+&#x27;, J = &#x27;+&#x27;)
 
 def format_node(node):
     key = node[0]

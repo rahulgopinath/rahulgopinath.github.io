@@ -100,6 +100,9 @@ if __name__ == '__main__':
 # will get you the derivation tree which
 # can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
+def is_terminal(v):
+    return (v[0], v[-1]) != ('<', '>')
+
 def is_nonterminal(v):
     return (v[0], v[-1]) == ('<', '>')
 
