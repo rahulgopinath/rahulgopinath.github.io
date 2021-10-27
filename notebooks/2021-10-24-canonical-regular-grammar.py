@@ -66,29 +66,34 @@ rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.
 # and $$ B $$ are nonterminals in the grammar. The way to eliminate such
 # nonterminals is to recursively merge the rules of $$ B $$ to the rules of $$ A $$.
 
+from collections import defaultdict
+
 def is_degenerate_rule(rule):
     return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
 
 def remove_degenerate_rules(g, s):
-    cont = True
-    while cont:
-        cont = False
-        new_g = {}
-        for k in g:
-            new_rules = []
-            new_g[k] = new_rules
-            for r in g[k]:
-                if is_degenerate_rule(r):
-                    if r[0] == k: continue # self recursion
-                    new_rs = g[r[0]]
-                    for new_r in new_rs:
-                        if is_degenerate_rule(new_r):
-                            cont = True
-                            break
-                    new_rules.extend(new_rs)
-                else:
-                    new_rules.append(r)
-        return new_g, s
+    g = dict(g)
+    drkeys = [k for k in g if any(is_degenerate_rule(r) for r in g[k])]
+    while drkeys:
+        drk, *drkeys = drkeys
+        new_rules = []
+        for r in g[drk]:
+            if is_degenerate_rule(r):
+                new_key = r[0]
+                if new_key == drk: continue # self recursion
+                new_rs = g[new_key]
+                if any(is_degenerate_rule(new_r) for new_r in new_rs):
+                    drkeys.append(drk)
+                new_rules.extend(new_rs)
+            else:
+                new_rules.append(r)
+        g[drk] = new_rules
+
+    new_g = defaultdict(list)
+    for k in g:
+        my_rules = {str(r):r for r in g[k]}
+        new_g[k] = [my_rules[k] for k in my_rules]
+    return new_g, s
 
 # Using it
 
@@ -109,7 +114,6 @@ if __name__ == '__main__':
 # We want to replace such sequences by a new nonterminal. For example,
 # $$ A \rightarrow a Aa $$, $$ Aa \rightarrow b Aab $$, $$ Aab \rightarrow c B $$.
 
-from collections import defaultdict
 
 def get_split_key(k, terminal):
     return '<%s_%s>' % (k[1:-1], terminal)
