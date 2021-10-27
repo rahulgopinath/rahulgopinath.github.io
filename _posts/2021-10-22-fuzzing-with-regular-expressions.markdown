@@ -44,9 +44,10 @@ import sys, imp, pprint, string
 <div name='python_canvas'></div>
 </form>
 <details>
-<summary>Import Machinery</summary>
-
+<summary>Import Machinery; Please make sure to open and run</summary>
+<p>
 ```
+
 def make_module(modulesource, sourcestr, modname):
     codeobj = compile(modulesource, sourcestr, 'exec')
     newmodule = imp.new_module(modname)
@@ -115,6 +116,8 @@ def import_file(name, location):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+</p>
 </details>
 We import the following modules
 
