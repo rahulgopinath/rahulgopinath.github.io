@@ -10,10 +10,18 @@
 # In the [previous post](/post/2021/10/22/fuzzing-with-regular-expressions/)
 # I showed how to produce a grammar out of regular expressions. In the
 # second [post](/post/2021/10/23/regular-expression-to-regular-grammar/), I
-# claimed that we need a regular grammar because
-# regular grammars have more interesting properties such as being closed under
+# claimed that we need a regular grammar because regular grammars have more
+# interesting properties such as being closed under
 # intersection and complement. Now, the question is how do we actually do
-# the intersection between two regular grammars?
+# the intersection between two regular grammars? For this post, I assume that
+# the regular expressions are in the canonical format as given in
+# [this post](/post/2021/10/24/canonical-regular-grammar/).
+# That is, there are only two possible rule formats $$ A \rightarrow a B $$
+# and $$ A \rightarrow \epsilon $$. Further, the canonical format requires that
+# there is only one rule in a nonterminal definition that starts with a
+# particular terminal symbol. Refer to
+# [this post](/post/2021/10/24/canonical-regular-grammar/) for how convert any
+# regular grammar to the canonical format.
 #
 # We start with importing the prerequisites
 
@@ -45,19 +53,28 @@ gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 gexpr = import_file('gexpr', '2021-09-11-fault-expressions.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
+rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.py')
 
-# There are only three patterns of rules (assuming no degenerate rules)
-# in regular grammars.
+# There are only two patterns of rules in canonical regular grammars.
 #
 # 1. $$ A -> aB $$
-# 2. $$ A -> a $$
 # 3. $$ A -> \epsilon $$
 #
 # The idea is that when evaluating intersection of the start symbol,
 # pair up all rules that start with the same terminal symbol.
 # Only the intersecion of these would exist in the resulting grammar.
-# The intersection of $$ <A1> -> a <B1> $$ and $$ <A2> -> a <B2> $$
-# is simply $$ <A1&A2> -> a <B1&B2> $$.
+# The intersection of
+# ```
+# <A1> ::= a <B1>
+# ```
+# and
+# ```
+# <A2> ::= a <B2>
+# ```
+# is simply
+# ```
+# <and(A1,A2)> ::= a <and(B1,B2)>
+# ```
 #
 # For constructing such rules, we also need to parse the boolean expressions
 # in the nonterminals. So, we define our grammar first.
@@ -110,94 +127,79 @@ if __name__ == '__main__':
         e = BExpr(s)
         print(e.as_key())
 
-from collections import defaultdict
+# ## Conjuction of two regular grammars
 
-def split_to_rulesets(rules):
-    rule_sets = defaultdict(list)
-    for r in rules:
-        if len(r) > 0:
-            assert not fuzzer.is_nonterminal(r[0]) # no degenerate
-            rule_sets[r[0]].append(r)
-        else:
-            rule_sets[''].append(r)
-    return rule_sets
-
-def nonterminal_intersection(k1, k2): return '<%s&%s>' % (k1[1:-1], k2[1:-1])
-
-import itertools as I
-
-def intersect_nonterminals(k1, k2):
+def and_nonterminals(k1, k2):
     return '<and(%s,%s)>' % (k1[1:-1], k2[1:-1])
 
-def intersect_rules(r1, r2):
+def and_rules(r1, r2):
     # the initial chars are the same
-    if not r1: return [], [] # epsilon
+    if not r1:
+        assert not r2
+        return None, [] # epsilon
     assert r1[0] == r2[0]
-    if len(r1) == 1:
-        if len(r2) == 1: return [], r2
-        nk = intersect_nonterminals(r1[1], EMPTY_NT)
-        return [nk], [r1[0], nk]
-    elif len(r2) == 1:
-        nk = intersect_nonterminals(r1[1], EMPTY_NT)
-        return [nk], [r2[0], nk]
-    else:
-        nk = intersect_nonterminals(r1[1], r2[1])
-        return [nk], [r1[0], nk]
+    assert len(r1) != 1
+    assert len(r2) != 1
+    nk = and_nonterminals(r1[1], r2[1])
+    return nk, [r1[0], nk]
 
-def pair_up_rulesets(rs1, rs2):
-    nks = []
-    new_rules = []
-    for r1, r2 in I.product(rs1, rs2):
-        nk, new_rule = intersect_rules(r1, r2)
-        nks.extend(nk)
-        new_rules.append(new_rule)
-    return nks, new_rules
+def get_leading_terminal(rule):
+    if not rule: return ''
+    return rule[0]
 
 def and_definitions(d1, d2):
-    # first find the rule sets with same starting terminal symbol.
-    rule_sets1 = split_to_rulesets(d1)
-    rule_sets2 = split_to_rulesets(d2)
+    # first find the rules with same starting terminal symbol.
+    paired1 = {get_leading_terminal(r):r for r in d1}
+    paired2 = {get_leading_terminal(r):r for r in d2}
     # only those that can be parsed by both are allowed
     new_rules = []
     new_keys = []
-    for char in rule_sets1:
-        if char not in rule_sets2: continue
-        rset1 = rule_sets1[char]
-        rset2 = rule_sets2[char]
-        nks, intersected = pair_up_rulesets(rset1, rset2)
-        new_rules.extend(intersected)
-        new_keys.extend(nks)
+    for terminal in paired1:
+        if terminal not in paired2: continue
+        new_key, intersected = and_rules(paired1[terminal], paired2[terminal])
+        new_rules.append(intersected)
+        if new_key is not None:
+            new_keys.append(new_key)
     return new_rules
 
+def or_nonterminals(k1, k2):
+    return '<or(%s,%s)>' % (k1[1:-1], k2[1:-1])
+
+def or_rules(r1, r2):
+    # the initial chars are the same
+    if not r1:
+        assert not r2
+        return None, [] # epsilon
+    assert r1[0] == r2[0]
+    assert len(r1) != 1
+    assert len(r2) != 1
+    nk = or_nonterminals(r1[1], r2[1])
+    return nk, [r1[0], nk]
+
 def or_definitions(d1, d2):
-    return d1 + d2
+    # first find the rules with same starting terminal symbol.
+    paired1 = {get_leading_terminal(r):r for r in d1}
+    paired2 = {get_leading_terminal(r):r for r in d2}
+    new_rules = []
+    new_keys = []
+    p0 = [c for c in paired1 if c in paired2]
+    p1 = [c for c in paired1 if c not in paired2]
+    p2 = [c for c in paired2 if c not in paired1]
+    for terminal in p0:
+        new_key, kunion = or_rules(paired1[terminal], paired2[terminal])
+        new_rules.append(intersected)
+        if new_key is not None:
+            new_keys.append(new_key)
+    return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
 
 def negate_nonterminal(k): return '<neg(%s)>' % k[1:-1]
 
-def negate_keys_in_rule(rule):
-    if len(rule) == 0:
-        return rule
-    elif len(rule) == 1:
-        assert not fuzzer.is_nonterminal(rule[0])
-        return rule
-    else:
-        assert not fuzzer.is_nonterminal(rule[0])
-        assert fuzzer.is_nonterminal(rule[1])
-        return [rule[0], negate_nonterminal(rule[1])]
-
-def negate_ruleset(rules):
-    new_rules = []
-    for rule in rules:
-        r = negate_keys_in_rule(rule)
-        new_rules.append(r)
-    return new_rules
-
-def conjunct_ruleset(rules):
-    first, *rules = rules
-    while rules:
-        cur, *rules = rules
-        first = intersect_rules(first, cur)
-    return first
+def negate_key_in_rule(rule):
+    if len(rule) == 0: return None
+    assert len(rule) != 1
+    assert fuzzer.is_terminal(rule[0])
+    assert fuzzer.is_nonterminal(rule[1])
+    return [rule[0], negate_nonterminal(rule[1])]
 
 def negate_definition(d1, terminal_symbols):
     # for negating a definition, we negate each ruleset
@@ -208,20 +210,24 @@ def negate_definition(d1, terminal_symbols):
     # empty string. So, we will not match that single
     # element.
 
-
-    rule_sets1 = split_to_rulesets(d1)
-    remaining_chars = [c for c in terminal_symbols if c not in rule_sets1]
+    # Now, for those characters that are not matched by
+    # any of the leading chars in rules, we can match
+    # anything else after the char.
+    paired = {get_leading_terminal(r):r for r in d1}
+    remaining_chars = [c for c in terminal_symbols if c not in paired]
     new_rules = [[c, '<.*>'] for c in remaining_chars]
-    for rules in rule_sets1:
-        nrs = negate_ruleset(rules)
-        crule = conjunct_ruleset(nrs)
-        new_rules.append(nrs)
+
+    # Now, we try to negate individual rules. It starts with the same
+    # character, but matches the negative.
+    for rule in d1:
+        r = negate_key_in_rule(rule)
+        if r is not None:
+            new_rules.append(r)
 
     # should we add emtpy rule match or not?
     if [] not in d1:
         new_rules.append([])
     return new_rules
-
 
 class ReconstructRules:
     def __init__(self, grammar):
@@ -334,7 +340,7 @@ if __name__ == '__main__':
             '<B2>' : [['b']]
             }
     s2 = '<start2>'
-    s1_s2 = intersect_nonterminals(s1, s2)
+    s1_s2 = and_nonterminals(s1, s2)
     g, s = complete({**g1, **g2, **g_empty}, s1_s2, True)
     print(s)
     gatleast.display_grammar(g,s)
