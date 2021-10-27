@@ -286,6 +286,8 @@ def or_definitions(d1, d2):
             new_keys.append(new_key)
     return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
 
+# Ensure that it works
+
 if __name__ == '__main__':
     g3 = {
          '<start3>' : [['a1', '<A3>']],

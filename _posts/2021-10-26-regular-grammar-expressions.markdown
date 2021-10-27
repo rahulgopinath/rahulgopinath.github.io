@@ -603,27 +603,6 @@ def or_definitions(d1, d2):
             new_keys.append(new_key)
     return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
 
-if __name__ == '__main__':
-    g3 = {
-         '<start3>' : [['a1', '<A3>']],
-         '<A3>' : [['b1', '<B3>'], ['c1', '<C3>']],
-         '<B3>' : [['c1','<C3>']],
-         '<C3>' : [[]]
-    }
-    g4 = {
-         '<start4>' : [['a1', '<A4>']],
-         '<A4>' : [['b1', '<B4>'], ['d1', '<C4>']],
-         '<B4>' : [['c1','<C4>'], []],
-         '<C4>' : [[]]
-    }
-
-    rules = or_definitions(g3['<start3>'], g4['<start4>'])
-    print(rules)
-    rules = or_definitions(g3['<A3>'], g4['<A4>'])
-    print(rules)
-    rules = or_definitions(g3['<B3>'], g4['<B4>'])
-    print(rules)
-
 ############
 -->
 <form name='python_run_form'>
@@ -643,27 +622,57 @@ def or_definitions(d1, d2):
         if new_key is not None:
             new_keys.append(new_key)
     return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Ensure that it works
 
-if __name__ == &#x27;__main__&#x27;:
-    g3 = {
-         &#x27;&lt;start3&gt;&#x27; : [[&#x27;a1&#x27;, &#x27;&lt;A3&gt;&#x27;]],
-         &#x27;&lt;A3&gt;&#x27; : [[&#x27;b1&#x27;, &#x27;&lt;B3&gt;&#x27;], [&#x27;c1&#x27;, &#x27;&lt;C3&gt;&#x27;]],
-         &#x27;&lt;B3&gt;&#x27; : [[&#x27;c1&#x27;,&#x27;&lt;C3&gt;&#x27;]],
-         &#x27;&lt;C3&gt;&#x27; : [[]]
-    }
-    g4 = {
-         &#x27;&lt;start4&gt;&#x27; : [[&#x27;a1&#x27;, &#x27;&lt;A4&gt;&#x27;]],
-         &#x27;&lt;A4&gt;&#x27; : [[&#x27;b1&#x27;, &#x27;&lt;B4&gt;&#x27;], [&#x27;d1&#x27;, &#x27;&lt;C4&gt;&#x27;]],
-         &#x27;&lt;B4&gt;&#x27; : [[&#x27;c1&#x27;,&#x27;&lt;C4&gt;&#x27;], []],
-         &#x27;&lt;C4&gt;&#x27; : [[]]
-    }
+<!--
+############
+g3 = {
+     '<start3>' : [['a1', '<A3>']],
+     '<A3>' : [['b1', '<B3>'], ['c1', '<C3>']],
+     '<B3>' : [['c1','<C3>']],
+     '<C3>' : [[]]
+}
+g4 = {
+     '<start4>' : [['a1', '<A4>']],
+     '<A4>' : [['b1', '<B4>'], ['d1', '<C4>']],
+     '<B4>' : [['c1','<C4>'], []],
+     '<C4>' : [[]]
+}
 
-    rules = or_definitions(g3[&#x27;&lt;start3&gt;&#x27;], g4[&#x27;&lt;start4&gt;&#x27;])
-    print(rules)
-    rules = or_definitions(g3[&#x27;&lt;A3&gt;&#x27;], g4[&#x27;&lt;A4&gt;&#x27;])
-    print(rules)
-    rules = or_definitions(g3[&#x27;&lt;B3&gt;&#x27;], g4[&#x27;&lt;B4&gt;&#x27;])
-    print(rules)
+rules = or_definitions(g3['<start3>'], g4['<start4>'])
+print(rules)
+rules = or_definitions(g3['<A3>'], g4['<A4>'])
+print(rules)
+rules = or_definitions(g3['<B3>'], g4['<B4>'])
+print(rules)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g3 = {
+     &#x27;&lt;start3&gt;&#x27; : [[&#x27;a1&#x27;, &#x27;&lt;A3&gt;&#x27;]],
+     &#x27;&lt;A3&gt;&#x27; : [[&#x27;b1&#x27;, &#x27;&lt;B3&gt;&#x27;], [&#x27;c1&#x27;, &#x27;&lt;C3&gt;&#x27;]],
+     &#x27;&lt;B3&gt;&#x27; : [[&#x27;c1&#x27;,&#x27;&lt;C3&gt;&#x27;]],
+     &#x27;&lt;C3&gt;&#x27; : [[]]
+}
+g4 = {
+     &#x27;&lt;start4&gt;&#x27; : [[&#x27;a1&#x27;, &#x27;&lt;A4&gt;&#x27;]],
+     &#x27;&lt;A4&gt;&#x27; : [[&#x27;b1&#x27;, &#x27;&lt;B4&gt;&#x27;], [&#x27;d1&#x27;, &#x27;&lt;C4&gt;&#x27;]],
+     &#x27;&lt;B4&gt;&#x27; : [[&#x27;c1&#x27;,&#x27;&lt;C4&gt;&#x27;], []],
+     &#x27;&lt;C4&gt;&#x27; : [[]]
+}
+
+rules = or_definitions(g3[&#x27;&lt;start3&gt;&#x27;], g4[&#x27;&lt;start4&gt;&#x27;])
+print(rules)
+rules = or_definitions(g3[&#x27;&lt;A3&gt;&#x27;], g4[&#x27;&lt;A4&gt;&#x27;])
+print(rules)
+rules = or_definitions(g3[&#x27;&lt;B3&gt;&#x27;], g4[&#x27;&lt;B4&gt;&#x27;])
+print(rules)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
