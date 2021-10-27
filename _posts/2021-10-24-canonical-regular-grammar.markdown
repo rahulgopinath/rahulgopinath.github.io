@@ -259,9 +259,9 @@ def split_multi_terminal_rule(rule, k):
 
 def remove_multi_terminals(g, s):
     new_g = defaultdict(list)
-    for k in g:
-        for r in g[k]:
-            nk, lst = split_multi_terminal_rule(r, k)
+    for key in g:
+        for r in g[key]:
+            nk, lst = split_multi_terminal_rule(r, key)
             for k, rules in lst:
                 new_g[k].extend(rules)
             assert nk in new_g
@@ -295,9 +295,9 @@ def split_multi_terminal_rule(rule, k):
 
 def remove_multi_terminals(g, s):
     new_g = defaultdict(list)
-    for k in g:
-        for r in g[k]:
-            nk, lst = split_multi_terminal_rule(r, k)
+    for key in g:
+        for r in g[key]:
+            nk, lst = split_multi_terminal_rule(r, key)
             for k, rules in lst:
                 new_g[k].extend(rules)
             assert nk in new_g
