@@ -71,6 +71,13 @@ from collections import defaultdict
 def is_degenerate_rule(rule):
     return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
 
+def remove_duplicate_rules(g):
+    new_g = {}
+    for k in g:
+        my_rules = {str(r):r for r in g[k]}
+        new_g[k] = [my_rules[k] for k in my_rules]
+    return new_g
+
 def remove_degenerate_rules(g, s):
     g = dict(g)
     drkeys = [k for k in g if any(is_degenerate_rule(r) for r in g[k])]
@@ -89,11 +96,7 @@ def remove_degenerate_rules(g, s):
                 new_rules.append(r)
         g[drk] = new_rules
 
-    new_g = defaultdict(list)
-    for k in g:
-        my_rules = {str(r):r for r in g[k]}
-        new_g[k] = [my_rules[k] for k in my_rules]
-    return new_g, s
+    return remove_duplicate_rules(g), s
 
 # Using it
 
@@ -152,7 +155,7 @@ def remove_multi_terminals(g, s):
             for k, rules in lst:
                 new_g[k].extend(rules)
             assert nk in new_g
-    return new_g, s
+    return remove_duplicate_rules(new_g), s
 
 # Using it
 
