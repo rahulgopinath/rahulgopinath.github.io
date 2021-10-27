@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Intersection of Two Regular Grammars
+# title: Conjunction, Disjunction, and Negation Regular Grammars
 # layout: post
 # comments: true
 # tags: python
