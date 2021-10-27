@@ -85,7 +85,7 @@ def remove_degenerate_rules(g, s):
                         if is_degenerate_rule(new_r):
                             cont = True
                             break
-                    new_rules.extend(new_r)
+                    new_rules.extend(new_rs)
                 else:
                     new_rules.append(r)
         return new_g, s
