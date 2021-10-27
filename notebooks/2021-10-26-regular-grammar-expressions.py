@@ -56,31 +56,31 @@ rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.
 rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.py')
 
 # There are only two patterns of rules in canonical regular grammars.
-#
+#  
 # 1. $$ A \rightarrow aB $$
-# 3. $$ A \rightarrow \epsilon $$
-#
+# 2. $$ A \rightarrow \epsilon $$
+# 
 # The idea is that when evaluating intersection of the start symbol,
 # pair up all rules that start with the same terminal symbol.
 # Only the intersecion of these would exist in the resulting grammar.
 # The intersection of
-#
+#  
 # ```
 # <A1> ::= a <B1>
 # ```
-#
+#  
 # and
 
 # ```
 # <A2> ::= a <B2>
 # ```
-#
+#  
 # is simply
-#
+#  
 # ```
 # <and(A1,A2)> ::= a <and(B1,B2)>
 # ```
-#
+#  
 # For constructing such rules, we also need to parse the boolean expressions
 # in the nonterminals. So, we define our grammar first.
 

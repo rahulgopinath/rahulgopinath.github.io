@@ -115,23 +115,30 @@ rxcanonical = import_file(&#x27;rxcanonical&#x27;, &#x27;2021-10-24-canonical-re
 <div name='python_canvas'></div>
 </form>
 There are only two patterns of rules in canonical regular grammars.
+ 
 1. $$ A \rightarrow aB $$
-3. $$ A \rightarrow \epsilon $$
+2. $$ A \rightarrow \epsilon $$
+
 The idea is that when evaluating intersection of the start symbol,
 pair up all rules that start with the same terminal symbol.
 Only the intersecion of these would exist in the resulting grammar.
 The intersection of
+ 
 ```
 <A1> ::= a <B1>
 ```
+ 
 and
 ```
 <A2> ::= a <B2>
 ```
+ 
 is simply
+ 
 ```
 <and(A1,A2)> ::= a <and(B1,B2)>
 ```
+ 
 For constructing such rules, we also need to parse the boolean expressions
 in the nonterminals. So, we define our grammar first.
 
