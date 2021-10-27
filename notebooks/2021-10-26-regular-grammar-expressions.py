@@ -261,7 +261,7 @@ def or_rules(r1, r2):
 # Ensure that it works
 
 if __name__ == '__main__':
-    k, r = and_rules([], [])
+    k, r = or_rules([], [])
     print(k, r)
     k, r = or_rules(['a', '<A>'], ['a', '<B>'])
     print(k, r)

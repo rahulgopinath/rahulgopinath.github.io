@@ -562,7 +562,7 @@ Ensure that it works
 
 <!--
 ############
-k, r = and_rules([], [])
+k, r = or_rules([], [])
 print(k, r)
 k, r = or_rules(['a', '<A>'], ['a', '<B>'])
 print(k, r)
@@ -573,7 +573,7 @@ print(k, r)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-k, r = and_rules([], [])
+k, r = or_rules([], [])
 print(k, r)
 k, r = or_rules([&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;])
 print(k, r)
