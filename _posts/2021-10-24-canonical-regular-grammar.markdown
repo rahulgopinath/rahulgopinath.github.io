@@ -363,6 +363,7 @@ def add_empty_rule(g, s):
     new_g = defaultdict(list)
     new_g[EMPTY_NT] = [[]]
     for k in g:
+        if k == EMPTY_NT: continue
         for r in g[k]:
             if len(r) == 1:
                 tok = r[0]
@@ -381,6 +382,7 @@ def add_empty_rule(g, s):
     new_g = defaultdict(list)
     new_g[EMPTY_NT] = [[]]
     for k in g:
+        if k == EMPTY_NT: continue
         for r in g[k]:
             if len(r) == 1:
                 tok = r[0]
