@@ -1,6 +1,6 @@
 ---
 published: true
-title: Canonical Regualar Grammars
+title: Canonical Regular Grammars
 layout: post
 comments: true
 tags: parsing
@@ -103,6 +103,7 @@ earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
 gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
 fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
+rxregular = import_file('rxregular', '2021-10-23-regular-expression-to-regular-grammar.py')
 
 ############
 -->
@@ -112,6 +113,7 @@ earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-par
 gatleast = import_file(&#x27;gatleast&#x27;, &#x27;2021-09-09-fault-inducing-grammar.py&#x27;)
 fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
 rxfuzzer = import_file(&#x27;rxfuzzer&#x27;, &#x27;2021-10-22-fuzzing-with-regular-expressions.py&#x27;)
+rxregular = import_file(&#x27;rxregular&#x27;, &#x27;2021-10-23-regular-expression-to-regular-grammar.py&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -751,6 +753,7 @@ print('________')
 gatleast.display_grammar(g3, s3)
 g, s = canonical_regular_grammar(g3, s3)
 gatleast.display_grammar(g, s)
+
 ############
 -->
 <form name='python_run_form'>
@@ -773,6 +776,65 @@ gatleast.display_grammar(g, s)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## A canonical regular grammar from a regular expression.
+
+
+<!--
+############
+def regexp_to_regular_grammar(regexp):
+    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
+    g2, s2 = canonical_regular_grammar(g1, s1)
+    return g2, s2
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def regexp_to_regular_grammar(regexp):
+    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
+    g2, s2 = canonical_regular_grammar(g1, s1)
+    return g2, s2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+my_re = '(a|b|c).(de|f)'
+print(my_re)
+g, s = regexp_to_regular_grammar(my_re)
+gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;(a|b|c).(de|f)&#x27;
+print(my_re)
+g, s = regexp_to_regular_grammar(my_re)
+gatleast.display_grammar(g, s)
+# check it has worked
+import re
+rgf = fuzzer.LimitFuzzer(g)
+for i in range(10):
+    v = rgf.fuzz(s)
+    print(repr(v))
+    assert re.match(my_re, v), v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The runnable code for this post is available
+[here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-24-canonical-regular-grammar.py).
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
