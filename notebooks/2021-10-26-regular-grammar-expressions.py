@@ -324,6 +324,9 @@ if __name__ == '__main__':
 # 1. If the nonterminal definition does not contain $$ \epsilon $$, we add `EMPTY_NT`
 #    to the resulting definition. If it contains, then we skip it. The `EMPTY_NT` is
 #    defined below.
+
+G_EMPTY = {EMPTY_NT: [[]]}
+
 #  
 # ```
 # <_>  := 
@@ -346,7 +349,10 @@ if __name__ == '__main__':
 # 
 # 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
 #    any string given by `ALL_NT` (`<.*>`) and its definition is given below
-# 
+
+G_ALL = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+
+#  
 # ```
 # <.*>  := . <.*>
 # ```
@@ -409,7 +415,7 @@ if __name__ == '__main__':
          '<A4>' : [['b', '<B4>'], ['c', '<C4>']],
          '<B4>' : [['c','<C4>']],
          '<C4>' : [[]]
-    })
+    }, '<start4>')
 
     rules = negate_definition(g4['<start4>'])
     print(rules)
@@ -421,72 +427,14 @@ if __name__ == '__main__':
 # ## Complete
 # 
 # Until now, we have only produced conjunction, disjunction, and complement for
-# definitions. Next, we stitch all these together.
-
-class ReconstructRules:
-    def __init__(self, grammar):
-        self.grammar = grammar
-
-    def reconstruct_rules_from_bexpr(self, bexpr):
-        f_key = bexpr.as_key()
-        if f_key in self.grammar:
-            return self.grammar[f_key], f_key
-        else:
-            operator = bexpr.get_operator()
-            if operator == 'and':
-                return self.reconstruct_and_bexpr(bexpr)
-            elif operator == 'or':
-                return self.reconstruct_or_bexpr(bexpr)
-            elif operator == 'neg':
-                return self.reconstruct_neg_bexpr(bexpr)
-            else:
-                return self.reconstruct_orig_bexpr(bexpr)
-
-    def reconstruct_orig_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_neg_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_and_bexpr(self, bexpr):
-        fst, snd = bexpr.op_fst_snd()
-        assert fst != snd
-        f_key = bexpr.as_key()
-        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
-        and_rules = and_definitions(d1, d2)
-        return and_rules, f_key
-
-    def reconstruct_or_bexpr(self, bexpr):
-        fst, snd = bexpr.op_fst_snd()
-        f_key = bexpr.as_key()
-        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        assert fst != snd
-        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
-        or_rules = or_definitions(d1, d2)
-        return or_rules, f_key
-
-    def reconstruct_key(self, key_to_construct, log=False):
-        keys = [key_to_construct]
-        defined = set()
-        while keys:
-            if log: print(len(keys))
-            key_to_reconstruct, *keys = keys
-            if log: print('reconstructing:', key_to_reconstruct)
-            if key_to_reconstruct in defined:
-                raise Exception('Key found:', key_to_reconstruct)
-            defined.add(key_to_reconstruct)
-            bexpr = BExpr(key_to_reconstruct)
-            nrek = key_to_reconstruct
-            if bexpr.simple():
-                nkey = bexpr.as_key()
-                if log: print('simplified_to:', nkey)
-                d, s = self.reconstruct_rules_from_bexpr(bexpr)
-                self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
-            else:
-                nkey = nrek # base key
-            keys = gexpr.undefined_keys(self.grammar)
-        return self.grammar, key_to_construct
+# definitions. When producing these, we have introduced new nonterminals in
+# definitions that are not yet defined. For producing a complete grammar, we
+# need to define these new nonterminals too. This is what we will do in this
+# section. We first define a few helper procedures.
+# 
+# The `remove_empty_defs()` recursively removes any nonterminal that has empty
+# definitions. That is, of the form `"<A>" : []`. Note that it is different from
+# an epsilon rule which is `"<A>" : [[]]`
 
 def remove_empty_key_refs(grammar, ek):
     new_grammar = {}
@@ -500,7 +448,6 @@ def remove_empty_key_refs(grammar, ek):
         new_grammar[k] = new_rules
     return new_grammar
 
-
 def remove_empty_defs(grammar, start):
     empty = [k for k in grammar if not grammar[k]]
     while empty:
@@ -509,17 +456,124 @@ def remove_empty_defs(grammar, start):
         empty = [k for k in grammar if not grammar[k]]
     return grammar, start
 
+# Next, we define `complete()` which recursively 
+
 def complete(grammar, start, log=False):
     rr = ReconstructRules(grammar)
     grammar, start = rr.reconstruct_key(start, log)
     grammar, start = remove_empty_defs(grammar, start)
     return grammar, start
 
+
+# That is, for any conjunction, disjunction, or negation of grammars, we start
+# at the start symbol, and produce the corresponding operation in the definition
+# of the start symbol. Then, we check if any new new nonterminal was used in any
+# of the rules. If any were used, we recursively define them using the
+# nonterminals already present in the grammar. This is very similar to the
+# `ReconstructRules` from [fault expressions](/post/2021/09/11/fault-expressions/)
+# for context-free grammars, but is also different enough. Hence, we define a
+# completely new class.
+
+
+
+class ReconstructRules:
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+# We start with reconstructing a single key. For example, given the two grammars
+# `G1` and `G2`, and their start symbols `S1`, and `S2`, to compute an intersection
+# of `G1 & G2`, we simply reconstruct `<and(S1,S2)>` from the two grammars, and
+# recursively define any undefined nonterminals.
+
+class ReconstructRules(ReconstructRules):
+    def reconstruct_key(self, key_to_construct, log=False):
+        keys = [key_to_construct]
+        defined = set()
+        while keys:
+            key_to_reconstruct, *keys = keys
+            if log: print('reconstructing:', key_to_reconstruct)
+            if key_to_reconstruct in defined:
+                raise Exception('Key found:', key_to_reconstruct)
+            defined.add(key_to_reconstruct)
+            bexpr = BExpr(key_to_reconstruct)
+            assert bexpr.simple()
+            d, s = self.reconstruct_rules_from_bexpr(bexpr)
+            if log: print('simplified_to:', s)
+            self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
+            keys = gexpr.undefined_keys(self.grammar)
+        return self.grammar, key_to_construct
+
+# Given a complex boolean expression, construct the definition for it from the
+# grammar rules.
+
+class ReconstructRules(ReconstructRules):
+    def reconstruct_rules_from_bexpr(self, bexpr):
+        f_key = bexpr.as_key()
+        if f_key in self.grammar:
+            return self.grammar[f_key], f_key
+        else:
+            operator = bexpr.get_operator()
+            if operator == 'and':
+                return self.reconstruct_and_bexpr(bexpr)
+            elif operator == 'or':
+                return self.reconstruct_or_bexpr(bexpr)
+            elif operator == 'neg':
+                return self.reconstruct_neg_bexpr(bexpr)
+            else:
+                assert False
+
+# Produce disjunction of grammars
+
+class ReconstructRules(ReconstructRules):
+    def reconstruct_or_bexpr(self, bexpr):
+        fst, snd = bexpr.op_fst_snd()
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        assert fst != snd
+        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
+        or_rules = or_definitions(d1, d2)
+        return or_rules, f_key
+
 # Using
 
 if __name__ == '__main__':
-    g_empty = {EMPTY_NT: [[]]}
-    g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+    g1 = {
+            '<start1>' : [['0', '<A1>']],
+            '<A1>' : [['a', '<B1>']],
+            '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+            '<C1>' : [['c', '<D1>']],
+            '<D1>' : [[]],
+            }
+    s1 = '<start1>'
+    g2 = {
+            '<start2>' : [['0', '<A2>']],
+            '<A2>' : [['a', '<B2>'], ['b', '<D2>']],
+            '<B2>' : [['b', '<D2>']],
+            '<D2>' : [['c', '<E2>']],
+            '<E2>' : [[]],
+            }
+    s2 = '<start2>'
+    s1_s2 = or_nonterminals(s1, s2)
+    g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
+    gatleast.display_grammar(g,s)
+
+
+
+# Produce conjunction  of grammars
+
+class ReconstructRules(ReconstructRules):
+    def reconstruct_and_bexpr(self, bexpr):
+        fst, snd = bexpr.op_fst_snd()
+        assert fst != snd
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
+        and_rules = and_definitions(d1, d2)
+        return and_rules, f_key
+
+# Using
+
+if __name__ == '__main__':
     g1 = {
             '<start1>' : [['0', '<A1>']],
             '<A1>' : [['a', '<B1>']],
@@ -537,8 +591,14 @@ if __name__ == '__main__':
             }
     s2 = '<start2>'
     s1_s2 = and_nonterminals(s1, s2)
-    g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
+    g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
     gatleast.display_grammar(g,s)
+
+
+class ReconstructRules(ReconstructRules):
+    def reconstruct_neg_bexpr(self, bexpr):
+        assert False
+
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
