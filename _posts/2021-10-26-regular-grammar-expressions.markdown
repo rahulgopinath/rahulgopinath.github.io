@@ -693,6 +693,20 @@ definition of each nonterminal separately.
 1. If the nonterminal definition does not contain $$ \epsilon $$, we add `EMPTY_NT`
    to the resulting definition. If it contains, then we skip it. The `EMPTY_NT` is
    defined below.
+
+<!--
+############
+G_EMPTY = {EMPTY_NT: [[]]}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+G_EMPTY = {EMPTY_NT: [[]]}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
  
 ```
 <_>  := 
@@ -715,6 +729,20 @@ definition of each nonterminal separately.
 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
    any string given by `ALL_NT` (`<.*>`) and its definition is given below
 
+<!--
+############
+G_ALL = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+G_ALL = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+ 
 ```
 <.*>  := . <.*>
 ```
@@ -855,7 +883,7 @@ g4, s4 = rxcanonical.canonical_regular_grammar({
      '<A4>' : [['b', '<B4>'], ['c', '<C4>']],
      '<B4>' : [['c','<C4>']],
      '<C4>' : [[]]
-})
+}, '<start4>')
 
 rules = negate_definition(g4['<start4>'])
 print(rules)
@@ -873,7 +901,7 @@ g4, s4 = rxcanonical.canonical_regular_grammar({
      &#x27;&lt;A4&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;B4&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;C4&gt;&#x27;]],
      &#x27;&lt;B4&gt;&#x27; : [[&#x27;c&#x27;,&#x27;&lt;C4&gt;&#x27;]],
      &#x27;&lt;C4&gt;&#x27; : [[]]
-})
+}, &#x27;&lt;start4&gt;&#x27;)
 
 rules = negate_definition(g4[&#x27;&lt;start4&gt;&#x27;])
 print(rules)
@@ -888,7 +916,96 @@ print(rules)
 ## Complete
 
 Until now, we have only produced conjunction, disjunction, and complement for
-definitions. Next, we stitch all these together.
+definitions. When producing these, we have introduced new nonterminals in
+definitions that are not yet defined. For producing a complete grammar, we
+need to define these new nonterminals too. This is what we will do in this
+section. We first define a few helper procedures.
+
+The `remove_empty_defs()` recursively removes any nonterminal that has empty
+definitions. That is, of the form `"<A>" : []`. Note that it is different from
+an epsilon rule which is `"<A>" : [[]]`
+
+<!--
+############
+def remove_empty_key_refs(grammar, ek):
+    new_grammar = {}
+    for k in grammar:
+        if k == ek: continue
+        new_rules = []
+        for r in grammar[k]:
+            if ek in r:
+                continue
+            new_rules.append(r)
+        new_grammar[k] = new_rules
+    return new_grammar
+
+def remove_empty_defs(grammar, start):
+    empty = [k for k in grammar if not grammar[k]]
+    while empty:
+        k, *empty = empty
+        grammar = remove_empty_key_refs(grammar, k)
+        empty = [k for k in grammar if not grammar[k]]
+    return grammar, start
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def remove_empty_key_refs(grammar, ek):
+    new_grammar = {}
+    for k in grammar:
+        if k == ek: continue
+        new_rules = []
+        for r in grammar[k]:
+            if ek in r:
+                continue
+            new_rules.append(r)
+        new_grammar[k] = new_rules
+    return new_grammar
+
+def remove_empty_defs(grammar, start):
+    empty = [k for k in grammar if not grammar[k]]
+    while empty:
+        k, *empty = empty
+        grammar = remove_empty_key_refs(grammar, k)
+        empty = [k for k in grammar if not grammar[k]]
+    return grammar, start
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define `complete()` which recursively 
+
+<!--
+############
+def complete(grammar, start, log=False):
+    rr = ReconstructRules(grammar)
+    grammar, start = rr.reconstruct_key(start, log)
+    grammar, start = remove_empty_defs(grammar, start)
+    return grammar, start
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def complete(grammar, start, log=False):
+    rr = ReconstructRules(grammar)
+    grammar, start = rr.reconstruct_key(start, log)
+    grammar, start = remove_empty_defs(grammar, start)
+    return grammar, start
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+That is, for any conjunction, disjunction, or negation of grammars, we start
+at the start symbol, and produce the corresponding operation in the definition
+of the start symbol. Then, we check if any new new nonterminal was used in any
+of the rules. If any were used, we recursively define them using the
+nonterminals already present in the grammar. This is very similar to the
+`ReconstructRules` from [fault expressions](/post/2021/09/11/fault-expressions/)
+for context-free grammars, but is also different enough. Hence, we define a
+completely new class.
 
 <!--
 ############
@@ -896,6 +1013,73 @@ class ReconstructRules:
     def __init__(self, grammar):
         self.grammar = grammar
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReconstructRules:
+    def __init__(self, grammar):
+        self.grammar = grammar
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We start with reconstructing a single key. For example, given the two grammars
+`G1` and `G2`, and their start symbols `S1`, and `S2`, to compute an intersection
+of `G1 & G2`, we simply reconstruct `<and(S1,S2)>` from the two grammars, and
+recursively define any undefined nonterminals.
+
+<!--
+############
+class ReconstructRules(ReconstructRules):
+    def reconstruct_key(self, key_to_construct, log=False):
+        keys = [key_to_construct]
+        defined = set()
+        while keys:
+            key_to_reconstruct, *keys = keys
+            if log: print('reconstructing:', key_to_reconstruct)
+            if key_to_reconstruct in defined:
+                raise Exception('Key found:', key_to_reconstruct)
+            defined.add(key_to_reconstruct)
+            bexpr = BExpr(key_to_reconstruct)
+            assert bexpr.simple()
+            d, s = self.reconstruct_rules_from_bexpr(bexpr)
+            if log: print('simplified_to:', s)
+            self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
+            keys = gexpr.undefined_keys(self.grammar)
+        return self.grammar, key_to_construct
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReconstructRules(ReconstructRules):
+    def reconstruct_key(self, key_to_construct, log=False):
+        keys = [key_to_construct]
+        defined = set()
+        while keys:
+            key_to_reconstruct, *keys = keys
+            if log: print(&#x27;reconstructing:&#x27;, key_to_reconstruct)
+            if key_to_reconstruct in defined:
+                raise Exception(&#x27;Key found:&#x27;, key_to_reconstruct)
+            defined.add(key_to_reconstruct)
+            bexpr = BExpr(key_to_reconstruct)
+            assert bexpr.simple()
+            d, s = self.reconstruct_rules_from_bexpr(bexpr)
+            if log: print(&#x27;simplified_to:&#x27;, s)
+            self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
+            keys = gexpr.undefined_keys(self.grammar)
+        return self.grammar, key_to_construct
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Given a complex boolean expression, construct the definition for it from the
+grammar rules.
+
+<!--
+############
+class ReconstructRules(ReconstructRules):
     def reconstruct_rules_from_bexpr(self, bexpr):
         f_key = bexpr.as_key()
         if f_key in self.grammar:
@@ -909,89 +1093,13 @@ class ReconstructRules:
             elif operator == 'neg':
                 return self.reconstruct_neg_bexpr(bexpr)
             else:
-                return self.reconstruct_orig_bexpr(bexpr)
-
-    def reconstruct_orig_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_neg_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_and_bexpr(self, bexpr):
-        fst, snd = bexpr.op_fst_snd()
-        assert fst != snd
-        f_key = bexpr.as_key()
-        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
-        and_rules = and_definitions(d1, d2)
-        return and_rules, f_key
-
-    def reconstruct_or_bexpr(self, bexpr):
-        fst, snd = bexpr.op_fst_snd()
-        f_key = bexpr.as_key()
-        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        assert fst != snd
-        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
-        or_rules = or_definitions(d1, d2)
-        return or_rules, f_key
-
-    def reconstruct_key(self, key_to_construct, log=False):
-        keys = [key_to_construct]
-        defined = set()
-        while keys:
-            if log: print(len(keys))
-            key_to_reconstruct, *keys = keys
-            if log: print('reconstructing:', key_to_reconstruct)
-            if key_to_reconstruct in defined:
-                raise Exception('Key found:', key_to_reconstruct)
-            defined.add(key_to_reconstruct)
-            bexpr = BExpr(key_to_reconstruct)
-            nrek = key_to_reconstruct
-            if bexpr.simple():
-                nkey = bexpr.as_key()
-                if log: print('simplified_to:', nkey)
-                d, s = self.reconstruct_rules_from_bexpr(bexpr)
-                self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
-            else:
-                nkey = nrek # base key
-            keys = gexpr.undefined_keys(self.grammar)
-        return self.grammar, key_to_construct
-
-def remove_empty_key_refs(grammar, ek):
-    new_grammar = {}
-    for k in grammar:
-        if k == ek: continue
-        new_rules = []
-        for r in grammar[k]:
-            if ek in r:
-                continue
-            new_rules.append(r)
-        new_grammar[k] = new_rules
-    return new_grammar
-
-
-def remove_empty_defs(grammar, start):
-    empty = [k for k in grammar if not grammar[k]]
-    while empty:
-        k, *empty = empty
-        grammar = remove_empty_key_refs(grammar, k)
-        empty = [k for k in grammar if not grammar[k]]
-    return grammar, start
-
-def complete(grammar, start, log=False):
-    rr = ReconstructRules(grammar)
-    grammar, start = rr.reconstruct_key(start, log)
-    grammar, start = remove_empty_defs(grammar, start)
-    return grammar, start
+                assert False
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ReconstructRules:
-    def __init__(self, grammar):
-        self.grammar = grammar
-
+class ReconstructRules(ReconstructRules):
     def reconstruct_rules_from_bexpr(self, bexpr):
         f_key = bexpr.as_key()
         if f_key in self.grammar:
@@ -1005,23 +1113,16 @@ class ReconstructRules:
             elif operator == &#x27;neg&#x27;:
                 return self.reconstruct_neg_bexpr(bexpr)
             else:
-                return self.reconstruct_orig_bexpr(bexpr)
+                assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Produce disjunction of grammars
 
-    def reconstruct_orig_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_neg_bexpr(self, bexpr):
-        assert False
-
-    def reconstruct_and_bexpr(self, bexpr):
-        fst, snd = bexpr.op_fst_snd()
-        assert fst != snd
-        f_key = bexpr.as_key()
-        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
-        and_rules = and_definitions(d1, d2)
-        return and_rules, f_key
-
+<!--
+############
+class ReconstructRules(ReconstructRules):
     def reconstruct_or_bexpr(self, bexpr):
         fst, snd = bexpr.op_fst_snd()
         f_key = bexpr.as_key()
@@ -1031,54 +1132,19 @@ class ReconstructRules:
         or_rules = or_definitions(d1, d2)
         return or_rules, f_key
 
-    def reconstruct_key(self, key_to_construct, log=False):
-        keys = [key_to_construct]
-        defined = set()
-        while keys:
-            if log: print(len(keys))
-            key_to_reconstruct, *keys = keys
-            if log: print(&#x27;reconstructing:&#x27;, key_to_reconstruct)
-            if key_to_reconstruct in defined:
-                raise Exception(&#x27;Key found:&#x27;, key_to_reconstruct)
-            defined.add(key_to_reconstruct)
-            bexpr = BExpr(key_to_reconstruct)
-            nrek = key_to_reconstruct
-            if bexpr.simple():
-                nkey = bexpr.as_key()
-                if log: print(&#x27;simplified_to:&#x27;, nkey)
-                d, s = self.reconstruct_rules_from_bexpr(bexpr)
-                self.grammar = {**self.grammar, **{key_to_reconstruct:d}}
-            else:
-                nkey = nrek # base key
-            keys = gexpr.undefined_keys(self.grammar)
-        return self.grammar, key_to_construct
-
-def remove_empty_key_refs(grammar, ek):
-    new_grammar = {}
-    for k in grammar:
-        if k == ek: continue
-        new_rules = []
-        for r in grammar[k]:
-            if ek in r:
-                continue
-            new_rules.append(r)
-        new_grammar[k] = new_rules
-    return new_grammar
-
-
-def remove_empty_defs(grammar, start):
-    empty = [k for k in grammar if not grammar[k]]
-    while empty:
-        k, *empty = empty
-        grammar = remove_empty_key_refs(grammar, k)
-        empty = [k for k in grammar if not grammar[k]]
-    return grammar, start
-
-def complete(grammar, start, log=False):
-    rr = ReconstructRules(grammar)
-    grammar, start = rr.reconstruct_key(start, log)
-    grammar, start = remove_empty_defs(grammar, start)
-    return grammar, start
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReconstructRules(ReconstructRules):
+    def reconstruct_or_bexpr(self, bexpr):
+        fst, snd = bexpr.op_fst_snd()
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        assert fst != snd
+        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
+        or_rules = or_definitions(d1, d2)
+        return or_rules, f_key
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1087,8 +1153,112 @@ Using
 
 <!--
 ############
-g_empty = {EMPTY_NT: [[]]}
-g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+g1 = {
+        '<start1>' : [['0', '<A1>']],
+        '<A1>' : [['a', '<B1>']],
+        '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+        '<C1>' : [['c', '<D1>']],
+        '<D1>' : [[]],
+        }
+s1 = '<start1>'
+g2 = {
+        '<start2>' : [['0', '<A2>']],
+        '<A2>' : [['a', '<B2>'], ['b', '<D2>']],
+        '<B2>' : [['b', '<D2>']],
+        '<D2>' : [['c', '<E2>']],
+        '<E2>' : [[]],
+        }
+s2 = '<start2>'
+s1_s2 = or_nonterminals(s1, s2)
+g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
+gatleast.display_grammar(g,s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    r2 = gp2.recognize_on(v, s2)
+    assert r1 or r2
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g1 = {
+        &#x27;&lt;start1&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A1&gt;&#x27;]],
+        &#x27;&lt;A1&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B1&gt;&#x27;]],
+        &#x27;&lt;B1&gt;&#x27; : [[&#x27;b&#x27;,&#x27;&lt;C1&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;C1&gt;&#x27; : [[&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;D1&gt;&#x27; : [[]],
+        }
+s1 = &#x27;&lt;start1&gt;&#x27;
+g2 = {
+        &#x27;&lt;start2&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A2&gt;&#x27;]],
+        &#x27;&lt;A2&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B2&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;D2&gt;&#x27;]],
+        &#x27;&lt;B2&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;D2&gt;&#x27;]],
+        &#x27;&lt;D2&gt;&#x27; : [[&#x27;c&#x27;, &#x27;&lt;E2&gt;&#x27;]],
+        &#x27;&lt;E2&gt;&#x27; : [[]],
+        }
+s2 = &#x27;&lt;start2&gt;&#x27;
+s1_s2 = or_nonterminals(s1, s2)
+g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
+gatleast.display_grammar(g,s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    r2 = gp2.recognize_on(v, s2)
+    assert r1 or r2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Produce conjunction  of grammars
+
+<!--
+############
+class ReconstructRules(ReconstructRules):
+    def reconstruct_and_bexpr(self, bexpr):
+        fst, snd = bexpr.op_fst_snd()
+        assert fst != snd
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
+        and_rules = and_definitions(d1, d2)
+        return and_rules, f_key
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReconstructRules(ReconstructRules):
+    def reconstruct_and_bexpr(self, bexpr):
+        fst, snd = bexpr.op_fst_snd()
+        assert fst != snd
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        d2, s2 = self.reconstruct_rules_from_bexpr(snd)
+        and_rules = and_definitions(d1, d2)
+        return and_rules, f_key
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
 g1 = {
         '<start1>' : [['0', '<A1>']],
         '<A1>' : [['a', '<B1>']],
@@ -1106,15 +1276,25 @@ g2 = {
         }
 s2 = '<start2>'
 s1_s2 = and_nonterminals(s1, s2)
-g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
+g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
 gatleast.display_grammar(g,s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    r2 = gp2.recognize_on(v, s2)
+    assert r1 and r2
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_empty = {EMPTY_NT: [[]]}
-g_all = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
 g1 = {
         &#x27;&lt;start1&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A1&gt;&#x27;]],
         &#x27;&lt;A1&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B1&gt;&#x27;]],
@@ -1132,8 +1312,103 @@ g2 = {
         }
 s2 = &#x27;&lt;start2&gt;&#x27;
 s1_s2 = and_nonterminals(s1, s2)
-g, s = complete({**g1, **g2, **g_empty, **g_all}, s1_s2, True)
+g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
 gatleast.display_grammar(g,s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    r2 = gp2.recognize_on(v, s2)
+    assert r1 and r2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we come to complement.
+
+<!--
+############
+class ReconstructRules(ReconstructRules):
+    def reconstruct_neg_bexpr(self, bexpr):
+        fst = bexpr.op_fst()
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        neg_rules = negate_definition(d1)
+        return neg_rules, f_key
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ReconstructRules(ReconstructRules):
+    def reconstruct_neg_bexpr(self, bexpr):
+        fst = bexpr.op_fst()
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        neg_rules = negate_definition(d1)
+        return neg_rules, f_key
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+g1 = {
+        '<start1>' : [['0', '<A1>']],
+        '<A1>' : [['a', '<B1>']],
+        '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+        '<C1>' : [['c', '<D1>']],
+        '<D1>' : [[]],
+        }
+s1 = '<start1>'
+s1_ = negate_nonterminal(s1)
+g, s = complete({**g1, **G_EMPTY, **G_ALL}, s1_, True)
+gatleast.display_grammar(g, s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    assert not r1
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g1 = {
+        &#x27;&lt;start1&gt;&#x27; : [[&#x27;0&#x27;, &#x27;&lt;A1&gt;&#x27;]],
+        &#x27;&lt;A1&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B1&gt;&#x27;]],
+        &#x27;&lt;B1&gt;&#x27; : [[&#x27;b&#x27;,&#x27;&lt;C1&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;C1&gt;&#x27; : [[&#x27;c&#x27;, &#x27;&lt;D1&gt;&#x27;]],
+        &#x27;&lt;D1&gt;&#x27; : [[]],
+        }
+s1 = &#x27;&lt;start1&gt;&#x27;
+s1_ = negate_nonterminal(s1)
+g, s = complete({**g1, **G_EMPTY, **G_ALL}, s1_, True)
+gatleast.display_grammar(g, s)
+
+gf = fuzzer.LimitFuzzer(g)
+gp = earleyparser.EarleyParser(g, check_syntax=False)
+gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+for i in range(10):
+    v = gf.iter_fuzz(key=s, max_depth=10)
+    r = gp.recognize_on(v, s)
+    assert r
+    r1 = gp1.recognize_on(v, s1)
+    assert not r1
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

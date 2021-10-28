@@ -563,7 +563,7 @@ if __name__ == '__main__':
     gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
-        r = gp.recognize_on(v, s, )
+        r = gp.recognize_on(v, s)
         assert r
         r1 = gp1.recognize_on(v, s1)
         r2 = gp2.recognize_on(v, s2)
@@ -610,15 +610,46 @@ if __name__ == '__main__':
     gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
-        r = gp.recognize_on(v, s, )
+        r = gp.recognize_on(v, s)
         assert r
         r1 = gp1.recognize_on(v, s1)
         r2 = gp2.recognize_on(v, s2)
         assert r1 and r2
 
+# Next, we come to complement.
+
 class ReconstructRules(ReconstructRules):
     def reconstruct_neg_bexpr(self, bexpr):
-        assert False
+        fst = bexpr.op_fst()
+        f_key = bexpr.as_key()
+        d1, s1 = self.reconstruct_rules_from_bexpr(fst)
+        neg_rules = negate_definition(d1)
+        return neg_rules, f_key
+
+# Using
+
+if __name__ == '__main__':
+    g1 = {
+            '<start1>' : [['0', '<A1>']],
+            '<A1>' : [['a', '<B1>']],
+            '<B1>' : [['b','<C1>'], ['c', '<D1>']],
+            '<C1>' : [['c', '<D1>']],
+            '<D1>' : [[]],
+            }
+    s1 = '<start1>'
+    s1_ = negate_nonterminal(s1)
+    g, s = complete({**g1, **G_EMPTY, **G_ALL}, s1_, True)
+    gatleast.display_grammar(g, s)
+
+    gf = fuzzer.LimitFuzzer(g)
+    gp = earleyparser.EarleyParser(g, check_syntax=False)
+    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+    for i in range(10):
+        v = gf.iter_fuzz(key=s, max_depth=10)
+        r = gp.recognize_on(v, s)
+        assert r
+        r1 = gp1.recognize_on(v, s1)
+        assert not r1
 
 
 # The runnable code for this post is available
