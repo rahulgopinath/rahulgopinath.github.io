@@ -558,19 +558,16 @@ if __name__ == '__main__':
     gatleast.display_grammar(g,s)
 
     gf = fuzzer.LimitFuzzer(g)
-    gp = earleyparser.EarleyParser(g)
-    gp1 = earleyparser.EarleyParser(g1)
-    gp2 = earleyparser.EarleyParser(g2)
+    gp = earleyparser.EarleyParser(g, check_syntax=False)
+    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+    gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
-        r = gp.recognize_on(v, s, check_syntax=False)
+        r = gp.recognize_on(v, s, )
         assert r
-        r1 = gp1.recognize_on(v, s1, check_syntax=False)
-        r2 = gp2.recognize_on(v, s2, check_syntax=False)
+        r1 = gp1.recognize_on(v, s1)
+        r2 = gp2.recognize_on(v, s2)
         assert r1 or r2
-
-sys.exit(0)
-
 
 # Produce conjunction  of grammars
 
@@ -607,6 +604,17 @@ if __name__ == '__main__':
     g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
     gatleast.display_grammar(g,s)
 
+    gf = fuzzer.LimitFuzzer(g)
+    gp = earleyparser.EarleyParser(g, check_syntax=False)
+    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+    gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+    for i in range(10):
+        v = gf.iter_fuzz(key=s, max_depth=10)
+        r = gp.recognize_on(v, s, )
+        assert r
+        r1 = gp1.recognize_on(v, s1)
+        r2 = gp2.recognize_on(v, s2)
+        assert r1 and r2
 
 class ReconstructRules(ReconstructRules):
     def reconstruct_neg_bexpr(self, bexpr):
