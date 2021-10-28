@@ -164,17 +164,50 @@ def split_into_three(ks, kf, reaching):
             
 
 
-def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s):
+def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f='<_>'):
     new_g = defaultdict(list)
     cf_reachable = gatleast.reachable_dict(cf_g)
     r_reachable = gatleast.reachable_dict(r_g)
 
     for cf_k in cf_g:
         for cf_r in cf_g[cf_k]:
-            for r_k1 in r_g:
-                for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
-                    for a,b,c in split_into_three(r_k1, r_k2, r_reachable):
-                        new_g[(r_k1, cf_k, r_k2)] = [(a, cf_r[0], b), (b, cf_r[1], c)]
+            if len(cf_r) == 0:
+                for r_k1 in r_g:
+                    for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
+                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, '', r_k2)] # check.
+            elif len(cf_r) == 1:
+                for r_k1 in r_g:
+                    for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
+                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_r[0], r_k2)] # check.
+            elif len(cf_r) == 2:
+                for r_k1 in r_g:
+                    for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
+                        for a,b,c in split_into_three(r_k1, r_k2, r_reachable):
+                            new_g[(a, cf_k, c)] = [(a, cf_r[0], b), (b, cf_r[1], c)]
+            else:
+                assert False
+
+    # remove from new_g, any r_s that does not end with 
+    new_g1 = defaultdict(list)
+    for (a, k, b) in new_g:
+        if a == r_s:
+            if b == r_f:
+                new_g1[(a, k, b)] = new_g[(a,k,b)]
+    new_g = new_g1
+    # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
+    new_g1 = defaultdict(list)
+    for key in new_g:
+        for rule in new_g[key]:
+            if len(rule) == 1:
+                a, t, b = rule[0]
+                assert fuzzer.is_terminal(t)
+                found_right_transition = any([1 for r_rule in r_g[a] if r_rule and r_rule[0] == t and r_rule[1] == b])
+                if found_right_transition:
+                    new_g1[key].append(rule)
+            else:
+                new_g1[key].append(rule)
+    # Now, remove any rule that refers to nonexistant keys.
+
     return new_g
 
 
