@@ -350,7 +350,10 @@ TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_up
 
 # Then, use it to define `ALL_NT`
 
-G_ALL = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
+G_ALL = {ALL_NT:
+        [[c, ALL_NT] for c in TERMINAL_SYMBOLS]
+        + [[ ]]
+        }
 
 #  
 # ```
@@ -456,6 +459,86 @@ def remove_empty_defs(grammar, start):
         empty = [k for k in grammar if not grammar[k]]
     return grammar, start
 
+# We also need the ability to compactly display a canonical regular grammar
+# and we define it as below.
+
+def display_terminals(terminals, negate=False):
+    if negate: return '[^%s]' % (''.join(terminals))
+    else:
+        if len(terminals) == 1:
+            return terminals[0]
+        return '[%s]' % (''.join(terminals))
+
+def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
+    if ruleset == [[]]:
+        print('| {EMPTY}')
+        return
+    terminals = [t[0] for t in ruleset]
+    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
+    if len(terminals) <= len(rem_terminals):
+        v = '%s %s' % (display_terminals(terminals), nonterminal)
+        s = '%s|   %s' % (pre, v)
+        print(s)
+    else:
+        if rem_terminals == []:
+            v = '. %s' % nonterminal
+        else:
+            v = '%s %s' % (display_terminals(rem_terminals, negate=True), nonterminal)
+        s = '%s|   %s' % (pre, v)
+        print(s)
+
+from collections import defaultdict
+
+def definition_rev_split_to_rulesets(d1):
+    rule_sets = defaultdict(list)
+    for r in d1:
+        if len(r) > 0:
+            assert fuzzer.is_terminal(r[0]) # no degenerate rules
+            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
+            rule_sets[r[1]].append(r)
+        else:
+            rule_sets[''].append(r)
+    return rule_sets
+
+def display_definition(grammar, key, r, verbose):
+    if verbose > -1: print(key,'::=')
+    rulesets = definition_rev_split_to_rulesets(grammar[key])
+    for nonterminal in rulesets:
+        pre = ''
+        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
+    return r
+
+def display_canonical_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
+    print('[start]:', start)
+    for key in order:
+        k += 1
+        r = display_definition(grammar, key, r, verbose)
+        if verbose > 0:
+            print(k, r)
+
+    if undefined:
+        print('[undefined keys]')
+        for key in undefined:
+            if verbose == 0:
+                print(key)
+            else:
+                print(key, 'defined in')
+                for k in undefined[key]: print(' ', k)
+
+# Make sure it works
+
+if __name__ == '__main__':
+    g0, s0 = rxcanonical.canonical_regular_grammar({**{
+         '<start0>' : [['a', '<A0>']],
+         '<A0>' : [['b', '<B0>'], ['c', '<C0>']],
+         '<B0>' : [['c', ALL_NT]],
+         '<C0>' : [[EMPTY_NT]]
+    }, **G_ALL, **G_EMPTY}, '<start0>')
+    display_canonical_grammar(g0, s0)
+
 # Next, we define `complete()` which recursively computes the complex
 # nonterminals that is left undefined in a grammar from the simpler
 # nonterminal definitions.
@@ -555,7 +638,7 @@ if __name__ == '__main__':
     s2 = '<start2>'
     s1_s2 = or_nonterminals(s1, s2)
     g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
-    gatleast.display_grammar(g,s)
+    display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, check_syntax=False)
@@ -602,7 +685,7 @@ if __name__ == '__main__':
     s2 = '<start2>'
     s1_s2 = and_nonterminals(s1, s2)
     g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
-    gatleast.display_grammar(g,s)
+    display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, check_syntax=False)
@@ -639,7 +722,7 @@ if __name__ == '__main__':
     s1 = '<start1>'
     s1_ = negate_nonterminal(s1)
     g, s = complete({**g1, **G_EMPTY, **G_ALL}, s1_, True)
-    gatleast.display_grammar(g, s)
+    display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, check_syntax=False)
