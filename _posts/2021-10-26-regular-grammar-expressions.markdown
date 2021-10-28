@@ -159,10 +159,6 @@ BEXPR_GRAMMAR = {
         ['<letter>'],
         ['<letter>', '<letters>']
     ],
-    '<digits>': [
-        ['<digit>'],
-        ['<digit>', '<digits>']],
-    '<digit>': [[i] for i in (string.digits)],
     '<letter>' : [[i] for i in (string.digits + string.ascii_lowercase + string.ascii_uppercase)]
 }
 BEXPR_START = '<start>'
@@ -186,10 +182,6 @@ BEXPR_GRAMMAR = {
         [&#x27;&lt;letter&gt;&#x27;],
         [&#x27;&lt;letter&gt;&#x27;, &#x27;&lt;letters&gt;&#x27;]
     ],
-    &#x27;&lt;digits&gt;&#x27;: [
-        [&#x27;&lt;digit&gt;&#x27;],
-        [&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;digits&gt;&#x27;]],
-    &#x27;&lt;digit&gt;&#x27;: [[i] for i in (string.digits)],
     &#x27;&lt;letter&gt;&#x27; : [[i] for i in (string.digits + string.ascii_lowercase + string.ascii_uppercase)]
 }
 BEXPR_START = &#x27;&lt;start&gt;&#x27;
@@ -197,22 +189,8 @@ BEXPR_START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We also need the set of all terminal symbols. We define it as follows
-
-<!--
-############
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Next, we define our expression class
+Next, we define our expression class which is used to wrap boolean
+expressions and extract components of boolean expressions.
 
 <!--
 ############
@@ -249,7 +227,7 @@ class BExpr(gexpr.BExpr):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Ensure that it works
+Ensure that it can parse boolean expressions in nonterminals.
 
 <!--
 ############
@@ -289,7 +267,7 @@ here is that, because our grammar is in the canonical format, conjunction
 disjunction and negation is really simple, and follows roughly the same
 framework.
 
-### Nonterminals symbols
+### Conjunction of nonterminal symbols
 
 <!--
 ############
@@ -327,8 +305,8 @@ print(k)
 </form>
 ### Conjunction of rules
 
-We only provide conjunction for those rules whose initial chars are the same
-or it is an empty rule.
+We only provide conjunction for those rules whose initial terminal symbols are
+the same or it is an empty rule.
 
 <!--
 ############
@@ -359,7 +337,7 @@ def and_rules(r1, r2):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Ensure that it works
+We check to make sure that conjunction of rules work.
 
 <!--
 ############
@@ -384,7 +362,7 @@ print(k, r)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### The Definition
+### Conjunction of definitions
 
 <!--
 ############
@@ -433,7 +411,7 @@ def and_definitions(d1, d2):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Ensure that it works
+Checking that conjunction of definitions work.
 
 <!--
 ############
@@ -566,7 +544,7 @@ def or_rules(r1, r2):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Ensure that it works
+We check to make sure that disjunction for rules work.
 
 <!--
 ############
@@ -634,7 +612,7 @@ def or_definitions(d1, d2):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Ensure that it works
+We check that disjunction of definitions work.
 
 <!--
 ############
@@ -728,6 +706,23 @@ G_EMPTY = {EMPTY_NT: [[]]}
 
 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
    any string given by `ALL_NT` (`<.*>`) and its definition is given below
+
+We first define our `TERMINAL_SYMBOLS`
+
+<!--
+############
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Then, use it to define `ALL_NT`
 
 <!--
 ############
@@ -874,7 +869,7 @@ def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using it
+Checking complement of a definition in an example.
 
 <!--
 ############
@@ -974,7 +969,9 @@ def remove_empty_defs(grammar, start):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Next, we define `complete()` which recursively 
+Next, we define `complete()` which recursively computes the complex
+nonterminals that is left undefined in a grammar from the simpler
+nonterminal definitions.
 
 <!--
 ############
@@ -983,7 +980,6 @@ def complete(grammar, start, log=False):
     grammar, start = rr.reconstruct_key(start, log)
     grammar, start = remove_empty_defs(grammar, start)
     return grammar, start
-
 
 ############
 -->
@@ -1255,7 +1251,7 @@ class ReconstructRules(ReconstructRules):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using
+We now verify that it works.
 
 <!--
 ############
@@ -1357,7 +1353,7 @@ class ReconstructRules(ReconstructRules):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using
+Ensure that negation also works.
 
 <!--
 ############
@@ -1382,7 +1378,6 @@ for i in range(10):
     assert r
     r1 = gp1.recognize_on(v, s1)
     assert not r1
-
 
 ############
 -->

@@ -99,19 +99,13 @@ BEXPR_GRAMMAR = {
         ['<letter>'],
         ['<letter>', '<letters>']
     ],
-    '<digits>': [
-        ['<digit>'],
-        ['<digit>', '<digits>']],
-    '<digit>': [[i] for i in (string.digits)],
     '<letter>' : [[i] for i in (string.digits + string.ascii_lowercase + string.ascii_uppercase)]
 }
 BEXPR_START = '<start>'
 
-# We also need the set of all terminal symbols. We define it as follows
+# Next, we define our expression class which is used to wrap boolean
+# expressions and extract components of boolean expressions.
 
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-
-# Next, we define our expression class
 class BExpr(gexpr.BExpr):
     def create_new(self, e): return BExpr(e)
 
@@ -125,7 +119,7 @@ class BExpr(gexpr.BExpr):
         s = self.simple()
         return '<%s>' % s
 
-# Ensure that it works
+# Ensure that it can parse boolean expressions in nonterminals.
 
 if __name__ == '__main__':
     strings = [
@@ -147,7 +141,7 @@ if __name__ == '__main__':
 # disjunction and negation is really simple, and follows roughly the same
 # framework.
 # 
-# ### Nonterminals symbols
+# ### Conjunction of nonterminal symbols
 
 def and_nonterminals(k1, k2):
     if k1 == k2: return k1
@@ -161,8 +155,8 @@ if __name__ == '__main__':
 
 # ### Conjunction of rules
 # 
-# We only provide conjunction for those rules whose initial chars are the same
-# or it is an empty rule.
+# We only provide conjunction for those rules whose initial terminal symbols are
+# the same or it is an empty rule.
 
 def and_rules(r1, r2):
     if not r1:
@@ -174,7 +168,7 @@ def and_rules(r1, r2):
     nk = and_nonterminals(r1[1], r2[1])
     return nk, [r1[0], nk]
 
-# Ensure that it works
+# We check to make sure that conjunction of rules work.
 
 if __name__ == '__main__':
     k, r = and_rules([], [])
@@ -184,7 +178,7 @@ if __name__ == '__main__':
     k, r = and_rules(['a', '<A>'], ['a', '<A>'])
     print(k, r)
 
-# ### The Definition
+# ### Conjunction of definitions
 
 def get_leading_terminal(rule):
     if not rule: return ''
@@ -205,7 +199,7 @@ def and_definitions(d1, d2):
             new_keys.append(new_key)
     return new_rules
 
-# Ensure that it works
+# Checking that conjunction of definitions work.
 
 if __name__ == '__main__':
     g1, s1 = rxcanonical.canonical_regular_grammar({
@@ -265,7 +259,7 @@ def or_rules(r1, r2):
     nk = or_nonterminals(r1[1], r2[1])
     return nk, [r1[0], nk]
 
-# Ensure that it works
+# We check to make sure that disjunction for rules work.
 
 if __name__ == '__main__':
     k, r = or_rules([], [])
@@ -293,7 +287,7 @@ def or_definitions(d1, d2):
             new_keys.append(new_key)
     return new_rules + [paired1[c] for c in p1] + [paired2[c] for c in p2]
 
-# Ensure that it works
+# We check that disjunction of definitions work.
 
 if __name__ == '__main__':
     g3, s3 = rxcanonical.canonical_regular_grammar({
@@ -349,6 +343,12 @@ G_EMPTY = {EMPTY_NT: [[]]}
 # 
 # 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
 #    any string given by `ALL_NT` (`<.*>`) and its definition is given below
+# 
+# We first define our `TERMINAL_SYMBOLS`
+
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
+# Then, use it to define `ALL_NT`
 
 G_ALL = {ALL_NT: [[c, ALL_NT] for c in TERMINAL_SYMBOLS] + [[ ]]}
 
@@ -407,7 +407,7 @@ def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
         new_rules.append([])
     return new_rules
 
-# Using it
+# Checking complement of a definition in an example.
 
 if __name__ == '__main__':
     g4, s4 = rxcanonical.canonical_regular_grammar({
@@ -456,14 +456,15 @@ def remove_empty_defs(grammar, start):
         empty = [k for k in grammar if not grammar[k]]
     return grammar, start
 
-# Next, we define `complete()` which recursively 
+# Next, we define `complete()` which recursively computes the complex
+# nonterminals that is left undefined in a grammar from the simpler
+# nonterminal definitions.
 
 def complete(grammar, start, log=False):
     rr = ReconstructRules(grammar)
     grammar, start = rr.reconstruct_key(start, log)
     grammar, start = remove_empty_defs(grammar, start)
     return grammar, start
-
 
 # That is, for any conjunction, disjunction, or negation of grammars, we start
 # at the start symbol, and produce the corresponding operation in the definition
@@ -473,7 +474,6 @@ def complete(grammar, start, log=False):
 # `ReconstructRules` from [fault expressions](/post/2021/09/11/fault-expressions/)
 # for context-free grammars, but is also different enough. Hence, we define a
 # completely new class.
-
 
 
 class ReconstructRules:
@@ -581,7 +581,7 @@ class ReconstructRules(ReconstructRules):
         and_rules = and_definitions(d1, d2)
         return and_rules, f_key
 
-# Using
+# We now verify that it works.
 
 if __name__ == '__main__':
     g1 = {
@@ -626,7 +626,7 @@ class ReconstructRules(ReconstructRules):
         neg_rules = negate_definition(d1)
         return neg_rules, f_key
 
-# Using
+# Ensure that negation also works.
 
 if __name__ == '__main__':
     g1 = {
@@ -650,7 +650,6 @@ if __name__ == '__main__':
         assert r
         r1 = gp1.recognize_on(v, s1)
         assert not r1
-
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
