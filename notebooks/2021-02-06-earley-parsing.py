@@ -752,7 +752,7 @@ class EarleyParser(EarleyParser):
         starts = [s for s in states if s.finished()]
 
         if cursor < len(text) or not starts:
-            if syntax_check:
+            if check_syntax:
                 raise SyntaxError("at " + repr(text[cursor:]))
         return starts
 

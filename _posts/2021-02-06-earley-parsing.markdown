@@ -1336,7 +1336,7 @@ class EarleyParser(EarleyParser):
         starts = [s for s in states if s.finished()]
 
         if cursor < len(text) or not starts:
-            if syntax_check:
+            if check_syntax:
                 raise SyntaxError("at " + repr(text[cursor:]))
         return starts
 
@@ -1356,7 +1356,7 @@ class EarleyParser(EarleyParser):
         starts = [s for s in states if s.finished()]
 
         if cursor &lt; len(text) or not starts:
-            if syntax_check:
+            if check_syntax:
                 raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
         return starts
 </textarea><br />
