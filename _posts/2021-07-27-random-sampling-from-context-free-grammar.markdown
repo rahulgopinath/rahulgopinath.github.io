@@ -1539,7 +1539,7 @@ the issue of statistical sampling, with better runtime and space
 characteristics, we are not aware of any that fixes both issues
 (Gore et al.[^gore1997a] is notable for showing an _almost uniform random
 sampling_ result).
-Bertoni et al. shows[^bertoni1991the] shows that for some inherently
+Bertoni et al. shows[^bertoni1991the] that for some inherently
 ambiguous languages, the problem becomes intractable.
 
 The code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-07-27-random-sampling-from-context-free-grammar.py).
