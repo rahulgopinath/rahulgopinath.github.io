@@ -557,6 +557,19 @@ if __name__ == '__main__':
     g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
     gatleast.display_grammar(g,s)
 
+    gf = fuzzer.LimitFuzzer(g)
+    gp = earleyparser.EarleyParser(g)
+    gp1 = earleyparser.EarleyParser(g1)
+    gp2 = earleyparser.EarleyParser(g2)
+    for i in range(10):
+        v = gf.iter_fuzz(key=s, max_depth=10)
+        r = gp.recognize_on(v, s, check_syntax=False)
+        assert r
+        r1 = gp1.recognize_on(v, s1, check_syntax=False)
+        r2 = gp2.recognize_on(v, s2, check_syntax=False)
+        assert r1 or r2
+
+sys.exit(0)
 
 
 # Produce conjunction  of grammars
