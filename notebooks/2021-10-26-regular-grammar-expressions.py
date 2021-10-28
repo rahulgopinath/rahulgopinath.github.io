@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Conjunction, Disjunction, and Negation Regular Grammars
+# title: Conjunction, Disjunction, and Complement of Regular Grammars
 # layout: post
 # comments: true
 # tags: python
@@ -62,7 +62,7 @@ rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.p
 # 
 # The idea is that when evaluating intersection of the start symbol,
 # pair up all rules that start with the same terminal symbol.
-# Only the intersecion of these would exist in the resulting grammar.
+# Only the intersection of these would exist in the resulting grammar.
 # The intersection of
 #  
 # ```
@@ -109,7 +109,7 @@ BEXPR_START = '<start>'
 
 # We also need the set of all terminal symbols. We define it as follows
 
-TERMINAL_SYMBOLS = list('abcdefg') #list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
 
 # Next, we define our expression class
 class BExpr(gexpr.BExpr):
@@ -138,13 +138,13 @@ if __name__ == '__main__':
         e = BExpr(s)
         print(e.as_key())
 
-# ## Conjuction of two regular grammars
+# ## Conjunction of two regular grammars
 # 
 # Next, we define the conjunction of two regular grammars in the canonical
 # format. We will define the conjunction of two definitions, and at the end
 # discuss how to stitch it together for the complete grammar. The nice thing
 # here is that, because our grammar is in the canonical format, conjunction
-# disjunction and negation is really simple, and follows roughtly the same
+# disjunction and negation is really simple, and follows roughly the same
 # framework.
 # 
 # ### Nonterminals symbols
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     k = and_nonterminals('<A>', '<B>')
     print(k)
 
-# ### The rules
+# ### Conjunction of rules
 # 
 # We only provide conjunction for those rules whose initial chars are the same
 # or it is an empty rule.
@@ -208,18 +208,18 @@ def and_definitions(d1, d2):
 # Ensure that it works
 
 if __name__ == '__main__':
-    g1 = {
+    g1, s1 = rxcanonical.canonical_regular_grammar({
          '<start1>' : [['a1', '<A1>']],
          '<A1>' : [['b1', '<B1>'], ['c1', '<C1>']],
          '<B1>' : [['c1','<C1>']],
          '<C1>' : [[]]
-    }
-    g2 = {
+    }, '<start1>')
+    g2, s2 = rxcanonical.canonical_regular_grammar({
          '<start2>' : [['a1', '<A2>']],
          '<A2>' : [['b1', '<B2>'], ['d1', '<C2>']],
          '<B2>' : [['c1','<C2>'], []],
          '<C2>' : [[]]
-    }
+    }, '<start2>')
 
     rules = and_definitions(g1['<start1>'], g2['<start2>'])
     print(rules)
@@ -230,7 +230,11 @@ if __name__ == '__main__':
 
 # ## Disjunction of two regular grammars
 # 
-# For disjunction, the strategy is the same.
+# For disjunction, the strategy is the same. We line up rules in both
+# definitions with same starting symbol, then construct the conjunction of the
+# nonterminal parts. Unlike conjunction, however, we do not throw away the rules
+# without partners in the other definition. Instead, they are added to the
+# resulting definition.
 
 # ### Disjunction of nonterminal symbols
 
@@ -247,6 +251,8 @@ if __name__ == '__main__':
     print(k)
 
 # ### Disjunction of rules
+# 
+# We assume that the starting terminal symbol is the same for both rules.
 
 def or_rules(r1, r2):
     # the initial chars are the same
@@ -290,18 +296,18 @@ def or_definitions(d1, d2):
 # Ensure that it works
 
 if __name__ == '__main__':
-    g3 = {
+    g3, s3 = rxcanonical.canonical_regular_grammar({
          '<start3>' : [['a1', '<A3>']],
          '<A3>' : [['b1', '<B3>'], ['c1', '<C3>']],
          '<B3>' : [['c1','<C3>']],
          '<C3>' : [[]]
-    }
-    g4 = {
+    }, '<start3>')
+    g4, s4 = rxcanonical.canonical_regular_grammar({
          '<start4>' : [['a1', '<A4>']],
          '<A4>' : [['b1', '<B4>'], ['d1', '<C4>']],
          '<B4>' : [['c1','<C4>'], []],
          '<C4>' : [[]]
-    }
+    }, '<start4>')
 
     rules = or_definitions(g3['<start3>'], g4['<start4>'])
     print(rules)
@@ -310,7 +316,42 @@ if __name__ == '__main__':
     rules = or_definitions(g3['<B3>'], g4['<B4>'])
     print(rules)
 
-# ## Negation
+# ## Complement of regular grammars
+# 
+# For complement, the idea is to treat each pattern separately. We take the
+# definition of each nonterminal separately.
+# 
+# 1. If the nonterminal definition does not contain $$ \epsilon $$, we add `EMPTY_NT`
+#    to the resulting definition. If it contains, then we skip it. The `EMPTY_NT` is
+#    defined below.
+#  
+# ```
+# <_>  := 
+# ```
+
+# 2. We collect all terminal symbols that start up a rule in the definition.
+#    For each such rule, we add a rule that complements the nonterminal used.
+#    That is, given 
+#  
+# ```
+# <A>  :=  a <B>
+# ```
+# 
+#    We produce
+# 
+# ```
+# <neg(A)>  :=  a <neg(B)>
+# ```
+#    as one of the complement rules.
+# 
+# 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
+#    any string given by `ALL_NT` (`<.*>`) and its definition is given below
+# 
+# ```
+# <.*>  := . <.*>
+# ```
+# 
+# We start by producing the complement of a single nonterminal symbol.
 
 def negate_nonterminal(k): return '<neg(%s)>' % k[1:-1]
 
@@ -320,7 +361,7 @@ if __name__ == '__main__':
     k = negate_nonterminal('<A>')
     print(k)
 
-# ### Negate a single rule
+# ### Complement of a single rule
 
 def negate_key_in_rule(rule):
     if len(rule) == 0: return None
@@ -337,20 +378,13 @@ if __name__ == '__main__':
     r = negate_key_in_rule([])
     print(r)
 
-# ### Negate a definition
+# ### Complement a definition
+#  
+# We complement a definition by applying complement to each rule in the
+# original definition, and adding any new rules that did not match the
+# original definition.
 
 def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
-    # for negating a definition, we negate each ruleset
-    # separately, and add any characters that were left
-    # over.
-    # what about presence of epsilon rule? An epsilon
-    # rule adds just one element to the language. An
-    # empty string. So, we will not match that single
-    # element.
-
-    # Now, for those characters that are not matched by
-    # any of the leading chars in rules, we can match
-    # anything else after the char.
     paired = {get_leading_terminal(r):r for r in d1}
     remaining_chars = [c for c in terminal_symbols if c not in paired]
     new_rules = [[c, '<.*>'] for c in remaining_chars]
@@ -362,7 +396,7 @@ def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
         if r is not None:
             new_rules.append(r)
 
-    # should we add emtpy rule match or not?
+    # should we add empty rule match or not?
     if [] not in d1:
         new_rules.append([])
     return new_rules
@@ -370,22 +404,24 @@ def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
 # Using it
 
 if __name__ == '__main__':
-    g4 = {
-         '<start3>' : [['a', '<A3>']],
-         '<A3>' : [['b', '<B3>'], ['c', '<C3>']],
-         '<B3>' : [['c','<C3>']],
-         '<C3>' : [[]]
-    }
+    g4, s4 = rxcanonical.canonical_regular_grammar({
+         '<start4>' : [['a', '<A4>']],
+         '<A4>' : [['b', '<B4>'], ['c', '<C4>']],
+         '<B4>' : [['c','<C4>']],
+         '<C4>' : [[]]
+    })
 
-    rules = negate_definition(g4['<start3>'])
+    rules = negate_definition(g4['<start4>'])
     print(rules)
-    rules = negate_definition(g4['<A3>'])
+    rules = negate_definition(g4['<A4>'])
     print(rules)
-    rules = negate_definition(g4['<B3>'])
+    rules = negate_definition(g4['<B4>'])
     print(rules)
 
 # ## Complete
-# Now, stitching it all together
+# 
+# Until now, we have only produced conjunction, disjunction, and complement for
+# definitions. Next, we stitch all these together.
 
 class ReconstructRules:
     def __init__(self, grammar):
