@@ -641,9 +641,9 @@ if __name__ == '__main__':
     display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
-    gp = earleyparser.EarleyParser(g, check_syntax=False)
-    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
-    gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+    gp = earleyparser.EarleyParser(g, parse_exceptions=False)
+    gp1 = earleyparser.EarleyParser(g1, parse_exceptions=False)
+    gp2 = earleyparser.EarleyParser(g2, parse_exceptions=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
         r = gp.recognize_on(v, s)
@@ -688,9 +688,9 @@ if __name__ == '__main__':
     display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
-    gp = earleyparser.EarleyParser(g, check_syntax=False)
-    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
-    gp2 = earleyparser.EarleyParser(g2, check_syntax=False)
+    gp = earleyparser.EarleyParser(g, parse_exceptions=False)
+    gp1 = earleyparser.EarleyParser(g1, parse_exceptions=False)
+    gp2 = earleyparser.EarleyParser(g2, parse_exceptions=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
         r = gp.recognize_on(v, s)
@@ -725,8 +725,8 @@ if __name__ == '__main__':
     display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
-    gp = earleyparser.EarleyParser(g, check_syntax=False)
-    gp1 = earleyparser.EarleyParser(g1, check_syntax=False)
+    gp = earleyparser.EarleyParser(g, parse_exceptions=False)
+    gp1 = earleyparser.EarleyParser(g1, parse_exceptions=False)
     for i in range(10):
         v = gf.iter_fuzz(key=s, max_depth=10)
         r = gp.recognize_on(v, s)

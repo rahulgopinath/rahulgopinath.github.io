@@ -550,22 +550,22 @@ We now initialize the Earley parser, which is a parser.
 <!--
 ############
 class EarleyParser(Parser):
-    def __init__(self, grammar, log = False, check_syntax = True, **kwargs):
+    def __init__(self, grammar, log = False, parse_exceptions = True, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
         self.log = log
-        self.check_syntax = check_syntax
+        self.parse_exceptions = parse_exceptions
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(Parser):
-    def __init__(self, grammar, log = False, check_syntax = True, **kwargs):
+    def __init__(self, grammar, log = False, parse_exceptions = True, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
         self.log = log
-        self.check_syntax = check_syntax
+        self.parse_exceptions = parse_exceptions
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1337,7 +1337,7 @@ class EarleyParser(EarleyParser):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
-        if self.check_syntax:
+        if self.parse_exceptions:
             if cursor < len(text) or not starts:
                 raise SyntaxError("at " + repr(text[cursor:]))
         return starts
@@ -1357,7 +1357,7 @@ class EarleyParser(EarleyParser):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
-        if self.check_syntax:
+        if self.parse_exceptions:
             if cursor &lt; len(text) or not starts:
                 raise SyntaxError(&quot;at &quot; + repr(text[cursor:]))
         return starts
