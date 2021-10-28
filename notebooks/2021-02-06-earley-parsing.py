@@ -747,12 +747,13 @@ class EarleyParser(EarleyParser):
         for tree in self.extract_trees(forest):
             yield tree
 
-    def recognize_on(self, text, start_symbol):
+    def recognize_on(self, text, start_symbol, syntax_check=True):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
         if cursor < len(text) or not starts:
-            raise SyntaxError("at " + repr(text[cursor:]))
+            if syntax_check:
+                raise SyntaxError("at " + repr(text[cursor:]))
         return starts
 
 # ### parse_paths
