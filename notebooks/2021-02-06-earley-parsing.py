@@ -346,10 +346,11 @@ class Parser:
 # We now initialize the Earley parser, which is a parser.
 
 class EarleyParser(Parser):
-    def __init__(self, grammar, log = False, **kwargs):
+    def __init__(self, grammar, log = False, check_syntax = True, **kwargs):
         self._grammar = grammar
         self.epsilon = nullable(grammar)
         self.log = log
+        self.check_syntax = check_syntax
 
 # #### Nullable
 # 
@@ -747,12 +748,12 @@ class EarleyParser(EarleyParser):
         for tree in self.extract_trees(forest):
             yield tree
 
-    def recognize_on(self, text, start_symbol, check_syntax=True):
+    def recognize_on(self, text, start_symbol):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
-        if cursor < len(text) or not starts:
-            if check_syntax:
+        if self.check_syntax:
+            if cursor < len(text) or not starts:
                 raise SyntaxError("at " + repr(text[cursor:]))
         return starts
 
