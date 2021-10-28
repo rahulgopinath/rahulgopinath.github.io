@@ -1331,7 +1331,7 @@ class EarleyParser(EarleyParser):
         for tree in self.extract_trees(forest):
             yield tree
 
-    def recognize_on(self, text, start_symbol, syntax_check=True):
+    def recognize_on(self, text, start_symbol, check_syntax=True):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
@@ -1351,7 +1351,7 @@ class EarleyParser(EarleyParser):
         for tree in self.extract_trees(forest):
             yield tree
 
-    def recognize_on(self, text, start_symbol, syntax_check=True):
+    def recognize_on(self, text, start_symbol, check_syntax=True):
         cursor, states = self.parse_prefix(text, start_symbol)
         starts = [s for s in states if s.finished()]
 
