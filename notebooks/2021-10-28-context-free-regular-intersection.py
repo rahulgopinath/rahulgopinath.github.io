@@ -290,6 +290,25 @@ if __name__ == '__main__':
 # As we discussed previously, we transform the grammar such that we produce
 # every variations of triplets with nonterminals from regular grammar starting
 # and ending, and nonterminal from context-free grammar in the middle.
+# That is, given this,
+# 
+# ```
+# <S> := <A><B>
+# ```
+# and given `<a>`, `<b>`, `<c>`, `<f>` as the regular nonterminals, each
+# reachable from previous, we produce
+# 
+# ```
+# <a,S,a> := <a,A,a><a,B,a>
+# <a,S,b> := <a,A,a><a,B,b>
+#          | <a,A,b><b,B,b>
+# <a,S,c> := <a,A,a><a,B,c>
+#          | <a,A,a><c,B,c>
+#          | <a,A,c><c,B,c>
+#          | <a,A,b><b,B,c>
+#          | <a,A,b><c,B,c>
+# ```
+# and so on.
 
 def reachable_dict(g):
     gn = gatleast.reachable_dict(g)
@@ -347,7 +366,27 @@ def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
                 assert False
     return new_g1, (r_s, cf_s, r_f)
 
-# ## Remove terminal transitions
+# We modify our grammar display so that it knows about our triples.
+
+class DisplayGrammar(gatleast.DisplayGrammar):
+    def display_token(self, t):
+         return repr(t) if self.is_nonterminal(t) else repr(t[1])
+
+    def is_nonterminal(self, t):
+        return fuzzer.is_nonterminal(t[1])
+
+def display_grammar(grammar, start, verbose=0):
+    DisplayGrammar(grammar, verbose).display(start)
+
+# ## Remove invalid terminal transitions
+#
+# Next, we remove invalid terminal transitions. That is, given
+# 
+# ```
+# <s,A,a> := [<s>,a,<a>]
+# ```
+# We check that `<s>` can reach `<a>` by consuming `a`. If not,
+# this is an invalid rule, and we remove it from the production rules.
 
 def is_right_transition(a, terminal, b, r_g):
     assert fuzzer.is_terminal(terminal)
@@ -375,7 +414,10 @@ def filter_terminal_transitions(g, r_g):
                     new_g1[key].append(rule)
     return new_g1
 
-# Remove undefined rules
+# ## Remove undefined nonterminals
+# 
+# At this point we may have multiple nonterminals with no rules defining them.
+# That is, such nonterminals can't be expanded. Hence, these can be removed.
 
 def filter_rules_with_undefined_keys(g):
     cont = False
@@ -394,50 +436,29 @@ def filter_rules_with_undefined_keys(g):
                     new_g1[k].append(r)
     return new_g1, cont
 
-## --
-class DisplayGrammar(gatleast.DisplayGrammar):
-    def display_token(self, t):
-         return repr(t) if self.is_nonterminal(t) else repr(t[1])
+# ## Construct the full grammar
+# We are now ready to construct our full grammar.
 
-    def is_nonterminal(self, t):
-        return fuzzer.is_nonterminal(t[1])
-
-def display_grammar(grammar, start, verbose=0):
-    DisplayGrammar(grammar, verbose).display(start)
-
-def filter_grammar(g, s):
-    new_g = {}
-    for k in g:
-        new_rs = []
-        for r in g[k]:
-            new_r = [t[1] for t in r]
-            new_rs.append(new_r)
-        new_g[k[1]] = new_rs
-    return new_g, s[1]
+def convert_key(k):
+    p,k,q = k
+    if fuzzer.is_nonterminal(k):
+        return '<%s %s %s>' % (p[1:-1], k[1:-1], q[1:-1])
+    else:
+        return k
 
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
     new_g, new_s = make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f)
-    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
-    display_grammar(new_g, new_s, -1)
 
     # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
     new_g = filter_terminal_transitions(new_g, r_g)
-    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
-    display_grammar(new_g, new_s, -1)
 
     cont = True
     while cont:
         new_g1, cont = filter_rules_with_undefined_keys(new_g)
-        # Now, remove any rule that refers to nonexistant keys.
+        # Now, remove any rule that refers to nonexistent keys.
         new_g = {k:new_g1[k] for k in new_g1 if new_g1[k]} # remove empty keys
-        #gatleast.display_grammar(*filter_grammar(new_g, new_s))
-        display_grammar(new_g, new_s, -1)
 
-    print()
-    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
-    display_grammar(new_g, new_s, -1)
-    print()
     # convert keys to template
     new_g1 = {}
     for k in new_g:
@@ -449,19 +470,10 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     new_g = new_g1
     return new_g, convert_key(new_s)
 
-def convert_key(k):
-    p,k,q = k
-    if fuzzer.is_nonterminal(k):
-    #return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
-        return '<%s %s %s>' % (p[1:-1], k[1:-1], q[1:-1])
-    else:
-        #return '[%s %s %s]' % (p, k, q)
-        return k
-    #return k
-
-expr_re = '[(]+[135]+[)]+'
+# Let us see if our construction works.
 
 if __name__ == '__main__':
+    expr_re = '[(]+[135]+[)]+'
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
     rxcanonical.display_canonical_grammar(rg, rs)
     string = '(11)'
@@ -482,5 +494,5 @@ if __name__ == '__main__':
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
-
+# 
 # [^barhiller1961on]: Bar-Hiller, M. Perles, and E. Shamir. On formal properties of simple phrase structure grammars. Zeitschrift fur Phonetik Sprachwissenschaft und Kommunikationforshung, 14(2):143–172, 1961.
