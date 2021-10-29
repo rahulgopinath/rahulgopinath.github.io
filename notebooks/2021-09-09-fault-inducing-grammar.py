@@ -379,7 +379,7 @@ class DisplayGrammar:
                     print(k, r)
 
     def display_undefined(self, undefined):
-        if undefined and verbose > -1:
+        if undefined and self.verbose > -1:
             print('[undefined keys]')
             for key in undefined:
                 if self.verbose == 0:
