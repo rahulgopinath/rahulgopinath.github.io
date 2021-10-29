@@ -230,6 +230,13 @@ def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
                 assert False
     return new_g1, (r_s, cf_s, r_f)
 
+def is_right_transition(a, terminal, b, r_g):
+    assert fuzzer.is_terminal(terminal)
+    start_a = [r for r in r_g[a] if r]
+    with_terminal = [r for r in start_a if r[0] == terminal]
+    ending_b = [r_rule[1] == b for r_rule in with_terminal]
+    return ending_b
+
 def filter_terminal_transitions(g, r_g):
     new_g1 = defaultdict(list)
     for key in g:
@@ -238,15 +245,15 @@ def filter_terminal_transitions(g, r_g):
                 a, t, b = rule[0]
                 if len(t) == 0:
                     assert a == b
+                    new_g1[key].append(rule)
                 else:
-                    if fuzzer.is_terminal(t):
-                        found_right_transition = any([1 for r_rule in r_g[a] if r_rule and r_rule[0] == t and r_rule[1] == b])
-                        if found_right_transition:
-                            new_g1[key].append(rule)
-                    else:
+                    terminals = [(a, t, b) for (a, t, b) in rule if fuzzer.is_terminal(t)]
+                    if all(is_right_transition(a, t, b, r_g) for (a,t,b) in terminals): # all(empty) is true
                         new_g1[key].append(rule)
             else:
-                new_g1[key].append(rule)
+                terminals = [(a, t, b) for (a, t, b) in rule if fuzzer.is_terminal(t)]
+                if all(is_right_transition(a, t, b, r_g) for (a,t,b) in terminals):
+                    new_g1[key].append(rule)
     return new_g1
 
 def filter_rules_with_undefined_keys(g):
