@@ -213,7 +213,7 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
             else:
                 assert False
 
-    # remove from new_g, any r_s that does not end with 
+    # remove from new_g, any r_s that does not end with r_f (NT_EMPTY)
     new_g1 = defaultdict(list)
     for (a, k, b) in new_g:
         if a == r_s:
@@ -232,8 +232,45 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                     new_g1[key].append(rule)
             else:
                 new_g1[key].append(rule)
-    # Now, remove any rule that refers to nonexistant keys.
-    return new_g, '<%s&%s>' % (cf_s[1:-1], r_s[1:-1])
+    new_g = new_g1
+
+    cont = True
+    while cont:
+        cont = False
+        # Now, remove any rule that refers to nonexistant keys.
+        new_g1 = defaultdict(list)
+        for k in new_g:
+            for r in new_g[k]:
+                skip_rule = False
+                if len(r) == 0:
+                    new_g1[k].append(r)
+                elif len(r) == 1:
+                    if r[0] not in new_g:
+                        cont = True
+                        pass
+                    else:
+                        new_g1[k].append(r)
+                elif len(r) == 2:
+                    if r[0] not in new_g or r[1] not in new_g:
+                        cont = True
+                        pass
+                    else:
+                        new_g1[k].append(r)
+                else: assert False
+        new_g = {k:new_g1[k] for k in new_g1 if new_g1[k]} # remove empty keys
+
+    # convert keys to template
+    new_g1 = defaultdict(list)
+    for k in new_g:
+        for r in new_g[k]:
+            new_g1[convert_key(k)].append([convert_key(t) for t in r])
+    new_g = new_g1
+    return new_g, convert_key((r_s, cf_s, r_f))
+
+def convert_key(k):
+    p,k,q = k
+    return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
+
 
 expr_re = '1.*'
 
