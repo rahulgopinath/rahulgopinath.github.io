@@ -317,13 +317,13 @@ def unique_cnode_to_grammar(tree, grammar=None):
 # define `display_grammar()`
 
 def display_rule(rule, pre, verbose):
-    if verbose > -1:
+    if verbose > -2:
         v = (' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
         s = '%s|   %s' % (pre, v)
         print(s)
 
 def display_definition(grammar, key, r, verbose):
-    if verbose > -1: print(key,'::=')
+    if verbose > -2: print(key,'::=')
     for rule in grammar[key]:
         r += 1
         if verbose > 1:
@@ -369,13 +369,13 @@ def display_grammar(grammar, start, verbose=0):
         if verbose > 0:
             print(k, r)
 
-    if not_used:
+    if not_used and verbose > -1:
         print('[not_used]')
         for key in not_used:
             r = display_definition(grammar, key, r, verbose)
             if verbose > 0:
                 print(k, r)
-    if undefined:
+    if undefined and verbose > -1:
         print('[undefined keys]')
         for key in undefined:
             if verbose == 0:
@@ -384,7 +384,8 @@ def display_grammar(grammar, start, verbose=0):
                 print(key, 'defined in')
                 for k in undefined[key]: print(' ', k)
 
-    print('keys:', k, 'rules:', r)
+    if verbose > -1:
+        print('keys:', k, 'rules:', r)
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)

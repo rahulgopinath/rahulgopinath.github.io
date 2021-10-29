@@ -645,13 +645,13 @@ define `display_grammar()`
 <!--
 ############
 def display_rule(rule, pre, verbose):
-    if verbose > -1:
+    if verbose > -2:
         v = (' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
         s = '%s|   %s' % (pre, v)
         print(s)
 
 def display_definition(grammar, key, r, verbose):
-    if verbose > -1: print(key,'::=')
+    if verbose > -2: print(key,'::=')
     for rule in grammar[key]:
         r += 1
         if verbose > 1:
@@ -697,13 +697,13 @@ def display_grammar(grammar, start, verbose=0):
         if verbose > 0:
             print(k, r)
 
-    if not_used:
+    if not_used and verbose > -1:
         print('[not_used]')
         for key in not_used:
             r = display_definition(grammar, key, r, verbose)
             if verbose > 0:
                 print(k, r)
-    if undefined:
+    if undefined and verbose > -1:
         print('[undefined keys]')
         for key in undefined:
             if verbose == 0:
@@ -712,7 +712,8 @@ def display_grammar(grammar, start, verbose=0):
                 print(key, 'defined in')
                 for k in undefined[key]: print(' ', k)
 
-    print('keys:', k, 'rules:', r)
+    if verbose > -1:
+        print('keys:', k, 'rules:', r)
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
@@ -723,13 +724,13 @@ if __name__ == '__main__':
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def display_rule(rule, pre, verbose):
-    if verbose &gt; -1:
+    if verbose &gt; -2:
         v = (&#x27; &#x27;.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
         s = &#x27;%s|   %s&#x27; % (pre, v)
         print(s)
 
 def display_definition(grammar, key, r, verbose):
-    if verbose &gt; -1: print(key,&#x27;::=&#x27;)
+    if verbose &gt; -2: print(key,&#x27;::=&#x27;)
     for rule in grammar[key]:
         r += 1
         if verbose &gt; 1:
@@ -775,13 +776,13 @@ def display_grammar(grammar, start, verbose=0):
         if verbose &gt; 0:
             print(k, r)
 
-    if not_used:
+    if not_used and verbose &gt; -1:
         print(&#x27;[not_used]&#x27;)
         for key in not_used:
             r = display_definition(grammar, key, r, verbose)
             if verbose &gt; 0:
                 print(k, r)
-    if undefined:
+    if undefined and verbose &gt; -1:
         print(&#x27;[undefined keys]&#x27;)
         for key in undefined:
             if verbose == 0:
@@ -790,7 +791,8 @@ def display_grammar(grammar, start, verbose=0):
                 print(key, &#x27;defined in&#x27;)
                 for k in undefined[key]: print(&#x27; &#x27;, k)
 
-    print(&#x27;keys:&#x27;, k, &#x27;rules:&#x27;, r)
+    if verbose &gt; -1:
+        print(&#x27;keys:&#x27;, k, &#x27;rules:&#x27;, r)
 
 if __name__ == &#x27;__main__&#x27;:
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
