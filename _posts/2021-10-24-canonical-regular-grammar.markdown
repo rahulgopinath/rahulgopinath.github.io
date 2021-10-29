@@ -491,6 +491,10 @@ def fix_empty_rules(g, s):
             else:
                 new_g1[k].append(r)
 
+    # special case.
+    if s in empty_keys:
+        new_g1[s].append(NT_EMPTY)
+
     return {**new_g1, **G_EMPTY}, s
 
 ############
@@ -522,6 +526,10 @@ def fix_empty_rules(g, s):
                 new_g1[k].append([r[0], NT_EMPTY])
             else:
                 new_g1[k].append(r)
+
+    # special case.
+    if s in empty_keys:
+        new_g1[s].append(NT_EMPTY)
 
     return {**new_g1, **G_EMPTY}, s
 </textarea><br />
