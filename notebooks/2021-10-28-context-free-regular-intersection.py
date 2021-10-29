@@ -177,7 +177,7 @@ def reachable_dict(g):
     gn = gatleast.reachable_dict(g)
     return {k:list(gn[k]) for k in gn}
 
-def make_triplet_rules(cf_g, r_g, r_s, r_f):
+def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
     new_g1 = defaultdict(list)
     cf_reachable = reachable_dict(cf_g)
     r_reachable = reachable_dict(r_g)
@@ -220,7 +220,7 @@ def make_triplet_rules(cf_g, r_g, r_s, r_f):
                             new_g1[(a, cf_k, c)].append(r)
             else:
                 assert False
-    return new_g1
+    return new_g1, (r_s, cf_s, r_f)
 
 def filter_terminal_transitions(g, r_g):
     new_g1 = defaultdict(list)
@@ -265,7 +265,7 @@ def filter_rules_with_undefined_keys(g):
 
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
-    new_g = make_triplet_rules(cf_g, r_g, r_s, r_f)
+    new_g, new_s = make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f)
 
     # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
     new_g = filter_terminal_transitions(new_g, r_g)
@@ -282,21 +282,23 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
         for r in new_g[k]:
             new_g1[convert_key(k)].append([convert_key(t) for t in r])
     new_g = new_g1
-    return new_g, convert_key((r_s, cf_s, r_f))
+    return new_g, convert_key(new_s)
 
 def convert_key(k):
     p,k,q = k
     return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
 
 
-expr_re = '1.*'
+expr_re = '1+'
 
 if __name__ == '__main__':
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
     rxcanonical.display_canonical_grammar(rg, rs)
-    string = '100'
+    string = '111'
+    re_start = '<^>'
+    rg[re_start] = [[rs]]
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
-    res = rp.recognize_on(string, rs)
+    res = rp.recognize_on(string, re_start)
     assert res
     bg, bs = binary_form(JSON_GRAMMAR, JSON_START)
     ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
