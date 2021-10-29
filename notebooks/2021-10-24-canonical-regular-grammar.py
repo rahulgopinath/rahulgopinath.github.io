@@ -333,7 +333,10 @@ def construct_merged_keys(merge_keys, g):
     new_def = []
     keys_to_construct = []
     for k in merge_keys:
-        new_def.extend(g[k])
+        if not k:
+            new_def.append([])
+        else:
+            new_def.extend(g[k])
     rsets = definition_split_to_rulesets(new_def)
     new_rules = []
     for c in rsets:
