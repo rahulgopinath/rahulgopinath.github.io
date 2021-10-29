@@ -320,6 +320,9 @@ if __name__ == '__main__':
     bg, bs = binary_form(EXPR_GRAMMAR, EXPR_START)
     ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
     gatleast.display_grammar(ing, ins)
+    inf = fuzzer.LimitFuzzer(ing)
+    for i in range(10):
+        print(inf.fuzz(ins))
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
