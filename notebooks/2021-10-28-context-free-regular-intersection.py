@@ -168,8 +168,6 @@ if __name__ == '__main__':
      g, s = binary_form(JSON_GRAMMAR, JSON_START)
      gatleast.display_grammar(g, s)
 
-# Intersection
-
 def split_into_three(ks, kf, reaching):
     lst = []
     for k in ([ks] + reaching[ks]):
@@ -180,6 +178,16 @@ def split_into_three(ks, kf, reaching):
 def reachable_dict(g):
     gn = gatleast.reachable_dict(g)
     return {k:list(gn[k]) for k in gn}
+
+def filter_grammar(g, s):
+    new_g = {}
+    for k in g:
+        new_rs = []
+        for r in g[k]:
+            new_r = [t[1] for t in r]
+            new_rs.append(new_r)
+        new_g[k[1]] = new_rs
+    return new_g, s[1]
 
 def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
     new_g1 = defaultdict(list)
@@ -253,12 +261,17 @@ def filter_rules_with_undefined_keys(g):
             if len(r) == 0:
                 new_g1[k].append(r)
             elif len(r) == 1:
-                if r[0] not in g:
-                    cont = True
-                    pass
+                if fuzzer.is_nonterminal(r[0][1]):
+                    if r[0] not in g:
+                        cont = True
+                        pass
+                    else:
+                        new_g1[k].append(r)
                 else:
                     new_g1[k].append(r)
             elif len(r) == 2:
+                assert fuzzer.is_nonterminal(r[0][1])
+                assert fuzzer.is_nonterminal(r[1][1])
                 if r[0] not in g or r[1] not in g:
                     cont = True
                     pass
@@ -270,16 +283,22 @@ def filter_rules_with_undefined_keys(g):
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
     new_g, new_s = make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f)
+    gatleast.display_grammar(*filter_grammar(new_g, new_s))
 
     # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
     new_g = filter_terminal_transitions(new_g, r_g)
+    gatleast.display_grammar(*filter_grammar(new_g, new_s))
 
     cont = True
     while cont:
         new_g1, cont = filter_rules_with_undefined_keys(new_g)
         # Now, remove any rule that refers to nonexistant keys.
         new_g = {k:new_g1[k] for k in new_g1 if new_g1[k]} # remove empty keys
+        gatleast.display_grammar(*filter_grammar(new_g, new_s))
 
+    print()
+    gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    print()
     # convert keys to template
     new_g1 = defaultdict(list)
     for k in new_g:
@@ -290,8 +309,12 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
 
 def convert_key(k):
     p,k,q = k
-    return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
-
+    if fuzzer.is_nonterminal(k):
+    #return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
+        return '<%s %s %s>' % (p[1:-1], k[1:-1], q[1:-1])
+    else:
+        return '[%s %s %s]' % (p[1:-1], k[1:-1], q[1:-1])
+    #return k
 
 expr_re = '1+'
 
