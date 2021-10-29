@@ -353,44 +353,78 @@ gatleast.display_grammar(g, s)
 </form>
 ## Add empty rule
 If there are any rules of the form $$ A \rightarrow b $$, we replace it by
-$$ A \rightarrow b E $$, $$ E \rightarrow \epsilon $$. The reason for doing
+$$ A \rightarrow b E $$, $$ E \rightarrow \epsilon $$.
+Next, if we have rules of the form $$ A \rightarrow \epsilon $$,
+and $$ B \rightarrow a A $$ then, we remove the $$ A \rightarrow \epsilon $$
+and add a new rule $$ B \rightarrow a E $$
+The reason for doing
 this is to make sure that we have a single termination point.
 
 <!--
 ############
 EMPTY_NT = '<_>'
-def add_empty_rule(g, s):
+def fix_empty_rules(g, s):
     new_g = defaultdict(list)
-    new_g[EMPTY_NT] = [[]]
+    empty_keys = []
     for k in g:
         if k == EMPTY_NT: continue
         for r in g[k]:
-            if len(r) == 1:
+            if len(r) == 0:
+                empty_keys.append(k)
+                continue
+            elif len(r) == 1:
                 tok = r[0]
                 assert fuzzer.is_terminal(tok)
                 new_g[k].append([tok, EMPTY_NT])
             else:
                 new_g[k].append(r)
-    return new_g, s
+
+    new_g1 = defaultdict(list)
+    for k in new_g:
+        for r in new_g[k]:
+            assert len(r) == 2 or k == s
+            if r[1] in empty_keys:
+                new_g1[k].append(r)
+                new_g1[k].append([r[0], EMPTY_NT])
+            else:
+                new_g1[k].append(r)
+
+    new_g1[EMPTY_NT] = [[]]
+    return new_g1, s
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 EMPTY_NT = &#x27;&lt;_&gt;&#x27;
-def add_empty_rule(g, s):
+def fix_empty_rules(g, s):
     new_g = defaultdict(list)
-    new_g[EMPTY_NT] = [[]]
+    empty_keys = []
     for k in g:
         if k == EMPTY_NT: continue
         for r in g[k]:
-            if len(r) == 1:
+            if len(r) == 0:
+                empty_keys.append(k)
+                continue
+            elif len(r) == 1:
                 tok = r[0]
                 assert fuzzer.is_terminal(tok)
                 new_g[k].append([tok, EMPTY_NT])
             else:
                 new_g[k].append(r)
-    return new_g, s
+
+    new_g1 = defaultdict(list)
+    for k in new_g:
+        for r in new_g[k]:
+            assert len(r) == 2 or k == s
+            if r[1] in empty_keys:
+                new_g1[k].append(r)
+                new_g1[k].append([r[0], EMPTY_NT])
+            else:
+                new_g1[k].append(r)
+
+    new_g1[EMPTY_NT] = [[]]
+    return new_g1, s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -713,7 +747,7 @@ def canonical_regular_grammar(g0, s0):
 
     #
     g2, s2 = remove_multi_terminals(g1, s1)
-    g3, s3 = add_empty_rule(g2, s2)
+    g3, s3 = fix_empty_rules(g2, s2)
     #
 
     g4, s4 = collapse_similar_starting_rules(g3, s3)
@@ -728,7 +762,7 @@ def canonical_regular_grammar(g0, s0):
 
     #
     g2, s2 = remove_multi_terminals(g1, s1)
-    g3, s3 = add_empty_rule(g2, s2)
+    g3, s3 = fix_empty_rules(g2, s2)
     #
 
     g4, s4 = collapse_similar_starting_rules(g3, s3)
