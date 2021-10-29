@@ -391,7 +391,7 @@ def convert_key(k):
         return k
     #return k
 
-expr_re = '[(]11[)]'
+expr_re = '[(]+[123]+[)]+'
 
 if __name__ == '__main__':
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
@@ -407,9 +407,9 @@ if __name__ == '__main__':
     gatleast.display_grammar(ing, ins, -1)
     inf = fuzzer.LimitFuzzer(ing)
     for i in range(10):
-        string = inf.fuzz(ins)
-        #res = rp.recognize_on(string, re_start)
-        #assert res
+        string = inf.iter_fuzz(ins)
+        res = rp.recognize_on(string, re_start)
+        assert res
         print(string)
 
 # The runnable code for this post is available
