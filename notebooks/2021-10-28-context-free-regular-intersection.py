@@ -80,7 +80,8 @@ EXPR_GRAMMAR = {
     '<digit>': [["%s" % str(i)] for i in range(1)],
 }
 EXPR_GRAMMAR = {
-    '<start>': [['<digit>']],
+    '<start>': [['<digits>']],
+    '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
     '<digit>': [["%s" % str(i)] for i in range(2)],
 }
 EXPR_START = '<start>'
@@ -316,15 +317,16 @@ def convert_key(k):
     #return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
         return '<%s %s %s>' % (p[1:-1], k[1:-1], q[1:-1])
     else:
-        return '[%s %s %s]' % (p, k, q)
+        #return '[%s %s %s]' % (p, k, q)
+        return k
     #return k
 
-expr_re = '1+'
+expr_re = '10+'
 
 if __name__ == '__main__':
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
     rxcanonical.display_canonical_grammar(rg, rs)
-    string = '111'
+    string = '100'
     re_start = '<^>'
     rg[re_start] = [[rs]]
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
