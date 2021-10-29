@@ -188,7 +188,8 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                 for r_k1 in r_g:
                     # what are reachable from r_k1 with exactly epsilon? only
                     # itself! or the final from the start. TODO
-                    new_g[(r_k1, cf_k, r_k1)] = [(r_k1, '', r_k1)]
+                    r = [(r_k1, '', r_k1)]
+                    new_g[(r_k1, cf_k, r_k1)].append(r)
             elif len(cf_r) == 1:
                 cf_token =  cf_r[0]
                 #assert fuzzer.is_terminal(cf_token) <- we also allow nonterminals
@@ -199,17 +200,20 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                             if not rule: continue
                             if rule[0] != cf_token: continue
                             r_k2 = rule[1]
-                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_token, r_k2)]
+                            r = [(r_k1, cf_token, r_k2)]
+                            new_g[(r_k1, cf_k, r_k2)].append(r)
                 else:
                     for r_k1 in r_g:
                         for r_k2 in ([r_k1] + r_reachable[r_k1]):
                             # postpone checking cf_token
-                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_token, r_k2)]
+                            r = [(r_k1, cf_token, r_k2)]
+                            new_g[(r_k1, cf_k, r_k2)].append(r)
             elif len(cf_r) == 2:
                 for r_k1 in r_g:
                     for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
                         for a,b,c in split_into_three(r_k1, r_k2, r_reachable):
-                            new_g[(a, cf_k, c)] = [(a, cf_r[0], b), (b, cf_r[1], c)]
+                            r = [(a, cf_r[0], b), (b, cf_r[1], c)]
+                            new_g[(a, cf_k, c)].append(r)
             else:
                 assert False
 
@@ -226,9 +230,11 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
         for rule in new_g[key]:
             if len(rule) == 1:
                 a, t, b = rule[0]
-                assert fuzzer.is_terminal(t)
-                found_right_transition = any([1 for r_rule in r_g[a] if r_rule and r_rule[0] == t and r_rule[1] == b])
-                if found_right_transition:
+                if fuzzer.is_terminal(t):
+                    found_right_transition = any([1 for r_rule in r_g[a] if r_rule and r_rule[0] == t and r_rule[1] == b])
+                    if found_right_transition:
+                        new_g1[key].append(rule)
+                else:
                     new_g1[key].append(rule)
             else:
                 new_g1[key].append(rule)
@@ -241,7 +247,6 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
         new_g1 = defaultdict(list)
         for k in new_g:
             for r in new_g[k]:
-                skip_rule = False
                 if len(r) == 0:
                     new_g1[k].append(r)
                 elif len(r) == 1:
