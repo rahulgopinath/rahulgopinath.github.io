@@ -81,6 +81,14 @@ EXPR_GRAMMAR = {
 }
 EXPR_START = '<start>'
 
+# Check it works
+
+if __name__ == '__main__':
+     g, s = binary_form(EXPR_GRAMMAR, EXPR_START)
+     gatleast.display_grammar(g, s)
+
+# JSON grammar
+
 JSON_GRAMMAR = {
         '<start>': [['<json>']],
         '<json>': [['<element>']],
@@ -157,12 +165,6 @@ JSON_GRAMMAR = {
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'],   ['F']]
 }
 JSON_START = '<start>'
-
-# Check it works
-
-if __name__ == '__main__':
-     g, s = binary_form(JSON_GRAMMAR, JSON_START)
-     gatleast.display_grammar(g, s)
 
 def split_into_three(ks, kf, reaching):
     lst = []
@@ -273,24 +275,100 @@ def filter_rules_with_undefined_keys(g):
                     new_g1[k].append(r)
     return new_g1, cont
 
+## --
+
+def display_rule(rule, pre, verbose):
+    if verbose > -2:
+        v = (' '.join([repr(t) if fuzzer.is_nonterminal(t[1]) else repr(t) for t in rule]))
+        s = '%s|   %s' % (pre, v)
+        print(s)
+
+def display_definition(grammar, key, r, verbose):
+    if verbose > -2: print(key,'::=')
+    for rule in grammar[key]:
+        r += 1
+        if verbose > 1:
+            pre = r
+        else:
+            pre = ''
+        display_rule(rule, pre, verbose)
+    return r
+
+def recurse_grammar(grammar, key, order, undefined=None):
+    undefined = undefined or {}
+    rules = sorted(grammar[key])
+    old_len = len(order)
+    for rule in rules:
+        for token in rule:
+            if not fuzzer.is_nonterminal(token[1]): continue
+            if token not in grammar:
+                if token in undefined:
+                    undefined[token].append(key)
+                else:
+                    undefined[token] = [key]
+                continue
+            if token not in order:
+                order.append(token)
+    new = order[old_len:]
+    for ckey in new:
+        recurse_grammar(grammar, ckey, order, undefined)
+    return undefined
+
+def sort_grammar(grammar, start_symbol):
+    order = [start_symbol]
+    undefined = recurse_grammar(grammar, start_symbol, order)
+    return order, [k for k in grammar if k not in order], undefined
+
+def display_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    order, not_used, undefined = sort_grammar(grammar, start)
+    print('[start]:', start)
+    for key in order:
+        k += 1
+        r = display_definition(grammar, key, r, verbose)
+        if verbose > 0:
+            print(k, r)
+
+    if not_used and verbose > -1:
+        print('[not_used]')
+        for key in not_used:
+            r = display_definition(grammar, key, r, verbose)
+            if verbose > 0:
+                print(k, r)
+    if undefined and verbose > -1:
+        print('[undefined keys]')
+        for key in undefined:
+            if verbose == 0:
+                print(key)
+            else:
+                print(key, 'defined in')
+                for k in undefined[key]: print(' ', k)
+
+##
+
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
     new_g, new_s = make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f)
-    gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    display_grammar(new_g, new_s, -1)
 
     # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
     new_g = filter_terminal_transitions(new_g, r_g)
-    gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    display_grammar(new_g, new_s, -1)
 
     cont = True
     while cont:
         new_g1, cont = filter_rules_with_undefined_keys(new_g)
         # Now, remove any rule that refers to nonexistant keys.
         new_g = {k:new_g1[k] for k in new_g1 if new_g1[k]} # remove empty keys
-        gatleast.display_grammar(*filter_grammar(new_g, new_s))
+        #gatleast.display_grammar(*filter_grammar(new_g, new_s))
+        display_grammar(new_g, new_s, -1)
 
     print()
-    gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    #gatleast.display_grammar(*filter_grammar(new_g, new_s))
+    display_grammar(new_g, new_s, -1)
     print()
     # convert keys to template
     new_g1 = {}
@@ -313,12 +391,12 @@ def convert_key(k):
         return k
     #return k
 
-expr_re = '10+'
+expr_re = '[(]11[)]'
 
 if __name__ == '__main__':
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
     rxcanonical.display_canonical_grammar(rg, rs)
-    string = '100'
+    string = '(11)'
     re_start = '<^>'
     rg[re_start] = [[rs]]
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
@@ -326,10 +404,13 @@ if __name__ == '__main__':
     assert res
     bg, bs = binary_form(EXPR_GRAMMAR, EXPR_START)
     ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
-    gatleast.display_grammar(ing, ins)
+    gatleast.display_grammar(ing, ins, -1)
     inf = fuzzer.LimitFuzzer(ing)
     for i in range(10):
-        print(inf.fuzz(ins))
+        string = inf.fuzz(ins)
+        #res = rp.recognize_on(string, re_start)
+        #assert res
+        print(string)
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
