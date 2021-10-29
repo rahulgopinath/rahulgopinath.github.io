@@ -177,11 +177,10 @@ def reachable_dict(g):
     gn = gatleast.reachable_dict(g)
     return {k:list(gn[k]) for k in gn}
 
-def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
-    new_g = defaultdict(list)
+def make_triplet_rules(cf_g, r_g):
+    new_g1 = defaultdict(list)
     cf_reachable = reachable_dict(cf_g)
     r_reachable = reachable_dict(r_g)
-
     for cf_k in cf_g:
         for cf_r in cf_g[cf_k]:
             if len(cf_r) == 0:
@@ -189,7 +188,7 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                     # what are reachable from r_k1 with exactly epsilon? only
                     # itself! or the final from the start. TODO
                     r = [(r_k1, '', r_k1)]
-                    new_g[(r_k1, cf_k, r_k1)].append(r)
+                    new_g1[(r_k1, cf_k, r_k1)].append(r)
             elif len(cf_r) == 1:
                 cf_token =  cf_r[0]
                 #assert fuzzer.is_terminal(cf_token) <- we also allow nonterminals
@@ -201,33 +200,35 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                             if rule[0] != cf_token: continue
                             r_k2 = rule[1]
                             r = [(r_k1, cf_token, r_k2)]
-                            new_g[(r_k1, cf_k, r_k2)].append(r)
+                            new_g1[(r_k1, cf_k, r_k2)].append(r)
                 else:
                     for r_k1 in r_g:
                         for r_k2 in ([r_k1] + r_reachable[r_k1]):
                             # postpone checking cf_token
                             r = [(r_k1, cf_token, r_k2)]
-                            new_g[(r_k1, cf_k, r_k2)].append(r)
+                            new_g1[(r_k1, cf_k, r_k2)].append(r)
             elif len(cf_r) == 2:
                 for r_k1 in r_g:
                     for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
                         for a,b,c in split_into_three(r_k1, r_k2, r_reachable):
                             r = [(a, cf_r[0], b), (b, cf_r[1], c)]
-                            new_g[(a, cf_k, c)].append(r)
+                            new_g1[(a, cf_k, c)].append(r)
             else:
                 assert False
+    return new_g1
 
-    # remove from new_g, any r_s that does not end with r_f (NT_EMPTY)
+def filter_start_rules(g, r_s, r_f):
     new_g1 = defaultdict(list)
-    for (a, k, b) in new_g:
+    for (a, k, b) in g:
         if a == r_s:
             if b == r_f:
-                new_g1[(a, k, b)] = new_g[(a,k,b)]
-    new_g = new_g1
-    # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
+                new_g1[(a, k, b)] = g[(a,k,b)]
+    return new_g1
+
+def filter_terminal_transitions(g, r_g):
     new_g1 = defaultdict(list)
-    for key in new_g:
-        for rule in new_g[key]:
+    for key in g:
+        for rule in g[key]:
             if len(rule) == 1:
                 a, t, b = rule[0]
                 if fuzzer.is_terminal(t):
@@ -238,30 +239,44 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
                     new_g1[key].append(rule)
             else:
                 new_g1[key].append(rule)
-    new_g = new_g1
+    return new_g1
+
+def filter_rules_with_undefined_keys(g):
+    cont = False
+    new_g1 = defaultdict(list)
+    for k in g:
+        for r in g[k]:
+            if len(r) == 0:
+                new_g1[k].append(r)
+            elif len(r) == 1:
+                if r[0] not in g:
+                    cont = True
+                    pass
+                else:
+                    new_g1[k].append(r)
+            elif len(r) == 2:
+                if r[0] not in g or r[1] not in g:
+                    cont = True
+                    pass
+                else:
+                    new_g1[k].append(r)
+            else: assert False
+    return new_g1, cont
+
+def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
+    # first wrap every token in start and end states.
+    new_g = make_triplet_rules(cf_g, r_g)
+
+    # remove from new_g, any r_s that does not end with r_f (NT_EMPTY)
+    new_g = filter_start_rules(new_g, r_s, r_f)
+
+    # remove any (a, x, b) sequence where x is terminal, and a does not have a transition a x b
+    new_g = filter_terminal_transitions(new_g, r_g)
 
     cont = True
     while cont:
-        cont = False
+        new_g1, cont = filter_rules_with_undefined_keys(new_g)
         # Now, remove any rule that refers to nonexistant keys.
-        new_g1 = defaultdict(list)
-        for k in new_g:
-            for r in new_g[k]:
-                if len(r) == 0:
-                    new_g1[k].append(r)
-                elif len(r) == 1:
-                    if r[0] not in new_g:
-                        cont = True
-                        pass
-                    else:
-                        new_g1[k].append(r)
-                elif len(r) == 2:
-                    if r[0] not in new_g or r[1] not in new_g:
-                        cont = True
-                        pass
-                    else:
-                        new_g1[k].append(r)
-                else: assert False
         new_g = {k:new_g1[k] for k in new_g1 if new_g1[k]} # remove empty keys
 
     # convert keys to template
