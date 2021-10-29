@@ -71,6 +71,16 @@ def binary_form(g, s):
             productions_to_process.append(prod)
     return new_g, s 
 
+EXPR_GRAMMAR = {
+    '<start>': [['<expr>']],
+    '<expr>': [ ['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
+    '<term>': [ ['<fact>', '*', '<term>'], ['<fact>', '/', '<term>'], ['<fact>']],
+    '<fact>': [ ['<digits>'], ['(','<expr>',')']],
+    '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(1)],
+}
+EXPR_START = '<start>'
+
 JSON_GRAMMAR = {
         '<start>': [['<json>']],
         '<json>': [['<element>']],
@@ -225,10 +235,10 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # Now, remove any rule that refers to nonexistant keys.
     return new_g, '<%s&%s>' % (cf_s[1:-1], r_s[1:-1])
 
-json_re = '1.*'
+expr_re = '1.*'
 
 if __name__ == '__main__':
-    rg, rs = rxcanonical.regexp_to_regular_grammar(json_re)
+    rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
     rxcanonical.display_canonical_grammar(rg, rs)
     string = '100'
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
