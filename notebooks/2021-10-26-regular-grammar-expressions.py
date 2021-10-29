@@ -85,8 +85,6 @@ rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.p
 # in the nonterminals. So, we define our grammar first.
 
 import string
-EMPTY_NT = '<_>'
-ALL_NT = '<.*>'
 BEXPR_GRAMMAR = {
     '<start>': [['<', '<bexpr>', '>']],
     '<bexpr>': [
@@ -94,7 +92,7 @@ BEXPR_GRAMMAR = {
         ['<key>']],
     '<bexprs>' : [['<bexpr>', ',', '<bexprs>'], ['<bexpr>']],
     '<bop>' : [list('and'), list('or'), list('neg')],
-    '<key>': [['<letters>'],[EMPTY_NT[1:-1]]], # epsilon is <_>
+    '<key>': [['<letters>'],[rxcanonical.NT_EMPTY[1:-1]]], # epsilon is <_>
     '<letters>': [
         ['<letter>'],
         ['<letter>', '<letters>']
@@ -315,17 +313,8 @@ if __name__ == '__main__':
 # For complement, the idea is to treat each pattern separately. We take the
 # definition of each nonterminal separately.
 # 
-# 1. If the nonterminal definition does not contain $$ \epsilon $$, we add `EMPTY_NT`
-#    to the resulting definition. If it contains, then we skip it. The `EMPTY_NT` is
-#    defined below.
-
-G_EMPTY = {EMPTY_NT: [[]]}
-
-#  
-# ```
-# <_>  := 
-# ```
-
+# 1. If the nonterminal definition does not contain $$ \epsilon $$, we add `NT_EMPTY`
+#    to the resulting definition. If it contains, then we skip it.
 # 2. We collect all terminal symbols that start up a rule in the definition.
 #    For each such rule, we add a rule that complements the nonterminal used.
 #    That is, given 
@@ -342,23 +331,8 @@ G_EMPTY = {EMPTY_NT: [[]]}
 #    as one of the complement rules.
 # 
 # 3. For every remaining terminal in the `TERMINAL_SYMBOLS`, we add a match for
-#    any string given by `ALL_NT` (`<.*>`) and its definition is given below
+#    any string given by `NT_ALL_STAR` (`<.*>`).
 # 
-# We first define our `TERMINAL_SYMBOLS`
-
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-
-# Then, use it to define `ALL_NT`
-
-G_ALL = {ALL_NT:
-        [[c, ALL_NT] for c in TERMINAL_SYMBOLS]
-        + [[ ]]
-        }
-
-#  
-# ```
-# <.*>  := . <.*>
-# ```
 # 
 # We start by producing the complement of a single nonterminal symbol.
 
@@ -393,10 +367,12 @@ if __name__ == '__main__':
 # original definition, and adding any new rules that did not match the
 # original definition.
 
-def negate_definition(d1, terminal_symbols=TERMINAL_SYMBOLS):
+def negate_definition(d1, terminal_symbols=rxcanonical.TERMINAL_SYMBOLS):
     paired = {get_leading_terminal(r):r for r in d1}
     remaining_chars = [c for c in terminal_symbols if c not in paired]
-    new_rules = [[c, '<.*>'] for c in remaining_chars]
+    rs1 = [[c, rxcanonical.NT_EMPTY] for c in remaining_chars]
+    rs2 = [[c, rxcanonical.NT_ANY_PLUS] for c in remaining_chars]
+    new_rules = rs1 + rs2
 
     # Now, we try to negate individual rules. It starts with the same
     # character, but matches the negative.
@@ -459,86 +435,6 @@ def remove_empty_defs(grammar, start):
         empty = [k for k in grammar if not grammar[k]]
     return grammar, start
 
-# We also need the ability to compactly display a canonical regular grammar
-# and we define it as below.
-
-def display_terminals(terminals, negate=False):
-    if negate: return '[^%s]' % (''.join(terminals))
-    else:
-        if len(terminals) == 1:
-            return terminals[0]
-        return '[%s]' % (''.join(terminals))
-
-def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
-    if ruleset == [[]]:
-        print('| {EMPTY}')
-        return
-    terminals = [t[0] for t in ruleset]
-    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
-    if len(terminals) <= len(rem_terminals):
-        v = '%s %s' % (display_terminals(terminals), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-    else:
-        if rem_terminals == []:
-            v = '. %s' % nonterminal
-        else:
-            v = '%s %s' % (display_terminals(rem_terminals, negate=True), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-
-from collections import defaultdict
-
-def definition_rev_split_to_rulesets(d1):
-    rule_sets = defaultdict(list)
-    for r in d1:
-        if len(r) > 0:
-            assert fuzzer.is_terminal(r[0]) # no degenerate rules
-            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
-            rule_sets[r[1]].append(r)
-        else:
-            rule_sets[''].append(r)
-    return rule_sets
-
-def display_definition(grammar, key, r, verbose):
-    if verbose > -1: print(key,'::=')
-    rulesets = definition_rev_split_to_rulesets(grammar[key])
-    for nonterminal in rulesets:
-        pre = ''
-        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
-    return r
-
-def display_canonical_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
-    print('[start]:', start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose > 0:
-            print(k, r)
-
-    if undefined:
-        print('[undefined keys]')
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, 'defined in')
-                for k in undefined[key]: print(' ', k)
-
-# Make sure it works
-
-if __name__ == '__main__':
-    g0, s0 = rxcanonical.canonical_regular_grammar({**{
-         '<start0>' : [['a', '<A0>']],
-         '<A0>' : [['b', '<B0>'], ['c', '<C0>']],
-         '<B0>' : [['c', ALL_NT]],
-         '<C0>' : [[EMPTY_NT]]
-    }, **G_ALL, **G_EMPTY}, '<start0>')
-    display_canonical_grammar(g0, s0)
-
 # Next, we define `complete()` which recursively computes the complex
 # nonterminals that is left undefined in a grammar from the simpler
 # nonterminal definitions.
@@ -560,8 +456,9 @@ def complete(grammar, start, log=False):
 
 
 class ReconstructRules:
-    def __init__(self, grammar):
+    def __init__(self, grammar, all_terminal_symbols=rxcanonical.TERMINAL_SYMBOLS):
         self.grammar = grammar
+        self.all_terminal_symbols = all_terminal_symbols
 
 # We start with reconstructing a single key. For example, given the two grammars
 # `G1` and `G2`, and their start symbols `S1`, and `S2`, to compute an intersection
@@ -637,8 +534,8 @@ if __name__ == '__main__':
             }
     s2 = '<start2>'
     s1_s2 = or_nonterminals(s1, s2)
-    g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
-    display_canonical_grammar(g, s)
+    g, s = complete({**g1, **g2}, s1_s2, True)
+    rxcanonical.display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, parse_exceptions=False)
@@ -684,8 +581,8 @@ if __name__ == '__main__':
             }
     s2 = '<start2>'
     s1_s2 = and_nonterminals(s1, s2)
-    g, s = complete({**g1, **g2, **G_EMPTY, **G_ALL}, s1_s2, True)
-    display_canonical_grammar(g, s)
+    g, s = complete({**g1, **g2}, s1_s2, True)
+    rxcanonical.display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, parse_exceptions=False)
@@ -706,7 +603,7 @@ class ReconstructRules(ReconstructRules):
         fst = bexpr.op_fst()
         f_key = bexpr.as_key()
         d1, s1 = self.reconstruct_rules_from_bexpr(fst)
-        neg_rules = negate_definition(d1)
+        neg_rules = negate_definition(d1, self.all_terminal_symbols)
         return neg_rules, f_key
 
 # Ensure that negation also works.
@@ -717,12 +614,12 @@ if __name__ == '__main__':
             '<A1>' : [['a', '<B1>']],
             '<B1>' : [['b','<C1>'], ['c', '<D1>']],
             '<C1>' : [['c', '<D1>']],
-            '<D1>' : [[]],
+            '<D1>' : [['d', rxcanonical.NT_EMPTY]],
             }
     s1 = '<start1>'
     s1_ = negate_nonterminal(s1)
-    g, s = complete({**g1, **G_EMPTY, **G_ALL}, s1_, True)
-    display_canonical_grammar(g, s)
+    g, s = complete({**g1, **rxcanonical.G_EMPTY, **rxcanonical.G_ANY_PLUS}, s1_, True)
+    rxcanonical.display_canonical_grammar(g, s)
 
     gf = fuzzer.LimitFuzzer(g)
     gp = earleyparser.EarleyParser(g, parse_exceptions=False)
