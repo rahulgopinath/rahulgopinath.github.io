@@ -79,6 +79,10 @@ EXPR_GRAMMAR = {
     '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
     '<digit>': [["%s" % str(i)] for i in range(1)],
 }
+EXPR_GRAMMAR = {
+    '<start>': [['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(2)],
+}
 EXPR_START = '<start>'
 
 JSON_GRAMMAR = {
@@ -300,7 +304,7 @@ if __name__ == '__main__':
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
     res = rp.recognize_on(string, re_start)
     assert res
-    bg, bs = binary_form(JSON_GRAMMAR, JSON_START)
+    bg, bs = binary_form(EXPR_GRAMMAR, EXPR_START)
     ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
     gatleast.display_grammar(ing, ins)
 
