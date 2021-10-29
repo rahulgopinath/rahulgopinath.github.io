@@ -7,7 +7,17 @@
 # categories: post
 # ---
 
-# We start with importing the prerequisites
+# We [previously saw](/post/2021/10/26/regular-grammar-expressions/) how to
+# produce a grammar that is an intersection of two regular grammars. One of the
+# interesting things about regular grammars is that, you can produce an
+# intersection between a regular grammar and a context free grammar, and the
+# result will be context free. The traditional technique for intersecting
+# between a CFL and an RL is to produce the PDA and the DFA equivalents of both,
+# and produce a product PDA. However, there is an even better way called
+# the Bar-Hiller construction[^barhiller1961on] that lets you compute an
+# intersection between a CFG and RG directly.
+#
+# We start by importing the prerequisites.
 
 import sys, imp, pprint, string
 
@@ -39,17 +49,31 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
 rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.py')
 
-#     $$ A \rightarrow BC $$
-#     $$ A \rightarrow a $$
-#     $$ A \rightarrow B $$
-#     $$ S \rightarrow \epsilon $$
+# ## Binary Normal Form
+# 
+# Next, we want to limit the number of forms of production rules that we want to
+# handle. Hence, we convert the context-free grammar to a normal form such that
+# it conforms exclusively to the following pattern.
+#  
+# 1.  $$ A \rightarrow a $$
+# 2.  $$ A \rightarrow B $$
+# 3.  $$ A \rightarrow aB $$
+# 4.  $$ A \rightarrow Bb $$
+# 5.  $$ A \rightarrow BC $$
+# 6.  $$ S \rightarrow \epsilon $$
+#
+# That is, each production rule has at most two tokens. The new normal form is
+# provided by `binary_normal_form()`. Note that this is not exactly the
+# [Chomsky Normal Form](https://en.wikipedia.org/wiki/Chomsky_normal_form). We
+# do not need the full restrictions of CNF. However, our algorithms will also
+# work if a grammar in CNF form is given.
 
 from collections import defaultdict
 
 def new_k(k, y, x):
     return '<%s %s-%s>' % (k[1:-1], str(y), str(x))
 
-def binary_form(g, s):
+def binary_normal_form(g, s):
     new_g = defaultdict(list)
     productions_to_process = [(k, i, 0, r) for k in g for i,r in enumerate(g[k])]
     while productions_to_process:
@@ -71,6 +95,8 @@ def binary_form(g, s):
             productions_to_process.append(prod)
     return new_g, s 
 
+# Let us define a simple expression grammar to use as an example.
+
 EXPR_GRAMMAR = {
     '<start>': [['<expr>']],
     '<expr>': [ ['<term>', '+', '<expr>'], ['<term>', '-', '<expr>'], ['<term>']],
@@ -81,13 +107,13 @@ EXPR_GRAMMAR = {
 }
 EXPR_START = '<start>'
 
-# Check it works
+# We verify that our BNF converter works.
 
 if __name__ == '__main__':
-     g, s = binary_form(EXPR_GRAMMAR, EXPR_START)
+     g, s = binary_normal_form(EXPR_GRAMMAR, EXPR_START)
      gatleast.display_grammar(g, s)
 
-# JSON grammar
+# Here is another, the grammar for JSON
 
 JSON_GRAMMAR = {
         '<start>': [['<json>']],
@@ -165,6 +191,14 @@ JSON_GRAMMAR = {
             ['a'], ['b'], ['c'], ['d'], ['e'], ['f'], ['A'], ['B'], ['C'], ['D'], ['E'],   ['F']]
 }
 JSON_START = '<start>'
+
+# We again verify that our BNF converter works.
+
+if __name__ == '__main__':
+     g, s = binary_normal_form(EXPR_GRAMMAR, EXPR_START)
+     gatleast.display_grammar(g, s)
+
+#
 
 def split_into_three(ks, kf, reaching):
     lst = []
@@ -341,7 +375,7 @@ if __name__ == '__main__':
     rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
     res = rp.recognize_on(string, re_start)
     assert res
-    bg, bs = binary_form(EXPR_GRAMMAR, EXPR_START)
+    bg, bs = binary_normal_form(EXPR_GRAMMAR, EXPR_START)
     ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
     gatleast.display_grammar(ing, ins, -1)
     inf = fuzzer.LimitFuzzer(ing)
@@ -353,3 +387,5 @@ if __name__ == '__main__':
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
+
+# [^barhiller1961on]: Bar-Hiller, M. Perles, and E. Shamir. On formal properties of simple phrase structure grammars. Zeitschrift fur Phonetik Sprachwissenschaft und Kommunikationforshung, 14(2):143–172, 1961.
