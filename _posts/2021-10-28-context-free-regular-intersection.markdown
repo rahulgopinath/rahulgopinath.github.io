@@ -204,6 +204,7 @@ it conforms exclusively to the following pattern.
 4.  $$ A \rightarrow Bb $$
 5.  $$ A \rightarrow BC $$
 6.  $$ S \rightarrow \epsilon $$
+ 
 That is, each production rule has at most two tokens. The new normal form is
 provided by `binary_normal_form()`. Note that this is not exactly the
 [Chomsky Normal Form](https://en.wikipedia.org/wiki/Chomsky_normal_form). We
