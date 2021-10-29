@@ -75,7 +75,7 @@ G_EMPTY = {NT_EMPTY: [[]]}
 # 
 # We also define our `TERMINAL_SYMBOLS`
 
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+TERMINAL_SYMBOLS = rxfuzzer.TERMINAL_SYMBOLS
 
 # Then, use it to define `NT_ANY_STAR`
 #  
@@ -410,71 +410,59 @@ if __name__ == '__main__':
 # and we define it as below.
 
 
-def display_terminals(terminals, negate=False):
-    if negate: return '[^%s]' % (''.join(terminals))
-    else:
-        if len(terminals) == 1:
-            return terminals[0]
-        return '[%s]' % (''.join(terminals))
-
-def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
-    if ruleset == [[]]:
-        print('| {EMPTY}')
-        return
-    terminals = [t[0] for t in ruleset]
-    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
-    if len(terminals) <= len(rem_terminals):
-        v = '%s %s' % (display_terminals(terminals), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-    else:
-        if rem_terminals == []:
-            v = '. %s' % nonterminal
-        else:
-            v = '%s %s' % (display_terminals(rem_terminals, negate=True), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-
 from collections import defaultdict
 
-def definition_rev_split_to_rulesets(d1):
-    rule_sets = defaultdict(list)
-    for r in d1:
-        if len(r) > 0:
-            assert fuzzer.is_terminal(r[0]) # no degenerate rules
-            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
-            rule_sets[r[1]].append(r)
-        else:
-            rule_sets[''].append(r)
-    return rule_sets
+class DisplayGrammar(gatleast.DisplayGrammar):
 
-def display_definition(grammar, key, r, verbose):
-    if verbose > -1: print(key,'::=')
-    rulesets = definition_rev_split_to_rulesets(grammar[key])
-    for nonterminal in rulesets:
-        pre = ''
-        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
-    return r
+    def definition_rev_split_to_rulesets(self, d1):
+        rule_sets = defaultdict(list)
+        for r in d1:
+            if len(r) > 0:
+                assert not self.is_nonterminal(r[0]) # no degenerate rules
+                assert self.is_nonterminal(r[1]) # no degenerate rules
+                rule_sets[r[1]].append(r)
+            else:
+                rule_sets[''].append(r)
+        return rule_sets
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return '[^%s]' % (''.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return '[%s]' % (''.join(terminals))
+
+    def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
+        if ruleset == [[]]:
+            print('| {EMPTY}')
+            return
+        terminals = [t[0] for t in ruleset]
+        rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
+        if len(terminals) <= len(rem_terminals):
+            v = '%s %s' % (self.display_terminals(terminals), nonterminal)
+            s = '%s|   %s' % (pre, v)
+            print(s)
+        else:
+            if rem_terminals == []:
+                v = '. %s' % nonterminal
+            else:
+                v = '%s %s' % (self.display_terminals(rem_terminals, negate=True), nonterminal)
+            s = '%s|   %s' % (pre, v)
+            print(s)
+
+    def display_definition(self, key, r):
+        if self.verbose > -1: print(key,'::=')
+        rulesets = self.definition_rev_split_to_rulesets(self.grammar[key])
+        for nonterminal in rulesets:
+            pre = ''
+            self.display_ruleset(nonterminal, rulesets[nonterminal], pre, all_terminal_symbols=TERMINAL_SYMBOLS)
+        return r
+
+    def display_unused(self, unused, verbose):
+        pass
 
 def display_canonical_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
-    print('[start]:', start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose > 0:
-            print(k, r)
-
-    if undefined:
-        print('[undefined keys]')
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, 'defined in')
-                for k in undefined[key]: print(' ', k)
+    DisplayGrammar(grammar, verbose).display(start)
 
 # Make sure it works
 

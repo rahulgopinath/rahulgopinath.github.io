@@ -146,13 +146,13 @@ We also define our `TERMINAL_SYMBOLS`
 
 <!--
 ############
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+TERMINAL_SYMBOLS = rxfuzzer.TERMINAL_SYMBOLS
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+TERMINAL_SYMBOLS = rxfuzzer.TERMINAL_SYMBOLS
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -859,141 +859,117 @@ and we define it as below.
 
 <!--
 ############
-def display_terminals(terminals, negate=False):
-    if negate: return '[^%s]' % (''.join(terminals))
-    else:
-        if len(terminals) == 1:
-            return terminals[0]
-        return '[%s]' % (''.join(terminals))
-
-def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
-    if ruleset == [[]]:
-        print('| {EMPTY}')
-        return
-    terminals = [t[0] for t in ruleset]
-    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
-    if len(terminals) <= len(rem_terminals):
-        v = '%s %s' % (display_terminals(terminals), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-    else:
-        if rem_terminals == []:
-            v = '. %s' % nonterminal
-        else:
-            v = '%s %s' % (display_terminals(rem_terminals, negate=True), nonterminal)
-        s = '%s|   %s' % (pre, v)
-        print(s)
-
 from collections import defaultdict
 
-def definition_rev_split_to_rulesets(d1):
-    rule_sets = defaultdict(list)
-    for r in d1:
-        if len(r) > 0:
-            assert fuzzer.is_terminal(r[0]) # no degenerate rules
-            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
-            rule_sets[r[1]].append(r)
-        else:
-            rule_sets[''].append(r)
-    return rule_sets
+class DisplayGrammar(gatleast.DisplayGrammar):
 
-def display_definition(grammar, key, r, verbose):
-    if verbose > -1: print(key,'::=')
-    rulesets = definition_rev_split_to_rulesets(grammar[key])
-    for nonterminal in rulesets:
-        pre = ''
-        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
-    return r
+    def definition_rev_split_to_rulesets(self, d1):
+        rule_sets = defaultdict(list)
+        for r in d1:
+            if len(r) > 0:
+                assert not self.is_nonterminal(r[0]) # no degenerate rules
+                assert self.is_nonterminal(r[1]) # no degenerate rules
+                rule_sets[r[1]].append(r)
+            else:
+                rule_sets[''].append(r)
+        return rule_sets
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return '[^%s]' % (''.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return '[%s]' % (''.join(terminals))
+
+    def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
+        if ruleset == [[]]:
+            print('| {EMPTY}')
+            return
+        terminals = [t[0] for t in ruleset]
+        rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
+        if len(terminals) <= len(rem_terminals):
+            v = '%s %s' % (self.display_terminals(terminals), nonterminal)
+            s = '%s|   %s' % (pre, v)
+            print(s)
+        else:
+            if rem_terminals == []:
+                v = '. %s' % nonterminal
+            else:
+                v = '%s %s' % (self.display_terminals(rem_terminals, negate=True), nonterminal)
+            s = '%s|   %s' % (pre, v)
+            print(s)
+
+    def display_definition(self, key, r):
+        if self.verbose > -1: print(key,'::=')
+        rulesets = self.definition_rev_split_to_rulesets(self.grammar[key])
+        for nonterminal in rulesets:
+            pre = ''
+            self.display_ruleset(nonterminal, rulesets[nonterminal], pre, all_terminal_symbols=TERMINAL_SYMBOLS)
+        return r
+
+    def display_unused(self, unused, verbose):
+        pass
 
 def display_canonical_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
-    print('[start]:', start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose > 0:
-            print(k, r)
-
-    if undefined:
-        print('[undefined keys]')
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, 'defined in')
-                for k in undefined[key]: print(' ', k)
+    DisplayGrammar(grammar, verbose).display(start)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def display_terminals(terminals, negate=False):
-    if negate: return &#x27;[^%s]&#x27; % (&#x27;&#x27;.join(terminals))
-    else:
-        if len(terminals) == 1:
-            return terminals[0]
-        return &#x27;[%s]&#x27; % (&#x27;&#x27;.join(terminals))
-
-def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
-    if ruleset == [[]]:
-        print(&#x27;| {EMPTY}&#x27;)
-        return
-    terminals = [t[0] for t in ruleset]
-    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
-    if len(terminals) &lt;= len(rem_terminals):
-        v = &#x27;%s %s&#x27; % (display_terminals(terminals), nonterminal)
-        s = &#x27;%s|   %s&#x27; % (pre, v)
-        print(s)
-    else:
-        if rem_terminals == []:
-            v = &#x27;. %s&#x27; % nonterminal
-        else:
-            v = &#x27;%s %s&#x27; % (display_terminals(rem_terminals, negate=True), nonterminal)
-        s = &#x27;%s|   %s&#x27; % (pre, v)
-        print(s)
-
 from collections import defaultdict
 
-def definition_rev_split_to_rulesets(d1):
-    rule_sets = defaultdict(list)
-    for r in d1:
-        if len(r) &gt; 0:
-            assert fuzzer.is_terminal(r[0]) # no degenerate rules
-            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
-            rule_sets[r[1]].append(r)
-        else:
-            rule_sets[&#x27;&#x27;].append(r)
-    return rule_sets
+class DisplayGrammar(gatleast.DisplayGrammar):
 
-def display_definition(grammar, key, r, verbose):
-    if verbose &gt; -1: print(key,&#x27;::=&#x27;)
-    rulesets = definition_rev_split_to_rulesets(grammar[key])
-    for nonterminal in rulesets:
-        pre = &#x27;&#x27;
-        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
-    return r
+    def definition_rev_split_to_rulesets(self, d1):
+        rule_sets = defaultdict(list)
+        for r in d1:
+            if len(r) &gt; 0:
+                assert not self.is_nonterminal(r[0]) # no degenerate rules
+                assert self.is_nonterminal(r[1]) # no degenerate rules
+                rule_sets[r[1]].append(r)
+            else:
+                rule_sets[&#x27;&#x27;].append(r)
+        return rule_sets
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return &#x27;[^%s]&#x27; % (&#x27;&#x27;.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return &#x27;[%s]&#x27; % (&#x27;&#x27;.join(terminals))
+
+    def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
+        if ruleset == [[]]:
+            print(&#x27;| {EMPTY}&#x27;)
+            return
+        terminals = [t[0] for t in ruleset]
+        rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
+        if len(terminals) &lt;= len(rem_terminals):
+            v = &#x27;%s %s&#x27; % (self.display_terminals(terminals), nonterminal)
+            s = &#x27;%s|   %s&#x27; % (pre, v)
+            print(s)
+        else:
+            if rem_terminals == []:
+                v = &#x27;. %s&#x27; % nonterminal
+            else:
+                v = &#x27;%s %s&#x27; % (self.display_terminals(rem_terminals, negate=True), nonterminal)
+            s = &#x27;%s|   %s&#x27; % (pre, v)
+            print(s)
+
+    def display_definition(self, key, r):
+        if self.verbose &gt; -1: print(key,&#x27;::=&#x27;)
+        rulesets = self.definition_rev_split_to_rulesets(self.grammar[key])
+        for nonterminal in rulesets:
+            pre = &#x27;&#x27;
+            self.display_ruleset(nonterminal, rulesets[nonterminal], pre, all_terminal_symbols=TERMINAL_SYMBOLS)
+        return r
+
+    def display_unused(self, unused, verbose):
+        pass
 
 def display_canonical_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
-    print(&#x27;[start]:&#x27;, start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose &gt; 0:
-            print(k, r)
-
-    if undefined:
-        print(&#x27;[undefined keys]&#x27;)
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, &#x27;defined in&#x27;)
-                for k in undefined[key]: print(&#x27; &#x27;, k)
+    DisplayGrammar(grammar, verbose).display(start)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
