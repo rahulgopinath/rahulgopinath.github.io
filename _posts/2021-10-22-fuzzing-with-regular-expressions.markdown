@@ -273,10 +273,13 @@ to a grammar first, and use one of our fuzzers.
 
 <!--
 ############
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
 class RegexToGrammar:
-    def __init__(self):
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
         self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
 
     def parse(self, inex):
         parsed_expr = list(self.parser.parse_on(inex, REGEX_START))[0]
@@ -299,10 +302,13 @@ class RegexToGrammar:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
 class RegexToGrammar:
-    def __init__(self):
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
         self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
 
     def parse(self, inex):
         parsed_expr = list(self.parser.parse_on(inex, REGEX_START))[0]
@@ -579,7 +585,7 @@ class RegexToGrammar(RegexToGrammar):
         key, children = node
         assert key == '<dot>'
         assert children[0][0] == '.'
-        return {'<dot>':[[c] for c in string.printable]}, '<dot>'
+        return {'<dot>':[[c] for c in self.all_terminal_symbols]}, '<dot>'
 
 ############
 -->
@@ -590,7 +596,7 @@ class RegexToGrammar(RegexToGrammar):
         key, children = node
         assert key == &#x27;&lt;dot&gt;&#x27;
         assert children[0][0] == &#x27;.&#x27;
-        return {&#x27;&lt;dot&gt;&#x27;:[[c] for c in string.printable]}, &#x27;&lt;dot&gt;&#x27;
+        return {&#x27;&lt;dot&gt;&#x27;:[[c] for c in self.all_terminal_symbols]}, &#x27;&lt;dot&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

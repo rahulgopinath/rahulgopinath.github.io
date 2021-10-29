@@ -149,10 +149,13 @@ if __name__ == '__main__':
 #
 # ## Regular expression to context-free grammar
 
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
 class RegexToGrammar:
-    def __init__(self):
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
         self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
 
     def parse(self, inex):
         parsed_expr = list(self.parser.parse_on(inex, REGEX_START))[0]
@@ -301,7 +304,7 @@ class RegexToGrammar(RegexToGrammar):
         key, children = node
         assert key == '<dot>'
         assert children[0][0] == '.'
-        return {'<dot>':[[c] for c in string.printable]}, '<dot>'
+        return {'<dot>':[[c] for c in self.all_terminal_symbols]}, '<dot>'
 
 # Using it
 
