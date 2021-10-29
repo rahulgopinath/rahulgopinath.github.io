@@ -91,6 +91,7 @@ also be parsable by `<A>`. In our example, this could be one rule.
 
 ```
 <s,S,f> := <s,A,a><a,B,f>
+```
 
 If one of the tokens in the context-free rule is a terminal symbol, then we
 get an opportunity to immediately verify our construction.
