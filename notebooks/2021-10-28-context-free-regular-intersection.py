@@ -300,10 +300,13 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     gatleast.display_grammar(*filter_grammar(new_g, new_s))
     print()
     # convert keys to template
-    new_g1 = defaultdict(list)
+    new_g1 = {}
     for k in new_g:
+        new_rs = []
         for r in new_g[k]:
-            new_g1[convert_key(k)].append([convert_key(t) for t in r])
+            new_rs.append([convert_key(t) for t in r])
+        new_g1[convert_key(k)] = new_rs
+
     new_g = new_g1
     return new_g, convert_key(new_s)
 
@@ -313,7 +316,7 @@ def convert_key(k):
     #return '<%s,%s,%s>' % (p[1:-1], k[1:-1], q[1:-1])
         return '<%s %s %s>' % (p[1:-1], k[1:-1], q[1:-1])
     else:
-        return '[%s %s %s]' % (p[1:-1], k[1:-1], q[1:-1])
+        return '[%s %s %s]' % (p, k, q)
     #return k
 
 expr_re = '1+'
