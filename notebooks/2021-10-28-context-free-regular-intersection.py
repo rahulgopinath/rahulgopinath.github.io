@@ -41,6 +41,7 @@ rxcanonical = import_file('rxcanonical', '2021-10-24-canonical-regular-grammar.p
 
 #     $$ A \rightarrow BC $$
 #     $$ A \rightarrow a $$
+#     $$ A \rightarrow B $$
 #     $$ S \rightarrow \epsilon $$
 
 from collections import defaultdict
@@ -159,26 +160,41 @@ def split_into_three(ks, kf, reaching):
     lst = []
     for k in ([ks] + reaching[ks]):
         if kf in reaching[k]:
-            lst.append(ks, k, kf)
+            lst.append((ks, k, kf))
     return lst
-            
 
+def reachable_dict(g):
+    gn = gatleast.reachable_dict(g)
+    return {k:list(gn[k]) for k in gn}
 
-def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f='<_>'):
+def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     new_g = defaultdict(list)
-    cf_reachable = gatleast.reachable_dict(cf_g)
-    r_reachable = gatleast.reachable_dict(r_g)
+    cf_reachable = reachable_dict(cf_g)
+    r_reachable = reachable_dict(r_g)
 
     for cf_k in cf_g:
         for cf_r in cf_g[cf_k]:
             if len(cf_r) == 0:
                 for r_k1 in r_g:
-                    for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
-                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, '', r_k2)] # check.
+                    # what are reachable from r_k1 with exactly epsilon? only
+                    # itself! or the final from the start. TODO
+                    new_g[(r_k1, cf_k, r_k1)] = [(r_k1, '', r_k1)]
             elif len(cf_r) == 1:
-                for r_k1 in r_g:
-                    for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
-                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_r[0], r_k2)] # check.
+                cf_token =  cf_r[0]
+                #assert fuzzer.is_terminal(cf_token) <- we also allow nonterminals
+                if fuzzer.is_terminal(cf_token):
+                    for r_k1 in r_g:
+                        # things reachable from r_k1 with exactly cf_token -- there is just one in canonical RG.
+                        for rule in r_g[r_k1]:
+                            if not rule: continue
+                            if rule[0] != cf_token: continue
+                            r_k2 = rule[1]
+                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_token, r_k2)]
+                else:
+                    for r_k1 in r_g:
+                        for r_k2 in ([r_k1] + r_reachable[r_k1]):
+                            # postpone checking cf_token
+                            new_g[(r_k1, cf_k, r_k2)] = [(r_k1, cf_token, r_k2)]
             elif len(cf_r) == 2:
                 for r_k1 in r_g:
                     for r_k2 in ([r_k1] + r_reachable[r_k1]): # things reachable from r_k1
@@ -207,9 +223,20 @@ def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f='<_>'):
             else:
                 new_g1[key].append(rule)
     # Now, remove any rule that refers to nonexistant keys.
+    return new_g, '<%s&%s>' % (cf_s[1:-1], r_s[1:-1])
 
-    return new_g
+json_re = '1.*'
 
+if __name__ == '__main__':
+    rg, rs = rxcanonical.regexp_to_regular_grammar(json_re)
+    rxcanonical.display_canonical_grammar(rg, rs)
+    string = '100'
+    rp = earleyparser.EarleyParser(rg, parse_exceptions=False)
+    res = rp.recognize_on(string, rs)
+    assert res
+    bg, bs = binary_form(JSON_GRAMMAR, JSON_START)
+    ing, ins = intersect_cfg_and_rg(bg, bs, rg, rs)
+    gatleast.display_grammar(ing, ins)
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-26-regular-grammar-expressions.py)
