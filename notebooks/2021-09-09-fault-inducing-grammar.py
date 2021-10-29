@@ -316,76 +316,99 @@ def unique_cnode_to_grammar(tree, grammar=None):
 # We can convert this to grammar, but first, to display the grammar properly, we
 # define `display_grammar()`
 
-def display_rule(rule, pre, verbose):
-    if verbose > -2:
-        v = (' '.join([t if fuzzer.is_nonterminal(t) else repr(t) for t in rule]))
-        s = '%s|   %s' % (pre, v)
-        print(s)
+class DisplayGrammar:
+    def __init__(self, grammar, verbose=0):
+        self.grammar = grammar
+        self.verbose = verbose
 
-def display_definition(grammar, key, r, verbose):
-    if verbose > -2: print(key,'::=')
-    for rule in grammar[key]:
-        r += 1
-        if verbose > 1:
-            pre = r
-        else:
-            pre = ''
-        display_rule(rule, pre, verbose)
-    return r
+    def is_nonterminal(self, key):
+        return fuzzer.is_nonterminal(key)
 
-def recurse_grammar(grammar, key, order, undefined=None):
-    undefined = undefined or {}
-    rules = sorted(grammar[key])
-    old_len = len(order)
-    for rule in rules:
-        for token in rule:
-            if not fuzzer.is_nonterminal(token): continue
-            if token not in grammar:
-                if token in undefined:
-                    undefined[token].append(key)
+    def display_token(self, t):
+        return t if self.is_nonterminal(t) else repr(t)
+
+    def display_rule(self, rule, pre):
+        if self.verbose > -2:
+            v = (' '.join([self.display_token(t) for t in rule]))
+            s = '%s|   %s' % (pre, v)
+            print(s)
+
+    def display_definition(self, key, rule_count):
+        if self.verbose > -2: print(key,'::=')
+        for rule in self.grammar[key]:
+            rule_count += 1
+            if self.verbose > 1:
+                pre = rule_count
+            else:
+                pre = ''
+            self.display_rule(rule, pre)
+        return rule_count
+
+    def recurse_grammar(self, grammar, key, order, undefined=None):
+        undefined = undefined or {}
+        rules = sorted(grammar[key])
+        old_len = len(order)
+        for rule in rules:
+            for token in rule:
+                if not self.is_nonterminal(token): continue
+                if token not in grammar:
+                    if token in undefined:
+                        undefined[token].append(key)
+                    else:
+                        undefined[token] = [key]
+                    continue
+                if token not in order:
+                    order.append(token)
+        new = order[old_len:]
+        for ckey in new:
+            self.recurse_grammar(grammar, ckey, order, undefined)
+        return undefined
+
+
+    def sort_grammar(self, grammar, start_symbol):
+        order = [start_symbol]
+        undefined = self.recurse_grammar(grammar, start_symbol, order)
+        return order, [k for k in self.grammar if k not in order], undefined
+
+    def display_unused(self, not_used, r):
+        if not_used and self.verbose > -1:
+            print('[not_used]')
+            for key in not_used:
+                r = self.display_definition(key, r)
+                if self.verbose > 0:
+                    print(k, r)
+
+    def display_undefined(self, undefined):
+        if undefined and verbose > -1:
+            print('[undefined keys]')
+            for key in undefined:
+                if self.verbose == 0:
+                    print(key)
                 else:
-                    undefined[token] = [key]
-                continue
-            if token not in order:
-                order.append(token)
-    new = order[old_len:]
-    for ckey in new:
-        recurse_grammar(grammar, ckey, order, undefined)
-    return undefined
+                    print(key, 'defined in')
+                    for k in undefined[key]: print(' ', k)
 
-def sort_grammar(grammar, start_symbol):
-    order = [start_symbol]
-    undefined = recurse_grammar(grammar, start_symbol, order)
-    return order, [k for k in grammar if k not in order], undefined
+    def display_summary(self, k, r):
+        if self.verbose > -1:
+            print('keys:', k, 'rules:', r)
+
+    def display(self, start):
+        rule_count, key_count = 0, 0
+        order, not_used, undefined = self.sort_grammar(self.grammar, start)
+        print('[start]:', start)
+        for key in order:
+            key_count += 1
+            rule_count = self.display_definition(key, rule_count)
+            if self.verbose > 0:
+                print(key_count, rule_count)
+
+        self.display_unused(not_used, rule_count)
+        self.display_undefined(undefined)
+        self.display_summary(key_count, rule_count)
+    
 
 def display_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = sort_grammar(grammar, start)
-    print('[start]:', start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose > 0:
-            print(k, r)
-
-    if not_used and verbose > -1:
-        print('[not_used]')
-        for key in not_used:
-            r = display_definition(grammar, key, r, verbose)
-            if verbose > 0:
-                print(k, r)
-    if undefined and verbose > -1:
-        print('[undefined keys]')
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, 'defined in')
-                for k in undefined[key]: print(' ', k)
-
-    if verbose > -1:
-        print('keys:', k, 'rules:', r)
+    DisplayGrammar(grammar, verbose).display(start)
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)
