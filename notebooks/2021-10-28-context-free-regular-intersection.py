@@ -237,7 +237,7 @@ def is_right_transition(a, terminal, b, r_g):
     start_a = [r for r in r_g[a] if r]
     with_terminal = [r for r in start_a if r[0] == terminal]
     ending_b = [r_rule[1] == b for r_rule in with_terminal]
-    return ending_b
+    return any(ending_b)
 
 def filter_terminal_transitions(g, r_g):
     new_g1 = defaultdict(list)
