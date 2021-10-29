@@ -276,76 +276,15 @@ def filter_rules_with_undefined_keys(g):
     return new_g1, cont
 
 ## --
+class DisplayGrammar(gatleast.DisplayGrammar):
+    def display_token(self, t):
+         return repr(t) if self.is_nonterminal(t) else repr(t[1])
 
-def display_rule(rule, pre, verbose):
-    if verbose > -2:
-        v = (' '.join([repr(t) if fuzzer.is_nonterminal(t[1]) else repr(t) for t in rule]))
-        s = '%s|   %s' % (pre, v)
-        print(s)
-
-def display_definition(grammar, key, r, verbose):
-    if verbose > -2: print(key,'::=')
-    for rule in grammar[key]:
-        r += 1
-        if verbose > 1:
-            pre = r
-        else:
-            pre = ''
-        display_rule(rule, pre, verbose)
-    return r
-
-def recurse_grammar(grammar, key, order, undefined=None):
-    undefined = undefined or {}
-    rules = sorted(grammar[key])
-    old_len = len(order)
-    for rule in rules:
-        for token in rule:
-            if not fuzzer.is_nonterminal(token[1]): continue
-            if token not in grammar:
-                if token in undefined:
-                    undefined[token].append(key)
-                else:
-                    undefined[token] = [key]
-                continue
-            if token not in order:
-                order.append(token)
-    new = order[old_len:]
-    for ckey in new:
-        recurse_grammar(grammar, ckey, order, undefined)
-    return undefined
-
-def sort_grammar(grammar, start_symbol):
-    order = [start_symbol]
-    undefined = recurse_grammar(grammar, start_symbol, order)
-    return order, [k for k in grammar if k not in order], undefined
+    def is_nonterminal(self, t):
+        return fuzzer.is_nonterminal(t[1])
 
 def display_grammar(grammar, start, verbose=0):
-    r = 0
-    k = 0
-    order, not_used, undefined = sort_grammar(grammar, start)
-    print('[start]:', start)
-    for key in order:
-        k += 1
-        r = display_definition(grammar, key, r, verbose)
-        if verbose > 0:
-            print(k, r)
-
-    if not_used and verbose > -1:
-        print('[not_used]')
-        for key in not_used:
-            r = display_definition(grammar, key, r, verbose)
-            if verbose > 0:
-                print(k, r)
-    if undefined and verbose > -1:
-        print('[undefined keys]')
-        for key in undefined:
-            if verbose == 0:
-                print(key)
-            else:
-                print(key, 'defined in')
-                for k in undefined[key]: print(' ', k)
-
-##
+    DisplayGrammar(grammar, verbose).display(start)
 
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
@@ -391,7 +330,7 @@ def convert_key(k):
         return k
     #return k
 
-expr_re = '[(]+[123]+[)]+'
+expr_re = '[(]+[135]+[)]+'
 
 if __name__ == '__main__':
     rg, rs = rxcanonical.regexp_to_regular_grammar(expr_re)
@@ -407,7 +346,7 @@ if __name__ == '__main__':
     gatleast.display_grammar(ing, ins, -1)
     inf = fuzzer.LimitFuzzer(ing)
     for i in range(10):
-        string = inf.iter_fuzz(ins)
+        string = inf.iter_fuzz(ins, max_depth=5)
         res = rp.recognize_on(string, re_start)
         assert res
         print(string)
