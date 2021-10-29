@@ -102,7 +102,7 @@ G_ANY_STAR = {
 NT_ANY_PLUS = '<.+>'
 
 G_ANY_PLUS = {
-    NT_ANY_PLUS: [[c, NT_ANY_STAR] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
+    NT_ANY_PLUS: [[c, NT_ANY_PLUS] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
 }
 
 # 

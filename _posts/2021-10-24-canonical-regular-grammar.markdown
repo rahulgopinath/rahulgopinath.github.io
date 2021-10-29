@@ -200,7 +200,7 @@ use any_plus where possible.
 NT_ANY_PLUS = '<.+>'
 
 G_ANY_PLUS = {
-    NT_ANY_PLUS: [[c, NT_ANY_STAR] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
+    NT_ANY_PLUS: [[c, NT_ANY_PLUS] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
 }
 
 ############
@@ -210,7 +210,7 @@ G_ANY_PLUS = {
 NT_ANY_PLUS = &#x27;&lt;.+&gt;&#x27;
 
 G_ANY_PLUS = {
-    NT_ANY_PLUS: [[c, NT_ANY_STAR] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
+    NT_ANY_PLUS: [[c, NT_ANY_PLUS] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
 }
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
