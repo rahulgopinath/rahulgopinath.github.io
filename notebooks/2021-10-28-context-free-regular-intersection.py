@@ -10,13 +10,100 @@
 # We [previously saw](/post/2021/10/26/regular-grammar-expressions/) how to
 # produce a grammar that is an intersection of two regular grammars. One of the
 # interesting things about regular grammars is that, you can produce an
-# intersection between a regular grammar and a context free grammar, and the
-# result will be context free. The traditional technique for intersecting
+# intersection between a regular grammar and a context-free grammar, and the
+# result will be context-free. The traditional technique for intersecting
 # between a CFL and an RL is to produce the PDA and the DFA equivalents of both,
 # and produce a product PDA. However, there is an even better way called
 # the Bar-Hiller construction[^barhiller1961on] that lets you compute an
 # intersection between a CFG and RG directly.
+# 
+# The essential idea is to first recognize that a right linear grammar that
+# encodes a regular language can be made to have a final nonterminal to expand.
+# The below are patterns in right linear grammars.
+# 
+# ```
+# <s> := a <a>
+#      | b <b>
+# <a> := c
+#      | {empty}
+# <b> := b
+# ```
+# 
+# Given such a grammar, one can convert it as below so that the last nonterminal
+# to be expanded is `<f>`
+#  
+# ```
+# <s> := a <a>
+#      | b <b>
+# <a> := c <f>
+#      | <f>
+# <b> := b <f>
+# <f> := {empty}
+# ```
+# Why do we do this? because this lets us represent the grammar as a
+# non-deterministic finite automation with a single start state (`<S>`) and
+# a single end state (`<F>`). This is required for the Bar-Hiller construction.
+# 
+# Next, we also convert the context-free grammar to Chomsky-Normal-Form
+# (actually we do not need as much restrictions, as we will see later).
+# The CNF looks like below.
+# 
+# ```
+# <S> := <A><B>
+# <A> := a
+#      | {empty} 
+# <B> := b
+# ```
 #
+# The essential idea is to take all nonterminal symbols from the regular
+# grammar, and all nonterminal symbols from the context-free grammar, and
+# produce triplets which starts with a nonterminal from RG, and ends with
+# another nonterminal from the RG, and has a nonterminal from CFG in the
+# middle. E.g. `<a,A,b>`.
+#
+# The intersection grammar is represented by the start symbol `<s,S,f>` where
+# `<s>` is the start symbol of the regular grammar, and `<f>` is the final
+# symbol as we discussed above. `<S>` is the start symbol of the context-free
+# grammar. The essential idea is that if we want to produce `<s,S,f>` then
+# it can only be produced if the rules can be written such that they start with
+# `<s>` and end with `<f>`. That is, the definition of `<s,S,f>` is as follows:
+# 
+# ```
+# <s,S,f> := <s,A,x><x,B,f>
+# ```
+# 
+# where `<x>` is a nonterminal symbol in the regular grammar such that it is
+# reachable from `<s>`, and `<f>` is reachable from `<x>`. Further, it means
+# that if we go from `<s>` to `<x>` by consuming a string, then that string must
+# also be parsable by `<A>`. In our example, this could be one rule.
+# 
+# ```
+# <s,S,f> := <s,A,a><a,B,f>
+# 
+# If one of the tokens in the context-free rule is a terminal symbol, then we
+# get an opportunity to immediately verify our construction.
+#
+# ```
+# <s,A,a> := [<s>,a,<a>]
+# ```
+# As you can see, `<A>` has one of the rules that contain a single terminal
+# symbol -- `a`. So, we can immediately see that the requirement `<s,A,a>`
+# was satisfied. That is, `<s>` goes to `<a>` by consuming `a`, and this is
+# witnessed by `[<s>,a,<a>]`. So, we will keep this rule in the intersection
+# grammar as
+#
+# ```
+# <s,A,a> := a
+# ```
+# What about the second rule?
+#
+# ```
+# <s,A,a> := [<s>,{empty},<a>]
+# ```
+# This however, does not work because there is no epsilon transition from `<s>`
+# to `<a>`. Hence, this rule is skipped in the resulting grammar.
+# Let us see how to implement this technique. 
+# 
 # We start by importing the prerequisites.
 
 import sys, imp, pprint, string
@@ -198,7 +285,15 @@ if __name__ == '__main__':
      g, s = binary_normal_form(EXPR_GRAMMAR, EXPR_START)
      gatleast.display_grammar(g, s)
 
-#
+# ## Triplet rules
+# 
+# As we discussed previously, we transform the grammar such that we produce
+# every variations of triplets with nonterminals from regular grammar starting
+# and ending, and nonterminal from context-free grammar in the middle.
+
+def reachable_dict(g):
+    gn = gatleast.reachable_dict(g)
+    return {k:list(gn[k]) for k in gn}
 
 def split_into_three(ks, kf, reaching):
     lst = []
@@ -206,20 +301,6 @@ def split_into_three(ks, kf, reaching):
         if kf in reaching[k]:
             lst.append((ks, k, kf))
     return lst
-
-def reachable_dict(g):
-    gn = gatleast.reachable_dict(g)
-    return {k:list(gn[k]) for k in gn}
-
-def filter_grammar(g, s):
-    new_g = {}
-    for k in g:
-        new_rs = []
-        for r in g[k]:
-            new_r = [t[1] for t in r]
-            new_rs.append(new_r)
-        new_g[k[1]] = new_rs
-    return new_g, s[1]
 
 def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
     new_g1 = defaultdict(list)
@@ -266,6 +347,8 @@ def make_triplet_rules(cf_g, cf_s, r_g, r_s, r_f):
                 assert False
     return new_g1, (r_s, cf_s, r_f)
 
+# ## Remove terminal transitions
+
 def is_right_transition(a, terminal, b, r_g):
     assert fuzzer.is_terminal(terminal)
     start_a = [r for r in r_g[a] if r]
@@ -291,6 +374,8 @@ def filter_terminal_transitions(g, r_g):
                 if all(is_right_transition(a, t, b, r_g) for (a,t,b) in terminals):
                     new_g1[key].append(rule)
     return new_g1
+
+# Remove undefined rules
 
 def filter_rules_with_undefined_keys(g):
     cont = False
@@ -319,6 +404,16 @@ class DisplayGrammar(gatleast.DisplayGrammar):
 
 def display_grammar(grammar, start, verbose=0):
     DisplayGrammar(grammar, verbose).display(start)
+
+def filter_grammar(g, s):
+    new_g = {}
+    for k in g:
+        new_rs = []
+        for r in g[k]:
+            new_r = [t[1] for t in r]
+            new_rs.append(new_r)
+        new_g[k[1]] = new_rs
+    return new_g, s[1]
 
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
     # first wrap every token in start and end states.
