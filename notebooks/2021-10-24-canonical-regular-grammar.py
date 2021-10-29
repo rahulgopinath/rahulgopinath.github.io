@@ -62,7 +62,52 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
 rxregular = import_file('rxregular', '2021-10-23-regular-expression-to-regular-grammar.py')
 
+# We start with a few common rules.
+# First, we define the empty rule.
+#  
+# ```
+# <_>  := 
+# ```
+
+NT_EMPTY = '<_>'
+
+G_EMPTY = {NT_EMPTY: [[]]}
+# 
+# We also define our `TERMINAL_SYMBOLS`
+
+TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+
+# Then, use it to define `NT_ANY_STAR`
+#  
+# ```
+# <.*>  := . <.*>
+#        | <NT_EMPTY>
+# ```
+NT_ANY_STAR = '<.*>'
+
+G_ANY_STAR = {
+    NT_ANY_STAR: [[c, NT_ANY_STAR] for c in TERMINAL_SYMBOLS] + [[NT_EMPTY]]
+}
+
+
+# Use it to also define `NT_ANY_PLUS`
+#  
+# ```
+# <.+>  := . <.+>
+#        | . <NT_EMPTY>
+# ```
+# 
+# use any_plus where possible.
+
+NT_ANY_PLUS = '<.+>'
+
+G_ANY_PLUS = {
+    NT_ANY_PLUS: [[c, NT_ANY_STAR] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
+}
+
+# 
 # ## Remove degenerate rules
+# 
 # A degenerate rule is a rule with a format $$ A \rightarrow B $$ where $$ A $$
 # and $$ B $$ are nonterminals in the grammar. The way to eliminate such
 # nonterminals is to recursively merge the rules of $$ B $$ to the rules of $$ A $$.
@@ -113,6 +158,7 @@ if __name__ == '__main__':
    gatleast.display_grammar(g, s)
 
 # ## Removing terminal sequences
+# 
 # A terminal sequence is a sequence of terminal symbols in a rule. For example,
 # in the rule
 # ```
@@ -174,7 +220,8 @@ if __name__ == '__main__':
    g, s = remove_multi_terminals(g2, s2)
    gatleast.display_grammar(g, s)
 
-# ## Add empty rule
+# ## Fix empty rules
+# 
 # If there are any rules of the form $$ A \rightarrow b $$, we replace it by
 # $$ A \rightarrow b E $$, $$ E \rightarrow \epsilon $$.
 # Next, if we have rules of the form $$ A \rightarrow \epsilon $$,
@@ -182,14 +229,14 @@ if __name__ == '__main__':
 # and add a new rule $$ B \rightarrow a E $$
 #
 # The reason for doing
-# this is to make sure that we have a single termination point.
+# this is to make sure that we have a single termination point. If you are using
+# NT_ANY_STAR, then make sure you run this after (or use NT_ANY_PLUS instead).
 
-EMPTY_NT = '<_>'
 def fix_empty_rules(g, s):
     new_g = defaultdict(list)
     empty_keys = []
     for k in g:
-        if k == EMPTY_NT: continue
+        if k == NT_EMPTY: continue
         for r in g[k]:
             if len(r) == 0:
                 empty_keys.append(k)
@@ -197,7 +244,7 @@ def fix_empty_rules(g, s):
             elif len(r) == 1:
                 tok = r[0]
                 assert fuzzer.is_terminal(tok)
-                new_g[k].append([tok, EMPTY_NT])
+                new_g[k].append([tok, NT_EMPTY])
             else:
                 new_g[k].append(r)
 
@@ -207,14 +254,14 @@ def fix_empty_rules(g, s):
             assert len(r) == 2 or k == s
             if r[1] in empty_keys:
                 new_g1[k].append(r)
-                new_g1[k].append([r[0], EMPTY_NT])
+                new_g1[k].append([r[0], NT_EMPTY])
             else:
                 new_g1[k].append(r)
 
-    new_g1[EMPTY_NT] = [[]]
-    return new_g1, s
+    return {**new_g1, **G_EMPTY}, s
 
 # ## Collapse similar starting rules
+# 
 # Here, the idea is to join any set of rules of the form
 # $$ A \rightarrow b B $$, $$ A \rightarrow b C $$ to $$ A \rightarrow b or(B,C) $$.
 # First, we define how to join rules that all have the same terminal symbol
@@ -349,16 +396,99 @@ if __name__ == '__main__':
    g, s = collapse_similar_starting_rules(g3, s3)
    gatleast.display_grammar(g, s)
 
+
+# ## Display canonical grammar
+#
+# We also need the ability to compactly display a canonical regular grammar
+# and we define it as below.
+
+
+def display_terminals(terminals, negate=False):
+    if negate: return '[^%s]' % (''.join(terminals))
+    else:
+        if len(terminals) == 1:
+            return terminals[0]
+        return '[%s]' % (''.join(terminals))
+
+def display_ruleset(nonterminal, ruleset, pre, verbose, all_terminal_symbols=TERMINAL_SYMBOLS):
+    if ruleset == [[]]:
+        print('| {EMPTY}')
+        return
+    terminals = [t[0] for t in ruleset]
+    rem_terminals = [t for t in all_terminal_symbols if t not in terminals]
+    if len(terminals) <= len(rem_terminals):
+        v = '%s %s' % (display_terminals(terminals), nonterminal)
+        s = '%s|   %s' % (pre, v)
+        print(s)
+    else:
+        if rem_terminals == []:
+            v = '. %s' % nonterminal
+        else:
+            v = '%s %s' % (display_terminals(rem_terminals, negate=True), nonterminal)
+        s = '%s|   %s' % (pre, v)
+        print(s)
+
+from collections import defaultdict
+
+def definition_rev_split_to_rulesets(d1):
+    rule_sets = defaultdict(list)
+    for r in d1:
+        if len(r) > 0:
+            assert fuzzer.is_terminal(r[0]) # no degenerate rules
+            assert fuzzer.is_nonterminal(r[1]) # no degenerate rules
+            rule_sets[r[1]].append(r)
+        else:
+            rule_sets[''].append(r)
+    return rule_sets
+
+def display_definition(grammar, key, r, verbose):
+    if verbose > -1: print(key,'::=')
+    rulesets = definition_rev_split_to_rulesets(grammar[key])
+    for nonterminal in rulesets:
+        pre = ''
+        display_ruleset(nonterminal, rulesets[nonterminal], pre, verbose)
+    return r
+
+def display_canonical_grammar(grammar, start, verbose=0):
+    r = 0
+    k = 0
+    order, not_used, undefined = gatleast.sort_grammar(grammar, start)
+    print('[start]:', start)
+    for key in order:
+        k += 1
+        r = display_definition(grammar, key, r, verbose)
+        if verbose > 0:
+            print(k, r)
+
+    if undefined:
+        print('[undefined keys]')
+        for key in undefined:
+            if verbose == 0:
+                print(key)
+            else:
+                print(key, 'defined in')
+                for k in undefined[key]: print(' ', k)
+
+# Make sure it works
+
+if __name__ == '__main__':
+    g0, s0 = {
+         '<start0>' : [['a', '<A0>']],
+         '<A0>' : [['b', '<B0>'], ['c', '<C0>']],
+         '<B0>' : [['c', NT_ANY_STAR]],
+         '<C0>' : [['d', NT_EMPTY]]
+    }, '<start0>'
+    display_canonical_grammar(g0, s0)
+
 #  Now, all together.
 def canonical_regular_grammar(g0, s0):
     g1, s1 = remove_degenerate_rules(g0, s0)
 
-    #
     g2, s2 = remove_multi_terminals(g1, s1)
-    g3, s3 = fix_empty_rules(g2, s2)
-    #
 
-    g4, s4 = collapse_similar_starting_rules(g3, s3)
+    g3, s3 = collapse_similar_starting_rules(g2, s2)
+
+    g4, s4 = fix_empty_rules(g3, s3)
     return g4, s4
 
 # Using it.
@@ -366,18 +496,18 @@ def canonical_regular_grammar(g0, s0):
 if __name__ == '__main__':
    gatleast.display_grammar(g1, s1)
    g, s = canonical_regular_grammar(g1, s1)
-   gatleast.display_grammar(g, s)
+   display_canonical_grammar(g, s)
 
    print('________')
 
    gatleast.display_grammar(g2, s2)
    g, s = canonical_regular_grammar(g2, s2)
-   gatleast.display_grammar(g, s)
+   display_canonical_grammar(g, s)
 
    print('________')
    gatleast.display_grammar(g3, s3)
    g, s = canonical_regular_grammar(g3, s3)
-   gatleast.display_grammar(g, s)
+   display_canonical_grammar(g, s)
 
 # ## A canonical regular grammar from a regular expression.
 # 
@@ -393,7 +523,7 @@ if __name__ == '__main__':
     my_re = '(a|b|c).(de|f)'
     print(my_re)
     g, s = regexp_to_regular_grammar(my_re)
-    gatleast.display_grammar(g, s)
+    display_canonical_grammar(g, s)
     # check it has worked
     import re
     rgf = fuzzer.LimitFuzzer(g)
