@@ -77,7 +77,7 @@ EXPR_GRAMMAR = {
     '<term>': [ ['<fact>', '*', '<term>'], ['<fact>', '/', '<term>'], ['<fact>']],
     '<fact>': [ ['<digits>'], ['(','<expr>',')']],
     '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(1)],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
 }
 EXPR_START = '<start>'
 
