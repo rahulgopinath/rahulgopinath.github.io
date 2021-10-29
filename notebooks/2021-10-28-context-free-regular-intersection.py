@@ -79,11 +79,6 @@ EXPR_GRAMMAR = {
     '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
     '<digit>': [["%s" % str(i)] for i in range(1)],
 }
-EXPR_GRAMMAR = {
-    '<start>': [['<digits>']],
-    '<digits>': [ ['<digit>','<digits>'], ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(2)],
-}
 EXPR_START = '<start>'
 
 JSON_GRAMMAR = {
@@ -261,24 +256,14 @@ def filter_rules_with_undefined_keys(g):
         for r in g[k]:
             if len(r) == 0:
                 new_g1[k].append(r)
-            elif len(r) == 1:
-                if fuzzer.is_nonterminal(r[0][1]):
-                    if r[0] not in g:
-                        cont = True
-                        pass
-                    else:
-                        new_g1[k].append(r)
-                else:
-                    new_g1[k].append(r)
-            elif len(r) == 2:
-                assert fuzzer.is_nonterminal(r[0][1])
-                assert fuzzer.is_nonterminal(r[1][1])
-                if r[0] not in g or r[1] not in g:
+            else:
+                # only proceed if any nonterminal in the rule is defined.
+                all_nts = [t for t in r if fuzzer.is_nonterminal(t[1])]
+                if any(t not in g for t in all_nts): # if any undefined.
                     cont = True
                     pass
                 else:
                     new_g1[k].append(r)
-            else: assert False
     return new_g1, cont
 
 def intersect_cfg_and_rg(cf_g, cf_s, r_g, r_s, r_f=rxcanonical.NT_EMPTY):
