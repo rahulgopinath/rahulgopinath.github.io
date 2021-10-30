@@ -231,26 +231,7 @@ $$ a $$ is a terminal symbol. We then transform them to $$ A \rightarrow a S2 $$
 where $$ S2 $$ is the start symbol of $$G2$$. If $$ \epsilon $$ was present in
 one of the rules of $$G1$$, then we simply produce $$ A \rightarrow S2 $$.
  
-We can take a shortcut if we are willing to reuse the start key. For example,
-the below computes the regular catenation of grammars, by reusing the start key.
-```
-def catenate_grammar(g1, s1, g2, s2, verify=True):
-    if verify: assert not key_intersection(g1, g2)
-    new_g = {}
-    for k in g1:
-        new_rules = []
-        new_g[k] = new_rules
-        for r in g1[k]:
-            if len(r) == 0: # epsilon
-                new_rules.append([s2])
-            elif len(r) == 1 and not fuzzer.is_nonterminal(r[0]):
-                new_rules.append(r + [s2])
-            else:
-                new_rules.append(r)
-    return {**g2, **new_g}, s1
-```
-But a better way is to not to reuse the key, but to build a new key in a
-principled fashion. We start with catenation of nonterminals.
+We start with catenation of nonterminals.
 
 <!--
 ############
