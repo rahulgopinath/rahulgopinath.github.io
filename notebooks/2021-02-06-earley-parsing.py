@@ -37,11 +37,11 @@
 # ## Synopsis
 #
 # ```python
-# import earleyparser as parser
+# import earleyparser as P
 # my_grammar = {'<start>': [['a']]}
-# parser.EarleyParser(my_grammar)
-# for tree in my_grammar.parse_on(text='a', start_symbol='<start>'):
-#     print(parser.format_parsetree(tree))
+# my_parser = P.EarleyParser(my_grammar)
+# for tree in my_parser.parse_on(text='a', start_symbol='<start>'):
+#     print(P.format_parsetree(tree))
 # ```
 # 
 # For this post, we use the following terms:
