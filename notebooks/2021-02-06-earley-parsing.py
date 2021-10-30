@@ -38,9 +38,12 @@
 #
 # ```python
 # import earleyparser as P
-# my_grammar = {'<start>': [['a']]}
+# my_grammar = {'<start>': [['1', '<A>'],
+#                           ['2']
+#                          ],
+#               '<A>'    : [['a']]}
 # my_parser = P.EarleyParser(my_grammar)
-# for tree in my_parser.parse_on(text='a', start_symbol='<start>'):
+# for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
 #     print(P.format_parsetree(tree))
 # ```
 # 
