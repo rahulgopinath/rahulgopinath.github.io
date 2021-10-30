@@ -1,6 +1,6 @@
 ---
 published: true
-title: Canonical Regular Grammars
+title: Converting a Regular Expression to DFA using Regular Grammar
 layout: post
 comments: true
 tags: parsing
@@ -14,7 +14,9 @@ A regular grammar can in theory have rules with any of the following forms
 * $$ A \rightarrow B $$
 * $$ A \rightarrow \epsilon $$
 
-with no further restrictions. However, for working with regular grammars,
+with no further restrictions. This is the direct equivalent grammar for
+a nondeterministic finite state automaton (**NFA**).
+However, for working with regular grammars,
 such freedom can be unwieldy. Hence, without loss of generality, we define
 a canonical format for regular grammars, to which any regular grammar can
 be converted to.
@@ -26,7 +28,9 @@ its rules will start with a terminal symbol $$ a $$. That is, if the original
 grammar had multiple rules that started with $$ a $$, they will be collected
 into a new nonterminal symbol. Further, there will be at most one terminal
 symbol in a rule. That is, if there are more terminal symbols, then we bundle
-that to a new nonterminal symbol
+that to a new nonterminal symbol. As you can see, each node has at most one
+transition for a given terminal symbol. Hence, this canonical form is
+equivalent to a deterministic finite state automation (**DFA**).
 We start with importing the prerequisites
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
@@ -1074,7 +1078,8 @@ display_canonical_grammar(g, s)
 <div name='python_canvas'></div>
 </form>
 ## A canonical regular grammar from a regular expression.
-
+ This function extracts the DFA equivalent grammar for the regular
+expression given.
 
 <!--
 ############
