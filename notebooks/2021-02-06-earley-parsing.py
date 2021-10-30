@@ -20,14 +20,12 @@
 # However, if the grammar is unambiguous, it can parse in $$O(n^2)$$ time, and
 # all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a].
 # 
-# This is an implementation of Earley parsing that handles the epsilon case as
-# given by Aycock et al.[^aycock2002practical] as well as Leo's optimizations[^leo1991a].
+# **This implementation of Earley parser correctly handles the epsilon case as
+# given by Aycock et al.[^aycock2002practical]** Further, **the `LeoParser` class
+# incorporates Leo's optimizations[^leo1991a]**.
 # 
-# For a much more complete implementation and
-# full recovery of parsing forests using iterative solutions,
-# see our parsing implementation in the [fuzzingbook](https://www.fuzzingbook.org/html/Parser.html)
-# (See the solved exercises). A very detailed explanation of Earley parsing is
-# by [Loup Vaillant](https://loup-vaillant.fr/tutorials/earley-parsing/).
+# Another detailed explanation of Earley parsing is by
+# [Loup Vaillant](https://loup-vaillant.fr/tutorials/earley-parsing/).
 # Further, a fast industrial strength Earley parser implementation is
 # [Marpa](https://jeffreykegler.github.io/Marpa-web-site/).
 # 
