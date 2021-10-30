@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Specializing Grammars for Inducing Multiple Faults
+# title: Specializing Context-Free Grammars for Inducing Multiple Faults
 # layout: post
 # comments: true
 # tags: python
