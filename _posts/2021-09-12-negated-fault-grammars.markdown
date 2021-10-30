@@ -1,6 +1,6 @@
 ---
 published: true
-title: Specializing Grammars for Not Inducing A Fault
+title: Specializing Context-Free Grammars for Not Inducing A Fault
 layout: post
 comments: true
 tags: python
