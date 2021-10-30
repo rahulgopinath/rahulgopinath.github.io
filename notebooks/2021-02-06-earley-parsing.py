@@ -18,7 +18,7 @@
 # the given grammar. Unfortunately, this style of parsing pays for generality by
 # being slightly expensive. It takes $$O(n^3)$$ time to parse in the worst case.
 # However, if the grammar is unambiguous, it can parse in $$O(n^2)$$ time, and
-# all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a] ($$ O(n) $$).
+# all [LR(k)](https://en.wikipedia.org/wiki/LR_parser) grammars in linear time[^leo1991a] -- $$ O(n) $$.
 # 
 # **This implementation of Earley parser correctly handles the epsilon case as
 # given by Aycock et al.[^aycock2002practical]** Further, **the `LeoParser` class
