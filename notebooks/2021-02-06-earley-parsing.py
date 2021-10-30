@@ -36,7 +36,7 @@
 #
 # ## Synopsis
 #
-# ```
+# ```python
 # import earleyparser as parser
 # my_grammar = {'<start>': [['a']]}
 # parser.EarleyParser(my_grammar)

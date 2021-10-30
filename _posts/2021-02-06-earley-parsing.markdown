@@ -48,7 +48,7 @@ notebook directly [here](https://github.com/rahulgopinath/rahulgopinath.github.i
 It the file is downloaded as `earleyparser.py`, it can be imported into your
 projects using `import earleyparser`.
 ## Synopsis
-```
+```python
 import earleyparser as parser
 my_grammar = {'<start>': [['a']]}
 parser.EarleyParser(my_grammar)
