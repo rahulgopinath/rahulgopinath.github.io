@@ -1,6 +1,6 @@
 ---
 published: true
-title: Fault Expressions
+title: Fault Expressions for Context-Free Grammars
 layout: post
 comments: true
 tags: python
