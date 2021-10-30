@@ -29,6 +29,21 @@
 # Further, a fast industrial strength Earley parser implementation is
 # [Marpa](https://jeffreykegler.github.io/Marpa-web-site/).
 # 
+# This post is written as runnable Python source. You can download the
+# notebook directly [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-06-earley-parsing.py),
+# It the file is downloaded as `earleyparser.py`, it can be imported into your
+# projects using `import earleyparser`.
+#
+# ## Synopsis
+#
+# ```
+# import earleyparser as parser
+# my_grammar = {'<start>': [['a']]}
+# parser.EarleyParser(my_grammar)
+# for tree in my_grammar.parse_on(text='a', start_symbol='<start>'):
+#     print(parser.format_parsetree(tree))
+# ```
+# 
 # For this post, we use the following terms:
 # 
 # * The _alphabet_ is the set all of symbols in the input language. For example,
