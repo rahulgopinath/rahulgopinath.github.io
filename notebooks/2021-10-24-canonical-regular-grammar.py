@@ -312,10 +312,13 @@ if __name__ == '__main__':
 def definition_split_to_rulesets(d1):
     rule_sets = defaultdict(list)
     for r in d1:
-        if len(r) > 0:
-            assert not fuzzer.is_nonterminal(r[0]) # no degenerate rules
+        if len(r) > 1:
+            rule_sets[r[0]].append(r)
+        elif len(r) == 1:
+            # this is the empty rule attached to start.
             rule_sets[r[0]].append(r)
         else:
+            # epsilon
             rule_sets[''].append(r)
     return rule_sets
 
