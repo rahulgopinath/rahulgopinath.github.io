@@ -21,6 +21,7 @@ such freedom can be unwieldy. Hence, without loss of generality, we define
 a canonical format for regular grammars, to which any regular grammar can
 be converted to.
 * $$ A \rightarrow a B $$
+* $$ S \rightarrow E $$
 * $$ E \rightarrow \epsilon $$
 
 where given a nonterminal $$A$$ and a terminal symbol $$ a $$ at most one of
@@ -30,7 +31,8 @@ into a new nonterminal symbol. Further, there will be at most one terminal
 symbol in a rule. That is, if there are more terminal symbols, then we bundle
 that to a new nonterminal symbol.
 Finally, the $$ \epsilon $$ is attached to the $$ E $$ symbol, which is the
-only termination point..
+only termination point. If the language contains $$ \epsilon $$, then the
+single degenerate rule, $$ S \rightarrow E $$ is added to the rules.
 As you can see, each node has at most one
 transition for a given terminal symbol. Hence, this canonical form is
 equivalent to a deterministic finite state automation (**DFA**).
