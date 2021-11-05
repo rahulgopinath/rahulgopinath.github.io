@@ -23,7 +23,7 @@
 # be converted to.
 #
 # * $$ A \rightarrow a B $$
-# * $$ S \rightarrow \epsilon $$
+# * $$ E \rightarrow \epsilon $$
 # 
 # where given a nonterminal $$A$$ and a terminal symbol $$ a $$ at most one of
 # its rules will start with a terminal symbol $$ a $$. That is, if the original
@@ -31,8 +31,9 @@
 # into a new nonterminal symbol. Further, there will be at most one terminal
 # symbol in a rule. That is, if there are more terminal symbols, then we bundle
 # that to a new nonterminal symbol.
-# Finally, if the language contains epsilon symbol, it is attached to the start
-# symbol. As you can see, each node has at most one
+# Finally, the $$ \epsilon $$ is attached to the $$ E $$ symbol, which is the
+# only termination point..
+# As you can see, each node has at most one
 # transition for a given terminal symbol. Hence, this canonical form is
 # equivalent to a deterministic finite state automation (**DFA**).
 #
