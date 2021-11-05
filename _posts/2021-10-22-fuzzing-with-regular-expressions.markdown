@@ -576,7 +576,11 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Next, we define the `<dot>`
+Next, we define the `<dot>`. A dot matches any character. That is, terminal
+symbol.
+```
+  <dot>   ::=  a | b | ...
+```
 
 <!--
 ############

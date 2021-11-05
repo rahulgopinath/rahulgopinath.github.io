@@ -297,7 +297,13 @@ if __name__ == '__main__':
         assert re.match(my_re, v), v
 
 
-# Next, we define the `<dot>`
+# Next, we define the `<dot>`. A dot matches any character. That is, terminal
+# symbol.
+#
+# ```
+#   <dot>   ::=  a | b | ...
+# ```
+
 
 class RegexToGrammar(RegexToGrammar):
     def convert_dot(self, node):
