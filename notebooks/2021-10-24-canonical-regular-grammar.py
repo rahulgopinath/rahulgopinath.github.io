@@ -275,7 +275,7 @@ def fix_empty_rules(g, s):
 # ## Collapse similar starting rules
 # 
 # Here, the idea is to join any set of rules of the form
-# $$ A \rightarrow b B $$, $$ A \rightarrow b C $$ to $$ A \rightarrow b or(B,C) $$.
+# $$ A \rightarrow b B $$, $$ A \rightarrow b C $$ to $$ A \rightarrow b \,or(B,C) $$.
 # First, we define how to join rules that all have the same terminal symbol
 # as the starting token.
 
