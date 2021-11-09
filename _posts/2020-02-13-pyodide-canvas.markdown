@@ -7,8 +7,8 @@ tags: pyodide
 categories: post
 ---
 
-<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
