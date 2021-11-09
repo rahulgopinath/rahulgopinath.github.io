@@ -808,7 +808,7 @@ if __name__ == '__main__':
 # found that translating a Python parser to Java line by line resulted in an
 # improvement over 300 times (t = original/300).
 
-# The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-22-error-correcting-earley-parsing.py).
+# The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-22-error-correcting-earley-parser.py).
 # 
 # [^aho1972minimum]: Alfred V. Aho and Thomas G. Peterson, A Minimum Distance Error-Correcting Parser for Context-Free Languages, SIAM Journal on Computing, 1972 <https://doi.org/10.1137/0201022>
 
