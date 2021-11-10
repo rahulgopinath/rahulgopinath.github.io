@@ -17,7 +17,7 @@ def split_data(data):
                 processed_data.append(('comment', comment))
             elif chunk[0][1] == '@':
                 wheels = [line[2:].strip() for line in chunk]
-                processed_data.append(('wheel', wheels))
+                processed_data.append(('wheel', [w for w in wheels if w.strip()]))
             else:
                 assert False
         else:
@@ -103,7 +103,10 @@ def p(v):
 
 def main(args):
     fn =  args[0]
-    postname = '_posts/%s.markdown' % os.path.splitext(os.path.basename(fn))[0]
+    if len(args) > 1:
+        postname = args[1]
+    else:
+        postname = '_posts/%s.markdown' % os.path.splitext(os.path.basename(fn))[0]
     print('Writing to:', postname, file=sys.stderr)
     with open(fn, 'r', encoding='utf-8') as f:
         data = f.readlines()
