@@ -54,7 +54,7 @@ or by a child node of the same nonterminal. To accomplish the first (that is,
 to be able to use empty expansions), Perses first transofrms the given grammar
 to a *Perses normal form*. We can however skip that portion if we are careful
 and use a grammar where we explicitly use nonterminals that can have an empty
-exansion. In this post, I only explain the *perses reduction* algorithm.
+expansion. In this post, I only explain the *perses reduction* algorithm.
 First, some book keeping
 
 <form name='python_run_form'>
@@ -94,7 +94,7 @@ There can be four outcomes when an input is executed:
 * Success (failure condition reproduced)
 * Failed (failure condition not reproduced)
 * Invalid (Did not reach failure condition  possibly semantically invalid)
-* Timeout (equivalant to Failed)
+* Timeout (equivalent to Failed)
 
 <!--
 ############
@@ -252,7 +252,7 @@ display_tree(parsed_expr)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The perses algorithm is as follows: We start the root, and recursively go down
+The Perses algorithm is as follows: We start the root, and recursively go down
 the child nodes. For each node, we check if that node can be replaced by a
 subtree with the same nonterminal, and still reproduce the failure, and find
 the smallest such tree (length determined by number of leaves).
@@ -261,7 +261,7 @@ Since this procedure can result in multiple trees, the tree to work on is
 chosen based on a priority queue where the priority is given to the smallest
 tree.
 The particular node chosen to replace the current node is determined based
-first on its numer of leaf nodes, and then on its rank in a priority queue,
+first on its number of leaf nodes, and then on its rank in a priority queue,
 where the priority is determined by the depth of the subtree from the current
 node. That is, a child gets priority over a grand child.
 We first have to define a way to address a specific node.
@@ -390,7 +390,7 @@ display_tree(tn)
 </form>
 # Priority queue
 
-For perses reduction, one needs a way to count the number of leaf nodes to
+For Perses reduction, one needs a way to count the number of leaf nodes to
 determine the priority of a node. This is done by count_leaves()
 
 <!--

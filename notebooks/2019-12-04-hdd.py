@@ -41,7 +41,7 @@
 # to be able to use empty expansions), Perses first transofrms the given grammar
 # to a *Perses normal form*. We can however skip that portion if we are careful
 # and use a grammar where we explicitly use nonterminals that can have an empty
-# exansion. In this post, I only explain the *perses reduction* algorithm.
+# expansion. In this post, I only explain the *perses reduction* algorithm.
 #
 
 # First, some book keeping
@@ -70,7 +70,7 @@ import simplefuzzer as fuzzer
 # * Success (failure condition reproduced)
 # * Failed (failure condition not reproduced)
 # * Invalid (Did not reach failure condition  possibly semantically invalid)
-# * Timeout (equivalant to Failed)
+# * Timeout (equivalent to Failed)
 
 from enum import Enum
 import copy
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     print(parsed_expr)
     display_tree(parsed_expr)
 
-# The perses algorithm is as follows: We start the root, and recursively go down
+# The Perses algorithm is as follows: We start the root, and recursively go down
 # the child nodes. For each node, we check if that node can be replaced by a
 # subtree with the same nonterminal, and still reproduce the failure, and find
 # the smallest such tree (length determined by number of leaves).
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 # tree.
 
 # The particular node chosen to replace the current node is determined based
-# first on its numer of leaf nodes, and then on its rank in a priority queue,
+# first on its number of leaf nodes, and then on its rank in a priority queue,
 # where the priority is determined by the depth of the subtree from the current
 # node. That is, a child gets priority over a grand child.
 # We first have to define a way to address a specific node.
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
 # # Priority queue
 # 
-# For perses reduction, one needs a way to count the number of leaf nodes to
+# For Perses reduction, one needs a way to count the number of leaf nodes to
 # determine the priority of a node. This is done by count_leaves()
 
 import heapq
