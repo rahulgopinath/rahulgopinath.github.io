@@ -61,7 +61,10 @@ import io, base64
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import micropip
+await micropip.install('matplotlib')
 import  matplotlib.pyplot as plt
+await micropip.install('networkx')
 import networkx as nx
 import io, base64
 </textarea><br />
