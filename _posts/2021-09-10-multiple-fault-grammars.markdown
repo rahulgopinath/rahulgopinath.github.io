@@ -42,6 +42,7 @@ As before, let us start with importing our required modules.
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 </textarea>
 </form>
 The imported modules
