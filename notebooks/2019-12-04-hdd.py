@@ -52,7 +52,7 @@
 
 # The imported modules
 
-import earleyparser as parser
+import pegparser as parser
 import simplefuzzer as fuzzer
 
 # ## Predicate

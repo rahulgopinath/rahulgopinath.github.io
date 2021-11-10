@@ -67,14 +67,14 @@ The imported modules
 
 <!--
 ############
-import earleyparser as parser
+import pegparser as parser
 import simplefuzzer as fuzzer
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import earleyparser as parser
+import pegparser as parser
 import simplefuzzer as fuzzer
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
