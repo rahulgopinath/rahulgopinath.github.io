@@ -31,7 +31,7 @@
 
 import earleyparser
 import hdd
-import fuzzer
+import simplefuzzer as fuzzer
 
 # We first define our input, and make sure that our predicate works
  

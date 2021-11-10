@@ -47,7 +47,7 @@ The imported modules
 ############
 import earleyparser
 import hdd
-import fuzzer
+import simplefuzzer as fuzzer
 
 ############
 -->
@@ -55,7 +55,7 @@ import fuzzer
 <textarea cols="40" rows="4" name='python_edit'>
 import earleyparser
 import hdd
-import fuzzer
+import simplefuzzer as fuzzer
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
