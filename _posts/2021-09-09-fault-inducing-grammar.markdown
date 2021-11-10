@@ -59,6 +59,7 @@ As before, let us start with importing our required modules.
 "https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 </textarea>
 </form>
 The imported modules
@@ -82,6 +83,7 @@ import ddset
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+The imported modules
 We import the following modules
 We have our input that causes the failure.
 

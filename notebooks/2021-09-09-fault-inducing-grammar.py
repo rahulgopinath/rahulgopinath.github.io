@@ -44,6 +44,7 @@
 # https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 
@@ -51,6 +52,9 @@ import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import ddset
+
+# The imported modules
+
 
 # We import the following modules
 
