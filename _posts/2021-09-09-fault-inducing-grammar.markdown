@@ -53,78 +53,36 @@ induce failures.
 
 As before, let us start with importing our required modules.
 
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
+</textarea>
+</form>
+The imported modules
+
 <!--
 ############
-import sys, imp, pprint
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
+import earleyparser
+import hdd
+import simplefuzzer as fuzzer
+import ddset
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import sys, imp, pprint
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if &quot;pyodide&quot; in sys.modules:
-        import pyodide
-        github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
-        my_repo =  &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-        module_loc = github_repo + my_repo + &#x27;/master/notebooks/%s&#x27; % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc, encoding=&#x27;utf8&#x27;) as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
+import earleyparser
+import hdd
+import simplefuzzer as fuzzer
+import ddset
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 We import the following modules
-
-<!--
-############
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-hdd = import_file('hdd', '2019-12-04-hdd.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-parsing.py&#x27;)
-hdd = import_file(&#x27;hdd&#x27;, &#x27;2019-12-04-hdd.py&#x27;)
-fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
-ddset = import_file(&#x27;ddset&#x27;, &#x27;2020-08-03-simple-ddset.py&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 We have our input that causes the failure.
 
 <!--
@@ -1455,6 +1413,7 @@ prettyprinting
 
 <!--
 ############
+import pprint
 def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
@@ -1463,6 +1422,7 @@ def display_var(v):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import pprint
 def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)

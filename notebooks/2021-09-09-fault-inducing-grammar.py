@@ -39,32 +39,20 @@
 # 
 # As before, let us start with importing our required modules.
 
-import sys, imp, pprint
+#@
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
+# The imported modules
 
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
+import earleyparser
+import hdd
+import simplefuzzer as fuzzer
+import ddset
 
 # We import the following modules
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-hdd = import_file('hdd', '2019-12-04-hdd.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-ddset = import_file('ddset', '2020-08-03-simple-ddset.py')
 
 # We have our input that causes the failure.
 
@@ -664,6 +652,7 @@ if __name__ == '__main__':
 
 # prettyprinting
 
+import pprint
 def display_var(v):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(v)
