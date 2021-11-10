@@ -19,19 +19,37 @@
 # 
 # As before, let us start with importing our required modules.
 
-import sympy
+#^
+# sympy
+
+#@
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/ py/gmultiplefaults-0.0.1-py2.py3-none-any.whl
+
+# The imported modules
+
+import earleyparser
+import hdd
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import gmultiplefaults as gmultiple
 
 # **Note** `sympy` may not load immediately. Either click on the [run] button
 # first before you click the [run all] or if you get errors, and the `sympy`
 # import seems to not have been executed, try clicking on the [run] button again.
-#
+
+import sympy
+
 # Our language is a simple language of boolean algebra. That is, it is the
 # language of expressions in the specialization for a nonterminal such as `<A and(f1,f2)>`
 # It is defined by the following grammar.
 
 import string
-
-
 
 BEXPR_GRAMMAR = {
     '<start>': [['<bexpr>']],
@@ -51,36 +69,6 @@ BEXPR_GRAMMAR = {
 }
 BEXPR_START = '<start>'
 
-# We need the ability to parse any expressions. So, let us load the parser
-
-import sys, imp
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf-8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
-# The parser
-
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-gmultiple = import_file('gmultiple', '2021-09-10-multiple-fault-grammars.py')
-hdd = import_file('hdd', '2019-12-04-hdd.py')
 # Next, we need a data structure to represent the boolean language.
 # First we represent our literals using `LitB` class.
 
@@ -497,5 +485,4 @@ if __name__ == '__main__':
         print(v)
         if gatleast.expr_div_by_zero(v) == hdd.PRes.success: print('>', 1)
         if hdd.expr_double_paren(v) == hdd.PRes.success: print('>',2)
-
 
