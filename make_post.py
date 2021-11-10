@@ -18,10 +18,12 @@ def split_data(data):
             elif chunk[0][1] == '@':
                 wheels = [line[2:].strip() for line in chunk]
                 processed_data.append(('wheel', [w for w in wheels if w.strip()]))
+            elif chunk[0][1] == '^':
+                wheels = [line[2:].strip() for line in chunk]
+                processed_data.append(('sys_imports', [w for w in wheels if w.strip()]))
             else:
                 assert False
         else:
-
             skip_empty = True
             lines = []
             for line in chunk:
@@ -67,6 +69,15 @@ Initialization completion is indicated by a red border around *Run all* button.
 </form>
 ''')
             first_comment = False
+        if kind == 'sys_imports':
+            p('''
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
+%s
+</textarea>
+</form>
+''' % '\n'.join(['%s' % l for l in chunk]))
+
         if kind == 'wheel':
             p('''
 <form name='python_run_form'>
