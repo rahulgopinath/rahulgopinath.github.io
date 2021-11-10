@@ -19,7 +19,11 @@
 #^
 # matplotlib
 # networkx
-# pydot
+
+# We also need pydot for drawing
+
+#@
+# https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 
 import sys
 import dis
