@@ -21,3 +21,4 @@ install:
 
 clean:
 	rm -rf dist build rm -rf *.egg-info
+	find . -name __pycache__ | xargs rm -rf
