@@ -18,3 +18,6 @@ prereq:
 
 install:
 	python3 -m pip install .
+
+clean:
+	rm -rf dist build rm -rf *.egg-info
