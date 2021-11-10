@@ -52,8 +52,6 @@ languagePluginLoader.then(() => {
     'micropip',
     'mpmath',
     'sympy',
-    'matplotlib',
-    'networkx'
   ]
   if (sys_imports.length > 0) {
       sys_imports_lst_ = sys_imports.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",").split(",");

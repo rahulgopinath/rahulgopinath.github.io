@@ -19,6 +19,14 @@ categories: post
 
 **Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
 Initialization completion is indicated by a red border around *Run all* button.
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
+matplotlib
+networkx
+</textarea>
+</form>
+
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form> *Note:* Unfortunately run all does not work yet (trouble with external imports).
