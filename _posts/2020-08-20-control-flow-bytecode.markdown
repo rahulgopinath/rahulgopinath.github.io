@@ -33,6 +33,7 @@ networkx and matplotlib lets us draw.
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 matplotlib
 networkx
+pydot
 </textarea>
 </form>
 

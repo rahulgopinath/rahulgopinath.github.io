@@ -54,7 +54,7 @@ languagePluginLoader.then(() => {
     'sympy',
   ]
   if (sys_imports.length > 0) {
-      sys_imports_lst_ = sys_imports.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",").trim().split(",");
+      sys_imports_lst_ = sys_imports.data('CodeMirrorInstance').getValue().trim().replace(/[\r\n]/g,",").trim().split(",");
       sys_imports_lst = sys_imports_lst.concat(sys_imports_lst_);
   }
 

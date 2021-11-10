@@ -19,6 +19,7 @@
 #^
 # matplotlib
 # networkx
+# pydot
 
 import sys
 import dis
