@@ -105,9 +105,11 @@ languagePluginLoader.then(() => {
       myeditor = myform.find('[name="python_edit"]').data('CodeMirrorInstance')
       if (typeof myeditor !== 'undefined')  {
           if (myform.find('[name="python_edit"]')[0].id != 'python_pre_edit') {
+            if (myform.find('[name="python_edit"]')[0].id != 'sys_imports') {
             mypre = myform.find('[name="python_output"]').first()
             mycanvas = myform.find('[name="python_canvas"]').first()
             runit(mypre[0], mycanvas[0], myeditor)
+            }
           }
       }
       });
