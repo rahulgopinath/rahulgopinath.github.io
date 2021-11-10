@@ -16,9 +16,17 @@
 # First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
 # pygraphviz lets us draw.
 
+#^ Requirements
+
+matplotlib
+networkx
+
+# 
+
 import sys
 import dis
-import networkx
+import networkx as nx
+import matplotlib.pyplot as plt
 import pydot
 import textwrap
 
@@ -154,3 +162,23 @@ if __name__== '__main__':
     v = CFG(gcd)
     g = v.to_graph()
     print(g)
+
+# Show the image
+
+if __name__== '__main__':
+    nxg = nx.nx_pydot.from_pydot(g)
+    plt.clf()
+    nx.draw(nxg, with_labels=True)
+    plt.axis('off')
+    plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
+    print(len(img_str))
+
+# 
+
+if __name__== '__main__':
+    __canvas__(img_str)
+
