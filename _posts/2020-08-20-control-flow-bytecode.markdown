@@ -27,30 +27,14 @@ of new control flow structures. The byte code, in comparison, stays relatively s
 use the bytecode to recover the control flow graph too.
 
 First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
-pygraphviz lets us draw.
+networkx and matplotlib lets us draw.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
-
+"matplotlib"
+"networkx"
 </textarea>
 </form>
-
-<!--
-############
-matplotlib
-networkx
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-matplotlib
-networkx
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
 
 <!--
 ############

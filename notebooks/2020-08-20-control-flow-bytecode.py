@@ -14,14 +14,11 @@
 # use the bytecode to recover the control flow graph too.
 # 
 # First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
-# pygraphviz lets us draw.
+# networkx and matplotlib lets us draw.
 
 #^
-
-matplotlib
-networkx
-
-# 
+# matplotlib
+# networkx
 
 import sys
 import dis
