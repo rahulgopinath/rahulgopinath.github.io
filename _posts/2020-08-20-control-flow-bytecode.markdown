@@ -51,6 +51,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pydot
 import textwrap
+import base64
 
 ############
 -->
@@ -62,6 +63,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pydot
 import textwrap
+import base64
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -378,19 +380,17 @@ This finishes our implementation.
 
 <!--
 ############
-if __name__== '__main__':
-    v = CFG(gcd)
-    g = v.to_graph()
-    print(g)
+v = CFG(gcd)
+g = v.to_graph()
+print(g)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__== &#x27;__main__&#x27;:
-    v = CFG(gcd)
-    g = v.to_graph()
-    print(g)
+v = CFG(gcd)
+g = v.to_graph()
+print(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -399,33 +399,31 @@ Show the image
 
 <!--
 ############
-if __name__== '__main__':
-    nxg = nx.nx_pydot.from_pydot(g)
-    plt.clf()
-    nx.draw(nxg, with_labels=True)
-    plt.axis('off')
-    plt.show()
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-    print(len(img_str))
+nxg = nx.nx_pydot.from_pydot(g)
+plt.clf()
+nx.draw(nxg, with_labels=True)
+plt.axis('off')
+plt.show()
+buf = io.BytesIO()
+plt.savefig(buf, format='png')
+buf.seek(0)
+img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
+print(len(img_str))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__== &#x27;__main__&#x27;:
-    nxg = nx.nx_pydot.from_pydot(g)
-    plt.clf()
-    nx.draw(nxg, with_labels=True)
-    plt.axis(&#x27;off&#x27;)
-    plt.show()
-    buf = io.BytesIO()
-    plt.savefig(buf, format=&#x27;png&#x27;)
-    buf.seek(0)
-    img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
-    print(len(img_str))
+nxg = nx.nx_pydot.from_pydot(g)
+plt.clf()
+nx.draw(nxg, with_labels=True)
+plt.axis(&#x27;off&#x27;)
+plt.show()
+buf = io.BytesIO()
+plt.savefig(buf, format=&#x27;png&#x27;)
+buf.seek(0)
+img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
+print(len(img_str))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -434,15 +432,13 @@ if __name__== &#x27;__main__&#x27;:
 
 <!--
 ############
-if __name__== '__main__':
-    __canvas__(img_str)
+__canvas__(img_str)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__== &#x27;__main__&#x27;:
-    __canvas__(img_str)
+__canvas__(img_str)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

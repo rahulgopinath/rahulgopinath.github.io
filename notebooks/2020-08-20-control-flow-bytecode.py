@@ -31,6 +31,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pydot
 import textwrap
+import base64
 
 # Let us start by defining a few functions that we want to extract the control-flow graphs of.
 
@@ -160,14 +161,14 @@ class CFG(CFG):
 
 # This finishes our implementation.
 
-if __name__== '__main__':
+if __name__ == '__main__':
     v = CFG(gcd)
     g = v.to_graph()
     print(g)
 
 # Show the image
 
-if __name__== '__main__':
+if __name__ == '__main__':
     nxg = nx.nx_pydot.from_pydot(g)
     plt.clf()
     nx.draw(nxg, with_labels=True)
@@ -181,6 +182,6 @@ if __name__== '__main__':
 
 # 
 
-if __name__== '__main__':
+if __name__ == '__main__':
     __canvas__(img_str)
 
