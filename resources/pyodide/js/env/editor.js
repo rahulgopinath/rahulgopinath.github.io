@@ -11,11 +11,15 @@ function runit(mypre, mycanvas, editor) {
    }
 
    function outf(text) {
-      mypre.innerHTML = escHTML(text);
+     if (typeof mypre != "undefined") {
+        mypre.innerHTML = escHTML(text);
+     }
       //mypre.innerHTML = mypre.innerHTML + escHTML(text);
    }
    function errf(text) {
-      mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + escHTML(text) + "</font>";
+     if (typeof mypre != "undefined") {
+        mypre.innerHTML = mypre.innerHTML + "<font color='red'>" + escHTML(text) + "</font>";
+     }
    }
 
    function draw(str) {
@@ -25,7 +29,9 @@ function runit(mypre, mycanvas, editor) {
       $(myimg).attr('src', str);
    }
 
-   mypre.innerHTML = '';
+   if (typeof mypre != "undefined") {
+     mypre.innerHTML = '';
+   }
 
    pyodide.globals.__canvas__ = draw;
 
