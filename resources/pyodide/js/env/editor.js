@@ -47,18 +47,25 @@ $('[name="python_edit"]').each(function(idx) {
 });
 
 languagePluginLoader.then(() => { 
-  pyodide.loadPackage([
+  var sys_imports = $(document).find('#python_sys_imports')
+  var sys_imports_lst_ = [
     'micropip',
     'mpmath',
     'sympy',
     'matplotlib',
     'networkx'
-  ]).then(() => {
-    var imports_ = $(document).find('#python_pre_edit')
+  ]
+  if (sys_imports.length > 0) {
+      sys_imports_lst_ = sys_imports.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",").split(",");
+      sys_imports = sys_imports.concat(sys_imports_lst_);
+  }
+
+  pyodide.loadPackage(sys_imports).then(() => {
+    var installs_ = $(document).find('#python_pre_edit')
     var imports_lst = [];
-    if (imports_.length > 0) {
-        var imports_text = imports_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
-        pyodide.runPython('import micropip\nmicropip.install([' + imports_text + '])');
+    if (installs_.length > 0) {
+        var intalls_text = installs_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
+        pyodide.runPython('import micropip\nmicropip.install([' + intalls_text + '])');
     }
 
     console.log('pyodide ready');
