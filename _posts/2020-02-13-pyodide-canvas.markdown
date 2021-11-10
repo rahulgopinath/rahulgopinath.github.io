@@ -32,7 +32,8 @@ Loading the prerequisite:
 </textarea>
 </form>
 
-Install (await)
+Install (await) -- these are installed from Javascript. I have not found
+a way to call these asynchronously from Pyodide.
 
 <!--
 ############
@@ -46,7 +47,6 @@ print(__canvas__)
 async def install():
   await micropip.install('matplotlib')
   await micropip.install('networkx')
-install()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
