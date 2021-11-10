@@ -6,20 +6,7 @@ comments: true
 tags: deltadebug, testcase reducer, cfg, generator
 categories: post
 ---
-<script type="text/javascript">window.languagePluginUrl='https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';</script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-Note: Pyiodide takes time to initialize. Wait until the _Run all_ button has a red border.
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
-
+ 
 Previously, we had [discussed](/post/2019/12/03/ddmin/) how delta-debugging worked, and I had explained at that time that when it comes
 to preserving semantics, the only options are either custom passes such as [CReduce](http://embed.cs.utah.edu/creduce/)
 or commandeering the generator as done by [Hypothesis](https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/src/hypothesis/internal/conjecture/shrinker.py).
@@ -28,34 +15,66 @@ of naming, I will call this approach the _generator reduction_ approach. Note th
 This is different from `Hypothesis` in that `Hypothesis` uses a number of custom passes rather than `delta debug`. For further information
 on Hypothesis, please see the paper by MacIver et al.[^mciver2020reduction] at ECOOP.
 
-For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed
-[previously](/post/2019/05/28/simplefuzzer-01/).
+For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed [previously](/post/2019/05/28/simplefuzzer-01/).
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
 
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/limitfuzzer-0.0.2-py3-none-any.whl"
-</textarea>
+<button type="button" name="python_run_all">Run all</button>
 </form>
 
 <form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
+</textarea>
+</form>
+
+<!--
+############
+import simplefuzzer
+
+############
+-->
+<form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import limitfuzzer
+import simplefuzzer
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-The driver is as follows. Note that the grammar describes a simple assignment language.
-
+We have a grammar describes a simple assignment language.
 
 <!--
 ############
 import random
 import string
 import sys
-random.seed(5)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+import string
+import sys
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using this grammar.
+
+<!--
+############
+import textwrap
 assignment_grammar = {
         '<start>' : [[ '<assignments>' ]],
         '<assignments>': [['<assign>'],
@@ -70,18 +89,23 @@ assignment_grammar = {
         '<digit>': [['0'], ['1']],
         '<var>': [[i] for i in string.ascii_lowercase]
 }
-print(limitfuzzer.LimitFuzzer(assignment_grammar).fuzz('<start>'))
+# doing exec because we want to correctly init random seeds.
+lf_mystr = """\
+import random
+random.seed(seed)
+c = simplefuzzer.LimitFuzzer(assignment_grammar)
+print(c.fuzz('<start>'))
+"""
+lf_mystr = textwrap.dedent(lf_mystr)
+exec(lf_mystr,
+        {'simplefuzzer': simplefuzzer, 'assignment_grammar': assignment_grammar},
+        {'seed': 5})
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import random
-import string
-import sys
-random.seed(5)
-
+import textwrap
 assignment_grammar = {
         &#x27;&lt;start&gt;&#x27; : [[ &#x27;&lt;assignments&gt;&#x27; ]],
         &#x27;&lt;assignments&gt;&#x27;: [[&#x27;&lt;assign&gt;&#x27;],
@@ -96,30 +120,28 @@ assignment_grammar = {
         &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;]],
         &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
 }
-print(limitfuzzer.LimitFuzzer(assignment_grammar).fuzz(&#x27;&lt;start&gt;&#x27;))
+# doing exec because we want to correctly init random seeds.
+lf_mystr = &quot;&quot;&quot;\
+import random
+random.seed(seed)
+c = simplefuzzer.LimitFuzzer(assignment_grammar)
+print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
+&quot;&quot;&quot;
+lf_mystr = textwrap.dedent(lf_mystr)
+exec(lf_mystr,
+        {&#x27;simplefuzzer&#x27;: simplefuzzer, &#x27;assignment_grammar&#x27;: assignment_grammar},
+        {&#x27;seed&#x27;: 5})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-A sample run
-
-```
-$ python3 lf.py 5
-o = (h) + r - 0 + i - f - 1 + 0 + 0 - 1 + (0) + j - 1 - f + (((0)) + 1) - (((w))) + (p - a + m - l + s) - b + 0 - l - 1 + 1;
-s = ((c + (1) - ((1)) - ((0))));
-p = 1 + 1 - (u) + e + k + 1 - 0 - l + j + t - 1 - w - (i)
-```
-
-
 The context free grammar `assignment_grammar` generates assignment expressions. However, it tends to
 use variables before they are defined. We want to avoid that. However, using only defined variables is a context sensitive feature, which we incorporate
 by a small modification to the fuzzer.
 
-
 <!--
 ############
-class ComplexFuzzer(limitfuzzer.LimitFuzzer):
+class ComplexFuzzer(simplefuzzer.LimitFuzzer):
     def __init__(self, grammar):
         def cfg(g):
             return {k: [self.cfg_rule(r) for r in g[k]] for k in g}
@@ -128,6 +150,12 @@ class ComplexFuzzer(limitfuzzer.LimitFuzzer):
         self.grammar = grammar
         self.vars = []
         self._vars = []
+
+    def select(self, lst):
+        return random.choice(lst)
+
+    def tree_to_str(self, val):
+        return simplefuzzer.tree_to_string(val)
 
     def cfg_rule(self, rule):
         return [t[0] if isinstance(t, tuple) else t for t in rule]
@@ -159,6 +187,9 @@ class ComplexFuzzer(limitfuzzer.LimitFuzzer):
             ret.append(v)
         return ret
 
+    def fuzz(self, key='<start>', max_depth=10):
+        return self.tree_to_str(self.gen_key(key=key, depth=0, max_depth=max_depth))
+
 def defining_var(o, val):
     v = o.tree_to_str(val)
     o._vars.append(v)
@@ -176,13 +207,12 @@ def sync(o, val):
     o.vars.extend(o._vars)
     o._vars.clear()
     return val
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ComplexFuzzer(limitfuzzer.LimitFuzzer):
+class ComplexFuzzer(simplefuzzer.LimitFuzzer):
     def __init__(self, grammar):
         def cfg(g):
             return {k: [self.cfg_rule(r) for r in g[k]] for k in g}
@@ -191,6 +221,12 @@ class ComplexFuzzer(limitfuzzer.LimitFuzzer):
         self.grammar = grammar
         self.vars = []
         self._vars = []
+
+    def select(self, lst):
+        return random.choice(lst)
+
+    def tree_to_str(self, val):
+        return simplefuzzer.tree_to_string(val)
 
     def cfg_rule(self, rule):
         return [t[0] if isinstance(t, tuple) else t for t in rule]
@@ -222,6 +258,9 @@ class ComplexFuzzer(limitfuzzer.LimitFuzzer):
             ret.append(v)
         return ret
 
+    def fuzz(self, key=&#x27;&lt;start&gt;&#x27;, max_depth=10):
+        return self.tree_to_str(self.gen_key(key=key, depth=0, max_depth=max_depth))
+
 def defining_var(o, val):
     v = o.tree_to_str(val)
     o._vars.append(v)
@@ -243,7 +282,6 @@ def sync(o, val):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 We now allow only defined variables to be used for later expansion. The helper procedures `defining_var` is invoked
 when we produce the left hand side of the variable assignment, and the `defined_var` is invoked when the variable is
 referred to from the right hand side. Hence `defined_var` ensures only defined vars are used. The `sync` function
@@ -269,13 +307,21 @@ assignment_grammar1 = {
         '<digit>': [['0'], ['1']],
         '<var>': [[i] for i in string.ascii_lowercase]
 }
+lf1_mystr = """\
+import random
+random.seed(seed)
 c = ComplexFuzzer(assignment_grammar1)
 print(c.fuzz('<start>'))
 print(c.vars)
+"""
+lf1_mystr = textwrap.dedent(lf1_mystr)
+print()
+exec(lf1_mystr,
+        {'ComplexFuzzer':ComplexFuzzer, 'assignment_grammar1':assignment_grammar1},
+        {'seed': 6})
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 assignment_grammar1 = {
@@ -292,30 +338,25 @@ assignment_grammar1 = {
         &#x27;&lt;digit&gt;&#x27;: [[&#x27;0&#x27;], [&#x27;1&#x27;]],
         &#x27;&lt;var&gt;&#x27;: [[i] for i in string.ascii_lowercase]
 }
+lf1_mystr = &quot;&quot;&quot;\
+import random
+random.seed(seed)
 c = ComplexFuzzer(assignment_grammar1)
 print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
 print(c.vars)
+&quot;&quot;&quot;
+lf1_mystr = textwrap.dedent(lf1_mystr)
+print()
+exec(lf1_mystr,
+        {&#x27;ComplexFuzzer&#x27;:ComplexFuzzer, &#x27;assignment_grammar1&#x27;:assignment_grammar1},
+        {&#x27;seed&#x27;: 6})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-A sample run
-
-```
-$ python3   lf.py 6 
-b = 1 - (((00) + 00 - 0)) + 1 - 0;
-c = (b);
-y = (0 + (b) + 0) - (1 - ((0)));
-d = 1;
-
-['b', 'c', 'y', 'd']
-```
-
 As you can see, the variables used are only those that were defined earlier. So, how do we minimize such a generated string?
 
-For the answer, we need to modify our fuzzer a bit more. We need to make it take a stream of integers which are interpreted
-as the choices at each step.
+For the answer, we need to modify our fuzzer a bit more. We need to make it take a stream of integers which are interpreted as the choices at each step.
 
 <!--
 ############
@@ -329,10 +370,9 @@ class ChoiceFuzzer(ComplexFuzzer):
 
     def select(self, lst):
         return self.choices.choice(lst)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceFuzzer(ComplexFuzzer):
@@ -349,8 +389,6 @@ class ChoiceFuzzer(ComplexFuzzer):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The choice sequence both keeps track of all choices made, and also allows one to reuse previous choices.
 
 <!--
@@ -376,10 +414,9 @@ class ChoiceSeq:
 
     def choice(self, lst):
         return lst[self.i() % len(lst)]
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceSeq:
@@ -407,55 +444,48 @@ class ChoiceSeq:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The driver is as follows
 
 <!--
 ############
-choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar1, choices)
-print(c.fuzz('<start>'))
-print(c.vars)
-print(c.choices.ints)
+    lf2_mystr = """\
+    import random
+    random.seed(seed)
+    choices = ChoiceSeq()
+    c = ChoiceFuzzer(assignment_grammar1, choices)
+    print(c.fuzz('<start>'))
+    print(c.vars)
+    print(c.choices.ints)
+    """
+    lf2_mystr = textwrap.dedent(lf2_mystr)
+    print()
+    exec(lf2_mystr, {'ChoiceSeq':ChoiceSeq, 'ChoiceFuzzer': ChoiceFuzzer,
+        'assignment_grammar1' : assignment_grammar1}, {'seed' : 6})
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-choices = ChoiceSeq()
-
-c = ChoiceFuzzer(assignment_grammar1, choices)
-print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
-print(c.vars)
-print(c.choices.ints)
+lf2_mystr = &quot;&quot;&quot;\
+    import random
+    random.seed(seed)
+    choices = ChoiceSeq()
+    c = ChoiceFuzzer(assignment_grammar1, choices)
+    print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
+    print(c.vars)
+    print(c.choices.ints)
+    &quot;&quot;&quot;
+    lf2_mystr = textwrap.dedent(lf2_mystr)
+    print()
+    exec(lf2_mystr, {&#x27;ChoiceSeq&#x27;:ChoiceSeq, &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+        &#x27;assignment_grammar1&#x27; : assignment_grammar1}, {&#x27;seed&#x27; : 6})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-A sample run
-```
-$ python3   lf.py 6
-e = (1) + 1 + 00 + 00 - 00 + 00 - 0 + 1;
-f = 1 - e - 1 + 1 + e - e + e + 1 - 1 - e - e;
-e = e;
-c = 1;
-d = (f + 0 + e - e + (e));
-
-['e', 'f', 'e', 'c', 'd']
-[9, 1, 7, 4, 0, 0, 2, 9, 7, 5, 5, 0, 4, 7, 3, 6, 8, 8, 1, 3, 9, 8, 4, 9, 1,
-6, 5, 1, 5, 6, 4, 7, 1, 3, 4, 1, 0, 9, 3, 5, 7, 3, 8, 9, 8, 0, 5, 3, 9, 6, 
-4, 5, 9, 1, 1, 8, 8, 3, 1, 9, 4, 4, 3, 6, 7, 3, 2, 9, 3, 8, 0, 3, 2, 0, 5, 
-8, 9, 9, 4, 5, 6, 8, 6, 4, 2, 7, 0, 2]
-```
-
-
 The choice sequence is printed out at the end. The same sequence can be used later, to produce the same string. We use this
 in the next step. Now, all that we need is to hook up the predicate for ddmin, and its definitions.
-
 First, the traditional `ddmin` that works on independent deltas that we defined in the previous [post](/post/2019/12/03/ddmin/).
 
 <!--
@@ -475,10 +505,9 @@ def ddmin(cur_str, causal_fn):
         else:
             start, part_len = 0, part_len // 2
     return cur_str
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def remove_check_each_fragment(instr, start, part_len, causal):
@@ -500,10 +529,7 @@ def ddmin(cur_str, causal_fn):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The ddmin now operates on choice sequences. So we need to convert them back to string
-
 
 <!--
 ############
@@ -514,10 +540,9 @@ def ints_to_string(grammar, ints):
         return cf.fuzz('<start>')
     except IndexError:
         return None
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ints_to_string(grammar, ints):
@@ -531,8 +556,6 @@ def ints_to_string(grammar, ints):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 We also need our predicate. Note that we specialcase `None` in case the `ints_to_string` cannot successfully produce a value.
 
 <!--
@@ -543,10 +566,9 @@ def pred(v):
     if '((' in v and '))' in v:
         return True
     return False
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def pred(v):
@@ -559,84 +581,97 @@ def pred(v):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 The driver tries to minimize the string if predicate returns true.
 
 <!--
 ############
-choices = ChoiceSeq()
 
-c = ChoiceFuzzer(assignment_grammar1, choices)
-val = c.fuzz('<start>')
+    lf3_mystr = """\
+    choices = ChoiceSeq()
+    causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
+    import random
+    random.seed(seed)
+    c = ChoiceFuzzer(assignment_grammar1, choices)
+    val = c.fuzz('<start>')
+    if pred(val):
+        newv = ddmin(c.choices.ints, causal_fn)
+        choices = ChoiceSeq(newv)
+        cf = ChoiceFuzzer(assignment_grammar1, choices)
+        print('original:')
+        print(val, len(c.choices.ints))
 
-causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
+        while True:
+            newv = ddmin(cf.choices.ints, causal_fn)
+            if len(newv) >= len(cf.choices.ints):
+                break
+            cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
 
-if pred(val):
-    newv = ddmin(c.choices.ints, causal_fn)
-    choices = ChoiceSeq(newv)
-    cf = ChoiceFuzzer(assignment_grammar1, choices)
-    print('original:\n', val, len(c.choices.ints))
-
-    while True:
-        newv = ddmin(cf.choices.ints, causal_fn)
-        if len(newv) >= len(cf.choices.ints):
-            break
         cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
+        print('minimal:')
+        print(cf.fuzz('<start>'), len(newv))
+        print(cf.choices.ints)
+    else: print("run again")
+    """
+    lf3_mystr = textwrap.dedent(lf3_mystr)
+    print()
+    exec(lf3_mystr, {
+        'ChoiceFuzzer': ChoiceFuzzer,
+        'assignment_grammar1': assignment_grammar1,
+        'ddmin': ddmin,
+        'pred': pred,
+        'ChoiceSeq': ChoiceSeq,
+        'ints_to_string': ints_to_string,
+        }, {
+        'seed': 1,
+            })
 
-    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-    print('minimal:\n', cf.fuzz('<start>'), len(newv))
-    print(cf.choices.ints)
-else: print("run again")
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-choices = ChoiceSeq()
+lf3_mystr = &quot;&quot;&quot;\
+    choices = ChoiceSeq()
+    causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
+    import random
+    random.seed(seed)
+    c = ChoiceFuzzer(assignment_grammar1, choices)
+    val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
+    if pred(val):
+        newv = ddmin(c.choices.ints, causal_fn)
+        choices = ChoiceSeq(newv)
+        cf = ChoiceFuzzer(assignment_grammar1, choices)
+        print(&#x27;original:&#x27;)
+        print(val, len(c.choices.ints))
 
-c = ChoiceFuzzer(assignment_grammar1, choices)
-val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
+        while True:
+            newv = ddmin(cf.choices.ints, causal_fn)
+            if len(newv) &gt;= len(cf.choices.ints):
+                break
+            cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
 
-causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
-
-if pred(val):
-    newv = ddmin(c.choices.ints, causal_fn)
-    choices = ChoiceSeq(newv)
-    cf = ChoiceFuzzer(assignment_grammar1, choices)
-    print(&#x27;original:\n&#x27;, val, len(c.choices.ints))
-
-    while True:
-        newv = ddmin(cf.choices.ints, causal_fn)
-        if len(newv) &gt;= len(cf.choices.ints):
-            break
         cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-
-    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-    print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
-    print(cf.choices.ints)
-else: print("run again")
+        print(&#x27;minimal:&#x27;)
+        print(cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
+        print(cf.choices.ints)
+    else: print(&quot;run again&quot;)
+    &quot;&quot;&quot;
+    lf3_mystr = textwrap.dedent(lf3_mystr)
+    print()
+    exec(lf3_mystr, {
+        &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+        &#x27;assignment_grammar1&#x27;: assignment_grammar1,
+        &#x27;ddmin&#x27;: ddmin,
+        &#x27;pred&#x27;: pred,
+        &#x27;ChoiceSeq&#x27;: ChoiceSeq,
+        &#x27;ints_to_string&#x27;: ints_to_string,
+        }, {
+        &#x27;seed&#x27;: 1,
+            })
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-A sample run
-```
-$ python3   lf.py 1
-original:
-e = (((00 - (00 + 00) - 0))) - (1);
-f = e + e - e + ((e)) + e + (0) + e - (1);
-g = f;
-j = (e);
- 61
-minimal:
-d = ((00));
- 7
-[6, 0, 8, 3, 7, 7, 8]
-```
-
 As you can see, the original string that is a `61` choice long sequence has become reduced to an `8` choice long sequence, with a corresponding
 decrease in the string length. At this point, note that it is fairly magick how the approach performs. In particular, as soon as an edit is made,
 the remaining choices are not interpreted as in the original string. What if we help the reducer by specifying an `NOP` that allows one to delete
@@ -644,7 +679,6 @@ chunks with a chance for the remaining string to be interpreted similarly?
 
 The idea is to delete a sequence of values and replace it by a single `-1` value which will cause the choice fuzzer to interpret it as fill in
 with default value. The `ddmin` is modified as follows:
-
 
 <!--
 ############
@@ -656,10 +690,9 @@ def remove_check_each_fragment(instr, start, part_len, causal):
             stitched =  instr[:i] + [-1] + instr[i+part_len+1:]
         if causal(stitched): return i, stitched
     return -1, instr
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def remove_check_each_fragment(instr, start, part_len, causal):
@@ -674,8 +707,6 @@ def remove_check_each_fragment(instr, start, part_len, causal):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 Next, we need to get our fuzzer to understand the `-1` value.
 We add defaults to each nonterminal, and modify the `select` function to take a default value.
 
@@ -717,10 +748,9 @@ def defined_var2(o, token, val):
         return ('00', [])
     else:
         return (o.select(o.vars, '000'), [])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceFuzzer2(ComplexFuzzer):
@@ -763,7 +793,6 @@ def defined_var2(o, token, val):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Rebinding our grammar
 
 <!--
@@ -782,10 +811,9 @@ assignment_grammar2 = {
         '<digit>': [['0'], ['1']],
         '<var>': [[i] for i in string.ascii_lowercase]
 }
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 assignment_grammar2 = {
@@ -806,9 +834,6 @@ assignment_grammar2 = {
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 The choice sequence now returns the `default` when it sees the `-1` value.
 
 <!--
@@ -838,10 +863,9 @@ class ChoiceSeq2:
             return default
         else:
             return lst[v % len(lst)]
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ChoiceSeq2:
@@ -874,6 +898,7 @@ class ChoiceSeq2:
 <div name='python_canvas'></div>
 </form>
 
+
 <!--
 ############
 def ints_to_string2(grammar, ints):
@@ -883,9 +908,9 @@ def ints_to_string2(grammar, ints):
         return cf.fuzz('<start>')
     except IndexError:
         return None
+
 ############
 -->
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ints_to_string2(grammar, ints):
@@ -899,27 +924,70 @@ def ints_to_string2(grammar, ints):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-
 These are all the modifications that we require.
 
+<!--
+############
+lf4_mystr = """\
+import random
+random.seed(seed)
+choices = ChoiceSeq2()
 
-Using it:
+c = ChoiceFuzzer2(assignment_grammar2, choices)
+val = c.fuzz('<start>')
+
+causal_fn = lambda ints: pred(ints_to_string2(assignment_grammar2, ints))
+if pred(val):
+    newv = ddmin(c.choices.ints, causal_fn)
+    choices = ChoiceSeq2(newv)
+    cf = ChoiceFuzzer2(assignment_grammar2, choices)
+    print("original:")
+    print(val, len(c.choices.ints))
+
+    while True:
+        newv = ddmin(cf.choices.ints, causal_fn)
+        if len(newv) >= len(cf.choices.ints):
+            break
+        cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
+
+    cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
+    print("minimal:")
+    print(cf.fuzz("<start>"), len(newv))
+    print(cf.choices.ints)
+else: print("run again")
+"""
+lf4_mystr = textwrap.dedent(lf4_mystr)
+print()
+exec(lf4_mystr, {
+    'ChoiceFuzzer2': ChoiceFuzzer2,
+    'assignment_grammar2': assignment_grammar2,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq2': ChoiceSeq2,
+    'ints_to_string2': ints_to_string2,
+    }, {
+    'seed': 1,
+})
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+lf4_mystr = &quot;&quot;&quot;\
+import random
+random.seed(seed)
 choices = ChoiceSeq2()
 
 c = ChoiceFuzzer2(assignment_grammar2, choices)
 val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
 
 causal_fn = lambda ints: pred(ints_to_string2(assignment_grammar2, ints))
-
 if pred(val):
     newv = ddmin(c.choices.ints, causal_fn)
     choices = ChoiceSeq2(newv)
     cf = ChoiceFuzzer2(assignment_grammar2, choices)
-    print(&#x27;original:\n&#x27;, val, len(c.choices.ints))
+    print(&quot;original:&quot;)
+    print(val, len(c.choices.ints))
 
     while True:
         newv = ddmin(cf.choices.ints, causal_fn)
@@ -928,122 +996,215 @@ if pred(val):
         cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
 
     cf = ChoiceFuzzer2(assignment_grammar2, ChoiceSeq2(newv))
-    print(&#x27;minimal:\n&#x27;, cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
+    print(&quot;minimal:&quot;)
+    print(cf.fuzz(&quot;&lt;start&gt;&quot;), len(newv))
     print(cf.choices.ints)
-else: print("run again")
+else: print(&quot;run again&quot;)
+&quot;&quot;&quot;
+lf4_mystr = textwrap.dedent(lf4_mystr)
+print()
+exec(lf4_mystr, {
+    &#x27;ChoiceFuzzer2&#x27;: ChoiceFuzzer2,
+    &#x27;assignment_grammar2&#x27;: assignment_grammar2,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq2&#x27;: ChoiceSeq2,
+    &#x27;ints_to_string2&#x27;: ints_to_string2,
+    }, {
+    &#x27;seed&#x27;: 1,
+})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+How does this modification fare against the original without modification?
+With seed 5
 
 <!--
 ############
-choices = ChoiceSeq2()
+print()
+print('seed:5', 'lf_3')
+exec(lf3_mystr, {
+    'ChoiceFuzzer': ChoiceFuzzer,
+    'assignment_grammar1': assignment_grammar1,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq': ChoiceSeq,
+    'ints_to_string': ints_to_string,
+    }, {
+    'seed': 5,
+        })
+print('seed:5', 'lf_4')
+exec(lf4_mystr, {
+    'ChoiceFuzzer2': ChoiceFuzzer2,
+    'assignment_grammar2': assignment_grammar2,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq2': ChoiceSeq2,
+    'ints_to_string2': ints_to_string2,
+    }, {
+    'seed': 5,
+    })
 
-c = ChoiceFuzzer2(assignment_grammar2, choices)
-print(c.fuzz('<start>'))
-print(c.vars)
-print(c.choices.ints)
 ############
-
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-choices = ChoiceSeq2()
-
-c = ChoiceFuzzer2(assignment_grammar2, choices)
-print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
-print(c.vars)
-print(c.choices.ints)
+print()
+print(&#x27;seed:5&#x27;, &#x27;lf_3&#x27;)
+exec(lf3_mystr, {
+    &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+    &#x27;assignment_grammar1&#x27;: assignment_grammar1,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq&#x27;: ChoiceSeq,
+    &#x27;ints_to_string&#x27;: ints_to_string,
+    }, {
+    &#x27;seed&#x27;: 5,
+        })
+print(&#x27;seed:5&#x27;, &#x27;lf_4&#x27;)
+exec(lf4_mystr, {
+    &#x27;ChoiceFuzzer2&#x27;: ChoiceFuzzer2,
+    &#x27;assignment_grammar2&#x27;: assignment_grammar2,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq2&#x27;: ChoiceSeq2,
+    &#x27;ints_to_string2&#x27;: ints_to_string2,
+    }, {
+    &#x27;seed&#x27;: 5,
+    })
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Another:
+With seed 9
+
+<!--
+############
+print()
+print('seed:9', 'lf_3')
+exec(lf3_mystr, {
+    'ChoiceFuzzer': ChoiceFuzzer,
+    'assignment_grammar1': assignment_grammar1,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq': ChoiceSeq,
+    'ints_to_string': ints_to_string,
+    }, {
+    'seed': 9,
+        })
+print('seed:9', 'lf_4')
+exec(lf4_mystr, {
+    'ChoiceFuzzer2': ChoiceFuzzer2,
+    'assignment_grammar2': assignment_grammar2,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq2': ChoiceSeq2,
+    'ints_to_string2': ints_to_string2,
+    }, {
+    'seed': 9,
+    })
+
+############
 -->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print()
+print(&#x27;seed:9&#x27;, &#x27;lf_3&#x27;)
+exec(lf3_mystr, {
+    &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+    &#x27;assignment_grammar1&#x27;: assignment_grammar1,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq&#x27;: ChoiceSeq,
+    &#x27;ints_to_string&#x27;: ints_to_string,
+    }, {
+    &#x27;seed&#x27;: 9,
+        })
+print(&#x27;seed:9&#x27;, &#x27;lf_4&#x27;)
+exec(lf4_mystr, {
+    &#x27;ChoiceFuzzer2&#x27;: ChoiceFuzzer2,
+    &#x27;assignment_grammar2&#x27;: assignment_grammar2,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq2&#x27;: ChoiceSeq2,
+    &#x27;ints_to_string2&#x27;: ints_to_string2,
+    }, {
+    &#x27;seed&#x27;: 9,
+    })
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another:
+With seed 16
 
+<!--
+############
+print()
+print('seed:16', 'lf_3')
+exec(lf3_mystr, {
+    'ChoiceFuzzer': ChoiceFuzzer,
+    'assignment_grammar1': assignment_grammar1,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq': ChoiceSeq,
+    'ints_to_string': ints_to_string,
+    }, {
+    'seed': 16,
+        })
+print('seed:16', 'lf_4')
+exec(lf4_mystr, {
+    'ChoiceFuzzer2': ChoiceFuzzer2,
+    'assignment_grammar2': assignment_grammar2,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq2': ChoiceSeq2,
+    'ints_to_string2': ints_to_string2,
+    }, {
+    'seed': 16,
+    })
 
-Sample run:
-```bash
-$ python3   lfm.py 1
-original:
-e = (((00 - (00 + 00) - 0))) - (1);
-f = e + e - e + ((e)) + e + (0) + e - (1);
-g = f;
-j = (e);
- 61
-minimal:
-0 = ((0));
-a=0;
- 8
-[2, 9, 1, -1, 7, 7, -1, -1]
-```
-How does this modification fare against the original without modification?
-```bash
-$ python3   lf.py 5
-original:
-i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
- 40
-minimal:
-d = ((1));
- 8
-[2, 2, 0, 3, 2, 2, 4, 5]
-$ python3   lfm.py 5
-original:
-i = (00) + ((00) + 00 - 1 - 0 + 00 - ((00 - 1) - ((00)))) + 00 + 00 + ((1));
- 40
-minimal:
-i = 0 + 0 + 0 + ((0));
- 13
-[9, 4, 5, 8, 0, -1, 0, -1, 0, -1, 2, 2, -1]
-
-```
-another
-```bash
-$ python3   lf.py 9 
-original:
-e = ((00 + (1) + 00 + 0));
-h = ((e)) - (e) - 1 - e - 1 - 1 - 0 + e - ((0 + 1)) - 1 - e + e - e + 1 - e;
- 71
-minimal:
-e = ((00 + 1 + 0));
-j = 1;
- 18
-[7, 9, 5, 4, 2, 2, 0, 5, 8, 9, 1, 9, 6, 6, 1, 9, 9, 3]
-$ python3   lfm.py 9
-original:
-e = ((00 + (1) + 00 + 0));
-h = ((e)) - (e) - 1 - e - 1 - 1 - 0 + e - ((0 + 1)) - 1 - e + e - e + 1 - e;
- 71
-minimal:
-e = ((0));
-a=0;
- 8
-[7, 9, 5, 4, 2, 2, -1, -1]
-```
-Another
-```bash
-$ python3   lf.py 16
-original:
-e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
-j = ((0)) + e;
- 33
-minimal:
-a = ((00));
- 7
-[0, 2, 9, 0, 7, 7, 3]
-$ python3   lfm.py 16
-original:
-e = 00 - (1 - 00 + 0 + (0) + 00 + 0);
-j = ((0)) + e;
- 33
-minimal:
-0 = 0 - 0 + 0;
-a = ((0));
- 15
-[5, 7, 7, -1, 0, 6, -1, -1, -1, 2, 9, 0, 7, 7, -1]
-```
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print()
+print(&#x27;seed:16&#x27;, &#x27;lf_3&#x27;)
+exec(lf3_mystr, {
+    &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+    &#x27;assignment_grammar1&#x27;: assignment_grammar1,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq&#x27;: ChoiceSeq,
+    &#x27;ints_to_string&#x27;: ints_to_string,
+    }, {
+    &#x27;seed&#x27;: 16,
+        })
+print(&#x27;seed:16&#x27;, &#x27;lf_4&#x27;)
+exec(lf4_mystr, {
+    &#x27;ChoiceFuzzer2&#x27;: ChoiceFuzzer2,
+    &#x27;assignment_grammar2&#x27;: assignment_grammar2,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq2&#x27;: ChoiceSeq2,
+    &#x27;ints_to_string2&#x27;: ints_to_string2,
+    }, {
+    &#x27;seed&#x27;: 16,
+    })
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 There does not seem to be a lot of advantage in using an `NOP`.
 
 Next: How does this compare against the custom passes of Hypothesis? and how does it compare against direct `delta debug` and variants of `HDD` including `Perses`.
 
+The code for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2020-07-26-semantic-testcase-reducer.py).
 
 [^mciver2020reduction]: *Test-Case Reduction via Test-Case Generation:Insights From the Hypothesis Reducer* by _David R. MacIver_ and _Alastair F. Donaldson_ at [ECOOP 2020](https://drmaciver.github.io/papers/reduction-via-generation-preview.pdf)
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
