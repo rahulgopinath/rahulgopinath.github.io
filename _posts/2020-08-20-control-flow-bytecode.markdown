@@ -31,7 +31,7 @@ pygraphviz lets us draw.
 
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
-"Requirements"
+
 </textarea>
 </form>
 

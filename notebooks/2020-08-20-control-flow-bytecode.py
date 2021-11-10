@@ -16,7 +16,7 @@
 # First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
 # pygraphviz lets us draw.
 
-#^ Requirements
+#^
 
 matplotlib
 networkx
