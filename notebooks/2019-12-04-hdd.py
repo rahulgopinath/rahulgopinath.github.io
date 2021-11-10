@@ -46,31 +46,14 @@
 
 # First, some book keeping
 
-import sys, imp
+#@
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
+# The imported modules
 
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
-# We need a parser
-
-parser = import_file('parser', '2018-09-06-peg-parsing.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
+import earleyparser as parser
+import simplefuzzer as fuzzer
 
 # ## Predicate
 # For the delta debug algorithm to work, we need a predicate. However, unlike

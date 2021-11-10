@@ -57,70 +57,25 @@ and use a grammar where we explicitly use nonterminals that can have an empty
 exansion. In this post, I only explain the *perses reduction* algorithm.
 First, some book keeping
 
-<!--
-############
-import sys, imp
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
-############
--->
 <form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import sys, imp
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if &quot;pyodide&quot; in sys.modules:
-        import pyodide
-        github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
-        my_repo =  &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-        module_loc = github_repo + my_repo + &#x27;/master/notebooks/%s&#x27; % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc, encoding=&#x27;utf8&#x27;) as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
+</textarea>
 </form>
-We need a parser
+The imported modules
 
 <!--
 ############
-parser = import_file('parser', '2018-09-06-peg-parsing.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
+import earleyparser as parser
+import simplefuzzer as fuzzer
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-parser = import_file(&#x27;parser&#x27;, &#x27;2018-09-06-peg-parsing.py&#x27;)
-fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
+import earleyparser as parser
+import simplefuzzer as fuzzer
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
