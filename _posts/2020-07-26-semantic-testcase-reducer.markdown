@@ -671,7 +671,7 @@ exec(lf3_mystr, {
 <div name='python_canvas'></div>
 </form>
 As you can see, the original string that is a `61` choice long sequence has become reduced to an `8` choice long sequence, with a corresponding
-decrease in the string length. At this point, note that it is fairly magick how the approach performs. In particular, as soon as an edit is made,
+decrease in the string length. At this point, note that it is fairly magic how the approach performs. In particular, as soon as an edit is made,
 the remaining choices are not interpreted as in the original string. What if we help the reducer by specifying an `NOP` that allows one to delete
 chunks with a chance for the remaining string to be interpreted similarly?
 
