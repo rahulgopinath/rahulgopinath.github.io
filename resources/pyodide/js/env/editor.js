@@ -48,7 +48,7 @@ $('[name="python_edit"]').each(function(idx) {
 
 languagePluginLoader.then(() => { 
   var sys_imports = $(document).find('#python_sys_imports')
-  var sys_imports_lst_ = [
+  var sys_imports_lst = [
     'micropip',
     'mpmath',
     'sympy',
@@ -57,12 +57,11 @@ languagePluginLoader.then(() => {
   ]
   if (sys_imports.length > 0) {
       sys_imports_lst_ = sys_imports.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",").split(",");
-      sys_imports = sys_imports.concat(sys_imports_lst_);
+      sys_imports_lst = sys_imports_lst.concat(sys_imports_lst_);
   }
 
-  pyodide.loadPackage(sys_imports).then(() => {
+  pyodide.loadPackage(sys_imports_lst).then(() => {
     var installs_ = $(document).find('#python_pre_edit')
-    var imports_lst = [];
     if (installs_.length > 0) {
         var intalls_text = installs_.data('CodeMirrorInstance').getValue().replace(/[\r\n]/g,",");
         pyodide.runPython('import micropip\nmicropip.install([' + intalls_text + '])');
