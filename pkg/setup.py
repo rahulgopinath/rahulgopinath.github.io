@@ -11,8 +11,9 @@ setup(
     packages=['P'],
     install_requires=['sympy==1.8'],
     classifiers=[
-        'Development Status :: 1 - Planning',
-        'Intended Audience :: Science/Research',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
         'Programming Language :: Python :: 3',
     ],
 )
+
