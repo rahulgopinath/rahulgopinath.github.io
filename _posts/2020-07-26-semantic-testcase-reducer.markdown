@@ -448,38 +448,37 @@ The driver is as follows
 
 <!--
 ############
-
-    lf2_mystr = """\
-    import random
-    random.seed(seed)
-    choices = ChoiceSeq()
-    c = ChoiceFuzzer(assignment_grammar1, choices)
-    print(c.fuzz('<start>'))
-    print(c.vars)
-    print(c.choices.ints)
-    """
-    lf2_mystr = textwrap.dedent(lf2_mystr)
-    print()
-    exec(lf2_mystr, {'ChoiceSeq':ChoiceSeq, 'ChoiceFuzzer': ChoiceFuzzer,
-        'assignment_grammar1' : assignment_grammar1}, {'seed' : 6})
+print()
+lf2_mystr = """\
+import random
+random.seed(seed)
+choices = ChoiceSeq()
+c = ChoiceFuzzer(assignment_grammar1, choices)
+print(c.fuzz('<start>'))
+print(c.vars)
+print(c.choices.ints)
+"""
+lf2_mystr = textwrap.dedent(lf2_mystr)
+exec(lf2_mystr, {'ChoiceSeq':ChoiceSeq, 'ChoiceFuzzer': ChoiceFuzzer,
+    'assignment_grammar1' : assignment_grammar1}, {'seed' : 6})
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+print()
 lf2_mystr = &quot;&quot;&quot;\
-    import random
-    random.seed(seed)
-    choices = ChoiceSeq()
-    c = ChoiceFuzzer(assignment_grammar1, choices)
-    print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
-    print(c.vars)
-    print(c.choices.ints)
-    &quot;&quot;&quot;
-    lf2_mystr = textwrap.dedent(lf2_mystr)
-    print()
-    exec(lf2_mystr, {&#x27;ChoiceSeq&#x27;:ChoiceSeq, &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
-        &#x27;assignment_grammar1&#x27; : assignment_grammar1}, {&#x27;seed&#x27; : 6})
+import random
+random.seed(seed)
+choices = ChoiceSeq()
+c = ChoiceFuzzer(assignment_grammar1, choices)
+print(c.fuzz(&#x27;&lt;start&gt;&#x27;))
+print(c.vars)
+print(c.choices.ints)
+&quot;&quot;&quot;
+lf2_mystr = textwrap.dedent(lf2_mystr)
+exec(lf2_mystr, {&#x27;ChoiceSeq&#x27;:ChoiceSeq, &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+    &#x27;assignment_grammar1&#x27; : assignment_grammar1}, {&#x27;seed&#x27; : 6})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -585,89 +584,88 @@ The driver tries to minimize the string if predicate returns true.
 
 <!--
 ############
+print()
+lf3_mystr = """\
+choices = ChoiceSeq()
+causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
+import random
+random.seed(seed)
+c = ChoiceFuzzer(assignment_grammar1, choices)
+val = c.fuzz('<start>')
+if pred(val):
+    newv = ddmin(c.choices.ints, causal_fn)
+    choices = ChoiceSeq(newv)
+    cf = ChoiceFuzzer(assignment_grammar1, choices)
+    print('original:')
+    print(val, len(c.choices.ints))
 
-    lf3_mystr = """\
-    choices = ChoiceSeq()
-    causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
-    import random
-    random.seed(seed)
-    c = ChoiceFuzzer(assignment_grammar1, choices)
-    val = c.fuzz('<start>')
-    if pred(val):
-        newv = ddmin(c.choices.ints, causal_fn)
-        choices = ChoiceSeq(newv)
-        cf = ChoiceFuzzer(assignment_grammar1, choices)
-        print('original:')
-        print(val, len(c.choices.ints))
-
-        while True:
-            newv = ddmin(cf.choices.ints, causal_fn)
-            if len(newv) >= len(cf.choices.ints):
-                break
-            cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-
+    while True:
+        newv = ddmin(cf.choices.ints, causal_fn)
+        if len(newv) >= len(cf.choices.ints):
+            break
         cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-        print('minimal:')
-        print(cf.fuzz('<start>'), len(newv))
-        print(cf.choices.ints)
-    else: print("run again")
-    """
-    lf3_mystr = textwrap.dedent(lf3_mystr)
-    print()
-    exec(lf3_mystr, {
-        'ChoiceFuzzer': ChoiceFuzzer,
-        'assignment_grammar1': assignment_grammar1,
-        'ddmin': ddmin,
-        'pred': pred,
-        'ChoiceSeq': ChoiceSeq,
-        'ints_to_string': ints_to_string,
-        }, {
-        'seed': 1,
-            })
+
+    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
+    print('minimal:')
+    print(cf.fuzz('<start>'), len(newv))
+    print(cf.choices.ints)
+else: print("run again")
+"""
+lf3_mystr = textwrap.dedent(lf3_mystr)
+exec(lf3_mystr, {
+    'ChoiceFuzzer': ChoiceFuzzer,
+    'assignment_grammar1': assignment_grammar1,
+    'ddmin': ddmin,
+    'pred': pred,
+    'ChoiceSeq': ChoiceSeq,
+    'ints_to_string': ints_to_string,
+    }, {
+    'seed': 1,
+        })
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+print()
 lf3_mystr = &quot;&quot;&quot;\
-    choices = ChoiceSeq()
-    causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
-    import random
-    random.seed(seed)
-    c = ChoiceFuzzer(assignment_grammar1, choices)
-    val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
-    if pred(val):
-        newv = ddmin(c.choices.ints, causal_fn)
-        choices = ChoiceSeq(newv)
-        cf = ChoiceFuzzer(assignment_grammar1, choices)
-        print(&#x27;original:&#x27;)
-        print(val, len(c.choices.ints))
+choices = ChoiceSeq()
+causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
+import random
+random.seed(seed)
+c = ChoiceFuzzer(assignment_grammar1, choices)
+val = c.fuzz(&#x27;&lt;start&gt;&#x27;)
+if pred(val):
+    newv = ddmin(c.choices.ints, causal_fn)
+    choices = ChoiceSeq(newv)
+    cf = ChoiceFuzzer(assignment_grammar1, choices)
+    print(&#x27;original:&#x27;)
+    print(val, len(c.choices.ints))
 
-        while True:
-            newv = ddmin(cf.choices.ints, causal_fn)
-            if len(newv) &gt;= len(cf.choices.ints):
-                break
-            cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-
+    while True:
+        newv = ddmin(cf.choices.ints, causal_fn)
+        if len(newv) &gt;= len(cf.choices.ints):
+            break
         cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
-        print(&#x27;minimal:&#x27;)
-        print(cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
-        print(cf.choices.ints)
-    else: print(&quot;run again&quot;)
-    &quot;&quot;&quot;
-    lf3_mystr = textwrap.dedent(lf3_mystr)
-    print()
-    exec(lf3_mystr, {
-        &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
-        &#x27;assignment_grammar1&#x27;: assignment_grammar1,
-        &#x27;ddmin&#x27;: ddmin,
-        &#x27;pred&#x27;: pred,
-        &#x27;ChoiceSeq&#x27;: ChoiceSeq,
-        &#x27;ints_to_string&#x27;: ints_to_string,
-        }, {
-        &#x27;seed&#x27;: 1,
-            })
+
+    cf = ChoiceFuzzer(assignment_grammar1, ChoiceSeq(newv))
+    print(&#x27;minimal:&#x27;)
+    print(cf.fuzz(&#x27;&lt;start&gt;&#x27;), len(newv))
+    print(cf.choices.ints)
+else: print(&quot;run again&quot;)
+&quot;&quot;&quot;
+lf3_mystr = textwrap.dedent(lf3_mystr)
+exec(lf3_mystr, {
+    &#x27;ChoiceFuzzer&#x27;: ChoiceFuzzer,
+    &#x27;assignment_grammar1&#x27;: assignment_grammar1,
+    &#x27;ddmin&#x27;: ddmin,
+    &#x27;pred&#x27;: pred,
+    &#x27;ChoiceSeq&#x27;: ChoiceSeq,
+    &#x27;ints_to_string&#x27;: ints_to_string,
+    }, {
+    &#x27;seed&#x27;: 1,
+        })
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -928,6 +926,7 @@ These are all the modifications that we require.
 
 <!--
 ############
+print()
 lf4_mystr = """\
 import random
 random.seed(seed)
@@ -957,7 +956,6 @@ if pred(val):
 else: print("run again")
 """
 lf4_mystr = textwrap.dedent(lf4_mystr)
-print()
 exec(lf4_mystr, {
     'ChoiceFuzzer2': ChoiceFuzzer2,
     'assignment_grammar2': assignment_grammar2,
@@ -973,6 +971,7 @@ exec(lf4_mystr, {
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+print()
 lf4_mystr = &quot;&quot;&quot;\
 import random
 random.seed(seed)
@@ -1002,7 +1001,6 @@ if pred(val):
 else: print(&quot;run again&quot;)
 &quot;&quot;&quot;
 lf4_mystr = textwrap.dedent(lf4_mystr)
-print()
 exec(lf4_mystr, {
     &#x27;ChoiceFuzzer2&#x27;: ChoiceFuzzer2,
     &#x27;assignment_grammar2&#x27;: assignment_grammar2,

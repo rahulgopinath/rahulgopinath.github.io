@@ -210,7 +210,7 @@ class ChoiceSeq:
 # The driver is as follows
 
 if __name__ == '__main__':
-
+    print()
     lf2_mystr = """\
     import random
     random.seed(seed)
@@ -221,7 +221,6 @@ if __name__ == '__main__':
     print(c.choices.ints)
     """
     lf2_mystr = textwrap.dedent(lf2_mystr)
-    print()
     exec(lf2_mystr, {'ChoiceSeq':ChoiceSeq, 'ChoiceFuzzer': ChoiceFuzzer,
         'assignment_grammar1' : assignment_grammar1}, {'seed' : 6})
 
@@ -267,7 +266,7 @@ def pred(v):
 # The driver tries to minimize the string if predicate returns true.
 
 if __name__ == '__main__':
-
+    print()
     lf3_mystr = """\
     choices = ChoiceSeq()
     causal_fn = lambda ints: pred(ints_to_string(assignment_grammar1, ints))
@@ -295,7 +294,6 @@ if __name__ == '__main__':
     else: print("run again")
     """
     lf3_mystr = textwrap.dedent(lf3_mystr)
-    print()
     exec(lf3_mystr, {
         'ChoiceFuzzer': ChoiceFuzzer,
         'assignment_grammar1': assignment_grammar1,
@@ -425,6 +423,7 @@ def ints_to_string2(grammar, ints):
 # These are all the modifications that we require.
 
 if __name__ == '__main__':
+    print()
     lf4_mystr = """\
     import random
     random.seed(seed)
@@ -454,7 +453,6 @@ if __name__ == '__main__':
     else: print("run again")
     """
     lf4_mystr = textwrap.dedent(lf4_mystr)
-    print()
     exec(lf4_mystr, {
         'ChoiceFuzzer2': ChoiceFuzzer2,
         'assignment_grammar2': assignment_grammar2,
