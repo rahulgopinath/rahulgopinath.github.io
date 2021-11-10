@@ -185,3 +185,8 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     __canvas__(img_str)
 
+# Unfortunately, the current WASM pydot and matplotlib implementation that we
+# use has a bug which graph display nonsensical. On the command line, the above
+# is displayed as
+# 
+# ![bitcodecfg](/resources/posts/bitcodecfg.png)

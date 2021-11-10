@@ -443,6 +443,11 @@ __canvas__(img_str)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Unfortunately, the current WASM pydot and matplotlib implementation that we
+use has a bug which graph display nonsensical. On the command line, the above
+is displayed as
+
+![bitcodecfg](/resources/posts/bitcodecfg.png)
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
