@@ -47,12 +47,13 @@ $('[name="python_edit"]').each(function(idx) {
 });
 
 languagePluginLoader.then(() => { 
-  pyodide.loadPackage(['micropip']).then(() => {
-    await pyodide.loadPackage('/resources/pyodide/full/3.9/mpmath.js')
-    await pyodide.loadPackage('/resources/pyodide/full/3.9/sympy.js')
-    await pyodide.loadPackage('/resources/pyodide/full/3.9/matplotlib.js')
-    await pyodide.loadPackage('/resources/pyodide/full/3.9/networkx.js')
-
+  pyodide.loadPackage([
+    'micropip',
+    'mpmath',
+    'sympy',
+    'matplotlib',
+    'networkx'
+  ]).then(() => {
     var imports_ = $(document).find('#python_pre_edit')
     var imports_lst = [];
     if (imports_.length > 0) {
