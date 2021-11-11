@@ -29,18 +29,15 @@
 # https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
-# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/gmultiplefaults-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/gfaultexpressions-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import gmultiplefaults as gmultiple
-import gfaultexpressions as gexpr
 
 import sympy
 import itertools as I
@@ -319,6 +316,7 @@ if __name__ == '__main__':
 # Here is an example of how it works.
 
 if __name__ == '__main__':
+    import gfaultexpressions as gexpr
     cnode = gatleast.ETREE_DPAREN
     g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
     g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))

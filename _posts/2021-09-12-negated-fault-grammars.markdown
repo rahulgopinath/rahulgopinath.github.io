@@ -46,7 +46,6 @@ sympy
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gmultiplefaults-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gfaultexpressions-0.0.1-py2.py3-none-any.whl"
 </textarea>
@@ -55,12 +54,10 @@ The imported modules
 
 <!--
 ############
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import gmultiplefaults as gmultiple
-import gfaultexpressions as gexpr
 
 import sympy
 import itertools as I
@@ -69,12 +66,10 @@ import itertools as I
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import gmultiplefaults as gmultiple
-import gfaultexpressions as gexpr
 
 import sympy
 import itertools as I
@@ -638,6 +633,7 @@ Here is an example of how it works.
 
 <!--
 ############
+import gfaultexpressions as gexpr
 cnode = gatleast.ETREE_DPAREN
 g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, 'D1'))
 g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, 'Z1'))
@@ -666,6 +662,7 @@ for i in range(100):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import gfaultexpressions as gexpr
 cnode = gatleast.ETREE_DPAREN
 g1, s1 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DPAREN, &#x27;D1&#x27;))
 g2, s2 = gatleast.grammar_gc(no_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, gatleast.ETREE_DZERO, &#x27;Z1&#x27;))
