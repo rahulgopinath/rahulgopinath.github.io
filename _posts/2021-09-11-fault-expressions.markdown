@@ -46,7 +46,6 @@ sympy
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gmultiplefaults-0.0.1-py2.py3-none-any.whl"
 </textarea>
 </form>
@@ -55,7 +54,6 @@ The imported modules
 <!--
 ############
 import earleyparser
-import hdd
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import gmultiplefaults as gmultiple
@@ -65,7 +63,6 @@ import gmultiplefaults as gmultiple
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import earleyparser
-import hdd
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import gmultiplefaults as gmultiple
@@ -875,6 +872,7 @@ Using
 
 <!--
 ############
+import hdd
 my_bexpr = BExpr('and(D1,Z1)')
 grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
 rr = ReconstructRules(grammar)
@@ -909,6 +907,7 @@ print("remaining:", remaining)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import hdd
 my_bexpr = BExpr(&#x27;and(D1,Z1)&#x27;)
 grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
 rr = ReconstructRules(grammar)
