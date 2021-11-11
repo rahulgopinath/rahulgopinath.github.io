@@ -16,32 +16,25 @@
 # Can we use such regular expressions as producers? As before, we start with
 # our prerequisites.
 
-import sys, imp, pprint, string
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
 # We import the following modules
 
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
+#^
+# sympy
+
+#@
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
+
+# The imported modules
+
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import itertools as I
+
+import sympy
 
 # Since we want to convert a regular expression to a generator, it is necessary
 # to parse it first. The following describes the grammar of regular expressions.
@@ -80,6 +73,7 @@ fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
 #             |  <parenexp>
 # ```
 
+import string
 
 REGEX_GRAMMAR = {
     '<start>' : [
