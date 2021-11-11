@@ -29,7 +29,6 @@
 
 # The imported modules
 
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 
@@ -42,6 +41,7 @@ if __name__ == '__main__':
 # Next, let us make sure that it parses correctly.
 
 if __name__ == '__main__':
+    import earleyparser
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
     parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
     fuzzer.display_tree(parsed_expr)

@@ -45,7 +45,6 @@ The imported modules
 
 <!--
 ############
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 
@@ -53,7 +52,6 @@ import simplefuzzer as fuzzer
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 </textarea><br />
@@ -81,6 +79,7 @@ Next, let us make sure that it parses correctly.
 
 <!--
 ############
+import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, '<start>'))[0]
 fuzzer.display_tree(parsed_expr)
@@ -89,6 +88,7 @@ fuzzer.display_tree(parsed_expr)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, &#x27;&lt;start&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
