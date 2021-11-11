@@ -41,34 +41,28 @@
 #
 # We start with importing the prerequisites
 
-import sys, imp, pprint, string
+#^
+# sympy
 
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
+#@
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
+# The imported modules
 
-# We import the following modules
-
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
-rxregular = import_file('rxregular', '2021-10-23-regular-expression-to-regular-grammar.py')
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import earleyparser
+import rxfuzzer
+import rxregular
+import sympy
+import itertools as I
 
 # We start with a few common rules.
 # First, we define the empty rule.
