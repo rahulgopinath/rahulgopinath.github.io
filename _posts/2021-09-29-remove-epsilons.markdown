@@ -138,6 +138,7 @@ The imported modules
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import cfgrandomsample as grandom
+import itertools as I
 
 import sympy
 
@@ -148,6 +149,7 @@ import sympy
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import cfgrandomsample as grandom
+import itertools as I
 
 import sympy
 </textarea><br />

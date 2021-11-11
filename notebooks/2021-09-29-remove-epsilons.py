@@ -71,6 +71,7 @@ emptyS = '<start>'
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import cfgrandomsample as grandom
+import itertools as I
 
 import sympy
 
