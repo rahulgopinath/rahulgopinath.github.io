@@ -28,14 +28,10 @@
 # https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
-# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 
-import earleyparser
-import hdd
 import simplefuzzer as fuzzer
-import ddset
 import gatleastsinglefault as gatleast
 import itertools as I
 
@@ -45,6 +41,8 @@ import itertools as I
 # we extracted two evocative subtrees
 
 if __name__ == '__main__':
+    import ddset
+    import hdd
     print(ddset.abstract_tree_to_str(gatleast.ETREE_DPAREN))
     ddset.display_abstract_tree(gatleast.ETREE_DPAREN)
     print()

@@ -42,17 +42,13 @@ As before, let us start with importing our required modules.
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 </textarea>
 </form>
 The imported modules
 
 <!--
 ############
-import earleyparser
-import hdd
 import simplefuzzer as fuzzer
-import ddset
 import gatleastsinglefault as gatleast
 import itertools as I
 
@@ -60,10 +56,7 @@ import itertools as I
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
-import hdd
 import simplefuzzer as fuzzer
-import ddset
 import gatleastsinglefault as gatleast
 import itertools as I
 </textarea><br />
@@ -76,6 +69,8 @@ we extracted two evocative subtrees
 
 <!--
 ############
+import ddset
+import hdd
 print(ddset.abstract_tree_to_str(gatleast.ETREE_DPAREN))
 ddset.display_abstract_tree(gatleast.ETREE_DPAREN)
 print()
@@ -86,6 +81,8 @@ ddset.display_abstract_tree(gatleast.ETREE_DZERO)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import ddset
+import hdd
 print(ddset.abstract_tree_to_str(gatleast.ETREE_DPAREN))
 ddset.display_abstract_tree(gatleast.ETREE_DPAREN)
 print()
