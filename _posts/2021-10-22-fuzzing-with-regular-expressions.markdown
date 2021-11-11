@@ -55,6 +55,7 @@ import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import itertools as I
 
+import earleyparser
 import sympy
 
 ############
@@ -65,6 +66,7 @@ import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import itertools as I
 
+import earleyparser
 import sympy
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

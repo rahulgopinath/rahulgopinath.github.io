@@ -35,6 +35,7 @@ import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import itertools as I
 
+import earleyparser
 import sympy
 
 # Since we want to convert a regular expression to a generator, it is necessary
