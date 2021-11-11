@@ -54,33 +54,21 @@ emptyS = '<start>'
 
 # We also load a few prerequisites
 
-import sys, imp
-import itertools as I
-import random
+#^
+# sympy
 
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
+#@
+# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/randomsamplecfg-0.0.1-py2.py3-none-any.whl
 
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf-8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
+# The imported modules
 
-# We import the following modules
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-grandom = import_file('grandom', '2021-07-27-random-sampling-from-context-free-grammar.py')
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import randomsamplecfg as grandom
+
+import sympy
 
 # ## Remove empty keys
 # First, we implement removing empty keys that have empty expansions.
