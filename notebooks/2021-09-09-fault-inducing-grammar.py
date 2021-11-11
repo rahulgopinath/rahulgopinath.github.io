@@ -44,11 +44,9 @@
 # https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
-# https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import ddset
@@ -67,6 +65,7 @@ if __name__ == '__main__':
 # We first parse the input
 
 if __name__ == '__main__':
+    import earleyparser
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
     parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 

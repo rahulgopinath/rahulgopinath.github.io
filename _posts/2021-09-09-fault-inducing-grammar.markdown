@@ -59,14 +59,12 @@ As before, let us start with importing our required modules.
 "https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
 "https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
 </textarea>
 </form>
 The imported modules
 
 <!--
 ############
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import ddset
@@ -75,7 +73,6 @@ import ddset
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import earleyparser
 import hdd
 import simplefuzzer as fuzzer
 import ddset
@@ -106,6 +103,7 @@ We first parse the input
 
 <!--
 ############
+import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 
@@ -113,6 +111,7 @@ parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 </textarea><br />
