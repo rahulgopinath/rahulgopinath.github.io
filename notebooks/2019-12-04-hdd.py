@@ -52,7 +52,6 @@
 
 # The imported modules
 
-import pegparser as parser
 import simplefuzzer as fuzzer
 
 # ## Predicate
@@ -123,6 +122,7 @@ def display_tree(tree):
 # Now, let us define an input, and parse it
 
 if __name__ == '__main__':
+    import pegparser as parser
     my_input = '1+((2*3/4))'
     expr_parser = parser.peg_parse(EXPR_GRAMMAR)
     tfrom, parsed_expr = expr_parser.unify_key(EXPR_START, my_input, 0)
