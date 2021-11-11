@@ -48,74 +48,44 @@ translate the regular expression directly into a regular grammar. This is what
 we will do in this post.
 We start with importing the prerequisites
 
-<!--
-############
-import sys, imp, pprint, string
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, 'exec')
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if "pyodide" in sys.modules:
-        import pyodide
-        github_repo = 'https://raw.githubusercontent.com/'
-        my_repo =  'rahulgopinath/rahulgopinath.github.io'
-        module_loc = github_repo + my_repo + '/master/notebooks/%s' % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = './notebooks/%s' % location
-        with open(module_loc, encoding='utf8') as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-
-############
--->
 <form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import sys, imp, pprint, string
-
-def make_module(modulesource, sourcestr, modname):
-    codeobj = compile(modulesource, sourcestr, &#x27;exec&#x27;)
-    newmodule = imp.new_module(modname)
-    exec(codeobj, newmodule.__dict__)
-    return newmodule
-
-def import_file(name, location):
-    if &quot;pyodide&quot; in sys.modules:
-        import pyodide
-        github_repo = &#x27;https://raw.githubusercontent.com/&#x27;
-        my_repo =  &#x27;rahulgopinath/rahulgopinath.github.io&#x27;
-        module_loc = github_repo + my_repo + &#x27;/master/notebooks/%s&#x27; % location
-        module_str = pyodide.open_url(module_loc).getvalue()
-    else:
-        module_loc = &#x27;./notebooks/%s&#x27; % location
-        with open(module_loc, encoding=&#x27;utf8&#x27;) as f:
-            module_str = f.read()
-    return make_module(module_str, module_loc, name)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
+<textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
+sympy
+</textarea>
 </form>
-We import the following modules
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl"
+</textarea>
+</form>
+The imported modules
 
 <!--
 ############
-earleyparser = import_file('earleyparser', '2021-02-06-earley-parsing.py')
-gatleast = import_file('gatleast', '2021-09-09-fault-inducing-grammar.py')
-fuzzer = import_file('fuzzer', '2019-05-28-simplefuzzer-01.py')
-rxfuzzer = import_file('rxfuzzer', '2021-10-22-fuzzing-with-regular-expressions.py')
+import earleyparser
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import rxfuzzer
+import itertools as I
+import sympy
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-earleyparser = import_file(&#x27;earleyparser&#x27;, &#x27;2021-02-06-earley-parsing.py&#x27;)
-gatleast = import_file(&#x27;gatleast&#x27;, &#x27;2021-09-09-fault-inducing-grammar.py&#x27;)
-fuzzer = import_file(&#x27;fuzzer&#x27;, &#x27;2019-05-28-simplefuzzer-01.py&#x27;)
-rxfuzzer = import_file(&#x27;rxfuzzer&#x27;, &#x27;2021-10-22-fuzzing-with-regular-expressions.py&#x27;)
+import earleyparser
+import simplefuzzer as fuzzer
+import gatleastsinglefault as gatleast
+import rxfuzzer
+import itertools as I
+import sympy
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
