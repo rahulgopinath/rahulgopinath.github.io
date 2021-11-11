@@ -69,6 +69,7 @@ import gfaultexpressions as gexpr
 import earleyparser
 import rxfuzzer
 import rxregular
+import rxcanonical
 import sympy
 import itertools as I
 
@@ -82,6 +83,7 @@ import gfaultexpressions as gexpr
 import earleyparser
 import rxfuzzer
 import rxregular
+import rxcanonical
 import sympy
 import itertools as I
 </textarea><br />
