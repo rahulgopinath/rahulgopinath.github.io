@@ -248,7 +248,7 @@ sample_grammar = {
 # 
 # This is how the table or the chart -- from where the parsing gets its name: chart parsing -- gets filled.
 # 
-# ## Column
+# ## The Column Data Structure
 # 
 # The column contains a set of states. Each column corresponds
 # to a character (or a token if tokens are used).
@@ -282,7 +282,7 @@ class Column:
         state.e_col = self
         return self._unique[state]
 
-# ## State
+# ## The State Data Structure
 # 
 # A state represents a parsing path (which corresponds to the nonterminal, and the
 # expansion rule that is being followed) with the current parsed index. 
@@ -346,7 +346,7 @@ if __name__ == '__main__':
     print(b_state)
     print(b_state.finished())
 
-# ## Parser
+# ## The Basic Parser Interface
 # 
 # We start with a bare minimum interface for a parser. It should allow one
 # to parse a given text using a given nonterminal (which should be present in
@@ -368,7 +368,7 @@ class EarleyParser(Parser):
         self.log = log
         self.parse_exceptions = parse_exceptions
 
-# #### Nullable
+# ### Nonterminals Deriving Empty Strings
 # 
 # Earley parser handles *nullable* nonterminals separately. A nullable
 # nonterminal is a nonterminal that can derive an empty string. That is
@@ -444,10 +444,12 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     print(nullable(nullable_grammar))
 
-# ## Chart construction
+# ## The Chart Parser
 # 
 # Earley parser is a chart parser. That is, it relies on a table of solutions
 # to smaller problems. This table is called a chart (hence the name of such parsers -- chart parsers).
+#
+# ### The Chart Construction
 # 
 # Here, we begin the chart construction by 
 # seeding the chart with columns representing the tokens or characters.
@@ -499,7 +501,7 @@ if __name__ == '__main__':
 # There are three main methods we use: `predict()`, `scan()`, and `complete()`
 # 
 # 
-# ### Predict
+# #### Predict
 # 
 # If in the current state, the term after the dot is a nonterminal, `predict()` is called. It
 # adds the expansion of the nonterminal to the current column.
@@ -538,7 +540,7 @@ if __name__ == '__main__':
 # As you can see, the two rules of `<A>` has been added to
 # the current column.
 
-# ### Scan
+# #### Scan
 # 
 # The `scan()` method is called if the next symbol in the current state is a terminal symbol. If the
 # state matches the next term, moves the dot one position, and adds the new
@@ -579,7 +581,7 @@ if __name__ == '__main__':
 # As you can see, the `state[1]` in `chart[0]` that was waiting for `a` has
 # advanced one letter after consuming `a`, and has been added to `chart[1]`.
 
-# ### Complete
+# #### Complete
 # 
 # The `complete()` method is called if a particular state has finished the rule
 # during execution. It first extracts the start column of the finished state, then
@@ -678,7 +680,7 @@ if __name__ == '__main__':
 # As you can see, that led to `<B>` being complete, and since `<B>` is
 # complete, `<A>` also becomes complete.
 
-# ## Filling the chart
+# ### Filling The Chart
 # 
 # In the below algorithm, whenever the `at_dot()` is at a nonterminal
 # symbol, the expansion rules of that nonterminal are added to the current
@@ -932,7 +934,7 @@ if __name__ == '__main__':
     for tree in parser.parse_on(mystring, START):
         print(format_parsetree(tree))
 
-# ### Ambiguous Parsing
+# ## Ambiguous Parsing
 # 
 # Ambiguous grammars can produce multiple derivation trees for some given string.
 # In the above example, the `a_grammar` can parse `1+2+4` in as either `[1+2]+4` or `1+[2+4]`.
@@ -953,7 +955,7 @@ class EarleyParser(EarleyParser):
             ptrees = [self.extract_trees(self.forest(*p)) for p in path]
             for p in I.product(*ptrees):
                 yield (name, p)
-# ## Example
+# ### Example
 # 
 # Using the same example,
 
@@ -963,7 +965,7 @@ if __name__ == '__main__':
     for tree in parser.parse_on(mystring, START):
         print(format_parsetree(tree))
 
-# ## Almost infinite parse trees
+# ## Almost Infinite Parse Trees
 # 
 # There is a problem with our `extract_trees()` method. The issue is that it is
 # too eager. The parse forest can have an infinite number of trees, and at this
@@ -1640,6 +1642,8 @@ class LeoParser(LeoParser):
         return super().parse_forest(chart, states)
 
 # This completes our implementation of `LeoParser `.
+
+# ### Parse Examples
 
 if __name__ == '__main__':
     result = LeoParser(RR_GRAMMAR).parse_on(mystring, START)
