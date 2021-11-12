@@ -6,7 +6,7 @@
 # tags: parsing
 # categories: post
 # ---
-# * Table of contents
+# * TOC
 # {:toc}
  
 # In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
