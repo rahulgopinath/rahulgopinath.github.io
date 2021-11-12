@@ -1,0 +1,16 @@
+notebooks/2018-09-06-peg-parsing.py                                ,pegparser
+notebooks/2019-05-28-simplefuzzer-01.py                            ,simplefuzzer
+notebooks/2019-12-04-hdd.py                                        ,hdd
+notebooks/2019-12-07-python-mci.py                                 ,metacircularinterpreter
+notebooks/2020-08-03-simple-ddset.py                               ,ddset
+notebooks/2021-02-06-earley-parsing.py                             ,earleyparser
+notebooks/2021-07-27-random-sampling-from-context-free-grammar.py  ,cfgrandomsample
+notebooks/2021-09-09-fault-inducing-grammar.py                     ,gatleastsinglefault
+notebooks/2021-09-10-multiple-fault-grammars.py                    ,gmultiplefaults
+notebooks/2021-09-11-fault-expressions.py                          ,gfaultexpressions
+notebooks/2021-09-12-negated-fault-grammars.py                     ,gnegatedfaults
+notebooks/2021-09-29-remove-epsilons.py                            ,cfgremoveepsilon
+notebooks/2021-10-22-fuzzing-with-regular-expressions.py           ,rxfuzzer
+notebooks/2021-10-23-regular-expression-to-regular-grammar.py      ,rxregular
+notebooks/2021-10-24-canonical-regular-grammar.py                  ,rxcanonical
+notebooks/2021-10-26-regular-grammar-expressions.py                ,rxexpressions
