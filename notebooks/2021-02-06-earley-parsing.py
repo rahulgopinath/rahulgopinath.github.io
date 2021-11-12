@@ -47,6 +47,8 @@
 #     print(P.format_parsetree(tree))
 # ```
 # 
+# ## Definitons
+# 
 # For this post, we use the following terms:
 # 
 # * The _alphabet_ is the set all of symbols in the input language. For example,
