@@ -62,9 +62,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 
 <!--
 ############
-import string
 import ast
-import sys
 import builtins
 from functools import reduce
 import importlib
@@ -74,9 +72,7 @@ import importlib
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import string
 import ast
-import sys
 import builtins
 from functools import reduce
 import importlib
