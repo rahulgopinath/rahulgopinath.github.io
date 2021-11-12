@@ -61,6 +61,7 @@ First, we import everything we need.
 <!--
 ############
 import ast
+import textwrap
 import builtins
 from functools import reduce
 import importlib
@@ -71,6 +72,7 @@ import importlib
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import ast
+import textwrap
 import builtins
 from functools import reduce
 import importlib
@@ -1003,7 +1005,6 @@ class PySemantics(PySemantics):
         returns = node.returns
         self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -1014,6 +1015,33 @@ class PySemantics(PySemantics):
         args = node.args
         returns = node.returns
         self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Example
+
+<!--
+############
+s = """
+def a(b):
+    return b
+a(1)
+"""
+expr = PySemantics({}, [])
+print(expr.eval(textwrap.dedent(s)))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;
+def a(b):
+    return b
+a(1)
+&quot;&quot;&quot;
+expr = PySemantics({}, [])
+print(expr.eval(textwrap.dedent(s)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1192,6 +1220,59 @@ Example
 
 <!--
 ############
+s = """\
+def triangle(a, b, c):
+    if a == b:
+        if b == c:
+            return 'Equilateral'
+        else:
+            return 'Isosceless'
+    else:
+        if b == c:
+            return "Isosceles"
+        else:
+            if a == c:
+                return "Isosceles"
+            else:
+                return "Scalene"
+triangle(1,2,3)
+"""
+expr = PySemantics({},[])
+v = expr.eval(textwrap.dedent(s))
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+def triangle(a, b, c):
+    if a == b:
+        if b == c:
+            return &#x27;Equilateral&#x27;
+        else:
+            return &#x27;Isosceless&#x27;
+    else:
+        if b == c:
+            return &quot;Isosceles&quot;
+        else:
+            if a == c:
+                return &quot;Isosceles&quot;
+            else:
+                return &quot;Scalene&quot;
+triangle(1,2,3)
+&quot;&quot;&quot;
+expr = PySemantics({},[])
+v = expr.eval(textwrap.dedent(s))
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### A Complete Example
+
+<!--
+############
 triangle_py = """\
 import sys
 def triangle(a, b, c):
@@ -1219,7 +1300,7 @@ if __name__ == '__main__':
 """
 
 expr = PySemantics({'__name__':'__main__'}, ['triangle_py', '1 2 3'])
-v = expr.eval(triangle_py)
+v = expr.eval(textwrap.dedent(triangle_py))
 print(v)
 
 ############
@@ -1253,7 +1334,7 @@ if __name__ == &#x27;__main__&#x27;:
 &quot;&quot;&quot;
 
 expr = PySemantics({&#x27;__name__&#x27;:&#x27;__main__&#x27;}, [&#x27;triangle_py&#x27;, &#x27;1 2 3&#x27;])
-v = expr.eval(triangle_py)
+v = expr.eval(textwrap.dedent(triangle_py))
 print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

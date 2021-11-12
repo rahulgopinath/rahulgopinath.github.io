@@ -39,6 +39,7 @@
 
 
 import ast
+import textwrap
 import builtins
 from functools import reduce
 import importlib
@@ -497,6 +498,16 @@ class PySemantics(PySemantics):
         returns = node.returns
         self.symtable[fname] = [fname, args, returns, node.body, self.symtable]
 
+# Example
+
+if __name__ == '__main__':
+    s = """
+    def a(b):
+        return b 
+    a(1)
+    """
+    expr = PySemantics({}, [])
+    print(expr.eval(textwrap.dedent(s)))
 
 # ##### Import(alias* names)
 # 
@@ -584,6 +595,30 @@ class PySemantics(PySemantics):
 # Example
 
 if __name__ == '__main__':
+    s = """\
+    def triangle(a, b, c):
+        if a == b:
+            if b == c:
+                return 'Equilateral'
+            else:
+                return 'Isosceless'
+        else:
+            if b == c:
+                return "Isosceles"
+            else:
+                if a == c:
+                    return "Isosceles"
+                else:
+                    return "Scalene"
+    triangle(1,2,3)
+    """
+    expr = PySemantics({},[])
+    v = expr.eval(textwrap.dedent(s))
+    print(v)
+
+# ### A Complete Example
+
+if __name__ == '__main__':
     triangle_py = """\
     import sys
     def triangle(a, b, c):
@@ -611,7 +646,7 @@ if __name__ == '__main__':
     """
 
     expr = PySemantics({'__name__':'__main__'}, ['triangle_py', '1 2 3'])
-    v = expr.eval(triangle_py)
+    v = expr.eval(textwrap.dedent(triangle_py))
     print(v)
 
 # The source code of this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-12-07-python-mci.py)
