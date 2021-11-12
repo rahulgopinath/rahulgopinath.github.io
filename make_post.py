@@ -77,6 +77,10 @@ Initialization completion is indicated by a red border around *Run all* button.
             first_comment = False
         if kind == 'sys_imports':
             p('''
+##### System Imports
+
+These are available from Pyodide, but you may wish to make sure that they are
+installed if you are attempting to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 %s
@@ -86,12 +90,17 @@ Initialization completion is indicated by a red border around *Run all* button.
 
         if kind == 'wheel':
             p('''
+##### Available Packages
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 %s
 </textarea>
 </form>
-''' % '\n'.join(['"%s"' % l for l in chunk]))
+''' % '\n'.join(['%s' % l for l in chunk]))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
             p('''

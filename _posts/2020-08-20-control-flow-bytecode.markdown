@@ -6,6 +6,13 @@ comments: true
 tags: cfg, bytecode, python
 categories: post
 ---
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -29,6 +36,10 @@ use the bytecode to recover the control flow graph too.
 First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
 networkx and matplotlib lets us draw.
 
+##### System Imports
+
+These are available from Pyodide, but you may wish to make sure that they are
+installed if you are attempting to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 matplotlib
@@ -37,9 +48,14 @@ networkx
 </form>
 We also need pydot for drawing
 
+##### Available Packages
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl"
+https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 </textarea>
 </form>
 

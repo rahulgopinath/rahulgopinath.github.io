@@ -16,6 +16,13 @@ This is different from `Hypothesis` in that `Hypothesis` uses a number of custom
 on Hypothesis, please see the paper by MacIver et al.[^mciver2020reduction] at ECOOP.
 
 For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed [previously](/post/2019/05/28/simplefuzzer-01/).
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -32,9 +39,14 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
+##### Available Packages
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
+https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 

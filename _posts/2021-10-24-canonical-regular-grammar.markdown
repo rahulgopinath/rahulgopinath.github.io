@@ -37,6 +37,13 @@ As you can see, each node has at most one
 transition for a given terminal symbol. Hence, this canonical form is
 equivalent to a deterministic finite state automation (**DFA**).
 We start with importing the prerequisites
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -53,22 +60,31 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
+##### System Imports
+
+These are available from Pyodide, but you may wish to make sure that they are
+installed if you are attempting to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 sympy
 </textarea>
 </form>
 
+##### Available Packages
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl"
+https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 The imported modules
