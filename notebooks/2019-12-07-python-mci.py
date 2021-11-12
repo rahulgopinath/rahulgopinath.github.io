@@ -137,6 +137,7 @@ class PySemantics(PySemantics):
 
 # ##### Constant(constant value, string? kind)
 
+class PySemantics(PySemantics):
     def on_constant(self, node):
         return node.value
 

@@ -256,15 +256,17 @@ These are trivial as it is a direct translation of the AST values.
 
 <!--
 ############
-def on_constant(self, node):
-    return node.value
+class PySemantics(PySemantics):
+    def on_constant(self, node):
+        return node.value
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def on_constant(self, node):
-    return node.value
+class PySemantics(PySemantics):
+    def on_constant(self, node):
+        return node.value
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
