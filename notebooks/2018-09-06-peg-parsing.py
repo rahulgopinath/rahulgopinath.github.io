@@ -6,11 +6,6 @@
 # tags: parsing
 # categories: post
 # ---
-# ## Contents
-# {:.no_toc}
-# 
-# 1. TOC
-# {:toc}
  
 # In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
 # write a simple recursive descent parser by hand -- that is using a set of
