@@ -6,8 +6,6 @@ comments: true
 tags: parsing
 categories: post
 ---
-* Table of contents
-{:toc}
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -23,6 +21,9 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+* Table of contents
+{:toc}
+
 In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
 write a simple recursive descent parser by hand -- that is using a set of
 mutually recursive procedures. Actually, I lied when I said context-free.
