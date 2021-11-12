@@ -6,6 +6,8 @@ comments: true
 tags: parsing
 categories: post
 ---
+* Table of contents
+{:toc}
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -21,9 +23,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-* Table of contents
-{:toc}
-
 In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
 write a simple recursive descent parser by hand -- that is using a set of
 mutually recursive procedures. Actually, I lied when I said context-free.
@@ -39,6 +38,8 @@ A few interesting things about _PEG_:
 * We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will work only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
 
 The problem with what we did in the previous post is that it is a rather naive implementation. In particular, there could be a lot of backtracking, which can make the runtime explode. One solution to that is incorporating memoization. Since we start with automatic generation of parser from a grammar (unlike previously, where we explored a handwritten parser first), we will take a slightly different tack in writing the algorithm.
+
+## PEG Parser
 
 The idea behind a simple _PEG_ parser is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
 If the key is present in the grammar, get the corresponding productions (rules) for that key,  and start unifying each rule one by one on the string to be matched.
@@ -298,7 +299,7 @@ class peg_parse:
 </form>
 This gets us to derivation trees with at a depth of 1000 (or more if we increase the `sys.setrecursionlimit()`). We can also turn this to a completely iterative solution if we simulate the stack (formal arguments, locals, return value) ourselves rather than relying on the Python stack frame.
 
-### Context Free.
+## Context Free.
 
 It is fairly easy to turn this parser into a context-free grammar parser instead. The main idea is to keep a list of parse points, and advance them one at a time.
 
