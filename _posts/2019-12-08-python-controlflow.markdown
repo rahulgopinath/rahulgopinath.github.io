@@ -92,8 +92,9 @@ import metacircularinterpreter
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+#### A few helper functions for visualization
 
-We define a simple viewing function for visualization
+The *color* is used to determine whether true or false branch was taken.
 
 <!--
 ############
@@ -107,6 +108,27 @@ def get_color(p, c):
         p = p.parents[0]
     return color
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_color(p, c):
+    color=&#x27;black&#x27;
+    while not p.annotation():
+        if p.label == &#x27;if:True&#x27;:
+            return &#x27;blue&#x27;
+        elif p.label == &#x27;if:False&#x27;:
+            return &#x27;red&#x27;
+        p = p.parents[0]
+    return color
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The *peripheries* determines the number of border lines. Start and stop gets double borders.
+
+<!--
+############
 def get_peripheries(p):
     annot = p.annotation()
     if annot  in {'<start>', '<stop>'}:
@@ -115,6 +137,25 @@ def get_peripheries(p):
         return '2'
     return '1'
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_peripheries(p):
+    annot = p.annotation()
+    if annot  in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;2&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;2&#x27;
+    return &#x27;1&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The *shape* determines the kind of node. A diamond is a conditional, and start and stop are ovals.
+
+<!--
+############
 def get_shape(p):
     annot = p.annotation()
     if annot in {'<start>', '<stop>'}:
@@ -127,10 +168,32 @@ def get_shape(p):
     else:
         return 'rectangle'
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_shape(p):
+    annot = p.annotation()
+    if annot in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;oval&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;oval&#x27;
 
-def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
+    if annot.startswith(&#x27;if:&#x27;):
+        return &#x27;diamond&#x27;
+    else:
+        return &#x27;rectangle&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The `to_graph()` function produces a graph from the nodes in the registry.
+
+<!--
+############
+def to_graph(my_nodes, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
     G = pydot.Dot(comment, graph_type="digraph")
-    for nid, cnode in registry.items():
+    for nid, cnode in my_nodes:
         if not cnode.annotation():
             continue
         sn = cnode.annotation()
@@ -146,40 +209,9 @@ def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'rectangle', get
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def get_color(p, c):
-    color=&#x27;black&#x27;
-    while not p.annotation():
-        if p.label == &#x27;if:True&#x27;:
-            return &#x27;blue&#x27;
-        elif p.label == &#x27;if:False&#x27;:
-            return &#x27;red&#x27;
-        p = p.parents[0]
-    return color
-
-def get_peripheries(p):
-    annot = p.annotation()
-    if annot  in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
-        return &#x27;2&#x27;
-    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
-        return &#x27;2&#x27;
-    return &#x27;1&#x27;
-
-def get_shape(p):
-    annot = p.annotation()
-    if annot in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
-        return &#x27;oval&#x27;
-    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
-        return &#x27;oval&#x27;
-
-    if annot.startswith(&#x27;if:&#x27;):
-        return &#x27;diamond&#x27;
-    else:
-        return &#x27;rectangle&#x27;
-
-
-def to_graph(registry, arcs=[], comment=&#x27;&#x27;, get_shape=lambda n: &#x27;rectangle&#x27;, get_peripheries=lambda n: &#x27;1&#x27;, get_color=lambda p,c: &#x27;black&#x27;):
+def to_graph(my_nodes, arcs=[], comment=&#x27;&#x27;, get_shape=lambda n: &#x27;rectangle&#x27;, get_peripheries=lambda n: &#x27;1&#x27;, get_color=lambda p,c: &#x27;black&#x27;):
     G = pydot.Dot(comment, graph_type=&quot;digraph&quot;)
-    for nid, cnode in registry.items():
+    for nid, cnode in my_nodes:
         if not cnode.annotation():
             continue
         sn = cnode.annotation()
@@ -200,49 +232,53 @@ of this node, the children of this node, and register itself in the registery.
 
 <!--
 ############
+class GraphState:
+    def __init__(self):
+        self.counter = 0
+        self.registry = {}
+        self.stack = []
+
 class CFGNode:
     counter = 0
     registry = {}
     stack = []
-    def __init__(self, parents=[], ast=None, label=None, annot=None):
+    def __init__(self, parents=[], ast=None, label=None, annot=None, state=None):
         self.parents = parents
         self.calls = []
         self.children = []
         self.ast_node = ast
         self.label = label
         self.annot = annot
-        self.rid  = CFGNode.counter
-        CFGNode.registry[self.rid] = self
-        CFGNode.counter += 1
-
-    def reset():
-        CFGNode.counter = 0
-        CFGNode.registry = {}
-        CFGNode.stack = []
+        self.rid  = state.counter
+        state.registry[self.rid] = self
+        state.counter += 1
+        self.state = state
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+class GraphState:
+    def __init__(self):
+        self.counter = 0
+        self.registry = {}
+        self.stack = []
+
 class CFGNode:
     counter = 0
     registry = {}
     stack = []
-    def __init__(self, parents=[], ast=None, label=None, annot=None):
+    def __init__(self, parents=[], ast=None, label=None, annot=None, state=None):
         self.parents = parents
         self.calls = []
         self.children = []
         self.ast_node = ast
         self.label = label
         self.annot = annot
-        self.rid  = CFGNode.counter
-        CFGNode.registry[self.rid] = self
-        CFGNode.counter += 1
-
-    def reset():
-        CFGNode.counter = 0
-        CFGNode.registry = {}
-        CFGNode.stack = []
+        self.rid  = state.counter
+        state.registry[self.rid] = self
+        state.counter += 1
+        self.state = state
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -343,7 +379,7 @@ class CFGNode(CFGNode):
                'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
 
     def get_gparent_id(self):
-        p = CFGNode.registry[self.rid]
+        p = self.state.registry[self.rid]
         while not p.annotation():
             p = p.parents[0]
         return str(p.rid)
@@ -391,7 +427,7 @@ class CFGNode(CFGNode):
                &#x27;calls&#x27;: self.calls, &#x27;at&#x27;:self.lineno() ,&#x27;ast&#x27;:self.source()}
 
     def get_gparent_id(self):
-        p = CFGNode.registry[self.rid]
+        p = self.state.registry[self.rid]
         while not p.annotation():
             p = p.parents[0]
         return str(p.rid)
@@ -403,18 +439,18 @@ The usage is as below:
 
 <!--
 ############
-CFGNode.reset()
-start = CFGNode(parents=[], ast=ast.parse('start').body)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+gs = GraphState()
+start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
+g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-CFGNode.reset()
-start = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+gs = GraphState()
+start = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body, state=gs)
+g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -443,10 +479,14 @@ structure with our interpreter.
 ############
 class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
-        self.founder = CFGNode(parents=[], ast=ast.parse('start').body[0]) # sentinel
+        self.gstate = self.create_graphstate()
+        self.founder = CFGNode(parents=[], ast=ast.parse('start').body[0], state=self.gstate) # sentinel
         self.founder.ast_node.lineno = 0
         self.functions = {}
         self.functions_node = {}
+
+    def create_graphstate(self):
+        return GraphState()
 
 ############
 -->
@@ -454,10 +494,14 @@ class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
-        self.founder = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body[0]) # sentinel
+        self.gstate = self.create_graphstate()
+        self.founder = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body[0], state=self.gstate) # sentinel
         self.founder.ast_node.lineno = 0
         self.functions = {}
         self.functions_node = {}
+
+    def create_graphstate(self):
+        return GraphState()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -490,7 +534,7 @@ class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
-        self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0])
+        self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0], state=self.gstate)
         ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
 
 
@@ -513,7 +557,7 @@ class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
-        self.last_node = CFGNode(parents=nodes, ast=ast.parse(&#x27;stop&#x27;).body[0])
+        self.last_node = CFGNode(parents=nodes, ast=ast.parse(&#x27;stop&#x27;).body[0], state=self.gstate)
         ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -527,7 +571,7 @@ The pass statement is trivial. It simply adds one more node.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def on_pass(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, state=self.gstate)]
         return p
 
 ############
@@ -536,7 +580,7 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def on_pass(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, state=self.gstate)]
         return p
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -551,10 +595,9 @@ s = """\
 pass
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 ############
@@ -565,10 +608,9 @@ s = &quot;&quot;&quot;\
 pass
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -638,10 +680,9 @@ pass
 pass
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -655,10 +696,9 @@ pass
 pass
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -711,15 +751,15 @@ How should we handle primitives? Since they are simply interpreted as is, they c
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def on_str(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        p = [CFGNode(parents=myparents, ast=node, annot='', state=self.gstate)]
         return p
 
     def on_num(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        p = [CFGNode(parents=myparents, ast=node, annot='', state=self.gstate)]
         return p
 
     def on_constant(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        p = [CFGNode(parents=myparents, ast=node, annot='', state=self.gstate)]
         return p
 
 ############
@@ -728,15 +768,15 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def on_str(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 
     def on_num(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 
     def on_constant(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -749,7 +789,7 @@ They however, are simple expressions
 class PyCFGExtractor(PyCFGExtractor):
     def on_expr(self, node, myparents):
         p = self.walk(node.value, myparents)
-        p = [CFGNode(parents=p, ast=node)]
+        p = [CFGNode(parents=p, ast=node, state=self.gstate)]
         return p
 
 ############
@@ -759,7 +799,7 @@ class PyCFGExtractor(PyCFGExtractor):
 class PyCFGExtractor(PyCFGExtractor):
     def on_expr(self, node, myparents):
         p = self.walk(node.value, myparents)
-        p = [CFGNode(parents=p, ast=node)]
+        p = [CFGNode(parents=p, ast=node, state=self.gstate)]
         return p
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -775,10 +815,9 @@ s = """\
 'a'
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -791,10 +830,9 @@ s = &quot;&quot;&quot;\
 &#x27;a&#x27;
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -851,19 +889,19 @@ only one argument to walk, and one node out of it.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def on_unaryop(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        p = [CFGNode(parents=myparents, ast=node, annot='', state=self.gstate)]
         return self.walk(node.operand, p)
 
     def on_binop(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.right, left)
-        p = [CFGNode(parents=right, ast=node, annot='')]
+        p = [CFGNode(parents=right, ast=node, annot='', state=self.gstate)]
         return p
 
     def on_compare(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.comparators[0], left)
-        p = [CFGNode(parents=right, ast=node, annot='')]
+        p = [CFGNode(parents=right, ast=node, annot='', state=self.gstate)]
         return p
 
 ############
@@ -872,19 +910,19 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def on_unaryop(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return self.walk(node.operand, p)
 
     def on_binop(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.right, left)
-        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 
     def on_compare(self, node, myparents):
         left = self.walk(node.left, myparents)
         right = self.walk(node.comparators[0], left)
-        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -899,10 +937,9 @@ s = """
 10+1
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -914,10 +951,9 @@ s = &quot;&quot;&quot;
 10+1
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -965,7 +1001,7 @@ Further, we do not yet implement parallel assignments.
 class PyCFGExtractor(PyCFGExtractor):
     def on_assign(self, node, myparents):
         if len(node.targets) > 1: raise NotImplemented('Parallel assignments')
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, state=self.gstate)]
         p = self.walk(node.value, p)
         return p
 
@@ -976,7 +1012,7 @@ class PyCFGExtractor(PyCFGExtractor):
 class PyCFGExtractor(PyCFGExtractor):
     def on_assign(self, node, myparents):
         if len(node.targets) &gt; 1: raise NotImplemented(&#x27;Parallel assignments&#x27;)
-        p = [CFGNode(parents=myparents, ast=node)]
+        p = [CFGNode(parents=myparents, ast=node, state=self.gstate)]
         p = self.walk(node.value, p)
         return p
 </textarea><br />
@@ -991,10 +1027,9 @@ s = """
 a = 10+1
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1006,10 +1041,9 @@ s = &quot;&quot;&quot;
 a = 10+1
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1048,7 +1082,7 @@ print(g.to_string())
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def on_name(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        p = [CFGNode(parents=myparents, ast=node, annot='', state=self.gstate)]
         return p
 
 ############
@@ -1057,7 +1091,7 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def on_name(self, node, myparents):
-        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1077,14 +1111,14 @@ and `if.orelse`.
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % ast.unparse(node.test).strip())]
+        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % ast.unparse(node.test).strip(), state=self.gstate)]
         g1 = test_node
-        g_true = [CFGNode(parents=g1, ast=None, label="if:True", annot='')]
+        g_true = [CFGNode(parents=g1, ast=None, label="if:True", annot='', state=self.gstate)]
         g1 = g_true
         for n in node.body:
             g1 = self.walk(n, g1)
         g2 = test_node
-        g_false = [CFGNode(parents=g2, ast=None, label="if:False", annot='')]
+        g_false = [CFGNode(parents=g2, ast=None, label="if:False", annot='', state=self.gstate)]
         g2 = g_false
         for n in node.orelse:
             g2 = self.walk(n, g2)
@@ -1097,14 +1131,14 @@ class PyCFGExtractor(PyCFGExtractor):
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node, annot=&quot;if: %s&quot; % ast.unparse(node.test).strip())]
+        test_node = [CFGNode(parents=p, ast=node, annot=&quot;if: %s&quot; % ast.unparse(node.test).strip(), state=self.gstate)]
         g1 = test_node
-        g_true = [CFGNode(parents=g1, ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)]
+        g_true = [CFGNode(parents=g1, ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;, state=self.gstate)]
         g1 = g_true
         for n in node.body:
             g1 = self.walk(n, g1)
         g2 = test_node
-        g_false = [CFGNode(parents=g2, ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)]
+        g_false = [CFGNode(parents=g2, ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;, state=self.gstate)]
         g2 = g_false
         for n in node.orelse:
             g2 = self.walk(n, g2)
@@ -1126,10 +1160,9 @@ else:
     a = 0
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1145,10 +1178,9 @@ else:
     a = 0
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1257,14 +1289,14 @@ of the exits.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def on_while(self, node, myparents):
-        loop_id = CFGNode.counter
-        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % loop_id)
+        loop_id = self.gstate.counter
+        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % loop_id, state=self.gstate)
         p = self.walk(node.test, [lbl1_node])
 
         lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test',
-               annot='if: %s' % ast.unparse(node.test).strip())
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
+               annot='if: %s' % ast.unparse(node.test).strip(), state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='', state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='', state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -1283,14 +1315,14 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def on_while(self, node, myparents):
-        loop_id = CFGNode.counter
-        lbl1_node = CFGNode(parents=myparents, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s:while&#x27; % loop_id)
+        loop_id = self.gstate.counter
+        lbl1_node = CFGNode(parents=myparents, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s:while&#x27; % loop_id, state=self.gstate)
         p = self.walk(node.test, [lbl1_node])
 
         lbl2_node = CFGNode(parents=p, ast=node.test, label=&#x27;while:test&#x27;,
-               annot=&#x27;if: %s&#x27; % ast.unparse(node.test).strip())
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)
+               annot=&#x27;if: %s&#x27; % ast.unparse(node.test).strip(), state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;, state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;, state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -1317,10 +1349,9 @@ while x > 0:
 y = x
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1335,10 +1366,9 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1441,7 +1471,7 @@ class PyCFGExtractor(PyCFGExtractor):
             parent = parent.parents[0]
 
         assert hasattr(parent, 'exit_nodes')
-        p = CFGNode(parents=myparents, ast=node)
+        p = CFGNode(parents=myparents, ast=node, state=self.gstate)
 
         # make the break one of the parents of label node.
         parent.exit_nodes.append(p)
@@ -1460,7 +1490,7 @@ class PyCFGExtractor(PyCFGExtractor):
             parent = parent.parents[0]
 
         assert hasattr(parent, &#x27;exit_nodes&#x27;)
-        p = CFGNode(parents=myparents, ast=node)
+        p = CFGNode(parents=myparents, ast=node, state=self.gstate)
 
         # make the break one of the parents of label node.
         parent.exit_nodes.append(p)
@@ -1484,10 +1514,9 @@ while x > 0:
 y = x
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1504,10 +1533,9 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1640,7 +1668,7 @@ class PyCFGExtractor(PyCFGExtractor):
         while parent.label != 'loop_entry':
             parent = parent.parents[0]
 
-        p = CFGNode(parents=myparents, ast=node)
+        p = CFGNode(parents=myparents, ast=node, state=self.gstate)
         parent.add_parent(p)
 
         return []
@@ -1655,7 +1683,7 @@ class PyCFGExtractor(PyCFGExtractor):
         while parent.label != &#x27;loop_entry&#x27;:
             parent = parent.parents[0]
 
-        p = CFGNode(parents=myparents, ast=node)
+        p = CFGNode(parents=myparents, ast=node, state=self.gstate)
         parent.add_parent(p)
 
         return []
@@ -1677,10 +1705,9 @@ while x > 0:
 y = x
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1697,10 +1724,9 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1850,26 +1876,26 @@ class PyCFGExtractor(PyCFGExtractor):
         for a in node.args:
             p = self.walk(a, p)
         myparents[0].add_calls(node.func)
-        p = [CFGNode(parents=p, ast=node, label='call', annot='')]
+        p = [CFGNode(parents=p, ast=node, label='call', annot='', state=self.gstate)]
         return p
 
 class PyCFGExtractor(PyCFGExtractor):
     def on_for(self, node, myparents):
         #node.target in node.iter: node.body
-        loop_id = CFGNode.counter
+        loop_id = self.gstate.counter
 
-        for_pre = CFGNode(parents=myparents, ast=None, label='for_pre', annot='')
+        for_pre = CFGNode(parents=myparents, ast=None, label='for_pre', annot='', state=self.gstate)
 
         init_node = ast.parse('__iv_%d = iter(%s)' % (loop_id, ast.unparse(node.iter).strip())).body[0]
         p = self.walk(init_node, [for_pre])
 
-        lbl1_node = CFGNode(parents=p, ast=node, label='loop_entry', annot='%s: for' % loop_id)
+        lbl1_node = CFGNode(parents=p, ast=node, label='loop_entry', annot='%s: for' % loop_id, state=self.gstate)
         _test_node = ast.parse('__iv_%d.__length__hint__() > 0' % loop_id).body[0].value
         p = self.walk(_test_node, [lbl1_node])
 
-        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % ast.unparse(_test_node).strip())
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
+        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % ast.unparse(_test_node).strip(), state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='', state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='', state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -1893,26 +1919,26 @@ class PyCFGExtractor(PyCFGExtractor):
         for a in node.args:
             p = self.walk(a, p)
         myparents[0].add_calls(node.func)
-        p = [CFGNode(parents=p, ast=node, label=&#x27;call&#x27;, annot=&#x27;&#x27;)]
+        p = [CFGNode(parents=p, ast=node, label=&#x27;call&#x27;, annot=&#x27;&#x27;, state=self.gstate)]
         return p
 
 class PyCFGExtractor(PyCFGExtractor):
     def on_for(self, node, myparents):
         #node.target in node.iter: node.body
-        loop_id = CFGNode.counter
+        loop_id = self.gstate.counter
 
-        for_pre = CFGNode(parents=myparents, ast=None, label=&#x27;for_pre&#x27;, annot=&#x27;&#x27;)
+        for_pre = CFGNode(parents=myparents, ast=None, label=&#x27;for_pre&#x27;, annot=&#x27;&#x27;, state=self.gstate)
 
         init_node = ast.parse(&#x27;__iv_%d = iter(%s)&#x27; % (loop_id, ast.unparse(node.iter).strip())).body[0]
         p = self.walk(init_node, [for_pre])
 
-        lbl1_node = CFGNode(parents=p, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s: for&#x27; % loop_id)
+        lbl1_node = CFGNode(parents=p, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s: for&#x27; % loop_id, state=self.gstate)
         _test_node = ast.parse(&#x27;__iv_%d.__length__hint__() &gt; 0&#x27; % loop_id).body[0].value
         p = self.walk(_test_node, [lbl1_node])
 
-        lbl2_node = CFGNode(parents=p, ast=_test_node, label=&#x27;for:test&#x27;, annot=&#x27;for: %s&#x27; % ast.unparse(_test_node).strip())
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)
+        lbl2_node = CFGNode(parents=p, ast=_test_node, label=&#x27;for:test&#x27;, annot=&#x27;for: %s&#x27; % ast.unparse(_test_node).strip(), state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;, state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;, state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -1940,10 +1966,9 @@ for i in val:
 y = x
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -1959,10 +1984,9 @@ for i in val:
 y = x
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2074,10 +2098,9 @@ for i in val:
 y = x
 """
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -2095,10 +2118,9 @@ for i in val:
 y = x
 &quot;&quot;&quot;
 
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2238,10 +2260,9 @@ for i in val:
     x = x -1
 y = x
 """
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -2258,10 +2279,9 @@ for i in val:
     x = x -1
 y = x
 &quot;&quot;&quot;
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2413,7 +2433,7 @@ class PyCFGExtractor(PyCFGExtractor):
         returns = node.returns
         p = myparents if DEFS_HAVE_PARENTS else []
         enter_node = CFGNode(parents=p, ast=node, label='enter',
-                annot='<define>: %s' % node.name)
+                annot='<define>: %s' % node.name, state=self.gstate)
         enter_node.return_nodes = [] # sentinel
 
         p = [enter_node]
@@ -2441,7 +2461,7 @@ class PyCFGExtractor(PyCFGExtractor):
         returns = node.returns
         p = myparents if DEFS_HAVE_PARENTS else []
         enter_node = CFGNode(parents=p, ast=node, label=&#x27;enter&#x27;,
-                annot=&#x27;&lt;define&gt;: %s&#x27; % node.name)
+                annot=&#x27;&lt;define&gt;: %s&#x27; % node.name, state=self.gstate)
         enter_node.return_nodes = [] # sentinel
 
         p = [enter_node]
@@ -2474,7 +2494,7 @@ class PyCFGExtractor(PyCFGExtractor):
             parent = parent.parents[0]
         assert hasattr(parent, 'return_nodes')
 
-        p = CFGNode(parents=val_node, ast=node)
+        p = CFGNode(parents=val_node, ast=node, state=self.gstate)
 
         # make the break one of the parents of label node.
         parent.return_nodes.append(p)
@@ -2496,7 +2516,7 @@ class PyCFGExtractor(PyCFGExtractor):
             parent = parent.parents[0]
         assert hasattr(parent, &#x27;return_nodes&#x27;)
 
-        p = CFGNode(parents=val_node, ast=node)
+        p = CFGNode(parents=val_node, ast=node, state=self.gstate)
 
         # make the break one of the parents of label node.
         parent.return_nodes.append(p)
@@ -2520,10 +2540,9 @@ def my_fn(v1, v2):
         return v2
 y = 2
 """
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 
 
@@ -2540,10 +2559,9 @@ def my_fn(v1, v2):
         return v2
 y = 2
 &quot;&quot;&quot;
-CFGNode.reset()
 cfge = PyCFGExtractor()
 cfge.eval(s)
-g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
 print(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
