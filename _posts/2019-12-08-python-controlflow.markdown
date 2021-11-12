@@ -437,8 +437,7 @@ print(g.to_string())
 ### Extracting the control flow
 
 The control flow graph is essentially a source code walker, and shares the basic
-structure with our interpreter. It can indeed inherit from the interpreter, but
-given that we override all functions in it, we chose not to inherit.
+structure with our interpreter.
 
 <!--
 ############
