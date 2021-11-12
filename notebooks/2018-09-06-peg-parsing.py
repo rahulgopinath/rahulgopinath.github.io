@@ -158,7 +158,7 @@ class peg_parse:
 
 # This gets us to derivation trees with at a depth of 1000 (or more if we increase the `sys.setrecursionlimit()`). We can also turn this to a completely iterative solution if we simulate the stack (formal arguments, locals, return value) ourselves rather than relying on the Python stack frame.
 # 
-# ## Context Free.
+# ## Context Free Parser
 # 
 # It is fairly easy to turn this parser into a context-free grammar parser instead. The main idea is to keep a list of parse points, and advance them one at a time.
  
