@@ -7,6 +7,27 @@ tags: mci
 categories: post
 ---
 
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 I had previously [discussed](/post/2011/07/20/language7/) how one can implement
 a programming language using big step semantics. In this post, I want to so
 something similar. Here, we implement a meta-circular interpreter over Python.
@@ -34,31 +55,8 @@ Using the same machinery as the meta-circular interpreter, one can:
 
 I will be showing how to do these things in the upcoming posts. 
 
-## The Implementation (tested in Python 3.6.8)
 
 First, we import everything we need.
-
-## Contents
-{:.no_toc}
-
-1. TOC
-{:toc}
-
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
-<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
-**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
-Initialization completion is indicated by a red border around *Run all* button.
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
 
 <!--
 ############

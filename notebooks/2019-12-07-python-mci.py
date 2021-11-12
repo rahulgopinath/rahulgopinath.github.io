@@ -6,7 +6,7 @@
 # tags: mci
 # categories: post
 # ---
-# 
+ 
 # I had previously [discussed](/post/2011/07/20/language7/) how one can implement
 # a programming language using big step semantics. In this post, I want to so
 # something similar. Here, we implement a meta-circular interpreter over Python.
@@ -34,7 +34,6 @@
 # 
 # I will be showing how to do these things in the upcoming posts. 
 # 
-# ## The Implementation (tested in Python 3.6.8)
 # 
 # First, we import everything we need.
 
