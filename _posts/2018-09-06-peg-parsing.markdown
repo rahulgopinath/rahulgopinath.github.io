@@ -6,6 +6,8 @@ comments: true
 tags: parsing
 categories: post
 ---
+* Table of contents
+{:toc}
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
