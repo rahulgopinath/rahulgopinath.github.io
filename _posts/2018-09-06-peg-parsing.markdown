@@ -6,7 +6,10 @@ comments: true
 tags: parsing
 categories: post
 ---
-* Table of contents
+## Contents
+{:.no_toc}
+
+1. TOC
 {:toc}
 <script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
