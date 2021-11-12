@@ -7,6 +7,27 @@ tags: controlflow
 categories: post
 ---
 
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 We [previously discussed](/post/2019/12/07/python-mci/) how one can write an interpreter for
 Python. We hinted at that time that the machinery could be used for a variety of
 other applications, including exctracting the call and control flow graph. In this
@@ -26,21 +47,45 @@ used tools for visualization. But more imporatntly it is the starting point for 
 analysis of the program including code generation, optimizations, and other static analysis
 techniques.
 
-### Prerequisites
-
+#### Prerequisites
 As before, we start with the prerequisite imports.
 
-```python
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
+matplotlib
+networkx
+</textarea>
+</form>
+
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+"https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl"
+"https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl"
+</textarea>
+</form>
+
+<!--
+############
 import ast
-import re
-import astunparse
-```
+import pydot
+import metacircularinterpreter
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import ast
+import pydot
+import metacircularinterpreter
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 We define a simple viewing function for visualization
 
-```python
-import graphviz
-
+<!--
+############
 def get_color(p, c):
     color='black'
     while not p.annotation():
@@ -73,26 +118,77 @@ def get_shape(p):
 
 
 def to_graph(registry, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
-    graph = Digraph(comment=comment)
+    G = pydot.Dot(comment, graph_type="digraph")
     for nid, cnode in registry.items():
         if not cnode.annotation():
             continue
         sn = cnode.annotation()
-        graph.node(cnode.name(), sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode))
+        G.add_node(pydot.Node(cnode.name(), label=sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode)))
         for pn in cnode.parents:
             gp = pn.get_gparent_id()
             color = get_color(pn, cnode)
-            graph.edge(gp, str(cnode.rid), color=color)
-    return graph
-```
+            G.add_edge(pydot.Edge(gp, str(cnode.rid), color=color))
+    return G
 
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_color(p, c):
+    color=&#x27;black&#x27;
+    while not p.annotation():
+        if p.label == &#x27;if:True&#x27;:
+            return &#x27;blue&#x27;
+        elif p.label == &#x27;if:False&#x27;:
+            return &#x27;red&#x27;
+        p = p.parents[0]
+    return color
+
+def get_peripheries(p):
+    annot = p.annotation()
+    if annot  in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;2&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;2&#x27;
+    return &#x27;1&#x27;
+
+def get_shape(p):
+    annot = p.annotation()
+    if annot in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;oval&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;oval&#x27;
+
+    if annot.startswith(&#x27;if:&#x27;):
+        return &#x27;diamond&#x27;
+    else:
+        return &#x27;rectangle&#x27;
+
+
+def to_graph(registry, arcs=[], comment=&#x27;&#x27;, get_shape=lambda n: &#x27;rectangle&#x27;, get_peripheries=lambda n: &#x27;1&#x27;, get_color=lambda p,c: &#x27;black&#x27;):
+    G = pydot.Dot(comment, graph_type=&quot;digraph&quot;)
+    for nid, cnode in registry.items():
+        if not cnode.annotation():
+            continue
+        sn = cnode.annotation()
+        G.add_node(pydot.Node(cnode.name(), label=sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode)))
+        for pn in cnode.parents:
+            gp = pn.get_gparent_id()
+            color = get_color(pn, cnode)
+            G.add_edge(pydot.Edge(gp, str(cnode.rid), color=color))
+    return G
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### The CFGNode
 
 The control flow graph is a graph, and hence we need a data structue for the *node*. We need to store the parents
 of this node, the children of this node, and register itself in the registery.
 
-```python
+<!--
+############
 class CFGNode:
     counter = 0
     registry = {}
@@ -107,11 +203,43 @@ class CFGNode:
         self.rid  = CFGNode.counter
         CFGNode.registry[self.rid] = self
         CFGNode.counter += 1
-```
 
+    def reset():
+        CFGNode.counter = 0
+        CFGNode.registry = {}
+        CFGNode.stack = []
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CFGNode:
+    counter = 0
+    registry = {}
+    stack = []
+    def __init__(self, parents=[], ast=None, label=None, annot=None):
+        self.parents = parents
+        self.calls = []
+        self.children = []
+        self.ast_node = ast
+        self.label = label
+        self.annot = annot
+        self.rid  = CFGNode.counter
+        CFGNode.registry[self.rid] = self
+        CFGNode.counter += 1
+
+    def reset():
+        CFGNode.counter = 0
+        CFGNode.registry = {}
+        CFGNode.stack = []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Given that it is a directed graph node, we need the ability to add parents and children.
 
-```python
+<!--
+############
 class CFGNode(CFGNode):
     def add_child(self, c):
         if c not in self.children:
@@ -132,11 +260,39 @@ class CFGNode(CFGNode):
         else: # ast.Attribute
             mid = func.value.id
         self.calls.append(mid)
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CFGNode(CFGNode):
+    def add_child(self, c):
+        if c not in self.children:
+            self.children.append(c)
+
+    def add_parent(self, p):
+        if p not in self.parents:
+            self.parents.append(p)
+
+    def add_parents(self, ps):
+        for p in ps:
+            self.add_parent(p)
+
+    def add_calls(self, func):
+        mid = None
+        if hasattr(func, &#x27;id&#x27;): # ast.Name
+            mid = func.id
+        else: # ast.Attribute
+            mid = func.value.id
+        self.calls.append(mid)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 A few convenience methods to make our life simpler.
 
-```python
+<!--
+############
 class CFGNode(CFGNode):
     def __eq__(self, other):
         return self.rid == other.rid
@@ -146,13 +302,13 @@ class CFGNode(CFGNode):
 
     def lineno(self):
         return self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else 0
-        
+
     def name(self):
         return str(self.rid)
-        
+
     def expr(self):
         return self.source()
-        
+
     def __str__(self):
         return "id:%d line[%d] parents: %s : %s" % \
            (self.rid, self.lineno(), str([p.rid for p in self.parents]), self.source())
@@ -161,34 +317,98 @@ class CFGNode(CFGNode):
         return str(self)
 
     def source(self):
-        return astunparse.unparse(self.ast_node).strip()
+        return ast.unparse(self.ast_node).strip()
 
     def annotation(self):
         if self.annot is not None:
             return self.annot
+        if self.source() in {'start', 'stop'}:
+            return "<%s>" % self.source()
         return self.source()
 
     def to_json(self):
         return {'id':self.rid, 'parents': [p.rid for p in self.parents],
                'children': [c.rid for c in self.children],
                'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
-               
+
     def get_gparent_id(self):
         p = CFGNode.registry[self.rid]
         while not p.annotation():
             p = p.parents[0]
         return str(p.rid)
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CFGNode(CFGNode):
+    def __eq__(self, other):
+        return self.rid == other.rid
+
+    def __neq__(self, other):
+        return self.rid != other.rid
+
+    def lineno(self):
+        return self.ast_node.lineno if hasattr(self.ast_node, &#x27;lineno&#x27;) else 0
+
+    def name(self):
+        return str(self.rid)
+
+    def expr(self):
+        return self.source()
+
+    def __str__(self):
+        return &quot;id:%d line[%d] parents: %s : %s&quot; % \
+           (self.rid, self.lineno(), str([p.rid for p in self.parents]), self.source())
+
+    def __repr__(self):
+        return str(self)
+
+    def source(self):
+        return ast.unparse(self.ast_node).strip()
+
+    def annotation(self):
+        if self.annot is not None:
+            return self.annot
+        if self.source() in {&#x27;start&#x27;, &#x27;stop&#x27;}:
+            return &quot;&lt;%s&gt;&quot; % self.source()
+        return self.source()
+
+    def to_json(self):
+        return {&#x27;id&#x27;:self.rid, &#x27;parents&#x27;: [p.rid for p in self.parents],
+               &#x27;children&#x27;: [c.rid for c in self.children],
+               &#x27;calls&#x27;: self.calls, &#x27;at&#x27;:self.lineno() ,&#x27;ast&#x27;:self.source()}
+
+    def get_gparent_id(self):
+        p = CFGNode.registry[self.rid]
+        while not p.annotation():
+            p = p.parents[0]
+        return str(p.rid)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The usage is as below:
 
-```python
+<!--
+############
+CFGNode.reset()
 start = CFGNode(parents=[], ast=ast.parse('start').body)
 g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-g.format = 'svg'
-print(g.pipe().decode())
-```
+print(g.to_string())
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+CFGNode.reset()
+start = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="70pt" height="52pt"
  viewBox="0.00 0.00 70.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
@@ -203,25 +423,36 @@ print(g.pipe().decode())
 </g>
 </g>
 </svg>
-
-
 ### Extracting the control flow
 
 The control flow graph is essentially a source code walker, and shares the basic
 structure with our interpreter. It can indeed inherit from the interpreter, but
 given that we override all functions in it, we chose not to inherit.
 
-```python
-class PyCFGExtractor:
+<!--
+############
+class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
         self.founder = CFGNode(parents=[], ast=ast.parse('start').body[0]) # sentinel
         self.founder.ast_node.lineno = 0
         self.functions = {}
         self.functions_node = {}
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
+    def __init__(self):
+        self.founder = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body[0]) # sentinel
+        self.founder.ast_node.lineno = 0
+        self.functions = {}
+        self.functions_node = {}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 As before, we define `walk()` that walks a given AST node.
-
 A major difference from MCI is in the functions that handle each node. Since it is a directed
 graph traversal, our `walk()` accepts a list of parent nodes that point to this node, and also
 invokes the various `on_*()` functions with the same list. These functions in turn return a list
@@ -232,7 +463,8 @@ structures and function calls can have multiple nodes that come out of them goin
 node. For example, an `If` statement will have a node from both the `if.body` and `if.orelse`
 going into the next one.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def walk(self, node, myparents):
         if node is None: return
@@ -240,26 +472,98 @@ class PyCFGExtractor(PyCFGExtractor):
         if hasattr(self, fname):
             return getattr(self, fname)(node, myparents)
         raise SyntaxError('walk: Not Implemented in %s' % type(node))
-```
 
+class PyCFGExtractor(PyCFGExtractor):
+    def parse(self, src):
+        return ast.parse(src)
+
+    def eval(self, src):
+        node = self.parse(src)
+        nodes = self.walk(node, [self.founder])
+        self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0])
+        ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def walk(self, node, myparents):
+        if node is None: return
+        fname = &quot;on_%s&quot; % node.__class__.__name__.lower()
+        if hasattr(self, fname):
+            return getattr(self, fname)(node, myparents)
+        raise SyntaxError(&#x27;walk: Not Implemented in %s&#x27; % type(node))
+
+class PyCFGExtractor(PyCFGExtractor):
+    def parse(self, src):
+        return ast.parse(src)
+
+    def eval(self, src):
+        node = self.parse(src)
+        nodes = self.walk(node, [self.founder])
+        self.last_node = CFGNode(parents=nodes, ast=ast.parse(&#x27;stop&#x27;).body[0])
+        ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Pass
 
 The pass statement is trivial. It simply adds one more node.
 
-
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_pass(self, node, myparents):
         p = [CFGNode(parents=myparents, ast=node)]
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_pass(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node)]
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Here is the CFG from a single pass statement.
 
-```
-pass
-```
 
+<!--
+############
+s = """\
+pass
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+pass
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="70pt" height="124pt"
  viewBox="0.00 0.00 70.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
@@ -286,30 +590,70 @@ pass
 </g>
 </g>
 </svg>
-
-
 #### Module(stmt* body)
 
-We start by defining the `Module`. A python module is composed of a sequence of statements,
+We next define the `Module`. A python module is composed of a sequence of statements,
 and the graph is a linear path through these statements. That is, each time a statement
 is executed, we make a link from it to the next statement.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_module(self, node, myparents):
         p = myparents
         for n in node.body:
             p = self.walk(n, p)
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_module(self, node, myparents):
+        p = myparents
+        for n in node.body:
+            p = self.walk(n, p)
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Here is the CFG from the following which is wrapped in a module
 
-```python
+<!--
+############
+s = """\
 pass
 pass
-```
+"""
 
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+pass
+pass
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="70pt" height="196pt"
  viewBox="0.00 0.00 70.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
@@ -348,41 +692,105 @@ pass
 </g>
 </g>
 </svg>
-
-
-#### Expressions
-
+### Expressions
 #### Primitives
 
 How should we handle primitives? Since they are simply interpreted as is, they can be embedded right in.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_str(self, node, myparents):
         p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
-        
+
     def on_num(self, node, myparents):
         p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
-```
 
+    def on_constant(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot='')]
+        return p
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_str(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        return p
+
+    def on_num(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        return p
+
+    def on_constant(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 They however, are simple expressions
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_expr(self, node, myparents):
         p = self.walk(node.value, myparents)
         p = [CFGNode(parents=p, ast=node)]
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_expr(self, node, myparents):
+        p = self.walk(node.value, myparents)
+        p = [CFGNode(parents=p, ast=node)]
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Generating the following CFG
 
-```
+
+<!--
+############
+s = """\
 10
 'a'
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+10
+&#x27;a&#x27;
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
 <svg width="70pt" height="196pt"
  viewBox="0.00 0.00 70.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
@@ -421,8 +829,6 @@ Generating the following CFG
 </g>
 </g>
 </svg>
-
-
 ### Arithmetic expressions
 
 The following implements the arithmetic expressions. The `unaryop()` simply walks
@@ -431,7 +837,8 @@ the left argument, then walk the right argument, and finally insert the current
 node in the chain. `compare()` is again similar to `binop()`. `expr()`, again has
 only one argument to walk, and one node out of it.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_unaryop(self, node, myparents):
         p = [CFGNode(parents=myparents, ast=node, annot='')]
@@ -448,14 +855,64 @@ class PyCFGExtractor(PyCFGExtractor):
         right = self.walk(node.comparators[0], left)
         p = [CFGNode(parents=right, ast=node, annot='')]
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_unaryop(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        return self.walk(node.operand, p)
+
+    def on_binop(self, node, myparents):
+        left = self.walk(node.left, myparents)
+        right = self.walk(node.right, left)
+        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;)]
+        return p
+
+    def on_compare(self, node, myparents):
+        left = self.walk(node.left, myparents)
+        right = self.walk(node.comparators[0], left)
+        p = [CFGNode(parents=right, ast=node, annot=&#x27;&#x27;)]
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 CFG for this expression
 
-```
-10+1
-```
 
+<!--
+############
+s = """
+10+1
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;
+10+1
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="70pt" height="124pt"
  viewBox="0.00 0.00 70.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
@@ -482,8 +939,6 @@ CFG for this expression
 </g>
 </g>
 </svg>
-
-
 #### Assign(expr* targets, expr value)
 
 Unlike MCI, assignment is simple as it has only a single node coming out of it.
@@ -495,21 +950,61 @@ The following are not yet implemented:
 
 Further, we do not yet implement parallel assignments.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_assign(self, node, myparents):
         if len(node.targets) > 1: raise NotImplemented('Parallel assignments')
         p = [CFGNode(parents=myparents, ast=node)]
         p = self.walk(node.value, p)
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_assign(self, node, myparents):
+        if len(node.targets) &gt; 1: raise NotImplemented(&#x27;Parallel assignments&#x27;)
+        p = [CFGNode(parents=myparents, ast=node)]
+        p = self.walk(node.value, p)
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+<!--
+############
+s = """
 a = 10+1
-```
+"""
 
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;
+a = 10+1
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="91pt" height="124pt"
  viewBox="0.00 0.00 91.00 124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 120)">
@@ -536,16 +1031,28 @@ a = 10+1
 </g>
 </g>
 </svg>
-
+ 
 #### Name
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_name(self, node, myparents):
         p = [CFGNode(parents=myparents, ast=node, annot='')]
         return p
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_name(self, node, myparents):
+        p = [CFGNode(parents=myparents, ast=node, annot=&#x27;&#x27;)]
+        return p
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Control structures
 
 #### If
@@ -555,12 +1062,12 @@ parallel paths. We first evaluate the test expression, then add a new node
 corresponding to the if statement, and provide the paths through the `if.body`
 and `if.orelse`.
 
-```python
-class PyCFGExtractor(PyCFGExtractor):
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % astunparse.unparse(node.test).strip())]
+        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % ast.unparse(node.test).strip())]
         g1 = test_node
         g_true = [CFGNode(parents=g1, ast=None, label="if:True", annot='')]
         g1 = g_true
@@ -572,17 +1079,71 @@ class PyCFGExtractor(PyCFGExtractor):
         for n in node.orelse:
             g2 = self.walk(n, g2)
         return g1 + g2
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_if(self, node, myparents):
+        p = self.walk(node.test, myparents)
+        test_node = [CFGNode(parents=p, ast=node, annot=&quot;if: %s&quot; % ast.unparse(node.test).strip())]
+        g1 = test_node
+        g_true = [CFGNode(parents=g1, ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)]
+        g1 = g_true
+        for n in node.body:
+            g1 = self.walk(n, g1)
+        g2 = test_node
+        g_false = [CFGNode(parents=g2, ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)]
+        g2 = g_false
+        for n in node.orelse:
+            g2 = self.walk(n, g2)
+        return g1 + g2
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+
+<!--
+############
+s = """\
 a = 1
 if a>1:
     a = 1
 else:
     a = 0
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+a = 1
+if a&gt;1:
+    a = 1
+else:
+    a = 0
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="137pt" height="268pt"
  viewBox="0.00 0.00 136.68 268.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -646,18 +1207,14 @@ else:
 </g>
 </g>
 </svg>
-
-
-
 #### While
-
 The `while` statement is more complex than the `if` statement. For one,
 we need to provide a way to evaluate the condition at the beginning of
 each iteration.
 
 Essentially, given something like this:
 
-```
+```python
 while x > 0:
     statement1
     if x:
@@ -686,14 +1243,16 @@ statement, it will start searching up the parent chain, until it finds a node wi
 `loop_entry` label. Then it will attach itself to the `exit_nodes` as one
 of the exits.
 
-```python
+<!--
+############
+class PyCFGExtractor(PyCFGExtractor):
     def on_while(self, node, myparents):
         loop_id = CFGNode.counter
         lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % loop_id)
         p = self.walk(node.test, [lbl1_node])
 
         lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test',
-               annot='if: %s' % astunparse.unparse(node.test).strip())
+               annot='if: %s' % ast.unparse(node.test).strip())
         g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
         g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
         lbl1_node.exit_nodes = [g_false]
@@ -707,17 +1266,74 @@ of the exits.
         lbl1_node.add_parents(p)
 
         return lbl1_node.exit_nodes
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_while(self, node, myparents):
+        loop_id = CFGNode.counter
+        lbl1_node = CFGNode(parents=myparents, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s:while&#x27; % loop_id)
+        p = self.walk(node.test, [lbl1_node])
+
+        lbl2_node = CFGNode(parents=p, ast=node.test, label=&#x27;while:test&#x27;,
+               annot=&#x27;if: %s&#x27; % ast.unparse(node.test).strip())
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)
+        lbl1_node.exit_nodes = [g_false]
+
+        p = [g_true]
+
+        for n in node.body:
+            p = self.walk(n, p)
+
+        # the last node is the parent for the lb1 node.
+        lbl1_node.add_parents(p)
+
+        return lbl1_node.exit_nodes
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```python
+<!--
+############
+s = """\
 x = 1
 while x > 0:
     x = x -1
 y = x
-```
+"""
 
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+while x &gt; 0:
+    x = x -1
+y = x
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="165pt" height="340pt"
  viewBox="0.00 0.00 165.00 340.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 336)">
@@ -806,7 +1422,8 @@ the parent chain. Once it finds a parent that has the `loop_entry` label,
 it attaches itself to that parent. The statements following the `break` are not
 its immediate children. Hence, we return an empty list.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_break(self, node, myparents):
         parent = myparents[0]
@@ -821,18 +1438,71 @@ class PyCFGExtractor(PyCFGExtractor):
 
         # break doesnt have immediate children
         return []
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_break(self, node, myparents):
+        parent = myparents[0]
+        while parent.label != &#x27;loop_entry&#x27;:
+            parent = parent.parents[0]
+
+        assert hasattr(parent, &#x27;exit_nodes&#x27;)
+        p = CFGNode(parents=myparents, ast=node)
+
+        # make the break one of the parents of label node.
+        parent.exit_nodes.append(p)
+
+        # break doesnt have immediate children
+        return []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+<!--
+############
+s = """\
 x = 1
 while x > 0:
     if x > 1:
         break
     x = x -1
 y = x
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+while x &gt; 0:
+    if x &gt; 1:
+        break
+    x = x -1
+y = x
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="216pt" height="484pt"
  viewBox="0.00 0.00 216.00 484.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -945,7 +1615,6 @@ y = x
 </g>
 </svg>
 
-
 #### Continue
 
 Continue is similar to `break`, except that it has to restart the loop. Hence,
@@ -953,29 +1622,80 @@ it adds itself as a parent to the node with `loop_entry` attribute. As like `bre
 execution does not proceed to the lexically next statement after `continue`. Hence,
 we return an empty set.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_continue(self, node, myparents):
         parent = myparents[0]
         while parent.label != 'loop_entry':
             parent = parent.parents[0]
-            
+
         p = CFGNode(parents=myparents, ast=node)
         parent.add_parent(p)
-        
-        return []
-```       
 
+        return []
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_continue(self, node, myparents):
+        parent = myparents[0]
+        while parent.label != &#x27;loop_entry&#x27;:
+            parent = parent.parents[0]
+
+        p = CFGNode(parents=myparents, ast=node)
+        parent.add_parent(p)
+
+        return []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+
+<!--
+############
+s = """\
 x = 1
 while x > 0:
     if x > 1:
         continue
     x = x -1
 y = x
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+while x &gt; 0:
+    if x &gt; 1:
+        continue
+    x = x -1
+y = x
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="242pt" height="412pt"
  viewBox="0.00 0.00 241.53 412.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1092,7 +1812,7 @@ y = x
 
 The `For` statement in Python is rather complex. Given a for loop as below
 
-```
+```python
 for i in my_expr:
     statement1
     statement2
@@ -1100,7 +1820,7 @@ for i in my_expr:
 
 This has to be extracted to the following:
 
-```
+```python
 lbl1: 
       __iv = iter(my_expr)
 lbl2: if __iv.length_hint() > 0: goto lbl3
@@ -1109,11 +1829,11 @@ lbl2: if __iv.length_hint() > 0: goto lbl3
       statement2
 lbl3: ...
 ```
-
 We need `on_call()` for implementing `on_for()`. Essentially, we walk through
 the arguments, then add a node corresponding to the call to the parents.
 
-```python
+<!--
+############
 class PyCFGExtractor(PyCFGExtractor):
     def on_call(self, node, myparents):
         p = myparents
@@ -1122,10 +1842,7 @@ class PyCFGExtractor(PyCFGExtractor):
         myparents[0].add_calls(node.func)
         p = [CFGNode(parents=p, ast=node, label='call', annot='')]
         return p
-```
 
-
-```python
 class PyCFGExtractor(PyCFGExtractor):
     def on_for(self, node, myparents):
         #node.target in node.iter: node.body
@@ -1133,14 +1850,14 @@ class PyCFGExtractor(PyCFGExtractor):
 
         for_pre = CFGNode(parents=myparents, ast=None, label='for_pre', annot='')
 
-        init_node = ast.parse('__iv_%d = iter(%s)' % (loop_id, astunparse.unparse(node.iter).strip())).body[0]
+        init_node = ast.parse('__iv_%d = iter(%s)' % (loop_id, ast.unparse(node.iter).strip())).body[0]
         p = self.walk(init_node, [for_pre])
 
         lbl1_node = CFGNode(parents=p, ast=node, label='loop_entry', annot='%s: for' % loop_id)
         _test_node = ast.parse('__iv_%d.__length__hint__() > 0' % loop_id).body[0].value
         p = self.walk(_test_node, [lbl1_node])
 
-        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % astunparse.unparse(_test_node).strip())
+        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % ast.unparse(_test_node).strip())
         g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='')
         g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='')
         lbl1_node.exit_nodes = [g_false]
@@ -1155,16 +1872,92 @@ class PyCFGExtractor(PyCFGExtractor):
         lbl1_node.add_parents(p)
 
         return lbl1_node.exit_nodes
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_call(self, node, myparents):
+        p = myparents
+        for a in node.args:
+            p = self.walk(a, p)
+        myparents[0].add_calls(node.func)
+        p = [CFGNode(parents=p, ast=node, label=&#x27;call&#x27;, annot=&#x27;&#x27;)]
+        return p
+
+class PyCFGExtractor(PyCFGExtractor):
+    def on_for(self, node, myparents):
+        #node.target in node.iter: node.body
+        loop_id = CFGNode.counter
+
+        for_pre = CFGNode(parents=myparents, ast=None, label=&#x27;for_pre&#x27;, annot=&#x27;&#x27;)
+
+        init_node = ast.parse(&#x27;__iv_%d = iter(%s)&#x27; % (loop_id, ast.unparse(node.iter).strip())).body[0]
+        p = self.walk(init_node, [for_pre])
+
+        lbl1_node = CFGNode(parents=p, ast=node, label=&#x27;loop_entry&#x27;, annot=&#x27;%s: for&#x27; % loop_id)
+        _test_node = ast.parse(&#x27;__iv_%d.__length__hint__() &gt; 0&#x27; % loop_id).body[0].value
+        p = self.walk(_test_node, [lbl1_node])
+
+        lbl2_node = CFGNode(parents=p, ast=_test_node, label=&#x27;for:test&#x27;, annot=&#x27;for: %s&#x27; % ast.unparse(_test_node).strip())
+        g_false = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:False&quot;, annot=&#x27;&#x27;)
+        g_true = CFGNode(parents=[lbl2_node], ast=None, label=&quot;if:True&quot;, annot=&#x27;&#x27;)
+        lbl1_node.exit_nodes = [g_false]
+
+        p = [g_true]
+
+        # now we evaluate the body, one at a time.
+        for n in node.body:
+            p = self.walk(n, p)
+
+        # the test node is looped back at the end of processing.
+        lbl1_node.add_parents(p)
+
+        return lbl1_node.exit_nodes
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+<!--
+############
+s = """\
 x = 1
 for i in val:
     x = x -1
 y = x
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+for i in val:
+    x = x -1
+y = x
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="263pt" height="412pt"
  viewBox="0.00 0.00 262.50 412.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1259,14 +2052,48 @@ y = x
 </g>
 </svg>
 
-```
+
+<!--
+############
+s = """\
 x = 1
 for i in val:
     if x > 1:
         break
     x = x -1
 y = x
-```
+"""
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+for i in val:
+    if x &gt; 1:
+        break
+    x = x -1
+y = x
+&quot;&quot;&quot;
+
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 <svg width="276pt" height="556pt"
  viewBox="0.00 0.00 275.50 556.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 552)">
@@ -1390,14 +2217,46 @@ y = x
 </g>
 </svg>
 
-```
+
+<!--
+############
+s = """\
 x = 1
 for i in val:
     if x > 1:
         continue
     x = x -1
 y = x
-```
+"""
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+for i in val:
+    if x &gt; 1:
+        continue
+    x = x -1
+y = x
+&quot;&quot;&quot;
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="261pt" height="484pt"
  viewBox="0.00 0.00 261.15 484.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1521,7 +2380,6 @@ y = x
 </g>
 </g>
 </svg>
-
 #### FunctionDef
 
 When defining a function, we should define the `return_nodes` for the
@@ -1533,10 +2391,11 @@ be attached to the previous statements? In Python, the function definition itsel
 is independent of the previous statements. Hence, here, we choose not to have
 parents for the definition.
 
-```python
+<!--
+############
 DEFS_HAVE_PARENTS = False
 
-class PyCFGExtractor(PyCFGExtractor):  
+class PyCFGExtractor(PyCFGExtractor):
     def on_functiondef(self, node, myparents):
         # name, args, body, decorator_list, returns
         fname = node.name
@@ -1557,14 +2416,45 @@ class PyCFGExtractor(PyCFGExtractor):
         self.functions_node[enter_node.lineno()] = fname
 
         return myparents
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+DEFS_HAVE_PARENTS = False
+
+class PyCFGExtractor(PyCFGExtractor):
+    def on_functiondef(self, node, myparents):
+        # name, args, body, decorator_list, returns
+        fname = node.name
+        args = node.args
+        returns = node.returns
+        p = myparents if DEFS_HAVE_PARENTS else []
+        enter_node = CFGNode(parents=p, ast=node, label=&#x27;enter&#x27;,
+                annot=&#x27;&lt;define&gt;: %s&#x27; % node.name)
+        enter_node.return_nodes = [] # sentinel
+
+        p = [enter_node]
+        for n in node.body:
+            p = self.walk(n, p)
+
+        enter_node.return_nodes.extend(p)
+
+        self.functions[fname] = [enter_node, enter_node.return_nodes]
+        self.functions_node[enter_node.lineno()] = fname
+
+        return myparents
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 #### Return
 
 For `return`, we need to look up which function we have to return from.
 
-```python
-class PyCFGExtractor(PyCFGExtractor):  
+<!--
+############
+class PyCFGExtractor(PyCFGExtractor):
     def on_return(self, node, myparents):
         parent = myparents[0]
 
@@ -1581,11 +2471,37 @@ class PyCFGExtractor(PyCFGExtractor):
 
         # return doesnt have immediate children
         return []
-```
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCFGExtractor(PyCFGExtractor):
+    def on_return(self, node, myparents):
+        parent = myparents[0]
+
+        val_node = self.walk(node.value, myparents)
+        # on return look back to the function definition.
+        while not hasattr(parent, &#x27;return_nodes&#x27;):
+            parent = parent.parents[0]
+        assert hasattr(parent, &#x27;return_nodes&#x27;)
+
+        p = CFGNode(parents=val_node, ast=node)
+
+        # make the break one of the parents of label node.
+        parent.return_nodes.append(p)
+
+        # return doesnt have immediate children
+        return []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Example
 
-```
+<!--
+############
+s = """\
 x = 1
 def my_fn(v1, v2):
     if v1 > v2:
@@ -1593,7 +2509,36 @@ def my_fn(v1, v2):
     else:
         return v2
 y = 2
-```
+"""
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = &quot;&quot;&quot;\
+x = 1
+def my_fn(v1, v2):
+    if v1 &gt; v2:
+        return v1
+    else:
+        return v2
+y = 2
+&quot;&quot;&quot;
+CFGNode.reset()
+cfge = PyCFGExtractor()
+cfge.eval(s)
+g = to_graph(CFGNode.registry, get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+print(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 <svg width="266pt" height="276pt"
  viewBox="0.00 0.00 266.00 276.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -1695,3 +2640,7 @@ y = 2
 </g>
 </g>
 </svg>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
