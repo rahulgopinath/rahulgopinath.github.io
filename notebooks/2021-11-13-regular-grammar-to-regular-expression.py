@@ -7,22 +7,21 @@
 # categories: post
 # ---
 
-# For this post, we assume that we are working with the canonical regular
-# grammar we defined [previously](/post/2021/10/24/canonical-regular-grammar/).
+# This post shows you how to convert a regular grammar to a regular expression
+# directly -- that is, without first creating an NFA or a DFA.
+# Converting a regular grammar to a regular expression is fairly easy
+# We only need to follow a fairly fixed set of rules.
+#  
+# 1. First, we make sure that we have a start symbol, and a single symbol
+#    that represents the nonterminal in the grammar.
+# 2. Next, we combine any production rules that end with the same nonterminal
+#    into a regular expression rule with a regular expression prefix, and the
+#    nonterminal suffix.
+# 3. Next, we handle any self repetitions by using Kleene star expressions
+# 4. Finally, we start removing nonterminals one by one until we are left with
+#    the regular expression that takes us from start to stop.
 #
-# * $$ A \rightarrow a B $$
-# * $$ S \rightarrow E $$
-# * $$ E \rightarrow \epsilon $$
-# 
-# Actually, the only restrictions we have are that (1) we have a single
-# nonterminal that corresponds to the empty symbol, and (2) all rules
-# except the empty symbol rule have exactly one nonterminal symbol in them.
-# If your grammar is not already in this format, use that post to convert.
-# 
 # We start with importing the prerequisites
-
-#^
-# sympy
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
@@ -38,9 +37,6 @@
 
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
-#import earleyparser
-#import rxfuzzer
-#import rxregular
 import rxcanonical
 import itertools as I
 
@@ -63,8 +59,8 @@ MY_RGRAMMAR = {"<S>": [["a", "<A>"]],
 # and exactly one stop symbol which is NT_EMPTY
 
 def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
-    assert empty_nt in g
     new_g = {}
+    new_g[empty_nt] = [[]]
     for k in g:
         new_rules = []
         for rule in g[k]:
