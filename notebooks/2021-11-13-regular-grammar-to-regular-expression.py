@@ -38,10 +38,10 @@
 import simplefuzzer as fuzzer
 import gatleastsinglefault as gatleast
 import rxcanonical
-import itertools as I
 
+# We define a grammar for our use.
 
-MY_RGRAMMAR = {"<S>": [["a", "<A>"]],
+R_GRAMMAR = {"<S>": [["a", "<A>"]],
     "<A>" : [
         [rxcanonical.NT_EMPTY],
         ["b","<S>"],
@@ -53,10 +53,16 @@ MY_RGRAMMAR = {"<S>": [["a", "<A>"]],
         ["a","<S>"]
     ],
     rxcanonical.NT_EMPTY : [[]]}
+R_START = '<S>'
 
-# Regularize the grammar
+# ## Ensuring start and stop
+#
 # The grammar should have one start symbol
 # and exactly one stop symbol which is NT_EMPTY
+# So, what we do is, whenever we hae a rule that contains
+# just a terminal symbol, we append the NT_EMPTY symbol
+# to the rule. Thus NT_EMPTY symbol becomes the final
+# nontermainal to be expanded.
 
 def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
     new_g = {}
@@ -75,17 +81,19 @@ def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
         new_g[k] = new_rules
     return new_g
 
-# 
+# Testing it.
 
 if __name__ == '__main__':
-    g = fix_grammar(MY_RGRAMMAR)
+    g = fix_grammar(R_GRAMMAR)
     gatleast.display_grammar(g, "<S>")
 
-# 
+# We also define an `is_nonterminal` that knows about regular expressions.
 
 def is_nonterminal(item):
     if not isinstance(item, str): return False
     return fuzzer.is_nonterminal(item)
+
+# Next, given a rule, we want to split it into a regex part and a nonterminal part.
 
 def split_regex_prefix(rule):
     prefix = 0
@@ -94,10 +102,16 @@ def split_regex_prefix(rule):
         else: prefix += 1
     return rule[:prefix], rule[prefix:]
 
+# ## Prefix Regex
+# Next, what we want to do is to consolidate rules that have same nonterminals
+# to a single rule with a regular expression prefix, and the nonterminal suffix.
+# That is:
+# 
+# 1. convert <A> := a <B> | b <B> to (a|b) <B>
+# 2. convert <A> := <_> to <A> := <_>
+# 3. convert <_> := \e to <_> := \e
+
 def produce_prefix_regex(rules, grammar, empty_nt=rxcanonical.NT_EMPTY):
-    # convert <A> := a <B> | b <B> to (a|b) <B>
-    # convert <A> := <_> to <A> := <_>
-    # convert <_> := \e to <_> := \e
     lnt_hash = {}
     has_epsilon = False
     has_emptykey = False
@@ -133,14 +147,32 @@ def g_produce_prefix_regex(grammar):
         new_rules = produce_prefix_regex(grammar[k], grammar)
         new_grammar[k] = new_rules
     return new_grammar
-# 
+
+#  Using it.
+
 if __name__ == '__main__':
     print()
-    rgrammar = fix_grammar(MY_RGRAMMAR)
+    rgrammar = fix_grammar(R_GRAMMAR)
     new_rgrammar = g_produce_prefix_regex(rgrammar)
     gatleast.display_grammar(new_rgrammar, "<S>")
 
+# ## Recursion (Repetition)
+# When there is recursion, that is a rule contains a nonterminal
+# that is the same as the nonterminal we are defining, we need to
+# convert that to a kleene star, and add it in front of every other rule.
+# That is,
+#
+# ```
+# A -> b B
+#    | c C
+#    | a A
+# ```
+# becomes
 # 
+# ```
+# A -> a* b B
+#    | a* c C
+# ```
 
 def refine(rule):
     prefix, nts = split_regex_prefix(rule)
@@ -150,11 +182,6 @@ def refine(rule):
         return prefix
     else:
         assert False
-# 
-
-# dealing with recursion
-# A -> b B | c C | a A
-# becomes A -> a* b B | a* c C
 
 def make_self_loops_to_star(rules, nt):
     recursive_rules = [r for r in rules if r and r[-1] == nt]
@@ -176,13 +203,35 @@ def g_make_self_loops_to_star(g):
         new_g[k] = rules
     return new_g
    
+#  Using it.
 
 if __name__ == '__main__':
     print()
     new_rgrammar2 = g_make_self_loops_to_star(new_rgrammar)
     gatleast.display_grammar(new_rgrammar2, "<S>")
 
-# --
+# Finally, we start eliminating nonterminals from the grammar one by one.
+# The idea is to choose a single nonterminal to be eliminated, and find where
+# it is being used. For each such rules, replace that rule with a set of rules
+# with the same prefix, and the rules of the nonterminal being eliminated as the
+# suffix. That is, given
+#
+# ```
+# A -> b B
+#   |  c D
+# B -> e E 
+#   |  f G
+# ```
+# Eliminating B will result in
+# 
+# ```
+# A -> b e E       # new
+#   |  b f F       # new
+#   |  c D
+# # B -> e E 
+# #  |  f G
+# ```
+
 
 def flatten_rule(rule, grammar, nt, empty_nt=rxcanonical.NT_EMPTY):
     # find the prefix without nonterminal
@@ -230,7 +279,9 @@ if __name__ == '__main__':
     new_g = eliminate_nt(g, '<A>')
     gatleast.display_grammar(new_g, "<S>")
 
-# Eliminate each nonterminal one by one
+# ## Regular grammar to regex
+# 
+# Eliminate each nonterminal one by one to get our expression.
 
 def convert_rex(rex):
     if rex[0] == 'or':
@@ -268,7 +319,7 @@ def rg_to_regex(grammar, start_nt, empty_nt=rxcanonical.NT_EMPTY):
 # Using it.
 
 if __name__ == '__main__':
-    g = dict(MY_RGRAMMAR)
+    g = dict(R_GRAMMAR)
     rx = rg_to_regex(g, '<S>')
     print(rx)
 
