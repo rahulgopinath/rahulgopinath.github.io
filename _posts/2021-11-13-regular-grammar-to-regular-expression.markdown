@@ -191,14 +191,14 @@ Testing it.
 <!--
 ############
 g = fix_grammar(R_GRAMMAR)
-gatleast.display_grammar(g, "<S>")
+gatleast.display_grammar(g, R_START)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g = fix_grammar(R_GRAMMAR)
-gatleast.display_grammar(g, &quot;&lt;S&gt;&quot;)
+gatleast.display_grammar(g, R_START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -346,7 +346,7 @@ def g_produce_prefix_regex(grammar):
 print()
 rgrammar = fix_grammar(R_GRAMMAR)
 new_rgrammar = g_produce_prefix_regex(rgrammar)
-gatleast.display_grammar(new_rgrammar, "<S>")
+gatleast.display_grammar(new_rgrammar, R_START)
 
 ############
 -->
@@ -355,7 +355,7 @@ gatleast.display_grammar(new_rgrammar, "<S>")
 print()
 rgrammar = fix_grammar(R_GRAMMAR)
 new_rgrammar = g_produce_prefix_regex(rgrammar)
-gatleast.display_grammar(new_rgrammar, &quot;&lt;S&gt;&quot;)
+gatleast.display_grammar(new_rgrammar, R_START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -450,7 +450,7 @@ def g_make_self_loops_to_star(g):
 ############
 print()
 new_rgrammar2 = g_make_self_loops_to_star(new_rgrammar)
-gatleast.display_grammar(new_rgrammar2, "<S>")
+gatleast.display_grammar(new_rgrammar2, R_START)
 
 ############
 -->
@@ -458,7 +458,7 @@ gatleast.display_grammar(new_rgrammar2, "<S>")
 <textarea cols="40" rows="4" name='python_edit'>
 print()
 new_rgrammar2 = g_make_self_loops_to_star(new_rgrammar)
-gatleast.display_grammar(new_rgrammar2, &quot;&lt;S&gt;&quot;)
+gatleast.display_grammar(new_rgrammar2, R_START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -472,7 +472,7 @@ suffix. That is, given
 A -> b B
   |  c D
 B -> e E 
-  |  f G
+  |  f F
 ```
 Eliminating B will result in
 
@@ -481,7 +481,7 @@ A -> b e E       # new
   |  b f F       # new
   |  c D
 # B -> e E 
-#  |  f G
+#  |  f F
 ```
 
 <!--
@@ -576,7 +576,7 @@ Using it.
 ############
 g = dict(new_rgrammar2)
 new_g = eliminate_nt(g, '<A>')
-gatleast.display_grammar(new_g, "<S>")
+gatleast.display_grammar(new_g, R_START)
 
 ############
 -->
@@ -584,7 +584,7 @@ gatleast.display_grammar(new_g, "<S>")
 <textarea cols="40" rows="4" name='python_edit'>
 g = dict(new_rgrammar2)
 new_g = eliminate_nt(g, &#x27;&lt;A&gt;&#x27;)
-gatleast.display_grammar(new_g, &quot;&lt;S&gt;&quot;)
+gatleast.display_grammar(new_g, R_START)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -673,8 +673,13 @@ Using it.
 <!--
 ############
 g = dict(R_GRAMMAR)
-rx = rg_to_regex(g, '<S>')
+rx = rg_to_regex(g, R_START)
 print(rx)
+import re
+rf = fuzzer.LimitFuzzer(R_GRAMMAR)
+for i in range(10):
+    v = rf.fuzz(R_START)
+    assert re.match(rx, v)
 
 
 ############
@@ -682,8 +687,13 @@ print(rx)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g = dict(R_GRAMMAR)
-rx = rg_to_regex(g, &#x27;&lt;S&gt;&#x27;)
+rx = rg_to_regex(g, R_START)
 print(rx)
+import re
+rf = fuzzer.LimitFuzzer(R_GRAMMAR)
+for i in range(10):
+    v = rf.fuzz(R_START)
+    assert re.match(rx, v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

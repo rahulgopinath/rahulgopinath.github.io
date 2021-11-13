@@ -85,7 +85,7 @@ def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
 
 if __name__ == '__main__':
     g = fix_grammar(R_GRAMMAR)
-    gatleast.display_grammar(g, "<S>")
+    gatleast.display_grammar(g, R_START)
 
 # We also define an `is_nonterminal` that knows about regular expressions.
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     print()
     rgrammar = fix_grammar(R_GRAMMAR)
     new_rgrammar = g_produce_prefix_regex(rgrammar)
-    gatleast.display_grammar(new_rgrammar, "<S>")
+    gatleast.display_grammar(new_rgrammar, R_START)
 
 # ## Recursion (Repetition)
 # When there is recursion, that is a rule contains a nonterminal
@@ -208,7 +208,7 @@ def g_make_self_loops_to_star(g):
 if __name__ == '__main__':
     print()
     new_rgrammar2 = g_make_self_loops_to_star(new_rgrammar)
-    gatleast.display_grammar(new_rgrammar2, "<S>")
+    gatleast.display_grammar(new_rgrammar2, R_START)
 
 # Finally, we start eliminating nonterminals from the grammar one by one.
 # The idea is to choose a single nonterminal to be eliminated, and find where
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 # A -> b B
 #   |  c D
 # B -> e E 
-#   |  f G
+#   |  f F
 # ```
 # Eliminating B will result in
 # 
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 #   |  b f F       # new
 #   |  c D
 # # B -> e E 
-# #  |  f G
+# #  |  f F
 # ```
 
 
@@ -277,7 +277,7 @@ def eliminate_nt(grammar, nt, empty_nt=rxcanonical.NT_EMPTY):
 if __name__ == '__main__':
     g = dict(new_rgrammar2)
     new_g = eliminate_nt(g, '<A>')
-    gatleast.display_grammar(new_g, "<S>")
+    gatleast.display_grammar(new_g, R_START)
 
 # ## Regular grammar to regex
 # 
@@ -320,8 +320,13 @@ def rg_to_regex(grammar, start_nt, empty_nt=rxcanonical.NT_EMPTY):
 
 if __name__ == '__main__':
     g = dict(R_GRAMMAR)
-    rx = rg_to_regex(g, '<S>')
+    rx = rg_to_regex(g, R_START)
     print(rx)
+    import re
+    rf = fuzzer.LimitFuzzer(R_GRAMMAR)
+    for i in range(10):
+        v = rf.fuzz(R_START)
+        assert re.match(rx, v)
 
 
 # The runnable code for this post is available
