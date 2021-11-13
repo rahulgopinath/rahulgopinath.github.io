@@ -134,7 +134,7 @@ for notebook in VALS:
         with open('pkg/%s/__init__.py' % pkg, 'w+') as f:
             my_init_py = init_py.format(**data)
             f.write(my_init_py)
-        cp["../%s" % notebook, 'pkg/%s/post.py' % pkg]
+        cp["../%s" % notebook, 'pkg/%s/post.py' % pkg]()
         tar["-cf", "%s.pkg.tar" % pkg, "pkg"]()
     with local.cwd("py/pkg"):
         make()
