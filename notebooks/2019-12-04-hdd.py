@@ -48,7 +48,7 @@
 
 #@
 # https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl
-# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 

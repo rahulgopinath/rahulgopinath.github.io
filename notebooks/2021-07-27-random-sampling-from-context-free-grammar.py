@@ -24,7 +24,7 @@ G = {
 # To generate inputs, let us load the limit fuzzer from the previous post.
 
 #@
-# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 
 import simplefuzzer as fuzzer
 

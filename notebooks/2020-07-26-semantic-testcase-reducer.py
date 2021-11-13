@@ -19,7 +19,7 @@
 # For the _generator reduction_ to work, we need a generator in the first place. So, we start with a rather simple generator that we discussed [previously](/post/2019/05/28/simplefuzzer-01/).
 
 #@
-# https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 
 import simplefuzzer
 
