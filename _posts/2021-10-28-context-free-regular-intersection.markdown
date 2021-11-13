@@ -125,6 +125,7 @@ We start by importing the prerequisites.
 
 <details>
 <summary> System Imports </summary>
+<!--##### System Imports -->
 
 These are available from Pyodide, but you may wish to make sure that they are
 installed if you are attempting to run the program directly on the machine.
@@ -138,6 +139,7 @@ sympy
 
 <details>
 <summary>Available Packages </summary>
+<!--##### Available Packages-->
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
