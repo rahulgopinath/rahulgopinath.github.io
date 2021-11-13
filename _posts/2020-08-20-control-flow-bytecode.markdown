@@ -67,7 +67,7 @@ packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
 
 <ol>
-<li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">pydot-1.4.1-py2.py3-none-any.whl</a></li>
 </ol>
 
 <div style='display:none'>

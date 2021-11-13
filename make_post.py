@@ -119,7 +119,7 @@ before, install them if you need to run the program directly on the machine.
 </form>
 </div>
 </details>
-''' % ( '\n'.join(['<li><a href="%s">%s</a></li>' % (l,l) for l in chunk]), '\n'.join(['%s' % l for l in chunk])))
+''' % ( '\n'.join(['<li><a href="%s">%s</a></li>' % (l,l[len('https://rahul.gopinath.org/py/'):]) for l in chunk]), '\n'.join(['%s' % l for l in chunk])))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
             p('''
