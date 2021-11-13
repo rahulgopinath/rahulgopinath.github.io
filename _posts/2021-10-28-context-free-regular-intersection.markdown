@@ -123,15 +123,18 @@ Let us see how to implement this technique.
 
 We start by importing the prerequisites.
 
-##### System Imports
+<details>
+<summary> System Imports </summary>
 
 These are available from Pyodide, but you may wish to make sure that they are
 installed if you are attempting to run the program directly on the machine.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 sympy
 </textarea>
 </form>
+</details>
 
 ##### Available Packages
 
