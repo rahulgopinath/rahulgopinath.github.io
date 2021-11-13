@@ -55,7 +55,9 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
-##### Available Packages
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
@@ -65,6 +67,7 @@ before, install them if you need to run the program directly on the machine.
 https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
+</details>
 Load Earley parser
 
 <!--

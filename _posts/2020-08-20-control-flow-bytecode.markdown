@@ -36,19 +36,25 @@ use the bytecode to recover the control flow graph too.
 First, we need the following imports. The `dis` package gives us access to the Python disassembly, and
 networkx and matplotlib lets us draw.
 
-##### System Imports
+<details>
+<summary> System Imports </summary>
+<!--##### System Imports -->
 
 These are available from Pyodide, but you may wish to make sure that they are
 installed if you are attempting to run the program directly on the machine.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 matplotlib
 networkx
 </textarea>
 </form>
+</details>
 We also need pydot for drawing
 
-##### Available Packages
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
@@ -58,6 +64,7 @@ before, install them if you need to run the program directly on the machine.
 https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 </textarea>
 </form>
+</details>
 
 <!--
 ############

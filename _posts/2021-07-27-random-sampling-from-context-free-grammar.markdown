@@ -61,16 +61,19 @@ G = {
 </form>
 To generate inputs, let us load the limit fuzzer from the previous post.
 
-##### Available Packages
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
+</details>
 
 <!--
 ############

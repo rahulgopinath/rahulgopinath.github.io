@@ -45,24 +45,30 @@ particular terminal symbol. Refer to
 regular grammar to the canonical format.
 We start with importing the prerequisites
 
-##### System Imports
+<details>
+<summary> System Imports </summary>
+<!--##### System Imports -->
 
 These are available from Pyodide, but you may wish to make sure that they are
 installed if you are attempting to run the program directly on the machine.
+
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 sympy
 </textarea>
 </form>
+</details>
 
-##### Available Packages
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-https://rahul.gopinath.org/py/simplefuzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/gfaultexpressions-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/gmultiplefaults-0.0.1-py2.py3-none-any.whl
@@ -74,6 +80,7 @@ https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/rxcanonical-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
+</details>
 The imported modules
 
 <!--
