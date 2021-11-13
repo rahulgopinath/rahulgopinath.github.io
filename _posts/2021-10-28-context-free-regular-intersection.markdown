@@ -136,7 +136,8 @@ sympy
 </form>
 </details>
 
-##### Available Packages
+<details>
+<summary>Available Packages </summary>
 
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
@@ -155,6 +156,7 @@ https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/rxcanonical-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
+</details>
 The imported modules
 
 <!--
