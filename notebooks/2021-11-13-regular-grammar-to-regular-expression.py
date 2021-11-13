@@ -47,6 +47,19 @@ import itertools as I
 
 EMPTY_KEY = "<_>"
 
+MY_RGRAMMAR = {"<S>": [["a", "<A>"]],
+    "<A>" : [
+        ["<_>"],
+        ["b","<S>"],
+        ["b","<A>"],
+        ["a","<B>"],
+    ],
+    "<B>" : [
+        ["b","<_>"],
+        ["a","<S>"]
+    ],
+    "<_>" : [[]]}
+
 def is_nonterminal(item):
     if not isinstance(item, str): return False
     return fuzzer.is_nonterminal(item)
@@ -66,65 +79,12 @@ def refine(rule):
         return prefix
     else:
         assert False
-
-
-def flatten_rule(rule, grammar, nt):
-    # find the prefix without nonterminal
-    prefix, nts = split_regex_prefix(rule)
-    assert len(nts) <= 1
-    if not nts: return [prefix]
-    if nts[0] == nt: # recursion
-        return [rule]
-    if nts[0] == EMPTY_KEY: # dont expand empty key
-        return [rule]
-    new_suffixes = grammar[nts[0]]
-    return [refine(prefix+r) for r in new_suffixes]
-
-# Using it.
-MY_RGRAMMAR = {"<S>": [["a", "<A>"]],
-    "<A>" : [
-        ["<_>"],
-        ["b","<S>"],
-        ["b","<A>"],
-        ["a","<B>"],
-    ],
-    "<B>" : [
-        ["b","<_>"],
-        ["a","<S>"]
-    ],
-    "<_>" : [[]]}
-
-if __name__ == '__main__':
-    gatleast.display_grammar(MY_RGRAMMAR, "<S>")
-    print("<B>", "::", MY_RGRAMMAR['<B>'][1])
-    rules = flatten_rule(MY_RGRAMMAR['<B>'][1], MY_RGRAMMAR, "<B>")
-    print("Expanded to:")
-    for r in rules:
-        print(r)
-
-# 
-def flatten_definition(nt, grammar):
-    rules = grammar[nt]
-    new_rules = []
-    for rule in rules:
-        new_rule_set = flatten_rule(rule, grammar, nt)
-        new_rules.extend(new_rule_set)
-    return new_rules
-
-# 
-if __name__ == '__main__':
-    print("Definition")
-    gatleast.display_grammar(MY_RGRAMMAR, "<S>")
-    print("<B>")
-    rules = flatten_definition('<B>', MY_RGRAMMAR)
-    print("Expanded to:")
-    for r in rules:
-        print(r)
-
 # 
 
 def produce_prefix_regex(rules, grammar):
-    # convert a <B> | b <B> to (a|b) <B>
+    # convert <A> := a <B> | b <B> to (a|b) <B>
+    # convert <A> := <_> to <A> := <_>
+    # convert <_> := \e to <_> := \e
     lnt_hash = {}
     has_epsilon = False
     has_emptykey = False
@@ -142,10 +102,9 @@ def produce_prefix_regex(rules, grammar):
         lnt_hash[knt].append(prefix[0])
 
     new_rules = []
-    if has_epsilon:
-        new_rules.append([])
-    if has_emptykey:
-        new_rules.append([EMPTY_KEY])
+    if has_epsilon: new_rules.append([])
+    if has_emptykey: new_rules.append([EMPTY_KEY])
+
     for lnt in lnt_hash:
         if len(lnt_hash[lnt]) > 1:
             rex = ("or", lnt_hash[lnt])
@@ -160,30 +119,24 @@ if __name__ == '__main__':
     print("Definition")
     gatleast.display_grammar(MY_RGRAMMAR, "<S>")
     print("<B>")
-    rules = flatten_definition('<B>', MY_RGRAMMAR)
-    print("Expanded to:")
-    for r in rules:
-        print(r)
-    print()
-    new_rules = produce_prefix_regex(rules, MY_RGRAMMAR)
+    new_rules = produce_prefix_regex(MY_RGRAMMAR["<B>"], MY_RGRAMMAR)
     print("New Rules:")
     for r in new_rules:
         print(r)
     print()
 
 # dealing with recursion
-# A -> a B | b C | a A
-# becomes A -> a* a B | a* b C
+# A -> b B | c C | a A
+# becomes A -> a* b B | a* c C
 
-def handle_recursion(rules_, nt):
-    rules = [r for r in rules_ if len(r) > 1]
-    recursive_rules = [r for r in rules if r[-1] == nt]
-    if not recursive_rules: return rules_
+def make_self_loops_to_star(rules, nt):
+    recursive_rules = [r for r in rules if r and r[-1] == nt]
+    if not recursive_rules: return rules
     assert len(recursive_rules) == 1
     r_rule = recursive_rules[0]
     assert r_rule[1] == nt
     new_rules = []
-    for r in rules_:
+    for r in rules:
         if r == r_rule: continue
         nr = refine([("star", r_rule[0]), *r])
         new_rules.append(nr)
@@ -193,7 +146,7 @@ def handle_recursion(rules_, nt):
 def convert_definition_to_regex_prefix(nt, grammar):
     rules = grammar[nt]
     my_rules = produce_prefix_regex(rules, grammar)
-    my_rules_ = handle_recursion(my_rules, nt)
+    my_rules_ = make_self_loops_to_star(my_rules, nt)
     return my_rules_
 # 
 if __name__ == '__main__':
@@ -206,6 +159,51 @@ if __name__ == '__main__':
     for r in new_rules:
         print(r)
     print()
+
+#
+
+def flatten_rule(rule, grammar, nt):
+    # find the prefix without nonterminal
+    prefix, nts = split_regex_prefix(rule)
+    assert len(nts) <= 1
+    if not nts: return [prefix]
+    if nts[0] == nt: # recursion
+        return [rule]
+    if nts[0] == EMPTY_KEY: # dont expand empty key
+        return [rule]
+    new_suffixes = grammar[nts[0]]
+    return [refine(prefix+r) for r in new_suffixes]
+
+# Using it.
+
+if __name__ == '__main__':
+    gatleast.display_grammar(MY_RGRAMMAR, "<S>")
+    print("<B>", "::", MY_RGRAMMAR['<B>'][1])
+    rules = flatten_rule(MY_RGRAMMAR['<B>'][1], MY_RGRAMMAR, "<B>")
+    print("Expanded to:")
+    for r in rules:
+        print(r)
+
+# 
+def flatten_definition(rules, grammar, nt):
+    new_rules = []
+    for rule in rules:
+        new_rule_set = flatten_rule(rule, grammar, nt)
+        new_rules.extend(new_rule_set)
+    return new_rules
+
+# 
+if __name__ == '__main__':
+    print("Definition")
+    gatleast.display_grammar(MY_RGRAMMAR, "<S>")
+    print("<B>")
+    b_rules = convert_definition_to_regex_prefix('<B>', MY_RGRAMMAR)
+    rules = flatten_definition(b_rules, MY_RGRAMMAR, '<B>')
+    print("Expanded to:")
+    for r in rules:
+        print(r)
+
+#  Now, pick a key and eleminate.
 
 
 # The runnable code for this post is available
