@@ -32,6 +32,7 @@ We [previously discussed](/post/2019/12/07/python-mci/) how one can write an int
 Python. We hinted at that time that the machinery could be used for a variety of
 other applications, including exctracting the call and control flow graph. In this
 post, we will show how one can extract the control flow graph using such an interpteter.
+Note that a much more complete implementation can be found [here](https://github.com/vrthra/pycfg).
 
 A [control flow graph](https://en.wikipedia.org/wiki/Control-flow_graph) is a directed graph
 data structure that encodes all paths that may be traversed through a program. That is, in some
@@ -2691,3 +2692,11 @@ print(g.to_string())
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-12-08-python-controlflow.py).
+
+
+The installable python wheel `pycfg` is available [here](/py/pycfg-0.0.1-py2.py3-none-any.whl).
+
