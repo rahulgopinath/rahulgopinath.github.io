@@ -62,28 +62,38 @@ is that it uses normalized mutation score, which makes their results unusable.
 <details>
 <summary>Why is normalized score unusable?</summary>
 
+<p>
 From the paper:
 
-> The normalized effectiveness measurement is the number of mutants a test suite
-> detected divided by the number of non-equivalent mutants it covers.
-
+<blockquote>
+The normalized effectiveness measurement is the number of mutants a test suite
+detected divided by the number of non-equivalent mutants it covers.
+</blockquote>
+<p/>
 The authors find the correlation dropping only with normalized effectiveness
 score (the title of the paper also derives from this).
+</p>
 
-**Why is this problematic?** Consider, for argument’s sake, that you have
+<p>
+<b>Why is this problematic?</b> Consider, for argument’s sake, that you have
 a way to produce perfect test cases. That is, the test case kills any non
-equivalent-mutant it covers. *If normalized mutation score is a good proxy for
-test case effectiveness*, then, by our construction, for the test cases we
+equivalent-mutant it covers. <i>If normalized mutation score is a good proxy for
+test case effectiveness</i>, then, by our construction, for the test cases we
 produce using this technique, coverage should have high correlation with
 normalized mutation score.
+</p>
 
+<p>
 However, given that the test case kills every mutant it covers, the normalized
 mutation score for every test suite would be 1.0. That is, we will have no
 correlation at all!
+</p>
 
-**What does this mean?** It means that our starting assumption -- that
+<p>
+<b>What does this mean?</b> It means that our starting assumption -- that
 normalized mutation score is a good proxy for test suite effectiveness --
 is incorrect.
+</p>
 
 </details>
 
