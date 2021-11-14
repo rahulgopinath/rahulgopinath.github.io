@@ -403,8 +403,6 @@ for l,res in result:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2018-09-06-peg-parsing.py).
-
 This implementation is quite limited in that we have lost the ability to memoize (can be added back), and can not handle left recursion. See the [Earley parser](https://www.fuzzingbook.org/html/Parser.html) for a parser without these drawbacks.
 
 [^valiant1975general]: Valiant, Leslie G. "General context-free recognition in less than cubic time." Journal of computer and system sciences 10.2 (1975): 308-315. 
@@ -416,6 +414,7 @@ This implementation is quite limited in that we have lost the ability to memoize
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
 ## Artifacts
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2018-09-06-peg-parsing.py).

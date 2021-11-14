@@ -161,6 +161,9 @@ def main(args):
         data = f.readlines()
     result = split_data(data)
     runnable_code = """\
+
+## Artifacts
+
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/%s).
 """ % fn
     wheel = """
