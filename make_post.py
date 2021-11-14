@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # USAGE: ./make_post.py notebooks/2021-02-21-python-pipes.py > _posts/2021-02-21-python-pipes.markdown
 import sys
+import json
 import itertools as I
 from html import escape
 
+with open('pkgs.json') as f:
+    VALS=json.load(fp=f)
 
 def split_data(data):
     chunks = [list(g) for k,g in I.groupby(data, key=lambda line: line[0] == '#')]
@@ -148,6 +151,7 @@ def p(v):
 
 def main(args):
     fn =  args[0]
+    assert fn in VALS
     if len(args) > 1:
         postname = args[1]
     else:
