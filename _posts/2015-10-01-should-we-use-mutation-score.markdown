@@ -59,7 +59,7 @@ correlation is not due to a causative relationship is incorrect.
 Another problem I have with [Inozemtseva 2014](/references#inozemtseva2014coverage)
 is that it uses normalized mutation score, which makes their results unusable.
 
-<detail>
+<details>
 <summary>Why is normalized score unusable?</summary>
 From the paper:
 
@@ -84,7 +84,7 @@ correlation at all!
 normalized mutation score is a good proxy for test suite effectiveness --
 is incorrect.
 
-</detail>
+</details>
 
 ### Mutation Score
 
