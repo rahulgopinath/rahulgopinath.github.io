@@ -416,3 +416,8 @@ This implementation is quite limited in that we have lost the ability to memoize
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2018-09-06-peg-parsing.py).
+
+
+The installable python wheel `pegparser` is available [here](/py/pegparser-0.0.1-py2.py3-none-any.whl).
+

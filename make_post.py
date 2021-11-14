@@ -160,6 +160,12 @@ def main(args):
     with open(fn, 'r', encoding='utf-8') as f:
         data = f.readlines()
     result = split_data(data)
+    runnable_code = """\
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/%s).
+""" % fn
+    wheel = """
+The installable python wheel `%s` is available [here](%s).
+""" % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]))
 
     with open(postname, 'w+') as f:
         with redirect_stdout(f):
@@ -169,5 +175,7 @@ def main(args):
 <button type="button" name="python_run_all">Run all</button>
 </form>
 ''')
+            print(runnable_code)
+            print(wheel)
 
 main(sys.argv[1:])
