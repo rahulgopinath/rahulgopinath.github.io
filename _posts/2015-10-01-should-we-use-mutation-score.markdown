@@ -61,6 +61,7 @@ is that it uses normalized mutation score, which makes their results unusable.
 
 <details>
 <summary>Why is normalized score unusable?</summary>
+
 From the paper:
 
 > The normalized effectiveness measurement is the number of mutants a test suite
