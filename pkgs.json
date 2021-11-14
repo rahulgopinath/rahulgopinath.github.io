@@ -1,0 +1,18 @@
+{
+"notebooks/2018-09-06-peg-parsing.py":                              ["pegparser", "Recursive descent parsing with Parsing Expression (PEG) and Context Free (CFG) Grammars", "0.0.1"],
+"notebooks/2019-05-28-simplefuzzer-01.py":                          ["simplefuzzer", "The simplest grammar fuzzer in the world", "0.0.1"],
+"notebooks/2019-12-04-hdd.py":                                      ["hdd", "Hierarchical Delta Debugging", "0.0.1"],
+"notebooks/2019-12-07-python-mci.py":                               ["metacircularinterpreter", "Python Meta Circular Interpreter", "0.0.1"],
+"notebooks/2020-08-03-simple-ddset.py":                             ["ddset", "Simple DDSet", "0.0.1"],
+"notebooks/2021-02-06-earley-parsing.py":                           ["earleyparser", "Earley Parser", "0.0.1"],
+"notebooks/2021-07-27-random-sampling-from-context-free-grammar.py":["cfgrandomsample", "Uniform Random Sampling of Strings from Context-Free Grammar", "0.0.1"],
+"notebooks/2021-09-09-fault-inducing-grammar.py":                   ["gatleastsinglefault", "Specializing Context-Free Grammars for Inducing Faults", "0.0.1"],
+"notebooks/2021-09-10-multiple-fault-grammars.py":                  ["gmultiplefaults", "Specializing Context-Free Grammars for Inducing Multiple Faults", "0.0.1"],
+"notebooks/2021-09-11-fault-expressions.py":                        ["gfaultexpressions", "Fault Expressions for Specializing Context-Free Grammars", "0.0.1"],
+"notebooks/2021-09-12-negated-fault-grammars.py":                   ["gnegatedfaults", "Specializing Context-Free Grammars for Not Inducing A Fault", "0.0.1"],
+"notebooks/2021-09-29-remove-epsilons.py":                          ["cfgremoveepsilon", "Remove Empty (Epsilon) Rules From a Context-Free Grammar.", "0.0.1"],
+"notebooks/2021-10-22-fuzzing-with-regular-expressions.py":         ["rxfuzzer", "iFuzzing With Regular Expressions", "0.0.1"],
+"notebooks/2021-10-23-regular-expression-to-regular-grammar.py":    ["rxregular", "Regular Expression to Regular Grammar", "0.0.1"],
+"notebooks/2021-10-24-canonical-regular-grammar.py":                ["rxcanonical", "Converting a Regular Expression to DFA using Regular Grammar", "0.0.1"],
+"notebooks/2021-10-26-regular-grammar-expressions.py":              ["rxexpressions", "Conjunction, Disjunction, and Complement of Regular Grammars", "0.0.1"]
+}
