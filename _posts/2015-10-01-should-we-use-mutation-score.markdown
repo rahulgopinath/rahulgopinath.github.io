@@ -56,6 +56,14 @@ the test suite size without an increase in either coverage or
 effectiveness. Hence, I believe that authors insistence that the
 correlation is not due to a causative relationship is incorrect.
 
+<!--
+The essential trouble here is that the authors are using normalized effectiveness score. What is a normalized effectiveness score? “The normalized effectiveness measurement is the number of mutants a test suite detected divided by the number of non-equivalent mutants it covers”. It is only when the authors compare the correlation of normalized effectiveness score to statement coverage that they find the correlation dropping. It is also from this result that they get the title of the paper.
+
+Now, why is this problematic? Consider, for argument’s sake, that you have perfect test cases. That is, the test case kills any non equivalent-mutant it covers. If so, should we now have high correlation with coverage? If what they are measuring is a proxy for the effectiveness of the test suite, and you have perfect test cases, then you should have high correlation right?
+
+If a test case kills every mutant it covers, then the normalized score for every test suite would be 1. That is, no correlation at all.
+-->
+
 ### Mutation Score
 
 The next problem is that mutation analysis is pushed forward as the *silver
