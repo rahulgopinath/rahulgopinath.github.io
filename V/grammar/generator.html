@@ -1,0 +1,93 @@
+<!doctype html>
+<title>Railroad Diagram Generator</title>
+<link href="railroad-diagrams.css" rel=stylesheet>
+
+<textarea class='input'>Diagram(
+  Optional('+', 'skip'),
+  Choice(0,
+    NonTerminal('name-start char'),
+    NonTerminal('escape')),
+  ZeroOrMore(
+    Choice(0,
+      NonTerminal('name char'),
+      NonTerminal('escape'))))</textarea>
+<div class='output-image'></div>
+<textarea class='output-text' readonly></textarea>
+<div class=info>
+    <p><label><input type=checkbox name=standalone id=standalone> Generate code for standalone SVG?</label>
+</div>
+
+<script type=module>
+import rr, * as rrClass from "./railroad.js";
+Object.assign(window, rr);
+window.rrOptions = rrClass.Options;
+console.log(rr);
+
+const find = document.querySelector.bind(document);
+
+find('.input').addEventListener('input', e=>process(e.target.value), false);
+document.addEventListener('DOMContentLoaded', initialProcess, false);
+window.addEventListener('hashchange', hashProcess, false);
+find('#standalone').addEventListener('input', _=>process(), false);
+
+function initialProcess() {
+    if(location.hash && location.hash.length > 1) {
+        const code = decodeURIComponent(location.hash.substr(1));
+        const input = find('.input');
+        input.textContent = code;
+    }
+    process();
+}
+
+function hashProcess() {
+    if(location.hash && location.hash.length > 1) {
+        const code = decodeURIComponent(location.hash.substr(1));
+        const input = find('.input');
+        if(input.value != code) {
+            input.textContent = code;
+            process(code);
+        }
+    }
+}
+
+function process(input) {
+    if(!input) input = find('.input').value;
+    const standalone = find('#standalone').checked;
+    try {
+        var result = eval(input).format();
+        location.hash = "#" + encodeURIComponent(input);
+    } catch (e) {
+        find('.output-text').textContent = "Invalid input.\n" + e
+        throw e;
+    }
+    find('.output-image').innerHTML = '';
+    result.addTo(find('.output-image'));
+    find('.output-text').textContent = standalone ? result.toStandalone() : result.toString();
+    console.log(result);
+}
+</script>
+
+<style>
+@media all and (min-width: 400px) {
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+        display: grid;
+        grid-template:
+            "input  code" 1fr
+            "output info" 1fr
+            / 1fr   1fr;
+    }
+}
+.input {
+    grid-area: input;
+}
+.output-text {
+    grid-area: code;
+}
+.output-image {
+    grid-area: output;
+}
+.info {
+    grid-area: info;
+}
+</style>
