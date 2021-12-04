@@ -96,9 +96,6 @@ Software Modification_](#christi2019evaluating)<br/>
 
 ##### 2014
 
-* [_Mutation Testing of Functional Programming Languages_](#le2014mutation)<br/>
-  Le, Alipour, *Gopinath*, Groce -  ICSTW Mutation, 2014
-
 * [_Mutations: How close are they to real faults?_](#gopinath2014mutations)<br/>
   *Gopinath*, Jensen, Groce - ISSRE, 2014
 
@@ -922,19 +919,6 @@ is accounted for.
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/esem2015/ahmed2015empirical.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/esem2015/ahmed2015empirical.bib "reference")
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/ahmedi/an-empirical-study-of-design-degradation-how-software-projects-get-worse-over-time "presentation")
-
-
-#### <a id='le2014mutation'></a>[Le, Alipour, Gopinath, Groce: _Mutation Testing of Functional Programming Languages_ ICSTW Mutation 2014]()
-
-Mutation testing has been widely studied in imperative programming languages. The rising popularity of functional
-languages and the adoption of functional idioms in traditional languages (e.g. lambda expressions) requires a new set of studies
-for evaluating the effectiveness of mutation testing in a functional context. In this paper, we report our ongoing effort in applying
-mutation testing in functional programming languages. We describe new mutation operators for functional constructs and
-explain why functional languages might facilitate understanding of mutation testing results. We also introduce MuCheck, our
-mutation testing tool for Haskell programs.
-
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icstw2014/le2014mutation.pdf "paper")
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icstw2014/le2014mutation.bib "reference")
 
 
 #### <a id='gopinath2014mutations'></a>[Gopinath, Jensen, Groce: _Mutations: How close are they to real faults?_ ISSRE 2014]()
