@@ -7,6 +7,12 @@ tags: pyodide
 categories: post
 ---
 
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -18,68 +24,56 @@ categories: post
 
 **Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
 Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 
+<details>
+<summary> System Imports </summary>
+<!--##### System Imports -->
+
+These are available from Pyodide, but you may wish to make sure that they are
+installed if you are attempting to run the program directly on the machine.
+
+<ol>
+<li>matplotlib</li>
+<li>networkx</li>
+</ol>
+<div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_sys_imports' name='python_edit'>
 matplotlib
 networkx
 </textarea>
 </form>
+</div>
+</details>
+others
 
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form> *Note:* Unfortunately run all does not work yet (trouble with external imports).
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
 
-Loading the prerequisite:
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
+
+<ol>
+<li><a href="https://rahul.gopinath.org/py/pyparsing-2.4.7-py2.py3-none-any.whl">pyparsing-2.4.7-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl">graphviz-0.16-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">pydot-1.4.1-py2.py3-none-any.whl</a></li>
+</ol>
+
+<div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-"https://rahul.gopinath.org/py/pyparsing-2.4.7-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl"
-"https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl"
+https://rahul.gopinath.org/py/pyparsing-2.4.7-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 </textarea>
 </form>
-
-Install (await) -- these are installed from JavaScript. I have not found
-a way to call these asynchronously from Pyodide.
-
-<!--
-############
-print(__canvas__)
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-async def install():
-  await micropip.install('matplotlib')
-  await micropip.install('networkx')
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-Imports
-<!--
-############
-import  matplotlib.pyplot as plt
-import networkx as nx
-import io, base64
-############
--->
-
-
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import micropip
-import  matplotlib.pyplot as plt
-import networkx as nx
-import io, base64
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
+</div>
+</details>
 Add graph
 
 <!--
@@ -92,13 +86,12 @@ G.add_edges_from([('A', 'C', {'weight':20})])
 pos = nx.shell_layout(G)
 labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
 nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
-#nx.draw_networkx_labels(G,pos=pos,font_size=30)
+s = "nx.draw_networkx_labels(G,pos=pos,font_size=30)"
 plt.axis('off')
 plt.show()
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 plt.clf()
@@ -107,17 +100,17 @@ G.add_nodes_from([(&#x27;A&#x27;, {&#x27;weight&#x27;:5}), (&#x27;B&#x27;, {&#x2
 G.add_edges_from([(&#x27;A&#x27;, &#x27;B&#x27;, {&#x27;weight&#x27;:20})])
 G.add_edges_from([(&#x27;A&#x27;, &#x27;C&#x27;, {&#x27;weight&#x27;:20})])
 pos = nx.shell_layout(G)
-labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
+labels = {&#x27;A&#x27;: &#x27;aaa&#x27;, &#x27;B&#x27;: &#x27;bbb&#x27;, &#x27;C&#x27;:&#x27;ccc&#x27;}
 nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
-#nx.draw_networkx_labels(G,pos=pos,font_size=30)
+s = &quot;nx.draw_networkx_labels(G,pos=pos,font_size=30)&quot;
 plt.axis(&#x27;off&#x27;)
 plt.show()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Image data
+
 <!--
 ############
 buf = io.BytesIO()
@@ -125,10 +118,9 @@ plt.savefig(buf, format='png')
 buf.seek(0)
 img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
 print(len(img_str))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 buf = io.BytesIO()
@@ -140,17 +132,15 @@ print(len(img_str))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Show
-
 
 <!--
 ############
 __canvas__(img_str)
+
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
@@ -158,8 +148,6 @@ __canvas__(img_str)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
 dot
 
 <!--
@@ -184,10 +172,9 @@ node [shape=plaintext]
 7 -> 4 [label="nsubj"]
 }
 """
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import pydot
@@ -214,6 +201,7 @@ node [shape=plaintext]
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+create
 
 <!--
 ############
@@ -222,22 +210,21 @@ g = nx.nx_pydot.from_pydot(pg[0])
 
 for node in (pg[0].get_nodes()):
   print(node.get_name(), type(node), node.get_label())
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 pg = pydot.graph_from_dot_data(dotFormat)
 g = nx.nx_pydot.from_pydot(pg[0])
+
 for node in (pg[0].get_nodes()):
   print(node.get_name(), type(node), node.get_label())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
+again
 
 <!--
 ############
@@ -250,10 +237,9 @@ plt.savefig(buf, format='png')
 buf.seek(0)
 img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
 print(len(img_str))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 plt.clf()
@@ -269,16 +255,14 @@ print(len(img_str))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
+draw
 
 <!--
 ############
 __canvas__(img_str)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
@@ -286,7 +270,7 @@ __canvas__(img_str)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+derivation tree
 
 <!--
 ############
@@ -296,10 +280,9 @@ derivation_tree = ("<start>",
                       (" + ", []),
                          ("<term>", None)]
                      )])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 derivation_tree = (&quot;&lt;start&gt;&quot;,
@@ -312,7 +295,7 @@ derivation_tree = (&quot;&lt;start&gt;&quot;,
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+program
 
 <!--
 ############
@@ -344,7 +327,7 @@ def display_tree(derivation_tree,
                  node_attr=default_node_attr,
                  edge_attr=default_edge_attr,
                  graph_attr=default_graph_attr):
-    
+
     # If we import display_tree, we also have to import its functions
     from graphviz import Digraph
 
@@ -370,10 +353,9 @@ def display_tree(derivation_tree,
     if log:
         print(dot)
     return dot, labels
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 from graphviz import Digraph
@@ -404,7 +386,7 @@ def display_tree(derivation_tree,
                  node_attr=default_node_attr,
                  edge_attr=default_edge_attr,
                  graph_attr=default_graph_attr):
-    
+
     # If we import display_tree, we also have to import its functions
     from graphviz import Digraph
 
@@ -434,17 +416,16 @@ def display_tree(derivation_tree,
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+display
 
 <!--
 ############
 v, labels = display_tree(derivation_tree)
 print(str(v))
 print(labels)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 v, labels = display_tree(derivation_tree)
@@ -454,8 +435,7 @@ print(labels)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
+pydot
 
 <!--
 ############
@@ -465,10 +445,9 @@ dotFormat = str(v)
 pg = pydot.graph_from_dot_data(dotFormat)
 g = nx.nx_pydot.from_pydot(pg[0])
 print(pg[0])
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import pydot
@@ -481,7 +460,7 @@ print(pg[0])
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+hierarchy
 
 <!--
 ############
@@ -504,10 +483,9 @@ def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
                                     pos=pos, parent = root)
         return pos
     return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
@@ -533,8 +511,7 @@ def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
+show
 
 <!--
 ############
@@ -551,14 +528,14 @@ plt.savefig(buf, format='png')
 buf.seek(0)
 img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
 print(len(img_str))
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 plt.clf()
-pos = hierarchy_pos(g,'0', width=1, vert_loc=0, vert_gap=0.006, xcenter=0)
+pos = hierarchy_pos(g,&#x27;0&#x27;, width=1, vert_loc=0, vert_gap=0.006, xcenter=0)
+
 
 nx.draw(g, pos=pos, with_labels=True, labels=labels,node_size=1000,font_size=8, node_color=&#x27;#ffffff&#x27;)
 
@@ -573,15 +550,14 @@ print(len(img_str))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+canvas
 
 <!--
 ############
 __canvas__(img_str)
+
 ############
 -->
-
-
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(img_str)
@@ -589,4 +565,13 @@ __canvas__(img_str)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2020-02-13-pyodide-canvas.py).
+
 
