@@ -18,6 +18,12 @@
 # https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 
+# import
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import base64
+
 # Add graph
 
 plt.clf()
