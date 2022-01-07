@@ -7,7 +7,6 @@ tags: pyodide test page
 categories: post
 ---
 
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">

@@ -23,7 +23,6 @@ For the _generator reduction_ to work, we need a generator in the first place. S
 1. TOC
 {:toc}
 
-<script type="text/javascript">window.languagePluginUrl='/resources/pyodide/full/3.9/';</script>
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">

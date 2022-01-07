@@ -33,7 +33,7 @@ function runit(mypre, mycanvas, editor) {
      mypre.innerHTML = '';
    }
 
-   pyodide.globals.__canvas__ = draw;
+   pyodide.globals.set('__canvas__', draw);
 
    try {
      output = pyodide.runPython(prog);
@@ -52,7 +52,12 @@ $('[name="python_edit"]').each(function(idx) {
    $(this).data('CodeMirrorInstance', editor);
 });
 
-languagePluginLoader.then(() => { 
+loadPyodide({
+    indexURL: "/resources/pyodide/full/3.9/",
+  // fullStdLib: false
+}).then((pyodide) => {
+  self.pyodide = pyodide;
+
   var sys_imports = $(document).find('#python_sys_imports')
   var sys_imports_lst = [
     'micropip',
