@@ -31,7 +31,7 @@ Turns out, there is!. Python [allows](https://www.python.org/dev/peps/pep-0263/)
 #!/usr/bin/env python
 # coding: UTF-8
 ```
-The interesting part here is that, the decoder `UTF-8` is simply a Python library file typically found in the encodings directory, which
+The interesting part here is that, the decoder `UTF-8` is simply a Python library file typically found in the *encodings* directory, which
 can be found as follows:
 
 ```python

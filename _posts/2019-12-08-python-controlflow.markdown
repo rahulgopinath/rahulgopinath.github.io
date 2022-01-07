@@ -29,8 +29,8 @@ Initialization completion is indicated by a red border around *Run all* button.
 </form>
 We [previously discussed](/post/2019/12/07/python-mci/) how one can write an interpreter for
 Python. We hinted at that time that the machinery could be used for a variety of
-other applications, including exctracting the call and control flow graph. In this
-post, we will show how one can extract the control flow graph using such an interpteter.
+other applications, including extracting the call and control flow graph. In this
+post, we will show how one can extract the control flow graph using such an interpreter.
 Note that a much more complete implementation can be found [here](https://github.com/vrthra/pycfg).
 
 A [control flow graph](https://en.wikipedia.org/wiki/Control-flow_graph) is a directed graph
@@ -39,11 +39,11 @@ sense, it is an abstract view of the interpreter as a whole.
 
 This implementation is based on the [fuzzingbook CFG appendix](https://www.fuzzingbook.org/html/ControlFlow.html)
 However, the fuzzingbook implementation is focused on Python statements as it is used primarily for
-visualization, while this is based on basic blocks with the intension of using it for code
+visualization, while this is based on basic blocks with the intention of using it for code
 generation.
 
 Control flow graphs are useful for a variety of tasks. They are one of the most frequently
-used tools for visualization. But more imporatntly it is the starting point for further
+used tools for visualization. But more importantly it is the starting point for further
 analysis of the program including code generation, optimizations, and other static analysis
 techniques.
 
@@ -1476,7 +1476,7 @@ print(g.to_string())
 
 #### Break
 
-As we explained before, the `break` when it is encountred, looks up
+As we explained before, the `break` when it is encountered, looks up
 the parent chain. Once it finds a parent that has the `loop_entry` label,
 it attaches itself to that parent. The statements following the `break` are not
 its immediate children. Hence, we return an empty list.

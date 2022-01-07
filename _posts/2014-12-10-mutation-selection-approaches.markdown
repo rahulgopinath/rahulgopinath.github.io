@@ -13,11 +13,11 @@ According to Offutt et al. ([Offutt 2001](/references#offutt2001uniting)), mutat
 
 ### Do Smarter
 
-Improve the mutation analysis runtime by splitting tasks across multiple processes or machines, and running in parallel. The main innovations under this category involves scheduling how mutations are to be run.
+Improve the mutation analysis run-time by splitting tasks across multiple processes or machines, and running in parallel. The main innovations under this category involves scheduling how mutations are to be run.
 
 ### Do Faster
 
-Improve the mutation analysis runtime of a single mutant, or that of the whole set without using parallelization. It includes compiler integration of mutation analysis, byte-code modification rather than source modification, techniques using mutant schemata etc.
+Improve the mutation analysis run-time of a single mutant, or that of the whole set without using parallelization. It includes compiler integration of mutation analysis, byte-code modification rather than source modification, techniques using mutant schemata etc.
 
 ### Do fewer
 

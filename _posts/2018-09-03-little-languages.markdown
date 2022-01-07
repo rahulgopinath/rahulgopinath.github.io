@@ -7,7 +7,7 @@ tags: sun
 categories: post
 ---
 
-This particular post was prompted by reading two papers. One, [a programming perl by Bentley](http://staff.um.edu.mt/afra1/seminar/little-languages.pdf) which recommends writing independent programs that accept their own little languages, and another by [Shivers](https://3e8.org/pub/scheme/doc/Universal%20Scripting%20Framework%20(Lambda%20as%20little%20language).pdf) which suggests that independent little languages are flawed, and one should instead go for embedding them in a larger general purpose language. What follows is my experience in designing and developing two different languages, in different styles.
+This particular post was prompted by reading two papers. One, [a programming Perl by Bentley](http://staff.um.edu.mt/afra1/seminar/little-languages.pdf) which recommends writing independent programs that accept their own little languages, and another by [Shivers](https://3e8.org/pub/scheme/doc/Universal%20Scripting%20Framework%20(Lambda%20as%20little%20language).pdf) which suggests that independent little languages are flawed, and one should instead go for embedding them in a larger general purpose language. What follows is my experience in designing and developing two different languages, in different styles.
 
 ## CAT
 
@@ -145,6 +145,6 @@ As you can see, the script is just another ruby script, and the host language is
 
 The unfortunate problem here was that, it required enormous discipline to stick to the DSL. There was always the temptation to refactor, or identify common strings or common procedures. In the end, people just wrote ruby scripts rather than use the DSL, and these scripts were too complex unlike the _CAT_ scripts, and the tool did not survive for long.
 
-To summarize, my experience has been that the most underappreciated aspect of little languages has been the discipline that they impose -- _what they will not let you do_. It also lets you focus on particular layers of the problem without getting distracted. When the little language used is sufficiently independent of the remaining layers, the results have been useful and very much maintainable. On the other hand, when the separation imposed from other layers was insufficient, the resuls were not very worthwhile.
+To summarize, my experience has been that the most underappreciated aspect of little languages has been the discipline that they impose -- _what they will not let you do_. It also lets you focus on particular layers of the problem without getting distracted. When the little language used is sufficiently independent of the remaining layers, the results have been useful and very much maintainable. On the other hand, when the separation imposed from other layers was insufficient, the results were not very worthwhile.
 
 Hence, my experience has been that, programs written in the fashion prescribed by Shivers often end up much less readable than little languages with pipe line stages approach.

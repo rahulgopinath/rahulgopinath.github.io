@@ -39,7 +39,7 @@ Loading the prerequisite:
 </textarea>
 </form>
 
-Install (await) -- these are installed from Javascript. I have not found
+Install (await) -- these are installed from JavaScript. I have not found
 a way to call these asynchronously from Pyodide.
 
 <!--

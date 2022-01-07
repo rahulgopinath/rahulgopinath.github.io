@@ -1,6 +1,6 @@
 ---
 published: true
-title: A self-learning proxy-network with reinforment learning (Q-Learning)
+title: A self-learning proxy-network with reinforcement learning (Q-Learning)
 layout: post
 comments: true
 tags: proxy
@@ -40,7 +40,7 @@ This can be rewritten as
 
 $$ Q(a,s) = r + \beta max_{a^{'}} Q(a^{'}, s^{'}) $$
 
-That is, the optimal reward from performing some action _a_ at current state (resulting in _s'_) is the reward for action _a_ in this state in addition to performing optimally from the next step onwards. This equation is called the [Bellman equation](https://en.wikipedia.org/wiki/Bellman_equation). The interesting thing about Bellman equation is that it can be iteratively approximated, and this is what reinforcement learning is doing.
+That is, the optimal reward from performing some action _a_ at current state (resulting in _s'_) is the reward for action _a_ in this state in addition to performing optimally from the next step onward. This equation is called the [Bellman equation](https://en.wikipedia.org/wiki/Bellman_equation). The interesting thing about Bellman equation is that it can be iteratively approximated, and this is what reinforcement learning is doing.
 
 That is, we initialize all values of _Q(a,s)_ randomly, and then start with initial state _s_ and
 iteratively perform actions on it and keep updating.
@@ -191,7 +191,7 @@ class Q:
 
 ### The Policy
 
-The policy is essentially a mechanism to produce an action given a state. Our policy is GLIE -- that is greedy in the limit with infinite exploration. It slowly converges to pure greedy choice as time steps increase. To qualify as GLIE, we need to fulfil the following conditions
+The policy is essentially a mechanism to produce an action given a state. Our policy is GLIE -- that is greedy in the limit with infinite exploration. It slowly converges to pure greedy choice as time steps increase. To qualify as GLIE, we need to fulfill the following conditions
 
 * If a state is visited infinitely often, then each action in that state is chosen infinitely often
 * In the limit, the learning policy is greedy with respect to the learned Q function with probability 1

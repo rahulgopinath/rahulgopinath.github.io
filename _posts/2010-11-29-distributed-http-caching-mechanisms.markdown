@@ -14,7 +14,7 @@ The world wide web functions as a distributed system. The servers and clients ma
 
 ## Caching from the early times
 
-From the outset when web was created, it was realized that for the distributed system to be effective, it would have to rely on intermediaries that replicated or cached the content so as to lessen the load on both the network and the endpoint servers. The earliest automatic caching and replication was done by rewriting the html using CGI scripts that forwarded the subsequent requests to the local cache. This was the main type of cache for HTTP 0.9 version of protocol e.g Lagoon Cache. The caching mechanisms included with the HTTP protocol were incorporated first by CERN HTTPd in 1993. This later was incorporated into the HTTP 1.0 protocol description RFC 1945[11] in 1996. The next iteration of HTTP protocol HTTP 1.1 RFC 2068[12] and RFC 2616 in 1997 laid the foundation of the distributed cache protocols which are in use today.
+From the outset when web was created, it was realized that for the distributed system to be effective, it would have to rely on intermediaries that replicated or cached the content so as to lessen the load on both the network and the endpoint servers. The earliest automatic caching and replication was done by rewriting the HTML using CGI scripts that forwarded the subsequent requests to the local cache. This was the main type of cache for HTTP 0.9 version of protocol e.g Lagoon Cache. The caching mechanisms included with the HTTP protocol were incorporated first by CERN HTTPd in 1993. This later was incorporated into the HTTP 1.0 protocol description RFC 1945[11] in 1996. The next iteration of HTTP protocol HTTP 1.1 RFC 2068[12] and RFC 2616 in 1997 laid the foundation of the distributed cache protocols which are in use today.
 
 ## Caching Now
 
@@ -25,7 +25,7 @@ However, the RFC 2616 for HTTP1.1 was written during the time when most of the w
 One aspect of this distributed system is that the caches co-ordinate among themselves to determine if the requests can be fulfilled without contacting the upstream servers. In this way the traffic to the original content servers are minimized. A host of cache communication protocols are used for this purpose depending on the type of caching needed and the network topology.
 
 Some of these cache protocols as specified in RFC 3040[7] are: ICP[2] CARP[3] Digests[4] HTCP[5]
-WCCP[6] other mechanisms for cooperative caching include ICAP[8], non HTTP mechanisms like *memcached* and
+WCCP[6] other mechanisms for cooperative caching include ICAP[8], non HTTP mechanisms like *Memcached* and
 others. This survey documents and compares the characteristics of various caching protocols.
 
 Some protocols are oriented towards a particular kind of deployment, e.g ICP is oriented towards a hierarchical model of deployment while CARP is oriented towards a flat deployment. Some protocols allow easy addition of new caches to the cluster while some like WCCP has inherent restrictions on the number of caches that can serve at a single level. A few of the protocols have restrictions as the the environments in which they can be deployed, and are different from the other caches. For e.g WCCP can only be deployed as an Intercepting Proxy and requires specialized equipment or operating system support to function. It is also limited to subnets in terms of the cache membership. On the other hand ICP requires use of UDP which may prevent it from operating across fire-walls. This survey will also document the common deployment scenarios for each protocol.
@@ -251,7 +251,7 @@ tunnels)
 ### Internet Content Adaptation Protocol
 
 ICAP[8] is a lightweight protocol for HTTP based RPC call. This can be used to offload cache fetching to
-separate deidcated ICAP servers. When a query comes in, the an ICAP request is made to one of the
+separate dedicated ICAP servers. When a query comes in, the an ICAP request is made to one of the
 ICAP servers to find if they have a copy of the requested object. If it has, that copy is retrieved and used
 instead of using the local cache.
 
@@ -362,7 +362,7 @@ Proxy Servers. With this protocol the Proxy Server can indicate in the header 'P
 willing to accept notification along with the GET request for any URL that the Proxy Server wishes to
 monitor. The Server indicates its willingness to keep the Proxy notified using 'Cache-control' header
 parameter 'notify'. When the specified object changes at the Server, the notification gets sent to the
-corresponding Proxy Server using a new method 'NOTIFY *url*'
+corresponding Proxy Server using a new method 'NOTIFY *URL*'
 
 ### Cache Channels
 

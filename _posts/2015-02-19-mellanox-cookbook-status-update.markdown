@@ -6,14 +6,14 @@ comments: true
 tags: [mellanox]
 categories : post
 ---
-Our challenge was to develop a Mellanox openstack  chef plugin for the Mellanox CloudX platform. According to Mellanox, it brings the following benefits to the openstack.
+Our challenge was to develop a Mellanox Openstack  chef plugin for the Mellanox CloudX platform. According to Mellanox, it brings the following benefits to the Openstack.
 
 Mellanox provides a cost-effective and scalable infrastructure that consolidates network and storage to an efficient fabric.
 It delivers the best application performance with hardware-based acceleration for messaging, network traffic, and storage.
 The APIs provided by Mellanox are easy to manage and are standardized. It also sports native integration with Openstack Quantum and Cinder provisioning APIs
 They provide tenant and application security and isolation, and end-to-end hardware based traffic isolation and security filtering.
 
-We started with the Mellanox puppet module as a base, and used the mellanox documentation to come up with an up-to-date chef plugin for managing mellanox infrastructure. We planned for three phases. For phase I, we targeted mellanox over ethernet, for phase II our target was Mellanox over infiniband, and for Phase III, we utilize Unified Fabric Manager for Infiniband.
+We started with the Mellanox puppet module as a base, and used the Mellanox documentation to come up with an up-to-date chef plugin for managing Mellanox infrastructure. We planned for three phases. For phase I, we targeted Mellanox over Ethernet, for phase II our target was Mellanox over infiniband, and for Phase III, we utilize Unified Fabric Manager for Infiniband.
 
 Phase I includes complete implementation of  Neutron Server nodes,  Compute Nodes, Network Nodes and Cinder Nodes.
 

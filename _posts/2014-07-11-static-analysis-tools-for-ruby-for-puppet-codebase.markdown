@@ -8,7 +8,7 @@ categories : post
 ---
 The main idea was investigate static analysis tools for ruby, keeping in mind the following concerns.
 
-* It should be more useful than being just a linter
+* It should be more useful than being just a Linter
 * The idea is to incorporate it to the CI, and invoke it before a commit. 
 * It should be configurable and extensible (And not be too opinionated)
 
@@ -34,7 +34,7 @@ The main idea was investigate static analysis tools for ruby, keeping in mind th
 
 ## [Rubocop](https://github.com/bbatsov/rubocop)
 
-Of the tools investigated, rubocop seems to be the most mature and featured static analysis tool available. However, it does not really do a full static analysis of ruby code as much as Diamondback Ruby or Laser attempts to do, for example, arity of methods, non termination detection, double inclusion, whether block arguments are used etc, or typing errors.
+Of the tools investigated, Rubocop seems to be the most mature and featured static analysis tool available. However, it does not really do a full static analysis of ruby code as much as Diamondback Ruby or Laser attempts to do, for example, arity of methods, non termination detection, double inclusion, whether block arguments are used etc, or typing errors.
 
 ### Features
 A large number of checkers are provided, which are divided into two groups
@@ -148,12 +148,12 @@ Suggested by [sharpie](https://github.com/Sharpie)
 
 ## [Diamondback Ruby](http://www.cs.umd.edu/projects/PL/druby/)
 
-Diamond back ruby is a static analysis tool written in OCaml. Of all the tools analysed, this is the most featured tool. However, this does not support all of ruby syntax, and the development seem to have stopped in 2009. While I was not able to compile the tool on my own, I experimented with the binary they provide in the project page. However, running the tool on any example larger than a few hundred lines result in a _Stack Empty_ error. Secondly, it does not understand FFI, and hence complains about OpenSSL inclusion in puppet. After removing code from puppet that caused Druby to abort, the tool spit out a very large number of warnings. Howver, due to the way I had to get it to work (removing code that Druby failed to recognize), and because it does not understand the monkey patching, all the warnings I inspected were spurious, and hence I did not get very far with it. 
+Diamond back ruby is a static analysis tool written in Ocaml. Of all the tools analyzed, this is the most featured tool. However, this does not support all of ruby syntax, and the development seem to have stopped in 2009. While I was not able to compile the tool on my own, I experimented with the binary they provide in the project page. However, running the tool on any example larger than a few hundred lines result in a _Stack Empty_ error. Secondly, it does not understand FFI, and hence complains about OpenSSL inclusion in puppet. After removing code from puppet that caused Druby to abort, the tool spit out a very large number of warnings. However, due to the way I had to get it to work (removing code that Druby failed to recognize), and because it does not understand the monkey patching, all the warnings I inspected were spurious, and hence I did not get very far with it. 
 
 
 ## [Laser](https://github.com/michaeledgar/laser)
 
-Laser required a bit of effort to get running. It is abandonware with the last checkin on 2011/09/11. Unfortunately while its author demonstrates its capabilities in [rubyconf 2011](https://www.youtube.com/watch?v=Uadw9fmig_k), the github version did not seem to be able to detect the same errors. I have mailed the author, but yet to receive a response. Secondly, it works only on ruby 1.9 (does not support 1.8, and does not parse 2.0)
+Laser required a bit of effort to get running. It is abandon-ware with the last checkin on 2011/09/11. Unfortunately while its author demonstrates its capabilities in [rubyconf 2011](https://www.youtube.com/watch?v=Uadw9fmig_k), the GitHub version did not seem to be able to detect the same errors. I have mailed the author, but yet to receive a response. Secondly, it works only on ruby 1.9 (does not support 1.8, and does not parse 2.0)
 
 I read the [thesis](http://www.cs.dartmouth.edu/reports/abstracts/TR2011-686/) from the author, which suggests that the biggest contribution is the static analysis of blocks, especially block arguments, arity errors, check for whether core methods like to\_s and to\_i are not overridden to return a different type. It can also detect unreachable code, unused variables, simple non termination, double inclusion etc. However, not all of ruby syntax is supported, and not all of ruby stdlib.
 
@@ -172,7 +172,7 @@ Cane is a style checker, primarily concerned with method complexity style, docum
 
 ## [Reek](https://github.com/troessner/reek)
 
-Reek is a codesmell detector. While useful to run once in a while, it's featureset does not seem very useful for checks
+Reek is a codesmell detector. While useful to run once in a while, it's feature-set does not seem very useful for checks
 
 ## [Flay,Flog](http://ruby.sadi.st/Ruby_Sadist.html)
 
@@ -180,7 +180,7 @@ From the analysis [here](http://www.infoq.com/news/2008/11/static-analysis-tool-
 
 ## [Dust](https://github.com/kevinclark/dust)
 
-Simple linter. Supports a very limited subset of rubocop.
+Simple Linter. Supports a very limited subset of Rubocop.
 
 ## [Excellent](https://github.com/simplabs/excellent/wiki)
 
@@ -208,7 +208,7 @@ Simple linter. Supports a very limited subset of rubocop.
 * SingletonVariableCheck – reports class variables.
 * GlobalVariableCheck – reports global variables.
 
-Notice that it is mostly linting. I ran it over a few examles, and found that it is mostly a subset of rubocop capabilities (other than the complexity metric checks).
+Notice that it is mostly linting. I ran it over a few examples, and found that it is mostly a subset of Rubocop capabilities (other than the complexity metric checks).
 
 ## [Ruby-lint](https://github.com/YorickPeterse/ruby-lint) 2.0.1
 
@@ -228,13 +228,13 @@ Unfortunately, for the two ruby versions (1.9.3, 2.1.0) tried, ruby-lint exits w
 
 ## [HoundCI](https://houndci.com/)
 
-### Uses rubocop 0.22 (latest rubocop is 0.24.1)
+### Uses Rubocop 0.22 (latest Rubocop is 0.24.1)
 
 This means that a few important features (for us) are missing. It includes
 
 * Ability to configure directories separately (Include|Exclude) (for enabling strict lib/puppet/pops )
 * Or inheritance (another way to do the above) (There can be only one .hound.yml file per project)
-* Configuration style is some what different between 0.22 and 0.24.1 rubocop, so we cant reuse our configuration directly on newer rubocop.
+* Configuration style is some what different between 0.22 and 0.24.1 Rubocop, so we cant reuse our configuration directly on newer Rubocop.
 
 
 Some cops may be missing, however, the coops we are initially interested in were there
@@ -247,4 +247,4 @@ Some cops may be missing, however, the coops we are initially interested in were
 
 ## Recommendations
 
-My recommendation is to start with rubocop, enabling only the four cops that gave useful warnings. Since rubocop can check individual ruby files, and even a complete run of the entire code base takes only 20 seconds, it can be used as a tool during development, for validating commits. The other recommended cops may be enabled in a later commit. We should only enable further cops after ensuring that the idioms they enforce are actually useful.
+My recommendation is to start with Rubocop, enabling only the four cops that gave useful warnings. Since Rubocop can check individual ruby files, and even a complete run of the entire code base takes only 20 seconds, it can be used as a tool during development, for validating commits. The other recommended cops may be enabled in a later commit. We should only enable further cops after ensuring that the idioms they enforce are actually useful.

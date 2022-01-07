@@ -24,16 +24,16 @@ bugs in covered code, and compare it with code that is uncovered.
 
 This is what we investigated in our latest research ([FSE 2016](/publications/#ahmed2016can)).
 
-What we did is to select 49 programs from Github, and selected a point
+What we did is to select 49 programs from GitHub, and selected a point
 in time as the *epoch*. Next, we looked at all commits from that epoch,
-and classified them as bugfixes or feature fix. Now, for a given line, we
-looked at the total number of bugfix commits after epoch until the first
+and classified them as bug fixes or feature fix. Now, for a given line, we
+looked at the total number of bug-fix commits after epoch until the first
 feature fix.
 
-Next, we compared the difference in number of bugfixes between the
+Next, we compared the difference in number of bug fixes between the
 covered lines at epoch and uncovered lines. We found that for statement
-coverage, a covered line has about 0.68 bugfix, while
-for a non-covered line, the number of bugfixes were about 1.2. That is,
+coverage, a covered line has about 0.68 bug-fix, while
+for a non-covered line, the number of bug fixes were about 1.2. That is,
 a non-covered line is about twice as likely to be buggy as that of a
 line covered by a test case.
 

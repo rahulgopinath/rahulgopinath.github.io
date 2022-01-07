@@ -7,7 +7,7 @@ tags: parsing
 categories: post
 ---
 
-This post describes the implementation of a simple forking mutation-testing engine in Python. It is based on our paper [Topsy-Turvy: A Smarter and Faster Parallelization of Mutation Analysis](/publications#gopinath2016topsy).
+This post describes the implementation of a simple forking mutation-testing engine in Python. It is based on our paper [Topsy-Turfy: A Smarter and Faster Parallelization of Mutation Analysis](/publications#gopinath2016topsy).
 
 For those who are wondering what _program-mutation_ or _mutation-analysis_ or _mutation-testing_ is all about, the idea is really simple. Given a simple program -- such as the triangle program given below.
 ```python
@@ -159,7 +159,7 @@ class Forker():
 
 def result_mutate(v): return not v
 ```
-Now, simply executing `python3 mutated.triangle.py` will execute our mutation analysis ,and leave the results under `.pids`. each pid should have at least one result that differs from the parent to indicate its killing. If not, it is still alive.
+Now, simply executing `python3 mutated.triangle.py` will execute our mutation analysis ,and leave the results under `.pids`. each PID should have at least one result that differs from the parent to indicate its killing. If not, it is still alive.
 
 ```bash
 $ python3 mutated.triangle.py
@@ -250,14 +250,14 @@ This code should be easy enough to understand. If you would like to extend it, t
   Since it is based on simple text transformations, all you need is a simple grammar based tool to implement them..
 * Better parallelization than traditional implementations.
 * Coverage based optimization is inbuilt -- mutations do not become active unless execution path includes them.
-* No separate interpretor (as in some of the mutation frameworks). It hijacks the ordinary program execution.
+* No separate interpreter (as in some of the mutation frameworks). It hijacks the ordinary program execution.
 
 ### Limitations
 * Limited to Unix like environments where _forking_ is cheap
 
 * We assume that order of execution of test cases is not important. However, it may not be correct.
 
-I note that this was simply an example on how to implement a split-stream execution environment. Python does have a number of program-mutation tools, which includes [cosmic-ray](https://cosmic-ray.readthedocs.io/en/latest/), [mutpy](https://github.com/mutpy/mutpy), and [mutmut](https://pypi.org/project/mutmut/). Another is [xmutant](https://github.com/vrthra/xmutant.py) -- a rather researchy, but plain vanila mutation engine that mutates bytecodes that I wrote some time back. `xmutant.py` incorporates checking for `immortal-mutants` using random sampling. (Immortal, or equivalent mutants are mutants where the syntactic difference we injected did not result in an actual fault).
+I note that this was simply an example on how to implement a split-stream execution environment. Python does have a number of program-mutation tools, which includes [cosmic-ray](https://cosmic-ray.readthedocs.io/en/latest/), [mutpy](https://github.com/mutpy/mutpy), and [mutmut](https://pypi.org/project/mutmut/). Another is [xmutant](https://github.com/vrthra/xmutant.py) -- a rather researchy, but plain vanilla mutation engine that mutates byte-codes that I wrote some time back. `xmutant.py` incorporates checking for `immortal-mutants` using random sampling. (Immortal, or equivalent mutants are mutants where the syntactic difference we injected did not result in an actual fault).
 
 
 {% gist 76e328c07bc7518f8330969959befa67 %}

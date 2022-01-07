@@ -57,7 +57,7 @@ main algorithm of *Perses*. I note that a similar idea was explored by Pike in
 The basic idea of Perses is to try and replace a parent node by either an
 empty expansion (so that the corresponding string fragment can be deleted)
 or by a child node of the same nonterminal. To accomplish the first (that is,
-to be able to use empty expansions), Perses first transofrms the given grammar
+to be able to use empty expansions), Perses first transforms the given grammar
 to a *Perses normal form*. We can however skip that portion if we are careful
 and use a grammar where we explicitly use nonterminals that can have an empty
 expansion. In this post, I only explain the *perses reduction* algorithm.

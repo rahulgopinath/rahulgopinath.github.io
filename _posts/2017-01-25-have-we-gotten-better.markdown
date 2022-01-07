@@ -10,7 +10,7 @@ categories: post
 I wanted to find whether the developers working on Linux kernel have gotten
 better at writing bug-free code.  To that end, I analyzed the data about
 vulnerabilities from [Kees dataset](https://outflux.net/blog/archives/2016/10/20/cve-2016-5195/)
-fortified with LOC data of various linux versions when the bug was introduced.
+fortified with LOC data of various Linux versions when the bug was introduced.
 
 The plot below shows my findings.
 
@@ -23,7 +23,7 @@ was found, and the Y axis represents the date at which it was introduced (this
 is from Kees dataset, where he analyzed 557 vulnerabilities).
 
 The red line represents same version fixes. That is, the bug was found and
-fixed in the same version. Assuming the LOC remaind stable, if the
+fixed in the same version. Assuming the LOC remained stable, if the
 vulnerabilities were getting fixed in the same rate as it was introduced,
 we should expect the regression line $$ Introduced = \beta_1 \times Found + C $$ to
 be parallel to the red line. However, that regression line is represented by
@@ -48,7 +48,7 @@ suggests that just the size of the code base explains most the vulnerabilities w
 
 Here is a graph of the number of vulnerabilities introduced in each year.
 ![Linux kernel vulnerabilities per introduced year](/resources/posts/2017/vulnerabilities-increase.png)
-The interesting thing to note here is that the nubmer of new introduced
+The interesting thing to note here is that the number of new introduced
 vulnerabilities seem to peek at about 2011. Does it mean that the new versions
 are much less vulnerable? Probably not. This seems to suggest that a
 vulnerability typically requires about 6 years before most of the bugs

@@ -229,7 +229,7 @@ These are susceptible to race conditions and corruptions, and incomplete builds 
 #### Silent makes
 
 Thanks to [mad-scientist](http://make.mad-scientist.net/managing-recipe-echoing/) for introducing me to `.SILENT` target.
-There are various ways to accomplish this. The most finegrained approach is to use `@` in front of a recipe line
+There are various ways to accomplish this. The most fine grained approach is to use `@` in front of a recipe line
 
 ```
 dont_echo:
@@ -255,7 +255,7 @@ dont_echo:
      echo hi
 ```
 
-You can ofcourse make it dependent on a variable `V`
+You can of course make it dependent on a variable `V`
 
 ```
 ifndef V

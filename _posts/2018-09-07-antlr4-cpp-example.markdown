@@ -10,7 +10,7 @@ categories: post
 ## Using ANTLR4 for C++ target
 
 For my research, I often need to produce recognizers of languages using different kinds of parsers.
-`ANTLR4` produces _Adaptive LL(*)_ parsers ([Parr 2011](/references#parr2011ll)), and here is a bare-bones example of how to produce a `c++` implmenentation from an [ANTLR4](http://www.antlr4.org/) grammar.
+`ANTLR4` produces _Adaptive LL(*)_ parsers ([Parr 2011](/references#parr2011ll)), and here is a bare-bones example of how to produce a `c++` implementation from an [ANTLR4](http://www.antlr4.org/) grammar.
 
 First, the grammar, to be placed in a file `Expr.g4`. This is a simple expression grammar. Note that the filename is important and should match the `grammar`. Secondly, the EOF at the end of main rule is important. Otherwise the parser will not signal an error if there are unparsed characters.
 
@@ -199,7 +199,7 @@ $ gcc -o expr output/*.c -I $LIBANTLR3C/ -I $LIBANTLR3C/include $LIBANTLR3C/.lib
 
 ## Grun
 
-Antlr ships with a tool called `grun` that can help you to debug your grammar.
+ANTLR ships with a tool called `grun` that can help you to debug your grammar.
 Using that however, is a little different. Here is how one can use it with our
 `Expr` grammar.
 

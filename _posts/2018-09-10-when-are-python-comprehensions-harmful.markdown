@@ -41,7 +41,7 @@ So does `map`
 >>> [j() for j in v]
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 ```
-The reason is that the comprehensions effectively use the same variable to store each different value during iteration. The trouble with doing that is that, when one uses `lambda` which has the iteration variable as a `free variable`, it closes over the iteration variable, and creates a closure. This closure gets saved in the result of the comprehension. The problem here is that, each lambda closs over the same variable (think of it as saving a reference to the same variable). Hence, when any of the `lambda` gets invoked later, the value of the iterator variable would be the value it was assigned last in the comprehension. Hence the above behavior.
+The reason is that the comprehensions effectively use the same variable to store each different value during iteration. The trouble with doing that is that, when one uses `lambda` which has the iteration variable as a `free variable`, it closes over the iteration variable, and creates a closure. This closure gets saved in the result of the comprehension. The problem here is that, each lambda closes over the same variable (think of it as saving a reference to the same variable). Hence, when any of the `lambda` gets invoked later, the value of the iterator variable would be the value it was assigned last in the comprehension. Hence the above behavior.
 
 Does it mean that one should use the generator expression instead? since it is closer to the pythonic spirit? Unfortunately, there are still traps for the unwary.
 ```pycon
@@ -53,7 +53,7 @@ Does it mean that one should use the generator expression instead? since it is c
 >>> [j() for j in list(v)]
 [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
 ```
-The reason the first behaves as expected is because of the way generators work. The first generator is steped one at a time in the first when we request of execution of the lambda in `j()`. Hence, eventhough it is the same variable `i`, it works as expected for us because new values are assigned and used in a single step.
+The reason the first behaves as expected is because of the way generators work. The first generator is stepped one at a time in the first when we request of execution of the lambda in `j()`. Hence, even though it is the same variable `i`, it works as expected for us because new values are assigned and used in a single step.
 
 On the other hand, `map` still works correctly
 ```pycon
@@ -74,4 +74,4 @@ The whole problem is due to the implicit variable capture. Map forces us to bind
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 ```
 
-Indeed, here, `map` conforms to the [zen of python](https://www.python.org/dev/peps/pep-0020/) compared to the behavior of comprehensions. Unfortunately, I lost quite a bit of time that I did not have, debugging this, and I think that the implicit closing over behavior that comprehensions exhibit is actitvely harmful.
+Indeed, here, `map` conforms to the [zen of python](https://www.python.org/dev/peps/pep-0020/) compared to the behavior of comprehensions. Unfortunately, I lost quite a bit of time that I did not have, debugging this, and I think that the implicit closing over behavior that comprehensions exhibit is actively harmful.

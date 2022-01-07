@@ -142,8 +142,8 @@ have generated a list of successful parses until different locations. The second
 parser now tries to advance the location of parsing. If successful, the location
 is updated. If not successful, the parse is dropped. That is, given a list of
 chars `ab` and a parser that is `AndThen(Lit('a'), Lit('b'))`, `AndThen` first
-applies `Lit('a')` which results in an array with a single element as the succssful
-parse: `[([['b'], ['a']])]` The first elment of the item is the remaining list `['b']`.
+applies `Lit('a')` which results in an array with a single element as the successful
+parse: `[([['b'], ['a']])]` The first element of the item is the remaining list `['b']`.
 Now, the second parser is applied on it, which takes it forward to `[([[], ['a', 'b']])]`.
 If instead, we were parsing `ac`, then the result of the first parse will be the same
 as before. But the second parse will not succeed. Hence this item will be dropped resulting
@@ -317,7 +317,7 @@ for r in only_parsed(result):
 </form>
 
 
-Note that at this point, we do not really have a labelled parse tree. The way to add it is the following. We first define `Apply` that
+Note that at this point, we do not really have a labeled parse tree. The way to add it is the following. We first define `Apply` that
 can be applied at particular parse points.
 
 <form name='python_run_form'>

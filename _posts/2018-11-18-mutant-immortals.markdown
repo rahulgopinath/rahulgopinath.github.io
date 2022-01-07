@@ -27,9 +27,9 @@ Another pattern that one often find is code that performs some computation, wher
 
 ### What about optimization branches
 
-A common pattern that is seen in performance oriented programs is optimization of certain often occuring conditions. For example, optimization of multiplication of two by shifts. This optimization can take place only if the multiplier is 2. Hence, a program that checks and optimizes for multiplication by 2 will have an immortal mutant in the program that disables that optimization. Here, while by usual definitions, both are equivalent programs, we argue that the performance difference should have been noticeable, and verified by a test case. Otherwise, one is relying on knowledge of conditions that is not codified anywhere, and may be subject to change (e.g y2k). Hence, we argue that optimization immortals are not true immortals, and inspecting them can be worth the effort spent.
+A common pattern that is seen in performance oriented programs is optimization of certain often occurring conditions. For example, optimization of multiplication of two by shifts. This optimization can take place only if the multiplier is 2. Hence, a program that checks and optimizes for multiplication by 2 will have an immortal mutant in the program that disables that optimization. Here, while by usual definitions, both are equivalent programs, we argue that the performance difference should have been noticeable, and verified by a test case. Otherwise, one is relying on knowledge of conditions that is not codified anywhere, and may be subject to change (e.g y2k). Hence, we argue that optimization immortals are not true immortals, and inspecting them can be worth the effort spent.
 
-### Functional idoms
+### Functional idioms
 
 One often finds that one of the ways to eliminate immortal mutants is to rewrite an imperative style function in a functional idiom. This often reduces the quantity of the code involved, reducing both mortal and immortal mutants. The more concise code from the functional idioms require using functions that are harder to replace exactly (because each function does more), and hence result in less immortals. Here again, the equivalent mutants are an opportunity to improve the code
 
@@ -44,11 +44,11 @@ A common reason for a large number of immortal mutants is duplicated code in the
 
 ### Estimating the number of equivalent mutants
 
-There seems to be few research papers regarding equivalent mutants. The only ones I have been able to find is from Ayad et al. [3] that tries to relate program redundancy to the number of equivalent mutants, and another from me [4] that applies simple statistical estimation using random sampling. A third approach (that I have not seen used so far) can be to make use of the [lincoln index](https://www.johndcook.com/blog/2010/07/13/lincoln-index/) from the capture-recapture ecological statistics literature.
+There seems to be few research papers regarding equivalent mutants. The only ones I have been able to find is from Ayad et al. [3] that tries to relate program redundancy to the number of equivalent mutants, and another from me [4] that applies simple statistical estimation using random sampling. A third approach (that I have not seen used so far) can be to make use of the [Lincoln index](https://www.johndcook.com/blog/2010/07/13/lincoln-index/) from the capture-recapture ecological statistics literature.
 
 #### Lincoln Index
 
-The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide $$ K_1 $$ (from the first), and $$ K_2 $$ (from the second) as the estimate of total killable mutants (equvalent mutants $$ E = M - K_{actual} $$ ), then the actual $$ K $$ can be estimated as below
+The basic idea is that if you have two mutation testers that are independent of each other tasked to find killable mutants from a set of mutants M, and they provide $$ K_1 $$ (from the first), and $$ K_2 $$ (from the second) as the estimate of total killable mutants (equivalent mutants $$ E = M - K_{actual} $$ ), then the actual $$ K $$ can be estimated as below
 
 $$ |K| = \frac{ |K_1| \times |K_2| }{ |K_1 \cap K_2| } $$
 

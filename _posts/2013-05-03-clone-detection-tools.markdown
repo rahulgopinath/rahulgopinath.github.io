@@ -67,11 +67,11 @@ Metrics based:
 - Abstract pattern matching tool using Markov models.
       (finds similarity between two programs)
   cyclomatic complexity, function point metric, information flow quality metric
-- halstead metrices (#function calls, #variables, #operators etc.)
+- Halstead metrics (#function calls, #variables, #operators etc.)
 
 Feature based:
 --------------
-- Parametrised approach with neural networks to find similar blocks.
+- Parametrized approach with neural networks to find similar blocks.
 
 Hybrid approaches:
 ----------------

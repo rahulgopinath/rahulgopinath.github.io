@@ -10,7 +10,7 @@ categories: post
 
 *caveats*: Very hacky
 
-*requirements*: Every one in your group should at least be a member of the same unix group.
+*requirements*: Every one in your group should at least be a member of the same UNIX group.
 
 As a researcher working on software empirical research, one of the *pain points* in my research is the creation and maintenance of an environment that can be reproduced easily. I would like to be able to switch environments according to which project I am working on, and even experiment on new programs without affecting my old environments.
 
@@ -36,7 +36,7 @@ $ git clone https://github.com/vrthra/nix-prefix $base/nix-prefix
 * Especially verify that you require all packages that are specified in the checked out [Makefile](https://github.com/vrthra/nix-prefix/blob/master/Makefile). You can change which packages get installed by modifying the *$src* variable. By default, these packages are built
 *src=nix bzip2 curl sqlite dbi dbd wwwcurl bison flex gcc coreutils*. See the *#@ * lines for where they are fetched from.
 
-* Change to the unix group that you share with other team members (I assume that *myteam* is the unix group).
+* Change to the UNIX group that you share with other team members (I assume that *myteam* is the UNIX group).
 
 ```bash
 $ newgrp myteam
@@ -51,7 +51,7 @@ $ make
 
 * Note that due to [512](https://github.com/NixOS/nix/issues/512) we have to modify the Nix packages slightly. We need a non-released version of Nix (see [here](https://github.com/vrthra/nix-prefix/blob/master/etc/non-nix.patch)), which is fetched automatically.
 
-* You will also require to create/update your *~/.nixpkgs/config.nix*. If you don't have one, it can be created automatically by using *nixpkgs* target. Remember to use *base=* argument here if you have not changed it in the makefile. Update your profile *~/.nix-profile* and the Nix Packages checkout link at *~/.nix-defexpr/nixpkgs*.
+* You will also require to create/update your *~/.nixpkgs/config.nix*. If you don't have one, it can be created automatically by using *nixpkgs* target. Remember to use *base=* argument here if you have not changed it in the Makefile. Update your profile *~/.nix-profile* and the Nix Packages checkout link at *~/.nix-defexpr/nixpkgs*.
 
 ```bash
 $ make nixpkgs nixprofile nixconfig
@@ -99,7 +99,7 @@ $ ./bin/update-glibc-hack.sh
 $ ./bin/update-perms.sh
 ```
 
-* Once you have built *$base/nix*, you can compress it and transport it to other machines with same operating system. After a gc, the size is really small.
+* Once you have built *$base/nix*, you can compress it and transport it to other machines with same operating system. After a GC, the size is really small.
 
 ```bash
 nix> nix-collect-garbage -d
@@ -162,6 +162,6 @@ With this recipe, you should have a shared prefixed nix installation suitable fo
 
 ## Still to be solved.
 
-Because we have multiple kinds of environments, all of which mounts the same *$HOME*, we dont have a way to switch the directories *~/.nixpkgs/config.nix* and *~/.nix-defexpr*. There is this issue [817](https://github.com/NixOS/nix/issues/817) still open about it, and it seems there was a *NIXPKGS_CONFIG* variable at one point of time, but seems to have been removed. See [829](https://github.com/NixOS/nix/issues/829).
+Because we have multiple kinds of environments, all of which mounts the same *$HOME*, we don't have a way to switch the directories *~/.nixpkgs/config.nix* and *~/.nix-defexpr*. There is this issue [817](https://github.com/NixOS/nix/issues/817) still open about it, and it seems there was a *NIXPKGS_CONFIG* variable at one point of time, but seems to have been removed. See [829](https://github.com/NixOS/nix/issues/829).
 
 This can be worked around by using some shell scripting to switch the variables. However, it is very error-prone, and does not let you use different environments simultaneously.

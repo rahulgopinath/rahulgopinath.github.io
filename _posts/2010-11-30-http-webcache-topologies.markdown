@@ -139,7 +139,7 @@ this system there is no hierarchy of caches. (Each cache is one hop away from an
 ### En-Route Caching using Load Diffusion
 
 As implemented in WebWave[33], A set of co-operating Caches are organized in a routing tree. Caches
-periodically exchange the load information between themselves. An object can be cached any where enroute
+periodically exchange the load information between themselves. An object can be cached any where en route
 to the origin server. An object copy is only created when a parent notices that a child is lightly
 loaded compared to the parent. Conversely when a child may decide to delete some of its cached objects
 if the parent becomes lightly loaded asymmetrically.
@@ -175,7 +175,7 @@ the size, last modified time and if the object can be cached. The hash is calcul
 information. Once the hash is calculated, the node will try to find another node with a hash value closer to
 the data hash than itself. If it finds none, then it retrieves the block and caches it. If it finds another node
 with a hash closer to the data hash, then the request is forwarded to that node. A different approach is
-taken by NoTorrent[42]. It is a system that adapts peer to peer bittorrent protocol to web caching. It
+taken by NoTorrent[42]. It is a system that adapts peer to peer BitTorrent protocol to web caching. It
 includes a torrent tracker which keeps track of which nodes have downloaded which ranges of files, and
 this information is shared with other nodes on request. The NoTorrent nodes uses this information to
 contact other nodes that have a copy of the required file range.

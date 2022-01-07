@@ -9,11 +9,11 @@ categories: post
 
 This is a summary of the Spectre ([Kocher et al. 2017](https://arxiv.org/abs/1801.01203)) attack.
 
-Spectre is a fairly complex (some what hard to exploit, but also hard to prevent) attack on any CPU that implements branch prediction and speculative execution, and can be used to retrieve memory contents from a victinm process.
+Spectre is a fairly complex (some what hard to exploit, but also hard to prevent) attack on any CPU that implements branch prediction and speculative execution, and can be used to retrieve memory contents from a victim process.
 
 ## Terminology
 * __Transient instruction__
-  A transient instruction is an instruction that is executed speculatively by the CPU but never commited (retired).
+  A transient instruction is an instruction that is executed speculatively by the CPU but never committed (retired).
 * __Direct threading__
   A technique for faster execution of code popular in the Forth community, where one uses the instruction pointer to indicate which portions of code to jump to, and arranging these instructions such that code execution jumps to required labels on completion of each procedure without actually requiring procedure calls. 
 * __ROP: Return oriented programming__
@@ -21,6 +21,6 @@ Spectre is a fairly complex (some what hard to exploit, but also hard to prevent
 
 ## The attack
 
-The attack starts by searching the victing binary for exploitable sequences of operations. These kinds of exploitable sequences is fairly common in any process that imports even _libc_, and are called _gadgets_. The general idea of ROP is that one can search any moderately complex program (any that links to _libc_) for a set of gadgets that when stringed together, can be used to write arbitrary complex code to do pretty much anything that the linked libraries are capable of.
+The attack starts by searching the victim binary for exploitable sequences of operations. These kinds of exploitable sequences is fairly common in any process that imports even _libc_, and are called _gadgets_. The general idea of ROP is that one can search any moderately complex program (any that links to _libc_) for a set of gadgets that when stringed together, can be used to write arbitrary complex code to do pretty much anything that the linked libraries are capable of.
 
-So, the idea here is to search the victim process for a set of gadgets that when stringed together, acts as a transmitter of data by modifing cache lines or any other non-rolled back effects of transient instructions (or even timing differences in resource usage). Once such a sequence of gadgets is found, the next thing to do is to _mistrain_ the branch predictor in CPUs so that a chosen branch will actually jump to the found gadget address speculatively, and perform the computation described by the gadget sequence. The result of such a sequence is then transmitted to the external process one bit at a time using loaded cache lines or other resource usage patterns.
+So, the idea here is to search the victim process for a set of gadgets that when stringed together, acts as a transmitter of data by modifying cache lines or any other non-rolled back effects of transient instructions (or even timing differences in resource usage). Once such a sequence of gadgets is found, the next thing to do is to _mistrain_ the branch predictor in CPUs so that a chosen branch will actually jump to the found gadget address speculatively, and perform the computation described by the gadget sequence. The result of such a sequence is then transmitted to the external process one bit at a time using loaded cache lines or other resource usage patterns.
