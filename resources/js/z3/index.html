@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Z3 WASM</title>
+    <script src="/resources/js/z3/z3.js"></script>
+    <script>
+    // From https://www.philipzucker.com/replacing-rise4fun/
+    // Hosted for teaching.
+    Z3["onInitialized"] = () => {
+       console.log("z3 loaded");
+    }
+    </script>
+</head>
+
+<body>
+  <script>
+   function run(){
+       const dot = document.getElementById("query").value;
+       Z3["onInitialized"].then({
+          try {
+             res = Z3.solve(dot);
+             const div = document.getElementById("result");
+             div.innerHTML = res;
+          } catch (error) {
+             console.error(error);
+             div.innerHTML = error;
+          }
+       });
+   }
+  </script>
+  <textarea id="query" rows="20" style="width:100%">
+    (echo "Hello world")
+  </textarea>
+  <button onclick="run()">Run</button>
+  <code id="result" style="white-space:pre-wrap"> </code>
+
+</body>
+
+</html>

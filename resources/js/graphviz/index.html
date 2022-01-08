@@ -15,7 +15,7 @@
 <body>
   <script>
    function run(){
-        const dot = document.getElementById("query").value;
+       const dot = document.getElementById("query").value;
        hpccWasm.graphviz.layout(dot, "svg", "dot").then(svg => {
           const div = document.getElementById("result");
           div.innerHTML = svg;
