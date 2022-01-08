@@ -29,8 +29,9 @@
   <script>
    function run(){
        const dot = document.getElementById("query").value;
-       createZ3().then(Z3 => {
+       createZ3().then(Z3m => {
           console.log('Z3 loaded.');
+          Z3m.ready().then(Z3 => {
           try {
              res = Z3.solve(dot);
              const div = document.getElementById("result");
@@ -39,6 +40,7 @@
              console.error(error);
              div.innerHTML = error;
           }
+          });
        });
    }
   </script>
