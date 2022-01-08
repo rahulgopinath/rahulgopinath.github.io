@@ -8,9 +8,6 @@
     <script>
     // From https://www.philipzucker.com/replacing-rise4fun/
     // Hosted for teaching.
-    Z3["onInitialized"] = () => {
-       console.log("z3 loaded");
-    }
     </script>
 </head>
 
@@ -18,7 +15,8 @@
   <script>
    function run(){
        const dot = document.getElementById("query").value;
-       Z3.onInitialized().then({
+       createZ3().then(Z3 => {
+          console.log('Z3 loaded.');
           try {
              res = Z3.solve(dot);
              const div = document.getElementById("result");
