@@ -36,8 +36,8 @@
              const ret = Z3.Z3.solve(dot)
              div.innerHTML = ret;
           } catch (error) {
-             console.error(error);
-             div.innerHTML = error;
+             console.error(error.message);
+             div.innerHTML = error.message;
           }
        });
    }
