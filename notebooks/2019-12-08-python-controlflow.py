@@ -327,48 +327,8 @@ s = """\
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-print(g.to_string())
+__canvas__(g.to_string())
 
-
-# 
-# <svg width="70pt" height="196pt"
-#  viewBox="0.00 0.00 70.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-# <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
-# <title>%3</title>
-# <polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-192 66,-192 66,4 -4,4"/>
-# <!-- 0 -->
-# <g id="node1" class="node">
-# <title>0</title>
-# <ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="27" ry="18"/>
-# <ellipse fill="none" stroke="#000000" cx="31" cy="-166" rx="31" ry="22"/>
-# <text text-anchor="start" x="19" y="-162.3" font-family="Times,serif" font-size="14.00" fill="#000000">start</text>
-# </g>
-# <!-- 2 -->
-# <g id="node2" class="node">
-# <title>2</title>
-# <polygon fill="none" stroke="#000000" points="58,-108 4,-108 4,-72 58,-72 58,-108"/>
-# <text text-anchor="middle" x="31" y="-86.3" font-family="Times,serif" font-size="14.00" fill="#000000">10</text>
-# </g>
-# <!-- 0&#45;&gt;2 -->
-# <g id="edge1" class="edge">
-# <title>0&#45;&gt;2</title>
-# <path fill="none" stroke="#000000" d="M31,-143.6086C31,-135.7272 31,-126.7616 31,-118.4482"/>
-# <polygon fill="#000000" stroke="#000000" points="34.5001,-118.3974 31,-108.3975 27.5001,-118.3975 34.5001,-118.3974"/>
-# </g>
-# <!-- 4 -->
-# <g id="node3" class="node">
-# <title>4</title>
-# <polygon fill="none" stroke="#000000" points="58,-36 4,-36 4,0 58,0 58,-36"/>
-# <text text-anchor="middle" x="31" y="-14.3" font-family="Times,serif" font-size="14.00" fill="#000000">&#39;a&#39;</text>
-# </g>
-# <!-- 2&#45;&gt;4 -->
-# <g id="edge2" class="edge">
-# <title>2&#45;&gt;4</title>
-# <path fill="none" stroke="#000000" d="M31,-71.8314C31,-64.131 31,-54.9743 31,-46.4166"/>
-# <polygon fill="#000000" stroke="#000000" points="34.5001,-46.4132 31,-36.4133 27.5001,-46.4133 34.5001,-46.4132"/>
-# </g>
-# </g>
-# </svg>
 
 # ### Arithmetic expressions
 # 
