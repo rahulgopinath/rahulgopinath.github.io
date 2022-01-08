@@ -9,6 +9,19 @@
     <script>
     // From https://www.philipzucker.com/replacing-rise4fun/
     // Hosted for teaching.
+    // https://github.com/gzuidhof/coi-serviceworker
+    window.coi = {
+        // // A function that is run to decide whether to register the SW or not.
+        // You could for instance make this return a value based on whether you actually need to be cross origin isolated or not.
+        shouldRegister: () => true,
+        // If this function returns true, any existing service worker will be deregistered (and nothing else will happen).
+        shouldDeregister: () => false,
+        // Override this if you want to prompt the user and do reload at your own leisure. Maybe show the user a message saying:
+        // "Click OK to refresh the page to enable <...>"
+        doReload: () => window.location.reload(),
+        // Set to true if you don't want coi to log anything to the console.
+        quiet: false
+    }
     </script>
 </head>
 
