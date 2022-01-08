@@ -18,85 +18,43 @@
 # https://rahul.gopinath.org/py/graphviz-0.16-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 
-# import
+# define the picture
 
-import matplotlib.pyplot as plt
-import networkx as nx
-import base64
-
-# Add graph
-
-plt.clf()
-G = nx.Graph()
-G.add_nodes_from([('A', {'weight':5}), ('B', {'weight':3}), ('C', {'weight':3})])
-G.add_edges_from([('A', 'B', {'weight':20})])
-G.add_edges_from([('A', 'C', {'weight':20})])
-pos = nx.shell_layout(G)
-labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
-nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
-s = "nx.draw_networkx_labels(G,pos=pos,font_size=30)"
-plt.axis('off')
-plt.show()
-
-# Image data
-
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
-
-# Show
-
-__canvas__(img_str)
-
-
-# dot
-
-import pydot
 dotFormat = """
-digraph G{
-edge [dir=forward]
-node [shape=plaintext]
-0 [label="0 (None)"]
-0 -> 7 [label="root"]
-1 [label="1 (The)"]
-4 [label="4 (great Indian Circus)"]
-4 -> 4 [label="compound"]
-4 -> 1 [label="det"]
-4 -> 4 [label="amod"]
-5 [label="5 (is)"]
-6 [label="6 (in)"]
-7 [label="7 (Mumbai)"]
-7 -> 6 [label="case"]
-7 -> 5 [label="cop"]
-7 -> 4 [label="nsubj"]
+digraph G {
+    node [shape=rect];
+
+    subgraph cluster_0 {
+        style=filled;
+        color=lightgrey;
+        node [style=filled,color=white];
+        a0 -> a1 -> a2 -> a3;
+        label = "Hello";
+    }
+
+    subgraph cluster_1 {
+        node [style=filled];
+        b0 -> b1 -> b2 -> b3;
+        label = "World";
+        color=blue
+    }
+
+    start -> a0;
+    start -> b0;
+    a1 -> b3;
+    b2 -> a3;
+    a3 -> a0;
+    a3 -> end;
+    b3 -> end;
+
+    start [shape=Mdiamond];
+    end [shape=Msquare];
 }
 """
 
-# create
-
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-
-for node in (pg[0].get_nodes()):
-  print(node.get_name(), type(node), node.get_label())
-
-# again
-
-plt.clf()
-nx.draw(g, with_labels=True)
-plt.axis('off')
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
-
 # draw
 
-__canvas__(img_str)
+__canvas__(dotFormt)
 
 # derivation tree
 
@@ -174,10 +132,7 @@ print(labels)
 
 import pydot
 dotFormat = str(v)
-
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-print(pg[0])
+__canvas__(dotFormat)
 
 # hierarchy
 

@@ -88,121 +88,39 @@ https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 </form>
 </div>
 </details>
-import
+define the picture
 
 <!--
 ############
-import matplotlib.pyplot as plt
-import networkx as nx
-import base64
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import matplotlib.pyplot as plt
-import networkx as nx
-import base64
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Add graph
-
-<!--
-############
-plt.clf()
-G = nx.Graph()
-G.add_nodes_from([('A', {'weight':5}), ('B', {'weight':3}), ('C', {'weight':3})])
-G.add_edges_from([('A', 'B', {'weight':20})])
-G.add_edges_from([('A', 'C', {'weight':20})])
-pos = nx.shell_layout(G)
-labels = {'A': 'aaa', 'B': 'bbb', 'C':'ccc'}
-nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
-s = "nx.draw_networkx_labels(G,pos=pos,font_size=30)"
-plt.axis('off')
-plt.show()
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-plt.clf()
-G = nx.Graph()
-G.add_nodes_from([(&#x27;A&#x27;, {&#x27;weight&#x27;:5}), (&#x27;B&#x27;, {&#x27;weight&#x27;:3}), (&#x27;C&#x27;, {&#x27;weight&#x27;:3})])
-G.add_edges_from([(&#x27;A&#x27;, &#x27;B&#x27;, {&#x27;weight&#x27;:20})])
-G.add_edges_from([(&#x27;A&#x27;, &#x27;C&#x27;, {&#x27;weight&#x27;:20})])
-pos = nx.shell_layout(G)
-labels = {&#x27;A&#x27;: &#x27;aaa&#x27;, &#x27;B&#x27;: &#x27;bbb&#x27;, &#x27;C&#x27;:&#x27;ccc&#x27;}
-nx.draw(G, pos=pos, node_size=1000, with_labels=True, labels=labels)
-s = &quot;nx.draw_networkx_labels(G,pos=pos,font_size=30)&quot;
-plt.axis(&#x27;off&#x27;)
-plt.show()
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Image data
-
-<!--
-############
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-buf = io.BytesIO()
-plt.savefig(buf, format=&#x27;png&#x27;)
-buf.seek(0)
-img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
-print(len(img_str))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Show
-
-<!--
-############
-__canvas__(img_str)
-
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(img_str)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-dot
-
-<!--
-############
-import pydot
 dotFormat = """
-digraph G{
-edge [dir=forward]
-node [shape=plaintext]
-0 [label="0 (None)"]
-0 -> 7 [label="root"]
-1 [label="1 (The)"]
-4 [label="4 (great Indian Circus)"]
-4 -> 4 [label="compound"]
-4 -> 1 [label="det"]
-4 -> 4 [label="amod"]
-5 [label="5 (is)"]
-6 [label="6 (in)"]
-7 [label="7 (Mumbai)"]
-7 -> 6 [label="case"]
-7 -> 5 [label="cop"]
-7 -> 4 [label="nsubj"]
+digraph G {
+    node [shape=rect];
+
+    subgraph cluster_0 {
+        style=filled;
+        color=lightgrey;
+        node [style=filled,color=white];
+        a0 -> a1 -> a2 -> a3;
+        label = "Hello";
+    }
+
+    subgraph cluster_1 {
+        node [style=filled];
+        b0 -> b1 -> b2 -> b3;
+        label = "World";
+        color=blue
+    }
+
+    start -> a0;
+    start -> b0;
+    a1 -> b3;
+    b2 -> a3;
+    a3 -> a0;
+    a3 -> end;
+    b3 -> end;
+
+    start [shape=Mdiamond];
+    end [shape=Msquare];
 }
 """
 
@@ -210,80 +128,37 @@ node [shape=plaintext]
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import pydot
 dotFormat = &quot;&quot;&quot;
-digraph G{
-edge [dir=forward]
-node [shape=plaintext]
-0 [label=&quot;0 (None)&quot;]
-0 -&gt; 7 [label=&quot;root&quot;]
-1 [label=&quot;1 (The)&quot;]
-4 [label=&quot;4 (great Indian Circus)&quot;]
-4 -&gt; 4 [label=&quot;compound&quot;]
-4 -&gt; 1 [label=&quot;det&quot;]
-4 -&gt; 4 [label=&quot;amod&quot;]
-5 [label=&quot;5 (is)&quot;]
-6 [label=&quot;6 (in)&quot;]
-7 [label=&quot;7 (Mumbai)&quot;]
-7 -&gt; 6 [label=&quot;case&quot;]
-7 -&gt; 5 [label=&quot;cop&quot;]
-7 -&gt; 4 [label=&quot;nsubj&quot;]
+digraph G {
+    node [shape=rect];
+
+    subgraph cluster_0 {
+        style=filled;
+        color=lightgrey;
+        node [style=filled,color=white];
+        a0 -&gt; a1 -&gt; a2 -&gt; a3;
+        label = &quot;Hello&quot;;
+    }
+
+    subgraph cluster_1 {
+        node [style=filled];
+        b0 -&gt; b1 -&gt; b2 -&gt; b3;
+        label = &quot;World&quot;;
+        color=blue
+    }
+
+    start -&gt; a0;
+    start -&gt; b0;
+    a1 -&gt; b3;
+    b2 -&gt; a3;
+    a3 -&gt; a0;
+    a3 -&gt; end;
+    b3 -&gt; end;
+
+    start [shape=Mdiamond];
+    end [shape=Msquare];
 }
 &quot;&quot;&quot;
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-create
-
-<!--
-############
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-
-for node in (pg[0].get_nodes()):
-  print(node.get_name(), type(node), node.get_label())
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-
-for node in (pg[0].get_nodes()):
-  print(node.get_name(), type(node), node.get_label())
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-again
-
-<!--
-############
-plt.clf()
-nx.draw(g, with_labels=True)
-plt.axis('off')
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-plt.clf()
-nx.draw(g, with_labels=True)
-plt.axis(&#x27;off&#x27;)
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format=&#x27;png&#x27;)
-buf.seek(0)
-img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
-print(len(img_str))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -292,13 +167,13 @@ draw
 
 <!--
 ############
-__canvas__(img_str)
+__canvas__(dotFormt)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(img_str)
+__canvas__(dotFormt)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -474,10 +349,7 @@ pydot
 ############
 import pydot
 dotFormat = str(v)
-
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-print(pg[0])
+__canvas__(dotFormat)
 
 ############
 -->
@@ -485,10 +357,7 @@ print(pg[0])
 <textarea cols="40" rows="4" name='python_edit'>
 import pydot
 dotFormat = str(v)
-
-pg = pydot.graph_from_dot_data(dotFormat)
-g = nx.nx_pydot.from_pydot(pg[0])
-print(pg[0])
+__canvas__(dotFormat)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
