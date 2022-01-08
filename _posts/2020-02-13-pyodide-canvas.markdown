@@ -167,13 +167,13 @@ draw
 
 <!--
 ############
-__canvas__(dotFormt)
+__canvas__(dotFormat)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dotFormt)
+__canvas__(dotFormat)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -358,111 +358,6 @@ __canvas__(dotFormat)
 import pydot
 dotFormat = str(v)
 __canvas__(dotFormat)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-hierarchy
-
-<!--
-############
-def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
-    def _hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5, pos = None, parent = None):
-        if pos is None:
-            pos = {root:(xcenter,vert_loc)}
-        else:
-            pos[root] = (xcenter, vert_loc)
-        children = list(G.neighbors(root))
-        if not isinstance(G, nx.DiGraph) and parent is not None:
-            children.remove(parent)
-        if len(children)!=0:
-            dx = width/len(children)
-            nextx = xcenter - width/2 - dx/2
-            for child in children:
-                nextx += dx
-                pos = _hierarchy_pos(G,child, width = dx, vert_gap = vert_gap,
-                                    vert_loc = vert_loc-vert_gap, xcenter=nextx,
-                                    pos=pos, parent = root)
-        return pos
-    return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter):
-    def _hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5, pos = None, parent = None):
-        if pos is None:
-            pos = {root:(xcenter,vert_loc)}
-        else:
-            pos[root] = (xcenter, vert_loc)
-        children = list(G.neighbors(root))
-        if not isinstance(G, nx.DiGraph) and parent is not None:
-            children.remove(parent)
-        if len(children)!=0:
-            dx = width/len(children)
-            nextx = xcenter - width/2 - dx/2
-            for child in children:
-                nextx += dx
-                pos = _hierarchy_pos(G,child, width = dx, vert_gap = vert_gap,
-                                    vert_loc = vert_loc-vert_gap, xcenter=nextx,
-                                    pos=pos, parent = root)
-        return pos
-    return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-show
-
-<!--
-############
-plt.clf()
-pos = hierarchy_pos(g,'0', width=1, vert_loc=0, vert_gap=0.006, xcenter=0)
-
-
-nx.draw(g, pos=pos, with_labels=True, labels=labels,node_size=1000,font_size=8, node_color='#ffffff')
-
-plt.axis('off')
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-plt.clf()
-pos = hierarchy_pos(g,&#x27;0&#x27;, width=1, vert_loc=0, vert_gap=0.006, xcenter=0)
-
-
-nx.draw(g, pos=pos, with_labels=True, labels=labels,node_size=1000,font_size=8, node_color=&#x27;#ffffff&#x27;)
-
-plt.axis(&#x27;off&#x27;)
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format=&#x27;png&#x27;)
-buf.seek(0)
-img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
-print(len(img_str))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-canvas
-
-<!--
-############
-__canvas__(img_str)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(img_str)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
