@@ -8159,7 +8159,7 @@ const Z3 = {
    }
 }
 
-
+  Module['Z3'] = Z3;
   return createZ3.ready
 }
 );
