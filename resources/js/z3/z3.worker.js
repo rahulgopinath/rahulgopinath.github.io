@@ -104,7 +104,7 @@ self.onmessage = function(e) {
         importScripts(objectUrl);
         URL.revokeObjectURL(objectUrl);
       }
-      createMyModule(Module).then(function (instance) {
+      createZ3(Module).then(function (instance) {
         Module = instance;
       });
     } else if (e.data.cmd === 'run') {
