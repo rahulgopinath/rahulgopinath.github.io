@@ -18,7 +18,7 @@
   <script>
    function run(){
        const dot = document.getElementById("query").value;
-       Z3["onInitialized"].then({
+       Z3.onInitialized().then({
           try {
              res = Z3.solve(dot);
              const div = document.getElementById("result");
@@ -31,7 +31,7 @@
    }
   </script>
   <textarea id="query" rows="20" style="width:100%">
-    (echo "Hello world")
+(echo "Hello world")
   </textarea>
   <button onclick="run()">Run</button>
   <code id="result" style="white-space:pre-wrap"> </code>
