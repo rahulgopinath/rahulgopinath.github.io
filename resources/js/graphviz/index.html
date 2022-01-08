@@ -9,6 +9,12 @@
         // From https://github.com/hpcc-systems/hpcc-js-wasm
         // Hosted for teaching.
         var hpccWasm = window["@hpcc-js/wasm"];
+        function display_dot(dot_txt, div_elt_id) {
+           hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+              const div = document.getElementById(div_elt_id);
+              div.innerHTML = svg;
+           });
+        }
     </script>
 </head>
 
@@ -16,10 +22,7 @@
   <script>
    function run(){
        const dot = document.getElementById("query").value;
-       hpccWasm.graphviz.layout(dot, "svg", "dot").then(svg => {
-          const div = document.getElementById("result");
-          div.innerHTML = svg;
-       });
+       display_dot(dot, "result");
    }
   </script>
   <textarea id="query" rows="20" style="width:100%">

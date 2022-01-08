@@ -61,6 +61,21 @@ def print_data(processed_data):
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div_elt_id) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        const div = document.getElementById(div_elt_id);
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -150,7 +165,7 @@ def p(v):
 
 def main(args):
     fn =  args[0]
-    assert fn in VALS
+    #assert fn in VALS
     if len(args) > 1:
         postname = args[1]
     else:
@@ -165,9 +180,12 @@ def main(args):
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/%s).
 """ % fn
-    wheel = """
+    if fn in VALS:
+        wheel = """
 The installable python wheel `%s` is available [here](%s).
 """ % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]))
+    else:
+        wheel = ""
 
     with open(postname, 'w+') as f:
         with redirect_stdout(f):
