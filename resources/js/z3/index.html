@@ -43,7 +43,15 @@
    }
   </script>
   <textarea id="query" rows="20" style="width:100%">
-(echo "Hello world")
+(echo "starting Z3...")
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (> a 10))
+(assert (< (f a true) 100))
+(check-sat)
+(get-model)
   </textarea>
   <button onclick="run()">Run</button>
   <code id="result" style="white-space:pre-wrap"> </code>
