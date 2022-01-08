@@ -33,8 +33,7 @@
           console.log('Z3 loaded.');
           try {
              Z3m._init_context()
-             let eval_smt2 = Z3m.cwrap("eval_smt2", "string", ["string"])
-             const ret = eval_smt2(dot)
+             const ret = _eval_smt2(dot)
              Z3m.destroy_context()
              res = ret.trim();
              const div = document.getElementById("result");
