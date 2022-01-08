@@ -24,9 +24,10 @@ function runit(mypre, mycanvas, editor) {
 
    function draw(str) {
       $(mycanvas).empty();
-      myimg = document.createElement("img");
+      myimg = document.createElement("div");
       $(mycanvas).append(myimg);
-      $(myimg).attr('src', str);
+      //$(myimg).attr('src', str);
+      display_dot(str, myimg)
    }
 
    if (typeof mypre != "undefined") {
