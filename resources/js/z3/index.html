@@ -31,16 +31,16 @@
        const dot = document.getElementById("query").value;
        createZ3().then(Z3m => {
           console.log('Z3 loaded.');
-          //Z3m.ready.then(Z3x => {
+          Z3m.ready.then(Z3x => {
           try {
-             res = Z3.solve(dot);
+             res = Z3x.Z3.solve(dot);
              const div = document.getElementById("result");
              div.innerHTML = res;
           } catch (error) {
              console.error(error);
              div.innerHTML = error;
           }
-          //});
+          });
        });
    }
   </script>
