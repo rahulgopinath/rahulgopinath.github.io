@@ -84,9 +84,6 @@ Module['instantiateWasm'] = function(info, receiveInstance) {
   return instance.exports;
 };
 
-function moduleLoaded() {
-}
-
 self.onmessage = function(e) {
   try {
     if (e.data.cmd === 'load') { // Preload command that is called once per worker to parse and load the Emscripten code.
@@ -107,14 +104,9 @@ self.onmessage = function(e) {
         importScripts(objectUrl);
         URL.revokeObjectURL(objectUrl);
       }
-
-      // MINIMAL_RUNTIME always compiled Wasm (&Wasm2JS) asynchronously, even in pthreads. But
-      // regular runtime and asm.js are loaded synchronously, so in those cases
-      // we are now loaded, and can post back to main thread.
-      moduleLoaded();
-
-    } else if (e.data.cmd === 'objectTransfer') {
-      Module['PThread'].receiveObjectTransfer(e.data);
+      createMyModule(Module).then(function (instance) {
+        Module = instance;
+      });
     } else if (e.data.cmd === 'run') {
       // This worker was idle, and now should start executing its pthread entry
       // point.
@@ -129,18 +121,11 @@ self.onmessage = function(e) {
       Module['__performance_now_clock_drift'] = performance.now() - e.data.time;
 
       // Pass the thread address inside the asm.js scope to store it for fast access that avoids the need for a FFI out.
-      Module['__emscripten_thread_init'](e.data.threadInfoStruct, /*isMainBrowserThread=*/0, /*isMainRuntimeThread=*/0);
+      Module['__emscripten_thread_init'](e.data.threadInfoStruct, /*isMainBrowserThread=*/0, /*isMainRuntimeThread=*/0, /*canBlock=*/1);
 
-      // Establish the stack frame for this thread in global scope
-      // The stack grows downwards
-      var max = e.data.stackBase;
-      var top = e.data.stackBase + e.data.stackSize;
       assert(e.data.threadInfoStruct);
-      assert(top != 0);
-      assert(max != 0);
-      assert(top > max);
       // Also call inside JS module to set up the stack frame for this pthread in JS module scope
-      Module['establishStackSpace'](top, max);
+      Module['establishStackSpace']();
       Module['PThread'].receiveObjectTransfer(e.data);
       Module['PThread'].threadInit();
 
@@ -158,42 +143,34 @@ self.onmessage = function(e) {
         if (Module['keepRuntimeAlive']()) {
           Module['PThread'].setExitStatus(result);
         } else {
-          Module['PThread'].threadExit(result);
+          Module['__emscripten_thread_exit'](result);
         }
       } catch(ex) {
-        if (ex === 'Canceled!') {
-          Module['PThread'].threadCancel();
-        } else if (ex != 'unwind') {
-          // FIXME(sbc): Figure out if this is still needed or useful.  Its not
-          // clear to me how this check could ever fail.  In order to get into
-          // this try/catch block at all we have already called bunch of
-          // functions on `Module`.. why is this one special?
-          if (typeof(Module['_emscripten_futex_wake']) !== "function") {
-            err("Thread Initialisation failed.");
-            throw ex;
-          }
+        if (ex != 'unwind') {
           // ExitStatus not present in MINIMAL_RUNTIME
           if (ex instanceof Module['ExitStatus']) {
             if (Module['keepRuntimeAlive']()) {
               err('Pthread 0x' + Module['_pthread_self']().toString(16) + ' called exit(), staying alive due to noExitRuntime.');
             } else {
-              err('Pthread 0x' + Module['_pthread_self']().toString(16) + ' called exit(), calling threadExit.');
-              Module['PThread'].threadExit(ex.status);
+              err('Pthread 0x' + Module['_pthread_self']().toString(16) + ' called exit(), calling _emscripten_thread_exit.');
+              Module['__emscripten_thread_exit'](ex.status);
             }
           }
           else
           {
-            Module['PThread'].threadExit(-2);
+            // The pthread "crashed".  Do not call `_emscripten_thread_exit` (which
+            // would make this thread joinable.  Instead, re-throw the exception
+            // and let the top level handler propagate it back to the main thread.
             throw ex;
           }
         } else {
           // else e == 'unwind', and we should fall through here and keep the pthread alive for asynchronous events.
-          err('Pthread 0x' + Module['_pthread_self']().toString(16) + ' completed its pthread main entry point with an unwind, keeping the pthread worker alive for asynchronous operation.');
+          err('Pthread 0x' + Module['_pthread_self']().toString(16) + ' completed its main entry point with an `unwind`, keeping the worker alive for asynchronous operation.');
         }
       }
     } else if (e.data.cmd === 'cancel') { // Main thread is asking for a pthread_cancel() on this thread.
       if (Module['_pthread_self']()) {
-        Module['PThread'].threadCancel();
+        Module['__emscripten_thread_exit'](-1/*PTHREAD_CANCELED*/);
       }
     } else if (e.data.target === 'setimmediate') {
       // no-op

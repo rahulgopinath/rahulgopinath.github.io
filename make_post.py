@@ -66,9 +66,8 @@ def print_data(processed_data):
 // From https://github.com/hpcc-systems/hpcc-js-wasm
 // Hosted for teaching.
 var hpccWasm = window["@hpcc-js/wasm"];
-function display_dot(dot_txt, div_elt_id) {
+function display_dot(dot_txt, div) {
     hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
-        const div = document.getElementById(div_elt_id);
         div.innerHTML = svg;
     });
 }
