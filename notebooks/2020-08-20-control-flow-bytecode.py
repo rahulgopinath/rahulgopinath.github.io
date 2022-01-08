@@ -27,11 +27,7 @@
 
 import sys
 import dis
-import networkx as nx
-import matplotlib.pyplot as plt
 import pydot
-import textwrap
-import base64
 
 # Let us start by defining a few functions that we want to extract the control-flow graphs of.
 
@@ -169,24 +165,6 @@ if __name__ == '__main__':
 # Show the image
 
 if __name__ == '__main__':
-    nxg = nx.nx_pydot.from_pydot(g)
-    plt.clf()
-    nx.draw(nxg, with_labels=True)
-    plt.axis('off')
-    plt.show()
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-    print(len(img_str))
+    __canvas__(str(g))
 
-# 
 
-if __name__ == '__main__':
-    __canvas__(img_str)
-
-# Unfortunately, the current WASM pydot and matplotlib implementation that we
-# use has a bug which graph display nonsensical. On the command line, the above
-# is displayed as
-# 
-# ![bitcodecfg](/resources/posts/bitcodecfg.png)

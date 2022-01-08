@@ -96,11 +96,7 @@ https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 ############
 import sys
 import dis
-import networkx as nx
-import matplotlib.pyplot as plt
 import pydot
-import textwrap
-import base64
 
 ############
 -->
@@ -108,11 +104,7 @@ import base64
 <textarea cols="40" rows="4" name='python_edit'>
 import sys
 import dis
-import networkx as nx
-import matplotlib.pyplot as plt
 import pydot
-import textwrap
-import base64
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -448,55 +440,18 @@ Show the image
 
 <!--
 ############
-nxg = nx.nx_pydot.from_pydot(g)
-plt.clf()
-nx.draw(nxg, with_labels=True)
-plt.axis('off')
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format='png')
-buf.seek(0)
-img_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')
-print(len(img_str))
+__canvas__(str(g))
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-nxg = nx.nx_pydot.from_pydot(g)
-plt.clf()
-nx.draw(nxg, with_labels=True)
-plt.axis(&#x27;off&#x27;)
-plt.show()
-buf = io.BytesIO()
-plt.savefig(buf, format=&#x27;png&#x27;)
-buf.seek(0)
-img_str = &#x27;data:image/png;base64,&#x27; + base64.b64encode(buf.read()).decode(&#x27;UTF-8&#x27;)
-print(len(img_str))
+__canvas__(str(g))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-
-<!--
-############
-__canvas__(img_str)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(img_str)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Unfortunately, the current WASM pydot and matplotlib implementation that we
-use has a bug which graph display nonsensical. On the command line, the above
-is displayed as
-
-![bitcodecfg](/resources/posts/bitcodecfg.png)
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
