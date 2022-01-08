@@ -484,7 +484,7 @@ __canvas__(g.to_string())
 class PyCFGExtractor(PyCFGExtractor):
     def on_while(self, node, myparents):
         loop_id = self.gstate.counter
-        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s:while' % loop_id, state=self.gstate)
+        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s: while' % loop_id, state=self.gstate)
         p = self.walk(node.test, [lbl1_node])
 
         lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test',
