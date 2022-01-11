@@ -4,12 +4,11 @@
  * @returns {jsobj is PyProxy} Is ``jsobj`` a :any:`PyProxy`?
  */
 export function isPyProxy(jsobj: any): jsobj is PyProxy;
-export function wrapNamespace(ns: any): any;
 /**
  * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array} TypedArray;
  */
 /**
- * A class to allow access to a Python data buffers from Javascript. These are
+ * A class to allow access to a Python data buffers from JavaScript. These are
  * produced by :any:`PyProxy.getBuffer` and cannot be constructed directly.
  * When you are done, release it with the :any:`release <PyBuffer.release>`
  * method.  See
@@ -221,7 +220,7 @@ declare class PyProxyClass {
      */
     copy(): PyProxy;
     /**
-     * Converts the ``PyProxy`` into a Javascript object as best as possible. By
+     * Converts the ``PyProxy`` into a JavaScript object as best as possible. By
      * default does a deep conversion, if a shallow conversion is desired, you can
      * use ``proxy.toJs({depth : 1})``. See :ref:`Explicit Conversion of PyProxy
      * <type-translations-pyproxy-to-js>` for more info.
@@ -235,20 +234,20 @@ declare class PyProxyClass {
      * generated structure. The most common use case is to create a new empty
      * list, pass the list as `pyproxies`, and then later iterate over `pyproxies`
      * to destroy all of created proxies.
-     * @param {bool} [options.create_pyproxies] If false, ``toJs`` will throw a
+     * @param {boolean} [options.create_pyproxies] If false, ``toJs`` will throw a
      * ``ConversionError`` rather than producing a ``PyProxy``.
-     * @param {bool} [options.dict_converter] A function to be called on an
+     * @param {boolean} [options.dict_converter] A function to be called on an
      * iterable of pairs ``[key, value]``. Convert this iterable of pairs to the
      * desired output. For instance, ``Object.fromEntries`` would convert the dict
      * to an object, ``Array.from`` converts it to an array of entries, and ``(it) =>
      * new Map(it)`` converts it to a ``Map`` (which is the default behavior).
-     * @return {any} The Javascript object resulting from the conversion.
+     * @return {any} The JavaScript object resulting from the conversion.
      */
     toJs({ depth, pyproxies, create_pyproxies, dict_converter, }?: {
         depth?: number;
         pyproxies?: any[];
-        create_pyproxies?: any;
-        dict_converter?: any;
+        create_pyproxies?: boolean;
+        dict_converter?: boolean;
     }): any;
     /**
      * Check whether the :any:`PyProxy.length` getter is available on this PyProxy. A
@@ -435,14 +434,14 @@ declare class PyProxyCallableMethods {
  */
 declare class PyProxyBufferMethods {
     /**
-     * Get a view of the buffer data which is usable from Javascript. No copy is
+     * Get a view of the buffer data which is usable from JavaScript. No copy is
      * ever performed.
      *
      * Present only if the proxied Python object supports the `Python Buffer
      * Protocol <https://docs.python.org/3/c-api/buffer.html>`_.
      *
      * We do not support suboffsets, if the buffer requires suboffsets we will
-     * throw an error. Javascript nd array libraries can't handle suboffsets
+     * throw an error. JavaScript nd array libraries can't handle suboffsets
      * anyways. In this case, you should use the :any:`toJs` api or copy the
      * buffer to one that doesn't use suboffets (using e.g.,
      * `numpy.ascontiguousarray
