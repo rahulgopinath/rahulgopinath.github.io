@@ -93,7 +93,7 @@ menu: Talks
 ---
 #### <a id='gopinath2022learning'></a>[Gopinath: [_Learning And Refining Input Grammars For Effective Fuzzing_] SBST 2022]()
 
-TBA
+More info [here](https://sbst22.github.io/keynotes/)
 
 #### <a id='dutra2021input'></a>[Dutra & Gopinath: _Input Languages for Effective and Focused Fuzzing_ FuzzCon Europe 2021]()
 
