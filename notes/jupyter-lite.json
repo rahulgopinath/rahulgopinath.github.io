@@ -117,7 +117,7 @@
     "fullStaticUrl": "./lab/build",
     "litePluginSettings": {
       "@jupyterlite/pyolite-kernel-extension:kernel": {
-        "pyodideUrl": "/jlite/resources/pyodide/full/3.9/pyodide.js"
+        "pyodideUrl": "/resources/pyodide/full/3.9/pyodide.js"
       }
     },
     "mathjaxConfig": "TeX-AMS_CHTML-full,Safe",
