@@ -122,6 +122,8 @@ installed if you are attempting to run the program directly on the machine.
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
 
 <ol>
 %s
