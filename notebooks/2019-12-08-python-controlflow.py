@@ -44,7 +44,29 @@ import pydot
 import metacircularinterpreter
 
 # #### A few helper functions for visualization
-# 
+
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
+
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+
+
+class CLIGraphics(Graphics):
+    def __init__(self):
+        global graphviz
+        import graphviz
+        globals()['graphviz'] = graphviz
+        self.i = 0
+
+    def display_dot(self, dotsrc):
+        graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
+        self.i += 1
+
+graphics = WebGraphics()
+ 
 # The *color* is used to determine whether true or false branch was taken.
 
 def get_color(p, c):
@@ -197,7 +219,7 @@ class CFGNode(CFGNode):
 gs = GraphState()
 start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
 g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # ### Extracting the control flow
 # 
@@ -264,7 +286,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### Module(stmt* body)
 # 
@@ -289,7 +311,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # ### Expressions
 # #### Primitives
@@ -327,7 +349,7 @@ s = """\
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 # ### Arithmetic expressions
@@ -364,7 +386,7 @@ s = """
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 # #### Assign(expr* targets, expr value)
@@ -394,7 +416,7 @@ a = 10+1
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 # #### Name
@@ -442,7 +464,7 @@ else:
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### While
 
@@ -514,7 +536,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### Break
 # 
@@ -552,7 +574,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### Continue
 # 
@@ -586,7 +608,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### For
 # 
@@ -664,7 +686,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # more
 
@@ -680,7 +702,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # more
 
@@ -695,7 +717,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 # #### FunctionDef
 # 
@@ -768,5 +790,5 @@ y = 2
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 

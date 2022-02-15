@@ -129,6 +129,59 @@ import metacircularinterpreter
 </form>
 #### A few helper functions for visualization
 
+<!--
+############
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
+
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+
+
+class CLIGraphics(Graphics):
+    def __init__(self):
+        global graphviz
+        import graphviz
+        globals()['graphviz'] = graphviz
+        self.i = 0
+
+    def display_dot(self, dotsrc):
+        graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
+        self.i += 1
+
+graphics = WebGraphics()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
+
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+
+
+class CLIGraphics(Graphics):
+    def __init__(self):
+        global graphviz
+        import graphviz
+        globals()[&#x27;graphviz&#x27;] = graphviz
+        self.i = 0
+
+    def display_dot(self, dotsrc):
+        graphviz.Source(dotsrc).render(format=&#x27;png&#x27;, outfile=&#x27;%s.png&#x27; % self.i)
+        self.i += 1
+
+graphics = WebGraphics()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The *color* is used to determine whether true or false branch was taken.
 
 <!--
@@ -477,7 +530,7 @@ The usage is as below:
 gs = GraphState()
 start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
 g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -486,7 +539,7 @@ __canvas__(g.to_string())
 gs = GraphState()
 start = CFGNode(parents=[], ast=ast.parse(&#x27;start&#x27;).body, state=gs)
 g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -619,7 +672,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -632,7 +685,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -678,7 +731,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -692,7 +745,7 @@ pass
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -773,7 +826,7 @@ s = """\
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 ############
@@ -788,7 +841,7 @@ s = &quot;&quot;&quot;\
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -856,7 +909,7 @@ s = """
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 ############
@@ -870,7 +923,7 @@ s = &quot;&quot;&quot;
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -920,7 +973,7 @@ a = 10+1
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 
 ############
@@ -934,7 +987,7 @@ a = 10+1
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1026,7 +1079,7 @@ else:
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1043,7 +1096,7 @@ else:
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1151,7 +1204,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1167,7 +1220,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1234,7 +1287,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1252,7 +1305,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1312,7 +1365,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1330,7 +1383,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1460,7 +1513,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1476,7 +1529,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1497,7 +1550,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1515,7 +1568,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1535,7 +1588,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1552,7 +1605,7 @@ y = x
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1690,7 +1743,7 @@ y = 2
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 
 ############
 -->
@@ -1708,7 +1761,7 @@ y = 2
 cfge = PyCFGExtractor()
 cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-__canvas__(g.to_string())
+graphics.display_dot(g.to_string())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
