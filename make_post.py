@@ -40,7 +40,7 @@ def notebook_to_post(notebook):
 def get_post_name(pkg):
     if pkg in PKGS:
         desc, notebook, ver = PKGS[pkg]
-        return ' from "[%s][%s]".' % (PKGS[pkg][0], notebook_to_post(notebook))
+        return ' from "<a href="%s">%s</a>".' % (notebook_to_post(notebook), PKGS[pkg][0])
     else: return ''
 
 def split_data(data):
