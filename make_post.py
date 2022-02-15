@@ -164,6 +164,14 @@ from contextlib import redirect_stdout
 def p(v):
     sys.stdout.buffer.write(v.encode('utf8'))
 
+def notebook_to_post(notebook):
+    "notebooks/2018-09-06-peg-parsing.py"
+    '/post/2019/12/08/python-controlflow/'
+    post_str = notebook[len('notebooks/'):-3]
+    year,month,date = post_str.split('-')[:3]
+    post_val = '-'.join(post_str.split('-')[3:])
+    return '/post/%s/%s/%s/%s/' % (year, month, date, post_val)
+
 def main(args):
     fn =  args[0]
     #assert fn in VALS
@@ -183,8 +191,8 @@ The runnable Python source for this notebook is available [here](https://github.
 """ % fn
     if fn in VALS:
         wheel = """
-The installable python wheel `%s` is available [here](%s).
-""" % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]))
+The installable python wheel `%s` is available [here](%s). See the post "[%s](%s)" for further information.
+""" % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]), VALS[fn][1], notebook_to_post(fn))
     else:
         wheel = ""
 
