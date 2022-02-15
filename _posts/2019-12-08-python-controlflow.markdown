@@ -97,7 +97,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">pydot-1.4.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl">metacircularinterpreter-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl">metacircularinterpreter-0.0.1-py2.py3-none-any.whl</a> from "[Python Meta Circular Interpreter][/post/2019/12/07/python-mci/]".</li>
 </ol>
 
 <div style='display:none'>

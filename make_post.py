@@ -5,8 +5,43 @@ import json
 import itertools as I
 from html import escape
 
-with open('pkgs.json') as f:
-    VALS=json.load(fp=f)
+# versioned packages
+PKGVS = {}
+PKGS = {}
+VALS = {}
+
+def load_notebooks(my_pkgs):
+    global PKGVS
+    global PKGS
+    global VALS
+
+    with open(my_pkgs) as f:
+        VALS=json.load(fp=f)
+
+    for notebook in VALS:
+        pkg, desc, ver = VALS[notebook]
+        name = "%s-%s" % (pkg, ver)
+        assert name not in PKGVS
+        assert pkg not in PKGS
+        PKGVS[name] = [pkg, ver, desc, notebook]
+        PKGS[pkg] = [desc, notebook, ver]
+
+load_notebooks('pkgs.json')
+
+def notebook_to_post(notebook):
+    "notebooks/2018-09-06-peg-parsing.py"
+    '/post/2019/12/08/python-controlflow/'
+    post_str = notebook[len('notebooks/'):-3]
+    year,month,date = post_str.split('-')[:3]
+    post_val = '-'.join(post_str.split('-')[3:])
+    return '/post/%s/%s/%s/%s/' % (year, month, date, post_val)
+
+
+def get_post_name(pkg):
+    if pkg in PKGS:
+        desc, notebook, ver = PKGS[pkg]
+        return ' from "[%s][%s]".' % (PKGS[pkg][0], notebook_to_post(notebook))
+    else: return ''
 
 def split_data(data):
     chunks = [list(g) for k,g in I.groupby(data, key=lambda line: line[0] == '#')]
@@ -47,6 +82,13 @@ def split_data(data):
                 processed_data.append(('code', code))
     return processed_data
 
+def get_pkg_desc(name):
+    # , VALS[fn][1], notebook_to_post(fn) See the post "[%s](%s)" for further information.
+    # https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
+    wheel_name = name[len('https://rahul.gopinath.org/py/'):]
+    pkg_name, *rest = wheel_name.split('-')
+    post_name = get_post_name(pkg_name)
+    return '<li><a href="%s">%s</a>%s</li>' % (name, wheel_name, post_name)
 
 def print_data(processed_data):
     first_comment = True
@@ -114,6 +156,9 @@ installed if you are attempting to run the program directly on the machine.
 ''' % ('\n'.join(['<li>%s</li>' % l for l in chunk]),'\n'.join(['%s' % l for l in chunk])))
 
         if kind == 'wheel':
+            items = [get_pkg_desc(l) for l in chunk]
+            pkg_desc = '\n'.join(items)
+            pkg_names = '\n'.join(['%s' % l for l in chunk])
             p('''
 <details>
 <summary>Available Packages </summary>
@@ -137,7 +182,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 </form>
 </div>
 </details>
-''' % ( '\n'.join(['<li><a href="%s">%s</a></li>' % (l,l[len('https://rahul.gopinath.org/py/'):]) for l in chunk]), '\n'.join(['%s' % l for l in chunk])))
+''' % ( pkg_desc, pkg_names))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
             p('''
@@ -164,14 +209,6 @@ from contextlib import redirect_stdout
 def p(v):
     sys.stdout.buffer.write(v.encode('utf8'))
 
-def notebook_to_post(notebook):
-    "notebooks/2018-09-06-peg-parsing.py"
-    '/post/2019/12/08/python-controlflow/'
-    post_str = notebook[len('notebooks/'):-3]
-    year,month,date = post_str.split('-')[:3]
-    post_val = '-'.join(post_str.split('-')[3:])
-    return '/post/%s/%s/%s/%s/' % (year, month, date, post_val)
-
 def main(args):
     fn =  args[0]
     #assert fn in VALS
@@ -191,8 +228,8 @@ The runnable Python source for this notebook is available [here](https://github.
 """ % fn
     if fn in VALS:
         wheel = """
-The installable python wheel `%s` is available [here](%s). See the post "[%s](%s)" for further information.
-""" % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]), VALS[fn][1], notebook_to_post(fn))
+The installable python wheel `%s` is available [here](%s).
+""" % (VALS[fn][0], '/py/%s-%s-py2.py3-none-any.whl' % (VALS[fn][0], VALS[fn][2]))
     else:
         wheel = ""
 
