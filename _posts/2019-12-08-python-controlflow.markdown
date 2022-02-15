@@ -1723,5 +1723,5 @@ __canvas__(g.to_string())
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-12-08-python-controlflow.py).
 
 
-The installable python wheel `pycfg` is available [here](/py/pycfg-0.0.1-py2.py3-none-any.whl). See the post "[The Python Control Flow Graph](/post/2019/12/08/python-controlflow/)" for further information.
+The installable python wheel `pycfg` is available [here](/py/pycfg-0.0.1-py2.py3-none-any.whl).
 
