@@ -512,3 +512,9 @@ graphics.display_dot(g.to_string())
 # need such libraries,
 # I recommend [Pyan](https://github.com/Technologicat/pyan), which seems to
 # work reasonably well.
+# 
+# For a much more indepth treatment of this subject, see the paper by
+# Salis et al.[^salis2021pycg] at ICSE 2021.
+# 
+# 
+# [^salis2021pycg]: V Salis, T Sotiropoulos, P Louridas, D Spinellis, and D Mitropoulos. _Pycg: Practical call graph generation in python._ ICSE 2021.
