@@ -10,13 +10,13 @@
 # We [previously discussed](/post/2019/12/07/python-mci/) how one can write an
 # interpreter Python, and we made use of this machinery in generating a
 # [control flow graph](/post/2019/12/08/python-controlflow/).
-# In this post, we will show how one can extract the static call graph using
+# In this post, we will show how one can extract the static call-graph using
 # the same machinery.
 #
 #
-# A [call graph](https://en.wikipedia.org/wiki/Call_graph) is a directed graph
+# A [call-graph](https://en.wikipedia.org/wiki/Call_graph) is a directed graph
 # data structure that encodes the structure of function calls in a program.
-# As in control-flow graph, a call graph is another abstract view of the
+# As in control-flow graph, a call-graph is another abstract view of the
 # interpreter.
 #
 # Call graphs complement control flow graphs in static analysis. They allow one
@@ -30,7 +30,8 @@
 #
 # #### Prerequisites
 #
-# As before, we start with the prerequisite imports.
+# As before, we start with the prerequisite imports. Click on the bullets for
+# more information on how to obtain them.
 
 #^
 # matplotlib
@@ -45,17 +46,18 @@ import pydot
 import metacircularinterpreter
 
 # #### The graphical routines.
-#
-# Use `CLIGraphics` if you are running it from the
-# command line.
 
 class Graphics:
     def display_dot(self, dotsrc): raise NotImplemented
+
+# The default class for Pyodide.
 
 class WebGraphics(Graphics):
     def display_dot(self, dotsrc):
         __canvas__(g.to_string())
 
+# Use `CLIGraphics` if you are running it from the
+# command line.
 
 class CLIGraphics(Graphics):
     def __init__(self):
@@ -67,6 +69,8 @@ class CLIGraphics(Graphics):
     def display_dot(self, dotsrc):
         graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
         self.i += 1
+
+# We use Pyodide here.
 
 graphics = WebGraphics()
 
@@ -85,8 +89,7 @@ def to_graph(my_nodes, comment=''):
 
 # ### The GraphState
 #
-# The call graph is a graph, and hence we need a data structue for the *graph*
-# and the *node*.
+# The call-graph is a graph, and hence we need a data structure for the *graph*.
 
 class GraphState:
     def __init__(self):
@@ -97,11 +100,14 @@ class GraphState:
            self.registry[name] = CallNode(name)
         return self.registry[name]
 
+# We also need a node class.
+
 class CallNode:
     def __init__(self, name):
         self.name = name
         self.calls = []
         self.callers = []
+        self.scope = []
 
 # Given that it is a directed graph node, we need the ability to add calls and
 # callers.
@@ -115,10 +121,15 @@ class CallNode(CallNode):
         self.calls.append(c)
         c.callers.append(self)
 
-    def add_context(self, parent):
-        pass
+# The context is really the lexical context (scope) in which a function was
+# defined. For example, functions may be defined in the context of modules
+# or classes, and classes may be defined in the context of modules.
 
-# Two convenience methods
+class CallNode(CallNode):
+    def add_context(self, parent):
+        parent.scope.append(self)
+
+# We next define two convenience methods for printing any node.
 
 class CallNode(CallNode):
     def __str__(self):
@@ -127,7 +138,7 @@ class CallNode(CallNode):
     def __repr__(self):
         return '(%s %s %s)' % (self.name, str(self.calls), str(self.callers))
 
-# The usage is as below:
+# The usage of our graph structure is as below:
 
 gs = GraphState()
 start = gs.get_node('__module__')
@@ -136,7 +147,7 @@ graphics.display_dot(g.to_string())
 
 # ### Extracting the graph
 #
-# The call graph is essentially a source code walker, and shares the basic
+# The call-graph is essentially a source code walker, and shares the basic
 # structure with our interpreter.
 
 class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
@@ -147,7 +158,8 @@ class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
         return GraphState()
 
 # As in previous posts, we define `walk()` that walks a given AST node.
-# A major difference from the CFG is that we want to keep track of the lexical
+# A major difference from the control-flow graph is that we want to keep track
+# of the lexical
 # context in which a function is defined, but not necessarily the sequence.
 # So, our `walk()` accepts the node and the lexical context. It then
 # invokes the various `on_*()` functions with the same list. Since we ignore
@@ -161,6 +173,9 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
         if hasattr(self, fname):
             return getattr(self, fname)(node, parentcontext)
         raise SyntaxError('walk: Not Implemented in %s' % type(node))
+
+# We also define `parse` which parses a given fragment and `eval` which
+# given a fragment, parses and walks the AST.
 
 class PyCallGraphExtractor(PyCallGraphExtractor):
     def parse(self, src):
@@ -462,3 +477,38 @@ cfge.eval(s)
 g = to_graph(cfge.gstate.registry.items())
 graphics.display_dot(g.to_string())
 
+# ## What remains?
+# 
+# At this point, what we have is a very basic call-graph algorithm that
+# understands a restricted subset of Python. However, a lot more is left.
+# 
+# The main problem is that if you have higher order functions, it is very hard
+# to identify which functions can get called when the variable containing the
+# function is invoked. For example, the call-graph of
+# 
+# ```
+# def f(x):
+#     x(1)
+# 
+# ```
+#
+# is almost impossible to compute because `x()` can be any function including
+# `f()` itself. Any polymorphic behavior (such as from objects) induce similar
+# ambiguity.
+# 
+# For example, many objects may override various operators such as arithmetic or
+# boolean operators, providing their own implementations. Given the dynamic
+# nature of Python, we can't identify such methods
+# (though type annotations can help).
+# 
+# That is, while basic call-graph construction is easier than control-flow
+# construction, a complete call-graph is much harder than complete control-flow
+# graph.
+# 
+# ## Related
+# 
+# We note that this post is a proof-of-concept, more intended for understanding
+# how to construct call-graphs than as a library for use in production. If you
+# need such libraries,
+# I recommend [Pyan](https://github.com/Technologicat/pyan), which seems to
+# work reasonably well.

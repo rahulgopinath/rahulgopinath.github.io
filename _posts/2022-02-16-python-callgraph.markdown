@@ -44,11 +44,11 @@ Initialization completion is indicated by a red border around *Run all* button.
 We [previously discussed](/post/2019/12/07/python-mci/) how one can write an
 interpreter Python, and we made use of this machinery in generating a
 [control flow graph](/post/2019/12/08/python-controlflow/).
-In this post, we will show how one can extract the static call graph using
+In this post, we will show how one can extract the static call-graph using
 the same machinery.
-A [call graph](https://en.wikipedia.org/wiki/Call_graph) is a directed graph
+A [call-graph](https://en.wikipedia.org/wiki/Call_graph) is a directed graph
 data structure that encodes the structure of function calls in a program.
-As in control-flow graph, a call graph is another abstract view of the
+As in control-flow graph, a call-graph is another abstract view of the
 interpreter.
 Call graphs complement control flow graphs in static analysis. They allow one
 to identify which functions may be impacted by a change in one function
@@ -58,7 +58,8 @@ Note that this is a limited proof of concept. It does not
 implement the entire traversal other than what is required for us to get our
 examples working.
 #### Prerequisites
-As before, we start with the prerequisite imports.
+As before, we start with the prerequisite imports. Click on the bullets for
+more information on how to obtain them.
 
 <details>
 <summary> System Imports </summary>
@@ -124,19 +125,46 @@ import metacircularinterpreter
 <div name='python_canvas'></div>
 </form>
 #### The graphical routines.
-Use `CLIGraphics` if you are running it from the
-command line.
 
 <!--
 ############
 class Graphics:
     def display_dot(self, dotsrc): raise NotImplemented
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Graphics:
+    def display_dot(self, dotsrc): raise NotImplemented
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The default class for Pyodide.
+
+<!--
+############
 class WebGraphics(Graphics):
     def display_dot(self, dotsrc):
         __canvas__(g.to_string())
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Use `CLIGraphics` if you are running it from the
+command line.
 
+<!--
+############
 class CLIGraphics(Graphics):
     def __init__(self):
         global graphviz
@@ -148,20 +176,10 @@ class CLIGraphics(Graphics):
         graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
         self.i += 1
 
-graphics = WebGraphics()
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Graphics:
-    def display_dot(self, dotsrc): raise NotImplemented
-
-class WebGraphics(Graphics):
-    def display_dot(self, dotsrc):
-        __canvas__(g.to_string())
-
-
 class CLIGraphics(Graphics):
     def __init__(self):
         global graphviz
@@ -172,7 +190,20 @@ class CLIGraphics(Graphics):
     def display_dot(self, dotsrc):
         graphviz.Source(dotsrc).render(format=&#x27;png&#x27;, outfile=&#x27;%s.png&#x27; % self.i)
         self.i += 1
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We use Pyodide here.
 
+<!--
+############
+graphics = WebGraphics()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 graphics = WebGraphics()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -209,8 +240,7 @@ def to_graph(my_nodes, comment=&#x27;&#x27;):
 <div name='python_canvas'></div>
 </form>
 ### The GraphState
-The call graph is a graph, and hence we need a data structue for the *graph*
-and the *node*.
+The call-graph is a graph, and hence we need a data structure for the *graph*.
 
 <!--
 ############
@@ -222,12 +252,6 @@ class GraphState:
         if name not in self.registry:
            self.registry[name] = CallNode(name)
         return self.registry[name]
-
-class CallNode:
-    def __init__(self, name):
-        self.name = name
-        self.calls = []
-        self.callers = []
 
 ############
 -->
@@ -241,12 +265,31 @@ class GraphState:
         if name not in self.registry:
            self.registry[name] = CallNode(name)
         return self.registry[name]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also need a node class.
 
+<!--
+############
 class CallNode:
     def __init__(self, name):
         self.name = name
         self.calls = []
         self.callers = []
+        self.scope = []
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallNode:
+    def __init__(self, name):
+        self.name = name
+        self.calls = []
+        self.callers = []
+        self.scope = []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -265,9 +308,6 @@ class CallNode(CallNode):
         self.calls.append(c)
         c.callers.append(self)
 
-    def add_context(self, parent):
-        pass
-
 ############
 -->
 <form name='python_run_form'>
@@ -280,14 +320,32 @@ class CallNode(CallNode):
     def add_call(self, c):
         self.calls.append(c)
         c.callers.append(self)
-
-    def add_context(self, parent):
-        pass
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Two convenience methods
+The context is really the lexical context (scope) in which a function was
+defined. For example, functions may be defined in the context of modules
+or classes, and classes may be defined in the context of modules.
+
+<!--
+############
+class CallNode(CallNode):
+    def add_context(self, parent):
+        parent.scope.append(self)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallNode(CallNode):
+    def add_context(self, parent):
+        parent.scope.append(self)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We next define two convenience methods for printing any node.
 
 <!--
 ############
@@ -312,7 +370,7 @@ class CallNode(CallNode):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The usage is as below:
+The usage of our graph structure is as below:
 
 <!--
 ############
@@ -334,7 +392,7 @@ graphics.display_dot(g.to_string())
 <div name='python_canvas'></div>
 </form>
 ### Extracting the graph
-The call graph is essentially a source code walker, and shares the basic
+The call-graph is essentially a source code walker, and shares the basic
 structure with our interpreter.
 
 <!--
@@ -361,7 +419,8 @@ class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
 <div name='python_canvas'></div>
 </form>
 As in previous posts, we define `walk()` that walks a given AST node.
-A major difference from the CFG is that we want to keep track of the lexical
+A major difference from the control-flow graph is that we want to keep track
+of the lexical
 context in which a function is defined, but not necessarily the sequence.
 So, our `walk()` accepts the node and the lexical context. It then
 invokes the various `on_*()` functions with the same list. Since we ignore
@@ -378,6 +437,26 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
             return getattr(self, fname)(node, parentcontext)
         raise SyntaxError('walk: Not Implemented in %s' % type(node))
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PyCallGraphExtractor(PyCallGraphExtractor):
+    def walk(self, node, parentcontext):
+        if node is None: return
+        fname = &quot;on_%s&quot; % node.__class__.__name__.lower()
+        if hasattr(self, fname):
+            return getattr(self, fname)(node, parentcontext)
+        raise SyntaxError(&#x27;walk: Not Implemented in %s&#x27; % type(node))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also define `parse` which parses a given fragment and `eval` which
+given a fragment, parses and walks the AST.
+
+<!--
+############
 class PyCallGraphExtractor(PyCallGraphExtractor):
     def parse(self, src):
         return ast.parse(src)
@@ -390,14 +469,6 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class PyCallGraphExtractor(PyCallGraphExtractor):
-    def walk(self, node, parentcontext):
-        if node is None: return
-        fname = &quot;on_%s&quot; % node.__class__.__name__.lower()
-        if hasattr(self, fname):
-            return getattr(self, fname)(node, parentcontext)
-        raise SyntaxError(&#x27;walk: Not Implemented in %s&#x27; % type(node))
-
 class PyCallGraphExtractor(PyCallGraphExtractor):
     def parse(self, src):
         return ast.parse(src)
@@ -1087,6 +1158,40 @@ graphics.display_dot(g.to_string())
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## What remains?
+
+At this point, what we have is a very basic call-graph algorithm that
+understands a restricted subset of Python. However, a lot more is left.
+
+The main problem is that if you have higher order functions, it is very hard
+to identify which functions can get called when the variable containing the
+function is invoked. For example, the call-graph of
+
+```
+def f(x):
+    x(1)
+
+```
+is almost impossible to compute because `x()` can be any function including
+`f()` itself. Any polymorphic behavior (such as from objects) induce similar
+ambiguity.
+
+For example, many objects may override various operators such as arithmetic or
+boolean operators, providing their own implementations. Given the dynamic
+nature of Python, we can't identify such methods
+(though type annotations can help).
+
+That is, while basic call-graph construction is easier than control-flow
+construction, a complete call-graph is much harder than complete control-flow
+graph.
+
+## Related
+
+We note that this post is a proof-of-concept, more intended for understanding
+how to construct call-graphs than as a library for use in production. If you
+need such libraries,
+I recommend [Pyan](https://github.com/Technologicat/pyan), which seems to
+work reasonably well.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
