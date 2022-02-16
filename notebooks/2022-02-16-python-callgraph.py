@@ -498,8 +498,10 @@ graphics.display_dot(g.to_string())
 # 
 # For example, many objects may override various operators such as arithmetic or
 # boolean operators, providing their own implementations. Given the dynamic
-# nature of Python, we can't identify such methods
-# (though type annotations can help).
+# nature of Python, we can't identify such methods. That is, without full type
+# inference, accurate call-graphs are impossible. Even given full type
+# inference, we need accurate abstract interpretation of the program to
+# determine possible assignments (which we do not do here).
 # 
 # That is, while basic call-graph construction is easier than control-flow
 # construction, a complete call-graph is much harder than complete control-flow
@@ -511,10 +513,11 @@ graphics.display_dot(g.to_string())
 # how to construct call-graphs than as a library for use in production. If you
 # need such libraries,
 # I recommend [Pyan](https://github.com/Technologicat/pyan), which seems to
-# work reasonably well.
+# work reasonably well, as well as [PyCG](https://github.com/vitsalis/pycg)
+# which is more rigorous.
 # 
 # For a much more indepth treatment of this subject, see the paper by
-# Salis et al.[^salis2021pycg] at ICSE 2021.
+# Salis et al.[^salis2021pycg] at ICSE 2021 (the result of which is PyCG).
 # 
 # 
 # [^salis2021pycg]: V Salis, T Sotiropoulos, P Louridas, D Spinellis, and D Mitropoulos. _Pycg: Practical call graph generation in python._ ICSE 2021.
