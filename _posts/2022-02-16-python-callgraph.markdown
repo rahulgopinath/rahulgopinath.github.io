@@ -317,7 +317,7 @@ The usage is as below:
 <!--
 ############
 gs = GraphState()
-start = gs.get_node('__main__')
+start = gs.get_node('__module__')
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 
@@ -326,7 +326,7 @@ graphics.display_dot(g.to_string())
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GraphState()
-start = gs.get_node(&#x27;__main__&#x27;)
+start = gs.get_node(&#x27;__module__&#x27;)
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 </textarea><br />
@@ -502,6 +502,8 @@ Example
 s = """\
 def my_fn():
     pass
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -516,6 +518,8 @@ graphics.display_dot(g.to_string())
 s = &quot;&quot;&quot;\
 def my_fn():
     pass
+
+my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -574,6 +578,8 @@ Example
 s = """\
 def my_fn():
     return v1
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -588,6 +594,8 @@ graphics.display_dot(g.to_string())
 s = &quot;&quot;&quot;\
 def my_fn():
     return v1
+
+my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -654,6 +662,8 @@ def my_fn2():
 
 def my_fn3():
     pass
+
+my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
@@ -675,6 +685,8 @@ def my_fn2():
 
 def my_fn3():
     pass
+
+my_fn1()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -721,6 +733,8 @@ def my_fn2():
 
 def my_fn3():
     return my_fn1()
+
+my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
@@ -742,6 +756,8 @@ def my_fn2():
 
 def my_fn3():
     return my_fn1()
+
+my_fn1()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -888,6 +904,8 @@ def my_fn():
         a = my_fn2()
     else:
         a = my_fn3()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -907,6 +925,8 @@ def my_fn():
         a = my_fn2()
     else:
         a = my_fn3()
+
+my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -957,6 +977,8 @@ s = """\
 def my_fn():
    while my_fn1():
        x = my_fn2()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -972,6 +994,8 @@ s = &quot;&quot;&quot;\
 def my_fn():
    while my_fn1():
        x = my_fn2()
+
+my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -1044,6 +1068,8 @@ s = """\
 def my_fn():
     for i in my_fn1():
         my_fn2()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -1059,6 +1085,8 @@ s = &quot;&quot;&quot;\
 def my_fn():
     for i in my_fn1():
         my_fn2()
+
+my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()

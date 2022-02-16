@@ -130,7 +130,7 @@ class CallNode(CallNode):
 # The usage is as below:
 
 gs = GraphState()
-start = gs.get_node('__main__')
+start = gs.get_node('__module__')
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 
@@ -215,6 +215,8 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 s = """\
 def my_fn():
     pass
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -244,6 +246,8 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 s = """\
 def my_fn():
     return v1
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -282,6 +286,8 @@ def my_fn2():
 
 def my_fn3():
     pass
+
+my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
@@ -309,6 +315,8 @@ def my_fn2():
 
 def my_fn3():
     return my_fn1()
+
+my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
@@ -383,6 +391,8 @@ def my_fn():
         a = my_fn2()
     else:
         a = my_fn3()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -410,6 +420,8 @@ s = """\
 def my_fn():
    while my_fn1():
        x = my_fn2()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -446,6 +458,8 @@ s = """\
 def my_fn():
     for i in my_fn1():
         my_fn2()
+
+my_fn()
 """
 
 cfge = PyCallGraphExtractor()
