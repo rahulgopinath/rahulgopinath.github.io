@@ -1,6 +1,6 @@
 ---
 published: true
-title: The Python Call Graph
+title: A Minimal Python Call Graph
 layout: post
 comments: true
 tags: callgraph
