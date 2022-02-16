@@ -502,8 +502,6 @@ Example
 s = """\
 def my_fn():
     pass
-
-my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -518,8 +516,6 @@ graphics.display_dot(g.to_string())
 s = &quot;&quot;&quot;\
 def my_fn():
     pass
-
-my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -578,8 +574,6 @@ Example
 s = """\
 def my_fn():
     return v1
-
-my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -594,8 +588,6 @@ graphics.display_dot(g.to_string())
 s = &quot;&quot;&quot;\
 def my_fn():
     return v1
-
-my_fn()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()
@@ -663,7 +655,6 @@ def my_fn2():
 def my_fn3():
     pass
 
-my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
@@ -686,7 +677,6 @@ def my_fn2():
 def my_fn3():
     pass
 
-my_fn1()
 &quot;&quot;&quot;
 
 cfge = PyCallGraphExtractor()

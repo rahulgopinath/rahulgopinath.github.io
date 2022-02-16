@@ -215,8 +215,6 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 s = """\
 def my_fn():
     pass
-
-my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -246,8 +244,6 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 s = """\
 def my_fn():
     return v1
-
-my_fn()
 """
 
 cfge = PyCallGraphExtractor()
@@ -287,7 +283,6 @@ def my_fn2():
 def my_fn3():
     pass
 
-my_fn1()
 """
 
 cfge = PyCallGraphExtractor()
