@@ -130,7 +130,7 @@ class CallNode(CallNode):
 # The usage is as below:
 
 gs = GraphState()
-start = gs.get_node('<start>')
+start = gs.get_node('__main__')
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 
@@ -142,7 +142,6 @@ graphics.display_dot(g.to_string())
 class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
         self.gstate = self.create_graphstate()
-        self.founder = self.gstate.get_node('<start>')
 
     def create_graphstate(self):
         return GraphState()
@@ -169,7 +168,7 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [self.founder])
+        self.walk(node, [])
 
 # #### Module(stmt* body)
 #

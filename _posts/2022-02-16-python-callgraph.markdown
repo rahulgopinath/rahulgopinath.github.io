@@ -317,7 +317,7 @@ The usage is as below:
 <!--
 ############
 gs = GraphState()
-start = gs.get_node('<start>')
+start = gs.get_node('__main__')
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 
@@ -326,7 +326,7 @@ graphics.display_dot(g.to_string())
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 gs = GraphState()
-start = gs.get_node(&#x27;&lt;start&gt;&#x27;)
+start = gs.get_node(&#x27;__main__&#x27;)
 g = to_graph(gs.registry.items())
 graphics.display_dot(g.to_string())
 </textarea><br />
@@ -342,7 +342,6 @@ structure with our interpreter.
 class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
         self.gstate = self.create_graphstate()
-        self.founder = self.gstate.get_node('<start>')
 
     def create_graphstate(self):
         return GraphState()
@@ -354,7 +353,6 @@ class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
 class PyCallGraphExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
         self.gstate = self.create_graphstate()
-        self.founder = self.gstate.get_node(&#x27;&lt;start&gt;&#x27;)
 
     def create_graphstate(self):
         return GraphState()
@@ -386,7 +384,7 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [self.founder])
+        self.walk(node, [])
 
 ############
 -->
@@ -406,7 +404,7 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [self.founder])
+        self.walk(node, [])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
