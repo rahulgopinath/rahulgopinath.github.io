@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: A Minimal Python Call Graph
+# title: A Minimal Static Call Graph for Python Programs
 # layout: post
 # comments: true
 # tags: callgraph
@@ -16,13 +16,21 @@
 #
 # A [call-graph](https://en.wikipedia.org/wiki/Call_graph) is a directed graph
 # data structure that encodes the structure of function calls in a program.
-# As in control-flow graph, a call-graph is another abstract view of the
+# One can extract the call-graph either dynamically or statically. A dynamic
+# call-grah can be constructed by following the execution path of the program
+# on multiple inputs. Such dynamic call-graphs under-approximate the actual
+# structure of the program to the functions that was covered by the set of
+# input. The dual of a dynamic call-graph is a static call-graph (the subject
+# of this post) which is constructed by statically analyzing the program. Such
+# call-graphs overapproximate the actual call-graph of the program (the
+# exceptions are when there are higher order functions and othe polymorphism).
+# As in control-flow graph, a static call-graph is another abstract view of the
 # interpreter.
 #
-# Call graphs complement control flow graphs in static analysis. They allow one
-# to identify which functions may be impacted by a change in one function
-# (dependencies), evaluate reachability, and also can be used to implement
-# various traversals of the code.
+# Static call-graphs complement control flow graphs in static analysis. They
+# allow one to identify which functions may be impacted by a change in one
+# function (dependencies), evaluate reachability, and also can be used to
+# implement various traversals of the code.
 #
 # Note that this is a limited proof of concept. It does not
 # implement the entire traversal other than what is required for us to get our
