@@ -1205,12 +1205,13 @@ work reasonably well, as well as [PyCG](https://github.com/vitsalis/pycg)
 which is more rigorous.
 
 For a much more indepth treatment of this subject, see the paper by
-Salis et al.[^salis2021pycg] at ICSE 2021 (the result of which is PyCG) and
-by Yu[^yu2019empirical].
+Salis et al.[^salis2021pycg] at ICSE 2021 (the result of which is PyCG),
+by Yu[^yu2019empirical] and by Abadi et al.[^abadi2021nocfg].
 
 
 [^salis2021pycg]: V Salis, T Sotiropoulos, P Louridas, D Spinellis, and D Mitropoulos. _Pycg: Practical call graph generation in python._ ICSE 2021.
 [^yu2019empirical]: L Yu. _Empirical study of Python call graph_ ASE 2019.
+[^abadi2021nocfg]: A Abadi, B Makovitzki, R Shemer, and S Tyszberowicz. _NoCFG: A Lightweight Approach for Sound Call Graph Approximation._ arXiv:2105.03099. 2021.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
