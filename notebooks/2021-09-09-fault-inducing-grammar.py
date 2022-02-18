@@ -129,7 +129,8 @@ def find_reachable_keys(grammar, key, reachable_keys=None, found_so_far=None):
                 for k in reachable_keys[token]:
                     found_so_far.add(k)
             else:
-                keys = find_reachable_keys(grammar, token, reachable_keys, found_so_far)
+                keys = find_reachable_keys(grammar,
+                        token, reachable_keys, found_so_far)
     return found_so_far
 
 # 
@@ -400,6 +401,9 @@ class DisplayGrammar:
 
 def display_grammar(grammar, start, verbose=0):
     DisplayGrammar(grammar, verbose).display(start)
+
+
+# Using it.
 
 if __name__ == '__main__':
     g,s = unique_cnode_to_grammar(unique_pattern_tree)

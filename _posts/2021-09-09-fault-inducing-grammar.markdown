@@ -242,7 +242,8 @@ def find_reachable_keys(grammar, key, reachable_keys=None, found_so_far=None):
                 for k in reachable_keys[token]:
                     found_so_far.add(k)
             else:
-                keys = find_reachable_keys(grammar, token, reachable_keys, found_so_far)
+                keys = find_reachable_keys(grammar,
+                        token, reachable_keys, found_so_far)
     return found_so_far
 
 ############
@@ -262,7 +263,8 @@ def find_reachable_keys(grammar, key, reachable_keys=None, found_so_far=None):
                 for k in reachable_keys[token]:
                     found_so_far.add(k)
             else:
-                keys = find_reachable_keys(grammar, token, reachable_keys, found_so_far)
+                keys = find_reachable_keys(grammar,
+                        token, reachable_keys, found_so_far)
     return found_so_far
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -742,9 +744,6 @@ class DisplayGrammar:
 def display_grammar(grammar, start, verbose=0):
     DisplayGrammar(grammar, verbose).display(start)
 
-if __name__ == '__main__':
-    g,s = unique_cnode_to_grammar(unique_pattern_tree)
-    display_grammar(g,s)
 
 ############
 -->
@@ -843,10 +842,23 @@ class DisplayGrammar:
 
 def display_grammar(grammar, start, verbose=0):
     DisplayGrammar(grammar, verbose).display(start)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
 
-if __name__ == &#x27;__main__&#x27;:
-    g,s = unique_cnode_to_grammar(unique_pattern_tree)
-    display_grammar(g,s)
+<!--
+############
+g,s = unique_cnode_to_grammar(unique_pattern_tree)
+display_grammar(g,s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g,s = unique_cnode_to_grammar(unique_pattern_tree)
+display_grammar(g,s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
