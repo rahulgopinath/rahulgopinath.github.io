@@ -371,6 +371,9 @@ class ReconstructRules:
     def __init__(self, grammar):
         self.grammar = grammar
 
+# Reconstructions
+
+class ReconstructRules(ReconstructRules):
     def reconstruct_rules_from_bexpr(self, key, bexpr):
         f_key = bexpr.with_key(key)
         if f_key in self.grammar:
@@ -398,7 +401,7 @@ class ReconstructRules:
         f_key = bexpr.with_key(key)
         d1, s1 = self.reconstruct_rules_from_bexpr(key, fst)
         d2, s2 = self.reconstruct_rules_from_bexpr(key, snd)
-        and_rules = gmultiple.and_definitions(d1, d2)
+        and_rules = self.and_definitions(d1, d2)
         return and_rules, f_key
 
     def reconstruct_or_bexpr(self, key, bexpr):
@@ -407,8 +410,18 @@ class ReconstructRules:
         d1, s1 = self.reconstruct_rules_from_bexpr(key, fst)
         assert fst != snd
         d2, s2 = self.reconstruct_rules_from_bexpr(key, snd)
-        or_rules = gmultiple.or_definitions(d1, d2)
+        or_rules = self.or_definitions(d1, d2)
         return or_rules, f_key
+
+# We also clarify a few defs
+
+class ReconstructRules(ReconstructRules):
+    def and_definitions(self, d1, d2):
+        return gmultiple.and_definitions(d1, d2)
+
+    def or_definitions(self, rulesA, rulesB):
+        return gmultiple.or_definitions(d1, d2)
+
 
 # Using
 
