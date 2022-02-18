@@ -525,7 +525,9 @@ graphics.display_dot(g.to_string())
 # which is more rigorous.
 # 
 # For a much more indepth treatment of this subject, see the paper by
-# Salis et al.[^salis2021pycg] at ICSE 2021 (the result of which is PyCG).
+# Salis et al.[^salis2021pycg] at ICSE 2021 (the result of which is PyCG) and
+# by Yu[^yu2019empirical].
 # 
 # 
 # [^salis2021pycg]: V Salis, T Sotiropoulos, P Louridas, D Spinellis, and D Mitropoulos. _Pycg: Practical call graph generation in python._ ICSE 2021.
+# [^yu2019empirical]: L Yu. "Empirical study of Python call graph." In 2019 34th IEEE/ACM International Conference on Automated Software Engineering (ASE), pp. 1274-1276. IEEE, 2019.
