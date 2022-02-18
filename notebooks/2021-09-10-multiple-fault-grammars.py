@@ -355,6 +355,8 @@ def or_rules(ruleA, ruleB):
                 for i,t in enumerate(ruleA)]]
     else: return [ruleA, ruleB]
 
+# using
+
 if __name__ == '__main__':
     a1 = ['<A 1>', '<B>','<C>']
     a2 = ['<A 2>', '<B>','<C>']

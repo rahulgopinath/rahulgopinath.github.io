@@ -744,20 +744,6 @@ def or_rules(ruleA, ruleB):
                 for i,t in enumerate(ruleA)]]
     else: return [ruleA, ruleB]
 
-if __name__ == '__main__':
-    a1 = ['<A 1>', '<B>','<C>']
-    a2 = ['<A 2>', '<B>','<C>']
-    for r in or_rules(a1, a2): print(r)
-    print()
-    a3 = ['<A 1>', '<B 2>','<C>']
-    a4 = ['<A 1>', '<B 3>','<C>']
-    for r in or_rules(a3, a4): print(r)
-    print()
-    a5 = ['<A 1>', '<B 2>','<C 3>']
-    a6 = ['<A 1>', '<B 3>','<C>']
-    for r in or_rules(a5, a6): print(r)
-    print()
-
 ############
 -->
 <form name='python_run_form'>
@@ -772,20 +758,43 @@ def or_rules(ruleA, ruleB):
         return [[or_tokens(ruleA[i], ruleB[i]) if i == pos[0] else t
                 for i,t in enumerate(ruleA)]]
     else: return [ruleA, ruleB]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using
 
-if __name__ == &#x27;__main__&#x27;:
-    a1 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
-    a2 = [&#x27;&lt;A 2&gt;&#x27;, &#x27;&lt;B&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
-    for r in or_rules(a1, a2): print(r)
-    print()
-    a3 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 2&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
-    a4 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 3&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
-    for r in or_rules(a3, a4): print(r)
-    print()
-    a5 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 2&gt;&#x27;,&#x27;&lt;C 3&gt;&#x27;]
-    a6 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 3&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
-    for r in or_rules(a5, a6): print(r)
-    print()
+<!--
+############
+a1 = ['<A 1>', '<B>','<C>']
+a2 = ['<A 2>', '<B>','<C>']
+for r in or_rules(a1, a2): print(r)
+print()
+a3 = ['<A 1>', '<B 2>','<C>']
+a4 = ['<A 1>', '<B 3>','<C>']
+for r in or_rules(a3, a4): print(r)
+print()
+a5 = ['<A 1>', '<B 2>','<C 3>']
+a6 = ['<A 1>', '<B 3>','<C>']
+for r in or_rules(a5, a6): print(r)
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+a1 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
+a2 = [&#x27;&lt;A 2&gt;&#x27;, &#x27;&lt;B&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
+for r in or_rules(a1, a2): print(r)
+print()
+a3 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 2&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
+a4 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 3&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
+for r in or_rules(a3, a4): print(r)
+print()
+a5 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 2&gt;&#x27;,&#x27;&lt;C 3&gt;&#x27;]
+a6 = [&#x27;&lt;A 1&gt;&#x27;, &#x27;&lt;B 3&gt;&#x27;,&#x27;&lt;C&gt;&#x27;]
+for r in or_rules(a5, a6): print(r)
+print()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
