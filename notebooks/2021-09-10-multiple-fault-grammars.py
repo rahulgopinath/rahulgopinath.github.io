@@ -288,6 +288,7 @@ if __name__ == '__main__':
         print(v)
 
 # ## Producing inputs with at least one of the two fault inducing fragments guaranteed to be present.
+# 
 # How do we construct grammars that are guaranteed to contain at least one of
 # the evocative patterns? This is actually much less complicated than `and`
 #
@@ -297,8 +298,12 @@ if __name__ == '__main__':
 # `or(A1 or B1 or C1, A2 or B2 or C2)`, then it simply becomes
 # `A1 or B1 or C1 or A2 or B2 or C2`
 # At this point, our work is essentially done. All that we need to do
-# is to merge any rules that potentially allow us to merge. However, this
-# is not compulsory.
+# is to merge any rules that potentially allow us to merge. However, there is
+# one constraint. When we do a disjunction, it is possible that the rules being
+# combined may contain common parts. In such cases, a naive disjunction will
+# produce rules which can lead to ambiguous grammars. So, we have to be more
+# careful to remove ambiguity.
+#
 #
 # ### Nonterminals
 # For nonterminals, it is similar to `and` except that the base cases differ.
@@ -323,7 +328,21 @@ def or_tokens(t1, t2):
 # a single refinement difference. That is if we have
 # `or(<A 1> <B 5> <C>, <A 2> <B 5> <C>)`, then this merges to
 # `<A or(1,2)><B 5><C>`. However `or(<A 1> <B 5> <C>, <A 2> <B 6> <C>)`
-# is not mergeable.
+# is not mergeable directly. For now, we leave such rules separate. However,
+# note that this can lead to ambiguity in grammar. In a later post, we will
+# show how to remove this ambiguity.
+#
+# As a hint as to what we can do to remove ambiguity,
+# if given `(<A a1> <B a2>) or (<A a3> <B a4>)`, we replace it with
+#
+# ```
+#   (<A a1> <B a2>) and (<A a3> <B a4>)
+# | (<A a1> <B a2>) and neg(<A a3> <B a4>)
+# | (<A a3> <B a4>) and neg(<A a1> <B a2>)
+# ```
+# 
+# However, we do not do that here as `neg` is yet to be implemented.
+
 
 def or_rules(ruleA, ruleB):
     pos = []
