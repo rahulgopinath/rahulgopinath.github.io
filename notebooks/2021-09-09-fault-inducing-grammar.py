@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+    earleyparser.display_tree(reduced_expr_tree)
 
 # Finally, extract the abstract pattern.
 
