@@ -85,7 +85,7 @@ if __name__ == '__main__':
 # represents a *complete* abstract input. The only general part here is
 # `<expr>` between the doubled parenthesis. So, it tells us that we can
 # produce `((1))`, `((2 + 3))` etc. but these are not the only possible
-# errors. Indeed, our original error: '1+((2*3/4))' does not fit this
+# errors. Indeed, our original error: `1+((2*3/4))` does not fit this
 # template. So, how can we rectify this limitation?
 
 # # A grammar that produces at least one evocative fragment per input generated.
