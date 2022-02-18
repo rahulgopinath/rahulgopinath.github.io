@@ -877,13 +877,6 @@ def or_definitions(rulesA, rulesB):
         AorB_rules.extend(new_rules)
     return AorB_rules
 
-if __name__ == '__main__':
-    expr1 = [r for k in g1 if 'expr' in k for r in g1[k]]
-    expr2 = [r for k in g2 if 'expr' in k for r in g2[k]]
-    for k in or_definitions(expr1, expr2):
-        print(k)
-    print()
-
 ############
 -->
 <form name='python_run_form'>
@@ -896,13 +889,29 @@ def or_definitions(rulesA, rulesB):
         new_rules = or_ruleset(rulesetsA.get(k, []), rulesetsB.get(k, []))
         AorB_rules.extend(new_rules)
     return AorB_rules
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
 
-if __name__ == &#x27;__main__&#x27;:
-    expr1 = [r for k in g1 if &#x27;expr&#x27; in k for r in g1[k]]
-    expr2 = [r for k in g2 if &#x27;expr&#x27; in k for r in g2[k]]
-    for k in or_definitions(expr1, expr2):
-        print(k)
-    print()
+<!--
+############
+expr1 = [r for k in g1 if 'expr' in k for r in g1[k]]
+expr2 = [r for k in g2 if 'expr' in k for r in g2[k]]
+for k in or_definitions(expr1, expr2):
+    print(k)
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+expr1 = [r for k in g1 if &#x27;expr&#x27; in k for r in g1[k]]
+expr2 = [r for k in g2 if &#x27;expr&#x27; in k for r in g2[k]]
+for k in or_definitions(expr1, expr2):
+    print(k)
+print()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
