@@ -45,16 +45,14 @@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 
-# The imported modules
+# ## The imported modules
+# 
+# We import the following modules
 
 import hdd
 import simplefuzzer as fuzzer
 import ddset
 
-# The imported modules
-
-
-# We import the following modules
 
 # We have our input that causes the failure.
 

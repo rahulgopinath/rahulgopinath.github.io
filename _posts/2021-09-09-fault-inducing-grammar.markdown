@@ -101,13 +101,16 @@ https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 </form>
 </div>
 </details>
-The imported modules
+## The imported modules
+
+We import the following modules
 
 <!--
 ############
 import hdd
 import simplefuzzer as fuzzer
 import ddset
+
 
 ############
 -->
@@ -120,8 +123,6 @@ import ddset
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The imported modules
-We import the following modules
 We have our input that causes the failure.
 
 <!--
