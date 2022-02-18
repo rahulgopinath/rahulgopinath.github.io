@@ -71,13 +71,15 @@ if __name__ == '__main__':
 # Then reduce input
 
 if __name__ == '__main__':
-    reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+    reduced_expr_tree = hdd.perses_reduction(parsed_expr,
+            hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
     earleyparser.display_tree(reduced_expr_tree)
 
 # Finally, extract the abstract pattern.
 
 if __name__ == '__main__':
-    evocative_pattern = ddset.ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+    evocative_pattern = ddset.ddset_abstract(reduced_expr_tree,
+            hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
     ddset.display_abstract_tree(evocative_pattern)
 
 # However, it does not actually tell you in what all
@@ -429,7 +431,9 @@ if __name__ == '__main__':
 def pattern_grammar_to_tree(g, s):
     rules = g[s]
     assert len(rules) == 1
-    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+    children = [pattern_grammar_to_tree(g,t) if t in g else (t, [])
+            for t in rules[0]]
+    return (s, children)
 
 # The tree can be recovered thus.
 
@@ -456,7 +460,8 @@ if __name__ == '__main__':
     evocative_subtree = evocative_pattern[1][0][1][0][1][0]
     my_key_f = evocative_subtree[0]
     reaching = reachable_dict(hdd.EXPR_GRAMMAR)
-    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
+    reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR,
+            hdd.EXPR_START, my_key_f, 'F1', reaching)
     display_grammar(reach_g, reach_s)
 
 # Here, you will notice a problem:
@@ -524,7 +529,8 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
 
     reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+    reach_g, reach_s = reachable_grammar(grammar,
+            start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
     reaching_sym = refine_base_key(key_f, fname)
@@ -535,7 +541,8 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
 # The new grammar is as follows
 
 if __name__ == '__main__':
-    g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, evocative_subtree, 'F1'))
+    g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR,
+        hdd.EXPR_START, evocative_subtree, 'F1'))
     display_grammar(g, s)
 
 # This grammar is now guaranteed to produce at least one instance of the characterizing node.
@@ -589,7 +596,8 @@ def find_evocative_subtree(fault_tree, grammar, start, fn):
 
 # Usage
 if __name__ == '__main__':
-    etree = find_evocative_subtree(evocative_pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+    etree = find_evocative_subtree(evocative_pattern,
+            hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
     ddset.display_abstract_tree(etree)
 
 # That is, we found the correct evocative subtree. We can confirm this by
@@ -643,18 +651,21 @@ if __name__ == '__main__':
 # Then reduce input
 
 if __name__ == '__main__':
-    reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+    reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2,
+            hdd.EXPR_GRAMMAR, expr_div_by_zero)
 
 # Finally, extract the evocative pattern.
 
 if __name__ == '__main__':
-    evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+    evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2,
+            hdd.EXPR_GRAMMAR, expr_div_by_zero)
     ddset.display_abstract_tree(evocative_pattern2)
 
 # Then extract the evocative subtree
 
 if __name__ == '__main__':
-    etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+    etree2 = find_evocative_subtree(evocative_pattern2,
+            hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
     ddset.display_abstract_tree(etree2)
 
 # prettyprinting

@@ -165,14 +165,16 @@ Then reduce input
 
 <!--
 ############
-reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+reduced_expr_tree = hdd.perses_reduction(parsed_expr,
+        hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 earleyparser.display_tree(reduced_expr_tree)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-reduced_expr_tree = hdd.perses_reduction(parsed_expr, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+reduced_expr_tree = hdd.perses_reduction(parsed_expr,
+        hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 earleyparser.display_tree(reduced_expr_tree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -182,14 +184,16 @@ Finally, extract the abstract pattern.
 
 <!--
 ############
-evocative_pattern = ddset.ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+evocative_pattern = ddset.ddset_abstract(reduced_expr_tree,
+        hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 ddset.display_abstract_tree(evocative_pattern)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-evocative_pattern = ddset.ddset_abstract(reduced_expr_tree, hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
+evocative_pattern = ddset.ddset_abstract(reduced_expr_tree,
+        hdd.EXPR_GRAMMAR, hdd.expr_double_paren)
 ddset.display_abstract_tree(evocative_pattern)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -909,7 +913,9 @@ get back our tree.
 def pattern_grammar_to_tree(g, s):
     rules = g[s]
     assert len(rules) == 1
-    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+    children = [pattern_grammar_to_tree(g,t) if t in g else (t, [])
+            for t in rules[0]]
+    return (s, children)
 
 ############
 -->
@@ -918,7 +924,9 @@ def pattern_grammar_to_tree(g, s):
 def pattern_grammar_to_tree(g, s):
     rules = g[s]
     assert len(rules) == 1
-    return (s, [pattern_grammar_to_tree(g,t) if t in g else (t, []) for t in rules[0]])
+    children = [pattern_grammar_to_tree(g,t) if t in g else (t, [])
+            for t in rules[0]]
+    return (s, children)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -979,7 +987,8 @@ Using it
 evocative_subtree = evocative_pattern[1][0][1][0][1][0]
 my_key_f = evocative_subtree[0]
 reaching = reachable_dict(hdd.EXPR_GRAMMAR)
-reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, 'F1', reaching)
+reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR,
+        hdd.EXPR_START, my_key_f, 'F1', reaching)
 display_grammar(reach_g, reach_s)
 
 ############
@@ -989,7 +998,8 @@ display_grammar(reach_g, reach_s)
 evocative_subtree = evocative_pattern[1][0][1][0][1][0]
 my_key_f = evocative_subtree[0]
 reaching = reachable_dict(hdd.EXPR_GRAMMAR)
-reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, my_key_f, &#x27;F1&#x27;, reaching)
+reach_g, reach_s = reachable_grammar(hdd.EXPR_GRAMMAR,
+        hdd.EXPR_START, my_key_f, &#x27;F1&#x27;, reaching)
 display_grammar(reach_g, reach_s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1137,7 +1147,8 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
 
     reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+    reach_g, reach_s = reachable_grammar(grammar,
+            start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
     reaching_sym = refine_base_key(key_f, fname)
@@ -1154,7 +1165,8 @@ def atleast_one_fault_grammar(grammar, start_symbol, cnode, fname):
     pattern_g, pattern_s, t = pattern_grammar(cnode, fname)
 
     reachable_keys = reachable_dict(grammar)
-    reach_g, reach_s = reachable_grammar(grammar, start_symbol, key_f, fname, reachable_keys)
+    reach_g, reach_s = reachable_grammar(grammar,
+            start_symbol, key_f, fname, reachable_keys)
 
     combined_grammar = {**grammar, **pattern_g, **reach_g}
     reaching_sym = refine_base_key(key_f, fname)
@@ -1169,14 +1181,16 @@ The new grammar is as follows
 
 <!--
 ############
-g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, evocative_subtree, 'F1'))
+g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR,
+    hdd.EXPR_START, evocative_subtree, 'F1'))
 display_grammar(g, s)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR, hdd.EXPR_START, evocative_subtree, &#x27;F1&#x27;))
+g, s = grammar_gc(atleast_one_fault_grammar(hdd.EXPR_GRAMMAR,
+    hdd.EXPR_START, evocative_subtree, &#x27;F1&#x27;))
 display_grammar(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1279,14 +1293,16 @@ Usage
 
 <!--
 ############
-etree = find_evocative_subtree(evocative_pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+etree = find_evocative_subtree(evocative_pattern,
+        hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
 ddset.display_abstract_tree(etree)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-etree = find_evocative_subtree(evocative_pattern, hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
+etree = find_evocative_subtree(evocative_pattern,
+        hdd.EXPR_GRAMMAR, hdd.EXPR_START, hdd.expr_double_paren)
 ddset.display_abstract_tree(etree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1422,13 +1438,15 @@ Then reduce input
 
 <!--
 ############
-reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2,
+        hdd.EXPR_GRAMMAR, expr_div_by_zero)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+reduced_expr_tree2 = hdd.perses_reduction(parsed_expr2,
+        hdd.EXPR_GRAMMAR, expr_div_by_zero)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1437,14 +1455,16 @@ Finally, extract the evocative pattern.
 
 <!--
 ############
-evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2,
+        hdd.EXPR_GRAMMAR, expr_div_by_zero)
 ddset.display_abstract_tree(evocative_pattern2)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2, hdd.EXPR_GRAMMAR, expr_div_by_zero)
+evocative_pattern2 = ddset.ddset_abstract(reduced_expr_tree2,
+        hdd.EXPR_GRAMMAR, expr_div_by_zero)
 ddset.display_abstract_tree(evocative_pattern2)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1454,14 +1474,16 @@ Then extract the evocative subtree
 
 <!--
 ############
-etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+etree2 = find_evocative_subtree(evocative_pattern2,
+        hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
 ddset.display_abstract_tree(etree2)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-etree2 = find_evocative_subtree(evocative_pattern2, hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
+etree2 = find_evocative_subtree(evocative_pattern2,
+        hdd.EXPR_GRAMMAR, hdd.EXPR_START, expr_div_by_zero)
 ddset.display_abstract_tree(etree2)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
