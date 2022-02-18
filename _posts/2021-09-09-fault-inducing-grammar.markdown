@@ -147,6 +147,7 @@ We first parse the input
 import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
+earleyparser.display_tree(parsed_expr)
 
 ############
 -->
@@ -155,6 +156,7 @@ parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
 import earleyparser
 expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
 parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
+earleyparser.display_tree(parsed_expr)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

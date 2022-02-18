@@ -66,6 +66,7 @@ if __name__ == '__main__':
     import earleyparser
     expr_parser = earleyparser.EarleyParser(hdd.EXPR_GRAMMAR)
     parsed_expr = list(expr_parser.parse_on(my_input, hdd.EXPR_START))[0]
+    earleyparser.display_tree(parsed_expr)
 
 # Then reduce input
 
