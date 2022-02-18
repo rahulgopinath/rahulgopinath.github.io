@@ -213,24 +213,33 @@ class BExpr(BExpr):
                 if str(a.args[0]) == str(b): return FalseB # F & ~F == _|_
             elif isinstance(b, sympy.Not):
                 if str(b.args[0]) == str(a): return FalseB # F & ~F == _|_
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            s = [self._convert_sympy_to_bexpr(a) for a in sexpr.args]
+            sym_vars = sorted(s, key=str)
             assert sym_vars
-            if FalseB in sym_vars: return FalseB # if bottom is present in and, that is the result
+            if FalseB in sym_vars:
+                # if bottom is present in and, that is the result
+                return FalseB
             if TrueB in sym_vars:
-                sym_vars = [s for s in sym_vars if s != TrueB] # base def does not do anything in and.
+                # base def does not do anything in and.
+                sym_vars = [s for s in sym_vars if s != TrueB]
                 if not sym_vars: return TrueB
             return AndB(sym_vars)
         elif isinstance(sexpr, sympy.Or):
             a = sexpr.args[0]
             b = sexpr.args[1]
             if isinstance(a, sympy.Not):
-                if str(a.args[0]) == str(b): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(b)
+                # F | ~F = U self._convert_sympy_to_bexpr(b)
+                if str(a.args[0]) == str(b): return TrueB
             elif isinstance(b, sympy.Not):
-                if str(b.args[0]) == str(a): return TrueB # F | ~F = U self._convert_sympy_to_bexpr(a)
+                # F | ~F = U self._convert_sympy_to_bexpr(a)
+                if str(b.args[0]) == str(a): return TrueB
 
-            sym_vars = sorted([self._convert_sympy_to_bexpr(a) for a in sexpr.args], key=str)
+            s = [self._convert_sympy_to_bexpr(a) for a in sexpr.args]
+            sym_vars = sorted(s, key=str)
             assert sym_vars
-            if TrueB in sym_vars: return TrueB # if original def is present in or, that is the result
+            if TrueB in sym_vars:
+                # if original def is present in or, that is the result
+                return TrueB
             if FalseB in sym_vars:
                 sym_vars = [s for s in sym_vars if s != FalseB]
                 if not sym_vars: return FalseB
@@ -346,7 +355,9 @@ def undefined_keys(grammar):
 # Usage.
 
 if __name__ == '__main__':
-    grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **{'<start and(D1,Z1)>': [['<expr and(D1,Z1)>']]}}
+    grammar ={**gmultiple.EXPR_DZERO_G,
+              **gmultiple.EXPR_DPAREN_G,
+              **{'<start and(D1,Z1)>': [['<expr and(D1,Z1)>']]}}
     keys = undefined_keys(grammar)
     print(keys)
 
