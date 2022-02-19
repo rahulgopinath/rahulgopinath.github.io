@@ -46,42 +46,23 @@ that all the specializations in tokens are necessary to reproduce the fault.
 However, this is incorrect. In particular, the fault may be present either in
 `<B E>` or `<C F>` or even in `<D>`.
 
-Hence, for negating a rule that corresponds to a specialized *nonterminal* after
-the operations in the paper, one also has to perform a conjunction of all the
-*nonterminal* in the resulting rule with the negation of specialization of the
-nonterminal. That is, if one is trying to negate a rule
+<!-- Important: The basic idea here is to ensure that nosingle rule can result in the
+negated expression on expansion.-->
 
-```
-<A X> ::= <B E> <C F> <D>
-```
+There are two choices here. The first (and recommended option) is to simplify
+the expression first so that negation is pushed to the innermost elements of
+the expression `X`. That is, if we are trying to evaluate say `<A neg(and(A,B))>`
+then, simplify it to `<A or(neg(A),neg(B))>` first. Next, produce the
+nonterminal corresponding to `<A neg(B)>` as we describe [here](https://rahul.gopinath.org/post/2021/09/12/negated-fault-grammars/#unreachable-grammar). Use that for constructing `<A or(neg(A),neg(B))>`. The idea described there
+in summary is to (1) construct the nonreaching grammar (similar to reaching
+grammar in the paper, but opposite), then negate the pattern grammar, and merge
+both grammars. This is recommended both because it is simpler, and is
+computationally less demanding.
 
-The operations mentioned in the paper will result in
-
-```
-<A neg(X)> ::= <B neg(E)> <C F> <D>
-             | <B E> <C neg(F)> <D>
-```
-
-From this update, the following would result after conjunction with the
-corresponding specialization of `<A X>` which is `X`
-
-```
-<A neg(X)> ::= <B neg(E) & neg(X)> <C F & neg(X)> <D T & neg(X)>
-             | <B E & neg(X) > <C neg(F) & neg(X)> <D T & neg(X)>
-```
-
-Which simplifies to
-
-```
-<A neg(X)> ::= <B neg(E) & neg(X)> <C F & neg(X)> <D neg(X)>
-             | <B E & neg(X) > <C neg(F) & neg(X)> <D neg(X)>
-```
-
-What about pattern grammars? For pattern grammars, the matching is dependent
-on the exact position. In particular, these match components can no longer
-embed a full `X`. This means that conjunction of `neg(X)` is a no-op.
 
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) (implies _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) and _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png) at ICSE)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4456296.svg)](https://doi.org/10.5281/zenodo.4456296)
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icse2021/gopinath2021input.pdf "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icse2021/gopinath2021input.bib "reference")
