@@ -46,9 +46,6 @@ that all the specializations in tokens are necessary to reproduce the fault.
 However, this is incorrect. In particular, the fault may be present either in
 `<B E>` or `<C F>` or even in `<D>`.
 
-<!-- Important: The basic idea here is to ensure that nosingle rule can result in the
-negated expression on expansion.-->
-
 There are two choices here. The first (and recommended option) is to simplify
 the expression first so that negation is pushed to the innermost elements of
 the expression `X`. That is, if we are trying to evaluate say `<A neg(and(A,B))>`
@@ -79,7 +76,11 @@ The nonreaching nonterminal `<A neg(E&F)>` would have
 
 and so on for each rule of `<A>`. The complication is when such an expression
 can be constructed by components. For example, if there is a rule in `<A E&F>`
-as below.
+as below. To resolve this issue, we use the basic rule. **To negate a rule, the
+idea is to generate all rules that will not match the derivation trees generated
+by that rule**. With this in mind, negating a rule that contains components of
+the original expression means to generate all rules such that each generated rule
+just misses being able to generate a matching tree. So, given
 
 ```
 <A E&F> ::= <B E> <C F> <D>
@@ -92,6 +93,8 @@ Then, negation would be
                | <B E> <C neg(F)> <D neg(E&F)>
 ```
 
+Each just missing being able to generate a fault of kind `E&F`.
+
 If `<D>` can't embed `E` or `F`, then this will simplify to
 
 ```
@@ -100,8 +103,8 @@ If `<D>` can't embed `E` or `F`, then this will simplify to
 ```
 
 What happens for pattern rules which require an exact match? We note that
-pattern grammars are simply conjunction (`&`) patterns, and are handled like
-above.
+pattern grammars are essentially conjunction (`&`) patterns with extra height
+constraints, and are handled like above.
 
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) (implies _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) and _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png) at ICSE)
 
