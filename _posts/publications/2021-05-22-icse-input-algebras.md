@@ -60,6 +60,49 @@ both grammars. This is recommended both because it is simpler, and is
 computationally less demanding.
 
 
+The second choice is to construct the negation directly for the expression.
+The idea is similar to the first choice. Here, we start by noticing that we need
+an equivalent of nonreaching grammar for the entire expression. Hence, we take
+the base grammar, and produce an nonreaching nonterminal thus.
+
+Given
+
+```
+<A> ::= <B> <C> <D>
+```
+
+The nonreaching nonterminal `<A neg(E&F)>` would have
+
+```
+<A neg(E&F)> ::= <B neg(E&F)> <C neg(E&F)> <D neg(E&F)>
+```
+
+and so on for each rule of `<A>`. The complication is when such an expression
+can be constructed by components. For example, if there is a rule in `<A E&F>`
+as below.
+
+```
+<A E&F> ::= <B E> <C F> <D>
+```
+
+Then, negation would be
+
+```
+<A neg(E&F)> ::= <B neg(E)> <C F> <D neg(E&F)>
+               | <B E> <C neg(F)> <D neg(E&F)>
+```
+
+If `<D>` can't embed `E` or `F`, then this will simplify to
+
+```
+<A neg(E&F)> ::= <B neg(E)> <C F> <D>
+               | <B E> <C neg(F)> <D>
+```
+
+What happens for pattern rules which require an exact match? We note that
+pattern grammars are simply conjunction (`&`) patterns, and are handled like
+above.
+
 **Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) (implies _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) and _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png) at ICSE)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4456296.svg)](https://doi.org/10.5281/zenodo.4456296)
