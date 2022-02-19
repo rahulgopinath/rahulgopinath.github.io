@@ -148,7 +148,7 @@ if __name__ == '__main__':
 # input length in action. Note that our driver is essentially a best case
 # scenario. In the worst case, the complexity is $$O(n^2)$$
 # 
-# ### Recursive
+# ## Recursive
 # 
 # That was of course illuminating. However, is that the only way to implement this?
 # *delta-debug* at its heart, is a divide and conquer algorithm. Can we implement it
