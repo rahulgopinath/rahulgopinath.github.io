@@ -73,12 +73,9 @@ corresponding specialization of `<A X>` which is `X`
 Which simplifies to
 
 ```
-<A neg(X)> ::= <B neg(E)> <C F & neg(X)> <D neg(X)>
-             | <B E & neg(X) > <C neg(F)> <D neg(X)>
+<A neg(X)> ::= <B neg(E) & neg(X)> <C F & neg(X)> <D neg(X)>
+             | <B E & neg(X) > <C neg(F) & neg(X)> <D neg(X)>
 ```
-
-Note that `<B neg(E) & neg(X)>` should simplify to `<B neg(E)>` because `X`
-should not exist in `<B neg(E)>`.
 
 This treatment is different for negating keys of the pattern grammar because
 their matching is dependent on the exact position. For these, the conjunction
