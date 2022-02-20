@@ -58,7 +58,7 @@ class ReconstructRules(ReconstructRules):
     def or_definitions(self, rulesA, rulesB):
         AorB_rules = []
         rulesetsA, rulesetsB = [gmultiple.get_rulesets(rs)
-                for rs in rulesA, rulesB]
+                for rs in [rulesA, rulesB]]
         keys = set(rulesetsA.keys()) | set(rulesetsB.keys())
         for k in keys:
             new_rules = self.or_ruleset(rulesetsA.get(k, []), rulesetsB.get(k, []))
@@ -70,9 +70,9 @@ class ReconstructRules(ReconstructRules):
     def or_ruleset(self, rulesetA, rulesetB):
         # First, let us split these into common and uncommon parts.
         # this is not completely necessary, but reduces computation.
-        rulesB = [r ro r in rulesetB if r not in rulesetA]
-        rulesA = [r ro r in rulesetA if r not in rulesetB]
-        new_rules = [r ro r in rulesetA if r in rulesetB and r in rulesetA]
+        rulesB = [r for r in rulesetB if r not in rulesetA]
+        rulesA = [r for r in rulesetA if r not in rulesetB]
+        new_rules = [r for r in rulesetA if r in rulesetB and r in rulesetA]
 
         # Now, we want to produce or(ruleA) and or(ruleB). We then minus the
         # or(ruleB) from each rule in ruleA, and minus or(ruleA) from each rule
@@ -137,15 +137,15 @@ class ReconstructRules(ReconstructRules):
             modified = False
             for j,token in enumerate(rule):
                 if i == j:
-                    if not is_nonterminal(token):
+                    if not fuzzer.is_nonterminal(token):
                         modified = False
                         break
-                    elif is_base(token):
+                    elif gatleast.is_base_key(token):
                         modified = False
                         break
                     else:
                         modified = True
-                        new_rule.append(negated(token))
+                        new_rule.append(gnegated.negate_nonterminal(token))
                 else:
                     new_rule.append(token)
             if modified:
