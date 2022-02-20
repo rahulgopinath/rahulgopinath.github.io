@@ -127,7 +127,9 @@ class ReconstructRules(ReconstructRules):
 
     # TODO
     # returns a list of rules which are again unambiguous
-    # does not consider pattern grammar rules yet.
+    # The idea here is simply to generate a set of rules that do not match
+    # the rule we passed in. Since this is the idea, we do not have to consider
+    # the complexities of the nonterminal negation that this rule corresponds to.
     def unambiguous_negate_rule(self, rule):
         new_rules = []
         for i in range(len(rule)):
