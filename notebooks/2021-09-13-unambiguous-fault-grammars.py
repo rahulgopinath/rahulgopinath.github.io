@@ -184,9 +184,11 @@ for i in range(10000):
         d1.append(v)
     if hdd.expr_double_paren(v) == hdd.PRes.success:
         z1.append(v)
+
+    # duplicates are allowed so long as they are unambigous. i.e. can't be
+    # parsed with two different parse trees with g_ grammar.
     if v in values:
         print("duplicate: ", repr(v))
-        break
     values.append(v)
 
 print(len(values), len(set(values)))
