@@ -173,10 +173,20 @@ class ReconstructRules(ReconstructRules):
 grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G}
 g_, s_ = gexpr.complete(grammar, '<start or(D1,Z1)>')
 gf = fuzzer.LimitFuzzer(g_)
-for i in range(10):
+values = []
+d1 = []
+z1 = []
+for i in range(10000):
     v = gf.iter_fuzz(key=s_, max_depth=10)
     assert gatleast.expr_div_by_zero(v) or hdd.expr_double_paren(v)
-    print(v)
-    if gatleast.expr_div_by_zero(v) == hdd.PRes.success: print('>', 1)
-    if hdd.expr_double_paren(v) == hdd.PRes.success: print('>',2)
+    #print(v)
+    if gatleast.expr_div_by_zero(v) == hdd.PRes.success:
+        d1.append(v)
+    if hdd.expr_double_paren(v) == hdd.PRes.success:
+        z1.append(v)
+    if v in values:
+        print("duplicate: ", repr(v))
+        break
+    values.append(v)
 
+print(len(values), len(set(values)))
