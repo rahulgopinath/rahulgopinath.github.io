@@ -155,18 +155,28 @@ class ReconstructRules(ReconstructRules):
 
 # Usage
 
-my_bexpr = gexpr.BExpr('or(D1,Z1)')
-grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
-rr = ReconstructRules(grammar)
-d1, s1 = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
-grammar[s1] = d1
-remaining = gexpr.undefined_keys(grammar)
-print(d1,s1)
-print("remaining:", remaining)
-rr = ReconstructRules({**grammar, **{s1:d1}})
-d2, s2  = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
-grammar[s2] = d2
-remaining = gexpr.undefined_keys(grammar)
-print(d2,s2)
-print("remaining:", remaining)
+# my_bexpr = gexpr.BExpr('or(D1,Z1)')
+# grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
+# rr = ReconstructRules(grammar)
+# d1, s1 = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
+# grammar[s1] = d1
+# remaining = gexpr.undefined_keys(grammar)
+# print(d1,s1)
+# print("remaining:", remaining)
+# rr = ReconstructRules({**grammar, **{s1:d1}})
+# d2, s2  = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
+# grammar[s2] = d2
+# remaining = gexpr.undefined_keys(grammar)
+# print(d2,s2)
+# print("remaining:", remaining)
+
+grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G}
+g_, s_ = gexpr.complete(grammar, '<start or(D1,Z1)>')
+gf = fuzzer.LimitFuzzer(g_)
+for i in range(10):
+    v = gf.iter_fuzz(key=s_, max_depth=10)
+    assert gatleast.expr_div_by_zero(v) or hdd.expr_double_paren(v)
+    print(v)
+    if gatleast.expr_div_by_zero(v) == hdd.PRes.success: print('>', 1)
+    if hdd.expr_double_paren(v) == hdd.PRes.success: print('>',2)
 
