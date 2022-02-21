@@ -152,3 +152,21 @@ class ReconstructRules(ReconstructRules):
                 new_rules.append(new_rule)
         return new_rules
 
+
+# Usage
+
+my_bexpr = gexpr.BExpr('or(D1,Z1)')
+grammar ={**gmultiple.EXPR_DZERO_G, **gmultiple.EXPR_DPAREN_G, **hdd.EXPR_GRAMMAR}
+rr = ReconstructRules(grammar)
+d1, s1 = rr.reconstruct_rules_from_bexpr('<start>', my_bexpr)
+grammar[s1] = d1
+remaining = gexpr.undefined_keys(grammar)
+print(d1,s1)
+print("remaining:", remaining)
+rr = ReconstructRules({**grammar, **{s1:d1}})
+d2, s2  = rr.reconstruct_rules_from_bexpr(remaining[0], my_bexpr)
+grammar[s2] = d2
+remaining = gexpr.undefined_keys(grammar)
+print(d2,s2)
+print("remaining:", remaining)
+
