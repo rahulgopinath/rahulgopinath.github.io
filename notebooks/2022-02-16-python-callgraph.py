@@ -208,9 +208,7 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
         return parentcontext
 
 
-# #### FunctionDef(identifier name, arguments args,
-#             stmt* body, expr* decorator_list, expr? returns,
-#                       string? type_comment)
+# #### FunctionDef
 #
 # Similar to modules, we traverse function definitions looking for calls to
 # other functions.  Hence, we only have a basic traversal in place.
