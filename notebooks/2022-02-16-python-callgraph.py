@@ -191,7 +191,8 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [])
+        founder = CallNode('') # not in registry
+        self.walk(node, founder)
 
 # #### Module(stmt* body)
 #
