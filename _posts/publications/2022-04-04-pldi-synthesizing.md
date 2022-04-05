@@ -16,7 +16,8 @@ When producing test inputs for a program, test generators (“fuzzers”) can gr
 
 Prompted by recent observations that the GLADE algorithm may show lower performance than reported in the original paper, we have reimplemented the GLADE algorithm from scratch. Our evaluation confirms that the effectiveness score (F1) reported in the GLADE paper is overly optimistic, and in some cases, based on the wrong language. Furthermore, GLADE fares poorly in several real-world languages evaluated, producing grammars that spend megabytes to enumerate inputs.
 
-[![DOI]()https://zenodo.org/badge/DOI/10.5281/zenodo.6409786.svg](https://doi.org/10.5281/zenodo.6409786)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6409786.svg)](https://doi.org/10.5281/zenodo.6409786)
+
 
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2022/bendrissou2022synthesizing.pdf "paper")
