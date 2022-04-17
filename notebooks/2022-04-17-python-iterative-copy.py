@@ -161,11 +161,12 @@ def to_concatenative(ds):
             seen.add(id(ds))
     return list(reversed(expanded))
 
-# 
+#  So, here is how the concatenative definition looks like. As you can see,
+# all the nesting is eliminated using naming of data structures.
 
 print('expanded', my_g := to_concatenative(gexample))
 
-# 
+# Next, to recreate the structure
 
 def from_concatenative(stk):
     i = 0
@@ -196,6 +197,17 @@ def from_concatenative(stk):
     assert len(result_stk) == 1
     return result_stk[0], defs
 
+# Using it.
+
+my_gds, defs = from_concatenative(my_g)
+print(my_gds)
+for k in defs:
+    print(k)
+    print("   ", defs[k])
+
+# This structure still contains references. So, we need to reconstruct the
+# actual data
+
 def reconstruct(defs, root):
     for k in defs:
         ds = defs[k]
@@ -225,7 +237,6 @@ def reconstruct(defs, root):
             pass
     return defs[root]
 
-
-my_gds, defs = from_concatenative(my_g)
+# Using it.
 v = reconstruct(defs, my_gds._id)
 print(v)
