@@ -65,7 +65,7 @@ def to_stack(ds):
 
 # Let us see how it works
 
-(my_stk := to_stack(example))
+print(my_stk := to_stack(example))
 
 # ### Deserialize
 # To deserialize, we do the opposite.
@@ -97,5 +97,5 @@ def from_stack(stk):
 
 # Let us see how it works
 
-(my_ds := from_stack(my_stk))
+print(my_ds := from_stack(my_stk))
 
