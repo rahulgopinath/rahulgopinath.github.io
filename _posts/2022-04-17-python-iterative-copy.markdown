@@ -269,6 +269,7 @@ class Ref__:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Serialize
 Next we define how to convert a data structure to a concatenative definition.
 
 <!--
@@ -380,6 +381,7 @@ print(&#x27;expanded&#x27;, my_g := to_concatenative(gexample))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Deserialize
 Next, to recreate the structure
 
 <!--
@@ -472,6 +474,7 @@ for k in defs:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Reconstruct
 This structure still contains references. So, we need to reconstruct the
 actual data
 

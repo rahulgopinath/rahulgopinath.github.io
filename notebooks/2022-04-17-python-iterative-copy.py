@@ -117,6 +117,7 @@ class Ref__:
     def __str__(self): return str('$'+ str(self._id))
     def __repr__(self): return str('$'+str(self._id))
 
+# ## Serialize
 # Next we define how to convert a data structure to a concatenative definition.
 
 def to_concatenative(ds):
@@ -166,6 +167,7 @@ def to_concatenative(ds):
 
 print('expanded', my_g := to_concatenative(gexample))
 
+# ## Deserialize
 # Next, to recreate the structure
 
 def from_concatenative(stk):
@@ -205,6 +207,7 @@ for k in defs:
     print(k)
     print("   ", defs[k])
 
+# ## Reconstruct
 # This structure still contains references. So, we need to reconstruct the
 # actual data
 
