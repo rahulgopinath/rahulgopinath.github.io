@@ -99,3 +99,133 @@ def from_stack(stk):
 
 print(my_ds := from_stack(my_stk))
 
+# # Cyclic data structures
+#
+# One of the nice things about using a concatenative language for
+# representing nested structures is that it is easy to modify it to support
+# linked data structures. Here is such an example.
+
+dex = {'a':10, 'b':20, 'c': 30}
+gexample = [dex, 40, 50]
+dex['e'] = gexample
+print('repr', repr(gexample))
+
+
+# To handle this we first need a data structure for references.
+class Ref__:
+    def __init__(self, ds): self._id = id(ds)
+    def __str__(self): return str('$'+ str(self._id))
+    def __repr__(self): return str('$'+str(self._id))
+
+# Next we define how to convert a data structure to a concatenative definition.
+
+def to_concatenative(ds):
+    expanded = []
+    to_expand = [ds]
+    seen = set()
+    while to_expand:
+        ds, *to_expand = to_expand
+        if id(ds) in seen:
+            expanded.append(Ref__(ds))
+        elif type(ds) in {list, set, tuple}:
+            expanded.append(Ref__(ds))
+            expanded.append('def')
+            expanded.append(Ref__(ds))
+            expanded.append(type(ds))
+            expanded.append(len(ds))
+            to_expand = list(ds) + to_expand
+            seen.add(id(ds))
+        elif type(ds) in {tuple}:
+            assert False, 'tuples not supported'
+        elif type(ds) in {dict}:
+            expanded.append(Ref__(ds))
+            expanded.append('def')
+            expanded.append(Ref__(ds))
+            expanded.append(type(ds))
+            expanded.append(len(ds))
+            seen.add(id(ds))
+            to_expand = [[i,j] for i,j in ds.items()] + to_expand
+        elif hasattr(ds, '__dict__'):
+            expanded.append(Ref__(ds))
+            expanded.append('def')
+            expanded.append(Ref__(ds))
+            expanded.append(type(ds))
+            # to_expand = children(ds) + to_expand <- we stop at any custom
+            seen.add(id(ds))
+        else:
+            expanded.append(Ref__(ds))
+            expanded.append('def')
+            expanded.append(Ref__(ds))
+            expanded.append(type(ds))
+            expanded.append(ds)
+            seen.add(id(ds))
+    return list(reversed(expanded))
+
+# 
+
+print('expanded', my_g := to_concatenative(gexample))
+
+# 
+
+def from_concatenative(stk):
+    i = 0
+    result_stk = []
+    defs = {}
+    while stk:
+        item, *stk = stk
+        if item == 'def':
+            iid = result_stk.pop()._id
+            kind = result_stk.pop()
+            if kind == list:
+                ds = get_children(result_stk)
+                defs[iid] = list(ds)
+            elif kind == set:
+                ds = get_children(result_stk)
+                defs[iid] = set(ds)
+            elif kind == tuple:
+                ds = get_children(result_stk)
+                assert False, 'tuples not supported'
+            elif kind == dict:
+                ds = get_children(result_stk)
+                defs[iid] = {i:None for i in ds}
+            else:
+                ds = result_stk.pop()
+                defs[iid] = ds
+        else:
+            result_stk.append(item)
+    assert len(result_stk) == 1
+    return result_stk[0], defs
+
+def reconstruct(defs, root):
+    for k in defs:
+        ds = defs[k]
+        if type(ds) in {list, set}: # container
+            for i,kx in enumerate(ds):
+                if type(kx) == Ref__: # Ref
+                    ds[i] = defs[kx._id]
+                else:
+                    ds[i] = kx
+
+        elif type(ds) in {dict}: # container
+            keys = list(ds.keys())
+            ds.clear()
+            for i,kx in enumerate(keys):
+                if type(kx) == Ref__: # Ref
+                    k,v = defs[kx._id]
+                    if type(v) == Ref__:
+                        ds[k] = defs[v._id]
+                    else:
+                        ds[k] = v
+                else:
+                    assert False
+                    ds[kx] = kx
+        else:
+            #ds = defs[k][1]
+            ds = ds
+            pass
+    return defs[root]
+
+
+my_gds, defs = from_concatenative(my_g)
+v = reconstruct(defs, my_gds._id)
+print(v)
