@@ -307,10 +307,11 @@ print(repr(new_arr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+# TLV
 If you do not care about human readability of the generated instructions, you
 can also go for a variant of the tag-length-value (TLV) format used for binary
 serialization.
-### TLV Serialize
+## TLV Serialize
 Next, we define how to serialize a deep data structure.  Here is our subject.
 
 <!--
@@ -399,7 +400,7 @@ print(my_stk := to_tlv(example))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### TLV Deserialize
+## TLV Deserialize
 To deserialize, we do the opposite.
 
 <!--

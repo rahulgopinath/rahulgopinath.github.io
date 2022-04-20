@@ -119,11 +119,12 @@ if __name__ == '__main__':
     new_arr = iter_arr_to_str(my_arr)
     print(repr(new_arr))
 
+# # TLV
 # If you do not care about human readability of the generated instructions, you
 # can also go for a variant of the tag-length-value (TLV) format used for binary
 # serialization.
 #
-# ### TLV Serialize
+# ## TLV Serialize
 #
 # Next, we define how to serialize a deep data structure.  Here is our subject.
 
@@ -169,7 +170,7 @@ def to_tlv(ds):
 if __name__ == '__main__':
     print(my_stk := to_tlv(example))
 
-# ### TLV Deserialize
+# ## TLV Deserialize
 # To deserialize, we do the opposite.
 
 def get_children(result_stk):
