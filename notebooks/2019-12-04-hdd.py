@@ -202,6 +202,8 @@ def count_leaves(node):
         return 1
     return sum(count_leaves(i) for i in children)
 
+# 
+
 if __name__ == '__main__':
     print(count_leaves(parsed_expr))
     print(count_leaves(te))

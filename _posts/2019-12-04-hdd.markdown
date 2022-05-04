@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -57,7 +71,7 @@ main algorithm of *Perses*. I note that a similar idea was explored by Pike in
 The basic idea of Perses is to try and replace a parent node by either an
 empty expansion (so that the corresponding string fragment can be deleted)
 or by a child node of the same nonterminal. To accomplish the first (that is,
-to be able to use empty expansions), Perses first transforms the given grammar
+to be able to use empty expansions), Perses first transofrms the given grammar
 to a *Perses normal form*. We can however skip that portion if we are careful
 and use a grammar where we explicitly use nonterminals that can have an empty
 expansion. In this post, I only explain the *perses reduction* algorithm.
@@ -70,10 +84,12 @@ First, some book keeping
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
 
 <ol>
-<li><a href="https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl">pegparser-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/pegparser-0.0.1-py2.py3-none-any.whl">pegparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2018/09/06/peg-parsing/">Recursive descent parsing with Parsing Expression (PEG) and Context Free (CFG) Grammars</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -425,10 +441,6 @@ def count_leaves(node):
         return 1
     return sum(count_leaves(i) for i in children)
 
-if __name__ == '__main__':
-    print(count_leaves(parsed_expr))
-    print(count_leaves(te))
-
 ############
 -->
 <form name='python_run_form'>
@@ -440,10 +452,23 @@ def count_leaves(node):
     if not children:
         return 1
     return sum(count_leaves(i) for i in children)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-if __name__ == &#x27;__main__&#x27;:
-    print(count_leaves(parsed_expr))
-    print(count_leaves(te))
+
+<!--
+############
+print(count_leaves(parsed_expr))
+print(count_leaves(te))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(count_leaves(parsed_expr))
+print(count_leaves(te))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -833,3 +858,11 @@ So, the hypothesis strategy seems to be to find edits that reach the pattern to 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-12-04-hdd.py).
+
+
+The installable python wheel `hdd` is available [here](/py/hdd-0.0.1-py2.py3-none-any.whl).
+
