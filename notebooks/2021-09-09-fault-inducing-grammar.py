@@ -115,7 +115,7 @@ if __name__ == '__main__':
 # if one of the expansion rules for `<B>` contains the nonterminal `<A>` or
 # it is reachable from one of the nonterminals in the expansion rules of `<B>`
 # Note that it is not enough to be the same nonterminal. That is, (for e.g.)
-# `<A>` is not # reachable from `<A>` if expansion rules of `<A>` contain only
+# `<A>` is not reachable from `<A>` if expansion rules of `<A>` contain only
 # terminal symbols.
 
 def find_reachable_keys(grammar, key, reachable_keys=None, found_so_far=None):
