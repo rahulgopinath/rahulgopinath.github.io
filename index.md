@@ -16,8 +16,7 @@ and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
 <h3>Cybersecurity</h3>
 
-I have worked as a postdoctoral scholar at CISPA Helmholtz center from 2017 onwards.
-At CISPA, my work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforeseen manner? If a system correctly rejects all invalid inputs and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilities before it is exposed to the wider world.
+My work is focused on fuzzing software systems. Fuzzing is essentially about evaluating how a software system responds to unexpected and possibly invalid inputs. The question is, can you make the system under fuzzing behave in an unexpected or unforeseen manner? If a system correctly rejects all invalid inputs and behaves correctly under valid inputs, we say that the system is robust under fuzzing. Fuzzing a system requires relatively little manual input, and fuzzing a system before its release can help uncover vulnerabilities before it is exposed to the wider world.
 
 Our work produced [the fuzzing book](https://www.fuzzingbook.org/) which is an accessible resource for students and practitioners new to fuzzing.
 [![Fuzzingbook Image](/resources/fuzzingbook_image.webp)](https://www.fuzzingbook.org/)
