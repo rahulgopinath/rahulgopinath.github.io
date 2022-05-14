@@ -3,8 +3,8 @@ layout: post
 categories : publications
 tagline: "."
 tags : publication
-e: &quot;Synthesizing Input Grammars&quot; A Critical Evaluation
-title: &quot;Synthesizing Input Grammars &quot; A Replication Study
+e: Synthesizing Input Grammars A Replication Study
+title: Synthesizing Input Grammars A Replication Study
 authors:  Bachir Bendrissou, Rahul Gopinath, Andreas Zeller
 venue: ACM SIGPLAN Conference on Programming Language Design and Implementation (PLDI)
 kind: conference
