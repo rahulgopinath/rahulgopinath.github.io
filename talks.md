@@ -91,9 +91,13 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
-#### <a id='gopinath2022learning'></a>[Gopinath: [_Learning And Refining Input Grammars For Effective Fuzzing_] SBST 2022]()
+#### <a id='gopinath2022learning'></a> [Gopinath: Learning And Refining Input Grammars For Effective Fuzzing_ SBST 2022]()
 
 More info [here](https://sbst22.github.io/keynotes/)
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/learning-and-refining-input-grammars-for-effective-fuzzing)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_GFrw1fBUFI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 #### <a id='dutra2021input'></a>[Dutra & Gopinath: _Input Languages for Effective and Focused Fuzzing_ FuzzCon Europe 2021]()
 
