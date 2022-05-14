@@ -91,12 +91,16 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
-#### <a id='gopinath2022learning'></a> [Gopinath: Learning And Refining Input Grammars For Effective Fuzzing_ SBST 2022]()
+#### <a id='gopinath2022learning'></a> [Gopinath: _Learning And Refining Input Grammars For Effective Fuzzing _ SBST 2022]()
+
+Fuzzing is one of the key techniques for evaluating robustness of programs against malicious inputs. To fuzz the program logic effectively, one needs the input specification of the program under fuzzing. However, such input specifications are rarely available, and even when present, can be obsolete, incomplete or incorrect leading to fuzzing blind spots. In this tutorial, I will show how to mine the input specification from a given program from the ground up, first generating sample inputs, then using such inputs to mine the program input grammar, and finally using the mined grammar to fuzz the program and find any bugs.
+
+What should you do next once you find a bug? An input pattern rather than a particular input is likely to result in the bug, and to have any confidence in a bug fix, we should test the fix using the input pattern rather than a single input. In this talk, I will show how to abstract such input patterns corresponding to program behaviors such as bugs into a focused grammar, how to combine multiple input patterns together, and use such patterns to fuzz. The specialized grammars we generate can be used by any grammar fuzzer for precise control of produced inputs and hence the expected behavior. 
 
 More info [here](https://sbst22.github.io/keynotes/)
 
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/learning-and-refining-input-grammars-for-effective-fuzzing)
-<iframe width="560" height="315" src="https://www.youtube.com/embed/_GFrw1fBUFI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://youtu.be/_GFrw1fBUFI?start=233" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 #### <a id='dutra2021input'></a>[Dutra & Gopinath: _Input Languages for Effective and Focused Fuzzing_ FuzzCon Europe 2021]()
