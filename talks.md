@@ -100,7 +100,7 @@ What should you do next once you find a bug? An input pattern rather than a part
 More info [here](https://sbst22.github.io/keynotes/)
 
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/learning-and-refining-input-grammars-for-effective-fuzzing)
-<iframe width="560" height="315" src="https://youtu.be/_GFrw1fBUFI?start=233" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="838" height="471" src="https://www.youtube.com/embed/_GFrw1fBUFI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 #### <a id='dutra2021input'></a>[Dutra & Gopinath: _Input Languages for Effective and Focused Fuzzing_ FuzzCon Europe 2021]()
