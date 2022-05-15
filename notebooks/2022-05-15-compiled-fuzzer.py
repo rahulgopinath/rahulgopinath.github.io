@@ -45,7 +45,7 @@ EXPR_GRAMMAR = {
 EXPR_START = '<start>'
 
 
-# ## Compiled Fuzzer
+# # Compiled Fuzzer
 # 
 # This grammar fuzzer is described in the paper
 # [*Building Fast Fuzzers*](https://rahul.gopinath.org/publications/2019/11/18/arxiv-building/).

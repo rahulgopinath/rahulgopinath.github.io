@@ -142,7 +142,7 @@ EXPR_START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Compiled Fuzzer
+# Compiled Fuzzer
 
 This grammar fuzzer is described in the paper
 [*Building Fast Fuzzers*](https://rahul.gopinath.org/publications/2019/11/18/arxiv-building/).
@@ -762,6 +762,6 @@ for i in range(10):
 
 ## Artifacts
 
-The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2022-05-15-f1.py).
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2022-05-15-compiled-fuzzer.py).
 
 
