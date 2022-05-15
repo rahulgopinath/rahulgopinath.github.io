@@ -13,7 +13,7 @@
 # 
 # As before, we start with a grammar.
 
-expr_grammar = {
+EXPR_GRAMMAR = {
     "<start>": [["<expr>"]],
     "<expr>": [
         ["<term>", "+", "<expr>"],
@@ -35,7 +35,7 @@ expr_grammar = {
     "<digit>": [["0"], ["1"], ["2"], ["3"], ["4"], ["5"], ["6"], ["7"], ["8"], ["9"]]
 }
 
-expr_start = '<start>'
+EXPR_START = '<start>'
 
 # We define a simple interface for fuzzing.
 
@@ -94,8 +94,11 @@ class LimitFuzzer(LimitFuzzer):
 # ### Generating
 
 class LimitFuzzer(LimitFuzzer):
+    def is_nt(self, k):
+        return k and k[0], k[-1] == ('<', '>')
+
     def nonterminals(self, rule):
-        return [t for t in rule if utils.is_nt(t)]
+        return [t for t in rule if self.is_nt(t)]
 
     def iter_gen_key(self, key, max_depth):
         def get_def(t):
@@ -105,7 +108,7 @@ class LimitFuzzer(LimitFuzzer):
                 num = random.randrange(FUZZRANGE) + 1
                 val = [random.choice(ASCII_MAP[t[0:-1]]) for i in range(num)]
                 return [''.join(val), []]
-            elif utils.is_nt(t):
+            elif self.is_nt(t):
                 return [t, None]
             else:
                 return [t, []]
@@ -152,7 +155,7 @@ class LimitFuzzer(LimitFuzzer):
         return [self.gen_key(token, depth, max_depth) for token in rule]
 
     def fuzz(self, key='<start>', max_depth=10):
-        return utils.tree_to_str(self.iter_gen_key(key=key, max_depth=max_depth))
+        return self.tree_to_str(self.iter_gen_key(key=key, max_depth=max_depth))
 
 
 # ## Compiled Fuzzer
@@ -274,6 +277,7 @@ def gen_%(name)s(max_depth, depth=0):
 
 # The driver
 
+import types
 class F1Fuzzer(F1Fuzzer):
     def gen_main_src(self):
         return '''
@@ -300,14 +304,19 @@ def start(max_depth):
                   self.gen_main_src()]
         return ''.join(result)
 
+    def load_src(self, src, mn):
+        module = types.ModuleType(mn)
+        exec(src, module.__dict__)
+        return module
+
     def fuzzer(self, name):
         cf_src = self.fuzz_src()
-        return utils.load_src(cf_src, name + '_f1_fuzzer')
+        return self.load_src(cf_src, name + '_f1_fuzzer')
 
 # Using it
 
 if __name__ == '__main__':
-    expr_fuzzer = F1Fuzzer(grammars.EXPR_GRAMMAR).fuzzer('expr_fuzzer')
+    expr_fuzzer = F1Fuzzer(EXPR_GRAMMAR).fuzzer('expr_fuzzer')
     for i in range(10):
         v = expr_fuzzer.start(10)
         print(v)
@@ -423,12 +432,12 @@ def start(max_depth):
     
     def fuzzer(self, name):
         cf_src = self.fuzz_src()
-        return utils.load_src(cf_src, name + '_f1_fuzzer')
+        return self.load_src(cf_src, name + '_f1_fuzzer')
 
 # Using it
 
 if __name__ == '__main__':
-    expr_fuzzer = F1CPSFuzzer(grammars.EXPR_GRAMMAR).fuzzer('expr_fuzzer')
+    expr_fuzzer = F1CPSFuzzer(EXPR_GRAMMAR).fuzzer('expr_fuzzer')
     for i in range(10):
         v = expr_fuzzer.start(10)
         print(repr(v))
