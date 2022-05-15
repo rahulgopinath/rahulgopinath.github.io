@@ -1,6 +1,6 @@
 ---
 published: true
-title: Building Fast Fuzzers
+title: A Fast Grammar Fuzzer by Compiling the Grammar
 layout: post
 comments: true
 tags: fuzzing
