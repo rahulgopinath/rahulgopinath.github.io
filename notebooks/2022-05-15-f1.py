@@ -81,8 +81,13 @@ class F1Fuzzer(fuzzer.LimitFuzzer):
     def k_to_s(self, k): return k[1:-1].replace('-', '_')
 
 # ## Cheap grammar compilation
-# The complication is that we need to curtail the recursion. Hence, we define a
-# cheap grammar that does not contain recursion.
+# 
+# In the prevous [post](/post/2019/05/28/simplefuzzer-01/), I described how we
+# shift  to a cheap grammar when we exhaust our budget. We use the same thing
+# here. That is, at some point we need to curtail the recursion. Hence, we
+# define the cheap grammar that does not contain recursion. The idea is that
+# if we go byeond a given depth, we switch to choosing rules from the
+# non-recursive grammar (cheap grammar).
 
 class F1Fuzzer(F1Fuzzer):
     def cheap_grammar(self):
@@ -97,7 +102,9 @@ class F1Fuzzer(F1Fuzzer):
         return cheap_grammar
 
 # ### Translation
-# Translating the nonterminals of the cheap grammar is simple because there is no recursion. We simply choose a random rule to expand.
+# 
+# Translating the nonterminals of the cheap grammar is simple because there is
+# no recursion. We simply choose a random rule to expand.
 
 class F1Fuzzer(F1Fuzzer):
     def gen_rule_src_cheap(self, rule, key, i, grammar):
@@ -127,7 +134,8 @@ def gen_%(name)s_cheap():
         return''' % (i, self.add_indent(self.gen_rule_src_cheap(rule, key, i, grammar),'        ')))
         return '\n'.join(result)
 
-# ## Grammar compilation
+# ## Main grammar compilation
+# 
 # For recursive grammars, we need to verify that the depth of recursion is not
 # beyond what is specified. If it has gone beyond the maximum specified depth,
 # we expand the cheap grammar instead.
@@ -217,7 +225,9 @@ if __name__ == '__main__':
 # 
 # We discussed [here](/post/2022/04/17/python-iterative-copy/) how to use
 # generators as a continuation passing trampoline. We use the same technique
-# again
+# again. The basi technique is to turn every function call into a `yield`
+# statement, and return the generator. A loop then translates activates
+# and traverses these generators.
 
 class F1CPSFuzzer(F1Fuzzer):
     def gen_rule_src_cheap(self, rule, key, i, grammar):
