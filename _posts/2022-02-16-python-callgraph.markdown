@@ -471,7 +471,8 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [])
+        founder = CallNode('') # not in registry
+        self.walk(node, founder)
 
 ############
 -->
@@ -483,7 +484,8 @@ class PyCallGraphExtractor(PyCallGraphExtractor):
 
     def eval(self, src):
         node = self.parse(src)
-        self.walk(node, [])
+        founder = CallNode(&#x27;&#x27;) # not in registry
+        self.walk(node, founder)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
