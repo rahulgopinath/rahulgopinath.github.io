@@ -538,7 +538,7 @@ We define the actual parser for the literal `1` as below:
 ############
 def One():
     def tree(x):
-        return [('Int', int(x[0]))]
+        return [('Int', [(x[0], [])])]
     return Apply(tree, One_)
 
 ############
@@ -547,7 +547,7 @@ def One():
 <textarea cols="40" rows="4" name='python_edit'>
 def One():
     def tree(x):
-        return [(&#x27;Int&#x27;, int(x[0]))]
+        return [(&#x27;Int&#x27;, [(x[0], [])])]
     return Apply(tree, One_)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -617,24 +617,60 @@ https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 </form>
 </div>
 </details>
-It is used as follows
+We first define a wrapper for display
 
 <!--
 ############
-import simplefuzzer as fuzzer
-result = Paren1()(list('(1)'))
-for r in only_parsed(result):
-    fuzzer.display_tree(r)
+def format_node(node):
+    if not isinstance(node, (list,tuple)): return str(node)
+    key = node[0]
+    return repr(key)
 
+def get_children(node):
+    if len(node) > 1: return node[1]
+    return []
+
+def display_trees(ts):
+    import simplefuzzer as fuzzer
+    for t in ts:
+        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import simplefuzzer as fuzzer
+def format_node(node):
+    if not isinstance(node, (list,tuple)): return str(node)
+    key = node[0]
+    return repr(key)
+
+def get_children(node):
+    if len(node) &gt; 1: return node[1]
+    return []
+
+def display_trees(ts):
+    import simplefuzzer as fuzzer
+    for t in ts:
+        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+It is used as follows
+
+<!--
+############
+result = Paren1()(list('(1)'))
+for r in only_parsed(result):
+    display_trees(r)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 result = Paren1()(list(&#x27;(1)&#x27;))
 for r in only_parsed(result):
-    fuzzer.display_tree(r)
+    display_trees(r)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -673,6 +709,7 @@ Used thus:
 result = Paren()(list('(((1)))'))
 for r in only_parsed(result):
     print(r)
+    display_trees(r)
 
 ############
 -->
@@ -681,6 +718,7 @@ for r in only_parsed(result):
 result = Paren()(list(&#x27;(((1)))&#x27;))
 for r in only_parsed(result):
     print(r)
+    display_trees(r)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -719,6 +757,7 @@ We check if our new parser works
 result = Paren()(list('(((1)(1)))'))
 for r in only_parsed(result):
     print(r)
+    display_trees(r)
 
 ############
 -->
@@ -727,6 +766,7 @@ for r in only_parsed(result):
 result = Paren()(list(&#x27;(((1)(1)))&#x27;))
 for r in only_parsed(result):
     print(r)
+    display_trees(r)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -787,6 +827,7 @@ paren = P(lambda: openP >> (one | parens) >> closeP)
 
 v = parens(list('((1)((1)))'))
 print(v)
+display_trees(v)
 
 ############
 -->
@@ -801,6 +842,7 @@ paren = P(lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP)
 
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
+display_trees(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -898,11 +940,13 @@ def to_num(v):
 paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
 v = parens(list('((1)((1)))'))
 print(v)
+display_trees(v)
 
 paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
 v = parens(list('((123)((456)))'))
 for m in v:
     print(m)
+display_trees(v)
 
 
 ############
@@ -927,11 +971,13 @@ def to_num(v):
 paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (one | parens) &gt;&gt; closeP))
 v = parens(list(&#x27;((1)((1)))&#x27;))
 print(v)
+display_trees(v)
 
 paren = P(lambda: Apply(to_paren, lambda: openP &gt;&gt; (num | parens) &gt;&gt; closeP))
 v = parens(list(&#x27;((123)((456)))&#x27;))
 for m in v:
     print(m)
+display_trees(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

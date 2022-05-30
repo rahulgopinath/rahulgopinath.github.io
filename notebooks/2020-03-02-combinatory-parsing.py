@@ -243,7 +243,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     def One():
         def tree(x):
-            return [('Int', int(x[0]))]
+            return [('Int', [(x[0], [])])]
         return Apply(tree, One_)
 
 # Similarly, we update the `paren1` parser.
@@ -261,17 +261,31 @@ if __name__ == '__main__':
         print(r)
 
 # The fuzzer package contains the tools to display trees.
+
 #@                                                                               
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl          
+
+# We first define a wrapper for display
+def format_node(node):
+    if not isinstance(node, (list,tuple)): return str(node)
+    key = node[0]
+    return repr(key)
+
+def get_children(node):
+    if len(node) > 1: return node[1]
+    return []
+  
+def display_trees(ts):
+    import simplefuzzer as fuzzer
+    for t in ts:
+        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
 
 # It is used as follows
 
 if __name__ == '__main__':
-    import simplefuzzer as fuzzer
     result = Paren1()(list('(1)'))
     for r in only_parsed(result):
-        fuzzer.display_tree(r)
-
+        display_trees(r)
 
 # Similarly we update `Paren`
 
@@ -289,6 +303,7 @@ if __name__ == '__main__':
     result = Paren()(list('(((1)))'))
     for r in only_parsed(result):
         print(r)
+        display_trees(r)
 
 # Now, we are ready to try something adventurous. Let us allow a sequence of parenthesized ones.
 
@@ -307,6 +322,7 @@ if __name__ == '__main__':
     result = Paren()(list('(((1)(1)))'))
     for r in only_parsed(result):
         print(r)
+        display_trees(r)
 
 # That seems to have worked!.
 # 
@@ -341,6 +357,7 @@ if __name__ == '__main__':
 
     v = parens(list('((1)((1)))'))
     print(v)
+    display_trees(v)
 
 # Apply also works with this
 
@@ -394,11 +411,13 @@ if __name__ == '__main__':
     paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
     v = parens(list('((1)((1)))'))
     print(v)
+    display_trees(v)
 
     paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
     v = parens(list('((123)((456)))'))
     for m in v:
         print(m)
+    display_trees(v)
 
 
 # ### Remaining
