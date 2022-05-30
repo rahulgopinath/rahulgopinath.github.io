@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -59,6 +73,30 @@ import sys
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We also need the fuzzer package.
+
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
+
+<ol>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+</ol>
+
+<div style='display:none'>
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+</textarea>
+</form>
+</div>
+</details>
 Next, we define our input values.
 
 <!--
@@ -260,15 +298,44 @@ We use the `to_tree()` in the following fashion.
 
 <!--
 ############
+import simplefuzzer
+def format_node(node):
+    if isinstance(node, str): return node
+    key = node[0]
+    if key and (key[0], key[-1]) ==  ('<', '>'): return key
+    return repr(key)
+
+def get_children(node):
+    if not isinstance(node, tuple):
+        return []
+    return node[1]
 trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
-print(repr(trees[0]))
+for tree in trees:
+    print(repr(tree))
+    simplefuzzer.display_tree(tree, get_children=get_children,
+            format_node=format_node)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import simplefuzzer
+def format_node(node):
+    if isinstance(node, str): return node
+    key = node[0]
+    if key and (key[0], key[-1]) ==  (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return key
+    return repr(key)
+
+def get_children(node):
+    if not isinstance(node, tuple):
+        return []
+    return node[1]
 trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
-print(repr(trees[0]))
+for tree in trees:
+    print(repr(tree))
+    simplefuzzer.display_tree(tree, get_children=get_children,
+            format_node=format_node)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -318,7 +385,10 @@ It is used as follows:
 url_grammar = {}
 for tree in trees:
    refine_grammar(url_grammar, tree)
-print(repr(url_grammar))
+for k in url_grammar:
+    print(k, '::=')
+    for r in url_grammar[k]:
+        print('|  ', r)
 
 ############
 -->
@@ -327,7 +397,10 @@ print(repr(url_grammar))
 url_grammar = {}
 for tree in trees:
    refine_grammar(url_grammar, tree)
-print(repr(url_grammar))
+for k in url_grammar:
+    print(k, &#x27;::=&#x27;)
+    for r in url_grammar[k]:
+        print(&#x27;|  &#x27;, r)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -367,14 +440,20 @@ The function can be used as follows:
 <!--
 ############
 grammar = to_grammar(INPUTS, urlparse)
-print(grammar)
+for k in grammar:
+    print(k, '::=')
+    for r in grammar[k]:
+        print('|  ', r)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = to_grammar(INPUTS, urlparse)
-print(grammar)
+for k in grammar:
+    print(k, &#x27;::=&#x27;)
+    for r in grammar[k]:
+        print(&#x27;|  &#x27;, r)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -382,50 +461,18 @@ print(grammar)
 ### Fuzzing
 Let us see if our [simple fuzzer](/2019/05/28/simplefuzzer-01/) is able
 to work with this grammar.
-
-<!--
-############
-if 'pyodide' in sys.modules:
-    import micropip
-    import asyncio
-    async def pipinstall():
-        await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(pipinstall())
-import moduleloader
-moduleloader.Importer(['notebooks/2019-05-28-simplefuzzer-01.py'])
-import simplefuzzer01
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-if &#x27;pyodide&#x27; in sys.modules:
-    import micropip
-    import asyncio
-    async def pipinstall():
-        await micropip.install(&#x27;/py/moduleloader-0.1.0-py3-none-any.whl&#x27;)
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(pipinstall())
-import moduleloader
-moduleloader.Importer([&#x27;notebooks/2019-05-28-simplefuzzer-01.py&#x27;])
-import simplefuzzer01
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 Using it to fuzz:
 
 <!--
 ############
-res = simplefuzzer01.tree_to_string(simplefuzzer01.unify_key_inv_t(grammar, '<START>'))
+res = simplefuzzer.tree_to_string(simplefuzzer.unify_key_inv_t(grammar, '<START>'))
 print(res)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-res = simplefuzzer01.tree_to_string(simplefuzzer01.unify_key_inv_t(grammar, &#x27;&lt;START&gt;&#x27;))
+res = simplefuzzer.tree_to_string(simplefuzzer.unify_key_inv_t(grammar, &#x27;&lt;START&gt;&#x27;))
 print(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -435,3 +482,9 @@ print(res)
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-11-26-simpleminer-01.py).
+
+

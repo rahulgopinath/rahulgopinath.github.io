@@ -27,6 +27,11 @@
 from urllib.parse import urlparse
 import sys
 
+# We also need the fuzzer package.
+
+#@
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+
 # Next, we define our input values.
 
 INPUTS = [
@@ -124,8 +129,23 @@ def refine_tree(tree, fvar, fval):
 # We use the `to_tree()` in the following fashion.
 
 if __name__ == '__main__':
+    import simplefuzzer
+    def format_node(node):
+        if isinstance(node, str): return node
+        key = node[0]
+        if key and (key[0], key[-1]) ==  ('<', '>'): return key
+        return repr(key)
+
+    def get_children(node):
+        if not isinstance(node, tuple):
+            return []
+        return node[1]
     trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
-    print(repr(trees[0]))
+    for tree in trees:
+        print(repr(tree))
+        simplefuzzer.display_tree(tree, get_children=get_children,
+                format_node=format_node)
+
 
 # ### Grammar Extraction
 
@@ -152,7 +172,10 @@ if __name__ == '__main__':
     url_grammar = {}
     for tree in trees:
        refine_grammar(url_grammar, tree)
-    print(repr(url_grammar))
+    for k in url_grammar:
+        print(k, '::=')
+        for r in url_grammar[k]:
+            print('|  ', r)
 
 # This represents the input grammar of the function `urlparse()`.
 #
@@ -171,28 +194,19 @@ def to_grammar(inputs, fn):
 
 if __name__ == '__main__':
     grammar = to_grammar(INPUTS, urlparse)
-    print(grammar)
+    for k in grammar:
+        print(k, '::=')
+        for r in grammar[k]:
+            print('|  ', r)
 
 # ### Fuzzing
 #
 # Let us see if our [simple fuzzer](/2019/05/28/simplefuzzer-01/) is able
 # to work with this grammar.
 
-if __name__ == '__main__':
-    if 'pyodide' in sys.modules:
-        import micropip
-        import asyncio
-        async def pipinstall():
-            await micropip.install('/py/moduleloader-0.1.0-py3-none-any.whl')
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(pipinstall())
-    import moduleloader
-    moduleloader.Importer(['notebooks/2019-05-28-simplefuzzer-01.py'])
-    import simplefuzzer01
-
 # Using it to fuzz:
 
 if __name__ == '__main__':
-    res = simplefuzzer01.tree_to_string(simplefuzzer01.unify_key_inv_t(grammar, '<START>'))
+    res = simplefuzzer.tree_to_string(simplefuzzer.unify_key_inv_t(grammar, '<START>'))
     print(res)
 
