@@ -260,6 +260,19 @@ if __name__ == '__main__':
     for r in only_parsed(result):
         print(r)
 
+# The fuzzer package contains the tools to display trees.
+#@                                                                               
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl          
+
+# It is used as follows
+
+if __name__ == '__main__':
+    import simplefuzzer as fuzzer
+    result = Paren1()(list('(1)'))
+    for r in only_parsed(result):
+        fuzzer.display_tree(r)
+
+
 # Similarly we update `Paren`
 
 def Paren():

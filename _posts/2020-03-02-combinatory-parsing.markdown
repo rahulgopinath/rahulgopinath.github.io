@@ -593,6 +593,31 @@ for r in only_parsed(result):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+The fuzzer package contains the tools to display trees.
+                                                                               
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl          
+It is used as follows
+
+<!--
+############
+import simplefuzzer as fuzzer
+result = Paren1()(list('(1)'))
+for r in only_parsed(result):
+    fuzzer.display_tree(r)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import simplefuzzer as fuzzer
+result = Paren1()(list(&#x27;(1)&#x27;))
+for r in only_parsed(result):
+    fuzzer.display_tree(r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Similarly we update `Paren`
 
 <!--
