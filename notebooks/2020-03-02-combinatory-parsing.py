@@ -84,7 +84,7 @@ def only_parsed(r):
 # Using it as follows:
 
 if __name__ == '__main__':
-    for p in only_parsed(result):
+    for p in only_parsed(la(list('a'))):
         print(p)
 
 # ### AndThen

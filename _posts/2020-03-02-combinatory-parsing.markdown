@@ -188,14 +188,14 @@ Using it as follows:
 
 <!--
 ############
-for p in only_parsed(result):
+for p in only_parsed(la(list('a'))):
     print(p)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for p in only_parsed(result):
+for p in only_parsed(la(list(&#x27;a&#x27;))):
     print(p)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
