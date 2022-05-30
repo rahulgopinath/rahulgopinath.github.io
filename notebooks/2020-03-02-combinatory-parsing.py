@@ -55,21 +55,23 @@ def Lit(c):
 # We can use it as follows --- note that we need to split a string into characters
 # using `list` before it can be passed to the parser:
 
-input_chars = list('a')
-la = Lit('a')
-result = la(input_chars)
-for i,p in result:
-    print(i, p)
+if __name__ == '__main__':
+    input_chars = list('a')
+    la = Lit('a')
+    result = la(input_chars)
+    for i,p in result:
+        print(i, p)
 
 # That is, the input (the first part) is completely consumed, leaving an empty
 # array, and the parsed result is `['a']`.
 # Can it parse the literal `b`?
 
-input_chars = list('b')
-la = Lit('a')
-result = la(input_chars)
-for i,p in result:
-    print(i, p)
+if __name__ == '__main__':
+    input_chars = list('b')
+    la = Lit('a')
+    result = la(input_chars)
+    for i,p in result:
+        print(i, p)
 
 # which prints nothing --- that is, the parser was unable to consume any input.
 # 
@@ -81,8 +83,9 @@ def only_parsed(r):
 
 # Using it as follows:
 
-for p in only_parsed(result):
-    print(p)
+if __name__ == '__main__':
+    for p in only_parsed(result):
+        print(p)
 
 # ### AndThen
 # 
@@ -110,10 +113,11 @@ def AndThen(p1, p2):
 
 # This parser can be used in the following way:
 
-lab = AndThen(Lit('a'), Lit('b'))
-result = lab(list('ab'))
-for p in only_parsed(result):
-    print(p)
+if __name__ == '__main__':
+    lab = AndThen(Lit('a'), Lit('b'))
+    result = lab(list('ab'))
+    for p in only_parsed(result):
+        print(p)
 
 # ### OrElse
 # 
@@ -132,21 +136,23 @@ def OrElse(p1, p2):
 
 # It can be used as follows:
 
-lab = OrElse(Lit('a'), Lit('b'))
-result = lab(list('a'))
-for p in only_parsed(result):
-    print(p)
+if __name__ == '__main__':
+    lab = OrElse(Lit('a'), Lit('b'))
+    result = lab(list('a'))
+    for p in only_parsed(result):
+        print(p)
 
 # With this, our parser is fairly usable. We only need to retrieve complete parses
 # as below.
 
-labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
-labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
+if __name__ == '__main__':
+    labc1 = AndThen(AndThen(Lit('a'), Lit('b')), Lit('c'))
+    labc2 = AndThen(Lit('a'), AndThen(Lit('b'), Lit('c')))
 
-labc3 = OrElse(labc1, labc2)
-result = labc3(list('abc'))
-for r in only_parsed(result):
-    print(r)
+    labc3 = OrElse(labc1, labc2)
+    result = labc3(list('abc'))
+    for r in only_parsed(result):
+        print(r)
 
 # Note that the order in which `AndThen` is applied is not shown in the results.
 # This is a consequence of the way we defined `AndThen` using `pr1+pr2` deep
@@ -186,31 +192,35 @@ def OrElse(p1, p2):
 # `lambda` syntax or using `def`. Since it is easier to debug using `def`, and we are giving
 # these parsers a name anyway, we use `def`.
 
-def Open_(): return Lit('(')
-def Close_(): return Lit(')')
-def One_(): return Lit('1')
-def Paren1():
-    return AndThen(lambda: AndThen(Open_, One_), Close_)
+if __name__ == '__main__':
+    def Open_(): return Lit('(')
+    def Close_(): return Lit(')')
+    def One_(): return Lit('1')
+    def Paren1():
+        return AndThen(lambda: AndThen(Open_, One_), Close_)
 
 # We can now parse the simple expression `(1)`
 
-result = Paren1()(list('(1)'))
-for r in only_parsed(result):
-    print(r)
+if __name__ == '__main__':
+    result = Paren1()(list('(1)'))
+    for r in only_parsed(result):
+        print(r)
 
 
 # Next, we extend our definitions to parse the recursive language with any number of parenthesis.
 # That is, it should be able to parse `(1)`, `((1))`, and others. As you
 # can see, `lambda` protects `Paren` from being evaluated too soon.
 
-def Paren():
-    return AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
+if __name__ == '__main__':
+    def Paren():
+        return AndThen(lambda: AndThen(Open_, lambda: OrElse(One_, Paren)), Close_)
 
 # Using
 
-result = Paren()(list('((1))'))
-for r in only_parsed(result):
-    print(r)
+if __name__ == '__main__':
+    result = Paren()(list('((1))'))
+    for r in only_parsed(result):
+        print(r)
 
 # Note that at this point, we do not really have a labeled parse tree. The way to add it is the following. We first define `Apply` that
 # can be applied at particular parse points.
@@ -222,29 +232,33 @@ def Apply(f, parser):
 
 # We can now define the function that will be accepted by `Apply`
 
-def to_paren(v):
-    assert v[0] == '('
-    assert v[-1] == ')'
-    return [('Paren', v[1:-1])]
+if __name__ == '__main__':
+    def to_paren(v):
+        assert v[0] == '('
+        assert v[-1] == ')'
+        return [('Paren', v[1:-1])]
 
 # We define the actual parser for the literal `1` as below:
 
-def One():
-    def tree(x):
-        return [('Int', int(x[0]))]
-    return Apply(tree, One_)
+if __name__ == '__main__':
+    def One():
+        def tree(x):
+            return [('Int', int(x[0]))]
+        return Apply(tree, One_)
 
 # Similarly, we update the `paren1` parser.
 
-def Paren1():
-    def parser():
-        return AndThen(lambda: AndThen(Open_, One), Close_)
-    return Apply(to_paren, parser)
+if __name__ == '__main__':
+    def Paren1():
+        def parser():
+            return AndThen(lambda: AndThen(Open_, One), Close_)
+        return Apply(to_paren, parser)
 
 # It is used as follows
-result = Paren1()(list('(1)'))
-for r in only_parsed(result):
-    print(r)
+if __name__ == '__main__':
+    result = Paren1()(list('(1)'))
+    for r in only_parsed(result):
+        print(r)
 
 # Similarly we update `Paren`
 
@@ -258,25 +272,28 @@ def Paren():
 
 # Used thus:
 
-result = Paren()(list('(((1)))'))
-for r in only_parsed(result):
-    print(r)
+if __name__ == '__main__':
+    result = Paren()(list('(((1)))'))
+    for r in only_parsed(result):
+        print(r)
 
 # Now, we are ready to try something adventurous. Let us allow a sequence of parenthesized ones.
 
-def Parens():
-    return OrElse(Paren, lambda: AndThen(Paren, Parens))
+if __name__ == '__main__':
+    def Parens():
+        return OrElse(Paren, lambda: AndThen(Paren, Parens))
 
-def Paren():
-    def parser():
-        return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
-    return Apply(to_paren, parser)
+    def Paren():
+        def parser():
+            return AndThen(lambda: AndThen(Open_, lambda: OrElse(One, Parens)), Close_)
+        return Apply(to_paren, parser)
 
 # We check if our new parser works
 
-result = Paren()(list('(((1)(1)))'))
-for r in only_parsed(result):
-    print(r)
+if __name__ == '__main__':
+    result = Paren()(list('(((1)(1)))'))
+    for r in only_parsed(result):
+        print(r)
 
 # That seems to have worked!.
 # 
@@ -301,25 +318,28 @@ class P:
 
 # It can be used as follows
 
-one = P(lambda: Lit('1'))
-openP = P(lambda: Lit('('))
-closeP = P(lambda: Lit(')'))
+if __name__ == '__main__':
+    one = P(lambda: Lit('1'))
+    openP = P(lambda: Lit('('))
+    closeP = P(lambda: Lit(')'))
 
-parens = P(lambda: paren | (paren >> parens))
-paren = P(lambda: openP >> (one | parens) >> closeP) 
+    parens = P(lambda: paren | (paren >> parens))
+    paren = P(lambda: openP >> (one | parens) >> closeP) 
 
-v = parens(list('((1)((1)))'))
-print(v)
+    v = parens(list('((1)((1)))'))
+    print(v)
 
 # Apply also works with this
 
-paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
+if __name__ == '__main__':
+    paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
 
  
 # Used as follows
 
-v = parens(list('((1)((1)))'))
-print(v)
+if __name__ == '__main__':
+    v = parens(list('((1)((1)))'))
+    print(v)
 
 # Note that one has to be careful about the precedence of operators. In
 # particular, if you mix and match `>>` and `|`, always use parenthesis
@@ -342,29 +362,30 @@ def Re(r):
  
 # ### The simple parenthesis language
 
-one = P(lambda: Lit('1'))
-num = P(lambda: Apply(to_num, lambda: Re('^[0-9]+')))
-openP = P(lambda: Lit('('))
-closeP = P(lambda: Lit(')'))
+if __name__ == '__main__':
+    one = P(lambda: Lit('1'))
+    num = P(lambda: Apply(to_num, lambda: Re('^[0-9]+')))
+    openP = P(lambda: Lit('('))
+    closeP = P(lambda: Lit(')'))
 
-parens = P(lambda: paren | (paren >> parens))
+    parens = P(lambda: paren | (paren >> parens))
 
-def to_paren(v):
-    assert v[0] == '('
-    assert v[-1] == ')'
-    return [('Paren', v[1:-1])]
+    def to_paren(v):
+        assert v[0] == '('
+        assert v[-1] == ')'
+        return [('Paren', v[1:-1])]
 
-def to_num(v):
-    return [('Num', v)]
+    def to_num(v):
+        return [('Num', v)]
 
-paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
-v = parens(list('((1)((1)))'))
-print(v)
+    paren = P(lambda: Apply(to_paren, lambda: openP >> (one | parens) >> closeP))
+    v = parens(list('((1)((1)))'))
+    print(v)
 
-paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
-v = parens(list('((123)((456)))'))
-for m in v:
-    print(m)
+    paren = P(lambda: Apply(to_paren, lambda: openP >> (num | parens) >> closeP))
+    v = parens(list('((123)((456)))'))
+    for m in v:
+        print(m)
 
 
 # ### Remaining
