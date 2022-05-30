@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -37,10 +51,6 @@ import random
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
-if __name__ == '__main__':
-    for i in range(10):
-        print(repr(fuzzer()))
-
 ############
 -->
 <form name='python_run_form'>
@@ -49,10 +59,23 @@ import random
 
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return &#x27;&#x27;.join([random.choice(chars) for i in range(random.randint(0,max_length))])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
-if __name__ == &#x27;__main__&#x27;:
-    for i in range(10):
-        print(repr(fuzzer()))
+
+<!--
+############
+for i in range(10):
+    print(repr(fuzzer()))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in range(10):
+    print(repr(fuzzer()))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -436,26 +459,88 @@ print(repr(tree_to_string(res)))
 <div name='python_canvas'></div>
 </form>
 One problem with the above fuzzer is that it can fail to terminate the
-recursion. Here is an implementation that uses random expansions until
+recursion. So, what we want to do is to limit unbounded recursion to a fixed
+depth. Beyond that fixed depth, we want to only expand those rules that are
+guaranteed to terminate.
+ 
+For that, we define the cost of expansion for each symbol in a grammar.
+A symbol costs as much as the cost of the least cost rule expansion.
+
+<!--
+############
+def symbol_cost(grammar, symbol, seen, cache):
+    if symbol in seen: return float('inf')
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            lst.append(expansion_cost(grammar, rule, seen | {symbol}, cache))
+    v = min(lst, default=0)
+    return v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def symbol_cost(grammar, symbol, seen, cache):
+    if symbol in seen: return float(&#x27;inf&#x27;)
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            lst.append(expansion_cost(grammar, rule, seen | {symbol}, cache))
+    v = min(lst, default=0)
+    return v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A rule costs as much as the cost of expansion of the most costliest symbol
+in that rule + 1.
+
+<!--
+############
+def expansion_cost(grammar, tokens, seen, cache):
+    return max((symbol_cost(grammar, token, seen, cache)
+                for token in tokens if token in grammar), default=0) + 1
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
+    return rule_cost
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def expansion_cost(grammar, tokens, seen, cache):
+    return max((symbol_cost(grammar, token, seen, cache)
+                for token in tokens if token in grammar), default=0) + 1
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
+    return rule_cost
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is an implementation that uses random expansions until
 a configurable depth (`max_depth`) is reached, and beyond that, uses
 purely non-recursive cheap expansions.
 
 <!--
 ############
 class LimitFuzzer:
-    def symbol_cost(self, grammar, symbol, seen):
-        if symbol in self.key_cost: return self.key_cost[symbol]
-        if symbol in seen:
-            self.key_cost[symbol] = float('inf')
-            return float('inf')
-        v = min((self.expansion_cost(grammar, rule, seen | {symbol})
-                    for rule in grammar.get(symbol, [])), default=0)
-        self.key_cost[symbol] = v
-        return v
-
-    def expansion_cost(self, grammar, tokens, seen):
-        return max((self.symbol_cost(grammar, token, seen)
-                    for token in tokens if token in grammar), default=0) + 1
 
     def gen_key(self, key, depth, max_depth):
         if key not in self.grammar: return key
@@ -476,34 +561,13 @@ class LimitFuzzer:
     def __init__(self, grammar):
         self.grammar = grammar
         self.key_cost = {}
-        self.cost = self.compute_cost(grammar)
-
-    def compute_cost(self, grammar):
-        cost = {}
-        for k in grammar:
-            cost[k] = {}
-            for rule in grammar[k]:
-                cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
-        return cost
+        self.cost = compute_cost(grammar)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LimitFuzzer:
-    def symbol_cost(self, grammar, symbol, seen):
-        if symbol in self.key_cost: return self.key_cost[symbol]
-        if symbol in seen:
-            self.key_cost[symbol] = float(&#x27;inf&#x27;)
-            return float(&#x27;inf&#x27;)
-        v = min((self.expansion_cost(grammar, rule, seen | {symbol})
-                    for rule in grammar.get(symbol, [])), default=0)
-        self.key_cost[symbol] = v
-        return v
-
-    def expansion_cost(self, grammar, tokens, seen):
-        return max((self.symbol_cost(grammar, token, seen)
-                    for token in tokens if token in grammar), default=0) + 1
 
     def gen_key(self, key, depth, max_depth):
         if key not in self.grammar: return key
@@ -524,15 +588,7 @@ class LimitFuzzer:
     def __init__(self, grammar):
         self.grammar = grammar
         self.key_cost = {}
-        self.cost = self.compute_cost(grammar)
-
-    def compute_cost(self, grammar):
-        cost = {}
-        for k in grammar:
-            cost[k] = {}
-            for rule in grammar[k]:
-                cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
-        return cost
+        self.cost = compute_cost(grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -746,3 +802,11 @@ The runnable Python source for this notebook is available [here](https://github.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2019-05-28-simplefuzzer-01.py).
+
+
+The installable python wheel `simplefuzzer` is available [here](/py/simplefuzzer-0.0.1-py2.py3-none-any.whl).
+

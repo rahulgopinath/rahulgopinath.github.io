@@ -15,6 +15,7 @@ import random
 def fuzzer(max_length=100, chars=[chr(i) for i in range(32, 64)]):
     return ''.join([random.choice(chars) for i in range(random.randint(0,max_length))])
 
+# 
 if __name__ == '__main__':
     for i in range(10):
         print(repr(fuzzer()))
@@ -184,24 +185,45 @@ if __name__ == '__main__':
     print(repr(tree_to_string(res)))
 
 # One problem with the above fuzzer is that it can fail to terminate the
-# recursion. Here is an implementation that uses random expansions until
+# recursion. So, what we want to do is to limit unbounded recursion to a fixed
+# depth. Beyond that fixed depth, we want to only expand those rules that are
+# guaranteed to terminate.
+#  
+# For that, we define the cost of expansion for each symbol in a grammar.
+# A symbol costs as much as the cost of the least cost rule expansion.
+
+def symbol_cost(grammar, symbol, seen, cache):
+    if symbol in seen: return float('inf')
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            lst.append(expansion_cost(grammar, rule, seen | {symbol}, cache))
+    v = min(lst, default=0)
+    return v
+
+# A rule costs as much as the cost of expansion of the most costliest symbol
+# in that rule + 1.
+
+def expansion_cost(grammar, tokens, seen, cache):
+    return max((symbol_cost(grammar, token, seen, cache)
+                for token in tokens if token in grammar), default=0) + 1
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
+    return rule_cost
+
+
+# Here is an implementation that uses random expansions until
 # a configurable depth (`max_depth`) is reached, and beyond that, uses
 # purely non-recursive cheap expansions.
 
 class LimitFuzzer:
-    def symbol_cost(self, grammar, symbol, seen):
-        if symbol in self.key_cost: return self.key_cost[symbol]
-        if symbol in seen:
-            self.key_cost[symbol] = float('inf')
-            return float('inf')
-        v = min((self.expansion_cost(grammar, rule, seen | {symbol})
-                    for rule in grammar.get(symbol, [])), default=0)
-        self.key_cost[symbol] = v
-        return v
-
-    def expansion_cost(self, grammar, tokens, seen):
-        return max((self.symbol_cost(grammar, token, seen)
-                    for token in tokens if token in grammar), default=0) + 1
 
     def gen_key(self, key, depth, max_depth):
         if key not in self.grammar: return key
@@ -222,15 +244,7 @@ class LimitFuzzer:
     def __init__(self, grammar):
         self.grammar = grammar
         self.key_cost = {}
-        self.cost = self.compute_cost(grammar)
-
-    def compute_cost(self, grammar):
-        cost = {}
-        for k in grammar:
-            cost[k] = {}
-            for rule in grammar[k]:
-                cost[k][str(rule)] = self.expansion_cost(grammar, rule, set())
-        return cost
+        self.cost = compute_cost(grammar)
 
 # Using it:
 
