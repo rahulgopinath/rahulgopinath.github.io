@@ -36,6 +36,9 @@
 my_input = None
 cur_position = 0
 
+def log(*args):
+    print(*args)
+
 def pos_cur():
     return cur_position
 
@@ -49,7 +52,9 @@ def reset():
     my_input = None
 
 def pos_eof():
-    return pos_cur() == len(my_input)
+    v = pos_cur() == len(my_input)
+    if v: log('EOF')
+    return v
 
 # We also need the ability to extract the `next token` (in this case, the next element in the input array).
 def next_token():
@@ -61,7 +66,9 @@ def next_token():
 # Another convenience we use is the ability to `match` a token to a given symbol.
 
 def match(t):
-    return next_token() == t
+    v = next_token() == t
+    if v: log(t)
+    return v
 
 # Once we have all these, the core part of parsing is two procedures. The first tries to match a sequence
 # of terms one by one. If the match succeeds, then we return success. If not, then we signal failure and exit.
@@ -145,6 +152,7 @@ def parse(i):
 
 reset()
 parse('1+1')
+# 
 reset()
 parse('1+(1+1)+1')
 

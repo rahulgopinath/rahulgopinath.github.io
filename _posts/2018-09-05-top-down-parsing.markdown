@@ -72,6 +72,9 @@ modularize your parser.
 my_input = None
 cur_position = 0
 
+def log(*args):
+    print(*args)
+
 def pos_cur():
     return cur_position
 
@@ -85,7 +88,9 @@ def reset():
     my_input = None
 
 def pos_eof():
-    return pos_cur() == len(my_input)
+    v = pos_cur() == len(my_input)
+    if v: log('EOF')
+    return v
 
 ############
 -->
@@ -94,6 +99,9 @@ def pos_eof():
 my_input = None
 cur_position = 0
 
+def log(*args):
+    print(*args)
+
 def pos_cur():
     return cur_position
 
@@ -107,7 +115,9 @@ def reset():
     my_input = None
 
 def pos_eof():
-    return pos_cur() == len(my_input)
+    v = pos_cur() == len(my_input)
+    if v: log(&#x27;EOF&#x27;)
+    return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -140,14 +150,18 @@ Another convenience we use is the ability to `match` a token to a given symbol.
 <!--
 ############
 def match(t):
-    return next_token() == t
+    v = next_token() == t
+    if v: log(t)
+    return v
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def match(t):
-    return next_token() == t
+    v = next_token() == t
+    if v: log(t)
+    return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -372,6 +386,20 @@ Using it:
 ############
 reset()
 parse('1+1')
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+reset()
+parse(&#x27;1+1&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
 reset()
 parse('1+(1+1)+1')
 
@@ -379,8 +407,6 @@ parse('1+(1+1)+1')
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-reset()
-parse(&#x27;1+1&#x27;)
 reset()
 parse(&#x27;1+(1+1)+1&#x27;)
 </textarea><br />
