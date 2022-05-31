@@ -7,8 +7,27 @@ tags: parsing
 categories: post
 ---
 
+## Contents
+{:.no_toc}
 
-<script src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
@@ -17,13 +36,11 @@ categories: post
 <script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
 <script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
 
-
 **Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
 Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
 How hard is parsing a context-free[^contextfree] language? In this post, I will try to provide
 an overview of one of the simplest parsing techniques of all -- recursive descent parsing by hand.
 
@@ -50,6 +67,28 @@ to tell when the input is complete. I use global variables for ease of discussio
 to commit too much to _Python_ syntax and semantics. Use the mechanisms available in your language to
 modularize your parser.
 
+<!--
+############
+my_input = None
+cur_position = 0
+
+def pos_cur():
+    return cur_position
+
+def pos_set(i):
+    global cur_position
+    cur_position = i
+
+def reset():
+    global cur_position, my_input
+    cur_position = 0
+    my_input = None
+
+def pos_eof():
+    return pos_cur() == len(my_input)
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_input = None
@@ -74,6 +113,17 @@ def pos_eof():
 <div name='python_canvas'></div>
 </form>
 We also need the ability to extract the `next token` (in this case, the next element in the input array).
+
+<!--
+############
+def next_token():
+    i = pos_cur()
+    if i+1 > len(my_input): return None
+    pos_set(i+1)
+    return my_input[i]
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def next_token():
@@ -86,6 +136,14 @@ def next_token():
 <div name='python_canvas'></div>
 </form>
 Another convenience we use is the ability to `match` a token to a given symbol.
+
+<!--
+############
+def match(t):
+    return next_token() == t
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def match(t):
@@ -94,10 +152,18 @@ def match(t):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Once we have all these, the core part of parsing is two procedures. The first tries to match a sequence
 of terms one by one. If the match succeeds, then we return success. If not, then we signal failure and exit.
 
+<!--
+############
+def do_seq(seq_terms):
+   for t in seq_terms:
+       if not t(): return False
+   return True
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def do_seq(seq_terms):
@@ -108,9 +174,19 @@ def do_seq(seq_terms):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 The other corresponds to the alternatives for each production. If any alternative succeeds, then the parsing succeeds.
 
+<!--
+############
+def do_alt(alt_terms):
+    for t in alt_terms:
+        o_pos = pos_cur()
+        if t(): return True
+        pos_set(o_pos)
+    return False
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def do_alt(alt_terms):
@@ -125,56 +201,127 @@ def do_alt(alt_terms):
 </form>
 With this, we are now ready to write our parser. Since we are writing a top-down recursive descent parser, we
 start with the axiom rule `E` which contains two alternatives.
+
+<!--
+############
+def E():
+    """
+E = ...
+  | ...
+"""
+    return do_alt([E_1, E_2])
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# E = ...
-#   | ...
 def E():
+    &quot;&quot;&quot;
+E = ...
+  | ...
+&quot;&quot;&quot;
     return do_alt([E_1, E_2])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 Both `E_1` and `E_2` are simple sequential rules
+
+<!--
+############
+def E_1():
+    """
+E = T + E
+    """
+    return do_seq([T, PLUS, E])
+
+def E_2():
+    """
+E = T
+"""
+    return do_seq([T])
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# E = T + E
 def E_1():
+    &quot;&quot;&quot;
+E = T + E
+    &quot;&quot;&quot;
     return do_seq([T, PLUS, E])
-# E = T
+
 def E_2():
+    &quot;&quot;&quot;
+E = T
+&quot;&quot;&quot;
     return do_seq([T])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 Defining `T` is similar
+
+<!--
+############
+def T():
+    """
+T = ...
+  | ...
+"""
+    return do_alt([T_1, T_2])
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# T = ...
-#   | ...
 def T():
+    &quot;&quot;&quot;
+T = ...
+  | ...
+&quot;&quot;&quot;
     return do_alt([T_1, T_2])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 And each alternative in `T` gets defined correspondingly.
+
+<!--
+############
+def T_1():
+    """
+T = 1
+"""
+    return match('1')
+def T_2():
+    """
+T = ( E )
+"""
+    return do_seq([P_OPEN,E,P_CLOSE])
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# T = 1
 def T_1():
-    return match('1')
-# T = ( E )
+    &quot;&quot;&quot;
+T = 1
+&quot;&quot;&quot;
+    return match(&#x27;1&#x27;)
 def T_2():
+    &quot;&quot;&quot;
+T = ( E )
+&quot;&quot;&quot;
     return do_seq([P_OPEN,E,P_CLOSE])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 We also need terminals, which is again simple enough
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
+
+<!--
+############
 def PLUS():
     return match('+')
 def P_OPEN():
@@ -182,11 +329,32 @@ def P_OPEN():
 def P_CLOSE():
     return match(')')
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def PLUS():
+    return match(&#x27;+&#x27;)
+def P_OPEN():
+    return match(&#x27;(&#x27;)
+def P_CLOSE():
+    return match(&#x27;)&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 The only thing that remains is to define the parser
+
+<!--
+############
+def parse(i):
+    global my_input
+    my_input = i
+    assert E()
+    assert pos_eof()
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def parse(i):
@@ -199,12 +367,22 @@ def parse(i):
 <div name='python_canvas'></div>
 </form>
 Using it:
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
+
+<!--
+############
 reset()
 parse('1+1')
 reset()
 parse('1+(1+1)+1')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+reset()
+parse(&#x27;1+1&#x27;)
+reset()
+parse(&#x27;1+(1+1)+1&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -227,8 +405,9 @@ add_op = "+" | "-"
 mul_op = "*" | "/"
 ```
 Its conversion is almost automatic
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
+
+<!--
+############
 def expr():     return do_alt([expr_1, expr_2])
 def expr_1():   return do_seq([term, add_op, expr])
 def expr_2():   return do_seq([term])
@@ -248,7 +427,36 @@ def digits_2(): return do_seq([digit])
 def add_op():   return do_alt([lambda: match('+'), lambda: match('-')])
 def mul_op():   return do_alt([lambda: match('*'), lambda: match('/')])
 
-# note that list comprehensions will not work here due to closure of i
+def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
+
+def parse(i):
+    global my_input
+    my_input = i
+    assert expr()
+    assert pos_eof()
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def expr():     return do_alt([expr_1, expr_2])
+def expr_1():   return do_seq([term, add_op, expr])
+def expr_2():   return do_seq([term])
+
+def term():     return do_alt([term_1, term_2])
+def term_1():   return do_seq([fact, mul_op, term])
+def term_2():   return do_seq([fact])
+
+def fact():     return do_alt([fact_1, fact_2])
+def fact_1():   return do_seq([digits])
+def fact_2():   return do_seq([lambda: match(&#x27;(&#x27;), expr, lambda: match(&#x27;)&#x27;)])
+
+def digits():   return do_alt([digits_1, digits_2])
+def digits_1(): return do_seq([digit, digits])
+def digits_2(): return do_seq([digit])
+
+def add_op():   return do_alt([lambda: match(&#x27;+&#x27;), lambda: match(&#x27;-&#x27;)])
+def mul_op():   return do_alt([lambda: match(&#x27;*&#x27;), lambda: match(&#x27;/&#x27;)])
+
 def digit():    return do_alt(map(lambda i: lambda: match(str(i)), range(10)))
 
 def parse(i):
@@ -260,20 +468,40 @@ def parse(i):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Using it:
+
+<!--
+############
+reset()
+parse('12*3+(12/13)')
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 reset()
-parse('12*3+(12/13)')
+parse(&#x27;12*3+(12/13)&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 Indeed, it is close enough to automatic, that we can make it fully automatic. We first define the
 grammar as a data-structure for convenience. I hope I don't need to convince you that I could have
 easily loaded it as a `JSON` file, or even parsed the BNF myself if necessary from an external file.
+
+<!--
+############
+grammar = {
+        "expr": [["term", "add_op", "expr"], ["term"]],
+        "term": [["fact", "mul_op", "term"], ["fact"]],
+        "fact": [["digits"], ["(", "expr", ")"]],
+        "digits": [["digit", "digits"], ["digit"]],
+        "digit": [[str(i)] for i in list(range(10))],
+        "add_op": [["+"], ["-"]],
+        "mul_op": [["*"], ["/"]]
+}
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = {
@@ -290,8 +518,9 @@ grammar = {
 <div name='python_canvas'></div>
 </form>
 Using the grammar just means that we have to slightly modify our core procedures.
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
+
+<!--
+############
 def do_seq(seq_terms):
    for t in seq_terms:
        if not do_alt(t): return False
@@ -311,21 +540,86 @@ def parse(i):
     my_input = i
     do_alt('expr')
     assert pos_eof()
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def do_seq(seq_terms):
+   for t in seq_terms:
+       if not do_alt(t): return False
+   return True
+
+def do_alt(key):
+    if key not in grammar: return match(key)
+    alt_terms = grammar[key]
+    for ts in alt_terms:
+        o_pos = pos_cur()
+        if do_seq(ts): return True
+        pos_set(o_pos)
+    return False
+
+def parse(i):
+    global my_input
+    my_input = i
+    do_alt(&#x27;expr&#x27;)
+    assert pos_eof()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 Using it is same as before:
+
+<!--
+############
+reset()
+parse('12*3+(12/13)')
+reset()
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 reset()
-parse('12*3+(12/13)')
+parse(&#x27;12*3+(12/13)&#x27;)
 reset()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 Bringing it all together,
+
+<!--
+############
+class g_parse:
+    def __init__(self, g): self._g = g
+
+    def remain(self): return self._len - self._i
+
+    def next_token(self):
+        try: return None if self._i + 1 > self._len else self._str[self._i]
+        finally: self._i += 1
+
+    def match(self, t): return self.next_token() == t
+
+    def is_nt(self, key): return key in self._g
+
+    def do_seq(self, seq_terms): return all(self.do_alt(t) for t in seq_terms)
+
+    def _try(self, fn):
+        o_pos = self._i
+        if fn(): return True
+        self._i = o_pos
+
+    def do_alt(self, key):
+        if not self.is_nt(key): return self.match(key)
+        return any(self._try(lambda: self.do_seq(ts)) for ts in self._g[key])
+
+    def parse(self, i):
+        self._str, self._len, self._i = i, len(i), 0
+        self.do_alt('expr')
+        assert self.remain() == 0
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class g_parse:
@@ -354,25 +648,44 @@ class g_parse:
 
     def parse(self, i):
         self._str, self._len, self._i = i, len(i), 0
-        self.do_alt('expr')
+        self.do_alt(&#x27;expr&#x27;)
         assert self.remain() == 0
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Using
 
+<!--
+############
+g_parse(grammar).parse( '123+11+(3*(2))+1')
+
+############
+-->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_parse(grammar).parse( '123+11+(3*(2))+1')
+g_parse(grammar).parse( &#x27;123+11+(3*(2))+1&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Of course, one usually wants to do something with the parsed output. However, given that the procedures are organized in a top-down fashion, saving the resulting expressions is relatively trivial.
+Of course, one usually wants to do something with the parsed output.
+However, given that the procedures are organized in a top-down fashion, saving
+the resulting expressions is relatively trivial.
+
+[^contextfree]: The parser we create is not really interpreting the grammar as
+a _Context-Free Grammar_. Rather, it uses the grammar as if it is written
+using another formalism called _Parsing Expression Grammar_. However, an
+important subclass of context-free languages in real world -- _LL(*)_ -- can
+be completely represented using _PEG_. Hence, the title is not completely wrong.
+
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
-[^contextfree]: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2018-09-05-top-down-parsing.py).
+
 
