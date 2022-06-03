@@ -220,11 +220,9 @@ in an empty array.
 ############
 def AndThen(p1, p2):
     def parse(instr):
-        ret = []
-        for (in1, pr1) in p1(instr):
-            for (in2, pr2) in p2(in1):
-                ret.append((in2, pr1+pr2))
-        return ret
+        return [(in2, pr1+pr2)
+                for (in1, pr1) in p1(instr)
+                for (in2, pr2) in p2(in1)]
     return parse
 
 ############
@@ -233,11 +231,9 @@ def AndThen(p1, p2):
 <textarea cols="40" rows="4" name='python_edit'>
 def AndThen(p1, p2):
     def parse(instr):
-        ret = []
-        for (in1, pr1) in p1(instr):
-            for (in2, pr2) in p2(in1):
-                ret.append((in2, pr1+pr2))
-        return ret
+        return [(in2, pr1+pr2)
+                for (in1, pr1) in p1(instr)
+                for (in2, pr2) in p2(in1)]
     return parse
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
