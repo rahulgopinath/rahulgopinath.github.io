@@ -880,7 +880,11 @@ Note that one has to be careful about the precedence of operators. In
 particular, if you mix and match `>>` and `|`, always use parenthesis
 to disambiguate.
 
-We also define a regular expression matcher for completeness
+We also define a regular expression matcher for completeness. Note that
+unlike our other parsers, regular expression matcher is greedy, and matches
+as much as it can match, and produces a single match. Consequently if we have
+a regular expression `/^a+/` and we are provided with `'aaa'`, rather than
+producing `a, aa, aaa` as matches, it produces only `aaa`.
 
 <!--
 ############
@@ -891,10 +895,9 @@ def Re(r):
         res = re.match(r, ''.join(instr))
         if res:
             (start, end) = res.span()
-            return [(instr[end:], [instr[start:end]])]
+            return [(instr[end:], instr[start:end])]
         return []
     return parse
-
 
 ############
 -->
@@ -907,9 +910,28 @@ def Re(r):
         res = re.match(r, &#x27;&#x27;.join(instr))
         if res:
             (start, end) = res.span()
-            return [(instr[end:], [instr[start:end]])]
+            return [(instr[end:], instr[start:end])]
         return []
     return parse
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Used as follows
+
+<!--
+############
+v = Re('^a+')(list('aaa'))
+print(v)
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = Re(&#x27;^a+&#x27;)(list(&#x27;aaa&#x27;))
+print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

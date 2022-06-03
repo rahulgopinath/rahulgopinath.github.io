@@ -374,7 +374,11 @@ if __name__ == '__main__':
 # to disambiguate.
 # 
 
-# We also define a regular expression matcher for completeness
+# We also define a regular expression matcher for completeness. Note that
+# unlike our other parsers, regular expression matcher is greedy, and matches
+# as much as it can match, and produces a single match. Consequently if we have
+# a regular expression `/^a+/` and we are provided with `'aaa'`, rather than
+# producing `a, aa, aaa` as matches, it produces only `aaa`.
 
 import re
 def Re(r):
@@ -383,9 +387,16 @@ def Re(r):
         res = re.match(r, ''.join(instr))
         if res:
             (start, end) = res.span()
-            return [(instr[end:], [instr[start:end]])]
+            return [(instr[end:], instr[start:end])]
         return []
     return parse
+ 
+# Used as follows
+
+if __name__ == '__main__':
+    v = Re('^a+')(list('aaa'))
+    print(v)
+
 
  
 # ### The simple parenthesis language
