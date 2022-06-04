@@ -295,7 +295,6 @@ if __name__ == '__main__':
 
 # Parsing
 if __name__ == '__main__':
-
     ifkey = C.P(lambda: Keyword('if'))
     empty = C.P(lambda: NoParse())
     name = C.P(lambda: Name())

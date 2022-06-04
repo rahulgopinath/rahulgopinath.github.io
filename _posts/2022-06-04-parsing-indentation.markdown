@@ -735,104 +735,103 @@ Parsing
 
 <!--
 ############
+ifkey = C.P(lambda: Keyword('if'))
+empty = C.P(lambda: NoParse())
+name = C.P(lambda: Name())
+expr = C.P(lambda:
+        C.Apply(
+            to_valA('Expr'),
+            lambda: name | nlit | qlit)
+        )
+ws = C.P(lambda: WS())
+nl = C.P(lambda: NL())
+spaces = C.P(lambda: (ws >> spaces) | empty)
+colon = C.P(lambda: Punct(':'))
+equals = C.P(lambda: Punct('='))
+nlit = C.P(lambda: Literal('NumericLiteral'))
+qlit = C.P(lambda: Literal('QuotedLiteral'))
+indent = C.P(lambda: Indent())
+dedent = C.P(lambda: Dedent())
 
-    ifkey = C.P(lambda: Keyword('if'))
-    empty = C.P(lambda: NoParse())
-    name = C.P(lambda: Name())
-    expr = C.P(lambda:
-            C.Apply(
-                to_valA('Expr'),
-                lambda: name | nlit | qlit)
-            )
-    ws = C.P(lambda: WS())
-    nl = C.P(lambda: NL())
-    spaces = C.P(lambda: (ws >> spaces) | empty)
-    colon = C.P(lambda: Punct(':'))
-    equals = C.P(lambda: Punct('='))
-    nlit = C.P(lambda: Literal('NumericLiteral'))
-    qlit = C.P(lambda: Literal('QuotedLiteral'))
-    indent = C.P(lambda: Indent())
-    dedent = C.P(lambda: Dedent())
+assignstmt = C.P(lambda:
+        C.Apply(
+            to_valA('Assignment'),
+            lambda: name >> spaces >> equals >> spaces >> (nlit | qlit) >> nl)
+        )
+ifstmt =  C.P(lambda:
+        C.Apply(
+            to_valA('If'),
+            lambda: ifkey >> spaces >> expr >> spaces >> colon >> block)
+        )
 
-    assignstmt = C.P(lambda:
-            C.Apply(
-                to_valA('Assignment'),
-                lambda: name >> spaces >> equals >> spaces >> (nlit | qlit) >> nl)
-            )
-    ifstmt =  C.P(lambda:
-            C.Apply(
-                to_valA('If'),
-                lambda: ifkey >> spaces >> expr >> spaces >> colon >> block)
-            )
+block = C.P(lambda: (indent >> stmts >> dedent) | stmts)
 
-    block = C.P(lambda: (indent >> stmts >> dedent) | stmts)
+stmt = C.P(lambda:
+        C.Apply(
+            to_valA('Statement'),
+            lambda: ifstmt | assignstmt)
+        )
 
-    stmt = C.P(lambda:
-            C.Apply(
-                to_valA('Statement'),
-                lambda: ifstmt | assignstmt)
-            )
+stmts = C.P(lambda:
+        C.Apply(
+            to_valA('Stmts'),
+            lambda: stmt| (stmt >> stmts))
+        )
 
-    stmts = C.P(lambda:
-            C.Apply(
-                to_valA('Stmts'),
-                lambda: stmt| (stmt >> stmts))
-            )
-
-    for to_parse, parsed in stmts(res):
-        if not to_parse:
-            C.display_trees(parsed, get_children=get_children)
+for to_parse, parsed in stmts(res):
+    if not to_parse:
+        C.display_trees(parsed, get_children=get_children)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 ifkey = C.P(lambda: Keyword(&#x27;if&#x27;))
-    empty = C.P(lambda: NoParse())
-    name = C.P(lambda: Name())
-    expr = C.P(lambda:
-            C.Apply(
-                to_valA(&#x27;Expr&#x27;),
-                lambda: name | nlit | qlit)
-            )
-    ws = C.P(lambda: WS())
-    nl = C.P(lambda: NL())
-    spaces = C.P(lambda: (ws &gt;&gt; spaces) | empty)
-    colon = C.P(lambda: Punct(&#x27;:&#x27;))
-    equals = C.P(lambda: Punct(&#x27;=&#x27;))
-    nlit = C.P(lambda: Literal(&#x27;NumericLiteral&#x27;))
-    qlit = C.P(lambda: Literal(&#x27;QuotedLiteral&#x27;))
-    indent = C.P(lambda: Indent())
-    dedent = C.P(lambda: Dedent())
+empty = C.P(lambda: NoParse())
+name = C.P(lambda: Name())
+expr = C.P(lambda:
+        C.Apply(
+            to_valA(&#x27;Expr&#x27;),
+            lambda: name | nlit | qlit)
+        )
+ws = C.P(lambda: WS())
+nl = C.P(lambda: NL())
+spaces = C.P(lambda: (ws &gt;&gt; spaces) | empty)
+colon = C.P(lambda: Punct(&#x27;:&#x27;))
+equals = C.P(lambda: Punct(&#x27;=&#x27;))
+nlit = C.P(lambda: Literal(&#x27;NumericLiteral&#x27;))
+qlit = C.P(lambda: Literal(&#x27;QuotedLiteral&#x27;))
+indent = C.P(lambda: Indent())
+dedent = C.P(lambda: Dedent())
 
-    assignstmt = C.P(lambda:
-            C.Apply(
-                to_valA(&#x27;Assignment&#x27;),
-                lambda: name &gt;&gt; spaces &gt;&gt; equals &gt;&gt; spaces &gt;&gt; (nlit | qlit) &gt;&gt; nl)
-            )
-    ifstmt =  C.P(lambda:
-            C.Apply(
-                to_valA(&#x27;If&#x27;),
-                lambda: ifkey &gt;&gt; spaces &gt;&gt; expr &gt;&gt; spaces &gt;&gt; colon &gt;&gt; block)
-            )
+assignstmt = C.P(lambda:
+        C.Apply(
+            to_valA(&#x27;Assignment&#x27;),
+            lambda: name &gt;&gt; spaces &gt;&gt; equals &gt;&gt; spaces &gt;&gt; (nlit | qlit) &gt;&gt; nl)
+        )
+ifstmt =  C.P(lambda:
+        C.Apply(
+            to_valA(&#x27;If&#x27;),
+            lambda: ifkey &gt;&gt; spaces &gt;&gt; expr &gt;&gt; spaces &gt;&gt; colon &gt;&gt; block)
+        )
 
-    block = C.P(lambda: (indent &gt;&gt; stmts &gt;&gt; dedent) | stmts)
+block = C.P(lambda: (indent &gt;&gt; stmts &gt;&gt; dedent) | stmts)
 
-    stmt = C.P(lambda:
-            C.Apply(
-                to_valA(&#x27;Statement&#x27;),
-                lambda: ifstmt | assignstmt)
-            )
+stmt = C.P(lambda:
+        C.Apply(
+            to_valA(&#x27;Statement&#x27;),
+            lambda: ifstmt | assignstmt)
+        )
 
-    stmts = C.P(lambda:
-            C.Apply(
-                to_valA(&#x27;Stmts&#x27;),
-                lambda: stmt| (stmt &gt;&gt; stmts))
-            )
+stmts = C.P(lambda:
+        C.Apply(
+            to_valA(&#x27;Stmts&#x27;),
+            lambda: stmt| (stmt &gt;&gt; stmts))
+        )
 
-    for to_parse, parsed in stmts(res):
-        if not to_parse:
-            C.display_trees(parsed, get_children=get_children)
+for to_parse, parsed in stmts(res):
+    if not to_parse:
+        C.display_trees(parsed, get_children=get_children)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
