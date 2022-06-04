@@ -272,11 +272,12 @@ def format_node(node):
 def get_children(node):
     if len(node) > 1: return node[1]
     return []
-  
-def display_trees(ts):
+
+
+def display_trees(ts, format_node=format_node, get_children=get_children):
     import simplefuzzer as fuzzer
     for t in ts:
-        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
+        fuzzer.display_tree(t, format_node, get_children)
 
 # It is used as follows
 

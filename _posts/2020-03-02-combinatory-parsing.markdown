@@ -626,10 +626,11 @@ def get_children(node):
     if len(node) > 1: return node[1]
     return []
 
-def display_trees(ts):
+
+def display_trees(ts, format_node=format_node, get_children=get_children):
     import simplefuzzer as fuzzer
     for t in ts:
-        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
+        fuzzer.display_tree(t, format_node, get_children)
 
 ############
 -->
@@ -644,10 +645,11 @@ def get_children(node):
     if len(node) &gt; 1: return node[1]
     return []
 
-def display_trees(ts):
+
+def display_trees(ts, format_node=format_node, get_children=get_children):
     import simplefuzzer as fuzzer
     for t in ts:
-        fuzzer.display_tree(t, format_node=format_node, get_children=get_children)
+        fuzzer.display_tree(t, format_node, get_children)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1024,4 +1026,6 @@ PEG parser.
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2020-03-02-combinatory-parsing.py).
 
+
+The installable python wheel `combinatoryparser` is available [here](/py/combinatoryparser-0.0.1-py2.py3-none-any.whl).
 
