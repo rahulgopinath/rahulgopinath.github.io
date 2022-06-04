@@ -26,8 +26,8 @@
 #
 # ```
 # if True: {
-#    x = 100
-#    y = 200
+#    x = 100;
+#    y = 200;
 # }
 # ```
 # in a `C` like language. This use of indentation is hard to capture in
