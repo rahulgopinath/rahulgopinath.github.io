@@ -52,7 +52,7 @@ import combinatoryparser as C
 # language.
 
 def to_val(name):
-    return lambda v: [(name, ''.join(v))]
+    return lambda v: [(name, ''.join([i for i in v]))]
 
 # Numeric literals represent numbers.
 
@@ -137,6 +137,7 @@ def generate_indents(tokens):
         # did a nested block begin
         if token[0] == 'NL':
             if not tokens:
+                stream.append(token)
                 dedent(0, indents, stream)
                 break
             elif tokens[0][0] == 'WS':
@@ -145,14 +146,14 @@ def generate_indents(tokens):
                     indents.append(indent)
                     stream.append(('Indent', indent))
                 elif indent == indents[-1]:
-                    pass
+                    stream.append(token)
                 else:
+                    stream.append(token)
                     dedent(indent, indents, stream)
                 tokens = tokens[1:]
             else:
+                stream.append(token)
                 dedent(0, indents, stream)
-
-            stream.append(token)
         else:
             stream.append(token)
     assert len(indents) == 1
@@ -186,12 +187,151 @@ if __name__ == '__main__':
         if k[0] in 'Indent':
             current_indent = k[1]
             print()
-            print(' ' * current_indent + '{', end='')
+            print(' ' * current_indent + '{')
+            print(current_indent * ' ', end = '')
         elif k[0] in 'Dedent':
             print()
-            print(current_indent * ' ' + '}', end='')
+            print(current_indent * ' ' + '}')
             current_indent = k[1]
+        elif k[0] in 'NL':
+            print()
+            print(current_indent * ' ', end = '')
         else:
-            print(current_indent * ' ' + k[1], end = '')
+            print(k[1], end = '')
     print()
+
+# At this point, we can apply a standard context-free parser for parsing the
+# produced tokens. We use a simple Combinatory parser for that.
+
+# ## Combinatory parser
+def NoParse():
+    def parse(instr): return [(instr, [('Empty',)])]
+    return parse
+
+def Keyword(k):
+    def parse(instr):
+        if instr and instr[0] == ('Name', k):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Literal(k):
+    def parse(instr):
+        if instr and instr[0][0] == k:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def NL():
+    def parse(instr):
+        if instr and instr[0][0] == 'NL':
+            return [(instr[1:], [instr[0]])] 
+        return []
+    return parse
+
+def WS():
+    def parse(instr):
+        if instr and instr[0][0] == 'WS':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Name():
+    def parse(instr):
+        if instr and instr[0][0] == 'Name':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Punct(c):
+    def parse(instr):
+        if instr and instr[0] == ('Punctuation', c):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Indent():
+    def parse(instr):
+        if instr and instr[0][0] == 'Indent':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Dedent():
+    def parse(instr):
+        if instr and instr[0][0] == 'Dedent':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+# 
+example = """\
+if False:
+    if True:
+        x = "ab cd"
+        y = 100
+z = 1
+"""
+
+# 
+def to_valA(name):
+    return lambda v: [(name, v)]
+
+# Tokenizing
+if __name__ == '__main__':
+    tokens = tokenize(example)
+    print(tokens)
+    res = generate_indents(tokens)
+    for k in res:
+        print(k)
+
+# Parsing
+if __name__ == '__main__':
+
+    ifkey = C.P(lambda: Keyword('if'))
+    empty = C.P(lambda: NoParse())
+    name = C.P(lambda: Name())
+    expr = C.P(lambda:
+            C.Apply(
+                to_valA('Expr'),
+                lambda: name | nlit | qlit)
+            )
+    ws = C.P(lambda: WS())
+    nl = C.P(lambda: NL())
+    spaces = C.P(lambda: (ws >> spaces) | empty)
+    colon = C.P(lambda: Punct(':'))
+    equals = C.P(lambda: Punct('='))
+    nlit = C.P(lambda: Literal('NumericLiteral'))
+    qlit = C.P(lambda: Literal('QuotedLiteral'))
+    indent = C.P(lambda: Indent())
+    dedent = C.P(lambda: Dedent())
+
+    assignstmt = C.P(lambda:
+            C.Apply(
+                to_valA('Assignment'),
+                lambda: name >> spaces >> equals >> spaces >> (nlit | qlit) >> nl)
+            )
+    ifstmt =  C.P(lambda:
+            C.Apply(
+                to_valA('If'),
+                lambda: ifkey >> spaces >> expr >> spaces >> colon >> block)
+            )
+
+    block = C.P(lambda: (indent >> stmts >> dedent) | stmts)
+
+    stmt = C.P(lambda:
+            C.Apply(
+                to_valA('Statement'),
+                lambda: ifstmt | assignstmt)
+            )
+
+    stmts = C.P(lambda:
+            C.Apply(
+                to_valA('Stmts'),
+                lambda: stmt| (stmt >> stmts))
+            )
+
+    for to_parse, parsed in stmts(res):
+        if not to_parse:
+            print(">", parsed)
 

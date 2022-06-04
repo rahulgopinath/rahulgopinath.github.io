@@ -116,14 +116,14 @@ language.
 <!--
 ############
 def to_val(name):
-    return lambda v: [(name, ''.join(v))]
+    return lambda v: [(name, ''.join([i for i in v]))]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def to_val(name):
-    return lambda v: [(name, &#x27;&#x27;.join(v))]
+    return lambda v: [(name, &#x27;&#x27;.join([i for i in v]))]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -362,6 +362,7 @@ def generate_indents(tokens):
         # did a nested block begin
         if token[0] == 'NL':
             if not tokens:
+                stream.append(token)
                 dedent(0, indents, stream)
                 break
             elif tokens[0][0] == 'WS':
@@ -370,14 +371,14 @@ def generate_indents(tokens):
                     indents.append(indent)
                     stream.append(('Indent', indent))
                 elif indent == indents[-1]:
-                    pass
+                    stream.append(token)
                 else:
+                    stream.append(token)
                     dedent(indent, indents, stream)
                 tokens = tokens[1:]
             else:
+                stream.append(token)
                 dedent(0, indents, stream)
-
-            stream.append(token)
         else:
             stream.append(token)
     assert len(indents) == 1
@@ -402,6 +403,7 @@ def generate_indents(tokens):
         # did a nested block begin
         if token[0] == &#x27;NL&#x27;:
             if not tokens:
+                stream.append(token)
                 dedent(0, indents, stream)
                 break
             elif tokens[0][0] == &#x27;WS&#x27;:
@@ -410,14 +412,14 @@ def generate_indents(tokens):
                     indents.append(indent)
                     stream.append((&#x27;Indent&#x27;, indent))
                 elif indent == indents[-1]:
-                    pass
+                    stream.append(token)
                 else:
+                    stream.append(token)
                     dedent(indent, indents, stream)
                 tokens = tokens[1:]
             else:
+                stream.append(token)
                 dedent(0, indents, stream)
-
-            stream.append(token)
         else:
             stream.append(token)
     assert len(indents) == 1
@@ -473,13 +475,17 @@ for k in res:
     if k[0] in 'Indent':
         current_indent = k[1]
         print()
-        print(' ' * current_indent + '{', end='')
+        print(' ' * current_indent + '{')
+        print(current_indent * ' ', end = '')
     elif k[0] in 'Dedent':
         print()
-        print(current_indent * ' ' + '}', end='')
+        print(current_indent * ' ' + '}')
         current_indent = k[1]
+    elif k[0] in 'NL':
+        print()
+        print(current_indent * ' ', end = '')
     else:
-        print(current_indent * ' ' + k[1], end = '')
+        print(k[1], end = '')
 print()
 
 ############
@@ -493,14 +499,324 @@ for k in res:
     if k[0] in &#x27;Indent&#x27;:
         current_indent = k[1]
         print()
-        print(&#x27; &#x27; * current_indent + &#x27;{&#x27;, end=&#x27;&#x27;)
+        print(&#x27; &#x27; * current_indent + &#x27;{&#x27;)
+        print(current_indent * &#x27; &#x27;, end = &#x27;&#x27;)
     elif k[0] in &#x27;Dedent&#x27;:
         print()
-        print(current_indent * &#x27; &#x27; + &#x27;}&#x27;, end=&#x27;&#x27;)
+        print(current_indent * &#x27; &#x27; + &#x27;}&#x27;)
         current_indent = k[1]
+    elif k[0] in &#x27;NL&#x27;:
+        print()
+        print(current_indent * &#x27; &#x27;, end = &#x27;&#x27;)
     else:
-        print(current_indent * &#x27; &#x27; + k[1], end = &#x27;&#x27;)
+        print(k[1], end = &#x27;&#x27;)
 print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+At this point, we can apply a standard context-free parser for parsing the
+produced tokens. We use a simple Combinatory parser for that.
+## Combinatory parser
+
+<!--
+############
+def NoParse():
+    def parse(instr): return [(instr, [('Empty',)])]
+    return parse
+
+def Keyword(k):
+    def parse(instr):
+        if instr and instr[0] == ('Name', k):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Literal(k):
+    def parse(instr):
+        if instr and instr[0][0] == k:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def NL():
+    def parse(instr):
+        if instr and instr[0][0] == 'NL':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def WS():
+    def parse(instr):
+        if instr and instr[0][0] == 'WS':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Name():
+    def parse(instr):
+        if instr and instr[0][0] == 'Name':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Punct(c):
+    def parse(instr):
+        if instr and instr[0] == ('Punctuation', c):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Indent():
+    def parse(instr):
+        if instr and instr[0][0] == 'Indent':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Dedent():
+    def parse(instr):
+        if instr and instr[0][0] == 'Dedent':
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def NoParse():
+    def parse(instr): return [(instr, [(&#x27;Empty&#x27;,)])]
+    return parse
+
+def Keyword(k):
+    def parse(instr):
+        if instr and instr[0] == (&#x27;Name&#x27;, k):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Literal(k):
+    def parse(instr):
+        if instr and instr[0][0] == k:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def NL():
+    def parse(instr):
+        if instr and instr[0][0] == &#x27;NL&#x27;:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def WS():
+    def parse(instr):
+        if instr and instr[0][0] == &#x27;WS&#x27;:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Name():
+    def parse(instr):
+        if instr and instr[0][0] == &#x27;Name&#x27;:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Punct(c):
+    def parse(instr):
+        if instr and instr[0] == (&#x27;Punctuation&#x27;, c):
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Indent():
+    def parse(instr):
+        if instr and instr[0][0] == &#x27;Indent&#x27;:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+
+def Dedent():
+    def parse(instr):
+        if instr and instr[0][0] == &#x27;Dedent&#x27;:
+            return [(instr[1:], [instr[0]])]
+        return []
+    return parse
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+example = """\
+if False:
+    if True:
+        x = "ab cd"
+        y = 100
+z = 1
+"""
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+example = &quot;&quot;&quot;\
+if False:
+    if True:
+        x = &quot;ab cd&quot;
+        y = 100
+z = 1
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+def to_valA(name):
+    return lambda v: [(name, v)]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def to_valA(name):
+    return lambda v: [(name, v)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Tokenizing
+
+<!--
+############
+tokens = tokenize(example)
+print(tokens)
+res = generate_indents(tokens)
+for k in res:
+    print(k)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+tokens = tokenize(example)
+print(tokens)
+res = generate_indents(tokens)
+for k in res:
+    print(k)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Parsing
+
+<!--
+############
+
+    ifkey = C.P(lambda: Keyword('if'))
+    empty = C.P(lambda: NoParse())
+    name = C.P(lambda: Name())
+    expr = C.P(lambda:
+            C.Apply(
+                to_valA('Expr'),
+                lambda: name | nlit | qlit)
+            )
+    ws = C.P(lambda: WS())
+    nl = C.P(lambda: NL())
+    spaces = C.P(lambda: (ws >> spaces) | empty)
+    colon = C.P(lambda: Punct(':'))
+    equals = C.P(lambda: Punct('='))
+    nlit = C.P(lambda: Literal('NumericLiteral'))
+    qlit = C.P(lambda: Literal('QuotedLiteral'))
+    indent = C.P(lambda: Indent())
+    dedent = C.P(lambda: Dedent())
+
+    assignstmt = C.P(lambda:
+            C.Apply(
+                to_valA('Assignment'),
+                lambda: name >> spaces >> equals >> spaces >> (nlit | qlit) >> nl)
+            )
+    ifstmt =  C.P(lambda:
+            C.Apply(
+                to_valA('If'),
+                lambda: ifkey >> spaces >> expr >> spaces >> colon >> block)
+            )
+
+    block = C.P(lambda: (indent >> stmts >> dedent) | stmts)
+
+    stmt = C.P(lambda:
+            C.Apply(
+                to_valA('Statement'),
+                lambda: ifstmt | assignstmt)
+            )
+
+    stmts = C.P(lambda:
+            C.Apply(
+                to_valA('Stmts'),
+                lambda: stmt| (stmt >> stmts))
+            )
+
+    for to_parse, parsed in stmts(res):
+        if not to_parse:
+            print(">", parsed)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ifkey = C.P(lambda: Keyword(&#x27;if&#x27;))
+    empty = C.P(lambda: NoParse())
+    name = C.P(lambda: Name())
+    expr = C.P(lambda:
+            C.Apply(
+                to_valA(&#x27;Expr&#x27;),
+                lambda: name | nlit | qlit)
+            )
+    ws = C.P(lambda: WS())
+    nl = C.P(lambda: NL())
+    spaces = C.P(lambda: (ws &gt;&gt; spaces) | empty)
+    colon = C.P(lambda: Punct(&#x27;:&#x27;))
+    equals = C.P(lambda: Punct(&#x27;=&#x27;))
+    nlit = C.P(lambda: Literal(&#x27;NumericLiteral&#x27;))
+    qlit = C.P(lambda: Literal(&#x27;QuotedLiteral&#x27;))
+    indent = C.P(lambda: Indent())
+    dedent = C.P(lambda: Dedent())
+
+    assignstmt = C.P(lambda:
+            C.Apply(
+                to_valA(&#x27;Assignment&#x27;),
+                lambda: name &gt;&gt; spaces &gt;&gt; equals &gt;&gt; spaces &gt;&gt; (nlit | qlit) &gt;&gt; nl)
+            )
+    ifstmt =  C.P(lambda:
+            C.Apply(
+                to_valA(&#x27;If&#x27;),
+                lambda: ifkey &gt;&gt; spaces &gt;&gt; expr &gt;&gt; spaces &gt;&gt; colon &gt;&gt; block)
+            )
+
+    block = C.P(lambda: (indent &gt;&gt; stmts &gt;&gt; dedent) | stmts)
+
+    stmt = C.P(lambda:
+            C.Apply(
+                to_valA(&#x27;Statement&#x27;),
+                lambda: ifstmt | assignstmt)
+            )
+
+    stmts = C.P(lambda:
+            C.Apply(
+                to_valA(&#x27;Stmts&#x27;),
+                lambda: stmt| (stmt &gt;&gt; stmts))
+            )
+
+    for to_parse, parsed in stmts(res):
+        if not to_parse:
+            print(&quot;&gt;&quot;, parsed)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
