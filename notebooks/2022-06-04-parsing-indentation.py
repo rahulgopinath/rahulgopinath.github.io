@@ -12,7 +12,9 @@
 # parsers](https://rahul.gopinath.org/post/2020/03/02/combinatory-parsing/).
 # However, languages such as Python and Haskell cannot be directly parsed by
 # these parsers. This is because they use indentation levels to indicate
-# nested statement groups. For example, given:
+# nested statement groups.
+# 
+# For example, given:
 #
 # ```
 # if True:
@@ -41,7 +43,7 @@
 # As before, we start by importing our prerequisite packages.
 
 #@
-# https://rahul.gopinath.org/ py/combinatoryparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl
 
 import combinatoryparser as C
 
@@ -105,6 +107,7 @@ lex = numeric_literal | quoted_literal | punctuation | name | nl | ws
 
 lexs =  C.P(lambda: lex | (lex >> lexs))
 
+# ## Tokenize
 # We can now define our tokenizer as follows.
 
 def tokenize(mystring):
@@ -119,6 +122,7 @@ if __name__ == '__main__':
     print(lex_tokens)
 
 
+# ## Indents
 # Next, we want to insert indentation and de-indentation. We do that by keeping
 # a stack of seen indentation levels. If the new indentation level is greater
 # than the current indentation level, we push the new indentation level into

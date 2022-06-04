@@ -46,7 +46,9 @@ grammars](/post/2021/02/06/earley-parsing/), as well as usin [combinatory
 parsers](https://rahul.gopinath.org/post/2020/03/02/combinatory-parsing/).
 However, languages such as Python and Haskell cannot be directly parsed by
 these parsers. This is because they use indentation levels to indicate
-nested statement groups. For example, given:
+nested statement groups.
+
+For example, given:
 ```
 if True:
    x = 100
@@ -82,13 +84,13 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 `pip install pkg.whl`.
 
 <ol>
-<li><a href="https://rahul.gopinath.org/ py/combinatoryparser-0.0.1-py2.py3-none-any.whl">/combinatoryparser-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl">combinatoryparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/03/02/combinatory-parsing/">Simple Combinatory Parsing For Context Free Languages</a>".</li>
 </ol>
 
 <div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-https://rahul.gopinath.org/ py/combinatoryparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -301,6 +303,7 @@ lexs =  C.P(lambda: lex | (lex &gt;&gt; lexs))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Tokenize
 We can now define our tokenizer as follows.
 
 <!--
@@ -342,6 +345,7 @@ print(lex_tokens)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Indents
 Next, we want to insert indentation and de-indentation. We do that by keeping
 a stack of seen indentation levels. If the new indentation level is greater
 than the current indentation level, we push the new indentation level into
