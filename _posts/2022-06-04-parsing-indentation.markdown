@@ -437,15 +437,36 @@ we can now extract the indentation based blocks as follows
 
 <!--
 ############
-s = """\
-oo:
-if bar:
-    x = 42
-    y = 100
-:
-print foo
+example = """\
+if foo:
+    if bar:
+        x = 42
+        y = 100
+else:
+    print foo
+"""
 
-tokens = tokenize(s)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+example = &quot;&quot;&quot;\
+if foo:
+    if bar:
+        x = 42
+        y = 100
+else:
+    print foo
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+tokens = tokenize(example)
 res = generate_indents(tokens)
 current_indent = 0
 for k in res:
@@ -465,15 +486,7 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-s = &quot;&quot;&quot;\
-oo:
-if bar:
-    x = 42
-    y = 100
-:
-print foo
-
-tokens = tokenize(s)
+tokens = tokenize(example)
 res = generate_indents(tokens)
 current_indent = 0
 for k in res:

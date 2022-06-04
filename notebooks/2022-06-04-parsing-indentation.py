@@ -167,8 +167,7 @@ def dedent(indent, indents, stream):
 
 # we can now extract the indentation based blocks as follows
 
-if __name__ == '__main__':
-    s = """\
+example = """\
 if foo:
     if bar:
         x = 42
@@ -176,7 +175,11 @@ if foo:
 else:
     print foo
 """
-    tokens = tokenize(s)
+
+# 
+
+if __name__ == '__main__':
+    tokens = tokenize(example)
     res = generate_indents(tokens)
     current_indent = 0
     for k in res:
