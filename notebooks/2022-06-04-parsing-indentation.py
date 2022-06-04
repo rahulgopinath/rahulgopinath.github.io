@@ -13,7 +13,7 @@
 # However, languages such as Python and Haskell cannot be directly parsed by
 # these parsers. This is because they use indentation levels to indicate
 # nested statement groups.
-# 
+#
 # For example, given:
 #
 # ```
@@ -32,7 +32,7 @@
 # ```
 # in a `C` like language. This use of indentation is hard to capture in
 # context-free grammars.
-# 
+#
 # Interestingly, it turns out that there is an easy solution. We can simply
 # keep track of the indentation and de-indentation for identifying groups.
 #
@@ -44,6 +44,7 @@
 
 #@
 # https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 
 import combinatoryparser as C
 
@@ -59,7 +60,7 @@ def to_val(name):
 numeric_literal = C.P(lambda:
         C.Apply(to_val('NumericLiteral'), lambda: C.Re('^[0-9][0-9_.]*')))
 
-# 
+#
 if __name__ == '__main__':
     for to_parse, parsed in numeric_literal(list('123')):
         if to_parse: continue
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
 quoted_literal = C.P(lambda:
         C.Apply(to_val('QuotedLiteral'), lambda: C.Re('^"[^"]*"')))
-# 
+#
 if __name__ == '__main__':
     for to_parse, parsed in quoted_literal(list('"abc def"')):
         if to_parse: continue
@@ -81,7 +82,7 @@ if __name__ == '__main__':
 punctuation = C.P(lambda:
         C.Apply(to_val('Punctuation'), lambda:
             C.Re('^[!#$%&()*+,-./:;<=>?@\[\]^`{|}~\\\\]+')))
-# 
+#
 if __name__ == '__main__':
     for to_parse, parsed in punctuation(list('<=')):
         if to_parse: continue
@@ -116,7 +117,7 @@ def tokenize(mystring):
         return lexed
     raise Exception('Unable to tokenize')
 
-# 
+#
 if __name__ == '__main__':
     lex_tokens = tokenize('ab + cd < " xyz "')
     print(lex_tokens)
@@ -177,7 +178,7 @@ else:
     print foo
 """
 
-# 
+#
 
 if __name__ == '__main__':
     tokens = tokenize(example)
@@ -225,7 +226,7 @@ def Literal(k):
 def NL():
     def parse(instr):
         if instr and instr[0][0] == 'NL':
-            return [(instr[1:], [instr[0]])] 
+            return [(instr[1:], [instr[0]])]
         return []
     return parse
 
@@ -264,7 +265,7 @@ def Dedent():
         return []
     return parse
 
-# 
+#
 example = """\
 if False:
     if True:
@@ -273,9 +274,16 @@ if False:
 z = 1
 """
 
-# 
+#
 def to_valA(name):
     return lambda v: [(name, v)]
+
+# For display
+def get_children(node):
+    if node[0] in ['Name', 'WS', 'Empty', 'Punctuation', 'Indent', 'Dedent',
+            'QuotedLiteral', 'NumericLiteral', 'NL']:
+        return []
+    return node[1]
 
 # Tokenizing
 if __name__ == '__main__':
@@ -333,5 +341,5 @@ if __name__ == '__main__':
 
     for to_parse, parsed in stmts(res):
         if not to_parse:
-            print(">", parsed)
+            C.display_trees(parsed, get_children=get_children)
 

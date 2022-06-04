@@ -47,7 +47,6 @@ parsers](https://rahul.gopinath.org/post/2020/03/02/combinatory-parsing/).
 However, languages such as Python and Haskell cannot be directly parsed by
 these parsers. This is because they use indentation levels to indicate
 nested statement groups.
-
 For example, given:
 ```
 if True:
@@ -64,7 +63,6 @@ if True: {
 ```
 in a `C` like language. This use of indentation is hard to capture in
 context-free grammars.
-
 Interestingly, it turns out that there is an easy solution. We can simply
 keep track of the indentation and de-indentation for identifying groups.
 The idea here is to first use a lexical analyzer to translate the source code
@@ -85,12 +83,14 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl">combinatoryparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/03/02/combinatory-parsing/">Simple Combinatory Parsing For Context Free Languages</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 </ol>
 
 <div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/combinatoryparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -146,7 +146,6 @@ numeric_literal = C.P(lambda:
 <div name='python_canvas'></div>
 </form>
 
-
 <!--
 ############
 for to_parse, parsed in numeric_literal(list('123')):
@@ -180,7 +179,6 @@ quoted_literal = C.P(lambda:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -218,7 +216,6 @@ punctuation = C.P(lambda:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -327,7 +324,6 @@ def tokenize(mystring):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -464,7 +460,6 @@ else:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 
 <!--
 ############
@@ -649,7 +644,6 @@ def Dedent():
 <div name='python_canvas'></div>
 </form>
 
-
 <!--
 ############
 example = """\
@@ -676,7 +670,6 @@ z = 1
 <div name='python_canvas'></div>
 </form>
 
-
 <!--
 ############
 def to_valA(name):
@@ -688,6 +681,29 @@ def to_valA(name):
 <textarea cols="40" rows="4" name='python_edit'>
 def to_valA(name):
     return lambda v: [(name, v)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For display
+
+<!--
+############
+def get_children(node):
+    if node[0] in ['Name', 'WS', 'Empty', 'Punctuation', 'Indent', 'Dedent',
+            'QuotedLiteral', 'NumericLiteral', 'NL']:
+        return []
+    return node[1]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_children(node):
+    if node[0] in [&#x27;Name&#x27;, &#x27;WS&#x27;, &#x27;Empty&#x27;, &#x27;Punctuation&#x27;, &#x27;Indent&#x27;, &#x27;Dedent&#x27;,
+            &#x27;QuotedLiteral&#x27;, &#x27;NumericLiteral&#x27;, &#x27;NL&#x27;]:
+        return []
+    return node[1]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -765,7 +781,7 @@ Parsing
 
     for to_parse, parsed in stmts(res):
         if not to_parse:
-            print(">", parsed)
+            C.display_trees(parsed, get_children=get_children)
 
 ############
 -->
@@ -816,7 +832,7 @@ ifkey = C.P(lambda: Keyword(&#x27;if&#x27;))
 
     for to_parse, parsed in stmts(res):
         if not to_parse:
-            print(&quot;&gt;&quot;, parsed)
+            C.display_trees(parsed, get_children=get_children)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
