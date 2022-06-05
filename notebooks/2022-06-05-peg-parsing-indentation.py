@@ -79,8 +79,8 @@ grammar = {
 # indentations.
 
 class ipeg_parse:
-    def __init__(self, grammar, log):
-        self.grammar, self.indent, self._log = grammar, [0], log
+    def __init__(self, grammar):
+        self.grammar, self.indent = grammar, [0]
 
 # ## read_indent
 # When given a line, we find the number of spaces occurring before a non-space
@@ -136,7 +136,7 @@ class ipeg_parse(ipeg_parse):
 # [PEG parser](/post/2018/09/06/peg-parsing/) that we discussed before.
 
 class ipeg_parse(ipeg_parse):
-    def unify_key(self, key, text, at=0, _indent=0):
+    def unify_key(self, key, text, at=0):
         if key == '<$nl>': return self.unify_nl(text, at)
         elif key == '<$indent>': return self.unify_indent(text, at)
         elif key == '<$dedent>': return self.unify_dedent(text, at)
@@ -144,7 +144,7 @@ class ipeg_parse(ipeg_parse):
             return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
         rules = self.grammar[key]
         for rule in rules:
-            l, res = self.unify_rule(rule, text, at, _indent)
+            l, res = self.unify_rule(rule, text, at)
             if res is not None: return l, (key, res)
         return (0, None)
 
@@ -152,6 +152,34 @@ class ipeg_parse(ipeg_parse):
 # We add some logging to unify_rule to see how the matching takes place.
 # Otherwise it is exactly same as the original PEG parser.
 class ipeg_parse(ipeg_parse):
+    def unify_rule(self, parts, text, tfrom):
+        results = []
+        for part in parts:
+            tfrom, res = self.unify_key(part, text, tfrom)
+            if res is None: return tfrom, None
+            results.append(res)
+        return tfrom, results
+
+# display
+
+def get_children(node):
+    if node[0] in ['<$indent>', '<$dedent>', '<$nl>']: return []
+    return F.get_children(node)
+
+# We can now test it out
+if __name__ == '__main__':
+    v, res = ipeg_parse(grammar).unify_key('<start>', my_text)
+    print(len(my_text), '<>', v)
+    F.display_tree(res, get_children=get_children)
+
+# ## Visualization
+# Visualization can be of use when trying to debug grammars. So, here we add a
+# bit more log output.
+
+class ipeg_parse_log(ipeg_parse):
+    def __init__(self, grammar, log):
+        self.grammar, self.indent, self._log = grammar, [0], log
+
     def unify_rule(self, parts, text, tfrom, _indent):
         results = []
         for part in parts:
@@ -166,14 +194,20 @@ class ipeg_parse(ipeg_parse):
             results.append(res)
         return tfrom, results
 
-# display
+    def unify_key(self, key, text, at=0, _indent=0):
+        if key == '<$nl>': return self.unify_nl(text, at)
+        elif key == '<$indent>': return self.unify_indent(text, at)
+        elif key == '<$dedent>': return self.unify_dedent(text, at)
+        if key not in self.grammar:
+            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+        rules = self.grammar[key]
+        for rule in rules:
+            l, res = self.unify_rule(rule, text, at, _indent)
+            if res is not None: return l, (key, res)
+        return (0, None)
 
-def get_children(node):
-    if node[0] in ['<$indent>', '<$dedent>', '<$nl>']: return []
-    return F.get_children(node)
-
-# We can now test it out
+# test with visualization
 if __name__ == '__main__':
-    v, res = ipeg_parse(grammar, log=True).unify_key('<start>', my_text)
+    v, res = ipeg_parse_log(grammar, log=True).unify_key('<start>', my_text)
     print(len(my_text), '<>', v)
-    F.display_tree(res, get_children=get_children)
+
