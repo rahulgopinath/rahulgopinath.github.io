@@ -207,6 +207,12 @@ class ipeg_parse_log(ipeg_parse):
         return (0, None)
 
 # test with visualization
+my_text = """
+if a=b:
+    a=b
+c=d
+"""
+# Using
 if __name__ == '__main__':
     v, res = ipeg_parse_log(grammar, log=True).unify_key('<start>', my_text)
     print(len(my_text), '<>', v)

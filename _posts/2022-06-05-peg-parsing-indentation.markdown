@@ -507,6 +507,28 @@ test with visualization
 
 <!--
 ############
+my_text = """
+if a=b:
+    a=b
+c=d
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text = &quot;&quot;&quot;
+if a=b:
+    a=b
+c=d
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
 v, res = ipeg_parse_log(grammar, log=True).unify_key('<start>', my_text)
 print(len(my_text), '<>', v)
 
