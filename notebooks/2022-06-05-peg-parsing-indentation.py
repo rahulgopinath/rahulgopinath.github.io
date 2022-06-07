@@ -122,7 +122,7 @@ class peg_parser:
         for rule in rules:
             l, res = self.unify_rule(rule, text)
             if res is not None: return l, (key, res)
-        return (0, None)
+        return (text, None)
 
     def unify_rule(self, parts, text):
         results = []
@@ -376,3 +376,41 @@ if __name__ == '__main__':
     assert(len(my_text8) == v.at)
     F.display_tree(res)
 
+# Let us make a much larger grammar
+e_grammar = {
+    '<start>': [['<stmts>']],
+    '<stmts>': [
+        ['<stmt>', '<stmts>'],
+        ['<stmt>']],
+    '<stmt>': [['<assignstmt>'], ['<ifstmt>']],
+    '<assignstmt>': [['<letters>', '=','<expr>', '<$nl>']],
+    '<letter>': [[c] for c in string.ascii_letters],
+    '<digit>': [[c] for c in string.digits],
+    '<letters>': [
+        ['<letter>', '<letters>'],
+        ['<letter>']],
+    '<digits>': [
+        ['<digit>', '<digits>'],
+        ['<digit>']],
+    '<ifstmt>': [['if', '<expr>', ':', '<$nl>', '<block>']],
+    '<expr>': [
+        ['(', '<expr>', '==', '<expr>', ')'],
+        ['(', '<expr>', '!=', '<expr>', ')'],
+        ['<digits>'],
+        ['<letters>']
+        ],
+    '<block>': [['<$indent>','<stmts>', '<$dedent>']]
+}
+my_text9 = '''\
+if(a==1):
+    x=10
+'''
+# Using
+if __name__ == '__main__':
+    v, res = peg_parser(e_grammar).unify_key('<start>', IText(my_text9))
+    assert(len(my_text9) == v.at)
+    F.display_tree(res)
+
+# As can be seen, we require no changes to the standard PEG parser for
+# incorporating indentation sensitive (layout sensitive) parsing. The situation
+# is same for other parsers such as Earley parsing.

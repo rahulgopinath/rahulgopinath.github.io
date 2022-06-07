@@ -248,7 +248,7 @@ class peg_parser:
         for rule in rules:
             l, res = self.unify_rule(rule, text)
             if res is not None: return l, (key, res)
-        return (0, None)
+        return (text, None)
 
     def unify_rule(self, parts, text):
         results = []
@@ -278,7 +278,7 @@ class peg_parser:
         for rule in rules:
             l, res = self.unify_rule(rule, text)
             if res is not None: return l, (key, res)
-        return (0, None)
+        return (text, None)
 
     def unify_rule(self, parts, text):
         results = []
@@ -974,6 +974,96 @@ F.display_tree(res)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Let us make a much larger grammar
+
+<!--
+############
+e_grammar = {
+    '<start>': [['<stmts>']],
+    '<stmts>': [
+        ['<stmt>', '<stmts>'],
+        ['<stmt>']],
+    '<stmt>': [['<assignstmt>'], ['<ifstmt>']],
+    '<assignstmt>': [['<letters>', '=','<expr>', '<$nl>']],
+    '<letter>': [[c] for c in string.ascii_letters],
+    '<digit>': [[c] for c in string.digits],
+    '<letters>': [
+        ['<letter>', '<letters>'],
+        ['<letter>']],
+    '<digits>': [
+        ['<digit>', '<digits>'],
+        ['<digit>']],
+    '<ifstmt>': [['if', '<expr>', ':', '<$nl>', '<block>']],
+    '<expr>': [
+        ['(', '<expr>', '==', '<expr>', ')'],
+        ['(', '<expr>', '!=', '<expr>', ')'],
+        ['<digits>'],
+        ['<letters>']
+        ],
+    '<block>': [['<$indent>','<stmts>', '<$dedent>']]
+}
+my_text9 = '''\
+if(a==1):
+    x=10
+'''
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+e_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;stmts&gt;&#x27;]],
+    &#x27;&lt;stmts&gt;&#x27;: [
+        [&#x27;&lt;stmt&gt;&#x27;, &#x27;&lt;stmts&gt;&#x27;],
+        [&#x27;&lt;stmt&gt;&#x27;]],
+    &#x27;&lt;stmt&gt;&#x27;: [[&#x27;&lt;assignstmt&gt;&#x27;], [&#x27;&lt;ifstmt&gt;&#x27;]],
+    &#x27;&lt;assignstmt&gt;&#x27;: [[&#x27;&lt;letters&gt;&#x27;, &#x27;=&#x27;,&#x27;&lt;expr&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;]],
+    &#x27;&lt;letter&gt;&#x27;: [[c] for c in string.ascii_letters],
+    &#x27;&lt;digit&gt;&#x27;: [[c] for c in string.digits],
+    &#x27;&lt;letters&gt;&#x27;: [
+        [&#x27;&lt;letter&gt;&#x27;, &#x27;&lt;letters&gt;&#x27;],
+        [&#x27;&lt;letter&gt;&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;ifstmt&gt;&#x27;: [[&#x27;if&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;:&#x27;, &#x27;&lt;$nl&gt;&#x27;, &#x27;&lt;block&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;==&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;!=&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;letters&gt;&#x27;]
+        ],
+    &#x27;&lt;block&gt;&#x27;: [[&#x27;&lt;$indent&gt;&#x27;,&#x27;&lt;stmts&gt;&#x27;, &#x27;&lt;$dedent&gt;&#x27;]]
+}
+my_text9 = &#x27;&#x27;&#x27;\
+if(a==1):
+    x=10
+&#x27;&#x27;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(e_grammar).unify_key('<start>', IText(my_text9))
+assert(len(my_text9) == v.at)
+F.display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(e_grammar).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text9))
+assert(len(my_text9) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As can be seen, we require no changes to the standard PEG parser for
+incorporating indentation sensitive (layout sensitive) parsing. The situation
+is same for other parsers such as Earley parsing.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
