@@ -222,15 +222,15 @@ class ipeg_parser_log(peg_parser):
         if indent > text_.get_indent():
             text_ = text_.insert('<$indent>')
             text_ = text_.push_indent(indent)
-            text_ = text_.insert('<$nl>') # to the front
+            text_ = text_.insert('<$nl>') # unify_nl
         elif indent == text_.get_indent():
-            text_ = text_.insert('<$nl>')
-        else:
+            text_ = text_.insert('<$nl>') # unify_nl
+        elif indent < text_.get_indent():
             while indent < text_.get_indent():
                 text_ = text_.pop_indent()
                 text_ = text_.insert('<$dedent>')
-                text_ = text_.insert('<$nl>') # before dedent
-            text_ = text_.push_indent(indent)
+            text_ = text_.insert('<$nl>') # unify_nl
+            #text_ = text_.push_indent(indent)
         return text_
 
     def unify_nl(self, key, text, _indent):
