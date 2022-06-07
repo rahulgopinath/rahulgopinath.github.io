@@ -155,7 +155,7 @@ class IText(Text):
         if self.buffer: return self.buffer[0] == t
         return self.text[self.at:self.at+len(t)] == t
 
-    def advance(self, t):
+    def _advance(self, t):
         if self.buffer:
             if self.buffer[0] == t:
                 return IText(self.text, self.at, self.buffer[1:],
@@ -168,18 +168,22 @@ class IText(Text):
         else:
             return None
 
+    def advance(self, t):
+        if t == '<$nl>': return self.advance_nl()
+        else: return self._advance(t)
+
     def read_indent(self):
         indent = 0
         text = self
         while True:
-            text_ = text.advance(' ')
+            text_ = text._advance(' ')
             if text_ is None: return indent, text
             indent += 1
             text = text_
         assert False
 
     def advance_nl(self):
-        text_ = self.advance('\n')
+        text_ = self._advance('\n')
         if text_ is None: return None
         indent, text_ = text_.read_indent()
         if indent > text_.get_indent():
@@ -187,7 +191,7 @@ class IText(Text):
         else:
             while indent < text_.get_indent():
                 text_ = text_.pop_indent().insert('<$dedent>')
-        return text_.insert('<$nl>').advance('<$nl>')
+        return text_.insert('<$nl>')._advance('<$nl>')
 
 
     def __repr__(self):
@@ -231,12 +235,8 @@ class ipeg_parser_log(peg_parser):
         self.grammar, self.indent, self._log = grammar, [0], log
 
     def unify_key(self, key, text, _indent):
-        if key == '<$nl>':
-            v = text.advance_nl()
-            if v is not None: return (v, ('<$nl>', []))
-            else: return (text, None)
-        elif key not in self.grammar:
-            v = text.advance(key) # also for ['<$indent>', '<$dedent>']:
+        if key not in self.grammar:
+            v = text.advance(key)
             if v is not None: return (v, (key, []))
             else: return (text, None)
         rules = self.grammar[key]
