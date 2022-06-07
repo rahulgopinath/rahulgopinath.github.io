@@ -8,12 +8,22 @@
 # ---
 
 # We previously [saw](/post/2022/06/04/parsing-indentation/) how to incorporate
-# indentation sensitive parsing to combinatory parsers. One of the problems
-# with combinatory parsers is that they can be difficult to debug. So, can we
-# incorporate the indentation sensitive parsing to more standard parsers? Turns
-# out, it is fairly simple to retrofit Python like parsing to
+# indentation sensitive parsing to combinatory parsers. There were two things
+# that made that solution somewhat unsatisfactory. The first is that we had to
+# use a lexer first, and generate lexical tokens before we could actually
+# parse. This is unsatisfactory because it forces us to deal with two different
+# kinds of grammars -- the lexical grammar of tokens and the parsing grammar.
+# Given that we have reasonable complete grammar parsers such as
+# [PEG parser](/post/2018/09/06/peg-parsing/) and the [Earley
+# parser](/post/2021/02/06/earley-parsing/), it would be nicer if we can reuse
+# these parsers somehow. The second problem is that
+# combinatory parsers can be difficult to debug.
+# 
+# So, can we incorporate the indentation sensitive parsing to more standard
+# parsers? Turns out, it is fairly simple to retrofit Python like parsing to
+# standard grammar parsers. In this post we will see how to do that for
 # [PEG parsers](/post/2018/09/06/peg-parsing/). (The
-# [PEG parser](/post/2018/09/06/peg-parsing/) post contains the background
+# [PEG parser post](/post/2018/09/06/peg-parsing/) post contains the background
 # information on PEG parsers.)
 #
 # That is, given
@@ -34,6 +44,7 @@
 #       y = 200;
 #    }
 # }
+# z = 300;
 # ```
 # in a `C` like language.
 # As before, we start by importing our prerequisite packages.
@@ -43,47 +54,47 @@
 
 import simplefuzzer as F
 
-# ## PEG
-import sys, string
+# ## Delimited Parser
+# We first define our grammar.
+import string
 e_grammar = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '<add_op>', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [[str(i)] for i in list(range(10))],
-    '<add_op>': [['+'], ['-']],
-}
-i_grammar = {
     '<start>': [['<stmts>']],
     '<stmts>': [
-        ['<stmt>', '<$nl>', '<stmts>'],
+        ['<stmt>', ';', '<stmts>'],
         ['<stmt>']],
     '<stmt>': [['<assignstmt>'], ['<ifstmt>']],
-    '<assignstmt>': [['<letter>', '=','<letter>']],
-    '<letter>': [['a'],['b'], ['c'], ['d']],
-    '<ifstmt>': [['if ', '<letter>', ':', '<$nl>', '<block>']],
-    '<expr>': [['<letter>', '=', '<letter>']],
-    '<block>': [['<$indent>','<stmts>', '<$dedent>']]
+    '<assignstmt>': [['<letters>', '=','<expr>']],
+    '<letter>': [[c] for c in string.ascii_letters],
+    '<digit>': [[c] for c in string.digits],
+    '<letters>': [
+        ['<letter>', '<letters>'],
+        ['<letter>']],
+    '<digits>': [
+        ['<digit>', '<digits>'],
+        ['<digit>']],
+    '<ifstmt>': [['if', '<expr>', '<block>']],
+    '<expr>': [
+        ['(', '<expr>', '==', '<expr>', ')'],
+        ['(', '<expr>', '!=', '<expr>', ')'],
+        ['<digits>'],
+        ['<letters>']
+        ],
+    '<block>': [['{','<stmts>', '}']]
 }
 
-
-my_text = '1+2'
-
 # ### Text
+# We want a stream of text that we can manipulate where needed. This stream
+# will allow us to control our parsing.
+
 class Text:
     def __init__(self, text, at):
         self.text, self.at = text, at
 
-    def match(self, t): return self.text[self.at:self.at+len(t)] == t
+    def _match(self, t):
+        return self.text[self.at:self.at+len(t)] == t
 
     def advance(self, t):
-        if self.match(t):
+        if self._match(t):
             return Text(self.text, self.at + len(t))
         else:
             return None
@@ -91,6 +102,10 @@ class Text:
     def __repr__(self):
         return repr(self.text[:self.at]+ '|' +self.text[self.at:])
 
+# Next, we modify our PEG parser so that we can use the text stream instead of
+# the array.
+# 
+# ### PEG
 class peg_parser:
     def __init__(self, grammar):
         self.grammar = grammar
@@ -119,11 +134,13 @@ class peg_parser:
 
 # Using
 if __name__ == '__main__':
+    my_text = 'if(a==1){x=10}'
     v, res = peg_parser(e_grammar).parse('<start>', my_text)
     print(len(my_text), '<>', v.at)
     F.display_tree(res)
 
-# ## IPEG
+# ## Indentation Based Parser
+# For indentation based parsing, we modify our string stream slightly.
 # ### IText
 class IText(Text):
     def __init__(self, text, at, buf=None, indent=None, tokens=None):
@@ -150,8 +167,7 @@ class IText(Text):
     def get_indent(self):
         return self._indent[-1]
 
-
-    def match(self, t):
+    def _match(self, t):
         if self.buffer: return self.buffer[0] == t
         return self.text[self.at:self.at+len(t)] == t
 
