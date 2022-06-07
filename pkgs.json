@@ -5,6 +5,7 @@
 "notebooks/2019-12-07-python-mci.py":                               ["metacircularinterpreter", "Python Meta Circular Interpreter", "0.0.1"],
 "notebooks/2019-12-08-python-controlflow.py":                       ["pycfg", "The Python Control Flow Graph", "0.0.1"],
 "notebooks/2020-08-03-simple-ddset.py":                             ["ddset", "Simple DDSet", "0.0.1"],
+"notebooks/2020-03-02-combinatory-parsing.py":                      ["combinatoryparser", "Simple Combinatory Parsing For Context Free Languages", "0.0.1"],
 "notebooks/2021-02-06-earley-parsing.py":                           ["earleyparser", "Earley Parser", "0.0.1"],
 "notebooks/2021-07-27-random-sampling-from-context-free-grammar.py":["cfgrandomsample", "Uniform Random Sampling of Strings from Context-Free Grammar", "0.0.1"],
 "notebooks/2021-09-09-fault-inducing-grammar.py":                   ["gatleastsinglefault", "Specializing Context-Free Grammars for Inducing Faults", "0.0.1"],
