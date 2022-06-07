@@ -293,7 +293,6 @@ if __name__ == '__main__':
     print(my_text)
     #for k in v._tokens: print(repr(k))
     #F.display_tree(res, get_children=get_children)
-
 g2 = {
     '<start>': [['<stmts>']],
     '<stmts>': [
@@ -305,16 +304,26 @@ g2 = {
     '<ifstmt>': [['if ', '<letter>', ':', '<$nl>', '<block>']],
     '<block>': [['<$indent>','<stmts>', '<$dedent>']]
 }
-
-
 my_text = """\
-if a:
-    a
+a
+a
 """
 # Using
 if __name__ == '__main__':
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text, 0), 0)
     assert(len(my_text) == v.at)
+    print(my_text)
+    #for k in v._tokens: print(repr(k))
+    F.display_tree(res, get_children=get_children)
+
+my_text1 = """\
+if a:
+    a
+"""
+# Using
+if __name__ == '__main__':
+    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text1, 0), 0)
+    assert(len(my_text1) == v.at)
     print(my_text)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
