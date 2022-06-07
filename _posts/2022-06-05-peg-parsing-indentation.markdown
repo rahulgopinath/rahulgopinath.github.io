@@ -392,8 +392,8 @@ Using
 
 <!--
 ############
-my_text = 'if(a==1){x=10}'
-v, res = peg_parser_visual(e_grammar).parse('<start>', my_text)
+my_text = '11'
+v, res = peg_parser_visual(e_grammar).parse('<digits>', my_text)
 print(len(my_text), '<>', v.at)
 F.display_tree(res)
 
@@ -401,8 +401,8 @@ F.display_tree(res)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_text = &#x27;if(a==1){x=10}&#x27;
-v, res = peg_parser_visual(e_grammar).parse(&#x27;&lt;start&gt;&#x27;, my_text)
+my_text = &#x27;11&#x27;
+v, res = peg_parser_visual(e_grammar).parse(&#x27;&lt;digits&gt;&#x27;, my_text)
 print(len(my_text), &#x27;&lt;&gt;&#x27;, v.at)
 F.display_tree(res)
 </textarea><br />

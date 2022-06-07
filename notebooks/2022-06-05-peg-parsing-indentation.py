@@ -176,8 +176,8 @@ class peg_parser_visual(peg_parser):
 
 # Using
 if __name__ == '__main__':
-    my_text = 'if(a==1){x=10}'
-    v, res = peg_parser_visual(e_grammar).parse('<start>', my_text)
+    my_text = '11'
+    v, res = peg_parser_visual(e_grammar).parse('<digits>', my_text)
     print(len(my_text), '<>', v.at)
     F.display_tree(res)
 
