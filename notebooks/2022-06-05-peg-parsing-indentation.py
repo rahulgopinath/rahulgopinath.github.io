@@ -143,72 +143,40 @@ if __name__ == '__main__':
 # For indentation based parsing, we modify our string stream slightly.
 # ### IText
 class IText(Text):
-    def __init__(self, text, at, buf=None, indent=None, tokens=None):
+    def __init__(self, text, at, buf=None, indent=None):
         self.text, self.at = text, at
-        if buf is None: self.buffer = []
-        else: self.buffer = buf
-        if indent is None: self._indent = [0]
-        else: self._indent = indent
-        if tokens is None: self._tokens = []
-        else: self._tokens = tokens
+        self.buffer = [] if buf is None else buf
+        self._indent = [0] if indent is None else indent
 
-    def insert(self, t):
-        return IText(self.text, self.at, [t] + self.buffer, self._indent,
-                self._tokens)
-
-    def pop_indent(self):
-        return IText(self.text, self.at, self.buffer, self._indent[:-1],
-                self._tokens)
-
-    def push_indent(self, indent):
-        return IText(self.text, self.at, self.buffer, self._indent + [indent],
-                self._tokens)
-
-    def get_indent(self):
-        return self._indent[-1]
-
-    def _match(self, t):
-        if self.buffer: return self.buffer[0] == t
-        return self.text[self.at:self.at+len(t)] == t
+    def advance(self, t):
+        if t == '<$nl>': return self._advance_nl()
+        else: return self._advance(t)
 
     def _advance(self, t):
         if self.buffer:
-            if self.buffer[0] == t:
-                return IText(self.text, self.at, self.buffer[1:],
-                        self._indent, self._tokens + [t])
-            else:
-                return None
-        elif self.text[self.at:self.at+len(t)] == t:
-            return IText(self.text, self.at + len(t), self.buffer,
-                    self._indent, self._tokens + [t])
-        else:
+            if self.buffer[0] != t: return None
+            return IText(self.text, self.at, self.buffer[1:], self._indent)
+        elif self.text[self.at:self.at+len(t)] != t:
             return None
+        return IText(self.text, self.at + len(t), self.buffer, self._indent)
 
-    def advance(self, t):
-        if t == '<$nl>': return self.advance_nl()
-        else: return self._advance(t)
-
-    def read_indent(self):
+    def _read_indent(self, at):
         indent = 0
-        text = self
-        while True:
-            text_ = text._advance(' ')
-            if text_ is None: return indent, text
+        while self.text[at+indent:at+indent+1] == ' ':
             indent += 1
-            text = text_
-        assert False
+        return indent, at+indent
 
-    def advance_nl(self):
-        text_ = self._advance('\n')
-        if text_ is None: return None
-        indent, text_ = text_.read_indent()
-        if indent > text_.get_indent():
-            text_ = text_.insert('<$indent>').push_indent(indent)
+    def _advance_nl(self):
+        if self.buffer: return None
+        if self.text[self.at] != '\n': return None
+        my_indent, my_buf = self._indent, self.buffer
+        i, at = self._read_indent(self.at+1)
+        if i > my_indent[-1]:
+            my_indent, my_buf = my_indent + [i], ['<$indent>'] + my_buf
         else:
-            while indent < text_.get_indent():
-                text_ = text_.pop_indent().insert('<$dedent>')
-        return text_.insert('<$nl>')._advance('<$nl>')
-
+            while i < my_indent[-1]:
+                my_indent, my_buf = my_indent[:-1], ['<$dedent>'] + my_buf
+        return IText(self.text, at, my_buf, my_indent)
 
     def __repr__(self):
         return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
@@ -225,9 +193,9 @@ if __name__ == '__main__':
 
 # Using it
 if __name__ == '__main__':
-    print(IText('  abc', 0).read_indent())
+    print(IText('  abc', 0)._read_indent(0))
 
-# ## advance_nl
+# ## _advance_nl
 # Next, we define how to parse a nonterminal symbol. This is the area
 # where we hook indentation parsing. When unifying `<$indent>`,
 # we expect the text to contain a new line,
