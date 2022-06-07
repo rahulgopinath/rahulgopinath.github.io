@@ -1,6 +1,6 @@
 # ---
-# published: false
-# title: Incorporating Indentation Parsing in PEG
+# published: true
+# title: Incorporating Indentation Parsing in Standard Parsers -- PEG
 # layout: post
 # comments: true
 # tags: peg, parsing, cfg, indentation
@@ -87,7 +87,7 @@ e_grammar = {
 # will allow us to control our parsing.
 
 class Text:
-    def __init__(self, text, at):
+    def __init__(self, text, at=0):
         self.text, self.at = text, at
 
     def _match(self, t):
@@ -111,7 +111,7 @@ class peg_parser:
         self.grammar = grammar
 
     def parse(self, key, text):
-        return self.unify_key(key, Text(text, 0))
+        return self.unify_key(key, Text(text))
 
     def unify_key(self, key, text):
         if key not in self.grammar:
@@ -139,11 +139,63 @@ if __name__ == '__main__':
     print(len(my_text), '<>', v.at)
     F.display_tree(res)
 
+# It is often useful to understand the parser actions. Hence, we also define
+# a parse visualizer as follows.
+
+class peg_parser_visual(peg_parser):
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def log(self, depth, *args):
+        print(' '*depth, *args)
+
+    def unify_key(self, key, text, _stackdepth=0):
+        if key not in self.grammar:
+            v = text.advance(key)
+            if v is not None: return (v, (key, []))
+            else: return (text, None)
+        rules = self.grammar[key]
+        for rule in rules:
+            l, res = self.unify_rule(rule, text, _stackdepth+1)
+            if res is not None: return l, (key, res)
+        return (text, None)
+
+    def unify_rule(self, parts, text, _stackdepth):
+        results = []
+        text_ = text
+        for part in parts:
+            self.log(_stackdepth, part, '=>', repr(text))
+            text_, res = self.unify_key(part, text_, _stackdepth)
+            self.log(_stackdepth, part, '=>', repr(text_), res is not None)
+            if res is None: return text, None
+            results.append(res)
+        return text_, results
+
+    def parse(self, key, text):
+        return self.unify_key(key, Text(text), 0)
+
+# Using
+if __name__ == '__main__':
+    my_text = 'if(a==1){x=10}'
+    v, res = peg_parser_visual(e_grammar).parse('<start>', my_text)
+    print(len(my_text), '<>', v.at)
+    F.display_tree(res)
+
 # ## Indentation Based Parser
-# For indentation based parsing, we modify our string stream slightly.
+# For indentation based parsing, we modify our string stream slightly. The idea
+# is that when the parser is expecting a new line that corresponds to a new
+# block (indentation) or a delimiter, then it will specifically ask for `<$nl>`
+# token from the text stream. The text stream will first try to satisfy the
+# new line request. If the request can be satisfied, it will also try to
+# identify the new indentation level. If the new indentation level is
+# more than the current indentation level, it will insert a new `<$indent>`
+# token into the text stream. If on the other hand, the new indentation level
+# is less than the current level, it will generate as many `<$dedent>` tokens
+# as required that will match the new indentation level. 
+
 # ### IText
 class IText(Text):
-    def __init__(self, text, at, buf=None, indent=None):
+    def __init__(self, text, at=0, buf=None, indent=None):
         self.text, self.at = text, at
         self.buffer = [] if buf is None else buf
         self._indent = [0] if indent is None else indent
@@ -181,71 +233,7 @@ class IText(Text):
     def __repr__(self):
         return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
 
-# Using
-if __name__ == '__main__':
-    v, res = peg_parser(e_grammar).unify_key('<start>', IText(my_text, 0))
-    print(len(my_text), '<>', v.at)
-    F.display_tree(res)
-
-# ## read_indent
-# When given a line, we find the number of spaces occurring before a non-space
-# character is found.
-
-# Using it
-if __name__ == '__main__':
-    print(IText('  abc', 0)._read_indent(0))
-
-# ## _advance_nl
-# Next, we define how to parse a nonterminal symbol. This is the area
-# where we hook indentation parsing. When unifying `<$indent>`,
-# we expect the text to contain a new line,
-# and we also expect an increase in indentation.
-# ## unify_nl
-# If the current key is `<$nl>`, then we
-# expect the current text to contain a new line. Furthermore, there may also be
-# a reduction in indentation.
-# With this, we are ready to define the main PEG parser.
-# The rest of the implementation is very similar to
-# [PEG parser](/post/2018/09/06/peg-parsing/) that we discussed before.
-
-
-# display
-def get_children(node):
-    if node[0] in ['<$indent>', '<$dedent>', '<$nl>']: return []
-    return F.get_children(node)
-
-class ipeg_parser_log(peg_parser):
-    def __init__(self, grammar, log):
-        self.grammar, self.indent, self._log = grammar, [0], log
-
-    def unify_key(self, key, text, _indent):
-        if key not in self.grammar:
-            v = text.advance(key)
-            if v is not None: return (v, (key, []))
-            else: return (text, None)
-        rules = self.grammar[key]
-        for rule in rules:
-            l, res = self.unify_rule(rule, text, _indent+1)
-            if res is not None: return l, (key, res)
-        return (text, None)
-
-    def unify_rule(self, parts, text, _indent):
-        results = []
-        text_ = text
-        for part in parts:
-            if self._log:
-                print(' '*_indent, part, '=>', repr(text))
-            text_, res = self.unify_key(part, text_, _indent)
-            if self._log:
-                print(' '*_indent, part, '=>', repr(text_), res is not None)
-            if res is None: return text, None
-            results.append(res)
-        return text_, results
-
-    def parse(self, key, text):
-        return self.unify_key(key, IText(text, 0), 0)
-
-
+# We will first define a small grammar to test it out.
 g1 = {
     '<start>': [['<ifstmt>']],
     '<stmt>': [['<assignstmt>']],
@@ -254,19 +242,21 @@ g1 = {
     '<ifstmt>': [['if ', '<letter>', ':', '<$nl>', '<block>']],
     '<block>': [['<$indent>','<stmt>', '<$dedent>']]
 }
-
+# Here is our text that corresponds to the g1 grammar.
 my_text = """\
 if a:
     a
 """
-# Using
+
+# We can now use the same parser with the text stream.
+
 if __name__ == '__main__':
-    print('---')
-    print(my_text)
-    v, res = ipeg_parser_log(g1, log=False).unify_key('<start>', IText(my_text, 0), 0)
+    v, res = peg_parser(g1).unify_key('<start>', IText(my_text))
     assert(len(my_text) == v.at)
-    #for k in v._tokens: print(repr(k))
-    #F.display_tree(res, get_children=get_children)
+    F.display_tree(res)
+
+# Here is a slightly more complex grammar and corresponding text
+
 g2 = {
     '<start>': [['<stmts>']],
     '<stmts>': [
@@ -282,28 +272,25 @@ my_text = """\
 a
 a
 """
-# Using
-if __name__ == '__main__':
-    print('---')
-    print(my_text)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text, 0), 0)
-    assert(len(my_text) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
 
+# Checking if the text is parsable.
+if __name__ == '__main__':
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text))
+    assert(len(my_text) == v.at)
+    F.display_tree(res)
+
+# Another test
 my_text1 = """\
 if a:
     a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text1)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text1, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text1))
     assert(len(my_text1) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
+    F.display_tree(res)
 
+# Another
 my_text2 = """\
 if a:
     a
@@ -311,13 +298,11 @@ if a:
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text2)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text2, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text2))
     assert(len(my_text2) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
+    F.display_tree(res)
 
+# Another
 my_text3 = """\
 if a:
     a
@@ -326,26 +311,20 @@ a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text3)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text3, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text3))
     assert(len(my_text3) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
+# Another
 my_text4 = """\
 a
 a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text4)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text4, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text4))
     assert(len(my_text4) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
+# Another
 my_text5 = """\
 if a:
     if a:
@@ -353,13 +332,10 @@ if a:
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text5)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text5, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text5))
     assert(len(my_text5) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
+# Another
 my_text6 = """\
 if a:
     if a:
@@ -368,13 +344,10 @@ a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text6)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text6, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text6))
     assert(len(my_text6) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
+# Another
 my_text7 = """\
 if a:
     if a:
@@ -384,13 +357,10 @@ a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text7)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text7, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text7))
     assert(len(my_text7) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
+# Another
 my_text8 = """\
 if a:
     if a:
@@ -402,11 +372,7 @@ a
 """
 # Using
 if __name__ == '__main__':
-    print('---')
-    print(my_text8)
-    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text8, 0), 0)
+    v, res = peg_parser(g2).unify_key('<start>', IText(my_text8))
     assert(len(my_text8) == v.at)
-    #for k in v._tokens: print(repr(k))
-    F.display_tree(res, get_children=get_children)
-
+    F.display_tree(res)
 

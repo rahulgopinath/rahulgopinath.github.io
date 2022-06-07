@@ -1,6 +1,6 @@
 ---
-published: false
-title: Incorporating Indentation Parsing in PEG
+published: true
+title: Incorporating Indentation Parsing in Standard Parsers -- PEG
 layout: post
 comments: true
 tags: peg, parsing, cfg, indentation
@@ -42,12 +42,22 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 We previously [saw](/post/2022/06/04/parsing-indentation/) how to incorporate
-indentation sensitive parsing to combinatory parsers. One of the problems
-with combinatory parsers is that they can be difficult to debug. So, can we
-incorporate the indentation sensitive parsing to more standard parsers? Turns
-out, it is fairly simple to retrofit Python like parsing to
+indentation sensitive parsing to combinatory parsers. There were two things
+that made that solution somewhat unsatisfactory. The first is that we had to
+use a lexer first, and generate lexical tokens before we could actually
+parse. This is unsatisfactory because it forces us to deal with two different
+kinds of grammars -- the lexical grammar of tokens and the parsing grammar.
+Given that we have reasonable complete grammar parsers such as
+[PEG parser](/post/2018/09/06/peg-parsing/) and the [Earley
+parser](/post/2021/02/06/earley-parsing/), it would be nicer if we can reuse
+these parsers somehow. The second problem is that
+combinatory parsers can be difficult to debug.
+
+So, can we incorporate the indentation sensitive parsing to more standard
+parsers? Turns out, it is fairly simple to retrofit Python like parsing to
+standard grammar parsers. In this post we will see how to do that for
 [PEG parsers](/post/2018/09/06/peg-parsing/). (The
-[PEG parser](/post/2018/09/06/peg-parsing/) post contains the background
+[PEG parser post](/post/2018/09/06/peg-parsing/) post contains the background
 information on PEG parsers.)
 That is, given
 ```
@@ -65,6 +75,7 @@ if True: {
       y = 200;
    }
 }
+z = 300;
 ```
 in a `C` like language.
 As before, we start by importing our prerequisite packages.
@@ -105,421 +116,544 @@ import simplefuzzer as F
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Example.
-
-Here is the text we want to parse.
-
-<!--
-############
-my_text = '''\
-if a=b:
-    if c=d:
-        a=b
-    c=d
-c=b
-'''
-
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-my_text = &#x27;&#x27;&#x27;\
-if a=b:
-    if c=d:
-        a=b
-    c=d
-c=b
-&#x27;&#x27;&#x27;
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Grammar
-We first define our grammar. Within our grammar, we use `<$indent>` and
-`<$dedent>` to wrap lines with similar indentation. We also use `<$nl>` as
-delimiters when lines have similar indentation.
+## Delimited Parser
+We first define our grammar.
 
 <!--
 ############
-grammar = {
+import string
+e_grammar = {
     '<start>': [['<stmts>']],
     '<stmts>': [
-        ['<stmt>', '<$nl>', '<stmts>'],
-        ['<stmt>', '<$nl>'],
+        ['<stmt>', ';', '<stmts>'],
         ['<stmt>']],
     '<stmt>': [['<assignstmt>'], ['<ifstmt>']],
-    '<assignstmt>': [['<letter>', '=','<letter>']],
-    '<letter>': [['a'],['b'], ['c'], ['d']],
-    '<ifstmt>': [['if ', '<expr>', ':', '<block>']],
-    '<expr>': [['<letter>', '=', '<letter>']],
-    '<block>': [['<$indent>','<stmts>', '<$dedent>']]
+    '<assignstmt>': [['<letters>', '=','<expr>']],
+    '<letter>': [[c] for c in string.ascii_letters],
+    '<digit>': [[c] for c in string.digits],
+    '<letters>': [
+        ['<letter>', '<letters>'],
+        ['<letter>']],
+    '<digits>': [
+        ['<digit>', '<digits>'],
+        ['<digit>']],
+    '<ifstmt>': [['if', '<expr>', '<block>']],
+    '<expr>': [
+        ['(', '<expr>', '==', '<expr>', ')'],
+        ['(', '<expr>', '!=', '<expr>', ')'],
+        ['<digits>'],
+        ['<letters>']
+        ],
+    '<block>': [['{','<stmts>', '}']]
 }
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-grammar = {
+import string
+e_grammar = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;stmts&gt;&#x27;]],
     &#x27;&lt;stmts&gt;&#x27;: [
-        [&#x27;&lt;stmt&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;, &#x27;&lt;stmts&gt;&#x27;],
-        [&#x27;&lt;stmt&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;],
+        [&#x27;&lt;stmt&gt;&#x27;, &#x27;;&#x27;, &#x27;&lt;stmts&gt;&#x27;],
         [&#x27;&lt;stmt&gt;&#x27;]],
     &#x27;&lt;stmt&gt;&#x27;: [[&#x27;&lt;assignstmt&gt;&#x27;], [&#x27;&lt;ifstmt&gt;&#x27;]],
-    &#x27;&lt;assignstmt&gt;&#x27;: [[&#x27;&lt;letter&gt;&#x27;, &#x27;=&#x27;,&#x27;&lt;letter&gt;&#x27;]],
-    &#x27;&lt;letter&gt;&#x27;: [[&#x27;a&#x27;],[&#x27;b&#x27;], [&#x27;c&#x27;], [&#x27;d&#x27;]],
-    &#x27;&lt;ifstmt&gt;&#x27;: [[&#x27;if &#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;:&#x27;, &#x27;&lt;block&gt;&#x27;]],
-    &#x27;&lt;expr&gt;&#x27;: [[&#x27;&lt;letter&gt;&#x27;, &#x27;=&#x27;, &#x27;&lt;letter&gt;&#x27;]],
-    &#x27;&lt;block&gt;&#x27;: [[&#x27;&lt;$indent&gt;&#x27;,&#x27;&lt;stmts&gt;&#x27;, &#x27;&lt;$dedent&gt;&#x27;]]
+    &#x27;&lt;assignstmt&gt;&#x27;: [[&#x27;&lt;letters&gt;&#x27;, &#x27;=&#x27;,&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;letter&gt;&#x27;: [[c] for c in string.ascii_letters],
+    &#x27;&lt;digit&gt;&#x27;: [[c] for c in string.digits],
+    &#x27;&lt;letters&gt;&#x27;: [
+        [&#x27;&lt;letter&gt;&#x27;, &#x27;&lt;letters&gt;&#x27;],
+        [&#x27;&lt;letter&gt;&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;, &#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;ifstmt&gt;&#x27;: [[&#x27;if&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;&lt;block&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;==&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;!=&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;letters&gt;&#x27;]
+        ],
+    &#x27;&lt;block&gt;&#x27;: [[&#x27;{&#x27;,&#x27;&lt;stmts&gt;&#x27;, &#x27;}&#x27;]]
 }
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## ipeg_parse
-Our class is initialized with the grammar. We also initialize a stack of
-indentations.
+### Text
+We want a stream of text that we can manipulate where needed. This stream
+will allow us to control our parsing.
 
 <!--
 ############
-class ipeg_parse:
+class Text:
+    def __init__(self, text, at=0):
+        self.text, self.at = text, at
+
+    def _match(self, t):
+        return self.text[self.at:self.at+len(t)] == t
+
+    def advance(self, t):
+        if self._match(t):
+            return Text(self.text, self.at + len(t))
+        else:
+            return None
+
+    def __repr__(self):
+        return repr(self.text[:self.at]+ '|' +self.text[self.at:])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Text:
+    def __init__(self, text, at=0):
+        self.text, self.at = text, at
+
+    def _match(self, t):
+        return self.text[self.at:self.at+len(t)] == t
+
+    def advance(self, t):
+        if self._match(t):
+            return Text(self.text, self.at + len(t))
+        else:
+            return None
+
+    def __repr__(self):
+        return repr(self.text[:self.at]+ &#x27;|&#x27; +self.text[self.at:])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we modify our PEG parser so that we can use the text stream instead of
+the array.
+
+### PEG
+
+<!--
+############
+class peg_parser:
     def __init__(self, grammar):
-        self.grammar, self.indent = grammar, [0]
+        self.grammar = grammar
+
+    def parse(self, key, text):
+        return self.unify_key(key, Text(text))
+
+    def unify_key(self, key, text):
+        if key not in self.grammar:
+            v = text.advance(key)
+            if v is not None: return v, (key, [])
+            else: return (text, None)
+        rules = self.grammar[key]
+        for rule in rules:
+            l, res = self.unify_rule(rule, text)
+            if res is not None: return l, (key, res)
+        return (0, None)
+
+    def unify_rule(self, parts, text):
+        results = []
+        for part in parts:
+            text, res = self.unify_key(part, text)
+            if res is None: return text, None
+            results.append(res)
+        return text, results
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse:
+class peg_parser:
     def __init__(self, grammar):
-        self.grammar, self.indent = grammar, [0]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## read_indent
-When given a line, we find the number of spaces occurring before a non-space
-character is found.
+        self.grammar = grammar
 
-<!--
-############
-def read_indent(text, at):
-    indent = 0
-    while text[at:at+1] == ' ':
-        indent += 1
-        at += 1
-    return indent, at
+    def parse(self, key, text):
+        return self.unify_key(key, Text(text))
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def read_indent(text, at):
-    indent = 0
-    while text[at:at+1] == &#x27; &#x27;:
-        indent += 1
-        at += 1
-    return indent, at
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it
-
-<!--
-############
-print(read_indent('  abc', 0))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print(read_indent(&#x27;  abc&#x27;, 0))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## unify_indent
-Next, we define how to parse a nonterminal symbol. This is the area
-where we hook indentation parsing. When unifying `<$indent>`,
-we expect the text to contain a new line,
-and we also expect an increase in indentation.
-
-<!--
-############
-class ipeg_parse(ipeg_parse):
-    def unify_indent(self, text, at):
-        if text[at:at+1] != '\n': return (at, None)
-        indent, at_ = read_indent(text, at+1)
-        if indent <= self.indent[-1]: return (at, None)
-        self.indent.append(indent)
-        return (at_, ('<$indent>', []))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse(ipeg_parse):
-    def unify_indent(self, text, at):
-        if text[at:at+1] != &#x27;\n&#x27;: return (at, None)
-        indent, at_ = read_indent(text, at+1)
-        if indent &lt;= self.indent[-1]: return (at, None)
-        self.indent.append(indent)
-        return (at_, (&#x27;&lt;$indent&gt;&#x27;, []))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## unify_dedent
-To unify a `<$dedent>` key, we simply have to pop off the current
-indentation.
-
-<!--
-############
-class ipeg_parse(ipeg_parse):
-    def unify_dedent(self, text, at):
-        self.indent.pop()
-        return (at, ('<$dedent>', []))
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse(ipeg_parse):
-    def unify_dedent(self, text, at):
-        self.indent.pop()
-        return (at, (&#x27;&lt;$dedent&gt;&#x27;, []))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## unify_nl
-If the current key is `<$nl>`, then we
-expect the current text to contain a new line. Furthermore, there may also be
-a reduction in indentation.
-
-<!--
-############
-class ipeg_parse(ipeg_parse):
-    def unify_nl(self, text, at):
-        if text[at:at+1] != '\n': return (at, None)
-        indent, at_ = read_indent(text, at+1)
-        assert indent <= self.indent[-1]
-        return (at_, ('<$nl>', []))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse(ipeg_parse):
-    def unify_nl(self, text, at):
-        if text[at:at+1] != &#x27;\n&#x27;: return (at, None)
-        indent, at_ = read_indent(text, at+1)
-        assert indent &lt;= self.indent[-1]
-        return (at_, (&#x27;&lt;$nl&gt;&#x27;, []))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## unify_key
-With this, we are ready to define the main PEG parser.
-The rest of the implementation is very similar to
-[PEG parser](/post/2018/09/06/peg-parsing/) that we discussed before.
-
-<!--
-############
-class ipeg_parse(ipeg_parse):
-    def unify_key(self, key, text, at=0):
-        if key == '<$nl>': return self.unify_nl(text, at)
-        elif key == '<$indent>': return self.unify_indent(text, at)
-        elif key == '<$dedent>': return self.unify_dedent(text, at)
+    def unify_key(self, key, text):
         if key not in self.grammar:
-            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+            v = text.advance(key)
+            if v is not None: return v, (key, [])
+            else: return (text, None)
         rules = self.grammar[key]
         for rule in rules:
-            l, res = self.unify_rule(rule, text, at)
+            l, res = self.unify_rule(rule, text)
             if res is not None: return l, (key, res)
         return (0, None)
 
+    def unify_rule(self, parts, text):
+        results = []
+        for part in parts:
+            text, res = self.unify_key(part, text)
+            if res is None: return text, None
+            results.append(res)
+        return text, results
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+my_text = 'if(a==1){x=10}'
+v, res = peg_parser(e_grammar).parse('<start>', my_text)
+print(len(my_text), '<>', v.at)
+F.display_tree(res)
+
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse(ipeg_parse):
-    def unify_key(self, key, text, at=0):
-        if key == &#x27;&lt;$nl&gt;&#x27;: return self.unify_nl(text, at)
-        elif key == &#x27;&lt;$indent&gt;&#x27;: return self.unify_indent(text, at)
-        elif key == &#x27;&lt;$dedent&gt;&#x27;: return self.unify_dedent(text, at)
+my_text = &#x27;if(a==1){x=10}&#x27;
+v, res = peg_parser(e_grammar).parse(&#x27;&lt;start&gt;&#x27;, my_text)
+print(len(my_text), &#x27;&lt;&gt;&#x27;, v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+It is often useful to understand the parser actions. Hence, we also define
+a parse visualizer as follows.
+
+<!--
+############
+class peg_parser_visual(peg_parser):
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def log(self, depth, *args):
+        print(' '*depth, *args)
+
+    def unify_key(self, key, text, _stackdepth=0):
         if key not in self.grammar:
-            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+            v = text.advance(key)
+            if v is not None: return (v, (key, []))
+            else: return (text, None)
         rules = self.grammar[key]
         for rule in rules:
-            l, res = self.unify_rule(rule, text, at)
+            l, res = self.unify_rule(rule, text, _stackdepth+1)
             if res is not None: return l, (key, res)
-        return (0, None)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## unify_rule
-We add some logging to unify_rule to see how the matching takes place.
-Otherwise it is exactly same as the original PEG parser.
+        return (text, None)
 
-<!--
-############
-class ipeg_parse(ipeg_parse):
-    def unify_rule(self, parts, text, tfrom):
+    def unify_rule(self, parts, text, _stackdepth):
         results = []
+        text_ = text
         for part in parts:
-            tfrom, res = self.unify_key(part, text, tfrom)
-            if res is None: return tfrom, None
+            self.log(_stackdepth, part, '=>', repr(text))
+            text_, res = self.unify_key(part, text_, _stackdepth)
+            self.log(_stackdepth, part, '=>', repr(text_), res is not None)
+            if res is None: return text, None
             results.append(res)
-        return tfrom, results
+        return text_, results
+
+    def parse(self, key, text):
+        return self.unify_key(key, Text(text), 0)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse(ipeg_parse):
-    def unify_rule(self, parts, text, tfrom):
-        results = []
-        for part in parts:
-            tfrom, res = self.unify_key(part, text, tfrom)
-            if res is None: return tfrom, None
-            results.append(res)
-        return tfrom, results
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-display
+class peg_parser_visual(peg_parser):
+    def __init__(self, grammar):
+        self.grammar = grammar
 
-<!--
-############
-def get_children(node):
-    if node[0] in ['<$indent>', '<$dedent>', '<$nl>']: return []
-    return F.get_children(node)
+    def log(self, depth, *args):
+        print(&#x27; &#x27;*depth, *args)
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def get_children(node):
-    if node[0] in [&#x27;&lt;$indent&gt;&#x27;, &#x27;&lt;$dedent&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;]: return []
-    return F.get_children(node)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We can now test it out
-
-<!--
-############
-v, res = ipeg_parse(grammar).unify_key('<start>', my_text)
-print(len(my_text), '<>', v)
-F.display_tree(res, get_children=get_children)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-v, res = ipeg_parse(grammar).unify_key(&#x27;&lt;start&gt;&#x27;, my_text)
-print(len(my_text), &#x27;&lt;&gt;&#x27;, v)
-F.display_tree(res, get_children=get_children)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Visualization
-Visualization can be of use when trying to debug grammars. So, here we add a
-bit more log output.
-
-<!--
-############
-class ipeg_parse_log(ipeg_parse):
-    def __init__(self, grammar, log):
-        self.grammar, self.indent, self._log = grammar, [0], log
-
-    def unify_rule(self, parts, text, tfrom, _indent):
-        results = []
-        for part in parts:
-            if self._log:
-                print(' '*_indent, part, '=>', repr(text[tfrom:]))
-            tfrom_, res = self.unify_key(part, text, tfrom, _indent+1)
-            if self._log:
-                print(' '*_indent, part, '=>', repr(text[tfrom:tfrom_]), "|",
-                        repr(text[tfrom:]), res is not None)
-            tfrom = tfrom_
-            if res is None: return tfrom, None
-            results.append(res)
-        return tfrom, results
-
-    def unify_key(self, key, text, at=0, _indent=0):
-        if key == '<$nl>': return self.unify_nl(text, at)
-        elif key == '<$indent>': return self.unify_indent(text, at)
-        elif key == '<$dedent>': return self.unify_dedent(text, at)
+    def unify_key(self, key, text, _stackdepth=0):
         if key not in self.grammar:
-            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+            v = text.advance(key)
+            if v is not None: return (v, (key, []))
+            else: return (text, None)
         rules = self.grammar[key]
         for rule in rules:
-            l, res = self.unify_rule(rule, text, at, _indent)
+            l, res = self.unify_rule(rule, text, _stackdepth+1)
             if res is not None: return l, (key, res)
-        return (0, None)
+        return (text, None)
+
+    def unify_rule(self, parts, text, _stackdepth):
+        results = []
+        text_ = text
+        for part in parts:
+            self.log(_stackdepth, part, &#x27;=&gt;&#x27;, repr(text))
+            text_, res = self.unify_key(part, text_, _stackdepth)
+            self.log(_stackdepth, part, &#x27;=&gt;&#x27;, repr(text_), res is not None)
+            if res is None: return text, None
+            results.append(res)
+        return text_, results
+
+    def parse(self, key, text):
+        return self.unify_key(key, Text(text), 0)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+my_text = 'if(a==1){x=10}'
+v, res = peg_parser_visual(e_grammar).parse('<start>', my_text)
+print(len(my_text), '<>', v.at)
+F.display_tree(res)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ipeg_parse_log(ipeg_parse):
-    def __init__(self, grammar, log):
-        self.grammar, self.indent, self._log = grammar, [0], log
-
-    def unify_rule(self, parts, text, tfrom, _indent):
-        results = []
-        for part in parts:
-            if self._log:
-                print(&#x27; &#x27;*_indent, part, &#x27;=&gt;&#x27;, repr(text[tfrom:]))
-            tfrom_, res = self.unify_key(part, text, tfrom, _indent+1)
-            if self._log:
-                print(&#x27; &#x27;*_indent, part, &#x27;=&gt;&#x27;, repr(text[tfrom:tfrom_]), &quot;|&quot;,
-                        repr(text[tfrom:]), res is not None)
-            tfrom = tfrom_
-            if res is None: return tfrom, None
-            results.append(res)
-        return tfrom, results
-
-    def unify_key(self, key, text, at=0, _indent=0):
-        if key == &#x27;&lt;$nl&gt;&#x27;: return self.unify_nl(text, at)
-        elif key == &#x27;&lt;$indent&gt;&#x27;: return self.unify_indent(text, at)
-        elif key == &#x27;&lt;$dedent&gt;&#x27;: return self.unify_dedent(text, at)
-        if key not in self.grammar:
-            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
-        rules = self.grammar[key]
-        for rule in rules:
-            l, res = self.unify_rule(rule, text, at, _indent)
-            if res is not None: return l, (key, res)
-        return (0, None)
+my_text = &#x27;if(a==1){x=10}&#x27;
+v, res = peg_parser_visual(e_grammar).parse(&#x27;&lt;start&gt;&#x27;, my_text)
+print(len(my_text), &#x27;&lt;&gt;&#x27;, v.at)
+F.display_tree(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-test with visualization
+## Indentation Based Parser
+For indentation based parsing, we modify our string stream slightly. The idea
+is that when the parser is expecting a new line that corresponds to a new
+block (indentation) or a delimiter, then it will specifically ask for `<$nl>`
+token from the text stream. The text stream will first try to satisfy the
+new line request. If the request can be satisfied, it will also try to
+identify the new indentation level. If the new indentation level is
+more than the current indentation level, it will insert a new `<$indent>`
+token into the text stream. If on the other hand, the new indentation level
+is less than the current level, it will generate as many `<$dedent>` tokens
+as required that will match the new indentation level. 
+### IText
 
 <!--
 ############
-my_text = """
-if a=b:
-    a=b
-c=d
+class IText(Text):
+    def __init__(self, text, at=0, buf=None, indent=None):
+        self.text, self.at = text, at
+        self.buffer = [] if buf is None else buf
+        self._indent = [0] if indent is None else indent
+
+    def advance(self, t):
+        if t == '<$nl>': return self._advance_nl()
+        else: return self._advance(t)
+
+    def _advance(self, t):
+        if self.buffer:
+            if self.buffer[0] != t: return None
+            return IText(self.text, self.at, self.buffer[1:], self._indent)
+        elif self.text[self.at:self.at+len(t)] != t:
+            return None
+        return IText(self.text, self.at + len(t), self.buffer, self._indent)
+
+    def _read_indent(self, at):
+        indent = 0
+        while self.text[at+indent:at+indent+1] == ' ':
+            indent += 1
+        return indent, at+indent
+
+    def _advance_nl(self):
+        if self.buffer: return None
+        if self.text[self.at] != '\n': return None
+        my_indent, my_buf = self._indent, self.buffer
+        i, at = self._read_indent(self.at+1)
+        if i > my_indent[-1]:
+            my_indent, my_buf = my_indent + [i], ['<$indent>'] + my_buf
+        else:
+            while i < my_indent[-1]:
+                my_indent, my_buf = my_indent[:-1], ['<$dedent>'] + my_buf
+        return IText(self.text, at, my_buf, my_indent)
+
+    def __repr__(self):
+        return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class IText(Text):
+    def __init__(self, text, at=0, buf=None, indent=None):
+        self.text, self.at = text, at
+        self.buffer = [] if buf is None else buf
+        self._indent = [0] if indent is None else indent
+
+    def advance(self, t):
+        if t == &#x27;&lt;$nl&gt;&#x27;: return self._advance_nl()
+        else: return self._advance(t)
+
+    def _advance(self, t):
+        if self.buffer:
+            if self.buffer[0] != t: return None
+            return IText(self.text, self.at, self.buffer[1:], self._indent)
+        elif self.text[self.at:self.at+len(t)] != t:
+            return None
+        return IText(self.text, self.at + len(t), self.buffer, self._indent)
+
+    def _read_indent(self, at):
+        indent = 0
+        while self.text[at+indent:at+indent+1] == &#x27; &#x27;:
+            indent += 1
+        return indent, at+indent
+
+    def _advance_nl(self):
+        if self.buffer: return None
+        if self.text[self.at] != &#x27;\n&#x27;: return None
+        my_indent, my_buf = self._indent, self.buffer
+        i, at = self._read_indent(self.at+1)
+        if i &gt; my_indent[-1]:
+            my_indent, my_buf = my_indent + [i], [&#x27;&lt;$indent&gt;&#x27;] + my_buf
+        else:
+            while i &lt; my_indent[-1]:
+                my_indent, my_buf = my_indent[:-1], [&#x27;&lt;$dedent&gt;&#x27;] + my_buf
+        return IText(self.text, at, my_buf, my_indent)
+
+    def __repr__(self):
+        return repr(self.text[:self.at])+ &#x27;|&#x27; + &#x27;&#x27;.join(self.buffer) + &#x27;|&#x27;  + repr(self.text[self.at:])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We will first define a small grammar to test it out.
+
+<!--
+############
+g1 = {
+    '<start>': [['<ifstmt>']],
+    '<stmt>': [['<assignstmt>']],
+    '<assignstmt>': [['<letter>', '<$nl>']],
+    '<letter>': [['a']],
+    '<ifstmt>': [['if ', '<letter>', ':', '<$nl>', '<block>']],
+    '<block>': [['<$indent>','<stmt>', '<$dedent>']]
+}
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g1 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;ifstmt&gt;&#x27;]],
+    &#x27;&lt;stmt&gt;&#x27;: [[&#x27;&lt;assignstmt&gt;&#x27;]],
+    &#x27;&lt;assignstmt&gt;&#x27;: [[&#x27;&lt;letter&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;]],
+    &#x27;&lt;letter&gt;&#x27;: [[&#x27;a&#x27;]],
+    &#x27;&lt;ifstmt&gt;&#x27;: [[&#x27;if &#x27;, &#x27;&lt;letter&gt;&#x27;, &#x27;:&#x27;, &#x27;&lt;$nl&gt;&#x27;, &#x27;&lt;block&gt;&#x27;]],
+    &#x27;&lt;block&gt;&#x27;: [[&#x27;&lt;$indent&gt;&#x27;,&#x27;&lt;stmt&gt;&#x27;, &#x27;&lt;$dedent&gt;&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is our text that corresponds to the g1 grammar.
+
+<!--
+############
+my_text = """\
+if a:
+    a
+"""
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text = &quot;&quot;&quot;\
+if a:
+    a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can now use the same parser with the text stream.
+
+<!--
+############
+v, res = peg_parser(g1).unify_key('<start>', IText(my_text))
+assert(len(my_text) == v.at)
+F.display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g1).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text))
+assert(len(my_text) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is a slightly more complex grammar and corresponding text
+
+<!--
+############
+g2 = {
+    '<start>': [['<stmts>']],
+    '<stmts>': [
+        ['<stmt>', '<stmts>'],
+        ['<stmt>']],
+    '<stmt>': [['<ifstmt>'], ['<assignstmt>']],
+    '<assignstmt>': [['<letter>', '<$nl>']],
+    '<letter>': [['a']],
+    '<ifstmt>': [['if ', '<letter>', ':', '<$nl>', '<block>']],
+    '<block>': [['<$indent>','<stmts>', '<$dedent>']]
+}
+my_text = """\
+a
+a
+"""
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g2 = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;stmts&gt;&#x27;]],
+    &#x27;&lt;stmts&gt;&#x27;: [
+        [&#x27;&lt;stmt&gt;&#x27;, &#x27;&lt;stmts&gt;&#x27;],
+        [&#x27;&lt;stmt&gt;&#x27;]],
+    &#x27;&lt;stmt&gt;&#x27;: [[&#x27;&lt;ifstmt&gt;&#x27;], [&#x27;&lt;assignstmt&gt;&#x27;]],
+    &#x27;&lt;assignstmt&gt;&#x27;: [[&#x27;&lt;letter&gt;&#x27;, &#x27;&lt;$nl&gt;&#x27;]],
+    &#x27;&lt;letter&gt;&#x27;: [[&#x27;a&#x27;]],
+    &#x27;&lt;ifstmt&gt;&#x27;: [[&#x27;if &#x27;, &#x27;&lt;letter&gt;&#x27;, &#x27;:&#x27;, &#x27;&lt;$nl&gt;&#x27;, &#x27;&lt;block&gt;&#x27;]],
+    &#x27;&lt;block&gt;&#x27;: [[&#x27;&lt;$indent&gt;&#x27;,&#x27;&lt;stmts&gt;&#x27;, &#x27;&lt;$dedent&gt;&#x27;]]
+}
+my_text = &quot;&quot;&quot;\
+a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Checking if the text is parsable.
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text))
+assert(len(my_text) == v.at)
+F.display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text))
+assert(len(my_text) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another test
+
+<!--
+############
+my_text1 = """\
+if a:
+    a
 """
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_text = &quot;&quot;&quot;
-if a=b:
-    a=b
-c=d
+my_text1 = &quot;&quot;&quot;\
+if a:
+    a
 &quot;&quot;&quot;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -529,15 +663,313 @@ Using
 
 <!--
 ############
-v, res = ipeg_parse_log(grammar, log=True).unify_key('<start>', my_text)
-print(len(my_text), '<>', v)
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text1))
+assert(len(my_text1) == v.at)
+F.display_tree(res)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-v, res = ipeg_parse_log(grammar, log=True).unify_key(&#x27;&lt;start&gt;&#x27;, my_text)
-print(len(my_text), &#x27;&lt;&gt;&#x27;, v)
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text1))
+assert(len(my_text1) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text2 = """\
+if a:
+    a
+    a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text2 = &quot;&quot;&quot;\
+if a:
+    a
+    a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text2))
+assert(len(my_text2) == v.at)
+F.display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text2))
+assert(len(my_text2) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text3 = """\
+if a:
+    a
+    a
+a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text3 = &quot;&quot;&quot;\
+if a:
+    a
+    a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text3))
+assert(len(my_text3) == v.at)
+F.display_tree(res)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text3))
+assert(len(my_text3) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text4 = """\
+a
+a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text4 = &quot;&quot;&quot;\
+a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text4))
+assert(len(my_text4) == v.at)
+F.display_tree(res)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text4))
+assert(len(my_text4) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text5 = """\
+if a:
+    if a:
+        a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text5 = &quot;&quot;&quot;\
+if a:
+    if a:
+        a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text5))
+assert(len(my_text5) == v.at)
+F.display_tree(res)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text5))
+assert(len(my_text5) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text6 = """\
+if a:
+    if a:
+        a
+a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text6 = &quot;&quot;&quot;\
+if a:
+    if a:
+        a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text6))
+assert(len(my_text6) == v.at)
+F.display_tree(res)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text6))
+assert(len(my_text6) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text7 = """\
+if a:
+    if a:
+        a
+        a
+a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text7 = &quot;&quot;&quot;\
+if a:
+    if a:
+        a
+        a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text7))
+assert(len(my_text7) == v.at)
+F.display_tree(res)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text7))
+assert(len(my_text7) == v.at)
+F.display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+my_text8 = """\
+if a:
+    if a:
+        a
+        a
+    if a:
+        a
+a
+"""
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_text8 = &quot;&quot;&quot;\
+if a:
+    if a:
+        a
+        a
+    if a:
+        a
+a
+&quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+v, res = peg_parser(g2).unify_key('<start>', IText(my_text8))
+assert(len(my_text8) == v.at)
+F.display_tree(res)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v, res = peg_parser(g2).unify_key(&#x27;&lt;start&gt;&#x27;, IText(my_text8))
+assert(len(my_text8) == v.at)
+F.display_tree(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
