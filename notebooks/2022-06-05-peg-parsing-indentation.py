@@ -380,4 +380,33 @@ if __name__ == '__main__':
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
+my_text6 = """\
+if a:
+    if a:
+        a
+a
+"""
+# Using
+if __name__ == '__main__':
+    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text6, 0), 0)
+    assert(len(my_text6) == v.at)
+    print(my_text6)
+    #for k in v._tokens: print(repr(k))
+    F.display_tree(res, get_children=get_children)
+
+my_text7 = """\
+if a:
+    if a:
+        a
+        a
+a
+"""
+# Using
+if __name__ == '__main__':
+    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text7, 0), 0)
+    assert(len(my_text7) == v.at)
+    print(my_text7)
+    #for k in v._tokens: print(repr(k))
+    F.display_tree(res, get_children=get_children)
+
 
