@@ -218,20 +218,14 @@ class ipeg_parser_log(peg_parser):
 
     def handle_newline(self, text):
         indent, text_ = read_indent(text)
-        assert indent is not None
         if indent > text_.get_indent():
             text_ = text_.insert('<$indent>')
             text_ = text_.push_indent(indent)
-            text_ = text_.insert('<$nl>') # unify_nl
-        elif indent == text_.get_indent():
-            text_ = text_.insert('<$nl>') # unify_nl
-        elif indent < text_.get_indent():
+        else:
             while indent < text_.get_indent():
                 text_ = text_.pop_indent()
                 text_ = text_.insert('<$dedent>')
-            text_ = text_.insert('<$nl>') # unify_nl
-            #text_ = text_.push_indent(indent)
-        return text_
+        return text_.insert('<$nl>')
 
     def unify_nl(self, key, text, _indent):
         text_ = text.advance('\n')
@@ -288,9 +282,10 @@ if a:
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text)
     v, res = ipeg_parser_log(g1, log=False).unify_key('<start>', IText(my_text, 0), 0)
     assert(len(my_text) == v.at)
-    print(my_text)
     #for k in v._tokens: print(repr(k))
     #F.display_tree(res, get_children=get_children)
 g2 = {
@@ -310,9 +305,10 @@ a
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text, 0), 0)
     assert(len(my_text) == v.at)
-    print(my_text)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -322,9 +318,10 @@ if a:
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text1)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text1, 0), 0)
     assert(len(my_text1) == v.at)
-    print(my_text)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -335,9 +332,10 @@ if a:
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text2)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text2, 0), 0)
     assert(len(my_text2) == v.at)
-    print(my_text2)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -349,9 +347,10 @@ a
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text3)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text3, 0), 0)
     assert(len(my_text3) == v.at)
-    print(my_text3)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -361,9 +360,10 @@ a
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text4)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text4, 0), 0)
     assert(len(my_text4) == v.at)
-    print(my_text4)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -374,9 +374,10 @@ if a:
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text5)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text5, 0), 0)
     assert(len(my_text5) == v.at)
-    print(my_text5)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -388,9 +389,10 @@ a
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text6)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text6, 0), 0)
     assert(len(my_text6) == v.at)
-    print(my_text6)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
@@ -403,9 +405,28 @@ a
 """
 # Using
 if __name__ == '__main__':
+    print('---')
+    print(my_text7)
     v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text7, 0), 0)
     assert(len(my_text7) == v.at)
-    print(my_text7)
+    #for k in v._tokens: print(repr(k))
+    F.display_tree(res, get_children=get_children)
+
+my_text8 = """\
+if a:
+    if a:
+        a
+        a
+    if a:
+        a
+a
+"""
+# Using
+if __name__ == '__main__':
+    print('---')
+    print(my_text8)
+    v, res = ipeg_parser_log(g2, log=False).unify_key('<start>', IText(my_text8, 0), 0)
+    assert(len(my_text8) == v.at)
     #for k in v._tokens: print(repr(k))
     F.display_tree(res, get_children=get_children)
 
