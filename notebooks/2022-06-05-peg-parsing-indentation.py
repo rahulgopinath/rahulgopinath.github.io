@@ -168,6 +168,28 @@ class IText(Text):
         else:
             return None
 
+    def read_indent(self):
+        indent = 0
+        text = self
+        while True:
+            text_ = text.advance(' ')
+            if text_ is None: return indent, text
+            indent += 1
+            text = text_
+        assert False
+
+    def advance_nl(self):
+        text_ = self.advance('\n')
+        if text_ is None: return None
+        indent, text_ = text_.read_indent()
+        if indent > text_.get_indent():
+            text_ = text_.insert('<$indent>').push_indent(indent)
+        else:
+            while indent < text_.get_indent():
+                text_ = text_.pop_indent().insert('<$dedent>')
+        return text_.insert('<$nl>').advance('<$nl>')
+
+
     def __repr__(self):
         return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
 
@@ -181,20 +203,11 @@ if __name__ == '__main__':
 # When given a line, we find the number of spaces occurring before a non-space
 # character is found.
 
-def read_indent(text):
-    indent = 0
-    while True:
-        text_ = text.advance(' ')
-        if text_ is None: return indent, text
-        indent += 1
-        text = text_
-    assert False
-
 # Using it
 if __name__ == '__main__':
-    print(read_indent(IText('  abc', 0)))
+    print(IText('  abc', 0).read_indent())
 
-# ## handle_newline
+# ## advance_nl
 # Next, we define how to parse a nonterminal symbol. This is the area
 # where we hook indentation parsing. When unifying `<$indent>`,
 # we expect the text to contain a new line,
@@ -207,6 +220,7 @@ if __name__ == '__main__':
 # The rest of the implementation is very similar to
 # [PEG parser](/post/2018/09/06/peg-parsing/) that we discussed before.
 
+
 # display
 def get_children(node):
     if node[0] in ['<$indent>', '<$dedent>', '<$nl>']: return []
@@ -216,30 +230,11 @@ class ipeg_parser_log(peg_parser):
     def __init__(self, grammar, log):
         self.grammar, self.indent, self._log = grammar, [0], log
 
-    def handle_newline(self, text):
-        indent, text_ = read_indent(text)
-        if indent > text_.get_indent():
-            text_ = text_.insert('<$indent>')
-            text_ = text_.push_indent(indent)
-        else:
-            while indent < text_.get_indent():
-                text_ = text_.pop_indent()
-                text_ = text_.insert('<$dedent>')
-        return text_.insert('<$nl>')
-
-    def unify_nl(self, key, text, _indent):
-        text_ = text.advance('\n')
-        if text_ is None:
-            return (text, None)
-        # this should add a $nl to stream buffer and the right $indent if any
-        text_ = self.handle_newline(text_)
-        text_ = text_.advance('<$nl>')
-        assert text_ is not None
-        return (text_, ('<$nl>', []))
-
     def unify_key(self, key, text, _indent):
         if key == '<$nl>':
-            return self.unify_nl(key, text, _indent)
+            v = text.advance_nl()
+            if v is not None: return (v, ('<$nl>', []))
+            else: return (text, None)
         elif key not in self.grammar:
             v = text.advance(key) # also for ['<$indent>', '<$dedent>']:
             if v is not None: return (v, (key, []))
