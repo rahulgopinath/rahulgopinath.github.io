@@ -143,8 +143,10 @@ if __name__ == '__main__':
 # a parse visualizer as follows.
 
 class peg_parser_visual(peg_parser):
-    def __init__(self, grammar):
+    def __init__(self, grammar, loginit=False, logfalse=False):
         self.grammar = grammar
+        self.loginit = loginit
+        self.logfalse = logfalse
 
     def log(self, depth, *args):
         print(' '*depth, *args)
@@ -164,9 +166,13 @@ class peg_parser_visual(peg_parser):
         results = []
         text_ = text
         for part in parts:
-            self.log(_stackdepth, part, '=>', repr(text))
+            if self.loginit:
+                self.log(_stackdepth,' ', part, '=>', repr(text))
             text_, res = self.unify_key(part, text_, _stackdepth)
-            self.log(_stackdepth, part, '=>', repr(text_), res is not None)
+            if res is not None:
+                self.log(_stackdepth, part, '#', '=>', repr(text_))
+            elif self.logfalse:
+                self.log(_stackdepth, part, '_', '=>', repr(text_))
             if res is None: return text, None
             results.append(res)
         return text_, results
@@ -176,10 +182,17 @@ class peg_parser_visual(peg_parser):
 
 # Using
 if __name__ == '__main__':
-    my_text = '11'
-    v, res = peg_parser_visual(e_grammar).parse('<digits>', my_text)
+    my_text = '(12==a)'
+    v, res = peg_parser_visual(e_grammar).parse('<expr>', my_text)
     print(len(my_text), '<>', v.at)
     F.display_tree(res)
+
+    my_text = '12'
+    v, res = peg_parser_visual(e_grammar,
+            loginit=True,logfalse=True).parse('<digits>', my_text)
+    print(len(my_text), '<>', v.at)
+    F.display_tree(res)
+
 
 # ## Indentation Based Parser
 # For indentation based parsing, we modify our string stream slightly. The idea
@@ -231,7 +244,8 @@ class IText(Text):
         return IText(self.text, at, my_buf, my_indent)
 
     def __repr__(self):
-        return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
+        return (repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  +
+                repr(self.text[self.at:]))
 
 # We will first define a small grammar to test it out.
 g1 = {

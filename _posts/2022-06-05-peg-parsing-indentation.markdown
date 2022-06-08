@@ -318,8 +318,10 @@ a parse visualizer as follows.
 <!--
 ############
 class peg_parser_visual(peg_parser):
-    def __init__(self, grammar):
+    def __init__(self, grammar, loginit=False, logfalse=False):
         self.grammar = grammar
+        self.loginit = loginit
+        self.logfalse = logfalse
 
     def log(self, depth, *args):
         print(' '*depth, *args)
@@ -339,9 +341,13 @@ class peg_parser_visual(peg_parser):
         results = []
         text_ = text
         for part in parts:
-            self.log(_stackdepth, part, '=>', repr(text))
+            if self.loginit:
+                self.log(_stackdepth,' ', part, '=>', repr(text))
             text_, res = self.unify_key(part, text_, _stackdepth)
-            self.log(_stackdepth, part, '=>', repr(text_), res is not None)
+            if res is not None:
+                self.log(_stackdepth, part, '#', '=>', repr(text_))
+            elif self.logfalse:
+                self.log(_stackdepth, part, '_', '=>', repr(text_))
             if res is None: return text, None
             results.append(res)
         return text_, results
@@ -354,8 +360,10 @@ class peg_parser_visual(peg_parser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class peg_parser_visual(peg_parser):
-    def __init__(self, grammar):
+    def __init__(self, grammar, loginit=False, logfalse=False):
         self.grammar = grammar
+        self.loginit = loginit
+        self.logfalse = logfalse
 
     def log(self, depth, *args):
         print(&#x27; &#x27;*depth, *args)
@@ -375,9 +383,13 @@ class peg_parser_visual(peg_parser):
         results = []
         text_ = text
         for part in parts:
-            self.log(_stackdepth, part, &#x27;=&gt;&#x27;, repr(text))
+            if self.loginit:
+                self.log(_stackdepth,&#x27; &#x27;, part, &#x27;=&gt;&#x27;, repr(text))
             text_, res = self.unify_key(part, text_, _stackdepth)
-            self.log(_stackdepth, part, &#x27;=&gt;&#x27;, repr(text_), res is not None)
+            if res is not None:
+                self.log(_stackdepth, part, &#x27;#&#x27;, &#x27;=&gt;&#x27;, repr(text_))
+            elif self.logfalse:
+                self.log(_stackdepth, part, &#x27;_&#x27;, &#x27;=&gt;&#x27;, repr(text_))
             if res is None: return text, None
             results.append(res)
         return text_, results
@@ -392,17 +404,30 @@ Using
 
 <!--
 ############
-my_text = '11'
-v, res = peg_parser_visual(e_grammar).parse('<digits>', my_text)
+my_text = '(12==a)'
+v, res = peg_parser_visual(e_grammar).parse('<expr>', my_text)
 print(len(my_text), '<>', v.at)
 F.display_tree(res)
+
+my_text = '12'
+v, res = peg_parser_visual(e_grammar,
+        loginit=True,logfalse=True).parse('<digits>', my_text)
+print(len(my_text), '<>', v.at)
+F.display_tree(res)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_text = &#x27;11&#x27;
-v, res = peg_parser_visual(e_grammar).parse(&#x27;&lt;digits&gt;&#x27;, my_text)
+my_text = &#x27;(12==a)&#x27;
+v, res = peg_parser_visual(e_grammar).parse(&#x27;&lt;expr&gt;&#x27;, my_text)
+print(len(my_text), &#x27;&lt;&gt;&#x27;, v.at)
+F.display_tree(res)
+
+my_text = &#x27;12&#x27;
+v, res = peg_parser_visual(e_grammar,
+        loginit=True,logfalse=True).parse(&#x27;&lt;digits&gt;&#x27;, my_text)
 print(len(my_text), &#x27;&lt;&gt;&#x27;, v.at)
 F.display_tree(res)
 </textarea><br />
@@ -461,7 +486,8 @@ class IText(Text):
         return IText(self.text, at, my_buf, my_indent)
 
     def __repr__(self):
-        return repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  + repr(self.text[self.at:])
+        return (repr(self.text[:self.at])+ '|' + ''.join(self.buffer) + '|'  +
+                repr(self.text[self.at:]))
 
 ############
 -->
@@ -504,7 +530,8 @@ class IText(Text):
         return IText(self.text, at, my_buf, my_indent)
 
     def __repr__(self):
-        return repr(self.text[:self.at])+ &#x27;|&#x27; + &#x27;&#x27;.join(self.buffer) + &#x27;|&#x27;  + repr(self.text[self.at:])
+        return (repr(self.text[:self.at])+ &#x27;|&#x27; + &#x27;&#x27;.join(self.buffer) + &#x27;|&#x27;  +
+                repr(self.text[self.at:]))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
