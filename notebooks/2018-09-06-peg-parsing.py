@@ -25,28 +25,58 @@
 # 
 # The problem with what we did in the previous post is that it is a rather naive implementation. In particular, there could be a lot of backtracking, which can make the runtime explode. One solution to that is incorporating memoization. Since we start with automatic generation of parser from a grammar (unlike previously, where we explored a handwritten parser first), we will take a slightly different tack in writing the algorithm.
 # 
-# ## PEG Parser
+# ## PEG Recognizer
 # 
-# The idea behind a simple _PEG_ parser is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
+# The idea behind a simple _PEG_ recognizer is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
 # If the key is present in the grammar, get the corresponding productions (rules) for that key,  and start unifying each rule one by one on the string to be matched.
 
-def unify_key(key, text, at):
+def unify_key(grammar, key, text):
     if key not in grammar:
-        return (True, at + len(key)) if text[at:].startswith(key) else (False, at)
+        return text[len(key):] if text.startswith(key) else None 
     rules = grammar[key]
     for rule in rules:
-        res, l = unify_rule(rule, text, at)
-        if res is not None: return (res, l)
-    return (False, 0)
+        l = unify_rule(grammar, rule, text)
+        if l is not None: return l
+    return None
 
 # For unifying rules, the idea is similar. We take each token in the rule, and try to unify that token with the string to be matched. We rely on `unify_key` for doing the unification of the token. if the unification fails, we return empty handed.
 
-def unify_rule(rule, text, at):
+def unify_rule(grammar, rule, text):
     for token in rule:
-          result, at = unify_key(token, text, at)
-          if result is None: return (False, at)
-    return (True, at)
+        text = unify_key(grammar, token, text)
+        if text is None: return None
+    return text
 
+# Let us define a grammar to test it out.
+term_grammar = {
+    '<expr>': [
+        ['<term>', '<add_op>', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '<mul_op>', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [[str(i)] for i in list(range(10))],
+    '<add_op>': [['+'], ['-']],
+    '<mul_op>': [['*'], ['/']]
+}
+
+# The driver:
+
+if __name__ == '__main__':
+    to_parse = '1+2'
+    rest = unify_key(term_grammar, '<expr>', to_parse)
+    assert rest == ''
+    to_parse = '1%2'
+    result = unify_key(term_grammar, '<expr>', to_parse)
+    assert result == '%2'
+
+# ## PEG Parser
 # When we implemented the `unify_key`, we made an important decision, which was that, we return as soon as a match was found. This is what distinguishes a `PEG` parser from a general `CFG` parser. In particular it means that rules have to be ordered.
 # That is, the following grammar wont work:
 # 
@@ -65,28 +95,11 @@ def unify_rule(rule, text, at):
 #    if seen((token, text, at)):
 #        return old_result
 # ```
-# Fortunately, Python makes this easy using `functools.lru_cache` which provides cheap memoization to functions. Adding memoizaion, and reorganizing code, we have our _PEG_ parser.
+# Fortunately, Python makes this easy using `functools.lru_cache` which
+# provides cheap memoization to functions. Adding memoizaion, saving results, and reorganizing code, we have our _PEG_ parser.
 
 import sys
 import functools
-
-term_grammar = {
-    '<expr>': [
-        ['<term>', '<add_op>', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '<mul_op>', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [[str(i)] for i in list(range(10))],
-    '<add_op>': [['+'], ['-']],
-    '<mul_op>': [['*'], ['/']]
-}
 
 class peg_parse:
     def __init__(self, grammar):

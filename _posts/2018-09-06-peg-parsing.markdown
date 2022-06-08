@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -37,40 +51,40 @@ ambiguity. In particular, _PEG_ uses ordered choice in its alternatives.
 Due to the ordered choice, the ordering of alternatives is important.
 A few interesting things about _PEG_:
 * We know that _L(PEG)_ is not a subset of _L(CFG)_ (There are [languages](https://stackoverflow.com/a/46743864/1420407) that can be expressed with a _PEG_ that can not be expressed with a _CFG_ -- for example, $$a^nb^nc^n$$).
-* We do not know if _L(PEG)_ is a superset of _CFL_. However, given that all [PEGs can be parsed in $$O(n)$$](https://en.wikipedia.org/wiki/Parsing_expression_grammar), and the best general _CFG_ parsers can only reach $$O(n^{(3-\frac{e}{3})})$$ due to the equivalence to Boolean matrix multiplication[^valiant1975general] [^lee2002fast]. 
+* We do not know if _L(PEG)_ is a superset of _CFL_. However, given that all [PEGs can be parsed in $$O(n)$$](https://en.wikipedia.org/wiki/Parsing_expression_grammar), and the best general _CFG_ parsers can only reach $$O(n^{(3-\frac{e}{3})})$$ due to the equivalence to boolean matrix multiplication[^valiant1975general] [^lee2002fast]. 
 * We do know that _L(PEG)_ is at least as large as deterministic _CFL_.
-* We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will work only if the PEG look-ahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
+* We also [know](https://arxiv.org/pdf/1304.3177.pdf) that an _LL(1)_ grammar can be interpreted either as a _CFG_ or a _PEG_ and it will describe the same language. Further, any _LL(k)_ grammar can be translated to _L(PEG)_, but reverse is not always true -- [it will work only if the PEG lookahead pattern can be reduced to a DFA](https://stackoverflow.com/a/46743864/1420407).
 
 The problem with what we did in the previous post is that it is a rather naive implementation. In particular, there could be a lot of backtracking, which can make the runtime explode. One solution to that is incorporating memoization. Since we start with automatic generation of parser from a grammar (unlike previously, where we explored a handwritten parser first), we will take a slightly different tack in writing the algorithm.
 
-## PEG Parser
+## PEG Recognizer
 
-The idea behind a simple _PEG_ parser is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
+The idea behind a simple _PEG_ recognizer is that, you try to unify the string you want to match with the corresponding key in the grammar. If the key is not present in the grammar, it is a literal, which needs to be matched with string equality.
 If the key is present in the grammar, get the corresponding productions (rules) for that key,  and start unifying each rule one by one on the string to be matched.
 
 <!--
 ############
-def unify_key(key, text, at):
+def unify_key(grammar, key, text):
     if key not in grammar:
-        return (True, at + len(key)) if text[at:].startswith(key) else (False, at)
+        return text[len(key):] if text.startswith(key) else None
     rules = grammar[key]
     for rule in rules:
-        res, l = unify_rule(rule, text, at)
-        if res is not None: return (res, l)
-    return (False, 0)
+        l = unify_rule(grammar, rule, text)
+        if l is not None: return l
+    return None
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def unify_key(key, text, at):
+def unify_key(grammar, key, text):
     if key not in grammar:
-        return (True, at + len(key)) if text[at:].startswith(key) else (False, at)
+        return text[len(key):] if text.startswith(key) else None
     rules = grammar[key]
     for rule in rules:
-        res, l = unify_rule(rule, text, at)
-        if res is not None: return (res, l)
-    return (False, 0)
+        l = unify_rule(grammar, rule, text)
+        if l is not None: return l
+    return None
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -79,25 +93,98 @@ For unifying rules, the idea is similar. We take each token in the rule, and try
 
 <!--
 ############
-def unify_rule(rule, text, at):
+def unify_rule(grammar, rule, text):
     for token in rule:
-          result, at = unify_key(token, text, at)
-          if result is None: return (False, at)
-    return (True, at)
+        text = unify_key(grammar, token, text)
+        if text is None: return None
+    return text
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def unify_rule(rule, text, at):
+def unify_rule(grammar, rule, text):
     for token in rule:
-          result, at = unify_key(token, text, at)
-          if result is None: return (False, at)
-    return (True, at)
+        text = unify_key(grammar, token, text)
+        if text is None: return None
+    return text
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Let us define a grammar to test it out.
+
+<!--
+############
+term_grammar = {
+    '<expr>': [
+        ['<term>', '<add_op>', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '<mul_op>', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [[str(i)] for i in list(range(10))],
+    '<add_op>': [['+'], ['-']],
+    '<mul_op>': [['*'], ['/']]
+}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+term_grammar = {
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;term&gt;&#x27;, &#x27;&lt;add_op&gt;&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;&lt;mul_op&gt;&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[str(i)] for i in list(range(10))],
+    &#x27;&lt;add_op&gt;&#x27;: [[&#x27;+&#x27;], [&#x27;-&#x27;]],
+    &#x27;&lt;mul_op&gt;&#x27;: [[&#x27;*&#x27;], [&#x27;/&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The driver:
+
+<!--
+############
+to_parse = '1+2'
+rest = unify_key(term_grammar, '<expr>', to_parse)
+assert rest == ''
+to_parse = '1%2'
+result = unify_key(term_grammar, '<expr>', to_parse)
+assert result == '%2'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+to_parse = &#x27;1+2&#x27;
+rest = unify_key(term_grammar, &#x27;&lt;expr&gt;&#x27;, to_parse)
+assert rest == &#x27;&#x27;
+to_parse = &#x27;1%2&#x27;
+result = unify_key(term_grammar, &#x27;&lt;expr&gt;&#x27;, to_parse)
+assert result == &#x27;%2&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## PEG Parser
 When we implemented the `unify_key`, we made an important decision, which was that, we return as soon as a match was found. This is what distinguishes a `PEG` parser from a general `CFG` parser. In particular it means that rules have to be ordered.
 That is, the following grammar wont work:
 
@@ -116,30 +203,13 @@ If we now parse an `if` statement without else using the above grammar, such a `
    if seen((token, text, at)):
        return old_result
 ```
-Fortunately, Python makes this easy using `functools.lru_cache` which provides cheap memoization to functions. Adding memoizaion, and reorganizing code, we have our _PEG_ parser.
+Fortunately, Python makes this easy using `functools.lru_cache` which
+provides cheap memoization to functions. Adding memoizaion, saving results, and reorganizing code, we have our _PEG_ parser.
 
 <!--
 ############
 import sys
 import functools
-
-term_grammar = {
-    '<expr>': [
-        ['<term>', '<add_op>', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '<mul_op>', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [[str(i)] for i in list(range(10))],
-    '<add_op>': [['+'], ['-']],
-    '<mul_op>': [['*'], ['/']]
-}
 
 class peg_parse:
     def __init__(self, grammar):
@@ -169,24 +239,6 @@ class peg_parse:
 <textarea cols="40" rows="4" name='python_edit'>
 import sys
 import functools
-
-term_grammar = {
-    &#x27;&lt;expr&gt;&#x27;: [
-        [&#x27;&lt;term&gt;&#x27;, &#x27;&lt;add_op&gt;&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;]],
-    &#x27;&lt;term&gt;&#x27;: [
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;&lt;mul_op&gt;&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;fact&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
-    &#x27;&lt;digits&gt;&#x27;: [
-        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;&lt;digit&gt;&#x27;]],
-    &#x27;&lt;digit&gt;&#x27;: [[str(i)] for i in list(range(10))],
-    &#x27;&lt;add_op&gt;&#x27;: [[&#x27;+&#x27;], [&#x27;-&#x27;]],
-    &#x27;&lt;mul_op&gt;&#x27;: [[&#x27;*&#x27;], [&#x27;/&#x27;]]
-}
 
 class peg_parse:
     def __init__(self, grammar):
