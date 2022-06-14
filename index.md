@@ -3,6 +3,13 @@ layout: default
 menu: Rahul Gopinath
 weight: 1
 ---
+
+<b>IMPORTANT: I am recruiting Ph.D. students for my group at Sydney University.
+If you are interested in what I do, or have an interesting idea, [please drop me
+a note](/contact/). </b>
+
+
+
 Rahul Gopinath is a lecturer at the [University of Sydney](https://www.sydney.edu.au/).
 His focus is static and dynamic analysis of software.
 <!--He is currently a postdoctoral researcher working on static and dynamic
