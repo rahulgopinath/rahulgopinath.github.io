@@ -22,5 +22,5 @@ Prompted by recent observations that the GLADE algorithm may show lower performa
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/pldi2022/bendrissou2022synthesizing.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/pldi2022/bendrissou2022synthesizing.bib "reference")
-[<em class="fa fa-desktop" aria-hidden="true"></em>]()
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/synthesizing-input-grammars-a-replication-study)
 
