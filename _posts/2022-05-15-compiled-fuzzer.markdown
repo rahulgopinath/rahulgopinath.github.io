@@ -151,7 +151,68 @@ Each nonterminal symbol becomes a procedure. First we define a few helpers.
 
 <!--
 ############
+def symbol_cost(grammar, symbol, seen, cache):
+    if symbol in seen: return float('inf')
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            lst.append(expansion_cost(grammar, rule, seen | {symbol}, cache))
+    v = min(lst, default=0)
+    return v
+
+def expansion_cost(grammar, tokens, seen, cache):
+    return max((symbol_cost(grammar, token, seen, cache)
+                for token in tokens if token in grammar), default=0) + 1
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
+    return rule_cost
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def symbol_cost(grammar, symbol, seen, cache):
+    if symbol in seen: return float(&#x27;inf&#x27;)
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            lst.append(expansion_cost(grammar, rule, seen | {symbol}, cache))
+    v = min(lst, default=0)
+    return v
+
+def expansion_cost(grammar, tokens, seen, cache):
+    return max((symbol_cost(grammar, token, seen, cache)
+                for token in tokens if token in grammar), default=0) + 1
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
+    return rule_cost
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define the class.
+
+<!--
+############
 class F1Fuzzer(fuzzer.LimitFuzzer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.cost = compute_cost(grammar)
+
     def add_indent(self, string, indent):
         return '\n'.join([indent + i for i in string.split('\n')])
 
@@ -184,6 +245,10 @@ class F1Fuzzer(fuzzer.LimitFuzzer):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class F1Fuzzer(fuzzer.LimitFuzzer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.cost = compute_cost(grammar)
+
     def add_indent(self, string, indent):
         return &#x27;\n&#x27;.join([indent + i for i in string.split(&#x27;\n&#x27;)])
 
@@ -256,6 +321,30 @@ class F1Fuzzer(F1Fuzzer):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+The cheap grammar from expr grammar
+
+<!--
+############
+expr_cg = F1Fuzzer(EXPR_GRAMMAR).cheap_grammar()
+for k in expr_cg:
+    print(k)
+    for r in expr_cg[k]:
+        print('   ', r)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+expr_cg = F1Fuzzer(EXPR_GRAMMAR).cheap_grammar()
+for k in expr_cg:
+    print(k)
+    for r in expr_cg[k]:
+        print(&#x27;   &#x27;, r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Translation
 
 Translating the nonterminals of the cheap grammar is simple because there is
@@ -322,6 +411,24 @@ def gen_%(name)s_cheap():
 %s
         return&#x27;&#x27;&#x27; % (i, self.add_indent(self.gen_rule_src_cheap(rule, key, i, grammar),&#x27;        &#x27;)))
         return &#x27;\n&#x27;.join(result)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Usage
+
+<!--
+############
+src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src_cheap('<expr>', EXPR_GRAMMAR)
+print(src)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src_cheap(&#x27;&lt;expr&gt;&#x27;, EXPR_GRAMMAR)
+print(src)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -403,7 +510,24 @@ def gen_%(name)s(max_depth, depth=0):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The driver
+Usage
+
+<!--
+############
+src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src('<expr>', EXPR_GRAMMAR)
+print(src)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src(&#x27;&lt;expr&gt;&#x27;, EXPR_GRAMMAR)
+print(src)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The complete driver
 
 <!--
 ############
@@ -510,11 +634,11 @@ for i in range(10):
 ## A Problem -- Recursion
 A problem with the compiled grammar fuzzer is that it relies on recursion,
 and Python limits the recursion depth arbitrarily (starting with just 1000).
-Hence, we ned a solution that allows us to go past that depth.
+Hence, we need a solution that allows us to go past that depth.
 
 We discussed [here](/post/2022/04/17/python-iterative-copy/) how to use
 generators as a continuation passing trampoline. We use the same technique
-again. The basi technique is to turn every function call into a `yield`
+again. The basic technique is to turn every function call into a `yield`
 statement, and return the generator. A loop then translates activates
 and traverses these generators.
 
@@ -729,6 +853,25 @@ def start(max_depth):
     def fuzzer(self, name):
         cf_src = self.fuzz_src()
         return self.load_src(cf_src, name + &#x27;_f1_fuzzer&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Example
+
+<!--
+############
+src = F1CPSFuzzer(EXPR_GRAMMAR).fuzz_src('<start>')
+print(src)
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+src = F1CPSFuzzer(EXPR_GRAMMAR).fuzz_src(&#x27;&lt;start&gt;&#x27;)
+print(src)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
