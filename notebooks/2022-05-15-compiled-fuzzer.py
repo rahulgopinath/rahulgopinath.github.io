@@ -559,8 +559,6 @@ def start(max_depth):
 # Using
 if __name__ == '__main__':
     f = F1LFuzzer(EXPR_GRAMMAR)
-    s = f.fuzz_src()
-    print(s)
     expr_fuzzer = f.fuzzer('expr_fuzzer')
     for i in range(10):
         v = expr_fuzzer.start(10)
