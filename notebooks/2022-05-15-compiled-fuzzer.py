@@ -48,7 +48,7 @@ EXPR_START = '<start>'
 # # Compiled Fuzzer
 # 
 # This grammar fuzzer is described in the paper
-# [*Building Fast Fuzzers*](https://rahul.gopinath.org/publications/2019/11/18/arxiv-building/).
+# [*Building Fast Fuzzers*](/publications/2019/11/18/arxiv-building/).
 # The idea is to compile a grammar definition to the corresponding source code.
 # Each nonterminal symbol becomes a procedure. First we define a few helpers.
 
@@ -75,47 +75,48 @@ def compute_cost(grammar):
             rule_cost[k][str(rule)] = expansion_cost(grammar, rule, set(), rule_cost)
     return rule_cost
 
-# Next, we define the class.
+# We are going to compile the grammar, which will
+# become a source file that we load separately. To ensure that we do not
+# descend into quoting hell, we transform the grammar so that we store the
+# character bytes rather than the terminals as strings.
 
+def transform_bytes(grammar):
+   new_g = {}
+   for k in grammar:
+       new_g[k] = [
+               [t if fuzzer.is_nonterminal(t) else ord(t) for t in r]
+               for r in grammar[k]]
+   return new_g
+
+# Usage
+
+if __name__ == '__main__':
+    g = transform_bytes(EXPR_GRAMMAR)
+    for k in g:
+        print(k)
+        for r in g[k]:
+            print('  ', r)
+
+# Next, we define the class.
 class F1Fuzzer(fuzzer.LimitFuzzer):
     def __init__(self, grammar):
-        self.grammar = grammar
-        self.cost = compute_cost(grammar)
+        self.grammar = transform_bytes(grammar)
+        self.cost = compute_cost(self.grammar)
 
+# Convenience methods
+class F1Fuzzer(F1Fuzzer):
     def add_indent(self, string, indent):
         return '\n'.join([indent + i for i in string.split('\n')])
-
-    # used for escaping inside strings
-    def esc(self, t):
-        t = t.replace('\\', '\\\\')
-        t = t.replace('\n', '\\n')
-        t = t.replace('\r', '\\r')
-        t = t.replace('\t', '\\t')
-        t = t.replace('\b', '\\b')
-        t = t.replace('\v', '\\v')
-        t = t.replace('"', '\\"')
-        return t
-
-    def esc_char(self, t):
-        assert len(t) == 1
-        t = t.replace('\\', '\\\\')
-        t = t.replace('\n', '\\n')
-        t = t.replace('\r', '\\r')
-        t = t.replace('\t', '\\t')
-        t = t.replace('\b', '\\b')
-        t = t.replace('\v', '\\v')
-        t = t.replace("'", "\\'")
-        return t
 
     def k_to_s(self, k): return k[1:-1].replace('-', '_')
 
 # ## Cheap grammar compilation
 # 
-# In the prevous [post](/post/2019/05/28/simplefuzzer-01/), I described how we
+# In the previous [post](/post/2019/05/28/simplefuzzer-01/), I described how we
 # shift  to a cheap grammar when we exhaust our budget. We use the same thing
 # here. That is, at some point we need to curtail the recursion. Hence, we
 # define the cheap grammar that does not contain recursion. The idea is that
-# if we go byeond a given depth, we switch to choosing rules from the
+# if we go beyond a given depth, we switch to choosing rules from the
 # non-recursive grammar (cheap grammar).
 
 class F1Fuzzer(F1Fuzzer):
@@ -154,7 +155,7 @@ class F1Fuzzer(F1Fuzzer):
 gen_%s_cheap()''' % (self.k_to_s(token)))
             else:
                 res.append('''\
-result.append("%s")''' % self.esc(token))
+result.append(%d)''' % token)
         return '\n'.join(res)
 
 
@@ -170,13 +171,15 @@ def gen_%(name)s_cheap():
             result.append('''\
     if val == %d:
 %s
-        return''' % (i, self.add_indent(self.gen_rule_src_cheap(rule, key, i, grammar),'        ')))
+        return''' % (i, self.add_indent(
+            self.gen_rule_src_cheap(rule, key, i, grammar),'        ')))
         return '\n'.join(result)
 
 # Usage
 
 if __name__ == '__main__':
-    src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src_cheap('<expr>', EXPR_GRAMMAR)
+    src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src_cheap('<expr>',
+            transform_bytes(EXPR_GRAMMAR))
     print(src)
 
 
@@ -195,7 +198,7 @@ class F1Fuzzer(F1Fuzzer):
 gen_%s(max_depth, next_depth)''' % (self.k_to_s(token)))
             else:
                 res.append('''\
-result.append("%s")''' % self.esc(token))
+result.append(%d)''' % token)
         return '\n'.join(res)
 
     def gen_alt_src(self, key, grammar):
@@ -220,7 +223,8 @@ def gen_%(name)s(max_depth, depth=0):
 # Usage
 
 if __name__ == '__main__':
-    src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src('<expr>', EXPR_GRAMMAR)
+    src = F1Fuzzer(EXPR_GRAMMAR).gen_alt_src('<expr>',
+            transform_bytes(EXPR_GRAMMAR))
     print(src)
 
 # The complete driver
@@ -233,7 +237,7 @@ import random
 result = []
 def start(max_depth):
     gen_start(max_depth)
-    v = ''.join(result)
+    v = ''.join([chr(i) for i in result])
     result.clear()
     return v
         '''
@@ -290,7 +294,7 @@ class F1CPSFuzzer(F1Fuzzer):
 yield gen_%s_cheap()''' % (self.k_to_s(token)))
             else:
                 res.append('''\
-result.append("%s")''' % self.esc(token))
+result.append(%d)''' % token)
         return '\n'.join(res)
 
 
@@ -318,7 +322,7 @@ class F1CPSFuzzer(F1CPSFuzzer):
 yield gen_%s(max_depth, next_depth)''' % (self.k_to_s(token)))
             else:
                 res.append('''\
-result.append("%s")''' % self.esc(token))
+result.append(%d)''' % token)
         return '\n'.join(res)
 
     def gen_alt_src(self, key, grammar):
@@ -361,7 +365,7 @@ import random
 result = []
 def start(max_depth):
     cpstrampoline(gen_start(max_depth))
-    v = ''.join(result)
+    v = ''.join([chr(i) for i in result])
     result.clear()
     return v
         '''
@@ -437,8 +441,8 @@ def compute_cost_cps(grammar):
 
 class F1CPSFuzzer(F1CPSFuzzer):
     def __init__(self, grammar):
-        self.grammar = grammar
-        self.cost = compute_cost_cps(grammar)
+        self.grammar = transform_bytes(grammar)
+        self.cost = compute_cost_cps(self.grammar)
 
 
 # Using it
