@@ -383,7 +383,7 @@ def start(max_depth):
         result = [self.gen_fuzz_src(),
                   self.gen_main_src()]
         return ''.join(result)
-    
+
     def fuzzer(self, name):
         cf_src = self.fuzz_src()
         return self.load_src(cf_src, name + '_f1_fuzzer')
@@ -453,4 +453,116 @@ if __name__ == '__main__':
         v = expr_fuzzer.start(10)
         print(repr(v))
 
+# This is a useful trick. But what if we do not want to use the generator hack?
+# Turns out, there is an easier solution. The idea is to wrap the remaining
+# computation as a continuation and return. In our case, we modify this
+# technique slightly.
+
+class F1LFuzzer(F1Fuzzer):
+    def gen_rule_src_cheap(self, rule, key, i, grammar):
+        res = []
+        for token in rule:
+            if token in grammar:
+                res.append('''\
+lambda: gen_%s_cheap(),''' % (self.k_to_s(token)))
+            else:
+                res.append('''\
+lambda: result.append(%d),''' % token)
+        return '\n'.join(res)
+
+
+    def gen_alt_src_cheap(self, key, grammar):
+        rules = grammar[key]
+        result = []
+        result.append('''
+def gen_%(name)s_cheap():
+    val = random.randrange(%(nrules)s)''' % {
+            'name':self.k_to_s(key),
+            'nrules':len(rules)})
+        for i, rule in enumerate(rules):
+            result.append('''\
+    if val == %d:
+        return [%s]''' % (i, self.add_indent(self.gen_rule_src_cheap(rule, key, i, grammar),'        ')))
+        return '\n'.join(result)
+
+class F1LFuzzer(F1LFuzzer):
+    def gen_rule_src(self, rule, key, i, grammar):
+        res = []
+        for token in rule:
+            if token in grammar:
+                res.append('''\
+lambda: gen_%s(max_depth, next_depth),''' % (self.k_to_s(token)))
+            else:
+                res.append('''\
+lambda: result.append(%d),''' % token)
+        return '\n'.join(res)
+
+    def gen_alt_src(self, key, grammar):
+        rules = grammar[key]
+        result = []
+        result.append('''
+def gen_%(name)s(max_depth, depth=0):
+    next_depth = depth + 1
+    if depth > max_depth:
+        return [lambda: gen_%(name)s_cheap()]
+    val = random.randrange(%(nrules)s)''' % {
+            'name':self.k_to_s(key),
+            'nrules':len(rules)})
+        for i, rule in enumerate(rules):
+            result.append('''\
+    if val == %d:
+        return [%s]''' % (i, self.add_indent(self.gen_rule_src(rule, key, i, grammar),'        ')))
+        return '\n'.join(result)
+
+# We now define our trampoline, which is different from previous.
+
+class F1LFuzzer(F1LFuzzer):
+    def gen_main_src(self):
+        return '''
+def trampoline(gen):
+    ret = None
+    stack = gen
+    while stack:
+        cur, *stack = stack
+        res = cur()
+        if res is not None:
+            stack.extend(res)
+    return
+
+import random
+result = []
+def start(max_depth):
+    trampoline(gen_start(max_depth))
+    v = ''.join([chr(i) for i in result])
+    result.clear()
+    return v
+        '''
+
+    def gen_fuzz_src(self):
+        result = []
+        cheap_grammar = self.cheap_grammar()
+        for key in cheap_grammar:
+            result.append(self.gen_alt_src_cheap(key, cheap_grammar))
+        for key in self.grammar:
+            result.append(self.gen_alt_src(key, self.grammar))
+        return '\n'.join(result)
+
+    def fuzz_src(self, key='<start>'):
+        result = [self.gen_fuzz_src(),
+                  self.gen_main_src()]
+        return ''.join(result)
+
+    def fuzzer(self, name):
+        cf_src = self.fuzz_src()
+        return self.load_src(cf_src, name + '_f1_fuzzer')
+
+# Using
+if __name__ == '__main__':
+    f = F1LFuzzer(EXPR_GRAMMAR)
+    s = f.fuzz_src()
+    print(s)
+    expr_fuzzer = f.fuzzer('expr_fuzzer')
+    for i in range(10):
+        v = expr_fuzzer.start(10)
+        print(repr(v))
 
