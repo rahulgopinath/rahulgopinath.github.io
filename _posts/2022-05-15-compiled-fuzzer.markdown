@@ -864,14 +864,120 @@ Example
 src = F1CPSFuzzer(EXPR_GRAMMAR).fuzz_src('<start>')
 print(src)
 
-
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 src = F1CPSFuzzer(EXPR_GRAMMAR).fuzz_src(&#x27;&lt;start&gt;&#x27;)
 print(src)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also need to redefine our cost computation which is recursive.
+
+<!--
+############
+def symbol_cost_cps(grammar, symbol, seen, cache):
+    if symbol in seen: return float('inf')
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            e = yield expansion_cost_cps(grammar, rule, seen | {symbol}, cache)
+            lst.append(e)
+    v = min(lst, default=0)
+    return v
+
+def expansion_cost_cps(grammar, tokens, seen, cache):
+    lst = []
+    for token in tokens:
+        if token not in grammar: continue
+        s = yield symbol_cost_cps(grammar, token, seen, cache)
+        lst.append(s)
+    return max(lst, default=0) + 1
+
+def cpstrampoline(gen):
+    stack = [gen]
+    ret = None
+    while stack:
+        try:
+            value, ret = ret, None
+            res = stack[-1].send(value)
+            if res is not None:
+                stack.append(res)
+        except StopIteration as e:
+            stack.pop()
+            ret = e.value
+    return ret
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            e = cpstrampoline(expansion_cost_cps(grammar, rule, set(), rule_cost))
+            rule_cost[k][str(rule)] = e
+    return rule_cost
+
+class F1CPSFuzzer(F1CPSFuzzer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.cost = compute_cost(grammar)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def symbol_cost_cps(grammar, symbol, seen, cache):
+    if symbol in seen: return float(&#x27;inf&#x27;)
+    lst = []
+    for rule in grammar.get(symbol, []):
+        if symbol in cache and str(rule) in cache[symbol]:
+            lst.append(cache[symbol][str(rule)])
+        else:
+            e = yield expansion_cost_cps(grammar, rule, seen | {symbol}, cache)
+            lst.append(e)
+    v = min(lst, default=0)
+    return v
+
+def expansion_cost_cps(grammar, tokens, seen, cache):
+    lst = []
+    for token in tokens:
+        if token not in grammar: continue
+        s = yield symbol_cost_cps(grammar, token, seen, cache)
+        lst.append(s)
+    return max(lst, default=0) + 1
+
+def cpstrampoline(gen):
+    stack = [gen]
+    ret = None
+    while stack:
+        try:
+            value, ret = ret, None
+            res = stack[-1].send(value)
+            if res is not None:
+                stack.append(res)
+        except StopIteration as e:
+            stack.pop()
+            ret = e.value
+    return ret
+
+def compute_cost(grammar):
+    rule_cost = {}
+    for k in grammar:
+        rule_cost[k] = {}
+        for rule in grammar[k]:
+            e = cpstrampoline(expansion_cost_cps(grammar, rule, set(), rule_cost))
+            rule_cost[k][str(rule)] = e
+    return rule_cost
+
+class F1CPSFuzzer(F1CPSFuzzer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.cost = compute_cost(grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
