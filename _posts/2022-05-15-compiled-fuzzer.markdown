@@ -912,7 +912,7 @@ def cpstrampoline(gen):
             ret = e.value
     return ret
 
-def compute_cost(grammar):
+def compute_cost_cps(grammar):
     rule_cost = {}
     for k in grammar:
         rule_cost[k] = {}
@@ -924,7 +924,7 @@ def compute_cost(grammar):
 class F1CPSFuzzer(F1CPSFuzzer):
     def __init__(self, grammar):
         self.grammar = grammar
-        self.cost = compute_cost(grammar)
+        self.cost = compute_cost_cps(grammar)
 
 
 ############
@@ -965,7 +965,7 @@ def cpstrampoline(gen):
             ret = e.value
     return ret
 
-def compute_cost(grammar):
+def compute_cost_cps(grammar):
     rule_cost = {}
     for k in grammar:
         rule_cost[k] = {}
@@ -977,7 +977,7 @@ def compute_cost(grammar):
 class F1CPSFuzzer(F1CPSFuzzer):
     def __init__(self, grammar):
         self.grammar = grammar
-        self.cost = compute_cost(grammar)
+        self.cost = compute_cost_cps(grammar)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
