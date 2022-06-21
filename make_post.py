@@ -59,6 +59,9 @@ def split_data(data):
             elif chunk[0][1] == '^':
                 wheels = [line[2:].strip() for line in chunk]
                 processed_data.append(('sys_imports', [w for w in wheels if w.strip()]))
+            elif chunk[0][1] == '\n':
+                comment = ''.join([line[2:] for line in chunk])
+                processed_data.append(('comment', comment))
             else:
                 assert False
         else:
