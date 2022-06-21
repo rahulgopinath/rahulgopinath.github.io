@@ -1171,7 +1171,7 @@ def trampoline(gen):
         cur, *stack = stack
         res = cur()
         if res is not None:
-            stack.extend(res)
+            stack = res + stack
     return
 
 import random
@@ -1215,7 +1215,7 @@ def trampoline(gen):
         cur, *stack = stack
         res = cur()
         if res is not None:
-            stack.extend(res)
+            stack = res + stack
     return
 
 import random
