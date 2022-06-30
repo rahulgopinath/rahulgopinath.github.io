@@ -118,7 +118,11 @@ START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+The match method assumes that our queue contains the threads of parsing.
+It extracts the top most (`current`) thread, and explores the possible
+threads that can result from it. If any of the threads result in a parse,
+we yield it. If not, we check if we can continue parsing with a given thread,
+and if we can, add the thread to the heap.
 
 <!--
 ############
@@ -129,10 +133,9 @@ def match(lst, key, grammar):
         rlst = explore(current, lst)
         for item in rlst:
             (lst_rem, _depth), rule = item
-            lst_idx = len(lst) - lst_rem
-            if lst_idx == len(lst):
+            if lst_rem == 0:
                 if not rule:
-                    yield 'parsed: ' + str(lst_idx)
+                    yield 'parsed: ' + str(len(lst))
                 else:
                     # (check for epsilons)
                     H.heappush(queue, item)
@@ -152,10 +155,9 @@ def match(lst, key, grammar):
         rlst = explore(current, lst)
         for item in rlst:
             (lst_rem, _depth), rule = item
-            lst_idx = len(lst) - lst_rem
-            if lst_idx == len(lst):
+            if lst_rem == 0:
                 if not rule:
-                    yield &#x27;parsed: &#x27; + str(lst_idx)
+                    yield &#x27;parsed: &#x27; + str(len(lst))
                 else:
                     # (check for epsilons)
                     H.heappush(queue, item)
