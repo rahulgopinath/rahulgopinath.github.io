@@ -194,35 +194,37 @@ evaluate that string instead.
 
 <!--
 ############
+import textwrap
 s = """
- __future__ import annotations
+from __future__ import annotations
 
-s expr(Grammar):
-start: '<expr>'
-expr: '<term> + <term>' | '<term> - <term>'
-term: '<factor> * <term>' | '<factor> / <term>'
-factor: '( <expr> )' | '<integer>'
-integer: '<digit> <integer>' | '<digit>'
-digit: '0' | '1' | '2'
-
-exec(s)
+class expr(Grammar):
+    start: '<expr>'
+    expr: '<term> + <term>' | '<term> - <term>'
+    term: '<factor> * <term>' | '<factor> / <term>'
+    factor: '( <expr> )' | '<integer>'
+    integer: '<digit> <integer>' | '<digit>'
+    digit: '0' | '1' | '2'
+"""
+exec(textwrap.dedent(s))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import textwrap
 s = &quot;&quot;&quot;
- __future__ import annotations
+from __future__ import annotations
 
-s expr(Grammar):
-start: &#x27;&lt;expr&gt;&#x27;
-expr: &#x27;&lt;term&gt; + &lt;term&gt;&#x27; | &#x27;&lt;term&gt; - &lt;term&gt;&#x27;
-term: &#x27;&lt;factor&gt; * &lt;term&gt;&#x27; | &#x27;&lt;factor&gt; / &lt;term&gt;&#x27;
-factor: &#x27;( &lt;expr&gt; )&#x27; | &#x27;&lt;integer&gt;&#x27;
-integer: &#x27;&lt;digit&gt; &lt;integer&gt;&#x27; | &#x27;&lt;digit&gt;&#x27;
-digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
-
-exec(s)
+class expr(Grammar):
+    start: &#x27;&lt;expr&gt;&#x27;
+    expr: &#x27;&lt;term&gt; + &lt;term&gt;&#x27; | &#x27;&lt;term&gt; - &lt;term&gt;&#x27;
+    term: &#x27;&lt;factor&gt; * &lt;term&gt;&#x27; | &#x27;&lt;factor&gt; / &lt;term&gt;&#x27;
+    factor: &#x27;( &lt;expr&gt; )&#x27; | &#x27;&lt;integer&gt;&#x27;
+    integer: &#x27;&lt;digit&gt; &lt;integer&gt;&#x27; | &#x27;&lt;digit&gt;&#x27;
+    digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
+&quot;&quot;&quot;
+exec(textwrap.dedent(s))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -297,7 +299,7 @@ Using
 
 <!--
 ############
-exec(s)
+exec(textwrap.dedent(s))
 e = expr.create()
 print(e.grammar)
 
@@ -305,7 +307,7 @@ print(e.grammar)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-exec(s)
+exec(textwrap.dedent(s))
 e = expr.create()
 print(e.grammar)
 </textarea><br />
@@ -380,18 +382,18 @@ Usage
 <!--
 ############
 s = """
- __future__ import annotations
+from __future__ import annotations
 
-s expr(Grammar):
-start: '<expr>'
-expr: '<term> + <term>' | '<term> - <term>'
-term: '<factor> * <term>' | '<factor> / <term>'
-factor: '( <expr> )' | '<integer>'
-integer: '<*digit>'
-digit: '0' | '1' | '2'
+class expr(Grammar):
+    start: '<expr>'
+    expr: '<term> + <term>' | '<term> - <term>'
+    term: '<factor> * <term>' | '<factor> / <term>'
+    factor: '( <expr> )' | '<integer>'
+    integer: '<*digit>'
+    digit: '0' | '1' | '2'
+"""
 
-
-exec(s)
+exec(textwrap.dedent(s))
 e = expr.create()
 print(e.grammar)
 
@@ -400,18 +402,18 @@ print(e.grammar)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 s = &quot;&quot;&quot;
- __future__ import annotations
+from __future__ import annotations
 
-s expr(Grammar):
-start: &#x27;&lt;expr&gt;&#x27;
-expr: &#x27;&lt;term&gt; + &lt;term&gt;&#x27; | &#x27;&lt;term&gt; - &lt;term&gt;&#x27;
-term: &#x27;&lt;factor&gt; * &lt;term&gt;&#x27; | &#x27;&lt;factor&gt; / &lt;term&gt;&#x27;
-factor: &#x27;( &lt;expr&gt; )&#x27; | &#x27;&lt;integer&gt;&#x27;
-integer: &#x27;&lt;*digit&gt;&#x27;
-digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
+class expr(Grammar):
+    start: &#x27;&lt;expr&gt;&#x27;
+    expr: &#x27;&lt;term&gt; + &lt;term&gt;&#x27; | &#x27;&lt;term&gt; - &lt;term&gt;&#x27;
+    term: &#x27;&lt;factor&gt; * &lt;term&gt;&#x27; | &#x27;&lt;factor&gt; / &lt;term&gt;&#x27;
+    factor: &#x27;( &lt;expr&gt; )&#x27; | &#x27;&lt;integer&gt;&#x27;
+    integer: &#x27;&lt;*digit&gt;&#x27;
+    digit: &#x27;0&#x27; | &#x27;1&#x27; | &#x27;2&#x27;
+&quot;&quot;&quot;
 
-
-exec(s)
+exec(textwrap.dedent(s))
 e = expr.create()
 print(e.grammar)
 </textarea><br />

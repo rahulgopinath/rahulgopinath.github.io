@@ -84,18 +84,19 @@ class Grammar:
 # evaluate that string instead.
 
 if __name__ == '__main__':
+    import textwrap
     s = """
-from __future__ import annotations
-
-class expr(Grammar):
-    start: '<expr>'
-    expr: '<term> + <term>' | '<term> - <term>'
-    term: '<factor> * <term>' | '<factor> / <term>'
-    factor: '( <expr> )' | '<integer>'
-    integer: '<digit> <integer>' | '<digit>'
-    digit: '0' | '1' | '2'
-"""
-    exec(s)
+    from __future__ import annotations
+    
+    class expr(Grammar):
+        start: '<expr>'
+        expr: '<term> + <term>' | '<term> - <term>'
+        term: '<factor> * <term>' | '<factor> / <term>'
+        factor: '( <expr> )' | '<integer>'
+        integer: '<digit> <integer>' | '<digit>'
+        digit: '0' | '1' | '2'
+    """
+    exec(textwrap.dedent(s))
 
 # Given all this, to print the grammar in a readable form is simply:
 if __name__ == '__main__':
@@ -125,7 +126,7 @@ class Grammar(Grammar):
         return {**my_grammar, **grammar}
 # Using
 if __name__ == '__main__':
-    exec(s) 
+    exec(textwrap.dedent(s))
     e = expr.create()
     print(e.grammar)
 
@@ -162,18 +163,18 @@ class Grammar(Grammar):
 # Usage
 if __name__ == '__main__':
     s = """
-from __future__ import annotations
+    from __future__ import annotations
 
-class expr(Grammar):
-    start: '<expr>'
-    expr: '<term> + <term>' | '<term> - <term>'
-    term: '<factor> * <term>' | '<factor> / <term>'
-    factor: '( <expr> )' | '<integer>'
-    integer: '<*digit>'
-    digit: '0' | '1' | '2'
-"""
+    class expr(Grammar):
+        start: '<expr>'
+        expr: '<term> + <term>' | '<term> - <term>'
+        term: '<factor> * <term>' | '<factor> / <term>'
+        factor: '( <expr> )' | '<integer>'
+        integer: '<*digit>'
+        digit: '0' | '1' | '2'
+    """
 
-    exec(s) 
+    exec(textwrap.dedent(s))
     e = expr.create()
     print(e.grammar)
 
