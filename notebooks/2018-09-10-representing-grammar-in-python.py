@@ -67,7 +67,7 @@ class Grammar:
         def strings(v):
             if isinstance(v, ast.BinOp): return [v.right.s] + strings(v.left) 
             else: return [v.s]
-        return strings(ast.parse(self.production(k), mode='eval').body)
+        return strings(ast.parse(self.production(k[1:-1]), mode='eval').body)
 
     def nonterminals(self, expansion):
         return set(i[1] for i in string.Formatter().parse(expansion) if i[1])
@@ -76,7 +76,7 @@ class Grammar:
         return self.__annotations__[k]
 
     def keys(self):
-        return self.__annotations__.keys()
+        return ['<%s>' % k for k in self.__annotations__.keys()]
 
 # Unfortunately, to be able to use the annotation feature,
 # we need to place import `from __future__ import annotations` at the top of the

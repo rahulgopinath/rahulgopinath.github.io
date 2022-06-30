@@ -167,7 +167,7 @@ class Grammar:
         return self.__annotations__[k]
 
     def keys(self):
-        return self.__annotations__.keys()
+        return ['<%s>' % k for k in self.__annotations__.keys()]
 
 ############
 -->
@@ -190,7 +190,7 @@ class Grammar:
         return self.__annotations__[k]
 
     def keys(self):
-        return self.__annotations__.keys()
+        return [&#x27;&lt;%s&gt;&#x27; % k for k in self.__annotations__.keys()]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
