@@ -595,6 +595,7 @@ class GLLStructuredStack:
 <div name='python_canvas'></div>
 </form>
 ### The GSS GLL Compiler
+#### Compiling a Terminal Symbol
 
 <!--
 ############
@@ -614,6 +615,32 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 ''' % (key, n_alt, r_pos, token, Lnxt)
 
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compile_terminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = &#x27;_&#x27;
+    else:
+        Lnxt = &#x27;%s[%d]_%d&#x27; % (key, n_alt, r_pos+1)
+    return &#x27;&#x27;&#x27;\
+        elif L == &#x27;%s[%d]_%d&#x27;:
+            if parser.I[i] == &#x27;%s&#x27;:
+                i = i+1
+                L = &#x27;%s&#x27;
+            else:
+                L = &#x27;L0&#x27;
+            continue
+&#x27;&#x27;&#x27; % (key, n_alt, r_pos, token, Lnxt)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+#### Compiling a Nonterminal Symbol
+
+<!--
+############
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
@@ -626,6 +653,29 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = &#x27;_&#x27;
+    else:
+        Lnxt = &#x27;%s[%d]_%d&#x27; % (key, n_alt, r_pos+1)
+    return &#x27;&#x27;&#x27;\
+        elif L ==  &#x27;%s[%d]_%d&#x27;:
+            c_u = parser.create(&#x27;%s&#x27;, c_u, i)
+            L = &#x27;%s&#x27;
+            continue
+&#x27;&#x27;&#x27; % (key, n_alt, r_pos, Lnxt, token)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+#### Compiling a Rule
+
+<!--
+############
 def compile_rule(key, n_alt, rule):
     res = []
     for i, t in enumerate(rule):
@@ -642,6 +692,33 @@ def compile_rule(key, n_alt, rule):
 ''' % (key, n_alt, len(rule)))
     return '\n'.join(res)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compile_rule(key, n_alt, rule):
+    res = []
+    for i, t in enumerate(rule):
+        if (t[0],t[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;):
+            r = compile_nonterminal(key, n_alt, i, len(rule), t)
+        else:
+            r = compile_terminal(key, n_alt, i, len(rule), t)
+        res.append(r)
+
+    res.append(&#x27;&#x27;&#x27;\
+        elif L == &#x27;%s[%d]_%d&#x27;:
+            L = &#x27;L_&#x27;
+            continue
+&#x27;&#x27;&#x27; % (key, n_alt, len(rule)))
+    return &#x27;\n&#x27;.join(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+#### Compiling a Definition
+
+<!--
+############
 def compile_def(key, definition):
     res = []
     res.append('''\
@@ -659,6 +736,34 @@ def compile_def(key, definition):
         res.append(r)
     return '\n'.join(res)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compile_def(key, definition):
+    res = []
+    res.append(&#x27;&#x27;&#x27;\
+        elif L == &#x27;%s&#x27;:
+&#x27;&#x27;&#x27; % key)
+    for n_alt,rule in enumerate(definition):
+        res.append(&#x27;&#x27;&#x27;\
+            parser.add( &#x27;%s[%d]_0&#x27;, c_u, i)&#x27;&#x27;&#x27; % (key, n_alt))
+    res.append(&#x27;&#x27;&#x27;
+            # def
+            L = &#x27;L0&#x27;
+            continue&#x27;&#x27;&#x27;)
+    for n_alt,rule in enumerate(definition):
+        r = compile_rule(key, n_alt, rule)
+        res.append(r)
+    return &#x27;\n&#x27;.join(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+#### Compiling a Grammar
+
+<!--
+############
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
@@ -690,67 +795,6 @@ def parse_string(parser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def compile_terminal(key, n_alt, r_pos, r_len, token):
-    if r_len == r_pos:
-        Lnxt = &#x27;_&#x27;
-    else:
-        Lnxt = &#x27;%s[%d]_%d&#x27; % (key, n_alt, r_pos+1)
-    return &#x27;&#x27;&#x27;\
-        elif L == &#x27;%s[%d]_%d&#x27;:
-            if parser.I[i] == &#x27;%s&#x27;:
-                i = i+1
-                L = &#x27;%s&#x27;
-            else:
-                L = &#x27;L0&#x27;
-            continue
-&#x27;&#x27;&#x27; % (key, n_alt, r_pos, token, Lnxt)
-
-
-def compile_nonterminal(key, n_alt, r_pos, r_len, token):
-    if r_len == r_pos:
-        Lnxt = &#x27;_&#x27;
-    else:
-        Lnxt = &#x27;%s[%d]_%d&#x27; % (key, n_alt, r_pos+1)
-    return &#x27;&#x27;&#x27;\
-        elif L ==  &#x27;%s[%d]_%d&#x27;:
-            c_u = parser.create(&#x27;%s&#x27;, c_u, i)
-            L = &#x27;%s&#x27;
-            continue
-&#x27;&#x27;&#x27; % (key, n_alt, r_pos, Lnxt, token)
-
-def compile_rule(key, n_alt, rule):
-    res = []
-    for i, t in enumerate(rule):
-        if (t[0],t[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;):
-            r = compile_nonterminal(key, n_alt, i, len(rule), t)
-        else:
-            r = compile_terminal(key, n_alt, i, len(rule), t)
-        res.append(r)
-
-    res.append(&#x27;&#x27;&#x27;\
-        elif L == &#x27;%s[%d]_%d&#x27;:
-            L = &#x27;L_&#x27;
-            continue
-&#x27;&#x27;&#x27; % (key, n_alt, len(rule)))
-    return &#x27;\n&#x27;.join(res)
-
-def compile_def(key, definition):
-    res = []
-    res.append(&#x27;&#x27;&#x27;\
-        elif L == &#x27;%s&#x27;:
-&#x27;&#x27;&#x27; % key)
-    for n_alt,rule in enumerate(definition):
-        res.append(&#x27;&#x27;&#x27;\
-            parser.add( &#x27;%s[%d]_0&#x27;, c_u, i)&#x27;&#x27;&#x27; % (key, n_alt))
-    res.append(&#x27;&#x27;&#x27;
-            # def
-            L = &#x27;L0&#x27;
-            continue&#x27;&#x27;&#x27;)
-    for n_alt,rule in enumerate(definition):
-        r = compile_rule(key, n_alt, rule)
-        res.append(r)
-    return &#x27;\n&#x27;.join(res)
-
 def compile_grammar(g, start):
     res = [&#x27;&#x27;&#x27;\
 def parse_string(parser):

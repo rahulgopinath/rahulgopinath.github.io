@@ -246,6 +246,7 @@ class GLLStructuredStack:
 
 # ### The GSS GLL Compiler
 
+# #### Compiling a Terminal Symbol
 
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
@@ -263,6 +264,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 ''' % (key, n_alt, r_pos, token, Lnxt)
 
 
+# #### Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
@@ -275,6 +277,7 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
+# #### Compiling a Rule
 def compile_rule(key, n_alt, rule):
     res = []
     for i, t in enumerate(rule):
@@ -291,6 +294,7 @@ def compile_rule(key, n_alt, rule):
 ''' % (key, n_alt, len(rule)))
     return '\n'.join(res)
 
+# #### Compiling a Definition
 def compile_def(key, definition):
     res = []
     res.append('''\
@@ -308,6 +312,7 @@ def compile_def(key, definition):
         res.append(r)
     return '\n'.join(res)
 
+# #### Compiling a Grammar
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
