@@ -26,7 +26,7 @@
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 
-import simplefuzzer
+import simplefuzzer as fuzzer
 
 # ## Our grammar
 
@@ -59,7 +59,7 @@ class GLLStack:
         self.add(L, s, i)
         return s
 
-    def push(self, L, s, i):
+    def register_return(self, L, s, i):
         return (tuple(s), (L, i))
 
 # ### The Stack GLL Compiler
@@ -88,7 +88,7 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
         Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
     return '''\
         elif L ==  '%s[%d]_%d':
-            s = parser.push('%s', s, i)
+            sval = parser.register_return('%s', sval, i)
             L = '%s'
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
@@ -97,7 +97,7 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
 def compile_rule(key, n_alt, rule):
     res = []
     for i, t in enumerate(rule):
-        if (t[0],t[-1]) == ('<', '>'):
+        if fuzzer.is_nonterminal(t):
             r = compile_nonterminal(key, n_alt, i, len(rule), t)
         else:
             r = compile_terminal(key, n_alt, i, len(rule), t)
@@ -118,7 +118,7 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add( '%s[%d]_0', s, i)''' % (key, n_alt))
+            parser.add( '%s[%d]_0', sval, i)''' % (key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -131,16 +131,16 @@ def compile_def(key, definition):
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
-    L, s, i = '%s', parser.push('L0', [], 0), 0
+    L, sval, i = '%s', parser.register_return('L0', [], 0), 0
     while True:
         if L == 'L0':
             if parser.R:
-                (L, s, i), *parser.R = parser.R
-                if (L, s, i) == ('L0', (), len(parser.I)-1): return 'success'
+                (L, sval, i), *parser.R = parser.R
+                if ('L0', (), len(parser.I)-1) == (L, sval, i): return 'success'
                 else: continue
             else: return 'error'
         elif L == 'L_':
-            s = parser.pop(s, i)
+            sval = parser.pop(sval, i)
             L = 'L0'
             continue
     ''' % start]
@@ -208,7 +208,7 @@ class GSS:
     def __repr__(self): return str(self.gss)
 
 class GLLStructuredStack:
-    def create(self, L, u, j):
+    def register_return(self, L, u, j):
         v = self.gss.get(L, j, [u])
         if u not in v.children:
             v.children.append(u)
@@ -245,90 +245,22 @@ class GLLStructuredStack:
             self.U.append([]) # U_j = empty
 
 # ### The GSS GLL Compiler
-
-# #### Compiling a Terminal Symbol
-
-def compile_terminal(key, n_alt, r_pos, r_len, token):
-    if r_len == r_pos:
-        Lnxt = '_'
-    else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
-    return '''\
-        elif L == '%s[%d]_%d':
-            if parser.I[i] == '%s':
-                i = i+1
-                L = '%s'
-            else:
-                L = 'L0'
-            continue
-''' % (key, n_alt, r_pos, token, Lnxt)
-
-
-# #### Compiling a Nonterminal Symbol
-def compile_nonterminal(key, n_alt, r_pos, r_len, token):
-    if r_len == r_pos:
-        Lnxt = '_'
-    else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
-    return '''\
-        elif L ==  '%s[%d]_%d':
-            c_u = parser.create('%s', c_u, i)
-            L = '%s'
-            continue
-''' % (key, n_alt, r_pos, Lnxt, token)
-
-# #### Compiling a Rule
-def compile_rule(key, n_alt, rule):
-    res = []
-    for i, t in enumerate(rule):
-        if (t[0],t[-1]) == ('<', '>'):
-            r = compile_nonterminal(key, n_alt, i, len(rule), t)
-        else:
-            r = compile_terminal(key, n_alt, i, len(rule), t)
-        res.append(r)
-
-    res.append('''\
-        elif L == '%s[%d]_%d':
-            L = 'L_'
-            continue
-''' % (key, n_alt, len(rule)))
-    return '\n'.join(res)
-
-# #### Compiling a Definition
-def compile_def(key, definition):
-    res = []
-    res.append('''\
-        elif L == '%s':
-''' % key)
-    for n_alt,rule in enumerate(definition):
-        res.append('''\
-            parser.add( '%s[%d]_0', c_u, i)''' % (key, n_alt))
-    res.append('''
-            # def
-            L = 'L0'
-            continue''')
-    for n_alt,rule in enumerate(definition):
-        r = compile_rule(key, n_alt, rule)
-        res.append(r)
-    return '\n'.join(res)
-
-# #### Compiling a Grammar
+# The only difference in the main body when using the GSS is how we check
+# for termination.
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
-    c_u = parser.u1
-    i = 0
-    L = '%s' # starting state
+    L, sval, i = '%s', parser.u1, 0
     while True:
         if L == 'L0':
             if parser.R:
-                (L, c_u, i), *parser.R = parser.R
+                (L, sval, i), *parser.R = parser.R
                 continue
             else:
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
-                else: return 'failed'
+                else: return 'error'
         elif L == 'L_':
-            c_u = parser.pop(c_u, i)
+            sval = parser.pop(sval, i)
             L = 'L0'
             continue
     ''' % start]
