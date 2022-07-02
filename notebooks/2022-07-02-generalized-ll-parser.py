@@ -1,0 +1,366 @@
+# ---
+# published: true
+# title: Generalized LL (GLL) Parser
+# layout: post
+# comments: true
+# tags: controlflow
+# categories: post
+# ---
+
+# We [previously discussed](/post/2021/02/06/earley-parsing/) the
+# implementation of an Earley parser with Joop Leo's optimizations. Earley
+# parser is one of the general context-free parsing algorithms available.
+# Another popular general context-free parsing algorightm is
+# *Generalized LL* parsing, which was invented by
+# Elizabeth Scott and Adrian Johnstone. In this post, I provide a complete
+# implementation and a tutorial on how to implement a GLL parser in Python.
+# 
+# **Note:** This post is not complete. Given the interest in GLL parsers, I am
+# simply providing the source until I have more bandwidth to complete the
+# tutorial.
+
+# #### Prerequisites
+#
+# As before, we start with the prerequisite imports.
+
+#@
+# https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+
+import simplefuzzer
+
+# ## Our grammar
+
+G = {
+  '<S>': [
+       ['<A>', '<S>', 'd'],
+       ['<B>', '<S>'],
+       ['g', 'p', '<C>'],
+       []],
+  '<A>': [['a'], ['c']],
+  '<B>': [['a'], ['b']],
+  '<C>': ['c']
+}
+start = '<S>'
+
+# ## GLL with Separate Stacks
+# 
+# ### The GLL Stack
+
+class GLLStack:
+    def __init__(self, s):
+        self.R = []
+        self.I = s
+
+    def add(self, L, u, j):
+        self.R.append((L, u, j))
+
+    def pop(self, s, i):
+        s, (L, i_) = s
+        self.add(L, s, i)
+        return s
+
+    def push(self, L, s, i):
+        return (tuple(s), (L, i))
+
+# ### The Stack GLL Compiler
+
+# #### Compiling a Terminal Symbol
+def compile_terminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L == '%s[%d]_%d':
+            if parser.I[i] == '%s':
+                i = i+1
+                L = '%s'
+            else:
+                L = 'L0'
+            continue
+''' % (key, n_alt, r_pos, token, Lnxt)
+
+# #### Compiling a Nonterminal Symbol
+def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L ==  '%s[%d]_%d':
+            s = parser.push('%s', s, i)
+            L = '%s'
+            continue
+''' % (key, n_alt, r_pos, Lnxt, token)
+
+# #### Compiling a Rule
+def compile_rule(key, n_alt, rule):
+    res = []
+    for i, t in enumerate(rule):
+        if (t[0],t[-1]) == ('<', '>'):
+            r = compile_nonterminal(key, n_alt, i, len(rule), t)
+        else:
+            r = compile_terminal(key, n_alt, i, len(rule), t)
+        res.append(r)
+
+    res.append('''\
+        elif L == '%s[%d]_%d':
+            L = 'L_'
+            continue
+''' % (key, n_alt, len(rule)))
+    return '\n'.join(res)
+
+# #### Compiling a Definition
+def compile_def(key, definition):
+    res = []
+    res.append('''\
+        elif L == '%s':
+''' % key)
+    for n_alt,rule in enumerate(definition):
+        res.append('''\
+            parser.add( '%s[%d]_0', s, i)''' % (key, n_alt))
+    res.append('''
+            L = 'L0'
+            continue''')
+    for n_alt,rule in enumerate(definition):
+        r = compile_rule(key, n_alt, rule)
+        res.append(r)
+    return '\n'.join(res)
+
+# #### Compiling a Grammar
+def compile_grammar(g, start):
+    res = ['''\
+def parse_string(parser):
+    L, s, i = '%s', parser.push('L0', [], 0), 0
+    while True:
+        if L == 'L0':
+            if parser.R:
+                (L, s, i), *parser.R = parser.R
+                if (L, s, i) == ('L0', (), len(parser.I)-1): return 'success'
+                else: continue
+            else: return 'error'
+        elif L == 'L_':
+            s = parser.pop(s, i)
+            L = 'L0'
+            continue
+    ''' % start]
+    for k in g: 
+        r = compile_def(k, g[k])
+        res.append(r)
+    res.append('''\
+        else:
+            assert False
+''')
+    return '\n'.join(res)
+
+# #### Example
+
+if __name__ == '__main__':
+    res = compile_grammar(G, '<S>')
+    print(res)
+    exec(res)
+
+# ### Usage
+if __name__ == '__main__':
+    import simplefuzzer
+    G = {
+    '<S>': [
+        ['<A>', '<S>', 'd'],
+        ['<B>', '<S>'],
+        ['g', 'p', '<C>'],
+        []],
+    '<A>': [['a'], ['c']],
+    '<B>': [['a'], ['b']],
+    '<C>': ['c']
+    }
+    import sys
+    gf = simplefuzzer.LimitFuzzer(G)
+    for i in range(10):
+        s = gf.iter_fuzz(key='<S>', max_depth=100)
+        print(s)
+        g = GLLStack(s+'$')
+        assert parse_string(g) == 'success'
+
+# ## GLL with a Graph Structured Stack (GSS)
+# 
+# ### The GLL GSS
+
+class Node:
+    def __init__(self, L, j, children):
+        self.L, self.i, self.children = L, j, children
+    def __repr__(self): return str((self.L, self.i, self.children))
+
+class GSS:
+    def __init__(self): self.gss, self.P = {}, {}
+
+    def get(self, L, i, children):
+        my_label = (L, i)
+        if my_label not in self.gss:
+            self.gss[my_label] = Node(L, i, children)
+            assert my_label not in self.P
+            self.P[my_label] = []
+        return self.gss[my_label]
+
+    def add_to_P(self, u, j):
+        label = (u.L, u.i)
+        self.P[label].append(j)
+
+    def __repr__(self): return str(self.gss)
+
+class GLLStructuredStack:
+    def create(self, L, u, j):
+        v = self.gss.get(L, j, [u])
+        if u not in v.children:
+            v.children.append(u)
+            label = (L, j)
+            for k in self.gss.P[label]:
+                self.add(L, u, k)
+        return v
+
+    def add(self, L, u, j):
+        if (L, u) not in self.U[j]:
+            self.U[j].append((L, u))
+            assert (L,u,j) not in self.R
+            self.R.append((L, u, j))
+
+    def pop(self, u, j):
+        if u != self.u0:
+            self.gss.add_to_P(u, j)
+            for v in u.children:
+                self.add(u.L, v, j)
+        return u
+
+
+    def __init__(self, input_str):
+        self.R = []
+        self.gss = GSS()
+        self.I = input_str
+        self.m = len(self.I) # |I| + 1
+        self.u1 = self.gss.get('L0', 0, [])
+        self.u0 = self.gss.get('$', self.m, [])
+        self.u1.children.append(self.u0)
+
+        self.U = []
+        for j in range(self.m): # 0<=j<=m
+            self.U.append([]) # U_j = empty
+
+# ### The GSS GLL Compiler
+
+
+def compile_terminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L == '%s[%d]_%d':
+            if parser.I[i] == '%s':
+                i = i+1
+                L = '%s'
+            else:
+                L = 'L0'
+            continue
+''' % (key, n_alt, r_pos, token, Lnxt)
+
+
+def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L ==  '%s[%d]_%d':
+            c_u = parser.create('%s', c_u, i)
+            L = '%s'
+            continue
+''' % (key, n_alt, r_pos, Lnxt, token)
+
+def compile_rule(key, n_alt, rule):
+    res = []
+    for i, t in enumerate(rule):
+        if (t[0],t[-1]) == ('<', '>'):
+            r = compile_nonterminal(key, n_alt, i, len(rule), t)
+        else:
+            r = compile_terminal(key, n_alt, i, len(rule), t)
+        res.append(r)
+
+    res.append('''\
+        elif L == '%s[%d]_%d':
+            L = 'L_'
+            continue
+''' % (key, n_alt, len(rule)))
+    return '\n'.join(res)
+
+def compile_def(key, definition):
+    res = []
+    res.append('''\
+        elif L == '%s':
+''' % key)
+    for n_alt,rule in enumerate(definition):
+        res.append('''\
+            parser.add( '%s[%d]_0', c_u, i)''' % (key, n_alt))
+    res.append('''
+            # def
+            L = 'L0'
+            continue''')
+    for n_alt,rule in enumerate(definition):
+        r = compile_rule(key, n_alt, rule)
+        res.append(r)
+    return '\n'.join(res)
+
+def compile_grammar(g, start):
+    res = ['''\
+def parse_string(parser):
+    c_u = parser.u1
+    i = 0
+    L = '%s' # starting state
+    while True:
+        if L == 'L0':
+            if parser.R:
+                (L, c_u, i), *parser.R = parser.R
+                continue
+            else:
+                if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
+                else: return 'failed'
+        elif L == 'L_':
+            c_u = parser.pop(c_u, i)
+            L = 'L0'
+            continue
+    ''' % start]
+    for k in g: 
+        r = compile_def(k, g[k])
+        res.append(r)
+    res.append('''
+        else:
+            assert False''')
+    return '\n'.join(res)
+
+# #### Example
+
+if __name__ == '__main__':
+    res = compile_grammar(G, '<S>')
+    print(res)
+    exec(res)
+
+# ### Usage
+if __name__ == '__main__':
+    import simplefuzzer
+    G = {
+    '<S>': [
+        ['<A>', '<S>', 'd'],
+        ['<B>', '<S>'],
+        ['g', 'p', '<C>'],
+        []],
+    '<A>': [['a'], ['c']],
+    '<B>': [['a'], ['b']],
+    '<C>': ['c']
+    }
+    import sys
+    gf = simplefuzzer.LimitFuzzer(G)
+    for i in range(10):
+        s = gf.iter_fuzz(key='<S>', max_depth=100)
+        print(s)
+        g = GLLStructuredStack(s+'$')
+        assert parse_string(g) == 'success'
+
+
