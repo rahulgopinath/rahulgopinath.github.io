@@ -137,12 +137,12 @@ class GLLStack:
         self.R = []
         self.I = s
 
-    def add(self, L, u, j):
+    def add_thread(self, L, u, j):
         self.R.append((L, u, j))
 
-    def pop(self, s, i):
+    def pop_stack(self, s, i):
         s, (L, i_) = s
-        self.add(L, s, i)
+        self.add_thread(L, s, i)
         return s
 
     def register_return(self, L, s, i):
@@ -157,12 +157,12 @@ class GLLStack:
         self.R = []
         self.I = s
 
-    def add(self, L, u, j):
+    def add_thread(self, L, u, j):
         self.R.append((L, u, j))
 
-    def pop(self, s, i):
+    def pop_stack(self, s, i):
         s, (L, i_) = s
-        self.add(L, s, i)
+        self.add_thread(L, s, i)
         return s
 
     def register_return(self, L, s, i):
@@ -302,7 +302,7 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add( '%s[%d]_0', sval, i)''' % (key, n_alt))
+            parser.add_thread( '%s[%d]_0', sval, i)''' % (key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -322,7 +322,7 @@ def compile_def(key, definition):
 &#x27;&#x27;&#x27; % key)
     for n_alt,rule in enumerate(definition):
         res.append(&#x27;&#x27;&#x27;\
-            parser.add( &#x27;%s[%d]_0&#x27;, sval, i)&#x27;&#x27;&#x27; % (key, n_alt))
+            parser.add_thread( &#x27;%s[%d]_0&#x27;, sval, i)&#x27;&#x27;&#x27; % (key, n_alt))
     res.append(&#x27;&#x27;&#x27;
             L = &#x27;L0&#x27;
             continue&#x27;&#x27;&#x27;)
@@ -350,7 +350,7 @@ def parse_string(parser):
                 else: continue
             else: return 'error'
         elif L == 'L_':
-            sval = parser.pop(sval, i)
+            sval = parser.pop_stack(sval, i)
             L = 'L0'
             continue
     ''' % start]
@@ -379,7 +379,7 @@ def parse_string(parser):
                 else: continue
             else: return &#x27;error&#x27;
         elif L == &#x27;L_&#x27;:
-            sval = parser.pop(sval, i)
+            sval = parser.pop_stack(sval, i)
             L = &#x27;L0&#x27;
             continue
     &#x27;&#x27;&#x27; % start]
@@ -498,20 +498,20 @@ class GLLStructuredStack:
             v.children.append(u)
             label = (L, j)
             for k in self.gss.P[label]:
-                self.add(L, u, k)
+                self.add_thread(L, u, k)
         return v
 
-    def add(self, L, u, j):
+    def add_thread(self, L, u, j):
         if (L, u) not in self.U[j]:
             self.U[j].append((L, u))
             assert (L,u,j) not in self.R
             self.R.append((L, u, j))
 
-    def pop(self, u, j):
+    def pop_stack(self, u, j):
         if u != self.u0:
             self.gss.add_to_P(u, j)
             for v in u.children:
-                self.add(u.L, v, j)
+                self.add_thread(u.L, v, j)
         return u
 
 
@@ -561,20 +561,20 @@ class GLLStructuredStack:
             v.children.append(u)
             label = (L, j)
             for k in self.gss.P[label]:
-                self.add(L, u, k)
+                self.add_thread(L, u, k)
         return v
 
-    def add(self, L, u, j):
+    def add_thread(self, L, u, j):
         if (L, u) not in self.U[j]:
             self.U[j].append((L, u))
             assert (L,u,j) not in self.R
             self.R.append((L, u, j))
 
-    def pop(self, u, j):
+    def pop_stack(self, u, j):
         if u != self.u0:
             self.gss.add_to_P(u, j)
             for v in u.children:
-                self.add(u.L, v, j)
+                self.add_thread(u.L, v, j)
         return u
 
 
@@ -613,7 +613,7 @@ def parse_string(parser):
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
                 else: return 'error'
         elif L == 'L_':
-            sval = parser.pop(sval, i)
+            sval = parser.pop_stack(sval, i)
             L = 'L0'
             continue
     ''' % start]
@@ -642,7 +642,7 @@ def parse_string(parser):
                 if (&#x27;L0&#x27;, parser.u0) in parser.U[parser.m-1]: return &#x27;success&#x27;
                 else: return &#x27;error&#x27;
         elif L == &#x27;L_&#x27;:
-            sval = parser.pop(sval, i)
+            sval = parser.pop_stack(sval, i)
             L = &#x27;L0&#x27;
             continue
     &#x27;&#x27;&#x27; % start]
