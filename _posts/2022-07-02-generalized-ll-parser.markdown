@@ -140,7 +140,7 @@ class GLLStack:
     def add_thread(self, L, u, j):
         self.R.append((L, u, j))
 
-    def pop_stack(self, s, i):
+    def fn_return(self, s, i):
         s, (L, i_) = s
         self.add_thread(L, s, i)
         return s
@@ -160,7 +160,7 @@ class GLLStack:
     def add_thread(self, L, u, j):
         self.R.append((L, u, j))
 
-    def pop_stack(self, s, i):
+    def fn_return(self, s, i):
         s, (L, i_) = s
         self.add_thread(L, s, i)
         return s
@@ -350,7 +350,7 @@ def parse_string(parser):
                 else: continue
             else: return 'error'
         elif L == 'L_':
-            sval = parser.pop_stack(sval, i)
+            sval = parser.fn_return(sval, i)
             L = 'L0'
             continue
     ''' % start]
@@ -379,7 +379,7 @@ def parse_string(parser):
                 else: continue
             else: return &#x27;error&#x27;
         elif L == &#x27;L_&#x27;:
-            sval = parser.pop_stack(sval, i)
+            sval = parser.fn_return(sval, i)
             L = &#x27;L0&#x27;
             continue
     &#x27;&#x27;&#x27; % start]
@@ -507,7 +507,7 @@ class GLLStructuredStack:
             assert (L,u,j) not in self.R
             self.R.append((L, u, j))
 
-    def pop_stack(self, u, j):
+    def fn_return(self, u, j):
         if u != self.u0:
             self.gss.add_to_P(u, j)
             for v in u.children:
@@ -570,7 +570,7 @@ class GLLStructuredStack:
             assert (L,u,j) not in self.R
             self.R.append((L, u, j))
 
-    def pop_stack(self, u, j):
+    def fn_return(self, u, j):
         if u != self.u0:
             self.gss.add_to_P(u, j)
             for v in u.children:
@@ -613,7 +613,7 @@ def parse_string(parser):
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
                 else: return 'error'
         elif L == 'L_':
-            sval = parser.pop_stack(sval, i)
+            sval = parser.fn_return(sval, i)
             L = 'L0'
             continue
     ''' % start]
@@ -642,7 +642,7 @@ def parse_string(parser):
                 if (&#x27;L0&#x27;, parser.u0) in parser.U[parser.m-1]: return &#x27;success&#x27;
                 else: return &#x27;error&#x27;
         elif L == &#x27;L_&#x27;:
-            sval = parser.pop_stack(sval, i)
+            sval = parser.fn_return(sval, i)
             L = &#x27;L0&#x27;
             continue
     &#x27;&#x27;&#x27; % start]
