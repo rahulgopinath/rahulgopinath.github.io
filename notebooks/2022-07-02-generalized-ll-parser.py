@@ -228,7 +228,7 @@ class GLLStructuredStack:
             # the same paper, p184 `create(L, u, j)` is `add(v.L, u, j)`
             # but in 183 again, it is said: The function create(L, u, j) creates
             # a GSS node v = Lj with child u if one does not already exist, and
-            # then returns v. If(v, k) in P then add(L, u, k) is called.
+            # then returns v. If (v, k) in P then add(L, u, k) is called.
             for k in self.gss.parsed_indexes(v.label):
                 self.add_thread(v.L, u, k) # v.L == L
         return v
