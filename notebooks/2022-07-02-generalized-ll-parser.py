@@ -48,11 +48,15 @@ start = '<S>'
 
 class GLLStack:
     def __init__(self, s):
-        self.R = []
+        self.threads = []
         self.I = s
 
     def add_thread(self, L, u, j):
-        self.R.append((L, u, j))
+        self.threads.append((L, u, j))
+
+    def next_thread(self):
+        (L, sval, i), *self.threads = self.threads
+        return (L, sval, i)
 
     def fn_return(self, s, i):
         s, (L, i_) = s
@@ -134,8 +138,8 @@ def parse_string(parser):
     L, sval, i = '%s', parser.register_return('L0', [], 0), 0
     while True:
         if L == 'L0':
-            if parser.R:
-                (L, sval, i), *parser.R = parser.R
+            if parser.threads:
+                (L, sval, i) = parser.next_thread()
                 if ('L0', (), len(parser.I)-1) == (L, sval, i): return 'success'
                 else: continue
             else: return 'error'
@@ -222,8 +226,12 @@ class GLLStructuredStack:
     def add_thread(self, L, u, j):
         if (L, u) not in self.U[j]:
             self.U[j].append((L, u))
-            assert (L,u,j) not in self.R
-            self.R.append((L, u, j))
+            assert (L,u,j) not in self.threads
+            self.threads.append((L, u, j))
+
+    def next_thread(self):
+        (L, sval, i), *self.threads = self.threads
+        return (L, sval, i)
 
     def fn_return(self, u, j):
         if u != self.u0:
@@ -234,7 +242,7 @@ class GLLStructuredStack:
 
 
     def __init__(self, input_str):
-        self.R = []
+        self.threads = []
         self.gss = GSS()
         self.I = input_str
         self.m = len(self.I) # |I| + 1
@@ -255,8 +263,8 @@ def parse_string(parser):
     L, sval, i = '%s', parser.u1, 0
     while True:
         if L == 'L0':
-            if parser.R:
-                (L, sval, i), *parser.R = parser.R
+            if parser.threads:
+                (L, sval, i) = parser.next_thread()
                 continue
             else:
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
