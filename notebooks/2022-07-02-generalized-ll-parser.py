@@ -231,8 +231,7 @@ class GLLStructuredStack:
             # paper p183: When a new child node w is added to u,
             # for all (u, k) ∈ P if (Lu,w) notin Uk then
             # (Lu,u,k) is added to R, where Lu is the label of u.
-            label = (L, j)
-            for k in self.gss.parsed_indexes(label):
+            for k in self.gss.parsed_indexes(v.label):
                 self.add_thread(L, u, k)
         return v
 
