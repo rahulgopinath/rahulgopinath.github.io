@@ -545,11 +545,14 @@ class GLLStructuredStack:
         if u not in v.children:
             v.children.append(u)
             # paper p183: When a new child node u is added to v,
-            # for all (v, k) ∈ P if (Lv, u) notin Uk then
+            # for all (v, k) in P if (Lv, u) notin Uk then
             # (Lv,v,k) is added to R, where Lv is the label of v.
             # **Note:** The above is confusing because according to it, what
             # we should add is (v.L, v, k) while what we are adding below from
             # the same paper, p184 `create(L, u, j)` is `add(v.L, u, j)`
+            # but in 183 again, it is said: The function create(L, u, j) creates
+            # a GSS node v = Lj with child u if one does not already exist, and
+            # then returns v. If(v, k) in P then add(L, u, k) is called.
             for k in self.gss.parsed_indexes(v.label):
                 self.add_thread(v.L, u, k) # v.L == L
         return v
@@ -603,11 +606,14 @@ class GLLStructuredStack:
         if u not in v.children:
             v.children.append(u)
             # paper p183: When a new child node u is added to v,
-            # for all (v, k) ∈ P if (Lv, u) notin Uk then
+            # for all (v, k) in P if (Lv, u) notin Uk then
             # (Lv,v,k) is added to R, where Lv is the label of v.
             # **Note:** The above is confusing because according to it, what
             # we should add is (v.L, v, k) while what we are adding below from
             # the same paper, p184 `create(L, u, j)` is `add(v.L, u, j)`
+            # but in 183 again, it is said: The function create(L, u, j) creates
+            # a GSS node v = Lj with child u if one does not already exist, and
+            # then returns v. If(v, k) in P then add(L, u, k) is called.
             for k in self.gss.parsed_indexes(v.label):
                 self.add_thread(v.L, u, k) # v.L == L
         return v
