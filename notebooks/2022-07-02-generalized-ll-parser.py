@@ -352,4 +352,39 @@ if __name__ == '__main__':
         assert parse_string(g) == 'success'
         print('gss parsed.')
 
+# Another grammar
+
+E2_G = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<term>'],
+        ['<expr>', '-', '<term>'],
+        ['<term>']],
+    '<term>': [
+        ['<term>', '*', '<fact>'],
+        ['<term>', '/', '<fact>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+E2_start = '<start>'
+
+# ### Usage
+if __name__ == '__main__':
+    res = compile_grammar(E2_G, E2_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E2_G)
+    for i in range(10):
+        print('gss:.')
+        s = gf.iter_fuzz(key=E2_start, max_depth=10)
+        print(s)
+        g = GLLStructuredStack(s+'$')
+        assert parse_string(g) == 'success'
+        print('gss parsed.')
+
 

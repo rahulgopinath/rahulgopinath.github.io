@@ -836,7 +836,6 @@ for i in range(10):
     assert parse_string(g) == 'success'
     print('gss parsed.')
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -847,6 +846,91 @@ gf = fuzzer.LimitFuzzer(E_G)
 for i in range(10):
     print(&#x27;gss:.&#x27;)
     s = gf.iter_fuzz(key=E_start, max_depth=10)
+    print(s)
+    g = GLLStructuredStack(s+&#x27;$&#x27;)
+    assert parse_string(g) == &#x27;success&#x27;
+    print(&#x27;gss parsed.&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another grammar
+
+<!--
+############
+E2_G = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<term>'],
+        ['<expr>', '-', '<term>'],
+        ['<term>']],
+    '<term>': [
+        ['<term>', '*', '<fact>'],
+        ['<term>', '/', '<fact>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+E2_start = '<start>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+E2_G = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;term&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;fact&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;fact&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+E2_start = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Usage
+
+<!--
+############
+res = compile_grammar(E2_G, E2_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E2_G)
+for i in range(10):
+    print('gss:.')
+    s = gf.iter_fuzz(key=E2_start, max_depth=10)
+    print(s)
+    g = GLLStructuredStack(s+'$')
+    assert parse_string(g) == 'success'
+    print('gss parsed.')
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+res = compile_grammar(E2_G, E2_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E2_G)
+for i in range(10):
+    print(&#x27;gss:.&#x27;)
+    s = gf.iter_fuzz(key=E2_start, max_depth=10)
     print(s)
     g = GLLStructuredStack(s+&#x27;$&#x27;)
     assert parse_string(g) == &#x27;success&#x27;
