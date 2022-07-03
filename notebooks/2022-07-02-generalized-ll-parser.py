@@ -228,9 +228,12 @@ class GLLStructuredStack:
         # If there is not an edge from v to u
         if u not in v.children:
             v.children.append(u)
-            # paper p183: When a new child node w is added to u,
-            # for all (u, k) ∈ P if (Lu,w) notin Uk then
-            # (Lu,u,k) is added to R, where Lu is the label of u.
+            # paper p183: When a new child node u is added to v,
+            # for all (v, k) ∈ P if (Lv,u) notin Uk then
+            # (Lv,v,k) is added to R, where Lv is the label of v.
+            # **Note:** The above is confusing because according to it, what
+            # we should add is (v.L, v, k) while what we are adding below from
+            # the same paper, p184 `create(L, u, j)` is `add(v.L, u, j)`
             for k in self.gss.parsed_indexes(v.label):
                 self.add_thread(L, u, k)
         return v
