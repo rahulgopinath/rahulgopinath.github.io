@@ -192,9 +192,9 @@ if __name__ == '__main__':
 class Node:
     def __init__(self, L, j, children):
         self.L, self.i, self.children = L, j, children
+        self.label = (self.L, self.i)
 
-    def label(self): return (self.L, self.i)
-    def __eq__(self, other): return self.label() == other.label()
+    def __eq__(self, other): return self.label == other.label
     def __repr__(self): return str((self.L, self.i, self.children))
 
 class GSS:
@@ -209,7 +209,7 @@ class GSS:
         return self.gss[my_label]
 
     def add_to_P(self, u, j):
-        self.P[u.label()].append(j)
+        self.P[u.label].append(j)
 
     def __repr__(self): return str(self.gss)
 
