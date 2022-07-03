@@ -205,8 +205,7 @@ class GSS:
         return self.gss[my_label]
 
     def add_to_P(self, u, j):
-        label = (u.L, u.i)
-        self.P[label].append(j)
+        self.P[u.label()].append(j)
 
     def __repr__(self): return str(self.gss)
 
