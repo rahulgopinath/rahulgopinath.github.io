@@ -407,7 +407,7 @@ def parse_string(parser):
 
 <!--
 ############
-res = compile_grammar(G, '<S>')
+res = compile_grammar(G, start)
 print(res)
 exec(res)
 
@@ -415,7 +415,7 @@ exec(res)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-res = compile_grammar(G, &#x27;&lt;S&gt;&#x27;)
+res = compile_grammar(G, start)
 print(res)
 exec(res)
 </textarea><br />
@@ -426,47 +426,29 @@ exec(res)
 
 <!--
 ############
-import simplefuzzer
-G = {
-'<S>': [
-    ['<A>', '<S>', 'd'],
-    ['<B>', '<S>'],
-    ['g', 'p', '<C>'],
-    []],
-'<A>': [['a'], ['c']],
-'<B>': [['a'], ['b']],
-'<C>': ['c']
-}
 import sys
-gf = simplefuzzer.LimitFuzzer(G)
+gf = fuzzer.LimitFuzzer(G)
 for i in range(10):
-    s = gf.iter_fuzz(key='<S>', max_depth=100)
+    print('stack:.')
+    s = gf.iter_fuzz(key=start, max_depth=5)
     print(s)
     g = GLLStack(s+'$')
     assert parse_string(g) == 'success'
+    print('parsed.')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import simplefuzzer
-G = {
-&#x27;&lt;S&gt;&#x27;: [
-    [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;S&gt;&#x27;, &#x27;d&#x27;],
-    [&#x27;&lt;B&gt;&#x27;, &#x27;&lt;S&gt;&#x27;],
-    [&#x27;g&#x27;, &#x27;p&#x27;, &#x27;&lt;C&gt;&#x27;],
-    []],
-&#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [&#x27;c&#x27;]],
-&#x27;&lt;B&gt;&#x27;: [[&#x27;a&#x27;], [&#x27;b&#x27;]],
-&#x27;&lt;C&gt;&#x27;: [&#x27;c&#x27;]
-}
 import sys
-gf = simplefuzzer.LimitFuzzer(G)
+gf = fuzzer.LimitFuzzer(G)
 for i in range(10):
-    s = gf.iter_fuzz(key=&#x27;&lt;S&gt;&#x27;, max_depth=100)
+    print(&#x27;stack:.&#x27;)
+    s = gf.iter_fuzz(key=start, max_depth=5)
     print(s)
     g = GLLStack(s+&#x27;$&#x27;)
     assert parse_string(g) == &#x27;success&#x27;
+    print(&#x27;parsed.&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -736,7 +718,7 @@ def parse_string(parser):
 
 <!--
 ############
-res = compile_grammar(G, '<S>')
+res = compile_grammar(G, start)
 print(res)
 exec(res)
 
@@ -744,7 +726,7 @@ exec(res)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-res = compile_grammar(G, &#x27;&lt;S&gt;&#x27;)
+res = compile_grammar(G, start)
 print(res)
 exec(res)
 </textarea><br />
@@ -755,48 +737,112 @@ exec(res)
 
 <!--
 ############
-import simplefuzzer
-G = {
-'<S>': [
-    ['<A>', '<S>', 'd'],
-    ['<B>', '<S>'],
-    ['g', 'p', '<C>'],
-    []],
-'<A>': [['a'], ['c']],
-'<B>': [['a'], ['b']],
-'<C>': ['c']
-}
-import sys
-gf = simplefuzzer.LimitFuzzer(G)
+gf = fuzzer.LimitFuzzer(G)
 for i in range(10):
-    s = gf.iter_fuzz(key='<S>', max_depth=100)
+    print('gss:.')
+    s = gf.iter_fuzz(key=start, max_depth=10)
     print(s)
     g = GLLStructuredStack(s+'$')
     assert parse_string(g) == 'success'
+    print('gss parsed.')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gf = fuzzer.LimitFuzzer(G)
+for i in range(10):
+    print(&#x27;gss:.&#x27;)
+    s = gf.iter_fuzz(key=start, max_depth=10)
+    print(s)
+    g = GLLStructuredStack(s+&#x27;$&#x27;)
+    assert parse_string(g) == &#x27;success&#x27;
+    print(&#x27;gss parsed.&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another grammar
+
+<!--
+############
+E_G = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+E_start = '<start>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+E_G = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+E_start = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Usage
+
+<!--
+############
+res = compile_grammar(E_G, E_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E_G)
+for i in range(10):
+    print('gss:.')
+    s = gf.iter_fuzz(key=E_start, max_depth=10)
+    print(s)
+    g = GLLStructuredStack(s+'$')
+    assert parse_string(g) == 'success'
+    print('gss parsed.')
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import simplefuzzer
-G = {
-&#x27;&lt;S&gt;&#x27;: [
-    [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;S&gt;&#x27;, &#x27;d&#x27;],
-    [&#x27;&lt;B&gt;&#x27;, &#x27;&lt;S&gt;&#x27;],
-    [&#x27;g&#x27;, &#x27;p&#x27;, &#x27;&lt;C&gt;&#x27;],
-    []],
-&#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [&#x27;c&#x27;]],
-&#x27;&lt;B&gt;&#x27;: [[&#x27;a&#x27;], [&#x27;b&#x27;]],
-&#x27;&lt;C&gt;&#x27;: [&#x27;c&#x27;]
-}
-import sys
-gf = simplefuzzer.LimitFuzzer(G)
+res = compile_grammar(E_G, E_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E_G)
 for i in range(10):
-    s = gf.iter_fuzz(key=&#x27;&lt;S&gt;&#x27;, max_depth=100)
+    print(&#x27;gss:.&#x27;)
+    s = gf.iter_fuzz(key=E_start, max_depth=10)
     print(s)
     g = GLLStructuredStack(s+&#x27;$&#x27;)
     assert parse_string(g) == &#x27;success&#x27;
+    print(&#x27;gss parsed.&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

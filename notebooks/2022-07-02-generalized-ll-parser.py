@@ -160,30 +160,21 @@ def parse_string(parser):
 # #### Example
 
 if __name__ == '__main__':
-    res = compile_grammar(G, '<S>')
+    res = compile_grammar(G, start)
     print(res)
     exec(res)
 
 # ### Usage
 if __name__ == '__main__':
-    import simplefuzzer
-    G = {
-    '<S>': [
-        ['<A>', '<S>', 'd'],
-        ['<B>', '<S>'],
-        ['g', 'p', '<C>'],
-        []],
-    '<A>': [['a'], ['c']],
-    '<B>': [['a'], ['b']],
-    '<C>': ['c']
-    }
     import sys
-    gf = simplefuzzer.LimitFuzzer(G)
+    gf = fuzzer.LimitFuzzer(G)
     for i in range(10):
-        s = gf.iter_fuzz(key='<S>', max_depth=100)
+        print('stack:.')
+        s = gf.iter_fuzz(key=start, max_depth=5)
         print(s)
         g = GLLStack(s+'$')
         assert parse_string(g) == 'success'
+        print('parsed.')
 
 # ## GLL with a Graph Structured Stack (GSS)
 
@@ -307,29 +298,54 @@ def parse_string(parser):
 # #### Example
 
 if __name__ == '__main__':
-    res = compile_grammar(G, '<S>')
+    res = compile_grammar(G, start)
     print(res)
     exec(res)
 
 # ### Usage
 if __name__ == '__main__':
-    import simplefuzzer
-    G = {
-    '<S>': [
-        ['<A>', '<S>', 'd'],
-        ['<B>', '<S>'],
-        ['g', 'p', '<C>'],
-        []],
-    '<A>': [['a'], ['c']],
-    '<B>': [['a'], ['b']],
-    '<C>': ['c']
-    }
-    import sys
-    gf = simplefuzzer.LimitFuzzer(G)
+    gf = fuzzer.LimitFuzzer(G)
     for i in range(10):
-        s = gf.iter_fuzz(key='<S>', max_depth=100)
+        print('gss:.')
+        s = gf.iter_fuzz(key=start, max_depth=10)
         print(s)
         g = GLLStructuredStack(s+'$')
         assert parse_string(g) == 'success'
+        print('gss parsed.')
+
+# Another grammar
+
+E_G = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+E_start = '<start>'
+
+# ### Usage
+if __name__ == '__main__':
+    res = compile_grammar(E_G, E_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E_G)
+    for i in range(10):
+        print('gss:.')
+        s = gf.iter_fuzz(key=E_start, max_depth=10)
+        print(s)
+        g = GLLStructuredStack(s+'$')
+        assert parse_string(g) == 'success'
+        print('gss parsed.')
 
 
