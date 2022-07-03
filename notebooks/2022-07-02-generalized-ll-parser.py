@@ -207,6 +207,7 @@ class GSS:
         self.P[label].append(j)
 
     def parsed_indexes(self, label):
+        # indexes for which pop has been executed for label.
         return self.P[label]
 
     def __repr__(self): return str(self.gss)
@@ -220,13 +221,13 @@ class GLLStructuredStack:
         if u not in v.children:
             v.children.append(u)
             # paper p183: When a new child node u is added to v,
-            # for all (v, k) ∈ P if (Lv,u) notin Uk then
+            # for all (v, k) ∈ P if (Lv, u) notin Uk then
             # (Lv,v,k) is added to R, where Lv is the label of v.
             # **Note:** The above is confusing because according to it, what
             # we should add is (v.L, v, k) while what we are adding below from
             # the same paper, p184 `create(L, u, j)` is `add(v.L, u, j)`
             for k in self.gss.parsed_indexes(v.label):
-                self.add_thread(L, u, k)
+                self.add_thread(v.L, u, k) # v.L == L
         return v
 
     def add_thread(self, L, u, j): # add
