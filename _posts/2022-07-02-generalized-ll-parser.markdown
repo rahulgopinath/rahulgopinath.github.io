@@ -555,26 +555,37 @@ class GSS:
 <!--
 ############
 class GLLStructuredStack:
-    def register_return(self, L, u, j):
-        v = self.gss.get(L, j)
+    def register_return(self, L, u, j): # create
+        v = self.gss.get(L, j) # Let v be the GSS node labeled L^j
+        # If there is not an edge from v to u
         if u not in v.children:
             v.children.append(u)
+            # paper p183: When a new child node w is added to u,
+            # for all (u, k) ∈ P if (Lu,w) notin Uk then
+            # (Lu,u,k) is added to R, where Lu is the label of u.
             label = (L, j)
             for k in self.gss.parsed_indexes(label):
                 self.add_thread(L, u, k)
         return v
 
-    def add_thread(self, L, u, j):
+    def add_thread(self, L, u, j): # add
         if (L, u) not in self.U[j]:
             self.U[j].append((L, u))
-            assert (L,u,j) not in self.threads
             self.threads.append((L, u, j))
 
     def next_thread(self):
         (L, sval, i), *self.threads = self.threads
         return (L, sval, i)
 
-    def fn_return(self, u, j):
+    # paper: actions POP(s, i, R) are replaced by actions which add (L, v, i) to
+    # R for all children v of node corresponding to the top of s.
+    #
+    # **Note.** Because this is a GSS, we might already know the children of u
+    # which is the node corresponding to top of s. Hence, we can start these
+    # threads. However, what if new children are added? This is addressed by
+    # maintaining P which maintains (u, k) for which pop has been executed.
+    # See register_return
+    def fn_return(self, u, j): # pop
         if u != self.u0:
             self.gss.add_parsed_index(u.label, j)
             for v in u.children:
@@ -600,26 +611,37 @@ class GLLStructuredStack:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStack:
-    def register_return(self, L, u, j):
-        v = self.gss.get(L, j)
+    def register_return(self, L, u, j): # create
+        v = self.gss.get(L, j) # Let v be the GSS node labeled L^j
+        # If there is not an edge from v to u
         if u not in v.children:
             v.children.append(u)
+            # paper p183: When a new child node w is added to u,
+            # for all (u, k) ∈ P if (Lu,w) notin Uk then
+            # (Lu,u,k) is added to R, where Lu is the label of u.
             label = (L, j)
             for k in self.gss.parsed_indexes(label):
                 self.add_thread(L, u, k)
         return v
 
-    def add_thread(self, L, u, j):
+    def add_thread(self, L, u, j): # add
         if (L, u) not in self.U[j]:
             self.U[j].append((L, u))
-            assert (L,u,j) not in self.threads
             self.threads.append((L, u, j))
 
     def next_thread(self):
         (L, sval, i), *self.threads = self.threads
         return (L, sval, i)
 
-    def fn_return(self, u, j):
+    # paper: actions POP(s, i, R) are replaced by actions which add (L, v, i) to
+    # R for all children v of node corresponding to the top of s.
+    #
+    # **Note.** Because this is a GSS, we might already know the children of u
+    # which is the node corresponding to top of s. Hence, we can start these
+    # threads. However, what if new children are added? This is addressed by
+    # maintaining P which maintains (u, k) for which pop has been executed.
+    # See register_return
+    def fn_return(self, u, j): # pop
         if u != self.u0:
             self.gss.add_parsed_index(u.label, j)
             for v in u.children:
