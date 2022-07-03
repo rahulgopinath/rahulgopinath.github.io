@@ -186,16 +186,20 @@ if __name__ == '__main__':
         assert parse_string(g) == 'success'
 
 # ## GLL with a Graph Structured Stack (GSS)
-# 
-# ### The GLL GSS
+
+# ### The GSS Node
+# Each GSS Node is of the form $L_i^j$ where `j` is the index of the character
+# consumed.
 
 class Node:
-    def __init__(self, L, j, children):
-        self.L, self.i, self.children = L, j, children
+    def __init__(self, L, j):
+        self.L, self.i, self.children = L, j, []
         self.label = (self.L, self.i)
 
     def __eq__(self, other): return self.label == other.label
-    def __repr__(self): return str((self.L, self.i, self.children))
+    def __repr__(self): return str((self.label, self.children))
+
+# ### The GSS container
 
 class GSS:
     def __init__(self): self.gss, self.P = {}, {}
@@ -203,15 +207,20 @@ class GSS:
     def get(self, L, i):
         my_label = (L, i)
         if my_label not in self.gss:
-            self.gss[my_label] = Node(L, i, [])
+            self.gss[my_label] = Node(L, i)
             assert my_label not in self.P
             self.P[my_label] = []
         return self.gss[my_label]
 
-    def add_to_P(self, u, j):
-        self.P[u.label].append(j)
+    def add_parsed_index(self, label, j):
+        self.P[label].append(j)
+
+    def parsed_indexes(self, label):
+        return self.P[label]
 
     def __repr__(self): return str(self.gss)
+
+# ### The GLL GSS
 
 class GLLStructuredStack:
     def register_return(self, L, u, j):
@@ -219,7 +228,7 @@ class GLLStructuredStack:
         if u not in v.children:
             v.children.append(u)
             label = (L, j)
-            for k in self.gss.P[label]:
+            for k in self.gss.parsed_indexes(label):
                 self.add_thread(L, u, k)
         return v
 
@@ -235,7 +244,7 @@ class GLLStructuredStack:
 
     def fn_return(self, u, j):
         if u != self.u0:
-            self.gss.add_to_P(u, j)
+            self.gss.add_parsed_index(u.label, j)
             for v in u.children:
                 self.add_thread(u.L, v, j)
         return u
