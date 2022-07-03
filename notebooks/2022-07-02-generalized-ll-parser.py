@@ -318,29 +318,27 @@ if __name__ == '__main__':
         print('gss parsed.')
 
 # Another grammar
-
-E_G = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
-}
-E_start = '<start>'
-
-# ### Usage
 if __name__ == '__main__':
+    E_G = {
+        '<start>': [['<expr>']],
+        '<expr>': [
+            ['<term>', '+', '<expr>'],
+            ['<term>', '-', '<expr>'],
+            ['<term>']],
+        '<term>': [
+            ['<fact>', '*', '<term>'],
+            ['<fact>', '/', '<term>'],
+            ['<fact>']],
+        '<fact>': [
+            ['<digits>'],
+            ['(','<expr>',')']],
+        '<digits>': [
+            ['<digit>','<digits>'],
+            ['<digit>']],
+        '<digit>': [["%s" % str(i)] for i in range(10)],
+    }
+    E_start = '<start>'
+
     res = compile_grammar(E_G, E_start)
     exec(res)
     gf = fuzzer.LimitFuzzer(E_G)
@@ -353,29 +351,26 @@ if __name__ == '__main__':
         print('gss parsed.')
 
 # Another grammar
-
-E2_G = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<expr>', '+', '<term>'],
-        ['<expr>', '-', '<term>'],
-        ['<term>']],
-    '<term>': [
-        ['<term>', '*', '<fact>'],
-        ['<term>', '/', '<fact>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
-}
-E2_start = '<start>'
-
-# ### Usage
 if __name__ == '__main__':
+    E2_G = {
+        '<start>': [['<expr>']],
+        '<expr>': [
+            ['<expr>', '+', '<term>'],
+            ['<expr>', '-', '<term>'],
+            ['<term>']],
+        '<term>': [
+            ['<term>', '*', '<fact>'],
+            ['<term>', '/', '<fact>'],
+            ['<fact>']],
+        '<fact>': [
+            ['<digits>'],
+            ['(','<expr>',')']],
+        '<digits>': [
+            ['<digit>','<digits>'],
+            ['<digit>']],
+        '<digit>': [["%s" % str(i)] for i in range(10)],
+    }
+    E2_start = '<start>'
     res = compile_grammar(E2_G, E2_start)
     exec(res)
     gf = fuzzer.LimitFuzzer(E2_G)
@@ -387,4 +382,140 @@ if __name__ == '__main__':
         assert parse_string(g) == 'success'
         print('gss parsed.')
 
+# Another grammar
+if __name__ == '__main__':
+
+    E3_G = {
+        '<start>': [['<expr>']],
+        '<expr>': [
+            ['<expr>', '+', '<expr>'],
+            ['<expr>', '-', '<expr>'],
+            ['<expr>', '*', '<expr>'],
+            ['<expr>', '/', '<expr>'],
+            ['(', '<expr>', ')'],
+            ['<integer>']],
+        '<integer>': [
+            ['<digits>']],
+        '<digits>': [
+            ['<digit>','<digits>'],
+            ['<digit>']],
+        '<digit>': [["%s" % str(i)] for i in range(10)],
+    }
+    E3_start = '<start>'
+
+    res = compile_grammar(E3_G, E3_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E3_G)
+    for i in range(10):
+        print('gss:.')
+        s = gf.iter_fuzz(key=E3_start, max_depth=5)
+        print(s)
+        g = GLLStructuredStack(s+'$')
+        assert parse_string(g) == 'success'
+        print('gss parsed.')
+
+# Another grammar
+if __name__ == '__main__':
+    E4_G = {
+        '<start>': [['<A>', '<B>']],
+        '<A>': [['a'], [], ['<C>']],
+        '<B>': [['b']],
+        '<C>': [['<A>'], ['<B>']]
+    }
+
+    E4_start = '<start>'
+
+    res = compile_grammar(E4_G, E4_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E4_G)
+    for i in range(10):
+        print('gss:.')
+        s = gf.iter_fuzz(key=E4_start, max_depth=5)
+        print(s)
+        g = GLLStructuredStack(s+'$')
+        assert parse_string(g) == 'success'
+        print('gss parsed.')
+
+# Another grammar
+
+if __name__ == '__main__':
+    RR_GRAMMAR2 = {
+        '<start>': [['<A>']],
+        '<A>': [['a','b', '<A>'], []],
+    }
+    mystring2 = 'ababababab'
+
+    res = compile_grammar(RR_GRAMMAR2, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring2+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR3 = {
+        '<start>': [['c', '<A>']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring3 = 'cababababab'
+
+    res = compile_grammar(RR_GRAMMAR3, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring3+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR4 = {
+        '<start>': [['<A>', 'c']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring4 = 'ababababc'
+
+    res = compile_grammar(RR_GRAMMAR4, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring4+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR5 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', 'b', '<B>'], []],
+    '<B>': [['<A>']],
+    }
+    mystring5 = 'abababab'
+
+    res = compile_grammar(RR_GRAMMAR5, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring5+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR6 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<B>'], []],
+    '<B>': [['b', '<A>']],
+    }
+    mystring6 = 'abababab'
+
+
+    res = compile_grammar(RR_GRAMMAR6, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring6+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR7 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], ['a']],
+    }
+    mystring7 = 'aaaaaaaa'
+
+    res = compile_grammar(RR_GRAMMAR7, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring7+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR8 = {
+   '<start>': [['<A>']],
+   '<A>': [['a', '<A>'], ['a']]
+    }
+    mystring8 = 'aa'
+
+    res = compile_grammar(RR_GRAMMAR8, '<start>')
+    exec(res)
+    g = GLLStructuredStack(mystring8+'$')
+    assert parse_string(g) == 'success'
 
