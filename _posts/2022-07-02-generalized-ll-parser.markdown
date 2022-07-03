@@ -488,10 +488,10 @@ class Node:
 class GSS:
     def __init__(self): self.gss, self.P = {}, {}
 
-    def get(self, L, i, children):
+    def get(self, L, i):
         my_label = (L, i)
         if my_label not in self.gss:
-            self.gss[my_label] = Node(L, i, children)
+            self.gss[my_label] = Node(L, i, [])
             assert my_label not in self.P
             self.P[my_label] = []
         return self.gss[my_label]
@@ -503,7 +503,7 @@ class GSS:
 
 class GLLStructuredStack:
     def register_return(self, L, u, j):
-        v = self.gss.get(L, j, [u])
+        v = self.gss.get(L, j)
         if u not in v.children:
             v.children.append(u)
             label = (L, j)
@@ -534,8 +534,8 @@ class GLLStructuredStack:
         self.gss = GSS()
         self.I = input_str
         self.m = len(self.I) # |I| + 1
-        self.u1 = self.gss.get('L0', 0, [])
-        self.u0 = self.gss.get('$', self.m, [])
+        self.u1 = self.gss.get('L0', 0)
+        self.u0 = self.gss.get('$', self.m)
         self.u1.children.append(self.u0)
 
         self.U = []
@@ -557,10 +557,10 @@ class Node:
 class GSS:
     def __init__(self): self.gss, self.P = {}, {}
 
-    def get(self, L, i, children):
+    def get(self, L, i):
         my_label = (L, i)
         if my_label not in self.gss:
-            self.gss[my_label] = Node(L, i, children)
+            self.gss[my_label] = Node(L, i, [])
             assert my_label not in self.P
             self.P[my_label] = []
         return self.gss[my_label]
@@ -572,7 +572,7 @@ class GSS:
 
 class GLLStructuredStack:
     def register_return(self, L, u, j):
-        v = self.gss.get(L, j, [u])
+        v = self.gss.get(L, j)
         if u not in v.children:
             v.children.append(u)
             label = (L, j)
@@ -603,8 +603,8 @@ class GLLStructuredStack:
         self.gss = GSS()
         self.I = input_str
         self.m = len(self.I) # |I| + 1
-        self.u1 = self.gss.get(&#x27;L0&#x27;, 0, [])
-        self.u0 = self.gss.get(&#x27;$&#x27;, self.m, [])
+        self.u1 = self.gss.get(&#x27;L0&#x27;, 0)
+        self.u0 = self.gss.get(&#x27;$&#x27;, self.m)
         self.u1.children.append(self.u0)
 
         self.U = []
