@@ -8,6 +8,9 @@ menu: Talks
 ---
 ##### 2022
 
+* [_Building Blocks for Fuzzing_](#gopinath2022building)<br/>
+  *Gopinath* - Indian Institute of Technology, Gandhinagar, India, July 19, 2022
+
 * [_Learning And Refining Input Grammars For Effective Fuzzing_](#gopinath2022learning)<br/>
   *Gopinath* - International Workshop on Search-Based Software Testing (SBST), May 9, 2022
 
@@ -91,6 +94,31 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+
+#### <a id='gopinath2022building'></a> [Gopinath: _Building Blocks for Fuzzing_ IIT Gandhinagar 2022]()
+
+Fuzzing is a key technique for evaluating the robustness of programs
+against malicious inputs. Effective fuzzing requires the availability
+of the program input grammar, which is typically unavailable, limiting
+the reach and effectiveness of fuzzers.
+
+In this talk, I show how to extract precise input grammar for programs.
+Such grammars can not only be used for effective exploration of the
+program input space, but also to decompose any available sample inputs,
+and recombine such parts to produce novel inputs and behaviors.
+
+One of the questions in fuzzing is how to generate inputs that exercise
+a specific behavior in a program without losing the fuzzing effectiveness.
+In this talk, I show how to extract and abstract patterns that represent
+unique program behaviors, and use such patterns for focused fuzzing.
+
+Any number of such abstract patterns can then be combined using the
+full set of logical connectives --- to produce specialized grammars
+that can be used by any grammar fuzzer for precise control of produced
+inputs and hence the expected behavior.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/building-blocks-for-fuzzing)
+
 #### <a id='gopinath2022learning'></a> [Gopinath: _Learning And Refining Input Grammars For Effective Fuzzing _ SBST 2022]()
 
 Fuzzing is one of the key techniques for evaluating robustness of programs against malicious inputs. To fuzz the program logic effectively, one needs the input specification of the program under fuzzing. However, such input specifications are rarely available, and even when present, can be obsolete, incomplete or incorrect leading to fuzzing blind spots. In this tutorial, I will show how to mine the input specification from a given program from the ground up, first generating sample inputs, then using such inputs to mine the program input grammar, and finally using the mined grammar to fuzz the program and find any bugs.
