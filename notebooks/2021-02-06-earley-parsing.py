@@ -6,7 +6,10 @@
 # tags: parsing, context-free
 # categories: post
 # ---
-
+# TLDR; This tutorial is a complete implementation of Earley Parser in Python
+# with Leo's optimizations. The Python interpreter is embedded so that you can
+# work through the implementation steps.
+# 
 # The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] in 1970. It
 # can be used to parse strings that conform to a context-free grammar. The
 # algorithm uses a chart for parsing -- that is, it is implemented as a dynamic

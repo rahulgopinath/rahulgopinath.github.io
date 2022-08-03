@@ -6,27 +6,10 @@ comments: true
 tags: parsing, context-free
 categories: post
 ---
+TLDR; This tutorial is a complete implementation of Earley Parser in Python
+with Leo's optimizations. The Python interpreter is embedded so that you can
+work through the implementation steps.
 
-## Contents
-{:.no_toc}
-
-1. TOC
-{:toc}
-
-<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
-**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
-Initialization completion is indicated by a red border around *Run all* button.
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
 The *Earley* parsing algorithm was invented by Jay Earley [^earley1970an] in 1970. It
 can be used to parse strings that conform to a context-free grammar. The
 algorithm uses a chart for parsing -- that is, it is implemented as a dynamic
@@ -119,6 +102,41 @@ Secondly, as per traditional implementations,
 there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.10/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 
 <!--
 ############
@@ -3562,3 +3580,11 @@ The runnable Python source for this post is available [here](https://github.com/
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-06-earley-parsing.py).
+
+
+The installable python wheel `earleyparser` is available [here](/py/earleyparser-0.0.1-py2.py3-none-any.whl).
+
