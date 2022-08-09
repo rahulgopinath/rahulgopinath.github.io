@@ -27,7 +27,7 @@ window.display_dot = display_dot
 // from js import display_dot
 </script>
 
-<script src="/resources/pyodide/full/3.10/pyodide.js"></script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
