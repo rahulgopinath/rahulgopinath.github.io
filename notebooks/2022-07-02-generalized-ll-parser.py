@@ -308,6 +308,12 @@ if __name__ == '__main__':
 
 # ### Usage
 if __name__ == '__main__':
+    g = GLLStructuredStack('agpcd$')
+    assert parse_string(g) == 'success'
+    for k in (g.gss.gss):
+        print(k)
+        print("   ", g.gss.gss[k])
+
     gf = fuzzer.LimitFuzzer(G)
     for i in range(10):
         print('gss:.')
@@ -384,7 +390,6 @@ if __name__ == '__main__':
 
 # Another grammar
 if __name__ == '__main__':
-
     E3_G = {
         '<start>': [['<expr>']],
         '<expr>': [
@@ -402,7 +407,6 @@ if __name__ == '__main__':
         '<digit>': [["%s" % str(i)] for i in range(10)],
     }
     E3_start = '<start>'
-
     res = compile_grammar(E3_G, E3_start)
     exec(res)
     gf = fuzzer.LimitFuzzer(E3_G)
@@ -422,9 +426,7 @@ if __name__ == '__main__':
         '<B>': [['b']],
         '<C>': [['<A>'], ['<B>']]
     }
-
     E4_start = '<start>'
-
     res = compile_grammar(E4_G, E4_start)
     exec(res)
     gf = fuzzer.LimitFuzzer(E4_G)
@@ -444,54 +446,52 @@ if __name__ == '__main__':
         '<A>': [['a','b', '<A>'], []],
     }
     mystring2 = 'ababababab'
-
     res = compile_grammar(RR_GRAMMAR2, '<start>')
     exec(res)
     g = GLLStructuredStack(mystring2+'$')
     assert parse_string(g) == 'success'
-
+     
     RR_GRAMMAR3 = {
         '<start>': [['c', '<A>']],
         '<A>': [['a', 'b', '<A>'], []],
     }
     mystring3 = 'cababababab'
-
+     
     res = compile_grammar(RR_GRAMMAR3, '<start>')
     exec(res)
     g = GLLStructuredStack(mystring3+'$')
     assert parse_string(g) == 'success'
-
+     
     RR_GRAMMAR4 = {
         '<start>': [['<A>', 'c']],
         '<A>': [['a', 'b', '<A>'], []],
     }
     mystring4 = 'ababababc'
-
+     
     res = compile_grammar(RR_GRAMMAR4, '<start>')
     exec(res)
     g = GLLStructuredStack(mystring4+'$')
     assert parse_string(g) == 'success'
-
+     
     RR_GRAMMAR5 = {
     '<start>': [['<A>']],
     '<A>': [['a', 'b', '<B>'], []],
     '<B>': [['<A>']],
     }
     mystring5 = 'abababab'
-
+     
     res = compile_grammar(RR_GRAMMAR5, '<start>')
     exec(res)
     g = GLLStructuredStack(mystring5+'$')
     assert parse_string(g) == 'success'
-
+     
     RR_GRAMMAR6 = {
     '<start>': [['<A>']],
     '<A>': [['a', '<B>'], []],
     '<B>': [['b', '<A>']],
     }
     mystring6 = 'abababab'
-
-
+     
     res = compile_grammar(RR_GRAMMAR6, '<start>')
     exec(res)
     g = GLLStructuredStack(mystring6+'$')
@@ -509,8 +509,8 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
 
     RR_GRAMMAR8 = {
-   '<start>': [['<A>']],
-   '<A>': [['a', '<A>'], ['a']]
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], ['a']]
     }
     mystring8 = 'aa'
 

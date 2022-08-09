@@ -27,7 +27,7 @@ window.display_dot = display_dot
 // from js import display_dot
 </script>
 
-<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<script src="/resources/pyodide/full/3.10/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
@@ -745,6 +745,12 @@ exec(res)
 
 <!--
 ############
+g = GLLStructuredStack('agpcd$')
+assert parse_string(g) == 'success'
+for k in (g.gss.gss):
+    print(k)
+    print("   ", g.gss.gss[k])
+
 gf = fuzzer.LimitFuzzer(G)
 for i in range(10):
     print('gss:.')
@@ -758,6 +764,12 @@ for i in range(10):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+g = GLLStructuredStack(&#x27;agpcd$&#x27;)
+assert parse_string(g) == &#x27;success&#x27;
+for k in (g.gss.gss):
+    print(k)
+    print(&quot;   &quot;, g.gss.gss[k])
+
 gf = fuzzer.LimitFuzzer(G)
 for i in range(10):
     print(&#x27;gss:.&#x27;)
@@ -918,68 +930,65 @@ Another grammar
 
 <!--
 ############
-
-    E3_G = {
-        '<start>': [['<expr>']],
-        '<expr>': [
-            ['<expr>', '+', '<expr>'],
-            ['<expr>', '-', '<expr>'],
-            ['<expr>', '*', '<expr>'],
-            ['<expr>', '/', '<expr>'],
-            ['(', '<expr>', ')'],
-            ['<integer>']],
-        '<integer>': [
-            ['<digits>']],
-        '<digits>': [
-            ['<digit>','<digits>'],
-            ['<digit>']],
-        '<digit>': [["%s" % str(i)] for i in range(10)],
-    }
-    E3_start = '<start>'
-
-    res = compile_grammar(E3_G, E3_start)
-    exec(res)
-    gf = fuzzer.LimitFuzzer(E3_G)
-    for i in range(10):
-        print('gss:.')
-        s = gf.iter_fuzz(key=E3_start, max_depth=5)
-        print(s)
-        g = GLLStructuredStack(s+'$')
-        assert parse_string(g) == 'success'
-        print('gss parsed.')
+E3_G = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<expr>'],
+        ['<expr>', '-', '<expr>'],
+        ['<expr>', '*', '<expr>'],
+        ['<expr>', '/', '<expr>'],
+        ['(', '<expr>', ')'],
+        ['<integer>']],
+    '<integer>': [
+        ['<digits>']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+E3_start = '<start>'
+res = compile_grammar(E3_G, E3_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E3_G)
+for i in range(10):
+    print('gss:.')
+    s = gf.iter_fuzz(key=E3_start, max_depth=5)
+    print(s)
+    g = GLLStructuredStack(s+'$')
+    assert parse_string(g) == 'success'
+    print('gss parsed.')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 E3_G = {
-        &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
-        &#x27;&lt;expr&gt;&#x27;: [
-            [&#x27;&lt;expr&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
-            [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
-            [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
-            [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
-            [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
-            [&#x27;&lt;integer&gt;&#x27;]],
-        &#x27;&lt;integer&gt;&#x27;: [
-            [&#x27;&lt;digits&gt;&#x27;]],
-        &#x27;&lt;digits&gt;&#x27;: [
-            [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
-            [&#x27;&lt;digit&gt;&#x27;]],
-        &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
-    }
-    E3_start = &#x27;&lt;start&gt;&#x27;
-
-    res = compile_grammar(E3_G, E3_start)
-    exec(res)
-    gf = fuzzer.LimitFuzzer(E3_G)
-    for i in range(10):
-        print(&#x27;gss:.&#x27;)
-        s = gf.iter_fuzz(key=E3_start, max_depth=5)
-        print(s)
-        g = GLLStructuredStack(s+&#x27;$&#x27;)
-        assert parse_string(g) == &#x27;success&#x27;
-        print(&#x27;gss parsed.&#x27;)
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+        [&#x27;&lt;integer&gt;&#x27;]],
+    &#x27;&lt;integer&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+E3_start = &#x27;&lt;start&gt;&#x27;
+res = compile_grammar(E3_G, E3_start)
+exec(res)
+gf = fuzzer.LimitFuzzer(E3_G)
+for i in range(10):
+    print(&#x27;gss:.&#x27;)
+    s = gf.iter_fuzz(key=E3_start, max_depth=5)
+    print(s)
+    g = GLLStructuredStack(s+&#x27;$&#x27;)
+    assert parse_string(g) == &#x27;success&#x27;
+    print(&#x27;gss parsed.&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -994,9 +1003,7 @@ E4_G = {
     '<B>': [['b']],
     '<C>': [['<A>'], ['<B>']]
 }
-
 E4_start = '<start>'
-
 res = compile_grammar(E4_G, E4_start)
 exec(res)
 gf = fuzzer.LimitFuzzer(E4_G)
@@ -1018,9 +1025,7 @@ E4_G = {
     &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
     &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
 }
-
 E4_start = &#x27;&lt;start&gt;&#x27;
-
 res = compile_grammar(E4_G, E4_start)
 exec(res)
 gf = fuzzer.LimitFuzzer(E4_G)
@@ -1044,7 +1049,6 @@ RR_GRAMMAR2 = {
     '<A>': [['a','b', '<A>'], []],
 }
 mystring2 = 'ababababab'
-
 res = compile_grammar(RR_GRAMMAR2, '<start>')
 exec(res)
 g = GLLStructuredStack(mystring2+'$')
@@ -1091,7 +1095,6 @@ RR_GRAMMAR6 = {
 }
 mystring6 = 'abababab'
 
-
 res = compile_grammar(RR_GRAMMAR6, '<start>')
 exec(res)
 g = GLLStructuredStack(mystring6+'$')
@@ -1109,8 +1112,8 @@ g = GLLStructuredStack(mystring7+'$')
 assert parse_string(g) == 'success'
 
 RR_GRAMMAR8 = {
-<start>': [['<A>']],
-<A>': [['a', '<A>'], ['a']]
+'<start>': [['<A>']],
+'<A>': [['a', '<A>'], ['a']]
 }
 mystring8 = 'aa'
 
@@ -1128,7 +1131,6 @@ RR_GRAMMAR2 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;,&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
 mystring2 = &#x27;ababababab&#x27;
-
 res = compile_grammar(RR_GRAMMAR2, &#x27;&lt;start&gt;&#x27;)
 exec(res)
 g = GLLStructuredStack(mystring2+&#x27;$&#x27;)
@@ -1175,7 +1177,6 @@ RR_GRAMMAR6 = {
 }
 mystring6 = &#x27;abababab&#x27;
 
-
 res = compile_grammar(RR_GRAMMAR6, &#x27;&lt;start&gt;&#x27;)
 exec(res)
 g = GLLStructuredStack(mystring6+&#x27;$&#x27;)
@@ -1193,8 +1194,8 @@ g = GLLStructuredStack(mystring7+&#x27;$&#x27;)
 assert parse_string(g) == &#x27;success&#x27;
 
 RR_GRAMMAR8 = {
-&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
-&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
+&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+&#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
 }
 mystring8 = &#x27;aa&#x27;
 
