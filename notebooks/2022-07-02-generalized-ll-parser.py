@@ -520,64 +520,122 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
 
 
+
 # # from GLL parse-tree generation Scott, Johnstone 2013
 # # SPPF Hookup
-# 
-# def add(L, u, i, w):
-#     if (L, u, w) not in U_i:
-#         U_i.add(L,u, w)
-#         R.add(L, u, i, w)
-# 
-# def pop(u, i, z):
-#     if (u != u_0:
-#         (L,k) = u.label
-#         P.add((u,z))
-#         for (u,w,v) in Edges:
-#             y = getNodeP(l, w,z)
-#             add(L, v, i, y)
-# 
-# def create(L, u, i, w):
-#     if (L,i) not in GSS_nodes: GSS_nodes[(L,i)] = create_gss_node(L,i)
-#     v = get_gss_node(L, i)
-#     if not [e for e in edges_from(v,u) e.label == w]:
-#         create_edge(u, v, label=w)
-#         for (v,z) in P:
-#             y = getNodeP(L, w, z)
-#             h = right_extent(z)
-#             add(L, u, h, y)
-#     return v
-# 
-# 
+
+class SPPF_node:
+    def __init__(self):
+        pass
+
+class SPPF_symbol_node(SPPF_node):
+    def __init__(self, x, j, i):
+        # x is a terminal, nonterminal, or epsilon -- ''
+        # j and i are the extents
+        #assert 0<= j <= i <= m
+        self.label = (x, j, i)
+        self.children = []
+
+class SPPF_intermediate_node(SPPF_node):
+    def __init__(self, t, j, i):
+        self.label = (t, j, i)
+        self.children = []
+
+class SPPF_packed_node(SPPF_node):
+    def __init__(self, t, k):
+        # k is the pivot of the packed node.
+        self.label = (t,k) # t is a grammar slot X := alpha dot beta
+        self.children = []
+
+
+class GLLStructuredStackP:
+    def add_thread(self, L, u, i, w): # add +
+        if (L, u, w) not in self.U[i]:
+            self.U[i].append((L, u, w))
+            self.threads.append((L, u, i, w))
+
+    def fn_return(self, u, i, z): # pop +
+        if u != self.u0:
+            # let (L, k) be label of u
+            (L, k) = u.label
+            self.gss.add_parsed_index(u.label, z)
+            for (u, w, v) in u.children:
+                y = getNodeP(L, w, z)
+                self.add_thread(L, v, i, y)
+        return u
+
+    def register_return(self, L, u, i, w): # create +
+        v = self.gss.get(L, i) # Let v be the GSS node labeled L^i
+        if w not in v.children:
+            v.children.append(w)
+            for (v,z) in self.gss.parsed_indexes(v.label):
+                y = getNodeP(L, w, z)
+                h = right_extent(z)
+                self.add_thread(v.L, u, h, y) # v.L == L
+        return v
+
+    def next_thread(self): # i \in R
+        (L, sval, i, w), *self.threads = self.threads
+        return (L, sval, i, w)
+
+    def __init__(self, input_str):
+        self.threads = [] # R
+        self.gss = GSS()
+        self.I = input_str
+        self.m = len(self.I) # |I| + 1
+        self.u1 = self.gss.get('L0', 0)
+        self.u0 = self.gss.get('$', self.m)
+        self.u1.children.append(self.u0)
+
+        self.U = []
+        for j in range(self.m): # 0<=j<=m
+            self.U.append([]) # U_j = empty
+
 # # SPPF Build
-# 
-# def getNodeT(x, i):
-#     if x is epsilon: h = i
-#     else: h = i+1
-#     if (x,i,h) not in SPPF_nodes:
-#         SPPF_nodes.add((x, i, h))
-#     return SPPF_nodes[(x, i, h)
-# 
-# def getNodeP(X_eq_alpha_dot_beta, w, z):
-#     X, alpha, beta = X_eq_alpha_dot_beta
-#     if is_non_nullable(alpha) and beta != epsilon:
-#         return z
-#     else:
-#         if beta = epsilon:
-#             t = X
-#         else:
-#             t = X_eq_alpha_dot_beta
-#         z = (q,k,i).label
-#         if (w != '$'):
-#             w = (s,j,k).label
-#             if not [node in SPPF_nodes if node.label == (t, j, i)]:
-#                 SPPF_nodes[(t, j, i)] = new_sppf_node(t, j, i)
-#             if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
-#                 y.add_child((w, z)) # create a child of y with left child with w right child z
-#         else:
-#             if (t, k, i) not in SPFF_nodes:
-#                 SPPF_nodes[(t, k, i)] = new_sppf_node(t, k, i)
-#             if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
-#                 y.add_child(z) # create a child with child z
-#         return y
-# 
-# 
+
+epsilon = ''
+
+def getNodeT(x, i):
+    if x is epsilon: h = i
+    else: h = i+1
+    if (x,i,h) not in SPPF_nodes:
+        SPPF_nodes.add((x, i, h))
+    return SPPF_nodes[(x, i, h)
+
+def getNodeP(X_eq_alpha_dot_beta, w, z):
+    X, alpha, beta = X_eq_alpha_dot_beta
+    if is_non_nullable(alpha) and beta != epsilon:
+        return z
+    else:
+        if beta = epsilon:
+            t = X
+        else:
+            t = X_eq_alpha_dot_beta
+        z = (q,k,i).label
+        if (w != '$'):
+            w = (s,j,k).label
+            if not [node in SPPF_nodes if node.label == (t, j, i)]:
+                SPPF_nodes[(t, j, i)] = new_sppf_node(t, j, i)
+            if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                y.add_child((w, z)) # create a child of y with left child with w right child z
+        else:
+            if (t, k, i) not in SPFF_nodes:
+                SPPF_nodes[(t, k, i)] = new_sppf_node(t, k, i)
+            if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                y.add_child(z) # create a child with child z
+        return y
+
+
+# Another grammar
+
+if __name__ == '__main__':
+    RR_GRAMMAR2 = {
+        '<start>': [['<A>']],
+        '<A>': [['a','b', '<A>'], []],
+    }
+    mystring2 = 'ababababab'
+    res = compile_grammar(RR_GRAMMAR2, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring2+'$')
+    assert parse_string(g) == 'success'
+
