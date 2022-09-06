@@ -519,3 +519,65 @@ if __name__ == '__main__':
     g = GLLStructuredStack(mystring8+'$')
     assert parse_string(g) == 'success'
 
+
+# # from GLL parse-tree generation Scott, Johnstone 2013
+# # SPPF Hookup
+# 
+# def add(L, u, i, w):
+#     if (L, u, w) not in U_i:
+#         U_i.add(L,u, w)
+#         R.add(L, u, i, w)
+# 
+# def pop(u, i, z):
+#     if (u != u_0:
+#         (L,k) = u.label
+#         P.add((u,z))
+#         for (u,w,v) in Edges:
+#             y = getNodeP(l, w,z)
+#             add(L, v, i, y)
+# 
+# def create(L, u, i, w):
+#     if (L,i) not in GSS_nodes: GSS_nodes[(L,i)] = create_gss_node(L,i)
+#     v = get_gss_node(L, i)
+#     if not [e for e in edges_from(v,u) e.label == w]:
+#         create_edge(u, v, label=w)
+#         for (v,z) in P:
+#             y = getNodeP(L, w, z)
+#             h = right_extent(z)
+#             add(L, u, h, y)
+#     return v
+# 
+# 
+# # SPPF Build
+# 
+# def getNodeT(x, i):
+#     if x is epsilon: h = i
+#     else: h = i+1
+#     if (x,i,h) not in SPPF_nodes:
+#         SPPF_nodes.add((x, i, h))
+#     return SPPF_nodes[(x, i, h)
+# 
+# def getNodeP(X_eq_alpha_dot_beta, w, z):
+#     X, alpha, beta = X_eq_alpha_dot_beta
+#     if is_non_nullable(alpha) and beta != epsilon:
+#         return z
+#     else:
+#         if beta = epsilon:
+#             t = X
+#         else:
+#             t = X_eq_alpha_dot_beta
+#         z = (q,k,i).label
+#         if (w != '$'):
+#             w = (s,j,k).label
+#             if not [node in SPPF_nodes if node.label == (t, j, i)]:
+#                 SPPF_nodes[(t, j, i)] = new_sppf_node(t, j, i)
+#             if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+#                 y.add_child((w, z)) # create a child of y with left child with w right child z
+#         else:
+#             if (t, k, i) not in SPFF_nodes:
+#                 SPPF_nodes[(t, k, i)] = new_sppf_node(t, k, i)
+#             if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+#                 y.add_child(z) # create a child with child z
+#         return y
+# 
+# 
