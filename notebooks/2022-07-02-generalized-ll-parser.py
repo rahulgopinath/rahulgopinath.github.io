@@ -555,6 +555,7 @@ class SPPF_packed_node(SPPF_node):
 
 class GLLStructuredStackP:
     def add_thread(self, L, u, i, w): # add +
+        assert not isinstance(u, int)
         if (L, u, w) not in self.U[i]:
             self.U[i].append((L, u, w))
             self.threads.append((L, u, i, w))
@@ -747,11 +748,11 @@ def parse_string(parser):
 
 if __name__ == '__main__':
     RR_GRAMMAR2 = {
-        '<start>': [['<A>']],
-        '<A>': [['a','b', '<A>'], []],
+        '<S>': [['<A>','<A>', 'c']],
+        '<A>': [[]]
     }
-    mystring2 = 'ababababab'
-    res = compile_grammar(RR_GRAMMAR2, '<start>')
+    mystring2 = 'c'
+    res = compile_grammar(RR_GRAMMAR2, '<S>')
     with open('a.py', 'w+') as f:
         f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
         f.write(res)
