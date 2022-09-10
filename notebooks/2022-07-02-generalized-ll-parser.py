@@ -589,6 +589,7 @@ class GLLStructuredStackP:
         # create GSS node u_0 = (L_0, 0)
         self.gss = GSS()
         self.u0 = self.gss.get('L0', 0)
+        self.epsilon = ''
         #self.u0 = self.gss.get('$', self.m) <- not present in this.
         #self.u1.children.append(self.u0) <- not present in this.
 
@@ -604,38 +605,35 @@ class GLLStructuredStackP:
         self.SPPF_nodes = {}
 
 # # SPPF Build
+    def getNodeT(self, x, i):
+        if x is self.epsilon: h = i
+        else: h = i+1
+        if (x,i,h) not in self.SPPF_nodes:
+            self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
+        return self.SPPF_nodes[(x, i, h)]
 
-epsilon = ''
-
-def getNodeT(x, i):
-    if x is epsilon: h = i
-    else: h = i+1
-    if (x,i,h) not in SPPF_nodes:
-        SPPF_nodes.add((x, i, h))
-    return SPPF_nodes[(x, i, h)]
-
-def getNodeP(X_eq_alpha_dot_beta, w, z):
-    X, alpha, beta = X_eq_alpha_dot_beta
-    if is_non_nullable(alpha) and beta != epsilon:
-        return z
-    else:
-        if beta == epsilon:
-            t = X
+    def getNodeP(self, X_eq_alpha_dot_beta, w, z):
+        X, alpha, beta = X_eq_alpha_dot_beta
+        if is_non_nullable(alpha) and beta != epsilon:
+            return z
         else:
-            t = X_eq_alpha_dot_beta
-        z = (q,k,i).label
-        if (w != '$'):
-            w = (s,j,k).label
-            if not [node for node in SPPF_nodes if node.label == (t, j, i)]:
-                SPPF_nodes[(t, j, i)] = new_sppf_node(t, j, i)
-            if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
-                y.add_child((w, z)) # create a child of y with left child with w right child z
-        else:
-            if (t, k, i) not in SPFF_nodes:
-                SPPF_nodes[(t, k, i)] = new_sppf_node(t, k, i)
-            if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
-                y.add_child(z) # create a child with child z
-        return y
+            if beta == epsilon:
+                t = X
+            else:
+                t = X_eq_alpha_dot_beta
+            z = (q,k,i).label
+            if (w != '$'):
+                w = (s,j,k).label
+                if not [node for node in self.SPPF_nodes if node.label == (t, j, i)]:
+                    self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
+                if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                    y.add_child((w, z)) # create a child of y with left child with w right child z
+            else:
+                if (t, k, i) not in SPFF_nodes:
+                    self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
+                if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                    y.add_child(z) # create a child with child z
+            return y
 
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
@@ -645,7 +643,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
         Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
     return '''\
         elif L == '%s[%d]_%d':
-            if parser.I[i] == '%s':
+            if parser.I[c_i] == '%s':
                 c_r = getNodeT(parser.I[i], c_i)
                 c_i = c_i+1
                 L = '%s'
@@ -748,6 +746,7 @@ if __name__ == '__main__':
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
     with open('a.py', 'w+') as f:
+        f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
         f.write(res)
         f.write('\n')
         f.write('mystring = "%s"\n' % mystring2)
