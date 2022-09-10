@@ -644,6 +644,9 @@ class GLLStructuredStackP:
             return y
 
     def is_non_nullable(self, X, v, beta):
+        rule = self.grammar[X][v]
+        if not rule[beta:]: return False # beta is epsilon
+        if fuzzer.is_terminal(rule[beta]): return True # terminal symbol
         # TODO
         #k = self.grammar[X][alpha][beta]
         return True
@@ -755,9 +758,9 @@ def parse_string(parser):
 
 if __name__ == '__main__':
     RR_GRAMMAR2 = {
-        '<S>': [['c', 'c']]
+        '<S>': [['c', 'c', 'c']]
     }
-    mystring2 = 'cc'
+    mystring2 = 'ccc'
     res = compile_grammar(RR_GRAMMAR2, '<S>')
     with open('a.py', 'w+') as f:
         f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
@@ -765,7 +768,7 @@ if __name__ == '__main__':
         f.write('\n')
         f.write('mystring = "%s"\n' % mystring2)
         f.write('g = GLLStructuredStackP(mystring)\n')
-        f.write('parse_string(g)\n')
+        f.write('assert parse_string(g) == "success"\n')
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
