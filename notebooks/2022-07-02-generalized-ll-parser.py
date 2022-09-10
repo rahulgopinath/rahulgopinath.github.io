@@ -626,15 +626,17 @@ class GLLStructuredStackP:
             else:
                 t = X_eq_alpha_dot_beta
             (q, k, i) = z.label
-            if (w != '$'):
-                w = (s,j,k).label
+            if (w.label[0] != '$'): # is not delta
+                (s,j,k) = w.label
                 if not [node for node in self.SPPF_nodes if node.label == (t, j, i)]:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
+                y = self.SPPF_nodes[(t, j, i)] # TODO
                 if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
-                if (t, k, i) not in SPFF_nodes:
+                if (t, k, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
+                y = self.SPPF_nodes[(t, k, i)] # TODO
                 if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
                     y.add_child(z) # create a child with child z
             return y
