@@ -530,8 +530,8 @@ class SPPF_node:
 
 class SPPF_delta_node(SPPF_node):
     def __init__(self):
+        self.label = ('$', 0, 0)
         self.children = []
-        self.label = 'delta'
 
 class SPPF_symbol_node(SPPF_node):
     def __init__(self, x, j, i):
@@ -564,7 +564,8 @@ class GLLStructuredStackP:
             # let (L, k) be label of u
             (L, k) = u.label
             self.gss.add_parsed_index(u.label, z)
-            for (u, w, v) in u.children:
+            for n in u.children:
+                (u, w, v) = n.label
                 y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
