@@ -630,7 +630,7 @@ class GLLStructuredStackP:
             (q, k, i) = z.label
             if (w.label[0] != '$'): # is not delta
                 (s,j,k) = w.label
-                if not [node for node in self.SPPF_nodes if node.label == (t, j, i)]:
+                if not [node for node in self.SPPF_nodes if node == (t, j, i)]:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
                 y = self.SPPF_nodes[(t, j, i)] # TODO
                 if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
@@ -755,9 +755,9 @@ def parse_string(parser):
 
 if __name__ == '__main__':
     RR_GRAMMAR2 = {
-        '<S>': [['c']]
+        '<S>': [['c', 'c']]
     }
-    mystring2 = 'c'
+    mystring2 = 'cc'
     res = compile_grammar(RR_GRAMMAR2, '<S>')
     with open('a.py', 'w+') as f:
         f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
