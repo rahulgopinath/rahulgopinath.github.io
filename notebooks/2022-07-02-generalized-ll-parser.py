@@ -640,10 +640,10 @@ class GLLStructuredStackP:
                 t = X
             else:
                 t = X_rule_pos
-            (q, _k, i) = z.label # suppose z has label (q,k,i)
+            (q, k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
                 # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
-                (s,j,k) = w.label # suppose w has label (s,j,k) TODO: k?
+                (s,j,_k) = w.label # suppose w has label (s,j,k) TODO: k?
                 assert k == _k
                 if (t, j, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
