@@ -614,10 +614,10 @@ class GLLStructuredStackP:
 
     def getNodeP(self, X_eq_alpha_dot_beta, w, z):
         X, alpha, beta = X_eq_alpha_dot_beta
-        if is_non_nullable(alpha) and beta != epsilon:
+        if is_non_nullable(alpha) and beta != self.epsilon:
             return z
         else:
-            if beta == epsilon:
+            if beta == self.epsilon:
                 t = X
             else:
                 t = X_eq_alpha_dot_beta
