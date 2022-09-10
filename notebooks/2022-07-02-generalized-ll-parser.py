@@ -626,10 +626,14 @@ class GLLStructuredStackP:
         if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
             return z
         else:
-            if not beta:
+            if beta != []: # from Exploring_and_Visualizing
                 t = X
             else:
                 t = X_rule_pos
+            # if beta == []: # if beta = epsilon
+            #     t = X
+            # else:
+            #     t = X_rule_pos
             (_q, _k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
                 (s,j,k) = w.label # suppose w has label (s,j,k) TODO: k?
@@ -646,13 +650,13 @@ class GLLStructuredStackP:
                     y.add_child(z) # create a child with child z
             return y
 
-    # adapted from Exploring and Visualizing paper.
+    # adapted from Exploring_and_Visualizing paper.
     def is_non_nullable_alpha(self, X, rule, dot):
         #  we need to convert this to X := alpha . beta
         alpha = rule[:dot]
         if not alpha: return False
         if len(alpha) != 1: return False
-        if fuzzer.is_terminal(alpha[1]): return True
+        if fuzzer.is_terminal(alpha[0]): return True
         # TODO
         assert False # return True if is_non_nullable_nonterminal(alpha[1])
 
