@@ -647,7 +647,7 @@ class GLLStructuredStackP:
             return y
 
     def is_non_nullable_alpha(self, X, rule, dot):
-        we need to convert this to X := alpha . beta
+        #  we need to convert this to X := alpha . beta
         alpha = rule[:dot]
         if not alpha: return False
         for k in alpha:
