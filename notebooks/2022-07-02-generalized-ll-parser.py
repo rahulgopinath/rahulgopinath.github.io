@@ -809,13 +809,17 @@ def parse_string(parser):
     return '\n'.join(res)
 
 # Another grammar
-#with open('a.py', 'w+') as f:
-#    f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
-#    f.write(res)
-#    f.write('\n')
-#    f.write('mystring = "%s"\n' % mystring2)
-#    f.write('g = GLLStructuredStackP(mystring)\n')
-#    f.write('assert parse_string(g) == "success"\n')
+import shutil
+
+def write_res(res, mystring):
+    with open('a.py', 'w+') as f:
+        f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
+        f.write(res)
+        f.write('\n')
+        f.write('mystring = "%s"\n' % mystring)
+        f.write('g = GLLStructuredStackP(mystring)\n')
+        f.write('assert parse_string(g) == "success"\n')
+    shutil.copyfile(sys.argv[0], 'x.py')
 
 if __name__ == '__main__':
     G1 = {
@@ -855,6 +859,7 @@ if __name__ == '__main__':
     }
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
+    write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2+'$')
     assert parse_string(g) == 'success'
