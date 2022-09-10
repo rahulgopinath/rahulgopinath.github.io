@@ -564,7 +564,7 @@ class GLLStructuredStackP:
                 self.add_thread(L, v, i, y)
         return u
 
-    def register_return(self, L, u, i, w): # create +
+    def register_return(self, L, u, i, w): # create (returns to c_u) +
         v = self.gss.get(L, i) # Let v be the GSS node labeled L^i
         if w not in v.children:
             v.children.append(w)
@@ -579,17 +579,23 @@ class GLLStructuredStackP:
         return (L, sval, i, w)
 
     def __init__(self, input_str):
-        self.threads = [] # R
+        self.I = input_str + '$' # read the input I and set I[m] = `$`
+        self.m = len(input_str)
+        # create GSS node u_0 = (L_0, 0)
         self.gss = GSS()
-        self.I = input_str
-        self.m = len(self.I) # |I| + 1
-        self.u1 = self.gss.get('L0', 0)
-        self.u0 = self.gss.get('$', self.m)
-        self.u1.children.append(self.u0)
+        self.u0 = self.gss.get('L0', 0)
+        #self.u0 = self.gss.get('$', self.m) <- not present in this.
+        #self.u1.children.append(self.u0) <- not present in this.
+
+        # c_I = 0, c_u := u_0 are done in compile
+
+        # R := \empty
+        self.threads = [] # R
 
         self.U = []
-        for j in range(self.m): # 0<=j<=m
+        for j in range(self.m+1): # 0<=j<=m
             self.U.append([]) # U_j = empty
+
 
 # # SPPF Build
 
@@ -625,14 +631,86 @@ def getNodeP(X_eq_alpha_dot_beta, w, z):
                 y.add_child(z) # create a child with child z
         return y
 
+# #### Compiling a Terminal Symbol
+def compile_terminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L == '%s[%d]_%d':
+            if parser.I[i] == '%s':
+                i = i+1
+                L = '%s'
+            else:
+                L = 'L0'
+            continue
+''' % (key, n_alt, r_pos, token, Lnxt)
+
+# #### Compiling a Nonterminal Symbol
+def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+    if r_len == r_pos:
+        Lnxt = '_'
+    else:
+        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+    return '''\
+        elif L ==  '%s[%d]_%d':
+            sval = parser.register_return('%s', sval, i)
+            L = '%s'
+            continue
+''' % (key, n_alt, r_pos, Lnxt, token)
+
+# #### Compiling a Rule
+def compile_rule(key, n_alt, rule):
+    res = []
+    for i, t in enumerate(rule):
+        if fuzzer.is_nonterminal(t):
+            r = compile_nonterminal(key, n_alt, i, len(rule), t)
+        else:
+            r = compile_terminal(key, n_alt, i, len(rule), t)
+        res.append(r)
+
+    res.append('''\
+        elif L == '%s[%d]_%d':
+            L = 'L_'
+            continue
+''' % (key, n_alt, len(rule)))
+    return '\n'.join(res)
+
+# #### Compiling a Definition
+def compile_def(key, definition):
+    res = []
+    res.append('''\
+        elif L == '%s':
+''' % key)
+    for n_alt,rule in enumerate(definition):
+        res.append('''\
+            parser.add_thread( '%s[%d]_0', sval, i)''' % (key, n_alt))
+    res.append('''
+            L = 'L0'
+            continue''')
+    for n_alt,rule in enumerate(definition):
+        r = compile_rule(key, n_alt, rule)
+        res.append(r)
+    return '\n'.join(res)
+
 def compile_grammar(g, start):
     res = ['''\
+# u_0 = (L_0, 0) # -- GSS base node
+# c_I = 0        # current input index
+# c_U = u_0      # current GSS node
+# c_N = \delta   # current SPPF Node
+# U = \empty     # descriptor set
+# R = \empty     # descriptors still to be processed
+# P = \empty     # poped nodes set.
 def parse_string(parser):
-    L, sval, i = '%s', parser.u1, 0
+    # sval is c_u
+    L, sval, c_i = '%s', parser.u0, 0
     while True:
         if L == 'L0':
-            if parser.threads:
-                (L, sval, i) = parser.next_thread()
+            if parser.threads: # if R != \empty
+                (L, sval, c_i, w) = parser.next_thread()
+                # goto L
                 continue
             else:
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
@@ -660,6 +738,6 @@ if __name__ == '__main__':
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring2+'$')
+    g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
