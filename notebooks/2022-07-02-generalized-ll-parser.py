@@ -640,9 +640,9 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
     else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+        Lnxt = '"%s",%d,%d' % (key, n_alt, r_pos+1)
     return '''\
-        elif L == '%s[%d]_%d':
+        elif L == ("%s",%d,%d):
             if parser.I[c_i] == '%s':
                 c_r = parser.getNodeT(parser.I[c_i], c_i)
                 c_i = c_i+1
@@ -658,9 +658,9 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
     else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+        Lnxt = "'%s',%d,%d" % (key, n_alt, r_pos+1)
     return '''\
-        elif L ==  '%s[%d]_%d':
+        elif L ==  ('%s',%d,%d):
             c_u = parser.register_return('%s', c_u, c_i, c_n)
             L = '%s'
             continue
@@ -677,7 +677,7 @@ def compile_rule(key, n_alt, rule):
         res.append(r)
 
     res.append('''\
-        elif L == '%s[%d]_%d':
+        elif L == ('%s',%d,%d):
             L = 'L_'
             continue
 ''' % (key, n_alt, len(rule)))
@@ -691,7 +691,7 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add_thread( '%s[%d]_0', c_u, c_i, c_n)''' % (key, n_alt))
+            parser.add_thread( ('%s',%d,0), c_u, c_i, c_n)''' % (key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
