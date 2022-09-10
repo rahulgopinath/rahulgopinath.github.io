@@ -729,7 +729,7 @@ def parse_string(parser):
                 continue
             else:
                 # if there is an SPPF node (S, 0, m) then report success
-                if (S, parser.u0, parser.m) in parser.SPPF_nodes: return 'success'
+                if (S, 0, parser.m) in parser.SPPF_nodes: return 'success'
                 else: return 'error'
         elif L == 'L_':
             c_u = parser.fn_return(c_u, c_i, c_n) # pop
@@ -748,8 +748,7 @@ def parse_string(parser):
 
 if __name__ == '__main__':
     RR_GRAMMAR2 = {
-        '<S>': [['<A>','<A>', 'c']],
-        '<A>': [[]]
+        '<S>': [['c']]
     }
     mystring2 = 'c'
     res = compile_grammar(RR_GRAMMAR2, '<S>')
