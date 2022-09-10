@@ -780,7 +780,6 @@ def parse_string(parser):
 #    f.write('mystring = "%s"\n' % mystring2)
 #    f.write('g = GLLStructuredStackP(mystring)\n')
 #    f.write('assert parse_string(g) == "success"\n')
-#exec(res)
 
 if __name__ == '__main__':
     G1 = {
@@ -788,6 +787,7 @@ if __name__ == '__main__':
     }
     mystring2 = 'c'
     res = compile_grammar(G1, '<S>')
+    exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
@@ -796,6 +796,7 @@ if __name__ == '__main__':
     }
     mystring2 = 'cc'
     res = compile_grammar(G2, '<S>')
+    exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
@@ -804,6 +805,7 @@ if __name__ == '__main__':
     }
     mystring2 = 'ccc'
     res = compile_grammar(G3, '<S>')
+    exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
