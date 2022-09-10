@@ -528,6 +528,11 @@ class SPPF_node:
     def __init__(self):
         pass
 
+class SPPF_delta_node(SPPF_node):
+    def __init__(self):
+        self.children = []
+        self.label = 'delta'
+
 class SPPF_symbol_node(SPPF_node):
     def __init__(self, x, j, i):
         # x is a terminal, nonterminal, or epsilon -- ''
@@ -596,6 +601,7 @@ class GLLStructuredStackP:
         for j in range(self.m+1): # 0<=j<=m
             self.U.append([]) # U_j = empty
 
+        self.SPPF_nodes = {}
 
 # # SPPF Build
 
@@ -696,27 +702,30 @@ def compile_def(key, definition):
 
 def compile_grammar(g, start):
     res = ['''\
-# u_0 = (L_0, 0) # -- GSS base node
-# c_I = 0        # current input index
-# c_U = u_0      # current GSS node
+# u_0 = (L_0, 0) # -- GSS base node+
+# c_i = 0        # current input index+
+# c_U = u_0      # current GSS node+
 # c_N = \delta   # current SPPF Node
-# U = \empty     # descriptor set
-# R = \empty     # descriptors still to be processed
+# U = \empty     # descriptor set+
+# R = \empty     # descriptors still to be processed+
 # P = \empty     # poped nodes set.
 def parse_string(parser):
-    L, c_u, c_i = '%s', parser.u0, 0
+    # L contains start nt.
+    S = '%s'
+    L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_delta_node()
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
-                (L, c_u, c_i, w) = parser.next_thread()
+                (L, c_u, c_i, c_n) = parser.next_thread() # remove from R
                 # goto L
                 continue
             else:
-                if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
+                # if there is an SPPF node (S, 0, m) then report success
+                if (S, parser.u0, parser.m) in parser.SPPF_nodes: return 'success'
                 else: return 'error'
         elif L == 'L_':
-            c_u = parser.fn_return(c_u, i)
-            L = 'L0'
+            c_u = parser.fn_return(c_u, c_i, c_n) # pop
+            L = 'L0' # goto L_0
             continue
     ''' % start]
     for k in g: 
