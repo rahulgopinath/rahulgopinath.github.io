@@ -790,6 +790,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
+    print(1)
 
     G2 = {
         '<S>': [['c', 'c']]
@@ -799,6 +800,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
+    print(2)
 
     G3 = {
         '<S>': [['c', 'c', 'c']]
@@ -808,6 +810,8 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
+    print(3)
+
 
     RR_GRAMMAR2 = {
         '<start>': [['<A>']],
@@ -818,6 +822,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring2+'$')
     assert parse_string(g) == 'success'
+    print(4)
      
     RR_GRAMMAR3 = {
         '<start>': [['c', '<A>']],
@@ -829,6 +834,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring3+'$')
     assert parse_string(g) == 'success'
+    print(5)
      
     RR_GRAMMAR4 = {
         '<start>': [['<A>', 'c']],
@@ -840,6 +846,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring4+'$')
     assert parse_string(g) == 'success'
+    print(6)
      
     RR_GRAMMAR5 = {
     '<start>': [['<A>']],
@@ -852,6 +859,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring5+'$')
     assert parse_string(g) == 'success'
+    print(7)
      
     RR_GRAMMAR6 = {
     '<start>': [['<A>']],
@@ -864,6 +872,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring6+'$')
     assert parse_string(g) == 'success'
+    print(8)
 
     RR_GRAMMAR7 = {
     '<start>': [['<A>']],
@@ -875,6 +884,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring7+'$')
     assert parse_string(g) == 'success'
+    print(9)
 
     RR_GRAMMAR8 = {
     '<start>': [['<A>']],
@@ -886,5 +896,6 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring8+'$')
     assert parse_string(g) == 'success'
+    print(10)
 
 
