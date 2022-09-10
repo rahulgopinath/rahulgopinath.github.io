@@ -640,13 +640,13 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
     else:
-        Lnxt = '"%s",%d,%d' % (key, n_alt, r_pos+1)
+        Lnxt = '("%s",%d,%d)' % (key, n_alt, r_pos+1)
     return '''\
         elif L == ("%s",%d,%d):
             if parser.I[c_i] == '%s':
                 c_r = parser.getNodeT(parser.I[c_i], c_i)
                 c_i = c_i+1
-                L = '%s'
+                L = %s
                 c_n = parser.getNodeP(L, c_n, c_r)
             else:
                 L = 'L0'
@@ -658,10 +658,10 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
     else:
-        Lnxt = "'%s',%d,%d" % (key, n_alt, r_pos+1)
+        Lnxt = "('%s',%d,%d)" % (key, n_alt, r_pos+1)
     return '''\
         elif L ==  ('%s',%d,%d):
-            c_u = parser.register_return('%s', c_u, c_i, c_n)
+            c_u = parser.register_return(%s, c_u, c_i, c_n)
             L = '%s'
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
