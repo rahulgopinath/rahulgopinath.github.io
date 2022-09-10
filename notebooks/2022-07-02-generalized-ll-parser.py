@@ -618,38 +618,42 @@ class GLLStructuredStackP:
             self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
         return self.SPPF_nodes[(x, i, h)]
 
-    def getNodeP(self, X_eq_alpha_dot_beta, w, z):
-        X, alpha, beta = X_eq_alpha_dot_beta
-        if self.is_non_nullable(X, alpha, beta) and self.grammar[X][alpha][beta:]:
+    def getNodeP(self, X_rule_pos, w, z):
+        X, nalt, rpos = X_rule_pos
+        if self.is_non_nullable(X_rule_pos) and self.grammar[X][nalt][rpos:]:
             return z
         else:
-            if not self.grammar[X][alpha][beta:]:
+            if not self.grammar[X][nalt][rpos:]:
                 t = X
             else:
-                t = X_eq_alpha_dot_beta
+                t = X_rule_pos
             (q, k, i) = z.label
             if (w.label[0] != '$'): # is not delta
                 (s,j,k) = w.label
                 if not [node for node in self.SPPF_nodes if node == (t, j, i)]:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
                 y = self.SPPF_nodes[(t, j, i)] # TODO
-                if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
                 if (t, k, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
                 y = self.SPPF_nodes[(t, k, i)] # TODO
-                if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child(z) # create a child with child z
             return y
 
-    def is_non_nullable(self, X, v, beta):
-        rule = self.grammar[X][v]
-        if not rule[beta:]: return False # beta is epsilon
-        if fuzzer.is_terminal(rule[beta]): return True # terminal symbol
+    def is_non_nullable(self, X_rule_pos):
+        X, nalt, rpos = X_rule_pos # we need to convert this to X := alpha . beta
+        rule = self.grammar[X][nalt]
+        alpha = rule[:rpos]
+        beta = rule[rpos:]
+        if not beta: return False # beta is epsilon
+        if not alpha: return False
+        for k in alpha:
+            if fuzzer.is_terminal(k): return True # terminal symbol
         # TODO
-        #k = self.grammar[X][alpha][beta]
-        return True
+        assert False
 
 
 # #### Compiling a Terminal Symbol
