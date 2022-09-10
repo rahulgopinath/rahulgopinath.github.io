@@ -853,6 +853,32 @@ if __name__ == '__main__':
     print(3)
 
 
+    G4 = {
+        '<S>': [['c'],
+                ['a']]
+    }
+    mystring2 = 'a'
+    res = compile_grammar(G4, '<S>')
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print(4)
+
+
+    G4 = {
+        '<S>': [['c', '<A>']],
+        '<A>': [['a']]
+    }
+    mystring2 = 'ca'
+    res = compile_grammar(G4, '<S>')
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print(5)
+
+
+    sys.exit(0)
+
     RR_GRAMMAR2 = {
         '<start>': [['<A>']],
         '<A>': [['a','b', '<A>'], []],
