@@ -611,13 +611,19 @@ class GLLStructuredStackP:
         self.SPPF_nodes = {}
 
 # # SPPF Build
+    # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
+    # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
-        if not x: h = i
+        if not x: h = i # x is epsilon
         else: h = i+1
         if (x,i,h) not in self.SPPF_nodes:
             self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
         return self.SPPF_nodes[(x, i, h)]
 
+    # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
+    # and two SPPF nodes w, and z (z may be dummy node $).
+    # the nodes w and z are not packed nodes, and will have labels of form
+    # (s,j,k) and (r, k, i)
     def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
@@ -626,23 +632,26 @@ class GLLStructuredStackP:
         if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
             return z
         else:
-            if beta != []: # from Exploring_and_Visualizing
-                t = X
-            else:
-                t = X_rule_pos
-            # if beta == []: # if beta = epsilon
+            # if beta != []: # from Exploring_and_Visualizing
             #     t = X
             # else:
             #     t = X_rule_pos
-            (_q, _k, i) = z.label # suppose z has label (q,k,i)
+            if beta == []: # if beta = epsilon from GLL_parse_tree_generation
+                t = X
+            else:
+                t = X_rule_pos
+            (q, _k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
+                # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
                 (s,j,k) = w.label # suppose w has label (s,j,k) TODO: k?
+                assert k == _k
                 if (t, j, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
                 y = self.SPPF_nodes[(t, j, i)] # TODO y?
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
+                # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
                 if (t, k, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
                 y = self.SPPF_nodes[(t, k, i)] # TODO y?
