@@ -618,7 +618,7 @@ class GLLStructuredStackP:
             self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
         return self.SPPF_nodes[(x, i, h)]
 
-    def getNodeP(self, X_rule_pos, w, z):
+    def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
         alpha = rule[:dot]
@@ -630,30 +630,31 @@ class GLLStructuredStackP:
                 t = X
             else:
                 t = X_rule_pos
-            (q, k, i) = z.label
+            (_q, _k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
-                (s,j,k) = w.label
-                if not [node for node in self.SPPF_nodes if node == (t, j, i)]:
+                (s,j,k) = w.label # suppose w has label (s,j,k) TODO: k?
+                if (t, j, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
-                y = self.SPPF_nodes[(t, j, i)] # TODO
+                y = self.SPPF_nodes[(t, j, i)] # TODO y?
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
                 if (t, k, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
-                y = self.SPPF_nodes[(t, k, i)] # TODO
+                y = self.SPPF_nodes[(t, k, i)] # TODO y?
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child(z) # create a child with child z
             return y
 
+    # adapted from Exploring and Visualizing paper.
     def is_non_nullable_alpha(self, X, rule, dot):
         #  we need to convert this to X := alpha . beta
         alpha = rule[:dot]
         if not alpha: return False
-        for k in alpha:
-            if fuzzer.is_terminal(k): return True # terminal symbol
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[1]): return True
         # TODO
-        assert False
+        assert False # return True if is_non_nullable_nonterminal(alpha[1])
 
 
 # #### Compiling a Terminal Symbol
