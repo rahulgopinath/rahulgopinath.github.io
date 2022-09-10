@@ -625,7 +625,7 @@ class GLLStructuredStackP:
                 t = X
             else:
                 t = X_eq_alpha_dot_beta
-            z = (q,k,i).label
+            (q, k, i) = z.label
             if (w != '$'):
                 w = (s,j,k).label
                 if not [node for node in self.SPPF_nodes if node.label == (t, j, i)]:
