@@ -703,7 +703,7 @@ class GLLStructuredStackP:
         if len(alpha) != 1: return False
         if fuzzer.is_terminal(alpha[0]): return True
         if alpha[0] in self.nullable: return False
-        return Trrue
+        return True
 
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
@@ -866,10 +866,10 @@ if __name__ == '__main__':
 
 
     G4 = {
-        '<S>': [['c', '<A>']],
+        '<S>': [['<A>']],
         '<A>': [['a']]
     }
-    mystring2 = 'ca'
+    mystring2 = 'a'
     res = compile_grammar(G4, '<S>')
     exec(res)
     g = GLLStructuredStackP(mystring2)
