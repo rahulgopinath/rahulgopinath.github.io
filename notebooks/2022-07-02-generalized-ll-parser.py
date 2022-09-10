@@ -655,7 +655,7 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
         Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
     return '''\
         elif L ==  '%s[%d]_%d':
-            sval = parser.register_return('%s', sval, i)
+            c_u = parser.register_return('%s', c_u, i)
             L = '%s'
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
@@ -685,7 +685,7 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add_thread( '%s[%d]_0', sval, i)''' % (key, n_alt))
+            parser.add_thread( '%s[%d]_0', c_u, i)''' % (key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -704,19 +704,18 @@ def compile_grammar(g, start):
 # R = \empty     # descriptors still to be processed
 # P = \empty     # poped nodes set.
 def parse_string(parser):
-    # sval is c_u
-    L, sval, c_i = '%s', parser.u0, 0
+    L, c_u, c_i = '%s', parser.u0, 0
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
-                (L, sval, c_i, w) = parser.next_thread()
+                (L, c_u, c_i, w) = parser.next_thread()
                 # goto L
                 continue
             else:
                 if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
                 else: return 'error'
         elif L == 'L_':
-            sval = parser.fn_return(sval, i)
+            c_u = parser.fn_return(c_u, i)
             L = 'L0'
             continue
     ''' % start]
