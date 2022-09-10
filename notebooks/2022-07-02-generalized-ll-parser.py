@@ -565,7 +565,7 @@ class GLLStructuredStackP:
             (L, k) = u.label
             self.gss.add_parsed_index(u.label, z)
             for (u, w, v) in u.children:
-                y = getNodeP(L, w, z)
+                y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
 
@@ -574,7 +574,7 @@ class GLLStructuredStackP:
         if w not in v.children:
             v.children.append(w)
             for (v,z) in self.gss.parsed_indexes(v.label):
-                y = getNodeP(L, w, z)
+                y = self.getNodeP(L, w, z)
                 h = right_extent(z)
                 self.add_thread(v.L, u, h, y) # v.L == L
         return v
@@ -644,10 +644,10 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
     return '''\
         elif L == '%s[%d]_%d':
             if parser.I[c_i] == '%s':
-                c_r = getNodeT(parser.I[i], c_i)
+                c_r = parser.getNodeT(parser.I[i], c_i)
                 c_i = c_i+1
                 L = '%s'
-                c_n = getNodeP(L, c_n, c_r)
+                c_n = parser.getNodeP(L, c_n, c_r)
             else:
                 L = 'L0'
             continue
