@@ -565,7 +565,7 @@ class GLLStructuredStackP:
             (L, k) = u.label
             self.gss.add_parsed_index(u.label, z)
             for n in u.children:
-                (u, w, v) = n.label
+                (u_, w, v) = n.label
                 y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
