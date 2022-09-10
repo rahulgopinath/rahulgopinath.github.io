@@ -528,10 +528,12 @@ class SPPF_node:
     def __init__(self):
         pass
 
+    def add_child(self, child):
+        self.children.append(child)
+
 class SPPF_delta_node(SPPF_node):
     def __init__(self):
         self.label = ('$', 0, 0)
-        self.children = []
 
 class SPPF_symbol_node(SPPF_node):
     def __init__(self, x, j, i):
