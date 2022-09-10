@@ -809,3 +809,82 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
+    RR_GRAMMAR2 = {
+        '<start>': [['<A>']],
+        '<A>': [['a','b', '<A>'], []],
+    }
+    mystring2 = 'ababababab'
+    res = compile_grammar(RR_GRAMMAR2, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring2+'$')
+    assert parse_string(g) == 'success'
+     
+    RR_GRAMMAR3 = {
+        '<start>': [['c', '<A>']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring3 = 'cababababab'
+     
+    res = compile_grammar(RR_GRAMMAR3, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring3+'$')
+    assert parse_string(g) == 'success'
+     
+    RR_GRAMMAR4 = {
+        '<start>': [['<A>', 'c']],
+        '<A>': [['a', 'b', '<A>'], []],
+    }
+    mystring4 = 'ababababc'
+     
+    res = compile_grammar(RR_GRAMMAR4, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring4+'$')
+    assert parse_string(g) == 'success'
+     
+    RR_GRAMMAR5 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', 'b', '<B>'], []],
+    '<B>': [['<A>']],
+    }
+    mystring5 = 'abababab'
+     
+    res = compile_grammar(RR_GRAMMAR5, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring5+'$')
+    assert parse_string(g) == 'success'
+     
+    RR_GRAMMAR6 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<B>'], []],
+    '<B>': [['b', '<A>']],
+    }
+    mystring6 = 'abababab'
+     
+    res = compile_grammar(RR_GRAMMAR6, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring6+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR7 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], ['a']],
+    }
+    mystring7 = 'aaaaaaaa'
+
+    res = compile_grammar(RR_GRAMMAR7, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring7+'$')
+    assert parse_string(g) == 'success'
+
+    RR_GRAMMAR8 = {
+    '<start>': [['<A>']],
+    '<A>': [['a', '<A>'], ['a']]
+    }
+    mystring8 = 'aa'
+
+    res = compile_grammar(RR_GRAMMAR8, '<start>')
+    exec(res)
+    g = GLLStructuredStackP(mystring8+'$')
+    assert parse_string(g) == 'success'
+
+
