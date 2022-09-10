@@ -773,21 +773,37 @@ def parse_string(parser):
     return '\n'.join(res)
 
 # Another grammar
+#with open('a.py', 'w+') as f:
+#    f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
+#    f.write(res)
+#    f.write('\n')
+#    f.write('mystring = "%s"\n' % mystring2)
+#    f.write('g = GLLStructuredStackP(mystring)\n')
+#    f.write('assert parse_string(g) == "success"\n')
+#exec(res)
 
 if __name__ == '__main__':
-    RR_GRAMMAR2 = {
+    G1 = {
+        '<S>': [['c']]
+    }
+    mystring2 = 'c'
+    res = compile_grammar(G1, '<S>')
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+
+    G2 = {
+        '<S>': [['c', 'c']]
+    }
+    mystring2 = 'cc'
+    res = compile_grammar(G2, '<S>')
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+
+    G3 = {
         '<S>': [['c', 'c', 'c']]
     }
     mystring2 = 'ccc'
-    res = compile_grammar(RR_GRAMMAR2, '<S>')
-    with open('a.py', 'w+') as f:
-        f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
-        f.write(res)
-        f.write('\n')
-        f.write('mystring = "%s"\n' % mystring2)
-        f.write('g = GLLStructuredStackP(mystring)\n')
-        f.write('assert parse_string(g) == "success"\n')
-    exec(res)
+    res = compile_grammar(G3, '<S>')
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
 
