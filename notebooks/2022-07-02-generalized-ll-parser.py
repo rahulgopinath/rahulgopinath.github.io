@@ -554,10 +554,46 @@ class SPPF_packed_node(SPPF_node):
         self.label = (t,k) # t is a grammar slot X := alpha dot beta
         self.children = []
 
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not fuzzer.is_nonterminal(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
 
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
 class GLLStructuredStackP:
     def set_grammar(self, g):
         self.grammar = g
+        self.nullable = nullable(g)
 
     def add_thread(self, L, u, i, w): # add +
         assert not isinstance(u, int)
@@ -666,9 +702,8 @@ class GLLStructuredStackP:
         if not alpha: return False
         if len(alpha) != 1: return False
         if fuzzer.is_terminal(alpha[0]): return True
-        # TODO
-        assert False # return True if is_non_nullable_nonterminal(alpha[0])
-
+        if alpha[0] in self.nullable: return False
+        return Trrue
 
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
@@ -734,6 +769,7 @@ def compile_def(key, definition):
         r = compile_rule(key, n_alt, rule)
         res.append(r)
     return '\n'.join(res)
+
 
 def compile_grammar(g, start):
     res = ['''\
