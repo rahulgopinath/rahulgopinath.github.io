@@ -644,7 +644,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
     return '''\
         elif L == '%s[%d]_%d':
             if parser.I[c_i] == '%s':
-                c_r = parser.getNodeT(parser.I[i], c_i)
+                c_r = parser.getNodeT(parser.I[c_i], c_i)
                 c_i = c_i+1
                 L = '%s'
                 c_n = parser.getNodeP(L, c_n, c_r)
