@@ -554,6 +554,9 @@ class SPPF_packed_node(SPPF_node):
 
 
 class GLLStructuredStackP:
+    def set_grammar(self, g):
+        self.grammar = g
+
     def add_thread(self, L, u, i, w): # add +
         assert not isinstance(u, int)
         if (L, u, w) not in self.U[i]:
@@ -591,7 +594,6 @@ class GLLStructuredStackP:
         # create GSS node u_0 = (L_0, 0)
         self.gss = GSS()
         self.u0 = self.gss.get('L0', 0)
-        self.epsilon = ''
         #self.u0 = self.gss.get('$', self.m) <- not present in this.
         #self.u1.children.append(self.u0) <- not present in this.
 
@@ -608,7 +610,7 @@ class GLLStructuredStackP:
 
 # # SPPF Build
     def getNodeT(self, x, i):
-        if x is self.epsilon: h = i
+        if not x: h = i
         else: h = i+1
         if (x,i,h) not in self.SPPF_nodes:
             self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
@@ -616,10 +618,10 @@ class GLLStructuredStackP:
 
     def getNodeP(self, X_eq_alpha_dot_beta, w, z):
         X, alpha, beta = X_eq_alpha_dot_beta
-        if self.is_non_nullable(X, alpha, beta) and beta != self.epsilon:
+        if self.is_non_nullable(X, alpha, beta) and self.grammar[X][alpha][beta:]:
             return z
         else:
-            if beta == self.epsilon:
+            if not self.grammar[X][alpha][beta:]:
                 t = X
             else:
                 t = X_eq_alpha_dot_beta
@@ -718,6 +720,7 @@ def compile_grammar(g, start):
 # R = \empty     # descriptors still to be processed+
 # P = \empty     # poped nodes set.
 def parse_string(parser):
+    parser.set_grammar(%s)
     # L contains start nt.
     S = '%s'
     L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_delta_node()
@@ -735,7 +738,7 @@ def parse_string(parser):
             c_u = parser.fn_return(c_u, c_i, c_n) # pop
             L = 'L0' # goto L_0
             continue
-    ''' % start]
+    ''' % (g, start)]
     for k in g: 
         r = compile_def(k, g[k])
         res.append(r)
