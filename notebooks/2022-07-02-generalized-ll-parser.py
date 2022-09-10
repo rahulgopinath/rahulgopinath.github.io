@@ -625,6 +625,30 @@ def getNodeP(X_eq_alpha_dot_beta, w, z):
                 y.add_child(z) # create a child with child z
         return y
 
+def compile_grammar(g, start):
+    res = ['''\
+def parse_string(parser):
+    L, sval, i = '%s', parser.u1, 0
+    while True:
+        if L == 'L0':
+            if parser.threads:
+                (L, sval, i) = parser.next_thread()
+                continue
+            else:
+                if ('L0', parser.u0) in parser.U[parser.m-1]: return 'success'
+                else: return 'error'
+        elif L == 'L_':
+            sval = parser.fn_return(sval, i)
+            L = 'L0'
+            continue
+    ''' % start]
+    for k in g: 
+        r = compile_def(k, g[k])
+        res.append(r)
+    res.append('''
+        else:
+            assert False''')
+    return '\n'.join(res)
 
 # Another grammar
 
