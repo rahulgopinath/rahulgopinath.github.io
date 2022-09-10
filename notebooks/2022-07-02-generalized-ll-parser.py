@@ -658,7 +658,7 @@ class GLLStructuredStackP:
         if len(alpha) != 1: return False
         if fuzzer.is_terminal(alpha[0]): return True
         # TODO
-        assert False # return True if is_non_nullable_nonterminal(alpha[1])
+        assert False # return True if is_non_nullable_nonterminal(alpha[0])
 
 
 # #### Compiling a Terminal Symbol
