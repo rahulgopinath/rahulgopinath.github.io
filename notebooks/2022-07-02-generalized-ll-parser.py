@@ -619,11 +619,14 @@ class GLLStructuredStackP:
         return self.SPPF_nodes[(x, i, h)]
 
     def getNodeP(self, X_rule_pos, w, z):
-        X, nalt, rpos = X_rule_pos
-        if self.is_non_nullable(X_rule_pos) and self.grammar[X][nalt][rpos:]:
+        X, nalt, dot = X_rule_pos
+        rule = self.grammar[X][nalt]
+        alpha = rule[:dot]
+        beta = rule[dot:]
+        if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
             return z
         else:
-            if not self.grammar[X][nalt][rpos:]:
+            if not beta:
                 t = X
             else:
                 t = X_rule_pos
@@ -643,12 +646,9 @@ class GLLStructuredStackP:
                     y.add_child(z) # create a child with child z
             return y
 
-    def is_non_nullable(self, X_rule_pos):
-        X, nalt, rpos = X_rule_pos # we need to convert this to X := alpha . beta
-        rule = self.grammar[X][nalt]
-        alpha = rule[:rpos]
-        beta = rule[rpos:]
-        if not beta: return False # beta is epsilon
+    def is_non_nullable_alpha(self, X, rule, dot):
+        we need to convert this to X := alpha . beta
+        alpha = rule[:dot]
         if not alpha: return False
         for k in alpha:
             if fuzzer.is_terminal(k): return True # terminal symbol
