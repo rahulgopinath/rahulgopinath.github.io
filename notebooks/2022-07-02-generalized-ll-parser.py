@@ -614,7 +614,7 @@ class GLLStructuredStackP:
 
     def getNodeP(self, X_eq_alpha_dot_beta, w, z):
         X, alpha, beta = X_eq_alpha_dot_beta
-        if is_non_nullable(alpha) and beta != self.epsilon:
+        if self.is_non_nullable(X, alpha, beta) and beta != self.epsilon:
             return z
         else:
             if beta == self.epsilon:
@@ -634,6 +634,12 @@ class GLLStructuredStackP:
                 if not [c for c in y.children if c.label == (X_eq_alpha_dot_beta, k)]:
                     y.add_child(z) # create a child with child z
             return y
+
+    def is_non_nullable(self, X, v, beta):
+        # TODO
+        #k = self.grammar[X][alpha][beta]
+        return True
+
 
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
