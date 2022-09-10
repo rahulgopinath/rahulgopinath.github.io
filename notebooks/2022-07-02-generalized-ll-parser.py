@@ -747,6 +747,12 @@ if __name__ == '__main__':
     }
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
+    with open('a.py', 'w+') as f:
+        f.write(res)
+        f.write('\n')
+        f.write('mystring = "%s"\n' % mystring2)
+        f.write('g = GLLStructuredStackP(mystring)\n')
+        f.write('parse_string(g)\n')
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
