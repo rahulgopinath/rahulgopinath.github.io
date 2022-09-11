@@ -526,6 +526,8 @@ if __name__ == '__main__':
 
 class SPPF_node:
     def __init__(self):
+        self.children = []
+        self.lablel = '<None>'
         pass
 
     def __repr__(self):
