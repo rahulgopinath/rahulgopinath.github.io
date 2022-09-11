@@ -528,6 +528,9 @@ class SPPF_node:
     def __init__(self):
         pass
 
+    def __repr__(self):
+        return 'D:%s [%d]' % (str(self.label), len(self.children))
+
     def add_child(self, child):
         self.children.append(child)
 
@@ -608,6 +611,7 @@ class GLLStructuredStackP:
             self.gss.add_parsed_index(u.label, z)
             for n in u.children:
                 (u_, w, v) = n.label
+                assert u == u_
                 y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
@@ -865,12 +869,13 @@ if __name__ == '__main__':
     print(4)
 
 
-    G4 = {
+    G5 = {
         '<S>': [['<A>']],
         '<A>': [['a']]
     }
     mystring2 = 'a'
-    res = compile_grammar(G4, '<S>')
+    res = compile_grammar(G5, '<S>')
+    write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
@@ -885,7 +890,6 @@ if __name__ == '__main__':
     }
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
-    write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2+'$')
     assert parse_string(g) == 'success'
