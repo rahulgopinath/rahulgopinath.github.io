@@ -6,6 +6,19 @@ group: navigation
 weight: 4
 menu: Service
 ---
+##### 2023
+* [_ISSTA 2023_](https://conf.researchr.org/home/issta-2023)<br/>
+  PC Member
+
+* [_ISSTA 2023_](https://conf.researchr.org/home/issta-2023)<br/>
+  Artifact Evaluation Co-PC Chair
+
+* [_ESEC/FSE 2023_](https://2023.esec-fse.org/committee/fse-2023-research-papers-program-committee)<br/>
+  PC Member
+
+* [_SANER 2023_](https://saner2023.must.edu.mo/programCommittee)<br/>
+  PC Member
+
 
 ##### 2022
 
@@ -15,8 +28,16 @@ menu: Service
 * [_ICST 2022_](https://icst2022.vrain.upv.es/committee/icst-2022-papers-program-committee)<br/>
   PC Member
 
+* [_ISSRE 2022_](https://issre2022.github.io/committee_research-PC.html)<br/>
+  PC Member
+
+
 * [_SANER 2022_](https://saner2022.uom.gr/programCommittee)<br/>
   PC Member
+
+* [_Fuzzing 2022_](https://fuzzingworkshop.github.io/index.html)<br/>
+  Artifact Evaluation PC Member
+
 
 ##### 2021
 
