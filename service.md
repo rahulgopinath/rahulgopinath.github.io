@@ -41,7 +41,7 @@ menu: Service
 
 ##### 2021
 
-* [_Mutation Workshopp 2020_](https://mutation-workshop.github.io/2021/)<br/>
+* [_Mutation Workshopp 2020_](https://icst2021.icmc.usp.br/committee/mutation-2021-papers-program-committee)<br/>
   PC Member
 
 * [_ISSRE 2021_](http://2021.issre.net/research-committees)<br/>
