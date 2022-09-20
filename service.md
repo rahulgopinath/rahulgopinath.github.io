@@ -55,6 +55,9 @@ menu: Service
 * [_ISSRE 2020_](http://2020.issre.net/research-committees.html)<br/>
   PC Member
 
+* [_ICST 2020_](https://icst2020.info/committee/icst-2020-papers-program-committee.html)<br/>
+  PC Member
+
 
 ##### 2019
 
@@ -75,8 +78,8 @@ menu: Service
 * [_ISSRE 2018_](https://2018.issre.net/research-pc.html)<br/>
   PC Member
 
-<!--* [_VL/HCC 2018 (Posters)__]()<br/>
-  PC Member -->
+* [_VL/HCC 2018 (Posters)_](https://vlhcc18.github.io/call_posters.html)<br/>
+  PC Member
 
 
 ##### 2017
