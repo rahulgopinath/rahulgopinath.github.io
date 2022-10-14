@@ -4,9 +4,9 @@ menu: Rahul Gopinath
 weight: 1
 ---
 
-<!--b>IMPORTANT: I am recruiting Ph.D. students for my group at Sydney University.
+<b>IMPORTANT: I am recruiting Ph.D. students for my group at Sydney University.
 If you are interested in what I do, or have an interesting idea, [please drop me
-a note](/contact/). </b-->
+a note](/contact/). </b>
 
 
 
