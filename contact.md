@@ -13,7 +13,8 @@ rahul.gopinath@sydney.edu.au [^unisydney]
 
 #### Phone [^note]
 
-+61 460 952 088 [^personal]
++61 4609 52088 [^personal]
++61 2935 10913 [^unisydney]
 
 <!--+49 (159) 013-63611 [^personal]  
 +49 (681) 302-70989 [^cispa]  -->
@@ -28,6 +29,6 @@ School of Computer Science Reception, Building J12,
 1 Cleveland Street,
 Darlington NSW 2008
 
-[^note]: Email is my preferred form of receiving a communication, followed by SMS, and phone calls.
+[^note]: Email is my preferred form of receiving a communication, followed by SMS. I prefer phone calls only when it is prearranged.
 [^personal]: Personal.
 [^unisydney]: The University of Sydney related.
