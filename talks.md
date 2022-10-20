@@ -7,6 +7,8 @@ weight: 3
 menu: Talks
 ---
 ##### 2022
+* [_Mutation Analysis: Answering the Fuzzing Challenge_](#gopinath2022answering)<br/>
+  *Gopinath* - University of Melbourne, Gandhinagar, Australia, October 13, 2022
 
 * [_Building Blocks for Fuzzing_](#gopinath2022building)<br/>
   *Gopinath* - Indian Institute of Technology, Gandhinagar, India, July 19, 2022
@@ -94,6 +96,22 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+#### <a id='gopinath2022answering'></a> [Gopinath: _Mutation Analysis: Answering the Fuzzing Challenge_ University of Melbourne 2022]()
+
+Our society now relies on software to such an extent that cyberattacks and
+related information infrastructure problems are classified as having the same
+scale of catastrophic disruption as that of natural disasters by the World
+Economic Forum. This also means that there is a huge cost to bugs in the
+critical software systems. We need effective testing to make sure that our
+systems are robust and trustworthy. But to do that, we need to measure the
+quality of our test suites and test generators. In this talk I will discuss
+the limitations of structural coverage, and introduce mutation analysis as
+an alternative.
+
+With the increase in software complexity, we need to rely on automatic test
+generators such as fuzzers more and more. However, evaluating fuzzers has its
+own challenges. In this talk, I will discuss the challenges and opportunities
+in applying mutation analysis to fuzzing.
 
 #### <a id='gopinath2022building'></a> [Gopinath: _Building Blocks for Fuzzing_ IIT Gandhinagar 2022]()
 
