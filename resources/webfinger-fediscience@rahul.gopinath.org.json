@@ -1,0 +1,23 @@
+{
+  "subject": "acct:rahul@fediscience.org",
+  "aliases": [
+    "https://fediscience.org/@rahul",
+    "https://fediscience.org/users/rahul"
+  ],
+  "links": [
+    {
+      "rel": "http://webfinger.net/rel/profile-page",
+      "type": "text/html",
+      "href": "https://fediscience.org/@rahul"
+    },
+    {
+      "rel": "self",
+      "type": "application/activity+json",
+      "href": "https://fediscience.org/users/rahul"
+    },
+    {
+      "rel": "http://ostatus.org/schema/1.0/subscribe",
+      "template": "https://fediscience.org/authorize_interaction?uri={uri}"
+    }
+  ]
+}
