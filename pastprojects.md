@@ -5,6 +5,7 @@ header : Projects
 group: navigation
 weight: 5
 menu: Publications
+exclude: true
 ---
 <h3> Current Projects </h3>
 
