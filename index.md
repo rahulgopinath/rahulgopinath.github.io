@@ -5,7 +5,7 @@ weight: 1
 ---
 
 <b>IMPORTANT: I am recruiting students for my group at Sydney University.
-If you are interested in what I do, or have an interesting idea, check out [this](/students) page, and if you find something interesting, [please drop me
+If you are interested in what I do, check out [this](/students) page, and if you find something interesting, [please drop me
 a note](/contact/). </b>
 
 
