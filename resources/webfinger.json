@@ -1,22 +1,10 @@
 {
   "subject": "acct:rahul@rahul.gopinath.org",
-  "aliases": [
-    "https://gopinath.org/actors/rahul"
-  ],
   "links": [
     {
       "rel": "self",
-      "href": "https://gopinath.org/actors/rahul",
-      "type": "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
-    },
-    {
-      "rel": "http://webfinger.net/rel/profile-page",
-      "href": "https://gopinath.org/@rahul",
-      "type": "text/html"
-    },
-    {
-      "rel": "http://ostatus.org/schema/1.0/subscribe",
-      "template": "https://gopinath.org/actors/rahul/authorize-follow?uri={uri}"
+      "href": "https://rahul.gopinath.org/resources/rahul",
+      "type": "application/activity+json",
     }
   ]
 }
