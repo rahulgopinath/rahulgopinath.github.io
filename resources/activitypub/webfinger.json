@@ -4,7 +4,7 @@
     {
       "rel": "self",
       "href": "https://rahul.gopinath.org/resources/activitypub/rahul.json",
-      "type": "application/activity+json",
+      "type": "application/activity+json"
     }
   ]
 }
