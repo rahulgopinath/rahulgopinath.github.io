@@ -3,7 +3,7 @@
         "https://www.w3.org/ns/activitystreams",
         "https://w3id.org/security/v1"
     ],
-    "id": "https://rahul.gopinath.org/resources/activitypub/rahul.html",
+    "id": "https://rahul.gopinath.org/resources/activitypub/rahul.json",
     "type": "Person",
     "following": "https://rahul.gopinath.org/resources/activitypub/following",
     "followers": "https://rahul.gopinath.org/resources/activitypub/followers",
