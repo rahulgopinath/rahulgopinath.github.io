@@ -1,0 +1,10 @@
+{
+  "subject": "acct:rahul@rahul.gopinath.org",
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://rahul.gopinath.org/resources/activitypub/rahul.html",
+      "type": "application/activity+json",
+    }
+  ]
+}
