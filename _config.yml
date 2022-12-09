@@ -19,6 +19,20 @@ version:          2.0.0
 plugins:
    - jekyll-feed
 
+include: [ "/.well-known" ]
+
+# Exclude these files from production site
+
+exclude:
+  - CHANGELOG.md
+  - CNAME
+  - Dockerfile
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - Vagrantfile
+  
 github: [metadata]
 
 #  repo:           https://github.com/rahulgopinath/rahulgopinath.github.io
