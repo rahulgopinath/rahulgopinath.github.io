@@ -3,7 +3,7 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://rahul.gopinath.org/resources/rahul",
+      "href": "https://rahul.gopinath.org/resources/activitypub/rahul.html",
       "type": "application/activity+json",
     }
   ]
