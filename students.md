@@ -16,7 +16,7 @@ For all students, please workthrough, and make yourself familiar with [fuzzingbo
 If you are in one of the Indian Institutions, looking for summer internship,
 please check the
 [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6) scholarship.
-Applications typically open in October, and closes in November.
+Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students. While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials.
 
 # Potential Honours and Masters students
 
