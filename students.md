@@ -8,7 +8,7 @@ exclude: true
 ---
 # Important
 
-For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding.
+For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published reseaarch, please include it in the application.
 
 
 # <a id='undergrad' href='#undergrad'>Undergrad Summer Internship Applicants</a>
@@ -18,13 +18,19 @@ please check the
 [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6) scholarship.
 Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students. While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials.
 
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Internship Application: (Full Name here))
+
 # <a id='honours' href='#honours'>Honours Applicants</a>
 
 Please see [projects](#projects) for a list of projects.
 
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Honours Application: (Full Name here))
+
 # <a id='masters' href='#masters'>Masters Applicants</a>
 
 Please see [projects](#projects) for a list of projects.
+
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Masters Application: (Full Name here))
 
 # <a id='phd' href='phd'>Ph.D. Applicants</a>
 
@@ -34,6 +40,8 @@ program coverage, debugging, fuzzing, oracles and test oracles. Pick one area,
 read up on it (especially if I have publication on it), and send me a paragraph on what you learned, and what you may want to explore further. 
 
 Note that for students form Iran and China, [visa issues](https://twitter.com/ccanonne_/status/1595922255007035392) persist, and can be more than an year for the visa.
+
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=PhD Application: (Full Name here))
 
 # <a id='projects'>Projects</a>
 Here are several possible projects you can start with me. Find one of your
