@@ -11,15 +11,31 @@ exclude: true
 For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding.
 
 
-# <a id='summerstudents' href='#summerstudents'>Summer Internship</a>
+# <a id='undergrad' href='#undergrad'>Undergrad Summer Internship Applicants</a>
 
 If you are in one of the Indian Institutions, looking for summer internship,
 please check the
 [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6) scholarship.
 Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students. While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials.
 
-# Potential Honours and Masters students
+# <a id='honours' href='#honours'>Honours Applicants</a>
 
+Please see [projects](#projects) for a list of projects.
+
+# <a id='masters' href='#masters'>Masters Applicants</a>
+
+Please see [projects](#projects) for a list of projects.
+
+# <a id='phd' href='phd'>Ph.D. Applicants</a>
+
+I have several ongoing projects that you may find interesting. These include,
+but not limited to grammar inference, program repair, mutation analysis,
+program coverage, debugging, fuzzing, oracles and test oracles. Pick one area,
+read up on it (especially if I have publication on it), and send me a paragraph on what you learned, and what you may want to explore further. 
+
+Note that for students form Iran and China, [visa issues](https://twitter.com/ccanonne_/status/1595922255007035392) persist, and can be more than an year for the visa.
+
+# <a id='projects'>Projects</a>
 Here are several possible projects you can start with me. Find one of your
 choice, think about it, do a bit of background research, and drop me a note.
 
@@ -132,13 +148,4 @@ You should be a fast learner. Excellent skills in programming (Basic Python & Ja
 Fuzzers routinely produce massive and incomprehensible inputs that can crash a program. Such inputs can't be debugged unless a much smaller input that reproduces the crash can be obtained. Delta debugging is an algorithm used to reduce the input of a test case to make it comprehensible.  One of the problems with delta debugging is that while reducing the input, new inputs may be produced that induces an unrelated crash. This is called test reduction slippage. The problem is that slippage can result in programmers time being wasted on an unrelated problem. This project will explore how to solve the test reduction slippage using execution grammars and compare it to the effectiveness of using simple coverage.
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
-
-# Potential Ph.D. students
-
-I have several ongoing projects that you may find interesting. These include,
-but not limited to grammar inference, program repair, mutation analysis,
-program coverage, debugging, fuzzing, oracles and test oracles. Pick one area,
-read up on it (especially if I have publication on it), and send me a paragraph on what you learned, and what you may want to explore further. 
-
-Note that for students form Iran and China, [visa issues](https://twitter.com/ccanonne_/status/1595922255007035392) persist, and can be more than an year for the visa.
 
