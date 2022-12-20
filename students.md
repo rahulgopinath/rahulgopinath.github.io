@@ -6,6 +6,10 @@ header : Information for Potential Students
 group: navigation
 exclude: true
 ---
+# Important
+
+For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) before you talk to me. My current research is based on the foundational ideas discussed in these introductory text books.
+
 
 # <a id='summerstudents' href='#summerstudents'>Summer Internship</a>
 
