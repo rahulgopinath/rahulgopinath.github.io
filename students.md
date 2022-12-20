@@ -8,7 +8,7 @@ exclude: true
 ---
 # Important
 
-For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) before you talk to me. My current research is based on the foundational ideas discussed in these introductory text books.
+For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding.
 
 
 # <a id='summerstudents' href='#summerstudents'>Summer Internship</a>
