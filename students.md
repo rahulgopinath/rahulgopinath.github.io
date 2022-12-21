@@ -8,7 +8,7 @@ exclude: true
 ---
 # Important
 
-For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published reseaarch, please include it in the application.
+For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published reseaarch, please include it in the application. **Please use to the specified subject format for applications. I use a script to identify and hence respond faster to student emails**.
 
 
 # <a id='undergrad' href='#undergrad'>Undergrad Summer Internship Applicants</a>
