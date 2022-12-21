@@ -157,9 +157,61 @@ Fuzzers routinely produce massive and incomprehensible inputs that can crash a p
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
 
-# Funding
+## <a id='betterdd' href='#betterdd'>Improving Delta Debugging</a>
 
-## India specific
+### Eligibility
+
+You should be a fast learner. Excellent skills in programming (Basic Python & Java knowledge is necessary), problem-solving, as well as the ability to work independently are required.
+
+### Description
+
+Delta debugging is one of the best known algorithms for quick reduction of test cases, and it operates with $O(log(n))$ best case. The problem with Delat Debugging is that it has a worst case $O(n^2)$. Can we improve this bound? What about Hierarchical Delta Debugging? Finally, can we improve delta debugging in common even when program semantics is required (such as C,Java etc.)? Can we rely on the original Delta Debugging assumptions? (Independence of deltas), or are stricter assumptions required?
+
+This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
+
+## <a id='grammarcoverage' href='#grammarcoverage'>Better Grammar Coverage</a>
+
+### Eligibility
+
+You should be a fast learner. Excellent skills in programming (Basic Python & Java knowledge is necessary), problem-solving, as well as the ability to work independently are required.
+
+### Description
+
+Grammar coverage has a [strong](https://ieeexplore.ieee.org/document/8952419) [correlation](https://www.fuzzingbook.org/html/GrammarCoverageFuzzer.html) with whitebox program coverage. [Havrikov et al.](https://ieeexplore.ieee.org/document/8952419) discusses how one can obtain a stronger grammar coverage metric using k-paths which looks at nesting contexts. However, this the best metric for grammar coverage? What about non-nesting (peer) nonterminals in the same rule? This project will investigate what grammar coverage metric is the best performing metric for evaluating quality of generated input strings for fuzzing.
+
+This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
+
+## <a id='grammardistr' href='#grammardist'>Better Grammar Coverage</a>
+
+### Eligibility
+
+You should be a fast learner. Excellent skills in programming (Basic Python & Java knowledge is necessary), problem-solving, as well as the ability to work independently are required.
+
+### Description
+
+[Soremekun et al.](https://publications.cispa.saarland/3167/7/inputs-from-hell.pdf) showed how to extract the characteristics of a set of inputs as a probabilistic grammar. In this project, we will investigate how to extend the probabilistic grammar further by incorporating depth, and position.
+
+This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
+
+## <a id='binaryformats' href='#binaryformats'>Binary Formats</a>
+
+### Eligibility
+
+You should be a fast learner. Excellent skills in programming (Basic Python & Java knowledge is necessary), problem-solving, as well as the ability to work independently are required.
+
+### Description
+In this project, we will investigate how to extract binary format specifications, and how to best fuzz binary formats.
+
+This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Cybersecurity.
+
+# <a href='#funding' id='funding'>Funding</a>
+
+## India Specific
 
 * [SPARC](https://sparc.iitkgp.ac.in/funding_budget.php)
-* [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6)
+* [Arch-India](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6)
+* [Maitri](https://scholarshiparena.in/australian-maitri-scholarship-for-indian-students/)
+* [Australia Grants](https://www.dfat.gov.au/people-to-people/foundations-councils-institutes/australia-india-council/grants)
+
+## Australia Specific
+
