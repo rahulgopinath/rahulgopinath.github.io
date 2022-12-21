@@ -43,11 +43,11 @@ Note that for students form Iran and China, [visa issues](https://twitter.com/cc
 
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=PhD%20Application:%20(Full%20Name%20here)).
 
-# <a id='projects'>Projects</a>
+# <a id='projects' href='#projects'>Projects</a>
 Here are several possible projects you can start with me. Find one of your
 choice, think about it, do a bit of background research, and drop me a note.
 
-## Delta Debugging for Parsers
+## <a id='ddforparsers' href='#ddforparsers'> Delta Debugging for Parsers</a>
 
 ### Eligibility
 
@@ -62,7 +62,7 @@ In this project, we will explore input-repair based techniques to repair and the
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in software engineering.
 
-## Error Correction with Grammars
+## <a id='errorcorrection' href='#errorcorrection'> Error Correction with Grammars </a>
 
 ### Eligibility
 
@@ -79,7 +79,7 @@ explored.
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in software engineering.
 
-## Optimizing Grammar Fuzzers
+## <a id='optimizinggrammarfuzzers' href='#optimizinggrammarfuzzers'> Optimizing Grammar Fuzzers</a>
 
 ### Eligibility
 
@@ -94,7 +94,7 @@ effectiveness of fuzzing is often determined by the speed at which inputs can be
 This project will explore how to make grammar fuzzers much more performant and
 compare it with the automata-based approach.
 
-##  Inferring context-free grammars for blackbox programs
+##  <a id='inferringcfg' href='#inferringcfg'>Inferring context-free grammars for blackbox programs</a>
 
 ### Eligibility
 
@@ -108,7 +108,7 @@ In this project, we will explore how to get around this requirement by relaxing 
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in software engineering.
 
-## Reproducible HTML Notebooks
+## <a id='reproduciblenotebooks' href='#reproduciblenotebooks'>Reproducible HTML Notebooks</a>
 
 ### Eligibility
 You should be a fast learner. Excellent skills in programming (Excellent JavaScript knowledge, and basic Python skills are necessary), problem-solving, as well as the ability to work independently are required.
@@ -119,7 +119,7 @@ Reproducibility is the core of science, and software engineering unfortunately d
 
 This project, if completed successfully, may provide a starting foundation for a workshop on reproducible software engineering, and lead to being adopted by researchers worldwide.
 
-## Mutation Analysis for Fuzzers
+## <a id='mutationanalysisforfuzzers' href='#mutationanalysisforfuzzers'>Mutation Analysis for Fuzzers</a>
 
 ### Eligibility
 
@@ -131,7 +131,7 @@ Fuzzers are test generators that specialize in producing millions of inputs at a
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in software engineering.
 
-## Using side channels for feedback driven fuzzing
+## <a id='sidechannelsforfuzzing' href='#sidechannelsforfuzzing'>Using side channels for feedback driven fuzzing</a>
 
 ### Eligibility
 
@@ -145,7 +145,7 @@ One way we can avoid instrumentation is by looking at the memory contents at the
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in software engineering.
 
-## Solving Test Reduction Slippage
+## <a id='testreductionslippage' href='#testreductionslippage'>Solving Test Reduction Slippage</a>
 
 ### Eligibility
 
