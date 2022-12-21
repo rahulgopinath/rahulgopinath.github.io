@@ -157,3 +157,6 @@ Fuzzers routinely produce massive and incomprehensible inputs that can crash a p
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
 
+# Funding
+
+* [SPARC](https://sparc.iitkgp.ac.in/funding_budget.php)
