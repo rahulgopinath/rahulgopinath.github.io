@@ -177,7 +177,7 @@ You should be a fast learner. Excellent skills in programming (Basic Python & Ja
 
 ### Description
 
-Grammar coverage has a [strong](https://ieeexplore.ieee.org/document/8952419) [correlation](https://www.fuzzingbook.org/html/GrammarCoverageFuzzer.html) with whitebox program coverage. [Havrikov et al.](https://ieeexplore.ieee.org/document/8952419) discusses how one can obtain a stronger grammar coverage metric using k-paths which looks at nesting contexts. However, this the best metric for grammar coverage? What about non-nesting (peer) nonterminals in the same rule? This project will investigate what grammar coverage metric is the best performing metric for evaluating quality of generated input strings for fuzzing.
+Grammar coverage has a [strong](https://ieeexplore.ieee.org/document/8952419) [correlation](https://www.fuzzingbook.org/html/GrammarCoverageFuzzer.html) with whitebox program coverage. [Havrikov et al.](https://ieeexplore.ieee.org/document/8952419) discusses how one can obtain a stronger grammar coverage metric using k-paths which looks at nesting contexts. However, this the [best metric](https://dl.acm.org/doi/10.1145/3426425.3426946) for grammar coverage? What about non-nesting (peer) nonterminals in the same rule? This project will investigate what grammar coverage metric is the best performing metric for evaluating quality of generated input strings for fuzzing.
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
 
