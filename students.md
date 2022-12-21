@@ -159,4 +159,7 @@ This project, if completed successfully, may be extended for a paper in one of t
 
 # Funding
 
+## India specific
+
 * [SPARC](https://sparc.iitkgp.ac.in/funding_budget.php)
+* [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6)
