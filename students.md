@@ -32,7 +32,7 @@ Please see [projects](#projects) for a list of projects.
 
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Masters%20Application:%20(Full%20Name%20here)).
 
-# <a id='phd' href='phd'>Ph.D. Applicants</a>
+# <a id='phd' href='#phd'>Ph.D. Applicants</a>
 
 I have several ongoing projects that you may find interesting. These include,
 but not limited to grammar inference, program repair, mutation analysis,
