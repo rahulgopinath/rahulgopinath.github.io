@@ -181,7 +181,7 @@ Grammar coverage has a [strong](https://ieeexplore.ieee.org/document/8952419) [c
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
 
-## <a id='grammardistr' href='#grammardist'>Better Grammar Coverage</a>
+## <a id='probabilisticgrammars' href='#probabilisticgrammars'>Probabilistic Grammars</a>
 
 ### Eligibility
 
