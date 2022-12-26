@@ -664,15 +664,23 @@ class GLLStructuredStackP:
 
         self.SPPF_nodes = {}
 
+    def get_sppf_symbol_node(self, n):
+        if n not in self.SPPF_nodes:
+            self.SPPF_nodes[n] = SPPF_symbol_node(*n)
+        return self.SPPF_nodes[n] 
+
+    def get_sppf_intermediate_node(self, n):
+        if n not in self.SPPF_nodes:
+            self.SPPF_nodes[n] = SPPF_intermediate_node(*n)
+        return self.SPPF_nodes[n] 
+
 # # SPPF Build
     # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
     # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
         if not x: h = i # x is epsilon
         else: h = i+1
-        if (x,i,h) not in self.SPPF_nodes:
-            self.SPPF_nodes[(x, i, h)] = SPPF_symbol_node(x, i, h)
-        return self.SPPF_nodes[(x, i, h)]
+        return self.get_sppf_symbol_node((x, i, h))
 
     # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
     # and two SPPF nodes w, and z (z may be dummy node $).
@@ -697,20 +705,16 @@ class GLLStructuredStackP:
             (q, k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
                 # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
-                (s,j,_k) = w.label # suppose w has label (s,j,k) TODO: k?
+                (s,j,k) = w.label # suppose w has label (s,j,k) TODO: overwrite k?
                 #assert k == _k
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
-                if (t, j, i) not in self.SPPF_nodes:
-                    self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
-                y = self.SPPF_nodes[(t, j, i)]
+                y = self.get_sppf_intermediate_node((t, j, i))
                 if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
                 # if there does not exist an SPPF node y labelled (t, k, i) create one
                 # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
-                if (t, k, i) not in self.SPPF_nodes:
-                    self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
-                y = self.SPPF_nodes[(t, k, i)]
+                y = self.get_sppf_intermediate_node((t, k, i))
                 if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((z,)) # create a child with child z
             return y
@@ -904,7 +908,7 @@ if __name__ == '__main__':
     res = compile_grammar(RR_GRAMMAR2, '<start>')
     write_res(res, mystring2)
     exec(res)
-    g = GLLStructuredStackP(mystring2+'$')
+    g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
     print(6)
 
@@ -919,7 +923,7 @@ if __name__ == '__main__':
      
     res = compile_grammar(RR_GRAMMAR3, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring3+'$')
+    g = GLLStructuredStackP(mystring3)
     assert parse_string(g) == 'success'
     print(7)
      
@@ -931,7 +935,7 @@ if __name__ == '__main__':
      
     res = compile_grammar(RR_GRAMMAR4, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring4+'$')
+    g = GLLStructuredStackP(mystring4)
     assert parse_string(g) == 'success'
     print(8)
      
@@ -944,7 +948,7 @@ if __name__ == '__main__':
      
     res = compile_grammar(RR_GRAMMAR5, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring5+'$')
+    g = GLLStructuredStackP(mystring5)
     assert parse_string(g) == 'success'
     print(9)
      
@@ -957,7 +961,7 @@ if __name__ == '__main__':
      
     res = compile_grammar(RR_GRAMMAR6, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring6+'$')
+    g = GLLStructuredStackP(mystring6)
     assert parse_string(g) == 'success'
     print(10)
 
@@ -969,7 +973,7 @@ if __name__ == '__main__':
 
     res = compile_grammar(RR_GRAMMAR7, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring7+'$')
+    g = GLLStructuredStackP(mystring7)
     assert parse_string(g) == 'success'
     print(11)
 
@@ -981,7 +985,7 @@ if __name__ == '__main__':
 
     res = compile_grammar(RR_GRAMMAR8, '<start>')
     exec(res)
-    g = GLLStructuredStackP(mystring8+'$')
+    g = GLLStructuredStackP(mystring8)
     assert parse_string(g) == 'success'
     print(12)
 
