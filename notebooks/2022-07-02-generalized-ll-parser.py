@@ -912,9 +912,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     print(6)
 
-    sys.exit(0)
-
-     
     RR_GRAMMAR3 = {
         '<start>': [['c', '<A>']],
         '<A>': [['a', 'b', '<A>'], []],
