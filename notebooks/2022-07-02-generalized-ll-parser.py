@@ -218,7 +218,8 @@ class GLLStructuredStack:
     def register_return(self, L, u, j): # create
         v = self.gss.get(L, j) # Let v be the GSS node labeled L^j
         # If there is not an edge from v to u
-        if u not in v.children:
+        v_to_u = [c for c in v.children if c.label == u.label]
+        if u not in v_to_u:
             v.children.append(u)
             # paper p183: When a new child node u is added to v,
             # for all (v, k) in P if (Lv, u) notin Uk then
@@ -536,9 +537,9 @@ class SPPF_node:
     def add_child(self, child):
         self.children.append(child)
 
-class SPPF_delta_node(SPPF_node):
-    def __init__(self):
-        self.label = ('$', 0, 0)
+class SPPF_dummy(SPPF_node):
+    def __init__(self, s='$'):
+        self.label = (s, 0, 0)
         self.children = []
 
 class SPPF_symbol_node(SPPF_node):
@@ -596,33 +597,43 @@ def nullable(g):
         g_cur = g_nxt
 
     return nullable_keys
+
 class GLLStructuredStackP:
     def set_grammar(self, g):
         self.grammar = g
         self.nullable = nullable(g)
 
+    # add: if ((L, u, w) not in U_i { add (L, u, w) to U_i, add (L, u, i, w) to R } }
     def add_thread(self, L, u, i, w): # add +
+        # w needs to be an SPPF node.
         assert not isinstance(u, int)
+        assert isinstance(w, SPPF_node)
         if (L, u, w) not in self.U[i]:
             self.U[i].append((L, u, w))
             self.threads.append((L, u, i, w))
 
     def fn_return(self, u, i, z): # pop +
+        # z needs to be SPPF.
+        assert isinstance(z, SPPF_node)
         if u != self.u0:
             # let (L, k) be label of u
             (L, k) = u.label
             self.gss.add_parsed_index(u.label, z)
-            for n in u.children:
-                (u_, w, v) = n.label
-                assert u == u_
+            for v,w in u.children:
+                #(vl, v) = v_.label
                 y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
 
     def register_return(self, L, u, i, w): # create (returns to c_u) +
+        assert isinstance(w, SPPF_node)
         v = self.gss.get(L, i) # Let v be the GSS node labeled L^i
-        if w not in v.children:
-            v.children.append(w)
+        # if there is not an edge from v to u labelled w
+        assert not v.children # test. why are there no children?
+        v_to_u_labeled_w = [c for c,lbl in v.children if c.label == u.label and lbl == w]
+        if w not in v_to_u_labeled_w:
+            # create an edge from v to u labelled w
+            v.children.append((u,w))
             for (v,z) in self.gss.parsed_indexes(v.label):
                 y = self.getNodeP(L, w, z)
                 h = right_extent(z)
@@ -687,19 +698,21 @@ class GLLStructuredStackP:
             if (w.label[0] != '$'): # is not delta
                 # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
                 (s,j,_k) = w.label # suppose w has label (s,j,k) TODO: k?
-                assert k == _k
+                #assert k == _k
+                # if there does not exist an SPPF node y labelled (t, j, i) create one
                 if (t, j, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, j, i)] = SPPF_intermediate_node(t, j, i)
-                y = self.SPPF_nodes[(t, j, i)] # TODO y?
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                y = self.SPPF_nodes[(t, j, i)]
+                if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
                     y.add_child((w, z)) # create a child of y with left child with w right child z
             else:
+                # if there does not exist an SPPF node y labelled (t, k, i) create one
                 # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
                 if (t, k, i) not in self.SPPF_nodes:
                     self.SPPF_nodes[(t, k, i)] = SPPF_intermediate_node(t, k, i)
-                y = self.SPPF_nodes[(t, k, i)] # TODO y?
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    y.add_child(z) # create a child with child z
+                y = self.SPPF_nodes[(t, k, i)]
+                if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
+                    y.add_child((z,)) # create a child with child z
             return y
 
     # adapted from Exploring_and_Visualizing paper.
@@ -791,7 +804,7 @@ def parse_string(parser):
     parser.set_grammar(%s)
     # L contains start nt.
     S = '%s'
-    L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_delta_node()
+    L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_dummy('$')
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
@@ -820,7 +833,7 @@ import shutil
 
 def write_res(res, mystring):
     with open('a.py', 'w+') as f:
-        f.write('from x import GLLStructuredStackP, SPPF_delta_node\n')
+        f.write('from x import GLLStructuredStackP, SPPF_dummy\n')
         f.write(res)
         f.write('\n')
         f.write('mystring = "%s"\n' % mystring)
@@ -878,14 +891,10 @@ if __name__ == '__main__':
     }
     mystring2 = 'a'
     res = compile_grammar(G5, '<S>')
-    write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
     print(5)
-
-
-    sys.exit(0)
 
     RR_GRAMMAR2 = {
         '<start>': [['<A>']],
@@ -893,10 +902,14 @@ if __name__ == '__main__':
     }
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
+    write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2+'$')
     assert parse_string(g) == 'success'
-    print(4)
+    print(6)
+
+    sys.exit(0)
+
      
     RR_GRAMMAR3 = {
         '<start>': [['c', '<A>']],
@@ -908,7 +921,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring3+'$')
     assert parse_string(g) == 'success'
-    print(5)
+    print(7)
      
     RR_GRAMMAR4 = {
         '<start>': [['<A>', 'c']],
@@ -920,7 +933,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring4+'$')
     assert parse_string(g) == 'success'
-    print(6)
+    print(8)
      
     RR_GRAMMAR5 = {
     '<start>': [['<A>']],
@@ -933,7 +946,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring5+'$')
     assert parse_string(g) == 'success'
-    print(7)
+    print(9)
      
     RR_GRAMMAR6 = {
     '<start>': [['<A>']],
@@ -946,7 +959,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring6+'$')
     assert parse_string(g) == 'success'
-    print(8)
+    print(10)
 
     RR_GRAMMAR7 = {
     '<start>': [['<A>']],
@@ -958,7 +971,7 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring7+'$')
     assert parse_string(g) == 'success'
-    print(9)
+    print(11)
 
     RR_GRAMMAR8 = {
     '<start>': [['<A>']],
@@ -970,6 +983,6 @@ if __name__ == '__main__':
     exec(res)
     g = GLLStructuredStackP(mystring8+'$')
     assert parse_string(g) == 'success'
-    print(10)
+    print(12)
 
 
