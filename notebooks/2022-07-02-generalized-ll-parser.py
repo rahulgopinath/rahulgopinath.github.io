@@ -906,7 +906,7 @@ if __name__ == '__main__':
     }
     mystring2 = 'ababababab'
     res = compile_grammar(RR_GRAMMAR2, '<start>')
-    write_res(res, mystring2)
+    #write_res(res, mystring2)
     exec(res)
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
