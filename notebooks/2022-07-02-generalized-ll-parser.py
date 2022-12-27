@@ -553,6 +553,9 @@ class SPPF_symbol_node(SPPF_node):
         self.label = (x, j, i)
         self.children = []
 
+    def to_s(self):
+        return (self.label)
+
 class SPPF_intermediate_node(SPPF_node):
     def __init__(self, t, j, i):
         self.label = (t, j, i)
@@ -561,11 +564,26 @@ class SPPF_intermediate_node(SPPF_node):
     def right_extent(self):
         return self.label[-1]
 
+    def to_s(self):
+        if isinstance(self.label[0], str):
+            return str(self.label)
+        ((sym, n_alt, dot), i, j)  = self.label
+        return ( sym + ' ::= ' +
+                str(g.grammar[sym][n_alt][:dot]) + '.' +
+                str(g.grammar[sym][n_alt][dot:]) + ' ' + str(i) + ',' + str(j))
+
+
 class SPPF_packed_node(SPPF_node):
     def __init__(self, t, k, children):
         # k is the pivot of the packed node.
         self.label = (t,k) # t is a grammar slot X := alpha dot beta
         self.children = children # left and right or just left
+
+    def to_s(self):
+        (sym, n_alt, dot), lat = self.label
+        return ( sym + ' ::= ' +
+                str(g.grammar[sym][n_alt][:dot]) + '.' +
+                str(g.grammar[sym][n_alt][dot:]) + ' ' + str(lat) )
 
 def rem_terminals(g):
     g_cur = {}
@@ -867,32 +885,13 @@ def write_res(res, mystring):
         f.write('''
 import random
 
-def show_packed(node):
-    (sym, n_alt, dot), lat = node.label
-    #return sym + ' ::= ' + str(g.grammar[sym][n_alt])+ ',' + str(lat)
-    return ( sym + ' ::= ' +
-            str(g.grammar[sym][n_alt][:dot]) + '.' +
-            str(g.grammar[sym][n_alt][dot:]) + ' ' + str(lat) )
-
-
-def show_sym(node):
-    return (node.label)
-
-def show_intermediate(node):
-    if isinstance(node.label[0], str):
-        return str(node.label)
-    ((sym, n_alt, dot), i, j)  = node.label
-    return ( sym + ' ::= ' +
-            str(g.grammar[sym][n_alt][:dot]) + '.' +
-            str(g.grammar[sym][n_alt][dot:]) + ' ' + str(i) + ',' + str(j))
-
 def process_sppf_symbol(node, hmap, tab):
     assert isinstance(node, SPPF_symbol_node)
-    print(' ' * tab, show_sym(node))
+    print(' ' * tab, node.to_s())
 
 def process_sppf_packed(node, hmap, tab):
     assert isinstance(node, SPPF_packed_node)
-    print(' ' * tab, 'P', show_packed(node))
+    print(' ' * tab, 'P', node.to_s())
     for n in node.children:
         if isinstance(n, SPPF_symbol_node):
             process_sppf_symbol(n,hmap, tab+1)
@@ -902,7 +901,7 @@ def process_sppf_packed(node, hmap, tab):
 
 def process_sppf_intermediate_node(node, hmap, tab):
     assert isinstance(node, SPPF_intermediate_node)
-    print(' '*tab, 'I', show_intermediate(node))
+    print(' '*tab, 'I', node.to_s())
     #assert len(node.children) == 1
     #n = random.choice(node.children)
     for n in node.children:
