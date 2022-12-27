@@ -531,6 +531,9 @@ class SPPF_node:
         self.lablel = '<None>'
         pass
 
+    def __eq__(self, o):
+        return self.label == o.label
+
     def __repr__(self):
         return 'D:%s [%d]' % (str(self.label), len(self.children))
 
@@ -619,8 +622,9 @@ class GLLStructuredStackP:
             # let (L, k) be label of u
             (L, k) = u.label
             self.gss.add_parsed_index(u.label, z)
-            for v,w in u.children:
-                #(vl, v) = v_.label
+            for v,w in u.children: # edge labeled w, an SPPF node.
+                assert isinstance(w, SPPF_node)
+                #assert w.label[2] == z.label[1]
                 y = self.getNodeP(L, w, z)
                 self.add_thread(L, v, i, y)
         return u
@@ -628,13 +632,15 @@ class GLLStructuredStackP:
     def register_return(self, L, u, i, w): # create (returns to c_u) +
         assert isinstance(w, SPPF_node)
         v = self.gss.get(L, i) # Let v be the GSS node labeled L^i
+        # all gss children are edges, and they are labeled with SPPF nodes.
         # if there is not an edge from v to u labelled w
-        assert not v.children # test. why are there no children?
+        #assert not v.children # test. why are there no children?
         v_to_u_labeled_w = [c for c,lbl in v.children if c.label == u.label and lbl == w]
-        if w not in v_to_u_labeled_w:
+        if not v_to_u_labeled_w:
             # create an edge from v to u labelled w
             v.children.append((u,w))
             for (v,z) in self.gss.parsed_indexes(v.label):
+                #assert w.label[2] == z.label[1]
                 y = self.getNodeP(L, w, z)
                 h = right_extent(z)
                 self.add_thread(v.L, u, h, y) # v.L == L
@@ -705,12 +711,16 @@ class GLLStructuredStackP:
             (q, k, i) = z.label # suppose z has label (q,k,i)
             if (w.label[0] != '$'): # is not delta
                 # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
-                (s,j,k) = w.label # suppose w has label (s,j,k) TODO: overwrite k?
-                #assert k == _k
+                (s,j,_k) = w.label # suppose w has label (s,j,k)
+                # w is the left node, and z is the right node. So the center (k)
+                # should be shared.
+                # assert k == _k # TODO: this should be true.
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 y = self.get_sppf_intermediate_node((t, j, i))
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     # create a child of y with left child with w right child z
+                    # the extent of w-z is the same as y
+                    # packed nodes do not keep extents
                     pn = SPPF_packed_node(X_rule_pos, k, [w,z])
                     y.add_child(pn)
             else:
@@ -989,4 +999,48 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     print(12)
 
+
+    res = compile_grammar(E_G, E_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E_G)
+    for i in range(10):
+        print('sppf:.')
+        s = gf.iter_fuzz(key=E_start, max_depth=10)
+        print(s)
+        g = GLLStructuredStackP(s)
+        assert parse_string(g) == 'success'
+        print('sppf parsed.')
+
+    res = compile_grammar(E2_G, E2_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E2_G)
+    for i in range(10):
+        print('sppf:.')
+        s = gf.iter_fuzz(key=E2_start, max_depth=10)
+        print(s)
+        g = GLLStructuredStackP(s)
+        assert parse_string(g) == 'success'
+        print('sppf parsed.')
+
+    res = compile_grammar(E3_G, E3_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E3_G)
+    for i in range(10):
+        print('sppf:.')
+        s = gf.iter_fuzz(key=E3_start, max_depth=5)
+        print(s)
+        g = GLLStructuredStackP(s)
+        assert parse_string(g) == 'success'
+        print('sppf parsed.')
+
+    res = compile_grammar(E4_G, E4_start)
+    exec(res)
+    gf = fuzzer.LimitFuzzer(E4_G)
+    for i in range(10):
+        print('sppf:.')
+        s = gf.iter_fuzz(key=E4_start, max_depth=5)
+        print(s)
+        g = GLLStructuredStackP(s)
+        assert parse_string(g) == 'success'
+        print('sppf parsed.')
 
