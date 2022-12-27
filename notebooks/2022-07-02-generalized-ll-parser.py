@@ -558,6 +558,9 @@ class SPPF_intermediate_node(SPPF_node):
         self.label = (t, j, i)
         self.children = []
 
+    def right_extent(self):
+        return self.label[-1]
+
 class SPPF_packed_node(SPPF_node):
     def __init__(self, t, k, children):
         # k is the pivot of the packed node.
@@ -639,10 +642,13 @@ class GLLStructuredStackP:
         if not v_to_u_labeled_w:
             # create an edge from v to u labelled w
             v.children.append((u,w))
-            for (v,z) in self.gss.parsed_indexes(v.label):
+
+            #sppf_node = (v,z)
+            for z in self.gss.parsed_indexes(v.label):
+                assert isinstance(z, SPPF_intermediate_node)
                 #assert w.label[2] == z.label[1]
                 y = self.getNodeP(L, w, z)
-                h = right_extent(z)
+                h = z.right_extent()
                 self.add_thread(v.L, u, h, y) # v.L == L
         return v
 
@@ -1124,4 +1130,24 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
     print('X_G4')
+
+    X_G5 = {
+        '<start>': [['<expr>']],
+        '<expr>': [
+            ['<expr>', '+', '<expr>'],
+            ['<expr>', '-', '<expr>'],
+            ['<expr>', '*', '<expr>'],
+            ['<expr>', '/', '<expr>'],
+            ['(', '<expr>', ')'],
+            ['1']]
+    }
+    X_G5_start = '<start>'
+
+    mystring2 = '1+1'
+    res = compile_grammar(X_G5, '<start>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G5')
 
