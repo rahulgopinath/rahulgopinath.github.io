@@ -815,6 +815,8 @@ def compile_def(key, definition):
 
 
 def compile_grammar(g, start):
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
     res = ['''\
 # u_0 = (L_0, 0) # -- GSS base node+
 # c_i = 0        # current input index+
@@ -824,7 +826,9 @@ def compile_grammar(g, start):
 # R = \empty     # descriptors still to be processed+
 # P = \empty     # poped nodes set.
 def parse_string(parser):
-    parser.set_grammar(%s)
+    parser.set_grammar(
+%s
+    )
     # L contains start nt.
     S = '%s'
     L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_dummy('$')
@@ -844,7 +848,7 @@ def parse_string(parser):
             c_u = parser.fn_return(c_u, c_i, c_n) # pop
             L = 'L0' # goto L_0
             continue
-    ''' % (g, start)]
+    ''' % (pp.pformat(g), start)]
     for k in g: 
         r = compile_def(k, g[k])
         res.append(r)
@@ -1135,10 +1139,6 @@ if __name__ == '__main__':
         '<start>': [['<expr>']],
         '<expr>': [
             ['<expr>', '+', '<expr>'],
-            ['<expr>', '-', '<expr>'],
-            ['<expr>', '*', '<expr>'],
-            ['<expr>', '/', '<expr>'],
-            ['(', '<expr>', ')'],
             ['1']]
     }
     X_G5_start = '<start>'
