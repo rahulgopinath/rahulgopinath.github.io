@@ -830,7 +830,9 @@ def parse_string(parser):
                 continue
             else:
                 # if there is an SPPF node (S, 0, m) then report success
-                if (S, 0, parser.m) in parser.SPPF_nodes: return 'success'
+                if (S, 0, parser.m) in parser.SPPF_nodes:
+                      parser.root = (S, 0, parser.m)
+                      return 'success'
                 else: return 'error'
         elif L == 'L_':
             c_u = parser.fn_return(c_u, c_i, c_n) # pop
@@ -850,12 +852,39 @@ import shutil
 
 def write_res(res, mystring):
     with open('a.py', 'w+') as f:
-        f.write('from x import GLLStructuredStackP, SPPF_dummy\n')
+        f.write('from x import GLLStructuredStackP, SPPF_dummy, SPPF_intermediate_node, SPPF_symbol_node, SPPF_packed_node \n')
+        f.write('''
+import random
+
+def process_sppf_symbol(node, hmap, tab):
+    assert isinstance(node, SPPF_symbol_node)
+    print(' ' * tab, node.label[0])
+
+def process_sppf_packed(node, hmap, tab):
+    assert isinstance(node, SPPF_packed_node)
+    print(' ' * tab, 'P', node.label[0])
+    for n in node.children:
+        if isinstance(n, SPPF_symbol_node):
+            process_sppf_symbol(n,hmap, tab+1)
+        elif isinstance(n, SPPF_intermediate_node):
+            process_sppf_intermediate_node(n,hmap, tab+1)
+        else: assert False
+
+def process_sppf_intermediate_node(node, hmap, tab):
+    assert isinstance(node, SPPF_intermediate_node)
+    print(' '*tab, 'I', node.label)
+    #assert len(node.children) == 1
+    n = random.choice(node.children)
+    #for n in node.children:
+    process_sppf_packed(n,hmap, tab+1)
+
+''')
         f.write(res)
         f.write('\n')
         f.write('mystring = "%s"\n' % mystring)
         f.write('g = GLLStructuredStackP(mystring)\n')
-        f.write('assert parse_string(g) == "success"\n')
+        f.write('print(parse_string(g))\n')
+        f.write('process_sppf_intermediate_node(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)\n')
     shutil.copyfile(sys.argv[0], 'x.py')
 
 if __name__ == '__main__':
@@ -1043,4 +1072,56 @@ if __name__ == '__main__':
         g = GLLStructuredStackP(s)
         assert parse_string(g) == 'success'
         print('sppf parsed.')
+
+    X_G1 = {
+        '<start>': [['a']],
+    }
+    mystring2 = 'a'
+    res = compile_grammar(X_G1, '<start>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G1')
+
+    X_G2 = {
+        '<start>': [['a', 'b']],
+    }
+    mystring2 = 'ab'
+    res = compile_grammar(X_G2, '<start>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G2')
+
+    X_G3 = {
+        '<start>': [['a', '<b>']],
+        '<b>': [['b']]
+    }
+    mystring2 = 'ab'
+    res = compile_grammar(X_G3, '<start>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G3')
+
+    X_G4 = {
+        '<start>': [
+        ['a', '<a>'],
+        ['a', '<b>'],
+        ['a', '<c>']
+        ],
+        '<a>': [['b']],
+        '<b>': [['b']],
+        '<c>': [['b']]
+    }
+    mystring2 = 'ab'
+    res = compile_grammar(X_G4, '<start>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G4')
 
