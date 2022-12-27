@@ -709,14 +709,19 @@ class GLLStructuredStackP:
                 #assert k == _k
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 y = self.get_sppf_intermediate_node((t, j, i))
-                if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
-                    y.add_child((w, z)) # create a child of y with left child with w right child z
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    pn.add_child(w) # create a child of y with left child with w right child z
+                    pn.add_child(z)
+                    y.add_child(pn)
             else:
                 # if there does not exist an SPPF node y labelled (t, k, i) create one
                 # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
                 y = self.get_sppf_intermediate_node((t, k, i))
-                if not [c for c,l in y.children if c.label == (X_rule_pos, k)]:
-                    y.add_child((z,)) # create a child with child z
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    pn.add_child(z)
+                    y.add_child(pn) # create a child with child z
             return y
 
     # adapted from Exploring_and_Visualizing paper.
