@@ -49,7 +49,7 @@ start = '<S>'
 class GLLStack:
     def __init__(self, s):
         self.threads = []
-        self.I = s
+        self.I = s + '$'
 
     def add_thread(self, L, u, j):
         self.threads.append((L, u, j))
@@ -68,10 +68,19 @@ class GLLStack:
 
 # ### The Stack GLL Compiler
 
-# #### Compiling a Terminal Symbol
+# #### (1) Compiling an empty rule
+def compile_epsilon(key, n_alt):
+    return '''\
+        elif L == '%s[%d]_0':
+            # epsilon -- redundant here since we are not parsing.
+            L = '%s'
+            continue
+''' % (key, n_alt, 'L_')
+
+# #### (1) Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = '_'
+        Lnxt = 'L_'
     else:
         Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
     return '''\
@@ -84,7 +93,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, token, Lnxt)
 
-# #### Compiling a Nonterminal Symbol
+# #### (1) Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '_'
@@ -97,16 +106,19 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
-# #### Compiling a Rule
+# #### (1) Compiling a Rule
 def compile_rule(key, n_alt, rule):
     res = []
-    for i, t in enumerate(rule):
-        if fuzzer.is_nonterminal(t):
-            r = compile_nonterminal(key, n_alt, i, len(rule), t)
-        else:
-            r = compile_terminal(key, n_alt, i, len(rule), t)
+    if not rule:
+        r = compile_epsilon(key, n_alt)
         res.append(r)
-
+    else:
+        for i, t in enumerate(rule):
+            if fuzzer.is_nonterminal(t):
+                r = compile_nonterminal(key, n_alt, i, len(rule), t)
+            else:
+                r = compile_terminal(key, n_alt, i, len(rule), t)
+            res.append(r)
     res.append('''\
         elif L == '%s[%d]_%d':
             L = 'L_'
@@ -114,7 +126,7 @@ def compile_rule(key, n_alt, rule):
 ''' % (key, n_alt, len(rule)))
     return '\n'.join(res)
 
-# #### Compiling a Definition
+# #### (1) Compiling a Definition
 def compile_def(key, definition):
     res = []
     res.append('''\
@@ -131,7 +143,7 @@ def compile_def(key, definition):
         res.append(r)
     return '\n'.join(res)
 
-# #### Compiling a Grammar
+# #### (1) Compiling a Grammar
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
@@ -172,7 +184,7 @@ if __name__ == '__main__':
         print('stack:.')
         s = gf.iter_fuzz(key=start, max_depth=5)
         print(s)
-        g = GLLStack(s+'$')
+        g = GLLStack(s)
         assert parse_string(g) == 'success'
         print('parsed.')
 
@@ -708,7 +720,7 @@ class GLLStructuredStackP:
     # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
     # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
-        if not x: h = i # x is epsilon
+        if x is None: h = i # x is epsilon
         else: h = i+1
         return self.get_sppf_symbol_node((x, i, h))
 
@@ -729,7 +741,7 @@ class GLLStructuredStackP:
             # else:
             #     t = X_rule_pos
             if beta == []: # if beta = epsilon from GLL_parse_tree_generation
-                t = X
+                t = X # symbol node.
             else:
                 t = X_rule_pos
             (q, k, i) = z.label # suppose z has label (q,k,i)
@@ -740,8 +752,13 @@ class GLLStructuredStackP:
                 # should be shared.
                 # assert k == _k # TODO: this should be true.
                 k = _k
+
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
-                y = self.get_sppf_intermediate_node((t, j, i))
+                if beta == []:
+                    y = self.get_sppf_symbol_node((t, j, i))
+                else:
+                    y = self.get_sppf_intermediate_node((t, j, i))
+
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
                     # create a child of y with left child with w right child z
                     # the extent of w-z is the same as y
@@ -766,6 +783,17 @@ class GLLStructuredStackP:
         if fuzzer.is_terminal(alpha[0]): return True
         if alpha[0] in self.nullable: return False
         return True
+
+# #### Compiling an empty rule (P)
+def compile_epsilon(key, n_alt):
+    return '''\
+        elif L == '%s[%d]_0':
+            # epsilon
+            c_r = parser.getNodeT(None, c_i)
+            L = '_'
+            c_n = parser.getNodeP(L, c_n, c_r)
+            continue
+''' % (key, n_alt)
 
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
@@ -801,13 +829,16 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
 # #### Compiling a Rule
 def compile_rule(key, n_alt, rule):
     res = []
-    for i, t in enumerate(rule):
-        if fuzzer.is_nonterminal(t):
-            r = compile_nonterminal(key, n_alt, i, len(rule), t)
-        else:
-            r = compile_terminal(key, n_alt, i, len(rule), t)
+    if not rule:
+        r = compile_epsilon(key, n_alt)
         res.append(r)
-
+    else:
+        for i, t in enumerate(rule):
+            if fuzzer.is_nonterminal(t):
+                r = compile_nonterminal(key, n_alt, i, len(rule), t)
+            else:
+                r = compile_terminal(key, n_alt, i, len(rule), t)
+            res.append(r)
     res.append('''\
         elif L == ('%s',%d,%d):
             L = 'L_'
@@ -887,7 +918,9 @@ import random
 
 def process_sppf_symbol(node, hmap, tab):
     assert isinstance(node, SPPF_symbol_node)
-    print(' ' * tab, node.to_s(g))
+    print(' ' * tab, 'S', node.to_s(g))
+    for n in node.children:
+        process_sppf_packed(n,hmap, tab+1)
 
 def process_sppf_packed(node, hmap, tab):
     assert isinstance(node, SPPF_packed_node)
@@ -913,7 +946,7 @@ def process_sppf_intermediate_node(node, hmap, tab):
         f.write('mystring = "%s"\n' % mystring)
         f.write('g = GLLStructuredStackP(mystring)\n')
         f.write('print(parse_string(g))\n')
-        f.write('process_sppf_intermediate_node(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)\n')
+        f.write('process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)\n')
     shutil.copyfile(sys.argv[0], 'x.py')
 
 if __name__ == '__main__':
