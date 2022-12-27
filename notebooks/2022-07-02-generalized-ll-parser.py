@@ -721,6 +721,7 @@ class GLLStructuredStackP:
                 # w is the left node, and z is the right node. So the center (k)
                 # should be shared.
                 # assert k == _k # TODO: this should be true.
+                k = _k
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 y = self.get_sppf_intermediate_node((t, j, i))
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
@@ -866,13 +867,32 @@ def write_res(res, mystring):
         f.write('''
 import random
 
+def show_packed(node):
+    (sym, n_alt, dot), lat = node.label
+    #return sym + ' ::= ' + str(g.grammar[sym][n_alt])+ ',' + str(lat)
+    return ( sym + ' ::= ' +
+            str(g.grammar[sym][n_alt][:dot]) + '.' +
+            str(g.grammar[sym][n_alt][dot:]) + ' ' + str(lat) )
+
+
+def show_sym(node):
+    return (node.label)
+
+def show_intermediate(node):
+    if isinstance(node.label[0], str):
+        return str(node.label)
+    ((sym, n_alt, dot), i, j)  = node.label
+    return ( sym + ' ::= ' +
+            str(g.grammar[sym][n_alt][:dot]) + '.' +
+            str(g.grammar[sym][n_alt][dot:]) + ' ' + str(i) + ',' + str(j))
+
 def process_sppf_symbol(node, hmap, tab):
     assert isinstance(node, SPPF_symbol_node)
-    print(' ' * tab, node.label[0])
+    print(' ' * tab, show_sym(node))
 
 def process_sppf_packed(node, hmap, tab):
     assert isinstance(node, SPPF_packed_node)
-    print(' ' * tab, 'P', node.label[0])
+    print(' ' * tab, 'P', show_packed(node))
     for n in node.children:
         if isinstance(n, SPPF_symbol_node):
             process_sppf_symbol(n,hmap, tab+1)
@@ -882,11 +902,11 @@ def process_sppf_packed(node, hmap, tab):
 
 def process_sppf_intermediate_node(node, hmap, tab):
     assert isinstance(node, SPPF_intermediate_node)
-    print(' '*tab, 'I', node.label)
+    print(' '*tab, 'I', show_intermediate(node))
     #assert len(node.children) == 1
-    n = random.choice(node.children)
-    #for n in node.children:
-    process_sppf_packed(n,hmap, tab+1)
+    #n = random.choice(node.children)
+    for n in node.children:
+        process_sppf_packed(n,hmap, tab+1)
 
 ''')
         f.write(res)
@@ -1150,4 +1170,23 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring2)
     assert parse_string(g) == 'success'
     print('X_G5')
+
+    X_G6 = {
+        '<S>': [
+        ['b', 'a', 'c'],
+        ['b', 'a', 'a'],
+        ['b', '<A>', 'c'],
+        ],
+        '<A>': [
+            ['a']]
+    }
+    X_G6_start = '<S>'
+
+    mystring2 = 'bac'
+    res = compile_grammar(X_G6, '<S>')
+    write_res(res, mystring2)
+    exec(res)
+    g = GLLStructuredStackP(mystring2)
+    assert parse_string(g) == 'success'
+    print('X_G6')
 
