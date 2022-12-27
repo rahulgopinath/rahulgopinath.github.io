@@ -96,7 +96,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 # #### (1) Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = '_'
+        Lnxt = 'L_'
     else:
         Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
     return '''\
@@ -790,7 +790,7 @@ def compile_epsilon(key, n_alt):
         elif L == '%s[%d]_0':
             # epsilon
             c_r = parser.getNodeT(None, c_i)
-            L = '_'
+            L = 'L_'
             c_n = parser.getNodeP(L, c_n, c_r)
             continue
 ''' % (key, n_alt)
@@ -798,7 +798,7 @@ def compile_epsilon(key, n_alt):
 # #### Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = '_'
+        Lnxt = 'L_'
     else:
         Lnxt = '("%s",%d,%d)' % (key, n_alt, r_pos+1)
     return '''\
@@ -816,7 +816,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 # #### Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = '_'
+        Lnxt = 'L_'
     else:
         Lnxt = "('%s',%d,%d)" % (key, n_alt, r_pos+1)
     return '''\
