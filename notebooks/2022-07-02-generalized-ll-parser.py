@@ -16,8 +16,9 @@
 # implementation and a tutorial on how to implement a GLL parser in Python.
 # 
 # **Note:** This post is not complete. Given the interest in GLL parsers, I am
-# simply providing the source until I have more bandwidth to complete the
-# tutorial.
+# simply providing the source (which substantially follows the publications)
+# until I have more bandwidth to complete the tutorial. However, the code
+# itself is complete, and can be used.
 
 # #### Prerequisites
 #
