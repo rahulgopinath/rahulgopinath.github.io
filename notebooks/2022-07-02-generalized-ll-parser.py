@@ -861,6 +861,7 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
+            # need to check first() if performance is important.
             # %s
             parser.add_thread( ('%s',%d,0), c_u, c_i, end_rule)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
