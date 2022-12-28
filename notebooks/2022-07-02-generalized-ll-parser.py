@@ -71,23 +71,23 @@ class GLLStack:
 # #### (1) Compiling an empty rule
 def compile_epsilon(key, n_alt):
     return '''\
-        elif L == '%s[%d]_0':
+        elif L == ("%s", %d, 0):
             # epsilon -- redundant here since we are not parsing.
-            L = '%s'
+            L = %s
             continue
-''' % (key, n_alt, 'L_')
+''' % (key, n_alt, '"L_"')
 
 # #### (1) Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = 'L_'
+        Lnxt = '"L_"'
     else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+        Lnxt = '("%s", %d, %d)' % (key, n_alt, r_pos+1)
     return '''\
-        elif L == '%s[%d]_%d':
+        elif L == ("%s", %d, %d):
             if parser.I[i] == '%s':
                 i = i+1
-                L = '%s'
+                L = %s
             else:
                 L = 'L0'
             continue
@@ -96,13 +96,13 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 # #### (1) Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = 'L_'
+        Lnxt = '"L_"'
     else:
-        Lnxt = '%s[%d]_%d' % (key, n_alt, r_pos+1)
+        Lnxt = '("%s", %d, %d)' % (key, n_alt, r_pos+1)
     return '''\
-        elif L ==  '%s[%d]_%d':
-            sval = parser.register_return('%s', sval, i)
-            L = '%s'
+        elif L ==  ("%s", %d, %d):
+            sval = parser.register_return(%s, sval, i)
+            L = "%s"
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
@@ -120,7 +120,7 @@ def compile_rule(key, n_alt, rule):
                 r = compile_terminal(key, n_alt, i, len(rule), t)
             res.append(r)
     res.append('''\
-        elif L == '%s[%d]_%d':
+        elif L == ("%s", %d, %d):
             L = 'L_'
             continue
 ''' % (key, n_alt, len(rule)))
@@ -135,7 +135,7 @@ def compile_def(key, definition):
     for n_alt,rule in enumerate(definition):
         res.append('''\
             # %s
-            parser.add_thread( '%s[%d]_0', sval, i)''' % (key + '::=' + str(rule), key, n_alt))
+            parser.add_thread( ("%s",%d, 0), sval, i)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -801,7 +801,7 @@ def compile_epsilon(key, n_alt):
 # #### (3) Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = 'L_'
+        Lnxt = '"L_"'
     else:
         Lnxt = '("%s",%d,%d)' % (key, n_alt, r_pos+1)
     return '''\
@@ -819,13 +819,13 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
 # #### (3) Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
-        Lnxt = 'L_'
+        Lnxt = '"L_"'
     else:
         Lnxt = "('%s',%d,%d)" % (key, n_alt, r_pos+1)
     return '''\
         elif L ==  ('%s',%d,%d):
             c_u = parser.register_return(%s, c_u, c_i, c_n)
-            L = '%s'
+            L = "%s"
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
