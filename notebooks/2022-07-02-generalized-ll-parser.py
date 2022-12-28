@@ -134,7 +134,8 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add_thread( '%s[%d]_0', sval, i)''' % (key, n_alt))
+            # %s
+            parser.add_thread( '%s[%d]_0', sval, i)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -287,6 +288,8 @@ class GLLStructuredStack:
 # ### The GSS GLL Compiler
 # The only difference in the main body when using the GSS is how we check
 # for termination.
+
+# #### (2) Compiling a Grammar
 def compile_grammar(g, start):
     res = ['''\
 def parse_string(parser):
@@ -784,10 +787,10 @@ class GLLStructuredStackP:
         if alpha[0] in self.nullable: return False
         return True
 
-# #### Compiling an empty rule (P)
+# #### (3) Compiling an empty rule (P)
 def compile_epsilon(key, n_alt):
     return '''\
-        elif L == '%s[%d]_0':
+        elif L == ("%s", %d, 0):
             # epsilon
             c_r = parser.getNodeT(None, c_i)
             L = 'L_'
@@ -795,7 +798,7 @@ def compile_epsilon(key, n_alt):
             continue
 ''' % (key, n_alt)
 
-# #### Compiling a Terminal Symbol
+# #### (3) Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = 'L_'
@@ -813,7 +816,7 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, token, Lnxt)
 
-# #### Compiling a Nonterminal Symbol
+# #### (3) Compiling a Nonterminal Symbol
 def compile_nonterminal(key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = 'L_'
@@ -826,7 +829,7 @@ def compile_nonterminal(key, n_alt, r_pos, r_len, token):
             continue
 ''' % (key, n_alt, r_pos, Lnxt, token)
 
-# #### Compiling a Rule
+# #### (3) Compiling a Rule
 def compile_rule(key, n_alt, rule):
     res = []
     if not rule:
@@ -846,7 +849,7 @@ def compile_rule(key, n_alt, rule):
 ''' % (key, n_alt, len(rule)))
     return '\n'.join(res)
 
-# #### Compiling a Definition
+# #### (3) Compiling a Definition
 def compile_def(key, definition):
     res = []
     res.append('''\
@@ -854,7 +857,8 @@ def compile_def(key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            parser.add_thread( ('%s',%d,0), c_u, c_i, c_n)''' % (key, n_alt))
+            # %s
+            parser.add_thread( ('%s',%d,0), c_u, c_i, end_rule)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -863,6 +867,8 @@ def compile_def(key, definition):
         res.append(r)
     return '\n'.join(res)
 
+
+# #### (3) Compiling a Grammar
 
 def compile_grammar(g, start):
     import pprint
@@ -881,7 +887,8 @@ def parse_string(parser):
     )
     # L contains start nt.
     S = '%s'
-    L, c_u, c_i, c_n = S, parser.u0, 0, SPPF_dummy('$')
+    end_rule = SPPF_dummy('$')
+    L, c_u, c_i, c_n = S, parser.u0, 0, end_rule
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
