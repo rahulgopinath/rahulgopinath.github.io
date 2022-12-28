@@ -72,10 +72,10 @@ class GLLStack:
 def compile_epsilon(key, n_alt):
     return '''\
         elif L == ("%s", %d, 0):
-            # epsilon -- redundant here since we are not parsing.
-            L = %s
+            # epsilon -- we skip the end and go directly to L_
+            L = 'L_'
             continue
-''' % (key, n_alt, '"L_"')
+''' % (key, n_alt)
 
 # #### (1) Compiling a Terminal Symbol
 def compile_terminal(key, n_alt, r_pos, r_len, token):
@@ -119,7 +119,8 @@ def compile_rule(key, n_alt, rule):
             else:
                 r = compile_terminal(key, n_alt, i, len(rule), t)
             res.append(r)
-    res.append('''\
+        # if epsilon present, we do not want this branch.
+        res.append('''\
         elif L == ("%s", %d, %d):
             L = 'L_'
             continue
@@ -791,7 +792,8 @@ class GLLStructuredStackP:
 def compile_epsilon(key, n_alt):
     return '''\
         elif L == ("%s", %d, 0):
-            # epsilon
+            # epsilon: If epsilon is present, we skip the end of rule with same
+            # L and go directly to L_
             c_r = parser.getNodeT(None, c_i)
             c_n = parser.getNodeP(L, c_n, c_r)
             L = 'L_'
@@ -842,7 +844,8 @@ def compile_rule(key, n_alt, rule):
             else:
                 r = compile_terminal(key, n_alt, i, len(rule), t)
             res.append(r)
-    res.append('''\
+        # if epsilon present, we do not want this branch.
+        res.append('''\
         elif L == ('%s',%d,%d):
             L = 'L_'
             continue
