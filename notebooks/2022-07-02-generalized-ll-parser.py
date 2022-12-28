@@ -793,8 +793,8 @@ def compile_epsilon(key, n_alt):
         elif L == ("%s", %d, 0):
             # epsilon
             c_r = parser.getNodeT(None, c_i)
-            L = 'L_'
             c_n = parser.getNodeP(L, c_n, c_r)
+            L = 'L_'
             continue
 ''' % (key, n_alt)
 
