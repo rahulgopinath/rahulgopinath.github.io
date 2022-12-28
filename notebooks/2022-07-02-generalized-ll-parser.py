@@ -69,67 +69,71 @@ class GLLStack:
 
 # ### The Stack GLL Compiler
 
+def tuple_to_str(g, sym, n_alt, pos):
+    rule = g[sym][n_alt]
+    return sym + '::=' + ' '.join(rule[0:pos]) + ' * ' + ' '.join(rule[pos:])
+
 # #### (1) Compiling an empty rule
-def compile_epsilon(key, n_alt):
+def compile_epsilon(g, key, n_alt):
     return '''\
-        elif L == ("%s", %d, 0):
+        elif L == ("%s", %d, 0): # %s
             # epsilon -- we skip the end and go directly to L_
             L = 'L_'
             continue
-''' % (key, n_alt)
+''' % (key, n_alt, tuple_to_str(g, key, n_alt, 0))
 
 # #### (1) Compiling a Terminal Symbol
-def compile_terminal(key, n_alt, r_pos, r_len, token):
+def compile_terminal(g, key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '"L_"'
     else:
         Lnxt = '("%s", %d, %d)' % (key, n_alt, r_pos+1)
     return '''\
-        elif L == ("%s", %d, %d):
+        elif L == ("%s", %d, %d): # %s
             if parser.I[i] == '%s':
                 i = i+1
                 L = %s
             else:
                 L = 'L0'
             continue
-''' % (key, n_alt, r_pos, token, Lnxt)
+''' % (key, n_alt, r_pos, tuple_to_str(g, key, n_alt, r_pos), token, Lnxt)
 
 # #### (1) Compiling a Nonterminal Symbol
-def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '"L_"'
     else:
         Lnxt = '("%s", %d, %d)' % (key, n_alt, r_pos+1)
     return '''\
-        elif L ==  ("%s", %d, %d):
+        elif L ==  ("%s", %d, %d): # %s
             sval = parser.register_return(%s, sval, i)
             L = "%s"
             continue
-''' % (key, n_alt, r_pos, Lnxt, token)
+''' % (key, n_alt, r_pos, tuple_to_str(g, key, n_alt, r_pos), Lnxt, token)
 
 # #### (1) Compiling a Rule
-def compile_rule(key, n_alt, rule):
+def compile_rule(g, key, n_alt, rule):
     res = []
     if not rule:
-        r = compile_epsilon(key, n_alt)
+        r = compile_epsilon(g, key, n_alt)
         res.append(r)
     else:
         for i, t in enumerate(rule):
             if fuzzer.is_nonterminal(t):
-                r = compile_nonterminal(key, n_alt, i, len(rule), t)
+                r = compile_nonterminal(g, key, n_alt, i, len(rule), t)
             else:
-                r = compile_terminal(key, n_alt, i, len(rule), t)
+                r = compile_terminal(g, key, n_alt, i, len(rule), t)
             res.append(r)
         # if epsilon present, we do not want this branch.
         res.append('''\
-        elif L == ("%s", %d, %d):
+        elif L == ("%s", %d, %d): # %s
             L = 'L_'
             continue
-''' % (key, n_alt, len(rule)))
+''' % (key, n_alt, len(rule), tuple_to_str(g, key, n_alt, len(rule))))
     return '\n'.join(res)
 
 # #### (1) Compiling a Definition
-def compile_def(key, definition):
+def compile_def(g, key, definition):
     res = []
     res.append('''\
         elif L == '%s':
@@ -142,7 +146,7 @@ def compile_def(key, definition):
             L = 'L0'
             continue''')
     for n_alt,rule in enumerate(definition):
-        r = compile_rule(key, n_alt, rule)
+        r = compile_rule(g, key, n_alt, rule)
         res.append(r)
     return '\n'.join(res)
 
@@ -164,7 +168,7 @@ def parse_string(parser):
             continue
     ''' % start]
     for k in g: 
-        r = compile_def(k, g[k])
+        r = compile_def(g, k, g[k])
         res.append(r)
     res.append('''\
         else:
@@ -310,7 +314,7 @@ def parse_string(parser):
             continue
     ''' % start]
     for k in g: 
-        r = compile_def(k, g[k])
+        r = compile_def(g, k, g[k])
         res.append(r)
     res.append('''
         else:
@@ -755,8 +759,8 @@ class GLLStructuredStackP:
                 (s,j,_k) = w.label # suppose w has label (s,j,k)
                 # w is the left node, and z is the right node. So the center (k)
                 # should be shared.
-                # assert k == _k # TODO: this should be true.
-                k = _k
+                assert k == _k # TODO: this should be true.
+                #k = _k
 
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 if beta == []:
@@ -790,25 +794,25 @@ class GLLStructuredStackP:
         return True
 
 # #### (3) Compiling an empty rule (P)
-def compile_epsilon(key, n_alt):
+def compile_epsilon(g, key, n_alt):
     return '''\
-        elif L == ("%s", %d, 0):
+        elif L == ("%s", %d, 0): # %s
             # epsilon: If epsilon is present, we skip the end of rule with same
             # L and go directly to L_
             c_r = parser.getNodeT(None, c_i)
             c_n = parser.getNodeP(L, c_n, c_r)
             L = 'L_'
             continue
-''' % (key, n_alt)
+''' % (key, n_alt,tuple_to_str(g, key, n_alt, 0))
 
 # #### (3) Compiling a Terminal Symbol
-def compile_terminal(key, n_alt, r_pos, r_len, token):
+def compile_terminal(g, key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '"L_"'
     else:
         Lnxt = '("%s",%d,%d)' % (key, n_alt, r_pos+1)
     return '''\
-        elif L == ("%s",%d,%d):
+        elif L == ("%s",%d,%d): # %s
             if parser.I[c_i] == '%s':
                 c_r = parser.getNodeT(parser.I[c_i], c_i)
                 c_i = c_i+1
@@ -817,44 +821,44 @@ def compile_terminal(key, n_alt, r_pos, r_len, token):
             else:
                 L = 'L0'
             continue
-''' % (key, n_alt, r_pos, token, Lnxt)
+''' % (key, n_alt, r_pos, tuple_to_str(g, key, n_alt, r_pos), token, Lnxt)
 
 # #### (3) Compiling a Nonterminal Symbol
-def compile_nonterminal(key, n_alt, r_pos, r_len, token):
+def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
     if r_len == r_pos:
         Lnxt = '"L_"'
     else:
         Lnxt = "('%s',%d,%d)" % (key, n_alt, r_pos+1)
     return '''\
-        elif L ==  ('%s',%d,%d):
+        elif L ==  ('%s',%d,%d): # %s
             c_u = parser.register_return(%s, c_u, c_i, c_n)
             L = "%s"
             continue
-''' % (key, n_alt, r_pos, Lnxt, token)
+''' % (key, n_alt, r_pos, tuple_to_str(g, key, n_alt, r_pos), Lnxt, token)
 
 # #### (3) Compiling a Rule
-def compile_rule(key, n_alt, rule):
+def compile_rule(g, key, n_alt, rule):
     res = []
     if not rule:
-        r = compile_epsilon(key, n_alt)
+        r = compile_epsilon(g, key, n_alt)
         res.append(r)
     else:
         for i, t in enumerate(rule):
             if fuzzer.is_nonterminal(t):
-                r = compile_nonterminal(key, n_alt, i, len(rule), t)
+                r = compile_nonterminal(g, key, n_alt, i, len(rule), t)
             else:
-                r = compile_terminal(key, n_alt, i, len(rule), t)
+                r = compile_terminal(g, key, n_alt, i, len(rule), t)
             res.append(r)
         # if epsilon present, we do not want this branch.
         res.append('''\
-        elif L == ('%s',%d,%d):
+        elif L == ('%s',%d,%d): # %s
             L = 'L_'
             continue
-''' % (key, n_alt, len(rule)))
+''' % (key, n_alt, len(rule), tuple_to_str(g, key, n_alt, len(rule))))
     return '\n'.join(res)
 
 # #### (3) Compiling a Definition
-def compile_def(key, definition):
+def compile_def(g, key, definition):
     res = []
     res.append('''\
         elif L == '%s':
@@ -868,7 +872,7 @@ def compile_def(key, definition):
             L = 'L0'
             continue''')
     for n_alt,rule in enumerate(definition):
-        r = compile_rule(key, n_alt, rule)
+        r = compile_rule(g, key, n_alt, rule)
         res.append(r)
     return '\n'.join(res)
 
@@ -912,7 +916,7 @@ def parse_string(parser):
             continue
     ''' % (pp.pformat(g), start)]
     for k in g: 
-        r = compile_def(k, g[k])
+        r = compile_def(g, k, g[k])
         res.append(r)
     res.append('''
         else:
