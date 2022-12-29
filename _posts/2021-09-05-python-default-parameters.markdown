@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -229,10 +243,118 @@ print(my_other_list)
 <div name='python_canvas'></div>
 </form>
 A problem with this is that it messes with the function signature
-when using type hints. However, one may be able to work around it
+when using type hints. However, one can work around it
 by using a wrapper function.
+
+<!--
+############
+def fix_params(**my_default_args):
+    def _decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            specs = inspect.getfullargspec(func)
+            defaults = dict(zip(specs.args[::-1], (specs.defaults or ())[::-1]))
+            defaults.update(specs.kwonlydefaults or {})
+
+            original_defaults = func.__defaults__
+            func.__defaults__ = tuple([my_default_args[val]()
+               if val in my_default_args else val
+               for val in defaults])
+            rval = func(*args, **kwargs)
+            func.__defaults__ = original_defaults
+            return rval
+        return wrapper
+    return _decorator
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def fix_params(**my_default_args):
+    def _decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            specs = inspect.getfullargspec(func)
+            defaults = dict(zip(specs.args[::-1], (specs.defaults or ())[::-1]))
+            defaults.update(specs.kwonlydefaults or {})
+
+            original_defaults = func.__defaults__
+            func.__defaults__ = tuple([my_default_args[val]()
+               if val in my_default_args else val
+               for val in defaults])
+            rval = func(*args, **kwargs)
+            func.__defaults__ = original_defaults
+            return rval
+        return wrapper
+    return _decorator
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Wit this, we provide default parameters to `@fix_params` instead with same
+name but wrapped in a lambda, which overwrites the provided default value.
+
+<!--
+############
+@fix_params(to=lambda: [])
+def append_to(element, to=None):
+    to.append(element)
+    return to
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+@fix_params(to=lambda: [])
+def append_to(element, to=None):
+    to.append(element)
+    return to
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using it.
+
+<!--
+############
+my_list = append_to(12)
+print(my_list)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_list = append_to(12)
+print(my_list)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+another.
+
+<!--
+############
+my_other_list = append_to(42)
+print(my_other_list)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_other_list = append_to(42)
+print(my_other_list)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The full code is [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-05-python-default-parameters.py).
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-05-python-default-parameters.py).
+
+

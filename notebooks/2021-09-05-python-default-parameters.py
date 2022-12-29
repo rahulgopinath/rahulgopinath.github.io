@@ -100,7 +100,44 @@ my_other_list = append_to(42)
 print(my_other_list)
 
 # A problem with this is that it messes with the function signature
-# when using type hints. However, one may be able to work around it
+# when using type hints. However, one can work around it
 # by using a wrapper function.
+
+def fix_params(**my_default_args):
+    def _decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            specs = inspect.getfullargspec(func)
+            defaults = dict(zip(specs.args[::-1], (specs.defaults or ())[::-1]))
+            defaults.update(specs.kwonlydefaults or {})
+
+            original_defaults = func.__defaults__
+            func.__defaults__ = tuple([my_default_args[val]()
+               if val in my_default_args else val
+               for val in defaults])
+            rval = func(*args, **kwargs)
+            func.__defaults__ = original_defaults
+            return rval
+        return wrapper
+    return _decorator
+
+# Wit this, we provide default parameters to `@fix_params` instead with same
+# name but wrapped in a lambda, which overwrites the provided default value.
+
+@fix_params(to=lambda: [])
+def append_to(element, to=None):
+    to.append(element)
+    return to
+
+# using it.
+
+my_list = append_to(12)
+print(my_list)
+
+# another.
+
+my_other_list = append_to(42)
+print(my_other_list)
+
 #
 # The full code is [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-09-05-python-default-parameters.py).
