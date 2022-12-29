@@ -27,7 +27,7 @@ window.display_dot = display_dot
 // from js import display_dot
 </script>
 
-<script src="/resources/pyodide/full/3.10/pyodide.js"></script>
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
@@ -53,10 +53,10 @@ Here is a simple grammar for a language that can parse nested expressions, with 
 the expressions elements can only be `1` and only addition is supported for simplicity.
 
 ```ebnf
-E = T "+" E
-  | T
-T = "1"
-  | "(" E ")"
+<E> ::= <T> "+" <E>
+  | <T>
+<T> = "1"
+  | "(" <E> ")"
 ```
 
 This grammar can parse expressions such as `1`, `1+1`, `1+1+1+1` etc.
@@ -166,8 +166,191 @@ def match(t):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Once we have all these, the core part of parsing is two procedures. The first tries to match a sequence
-of terms one by one. If the match succeeds, then we return success. If not, then we signal failure and exit.
+With these, we can now translate our grammar directly.
+We first define terminals
+
+<!--
+############
+def ONE():
+    return match('1')
+
+def PLUS():
+    return match('+')
+
+def P_OPEN():
+    return match('(')
+
+def P_CLOSE():
+    return match(')')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def ONE():
+    return match(&#x27;1&#x27;)
+
+def PLUS():
+    return match(&#x27;+&#x27;)
+
+def P_OPEN():
+    return match(&#x27;(&#x27;)
+
+def P_CLOSE():
+    return match(&#x27;)&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, Each alternate expansion is defined as a procedure
+
+<!--
+############
+def E1():
+    if not T(): return False
+    if not PLUS(): return False
+    if not E(): return False
+    return True
+
+def E2():
+    if not T(): return False
+    return True
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def E1():
+    if not T(): return False
+    if not PLUS(): return False
+    if not E(): return False
+    return True
+
+def E2():
+    if not T(): return False
+    return True
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We then hook up these alternate expansions in a single procedure.
+
+<!--
+############
+def E():
+    o_pos = pos_cur()
+    if E1(): return True
+    pos_set(o_pos)
+    if E2(): return True
+    pos_set(o_pos)
+    return False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def E():
+    o_pos = pos_cur()
+    if E1(): return True
+    pos_set(o_pos)
+    if E2(): return True
+    pos_set(o_pos)
+    return False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Same with T.
+
+<!--
+############
+def T1():
+    if not ONE(): return False
+    return True
+
+def T2():
+    if not P_OPEN(): return False
+    if not E(): return False
+    if not P_CLOSE(): return False
+    return True
+
+def T():
+    o_pos = pos_cur()
+    if T1(): return True
+    pos_set(o_pos)
+    if T2(): return True
+    pos_set(o_pos)
+    return False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def T1():
+    if not ONE(): return False
+    return True
+
+def T2():
+    if not P_OPEN(): return False
+    if not E(): return False
+    if not P_CLOSE(): return False
+    return True
+
+def T():
+    o_pos = pos_cur()
+    if T1(): return True
+    pos_set(o_pos)
+    if T2(): return True
+    pos_set(o_pos)
+    return False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, we define our parser
+
+<!--
+############
+def parse(i):
+    global my_input
+    my_input = i
+    assert E()
+    assert pos_eof()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def parse(i):
+    global my_input
+    my_input = i
+    assert E()
+    assert pos_eof()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+reset()
+parse("1+(1+1)")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+reset()
+parse(&quot;1+(1+1)&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can also abstract the above sequence using tow procedures.
+The first tries to match a sequence of terms one by one. If
+the match succeeds, then we return success. If not, then we signal failure and
+exit.
 
 <!--
 ############
@@ -213,63 +396,42 @@ def do_alt(alt_terms):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-With this, we are now ready to write our parser. Since we are writing a top-down recursive descent parser, we
-start with the axiom rule `E` which contains two alternatives.
+We will now write our parser as follows.
 
 <!--
 ############
-def E():
-    """
-E = ...
-  | ...
-"""
+def E_():
     return do_alt([E_1, E_2])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def E():
-    &quot;&quot;&quot;
-E = ...
-  | ...
-&quot;&quot;&quot;
+def E_():
     return do_alt([E_1, E_2])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Both `E_1` and `E_2` are simple sequential rules
+E_1 and E_2 are fairly simple
 
 <!--
 ############
 def E_1():
-    """
-E = T + E
-    """
-    return do_seq([T, PLUS, E])
+    return do_seq([T_, PLUS, E_])
 
 def E_2():
-    """
-E = T
-"""
-    return do_seq([T])
+    return do_seq([T_])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def E_1():
-    &quot;&quot;&quot;
-E = T + E
-    &quot;&quot;&quot;
-    return do_seq([T, PLUS, E])
+    return do_seq([T_, PLUS, E_])
 
 def E_2():
-    &quot;&quot;&quot;
-E = T
-&quot;&quot;&quot;
-    return do_seq([T])
+    return do_seq([T_])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -278,22 +440,14 @@ Defining `T` is similar
 
 <!--
 ############
-def T():
-    """
-T = ...
-  | ...
-"""
+def T_():
     return do_alt([T_1, T_2])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def T():
-    &quot;&quot;&quot;
-T = ...
-  | ...
-&quot;&quot;&quot;
+def T_():
     return do_alt([T_1, T_2])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -304,67 +458,32 @@ And each alternative in `T` gets defined correspondingly.
 <!--
 ############
 def T_1():
-    """
-T = 1
-"""
-    return match('1')
+    return do_seq([ONE])
+
 def T_2():
-    """
-T = ( E )
-"""
-    return do_seq([P_OPEN,E,P_CLOSE])
+    return do_seq([P_OPEN,E_,P_CLOSE])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def T_1():
-    &quot;&quot;&quot;
-T = 1
-&quot;&quot;&quot;
-    return match(&#x27;1&#x27;)
+    return do_seq([ONE])
+
 def T_2():
-    &quot;&quot;&quot;
-T = ( E )
-&quot;&quot;&quot;
-    return do_seq([P_OPEN,E,P_CLOSE])
+    return do_seq([P_OPEN,E_,P_CLOSE])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We also need terminals, which is again simple enough
-
-<!--
-############
-def PLUS():
-    return match('+')
-def P_OPEN():
-    return match('(')
-def P_CLOSE():
-    return match(')')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def PLUS():
-    return match(&#x27;+&#x27;)
-def P_OPEN():
-    return match(&#x27;(&#x27;)
-def P_CLOSE():
-    return match(&#x27;)&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-The only thing that remains is to define the parser
+We define our parser using `E_()`
 
 <!--
 ############
 def parse(i):
     global my_input
     my_input = i
-    assert E()
+    assert E_()
     assert pos_eof()
 
 ############
@@ -374,7 +493,7 @@ def parse(i):
 def parse(i):
     global my_input
     my_input = i
-    assert E()
+    assert E_()
     assert pos_eof()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -417,18 +536,18 @@ The interesting part is that, our infrastructure can be readily turned to
 parse much more complex grammars, with almost one-to-one rewriting of each rule. For example,
 here is a slightly more complex grammar:
 ```ebnf
-term = fact mul_op term
-     | fact
+<term> ::= <fact> <mul_op> <term>
+     | <fact>
 
-fact =  digits
-     | "(" expr ")"
+<fact> ::=  <digits>
+     | "(" <expr> ")"
 
-digits = digit digits
-      | digit
+<digits> ::= <digit> <digits>
+      | <digit>
 
-digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-add_op = "+" | "-"
-mul_op = "*" | "/"
+<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<add_op> ::= "+" | "-"
+<mul_op> ::= "*" | "/"
 ```
 Its conversion is almost automatic
 
@@ -518,26 +637,26 @@ easily loaded it as a `JSON` file, or even parsed the BNF myself if necessary fr
 <!--
 ############
 grammar = {
-        "expr": [["term", "add_op", "expr"], ["term"]],
-        "term": [["fact", "mul_op", "term"], ["fact"]],
-        "fact": [["digits"], ["(", "expr", ")"]],
-        "digits": [["digit", "digits"], ["digit"]],
-        "digit": [[str(i)] for i in list(range(10))],
-        "add_op": [["+"], ["-"]],
-        "mul_op": [["*"], ["/"]]
+        "<expr>": [["<term>", "<add_op>", "<expr>"], ["<term>"]],
+        "<term>": [["<fact>", "<mul_op>", "<term>"], ["<fact>"]],
+        "<fact>": [["<digits>"], ["(", "<expr>", ")"]],
+        "<digits>": [["<digit>", "<digits>"], ["<digit>"]],
+        "<digit>": [[str(i)] for i in list(range(10))],
+        "<add_op>": [["+"], ["-"]],
+        "<mul_op>": [["*"], ["/"]]
 }
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 grammar = {
-        &quot;expr&quot;: [[&quot;term&quot;, &quot;add_op&quot;, &quot;expr&quot;], [&quot;term&quot;]],
-        &quot;term&quot;: [[&quot;fact&quot;, &quot;mul_op&quot;, &quot;term&quot;], [&quot;fact&quot;]],
-        &quot;fact&quot;: [[&quot;digits&quot;], [&quot;(&quot;, &quot;expr&quot;, &quot;)&quot;]],
-        &quot;digits&quot;: [[&quot;digit&quot;, &quot;digits&quot;], [&quot;digit&quot;]],
-        &quot;digit&quot;: [[str(i)] for i in list(range(10))],
-        &quot;add_op&quot;: [[&quot;+&quot;], [&quot;-&quot;]],
-        &quot;mul_op&quot;: [[&quot;*&quot;], [&quot;/&quot;]]
+        &quot;&lt;expr&gt;&quot;: [[&quot;&lt;term&gt;&quot;, &quot;&lt;add_op&gt;&quot;, &quot;&lt;expr&gt;&quot;], [&quot;&lt;term&gt;&quot;]],
+        &quot;&lt;term&gt;&quot;: [[&quot;&lt;fact&gt;&quot;, &quot;&lt;mul_op&gt;&quot;, &quot;&lt;term&gt;&quot;], [&quot;&lt;fact&gt;&quot;]],
+        &quot;&lt;fact&gt;&quot;: [[&quot;&lt;digits&gt;&quot;], [&quot;(&quot;, &quot;&lt;expr&gt;&quot;, &quot;)&quot;]],
+        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digit&gt;&quot;, &quot;&lt;digits&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in list(range(10))],
+        &quot;&lt;add_op&gt;&quot;: [[&quot;+&quot;], [&quot;-&quot;]],
+        &quot;&lt;mul_op&gt;&quot;: [[&quot;*&quot;], [&quot;/&quot;]]
 }
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -564,7 +683,7 @@ def do_alt(key):
 def parse(i):
     global my_input
     my_input = i
-    do_alt('expr')
+    do_alt('<expr>')
     assert pos_eof()
 ############
 -->
@@ -587,7 +706,7 @@ def do_alt(key):
 def parse(i):
     global my_input
     my_input = i
-    do_alt(&#x27;expr&#x27;)
+    do_alt(&#x27;&lt;expr&gt;&#x27;)
     assert pos_eof()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -641,7 +760,7 @@ class g_parse:
 
     def parse(self, i):
         self._str, self._len, self._i = i, len(i), 0
-        self.do_alt('expr')
+        self.do_alt('<expr>')
         assert self.remain() == 0
 
 ############
@@ -674,7 +793,7 @@ class g_parse:
 
     def parse(self, i):
         self._str, self._len, self._i = i, len(i), 0
-        self.do_alt(&#x27;expr&#x27;)
+        self.do_alt(&#x27;&lt;expr&gt;&#x27;)
         assert self.remain() == 0
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

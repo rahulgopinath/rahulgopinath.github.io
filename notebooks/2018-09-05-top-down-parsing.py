@@ -19,10 +19,10 @@
 # the expressions elements can only be `1` and only addition is supported for simplicity.
 # 
 # ```ebnf
-# E = T "+" E
-#   | T
-# T = "1"
-#   | "(" E ")"
+# <E> ::= <T> "+" <E>
+#   | <T>
+# <T> = "1"
+#   | "(" <E> ")"
 # ```
 # 
 # This grammar can parse expressions such as `1`, `1+1`, `1+1+1+1` etc.
@@ -70,8 +70,79 @@ def match(t):
     if v: log(t)
     return v
 
-# Once we have all these, the core part of parsing is two procedures. The first tries to match a sequence
-# of terms one by one. If the match succeeds, then we return success. If not, then we signal failure and exit.
+# With these, we can now translate our grammar directly.
+# We first define terminals
+
+def ONE():
+    return match('1')
+
+def PLUS():
+    return match('+')
+
+def P_OPEN():
+    return match('(')
+
+def P_CLOSE():
+    return match(')')
+
+# Next, Each alternate expansion is defined as a procedure
+
+def E1():
+    if not T(): return False
+    if not PLUS(): return False
+    if not E(): return False
+    return True
+
+def E2():
+    if not T(): return False
+    return True
+
+# We then hook up these alternate expansions in a single procedure.
+
+def E():
+    o_pos = pos_cur()
+    if E1(): return True
+    pos_set(o_pos)
+    if E2(): return True
+    pos_set(o_pos)
+    return False
+
+# Same with T.
+
+def T1():
+    if not ONE(): return False
+    return True
+
+def T2():
+    if not P_OPEN(): return False
+    if not E(): return False
+    if not P_CLOSE(): return False
+    return True
+
+def T():
+    o_pos = pos_cur()
+    if T1(): return True
+    pos_set(o_pos)
+    if T2(): return True
+    pos_set(o_pos)
+    return False
+
+# Now, we define our parser
+
+def parse(i):
+    global my_input
+    my_input = i
+    assert E()
+    assert pos_eof()
+
+# Using it
+reset()
+parse("1+(1+1)")
+
+# We can also abstract the above sequence using tow procedures.
+# The first tries to match a sequence of terms one by one. If
+# the match succeeds, then we return success. If not, then we signal failure and
+# exit.
 
 def do_seq(seq_terms):
    for t in seq_terms:
@@ -87,65 +158,37 @@ def do_alt(alt_terms):
         pos_set(o_pos)
     return False
 
-# With this, we are now ready to write our parser. Since we are writing a top-down recursive descent parser, we
-# start with the axiom rule `E` which contains two alternatives.
+# We will now write our parser as follows.
 
-def E():
-    """
-E = ...
-  | ...
-"""
+def E_():
     return do_alt([E_1, E_2])
 
-# Both `E_1` and `E_2` are simple sequential rules
+# E_1 and E_2 are fairly simple
 
 def E_1():
-    """
-E = T + E
-    """
-    return do_seq([T, PLUS, E])
+    return do_seq([T_, PLUS, E_])
 
 def E_2():
-    """
-E = T
-"""
-    return do_seq([T])
+    return do_seq([T_])
 
 # Defining `T` is similar
 
-def T():
-    """
-T = ...
-  | ...
-"""
+def T_():
     return do_alt([T_1, T_2])
 
 # And each alternative in `T` gets defined correspondingly.
 def T_1():
-    """
-T = 1
-"""
-    return match('1')
+    return do_seq([ONE])
+
 def T_2():
-    """
-T = ( E )
-"""
-    return do_seq([P_OPEN,E,P_CLOSE])
+    return do_seq([P_OPEN,E_,P_CLOSE])
 
-# We also need terminals, which is again simple enough
-def PLUS():
-    return match('+')
-def P_OPEN():
-    return match('(')
-def P_CLOSE():
-    return match(')')
-
-# The only thing that remains is to define the parser
+# We define our parser using `E_()`
 
 def parse(i):
     global my_input
     my_input = i
-    assert E()
+    assert E_()
     assert pos_eof()
 
 # Using it:
@@ -160,18 +203,18 @@ parse('1+(1+1)+1')
 # parse much more complex grammars, with almost one-to-one rewriting of each rule. For example,
 # here is a slightly more complex grammar:
 # ```ebnf
-# term = fact mul_op term
-#      | fact
+# <term> ::= <fact> <mul_op> <term>
+#      | <fact>
 # 
-# fact =  digits
-#      | "(" expr ")"
+# <fact> ::=  <digits>
+#      | "(" <expr> ")"
 # 
-# digits = digit digits
-#       | digit
+# <digits> ::= <digit> <digits>
+#       | <digit>
 # 
-# digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-# add_op = "+" | "-"
-# mul_op = "*" | "/"
+# <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+# <add_op> ::= "+" | "-"
+# <mul_op> ::= "*" | "/"
 # ```
 # Its conversion is almost automatic
 
@@ -210,13 +253,13 @@ parse('12*3+(12/13)')
 # grammar as a data-structure for convenience. I hope I don't need to convince you that I could have
 # easily loaded it as a `JSON` file, or even parsed the BNF myself if necessary from an external file.
 grammar = {
-        "expr": [["term", "add_op", "expr"], ["term"]],
-        "term": [["fact", "mul_op", "term"], ["fact"]],
-        "fact": [["digits"], ["(", "expr", ")"]],
-        "digits": [["digit", "digits"], ["digit"]],
-        "digit": [[str(i)] for i in list(range(10))],
-        "add_op": [["+"], ["-"]],
-        "mul_op": [["*"], ["/"]]
+        "<expr>": [["<term>", "<add_op>", "<expr>"], ["<term>"]],
+        "<term>": [["<fact>", "<mul_op>", "<term>"], ["<fact>"]],
+        "<fact>": [["<digits>"], ["(", "<expr>", ")"]],
+        "<digits>": [["<digit>", "<digits>"], ["<digit>"]],
+        "<digit>": [[str(i)] for i in list(range(10))],
+        "<add_op>": [["+"], ["-"]],
+        "<mul_op>": [["*"], ["/"]]
 }
 # Using the grammar just means that we have to slightly modify our core procedures.
 def do_seq(seq_terms):
@@ -236,7 +279,7 @@ def do_alt(key):
 def parse(i):
     global my_input
     my_input = i
-    do_alt('expr')
+    do_alt('<expr>')
     assert pos_eof()
 # Using it is same as before:
 reset()
@@ -269,7 +312,7 @@ class g_parse:
 
     def parse(self, i):
         self._str, self._len, self._i = i, len(i), 0
-        self.do_alt('expr')
+        self.do_alt('<expr>')
         assert self.remain() == 0
 
 # Using
