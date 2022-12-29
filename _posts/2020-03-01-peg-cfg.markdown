@@ -65,6 +65,10 @@ expansion, and then try with longer and longer expansions (with larger stacks of
 one needs some way to compute an arbitrary pattern (the left prefix of the mirror expansion). This likely require a Turing
 machine. The spoiler here is that, PEGs may be in some sense universal [^loff2019the].
 
+Finally, Medeiros et al[^medeiros2014on] any LL(1) grammar describes the same
+language irrespective of whether it is interpreted as PEG or a CFG. However,
+the languages differ beyond LL(1).
+
 # References
 
 [^aho1972]: Alfred V Aho and Jeffrey D Ullman.The theory of parsing, translation, and compiling. Vol. 1. Prentice-Hall Englewood Cliffs, NJ, 1972
@@ -92,3 +96,6 @@ machine. The spoiler here is that, PEGs may be in some sense universal [^loff201
 [^loff2019the]: Bruno Loff, Nelma Moreira, Rogério Reis "The computational power of parsing expression grammars" 2019  	arXiv:1902.08272 .URL:<https://arxiv.org/abs/1902.08272>
 
 [^schorre1964meta]: Schorre, D. V."META II: A Syntax-Oriented Compiler Writing Language." In Proceedings of the 1964 19th ACM National Conference, 1964. URL: http://doi.acm.org/10.1145/800257.808896
+
+[^medeiros2014on]: [Fabio Mascarenhas, Sergio Medeiros, Roberto Ierusalimschy. "On the relation between context-free grammars and parsing expression grammars."  Science of Computer Programming. 2014.](https://repositorio.ufrn.br/bitstream/123456789/30875/1/OnRelationBetween_MEDEIROS_2014.pdf)
+
