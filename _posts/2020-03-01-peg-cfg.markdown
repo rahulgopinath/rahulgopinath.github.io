@@ -65,9 +65,10 @@ expansion, and then try with longer and longer expansions (with larger stacks of
 one needs some way to compute an arbitrary pattern (the left prefix of the mirror expansion). This likely require a Turing
 machine. The spoiler here is that, PEGs may be in some sense universal [^loff2019the].
 
-Finally, Medeiros et al[^medeiros2014on] any LL(1) grammar describes the same
-language irrespective of whether it is interpreted as PEG or a CFG. However,
-the languages differ beyond LL(1).
+Finally, Medeiros et al[^medeiros2014on] show that any LL(1) grammar describes the same
+language irrespective of whether it is interpreted as PEG or a CFG. However, beyond LL(1)
+grammars, the language described by a PEG parser differ significantly from that
+described by a CFG parser.
 
 # References
 
