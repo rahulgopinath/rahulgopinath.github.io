@@ -248,7 +248,7 @@ by using a wrapper function.
 
 <!--
 ############
-def fix_params(**my_default_args):
+def default_params(**my_default_args):
     def _decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -270,7 +270,7 @@ def fix_params(**my_default_args):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def fix_params(**my_default_args):
+def default_params(**my_default_args):
     def _decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -296,7 +296,7 @@ name but wrapped in a lambda, which overwrites the provided default value.
 
 <!--
 ############
-@fix_params(to=lambda: [])
+@default_params(to=lambda: [])
 def append_to(element, to=None):
     to.append(element)
     return to
@@ -305,7 +305,7 @@ def append_to(element, to=None):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-@fix_params(to=lambda: [])
+@default_params(to=lambda: [])
 def append_to(element, to=None):
     to.append(element)
     return to

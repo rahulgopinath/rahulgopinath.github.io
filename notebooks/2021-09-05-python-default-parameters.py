@@ -103,7 +103,7 @@ print(my_other_list)
 # when using type hints. However, one can work around it
 # by using a wrapper function.
 
-def fix_params(**my_default_args):
+def default_params(**my_default_args):
     def _decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -124,7 +124,7 @@ def fix_params(**my_default_args):
 # Wit this, we provide default parameters to `@fix_params` instead with same
 # name but wrapped in a lambda, which overwrites the provided default value.
 
-@fix_params(to=lambda: [])
+@default_params(to=lambda: [])
 def append_to(element, to=None):
     to.append(element)
     return to
