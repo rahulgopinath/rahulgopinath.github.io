@@ -323,9 +323,4 @@ g_parse(grammar).parse( '123+11+(3*(2))+1')
 # However, given that the procedures are organized in a top-down fashion, saving
 # the resulting expressions is relatively trivial.
 # 
-# [^contextfree]: The parser we create is not really interpreting the grammar as
-# a _Context-Free Grammar_. Rather, it uses the grammar as if it is written
-# using another formalism called _Parsing Expression Grammar_. However, an
-# important subclass of context-free languages in real world -- _LL(*)_ -- can
-# be completely represented using _PEG_. Hence, the title is not completely wrong.
-# 
+# [^contextfree]: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.

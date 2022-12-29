@@ -818,12 +818,7 @@ Of course, one usually wants to do something with the parsed output.
 However, given that the procedures are organized in a top-down fashion, saving
 the resulting expressions is relatively trivial.
 
-[^contextfree]: The parser we create is not really interpreting the grammar as
-a _Context-Free Grammar_. Rather, it uses the grammar as if it is written
-using another formalism called _Parsing Expression Grammar_. However, an
-important subclass of context-free languages in real world -- _LL(*)_ -- can
-be completely represented using _PEG_. Hence, the title is not completely wrong.
-
+[^contextfree]: The parser we create is not really interpreting the grammar as a _Context-Free Grammar_. Rather, it uses the grammar as if it is written using another formalism called _Parsing Expression Grammar_. However, an important subclass of context-free languages in real world -- _LL(*)_ -- can be completely represented using _PEG_. Hence, the title is not completely wrong.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
