@@ -750,21 +750,22 @@ class GLLStructuredStackP(GLLStructuredStackP):
 </form>
 We also need the to produce SPPF nodes correctly.
 
+`getNode(x, i)` creates and returns an SPPF node labeled `(x, i, i+1)` or
+`(epsilon, i, i)` if x is epsilon
+
+`getNodeP(X::= alpha.beta, w, z)` takes a grammar slot `X ::= alpha . beta`
+and two SPPF nodes w, and z (z may be dummy node $).
+the nodes w and z are not packed nodes, and will have labels of form
+`(s, j, k)` and `(r, k, i)`
+
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
-    # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
         if x is None:
             return self.get_sppf_dummy_node((x, i, i))
         else:
             return self.get_sppf_symbol_node((x, i, i+1))
-
-    # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
-    # and two SPPF nodes w, and z (z may be dummy node $).
-    # the nodes w and z are not packed nodes, and will have labels of form
-    # (s,j,k) and (r, k, i)
     def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
@@ -817,18 +818,11 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
-    # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
         if x is None:
             return self.get_sppf_dummy_node((x, i, i))
         else:
             return self.get_sppf_symbol_node((x, i, i+1))
-
-    # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
-    # and two SPPF nodes w, and z (z may be dummy node $).
-    # the nodes w and z are not packed nodes, and will have labels of form
-    # (s,j,k) and (r, k, i)
     def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
@@ -891,8 +885,8 @@ def compile_epsilon(g, key, n_alt):
         elif L == ("%s", %d, 0): # %s
             # epsilon: If epsilon is present, we skip the end of rule with same
             # L and go directly to L_
-            c_r = parser.getNodeT(None, cur_idx)
-            cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
+            right_sppf_child = parser.getNodeT(None, cur_idx)
+            cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             L = 'L_'
             continue
 ''' % (key, n_alt,show_dot(g, (key, n_alt, 0)))
@@ -906,8 +900,8 @@ def compile_epsilon(g, key, n_alt):
         elif L == (&quot;%s&quot;, %d, 0): # %s
             # epsilon: If epsilon is present, we skip the end of rule with same
             # L and go directly to L_
-            c_r = parser.getNodeT(None, cur_idx)
-            cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
+            right_sppf_child = parser.getNodeT(None, cur_idx)
+            cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             L = &#x27;L_&#x27;
             continue
 &#x27;&#x27;&#x27; % (key, n_alt,show_dot(g, (key, n_alt, 0)))
@@ -944,10 +938,10 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
     return '''\
         elif L == ("%s",%d,%d): # %s
             if parser.I[cur_idx] == '%s':
-                c_r = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                right_sppf_child = parser.getNodeT(parser.I[cur_idx], cur_idx)
                 cur_idx = cur_idx+1
                 L = %s
-                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             else:
                 L = 'L0'
             continue
@@ -965,10 +959,10 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
     return &#x27;&#x27;&#x27;\
         elif L == (&quot;%s&quot;,%d,%d): # %s
             if parser.I[cur_idx] == &#x27;%s&#x27;:
-                c_r = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                right_sppf_child = parser.getNodeT(parser.I[cur_idx], cur_idx)
                 cur_idx = cur_idx+1
                 L = %s
-                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             else:
                 L = &#x27;L0&#x27;
             continue
