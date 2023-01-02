@@ -109,24 +109,24 @@ def first_and_follow(grammar):
     follow = {i: set() for i in nonterminals}
     nullable = set()
     while True:
-        updated = False
-        for k in nonterminals:
-            for rule in grammar[k]:
-                for t in rule:
-                    updated |= union(first[k], first[t])
-                    if t not in nullable: break
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable: break
+            else:
+                added += union(nullable, {k})
+                
+            aux = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], aux)
+                if t in nullable:
+                    aux = aux.union(first[t])
                 else:
-                    updated |= union(nullable, {k})
-                    
-                aux = follow[k]
-                for t in reversed(rule):
-                    if t in follow:
-                        updated |= union(follow[t], aux)
-                    if t in nullable:
-                        aux = aux.union(first[t])
-                    else:
-                        aux = first[t]
-        if not updated:
+                    aux = first[t]
+        if not added:
             return first, follow, nullable
 
 # Using
