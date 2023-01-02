@@ -68,7 +68,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 `pip install pkg.whl`.
 
 <ol>
-<li><a href="/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -1266,50 +1266,6 @@ g = GLLStructuredStackP(mystring2)
 assert parse_string(g) == 'success'
 print(5)
 
-
-rt random
-
-process_sppf_symbol(node, hmap, tab):
-key = node.to_s(g)
-if key is None:
-    return ['$', []]
-assert isinstance(key, str)
-if node.children:
-    n = random.choice(node.children)
-    return [key, process_sppf_packed(n,hmap, tab+1)]
-return [key, []]
-
-process_sppf_packed(node, hmap, tab):
-key = node.to_s(g)
-# packed nodes (rounded) represent on particular derivation. No need to add key
-assert isinstance(node, SPPF_packed_node)
-assert not isinstance(key, str)
-children = []
-# A packed node may have two children, just left and right.
-children
-for n in node.children:
-    if isinstance(n, SPPF_symbol_node):
-        v = process_sppf_symbol(n,hmap, tab+1)
-        children.append(v)
-    elif isinstance(n, SPPF_intermediate_node):
-        v = process_sppf_intermediate_node(n,hmap, tab+1)
-        children.extend(v)
-    else: assert False
-return children
-
-process_sppf_intermediate_node(node, hmap, tab):
-key = node.to_s(g)
-assert isinstance(node, SPPF_intermediate_node)
-#print(' '*tab, 'I', node.to_s(g))
-#assert len(node.children) == 1
-#n = random.choice(node.children)
-assert not isinstance(key, str)
-ret = []
-for n in node.children:
-    v = process_sppf_packed(n,hmap, tab+1)
-    ret.extend(v)
-return ret
-
 ############
 -->
 <form name='python_run_form'>
@@ -1367,50 +1323,103 @@ exec(res)
 g = GLLStructuredStackP(mystring2)
 assert parse_string(g) == &#x27;success&#x27;
 print(5)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Parse tree
 
+<!--
+############
+import random
 
-rt random
+def process_sppf_symbol(node, hmap, tab):
+    key = node.to_s(g)
+    if key is None:
+        return ['$', []]
+    assert isinstance(key, str)
+    if node.children:
+        n = random.choice(node.children)
+        return [key, process_sppf_packed(n,hmap, tab+1)]
+    return [key, []]
 
-process_sppf_symbol(node, hmap, tab):
-key = node.to_s(g)
-if key is None:
-    return [&#x27;$&#x27;, []]
-assert isinstance(key, str)
-if node.children:
-    n = random.choice(node.children)
-    return [key, process_sppf_packed(n,hmap, tab+1)]
-return [key, []]
+def process_sppf_packed(node, hmap, tab):
+    key = node.to_s(g)
+    # packed nodes (rounded) represent on particular derivation. No need to add key
+    assert isinstance(node, SPPF_packed_node)
+    assert not isinstance(key, str)
+    children = []
+    # A packed node may have two children, just left and right.
+    children
+    for n in node.children:
+        if isinstance(n, SPPF_symbol_node):
+            v = process_sppf_symbol(n,hmap, tab+1)
+            children.append(v)
+        elif isinstance(n, SPPF_intermediate_node):
+            v = process_sppf_intermediate_node(n,hmap, tab+1)
+            children.extend(v)
+        else: assert False
+    return children
 
-process_sppf_packed(node, hmap, tab):
-key = node.to_s(g)
-# packed nodes (rounded) represent on particular derivation. No need to add key
-assert isinstance(node, SPPF_packed_node)
-assert not isinstance(key, str)
-children = []
-# A packed node may have two children, just left and right.
-children
-for n in node.children:
-    if isinstance(n, SPPF_symbol_node):
-        v = process_sppf_symbol(n,hmap, tab+1)
-        children.append(v)
-    elif isinstance(n, SPPF_intermediate_node):
-        v = process_sppf_intermediate_node(n,hmap, tab+1)
-        children.extend(v)
-    else: assert False
-return children
+def process_sppf_intermediate_node(node, hmap, tab):
+    key = node.to_s(g)
+    assert isinstance(node, SPPF_intermediate_node)
+    #print(' '*tab, 'I', node.to_s(g))
+    #assert len(node.children) == 1
+    #n = random.choice(node.children)
+    assert not isinstance(key, str)
+    ret = []
+    for n in node.children:
+        v = process_sppf_packed(n,hmap, tab+1)
+        ret.extend(v)
+    return ret
 
-process_sppf_intermediate_node(node, hmap, tab):
-key = node.to_s(g)
-assert isinstance(node, SPPF_intermediate_node)
-#print(&#x27; &#x27;*tab, &#x27;I&#x27;, node.to_s(g))
-#assert len(node.children) == 1
-#n = random.choice(node.children)
-assert not isinstance(key, str)
-ret = []
-for n in node.children:
-    v = process_sppf_packed(n,hmap, tab+1)
-    ret.extend(v)
-return ret
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+
+def process_sppf_symbol(node, hmap, tab):
+    key = node.to_s(g)
+    if key is None:
+        return [&#x27;$&#x27;, []]
+    assert isinstance(key, str)
+    if node.children:
+        n = random.choice(node.children)
+        return [key, process_sppf_packed(n,hmap, tab+1)]
+    return [key, []]
+
+def process_sppf_packed(node, hmap, tab):
+    key = node.to_s(g)
+    # packed nodes (rounded) represent on particular derivation. No need to add key
+    assert isinstance(node, SPPF_packed_node)
+    assert not isinstance(key, str)
+    children = []
+    # A packed node may have two children, just left and right.
+    children
+    for n in node.children:
+        if isinstance(n, SPPF_symbol_node):
+            v = process_sppf_symbol(n,hmap, tab+1)
+            children.append(v)
+        elif isinstance(n, SPPF_intermediate_node):
+            v = process_sppf_intermediate_node(n,hmap, tab+1)
+            children.extend(v)
+        else: assert False
+    return children
+
+def process_sppf_intermediate_node(node, hmap, tab):
+    key = node.to_s(g)
+    assert isinstance(node, SPPF_intermediate_node)
+    #print(&#x27; &#x27;*tab, &#x27;I&#x27;, node.to_s(g))
+    #assert len(node.children) == 1
+    #n = random.choice(node.children)
+    assert not isinstance(key, str)
+    ret = []
+    for n in node.children:
+        v = process_sppf_packed(n,hmap, tab+1)
+        ret.extend(v)
+    return ret
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
