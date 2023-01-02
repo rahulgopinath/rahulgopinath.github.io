@@ -307,7 +307,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
     def sppf_find_or_create(self, label, j, i):
         if label is None:
-            return self.get_sppf_dummy_node((label, j, i))
+            return self.get_sppf_dummy_node((label, j, j))
         elif isinstance(label, str):
             return self.get_sppf_symbol_node((label, j, i))
         else:
@@ -326,10 +326,9 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
 class GLLStructuredStackP(GLLStructuredStackP):
     def getNodeT(self, x, i):
-        if x is None:
-            return self.get_sppf_dummy_node((x, i, i))
-        else:
-            return self.get_sppf_symbol_node((x, i, i+1))
+        j = i if x is None else i+1
+        return self.sppf_find_or_create(x, i, j)
+
     def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
