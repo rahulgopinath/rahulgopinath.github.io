@@ -1521,7 +1521,7 @@ a_grammar = {
     ['<digit>']],
 '<digit>': [["%s" % str(i)] for i in range(10)],
 }
-mystring = '(1+1)*(23/45)-1'
+mystring = '1+2+3+4'
 res = compile_grammar(a_grammar, START)
 exec(res)
 g = GLLStructuredStackP(mystring)
@@ -1551,7 +1551,7 @@ a_grammar = {
     [&#x27;&lt;digit&gt;&#x27;]],
 &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
-mystring = &#x27;(1+1)*(23/45)-1&#x27;
+mystring = &#x27;1+2+3+4&#x27;
 res = compile_grammar(a_grammar, START)
 exec(res)
 g = GLLStructuredStackP(mystring)
