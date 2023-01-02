@@ -385,8 +385,8 @@ def compile_epsilon(g, key, n_alt):
         elif L == ("%s", %d, 0): # %s
             # epsilon: If epsilon is present, we skip the end of rule with same
             # L and go directly to L_
-            c_r = parser.getNodeT(None, current_index)
-            current_sppf_node = parser.getNodeP(L, current_sppf_node, c_r)
+            c_r = parser.getNodeT(None, cur_idx)
+            cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
             L = 'L_'
             continue
 ''' % (key, n_alt,show_dot(g, (key, n_alt, 0)))
@@ -404,11 +404,11 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
         Lnxt = '("%s",%d,%d)' % (key, n_alt, r_pos+1)
     return '''\
         elif L == ("%s",%d,%d): # %s
-            if parser.I[current_index] == '%s':
-                c_r = parser.getNodeT(parser.I[current_index], current_index)
-                current_index = current_index+1
+            if parser.I[cur_idx] == '%s':
+                c_r = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                cur_idx = cur_idx+1
                 L = %s
-                current_sppf_node = parser.getNodeP(L, current_sppf_node, c_r)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, c_r)
             else:
                 L = 'L0'
             continue
@@ -422,7 +422,7 @@ def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
         Lnxt = "('%s',%d,%d)" % (key, n_alt, r_pos+1)
     return '''\
         elif L ==  ('%s',%d,%d): # %s
-            stack_top = parser.register_return(%s, stack_top, current_index, current_sppf_node)
+            stack_top = parser.register_return(%s, stack_top, cur_idx, cur_sppf_node)
             L = "%s"
             continue
 ''' % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), Lnxt, token)
@@ -475,7 +475,7 @@ def compile_def(g, key, definition):
         res.append('''\
             # need to check first() if performance is important.
             # %s
-            parser.add_thread( ('%s',%d,0), stack_top, current_index, end_rule)''' % (key + '::=' + str(rule), key, n_alt))
+            parser.add_thread( ('%s',%d,0), stack_top, cur_idx, end_rule)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
             L = 'L0'
             continue''')
@@ -502,11 +502,11 @@ def parse_string(parser):
     # L contains start nt.
     S = '%s'
     end_rule = SPPF_dummy('$', 0, 0)
-    L, stack_top, current_index, current_sppf_node = S, parser.stack_bottom, 0, end_rule
+    L, stack_top, cur_idx, cur_sppf_node = S, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
-                (L, stack_top, current_index, current_sppf_node) = parser.next_thread() # remove from R
+                (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread() # remove from R
                 # goto L
                 continue
             else:
@@ -516,7 +516,7 @@ def parse_string(parser):
                       return 'success'
                 else: return 'error'
         elif L == 'L_':
-            stack_top = parser.fn_return(stack_top, current_index, current_sppf_node) # pop
+            stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
             L = 'L0' # goto L_0
             continue
     ''' % (pp.pformat(g), start)]
