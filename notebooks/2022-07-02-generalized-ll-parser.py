@@ -318,6 +318,8 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
 
 # # SPPF Build
+
+class GLLStructuredStackP(GLLStructuredStackP):
     # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
     # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):

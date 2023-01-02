@@ -784,129 +784,131 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
 <!--
 ############
-# getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
-# (epsilon, i, i) if x is epsilon
-def getNodeT(self, x, i):
-    if x is None: h = i # x is epsilon
-    else: h = i+1
-    return self.get_sppf_symbol_node((x, i, h))
+class GLLStructuredStackP(GLLStructuredStackP):
+    # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
+    # (epsilon, i, i) if x is epsilon
+    def getNodeT(self, x, i):
+        if x is None: h = i # x is epsilon
+        else: h = i+1
+        return self.get_sppf_symbol_node((x, i, h))
 
-# getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
-# and two SPPF nodes w, and z (z may be dummy node $).
-# the nodes w and z are not packed nodes, and will have labels of form
-# (s,j,k) and (r, k, i)
-def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
-    X, nalt, dot = X_rule_pos
-    rule = self.grammar[X][nalt]
-    alpha = rule[:dot]
-    beta = rule[dot:]
-    if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
-        return z
-    else:
-        if beta == []: # if beta = epsilon from GLL_parse_tree_generation
-            t = X # symbol node.
+    # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
+    # and two SPPF nodes w, and z (z may be dummy node $).
+    # the nodes w and z are not packed nodes, and will have labels of form
+    # (s,j,k) and (r, k, i)
+    def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
+        X, nalt, dot = X_rule_pos
+        rule = self.grammar[X][nalt]
+        alpha = rule[:dot]
+        beta = rule[dot:]
+        if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
+            return z
         else:
-            t = X_rule_pos
-        (q, k, i) = z.label # suppose z has label (q,k,i)
-        if (w.label[0] != '$'): # is not delta
-            # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
-            (s,j,_k) = w.label # suppose w has label (s,j,k)
-            # w is the left node, and z is the right node. So the center (k)
-            # should be shared.
-            assert k == _k # TODO: this should be true.
-            #k = _k
+            if beta == []: # if beta = epsilon from GLL_parse_tree_generation
+                t = X # symbol node.
+            else:
+                t = X_rule_pos
+            (q, k, i) = z.label # suppose z has label (q,k,i)
+            if (w.label[0] != '$'): # is not delta
+                # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
+                (s,j,_k) = w.label # suppose w has label (s,j,k)
+                # w is the left node, and z is the right node. So the center (k)
+                # should be shared.
+                assert k == _k # TODO: this should be true.
+                #k = _k
 
-            # if there does not exist an SPPF node y labelled (t, j, i) create one
-            y = self.sppf_find_or_create(t, j, i)
+                # if there does not exist an SPPF node y labelled (t, j, i) create one
+                y = self.sppf_find_or_create(t, j, i)
 
-            if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                # create a child of y with left child with w right child z
-                # the extent of w-z is the same as y
-                # packed nodes do not keep extents
-                pn = SPPF_packed_node(X_rule_pos, k, [w,z])
-                y.add_child(pn)
-        else:
-            # if there does not exist an SPPF node y labelled (t, k, i) create one
-            # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
-            y = self.sppf_find_or_create(t, k, i)
-            if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                pn = SPPF_packed_node(X_rule_pos, k, [z])
-                y.add_child(pn) # create a child with child z
-        return y
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    # create a child of y with left child with w right child z
+                    # the extent of w-z is the same as y
+                    # packed nodes do not keep extents
+                    pn = SPPF_packed_node(X_rule_pos, k, [w,z])
+                    y.add_child(pn)
+            else:
+                # if there does not exist an SPPF node y labelled (t, k, i) create one
+                # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
+                y = self.sppf_find_or_create(t, k, i)
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    pn = SPPF_packed_node(X_rule_pos, k, [z])
+                    y.add_child(pn) # create a child with child z
+            return y
 
-# adapted from Exploring_and_Visualizing paper.
-def is_non_nullable_alpha(self, X, rule, dot):
-    #  we need to convert this to X := alpha . beta
-    alpha = rule[:dot]
-    if not alpha: return False
-    if len(alpha) != 1: return False
-    if fuzzer.is_terminal(alpha[0]): return True
-    if alpha[0] in self.nullable: return False
-    return True
+    # adapted from Exploring_and_Visualizing paper.
+    def is_non_nullable_alpha(self, X, rule, dot):
+        #  we need to convert this to X := alpha . beta
+        alpha = rule[:dot]
+        if not alpha: return False
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[0]): return True
+        if alpha[0] in self.nullable: return False
+        return True
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
-# (epsilon, i, i) if x is epsilon
-def getNodeT(self, x, i):
-    if x is None: h = i # x is epsilon
-    else: h = i+1
-    return self.get_sppf_symbol_node((x, i, h))
+class GLLStructuredStackP(GLLStructuredStackP):
+    # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
+    # (epsilon, i, i) if x is epsilon
+    def getNodeT(self, x, i):
+        if x is None: h = i # x is epsilon
+        else: h = i+1
+        return self.get_sppf_symbol_node((x, i, h))
 
-# getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
-# and two SPPF nodes w, and z (z may be dummy node $).
-# the nodes w and z are not packed nodes, and will have labels of form
-# (s,j,k) and (r, k, i)
-def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
-    X, nalt, dot = X_rule_pos
-    rule = self.grammar[X][nalt]
-    alpha = rule[:dot]
-    beta = rule[dot:]
-    if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
-        return z
-    else:
-        if beta == []: # if beta = epsilon from GLL_parse_tree_generation
-            t = X # symbol node.
+    # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
+    # and two SPPF nodes w, and z (z may be dummy node $).
+    # the nodes w and z are not packed nodes, and will have labels of form
+    # (s,j,k) and (r, k, i)
+    def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
+        X, nalt, dot = X_rule_pos
+        rule = self.grammar[X][nalt]
+        alpha = rule[:dot]
+        beta = rule[dot:]
+        if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
+            return z
         else:
-            t = X_rule_pos
-        (q, k, i) = z.label # suppose z has label (q,k,i)
-        if (w.label[0] != &#x27;$&#x27;): # is not delta
-            # returns (t,j,i) &lt;- (X:= alpha.beta, k) &lt;- w:(s,j,k),&lt;-z:(r,k,i)
-            (s,j,_k) = w.label # suppose w has label (s,j,k)
-            # w is the left node, and z is the right node. So the center (k)
-            # should be shared.
-            assert k == _k # TODO: this should be true.
-            #k = _k
+            if beta == []: # if beta = epsilon from GLL_parse_tree_generation
+                t = X # symbol node.
+            else:
+                t = X_rule_pos
+            (q, k, i) = z.label # suppose z has label (q,k,i)
+            if (w.label[0] != &#x27;$&#x27;): # is not delta
+                # returns (t,j,i) &lt;- (X:= alpha.beta, k) &lt;- w:(s,j,k),&lt;-z:(r,k,i)
+                (s,j,_k) = w.label # suppose w has label (s,j,k)
+                # w is the left node, and z is the right node. So the center (k)
+                # should be shared.
+                assert k == _k # TODO: this should be true.
+                #k = _k
 
-            # if there does not exist an SPPF node y labelled (t, j, i) create one
-            y = self.sppf_find_or_create(t, j, i)
+                # if there does not exist an SPPF node y labelled (t, j, i) create one
+                y = self.sppf_find_or_create(t, j, i)
 
-            if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                # create a child of y with left child with w right child z
-                # the extent of w-z is the same as y
-                # packed nodes do not keep extents
-                pn = SPPF_packed_node(X_rule_pos, k, [w,z])
-                y.add_child(pn)
-        else:
-            # if there does not exist an SPPF node y labelled (t, k, i) create one
-            # returns (t,k,i) &lt;- (X:= alpha.beta, k) &lt;- (r,k,i)
-            y = self.sppf_find_or_create(t, k, i)
-            if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                pn = SPPF_packed_node(X_rule_pos, k, [z])
-                y.add_child(pn) # create a child with child z
-        return y
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    # create a child of y with left child with w right child z
+                    # the extent of w-z is the same as y
+                    # packed nodes do not keep extents
+                    pn = SPPF_packed_node(X_rule_pos, k, [w,z])
+                    y.add_child(pn)
+            else:
+                # if there does not exist an SPPF node y labelled (t, k, i) create one
+                # returns (t,k,i) &lt;- (X:= alpha.beta, k) &lt;- (r,k,i)
+                y = self.sppf_find_or_create(t, k, i)
+                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+                    pn = SPPF_packed_node(X_rule_pos, k, [z])
+                    y.add_child(pn) # create a child with child z
+            return y
 
-# adapted from Exploring_and_Visualizing paper.
-def is_non_nullable_alpha(self, X, rule, dot):
-    #  we need to convert this to X := alpha . beta
-    alpha = rule[:dot]
-    if not alpha: return False
-    if len(alpha) != 1: return False
-    if fuzzer.is_terminal(alpha[0]): return True
-    if alpha[0] in self.nullable: return False
-    return True
+    # adapted from Exploring_and_Visualizing paper.
+    def is_non_nullable_alpha(self, X, rule, dot):
+        #  we need to convert this to X := alpha . beta
+        alpha = rule[:dot]
+        if not alpha: return False
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[0]): return True
+        if alpha[0] in self.nullable: return False
+        return True
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
