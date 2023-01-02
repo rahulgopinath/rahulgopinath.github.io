@@ -69,12 +69,14 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 </ol>
 
 <div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -83,12 +85,16 @@ https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 <!--
 ############
 import simplefuzzer as fuzzer
+import earleyparser as ep
+import random
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import simplefuzzer as fuzzer
+import earleyparser as ep
+import random
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -157,6 +163,9 @@ START = &#x27;&lt;start&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Utilities.
+We start with a few utilities.
+### show_dot()
 We often have to display a partial parse of a rule. We use `@` to indicate
 until where the current rule has parsed.
 
@@ -194,124 +203,40 @@ print(show_dot(grammar, (&#x27;&lt;fact&gt;&#x27;, 1, 1)))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Utilities
-### Nullable -- defined as before in [earley-parsing](/post/2021/02/06/earley-parsing/#nonterminals-deriving-empty-strings)
+We also need nullable() [earley-parsing](/post/2021/02/06/earley-parsing/#nonterminals-deriving-empty-strings).
 
 <!--
 ############
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not fuzzer.is_nonterminal(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
-
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
+print(ep.nullable(grammar))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def rem_terminals(g):
-    g_cur = {}
-    for k in g:
-        alts = []
-        for alt in g[k]:
-            ts = [t for t in alt if not fuzzer.is_nonterminal(t)]
-            if not ts:
-                alts.append(alt)
-        if alts:
-            g_cur[k] = alts
-    return g_cur
-
-def nullable(g):
-    nullable_keys = {k for k in g if [] in g[k]}
-
-    unprocessed  = list(nullable_keys)
-
-    g_cur = rem_terminals(g)
-    while unprocessed:
-        nxt, *unprocessed = unprocessed
-        g_nxt = {}
-        for k in g_cur:
-            g_alts = []
-            for alt in g_cur[k]:
-                alt_ = [t for t in alt if t != nxt]
-                if not alt_:
-                    nullable_keys.add(k)
-                    unprocessed.append(k)
-                    break
-                else:
-                    g_alts.append(alt_)
-            if g_alts:
-                g_nxt[k] = g_alts
-        g_cur = g_nxt
-
-    return nullable_keys
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it:
-
-<!--
-############
-print(nullable(grammar))
-
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print(nullable(grammar))
+print(ep.nullable(grammar))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ## The GSS Graph
-The GLL parser uses something called a Graph Structured Stack to limit the 
-space consumption during parsing. The idea is to share as much of the stack
-during parsing as possible.
+A naive conversion of recursive descent parsing to generalized recursive
+descent parsing can be done by maintaining independent stacks for each thread.
+However, this approach is very costly. GLL optimizes what it needs to generate
+by using a Graph-Structured Stack.
+The idea is to share as much of the stack during parsing as possible.
 
 ### The GSS Node
-Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
-character consumed.
+A GSS node is simply a node that can contain any number of children. Each
+child is actually an edge in the graph.
+
+(Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
+character consumed. However, we do not need to know the internals of the label
+here).
 
 <!--
 ############
 class GSSNode:
-    def __init__(self, label):
-        self.label = label
-        self.children = []
-
+    def __init__(self, label): self.label, self.children = label, []
     def __eq__(self, other): return self.label == other.label
     def __repr__(self): return str((self.label, self.children))
 
@@ -320,10 +245,7 @@ class GSSNode:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GSSNode:
-    def __init__(self, label):
-        self.label = label
-        self.children = []
-
+    def __init__(self, label): self.label, self.children = label, []
     def __eq__(self, other): return self.label == other.label
     def __repr__(self): return str((self.label, self.children))
 </textarea><br />
@@ -331,50 +253,47 @@ class GSSNode:
 <div name='python_canvas'></div>
 </form>
 ### The GSS container
+Next, we define the graph container. We keep two structures. self.graph which
+is the shared stack, and  P which is the set of labels that went through a
+`fn_return`, i.e. `pop` operation.
 
 <!--
 ############
 class GSS:
-    def __init__(self): self.gss, self.P = {}, {}
+    def __init__(self): self.graph, self.P = {}, {}
 
     def get(self, my_label):
-        if my_label not in self.gss:
-            self.gss[my_label] = GSSNode(my_label)
-            assert my_label not in self.P
-            self.P[my_label] = []
-        return self.gss[my_label]
+        if my_label not in self.graph:
+            self.graph[my_label], self.P[my_label] = GSSNode(my_label), []
+        return self.graph[my_label]
 
     def add_parsed_index(self, label, j):
         self.P[label].append(j)
 
     def parsed_indexes(self, label):
-        # indexes for which pop has been executed for label.
         return self.P[label]
 
-    def __repr__(self): return str(self.gss)
+    def __repr__(self): return str(self.graph)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GSS:
-    def __init__(self): self.gss, self.P = {}, {}
+    def __init__(self): self.graph, self.P = {}, {}
 
     def get(self, my_label):
-        if my_label not in self.gss:
-            self.gss[my_label] = GSSNode(my_label)
-            assert my_label not in self.P
-            self.P[my_label] = []
-        return self.gss[my_label]
+        if my_label not in self.graph:
+            self.graph[my_label], self.P[my_label] = GSSNode(my_label), []
+        return self.graph[my_label]
 
     def add_parsed_index(self, label, j):
         self.P[label].append(j)
 
     def parsed_indexes(self, label):
-        # indexes for which pop has been executed for label.
         return self.P[label]
 
-    def __repr__(self): return str(self.gss)
+    def __repr__(self): return str(self.graph)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -387,77 +306,85 @@ the Shared Packed Parse Forest datastructure to represent parses.
 <!--
 ############
 class SPPFNode:
-    def __init__(self):
-        self.children = []
-        self.lablel = '<None>'
-        pass
+    def __init__(self): self.children, self.label = [], '<None>'
 
-    def __eq__(self, o):
-        return self.label == o.label
+    def __eq__(self, o): return self.label == o.label
 
-    def __repr__(self):
-        return 'D:%s [%d]' % (str(self.label), len(self.children))
+    def add_child(self, child): self.children.append(child)
 
-    def add_child(self, child):
-        self.children.append(child)
+    def to_tree(self, hmap, tab): raise NotImplemented
+
+    def to_s(self, g): return self.label[0]
+
+    def __repr__(self): return 'SPPF:%s' % str(self.label)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPFNode:
-    def __init__(self):
-        self.children = []
-        self.lablel = &#x27;&lt;None&gt;&#x27;
-        pass
+    def __init__(self): self.children, self.label = [], &#x27;&lt;None&gt;&#x27;
 
-    def __eq__(self, o):
-        return self.label == o.label
+    def __eq__(self, o): return self.label == o.label
 
-    def __repr__(self):
-        return &#x27;D:%s [%d]&#x27; % (str(self.label), len(self.children))
+    def add_child(self, child): self.children.append(child)
 
-    def add_child(self, child):
-        self.children.append(child)
+    def to_tree(self, hmap, tab): raise NotImplemented
+
+    def to_s(self, g): return self.label[0]
+
+    def __repr__(self): return &#x27;SPPF:%s&#x27; % str(self.label)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ### SPPF Dummy Node
+The dummy SPPF node is used to indicate the empty node at the end of rules.
 
 <!--
 ############
 class SPPF_dummy(SPPFNode):
-    def __init__(self, s='$'):
-        self.label = (s, 0, 0)
-        self.children = []
+    def __init__(self, s, j, i):
+        self.label, self.children = (s, j, i), []
+
+    def to_tree(self, hmap, tab): return ['$', []]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_dummy(SPPFNode):
-    def __init__(self, s=&#x27;$&#x27;):
-        self.label = (s, 0, 0)
-        self.children = []
+    def __init__(self, s, j, i):
+        self.label, self.children = (s, j, i), []
+
+    def to_tree(self, hmap, tab): return [&#x27;$&#x27;, []]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ### SPPF Symbol Node
+x is a terminal, nonterminal, or epsilon -- ''
+j and i are the extents.
+Each symbol can contain multiple packed nodes each
+representing a different derivation. See getNodeP
 
 <!--
 ############
 class SPPF_symbol_node(SPPFNode):
     def __init__(self, x, j, i):
-        # x is a terminal, nonterminal, or epsilon -- ''
-        # j and i are the extents
-        #assert 0<= j <= i <= m
-        self.label = (x, j, i)
-        self.children = []
+        assert x is not None
+        self.label, self.children = (x, j, i), []
 
-    def to_s(self, g):
-        return (self.label[0])
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        if key is None: return ['', []]
+        assert isinstance(key, str)
+        if self.children:
+            n = random.choice(self.children)
+            assert isinstance(n, SPPF_packed_node)
+            return [key, n.to_tree(hmap, tab+1)]
+        return [key, []]
 
 ############
 -->
@@ -465,14 +392,18 @@ class SPPF_symbol_node(SPPFNode):
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_symbol_node(SPPFNode):
     def __init__(self, x, j, i):
-        # x is a terminal, nonterminal, or epsilon -- &#x27;&#x27;
-        # j and i are the extents
-        #assert 0&lt;= j &lt;= i &lt;= m
-        self.label = (x, j, i)
-        self.children = []
+        assert x is not None
+        self.label, self.children = (x, j, i), []
 
-    def to_s(self, g):
-        return (self.label[0])
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        if key is None: return [&#x27;&#x27;, []]
+        assert isinstance(key, str)
+        if self.children:
+            n = random.choice(self.children)
+            assert isinstance(n, SPPF_packed_node)
+            return [key, n.to_tree(hmap, tab+1)]
+        return [key, []]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -484,19 +415,19 @@ Has only two children max (or 1 child).
 ############
 class SPPF_intermediate_node(SPPFNode):
     def __init__(self, t, j, i):
-        self.label = (t, j, i)
-        self.children = []
+        self.label, self.children = (t, j, i), []
 
-    def right_extent(self):
-        return self.label[-1]
+    def right_extent(self): return self.label[-1]
 
-    def to_s(self, g):
-        #if isinstance(self.label[0], str):
-        return (self.label[0])
-        #((sym, n_alt, dot), i, j)  = self.label
-        #return ( sym + ' ::= ' +
-        #        str(g.grammar[sym][n_alt][:dot]) + '.' +
-        #        str(g.grammar[sym][n_alt][dot:]) + ' ' + str(i) + ',' + str(j))
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        assert isinstance(self, SPPF_intermediate_node)
+        assert not isinstance(key, str)
+        ret = []
+        for n in self.children:
+            v = n.to_tree(hmap, tab+1)
+            ret.extend(v)
+        return ret
 
 ############
 -->
@@ -504,19 +435,19 @@ class SPPF_intermediate_node(SPPFNode):
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_intermediate_node(SPPFNode):
     def __init__(self, t, j, i):
-        self.label = (t, j, i)
-        self.children = []
+        self.label, self.children = (t, j, i), []
 
-    def right_extent(self):
-        return self.label[-1]
+    def right_extent(self): return self.label[-1]
 
-    def to_s(self, g):
-        #if isinstance(self.label[0], str):
-        return (self.label[0])
-        #((sym, n_alt, dot), i, j)  = self.label
-        #return ( sym + &#x27; ::= &#x27; +
-        #        str(g.grammar[sym][n_alt][:dot]) + &#x27;.&#x27; +
-        #        str(g.grammar[sym][n_alt][dot:]) + &#x27; &#x27; + str(i) + &#x27;,&#x27; + str(j))
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        assert isinstance(self, SPPF_intermediate_node)
+        assert not isinstance(key, str)
+        ret = []
+        for n in self.children:
+            v = n.to_tree(hmap, tab+1)
+            ret.extend(v)
+        return ret
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -531,12 +462,24 @@ class SPPF_packed_node(SPPFNode):
         self.label = (t,k) # t is a grammar slot X := alpha dot beta
         self.children = children # left and right or just left
 
-    def to_s(self, g):
-        return (self.label[0])
-        #(sym, n_alt, dot), lat = self.label
-        #return ( sym + ' ::= ' +
-        #        str(g.grammar[sym][n_alt][:dot]) + '.' +
-        #        str(g.grammar[sym][n_alt][dot:]) + ' ' + str(lat) )
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        # packed nodes (rounded) represent one particular derivation. No need to add key
+        assert not isinstance(key, str)
+        children = []
+        # A packed node may have two children, just left and right.
+        for n in self.children:
+            if isinstance(n, SPPF_symbol_node):
+                v = n.to_tree(hmap, tab+1)
+                children.append(v)
+            elif isinstance(n, SPPF_intermediate_node):
+                v = n.to_tree(hmap, tab+1)
+                children.extend(v)
+            elif isinstance(n, SPPF_dummy):
+                pass
+            else:
+                assert False
+        return children
 
 ############
 -->
@@ -548,12 +491,24 @@ class SPPF_packed_node(SPPFNode):
         self.label = (t,k) # t is a grammar slot X := alpha dot beta
         self.children = children # left and right or just left
 
-    def to_s(self, g):
-        return (self.label[0])
-        #(sym, n_alt, dot), lat = self.label
-        #return ( sym + &#x27; ::= &#x27; +
-        #        str(g.grammar[sym][n_alt][:dot]) + &#x27;.&#x27; +
-        #        str(g.grammar[sym][n_alt][dot:]) + &#x27; &#x27; + str(lat) )
+    def to_tree(self, hmap, tab):
+        key = self.to_s(g)
+        # packed nodes (rounded) represent one particular derivation. No need to add key
+        assert not isinstance(key, str)
+        children = []
+        # A packed node may have two children, just left and right.
+        for n in self.children:
+            if isinstance(n, SPPF_symbol_node):
+                v = n.to_tree(hmap, tab+1)
+                children.append(v)
+            elif isinstance(n, SPPF_intermediate_node):
+                v = n.to_tree(hmap, tab+1)
+                children.extend(v)
+            elif isinstance(n, SPPF_dummy):
+                pass
+            else:
+                assert False
+        return children
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -580,7 +535,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        self.nullable = nullable(g)
+        self.nullable = ep.nullable(g)
 
 ############
 -->
@@ -602,7 +557,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        self.nullable = nullable(g)
+        self.nullable = ep.nullable(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -735,6 +690,11 @@ class GLLStructuredStackP(GLLStructuredStackP):
         t, *self.threads = self.threads
         return t
 
+    def get_sppf_dummy_node(self, n):
+        if n not in self.SPPF_nodes:
+            self.SPPF_nodes[n] = SPPF_dummy(*n)
+        return self.SPPF_nodes[n]
+
     def get_sppf_symbol_node(self, n):
         if n not in self.SPPF_nodes:
             self.SPPF_nodes[n] = SPPF_symbol_node(*n)
@@ -746,11 +706,12 @@ class GLLStructuredStackP(GLLStructuredStackP):
         return self.SPPF_nodes[n]
 
     def sppf_find_or_create(self, label, j, i):
-        if isinstance(label, str):
+        if label is None:
+            return self.get_sppf_dummy_node((label, j, i))
+        elif isinstance(label, str):
             return self.get_sppf_symbol_node((label, j, i))
         else:
             return self.get_sppf_intermediate_node((label, j, i))
-
 
 ############
 -->
@@ -761,6 +722,11 @@ class GLLStructuredStackP(GLLStructuredStackP):
         t, *self.threads = self.threads
         return t
 
+    def get_sppf_dummy_node(self, n):
+        if n not in self.SPPF_nodes:
+            self.SPPF_nodes[n] = SPPF_dummy(*n)
+        return self.SPPF_nodes[n]
+
     def get_sppf_symbol_node(self, n):
         if n not in self.SPPF_nodes:
             self.SPPF_nodes[n] = SPPF_symbol_node(*n)
@@ -772,7 +738,9 @@ class GLLStructuredStackP(GLLStructuredStackP):
         return self.SPPF_nodes[n]
 
     def sppf_find_or_create(self, label, j, i):
-        if isinstance(label, str):
+        if label is None:
+            return self.get_sppf_dummy_node((label, j, i))
+        elif isinstance(label, str):
             return self.get_sppf_symbol_node((label, j, i))
         else:
             return self.get_sppf_intermediate_node((label, j, i))
@@ -780,7 +748,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-# SPPF Build
+We also need the to produce SPPF nodes correctly.
 
 <!--
 ############
@@ -788,9 +756,10 @@ class GLLStructuredStackP(GLLStructuredStackP):
     # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
     # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
-        if x is None: h = i # x is epsilon
-        else: h = i+1
-        return self.get_sppf_symbol_node((x, i, h))
+        if x is None:
+            return self.get_sppf_dummy_node((x, i, i))
+        else:
+            return self.get_sppf_symbol_node((x, i, i+1))
 
     # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
     # and two SPPF nodes w, and z (z may be dummy node $).
@@ -814,9 +783,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
                 (s,j,_k) = w.label # suppose w has label (s,j,k)
                 # w is the left node, and z is the right node. So the center (k)
                 # should be shared.
-                assert k == _k # TODO: this should be true.
-                #k = _k
-
+                assert k == _k
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 y = self.sppf_find_or_create(t, j, i)
 
@@ -853,9 +820,10 @@ class GLLStructuredStackP(GLLStructuredStackP):
     # getNode(x, i) creates and returns an SPPF node labeled (x, i, i+1) or
     # (epsilon, i, i) if x is epsilon
     def getNodeT(self, x, i):
-        if x is None: h = i # x is epsilon
-        else: h = i+1
-        return self.get_sppf_symbol_node((x, i, h))
+        if x is None:
+            return self.get_sppf_dummy_node((x, i, i))
+        else:
+            return self.get_sppf_symbol_node((x, i, i+1))
 
     # getNodeP(X::= alpha.beta, w, z) takes a grammar slot X ::= alpha . beta
     # and two SPPF nodes w, and z (z may be dummy node $).
@@ -879,9 +847,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
                 (s,j,_k) = w.label # suppose w has label (s,j,k)
                 # w is the left node, and z is the right node. So the center (k)
                 # should be shared.
-                assert k == _k # TODO: this should be true.
-                #k = _k
-
+                assert k == _k
                 # if there does not exist an SPPF node y labelled (t, j, i) create one
                 y = self.sppf_find_or_create(t, j, i)
 
@@ -913,7 +879,10 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling an empty rule
+## Building the parser with GLL
+At this point, we are ready to build our parser.
+### Compiling an empty rule
+We start with compiling an epsilon rule.
 
 <!--
 ############
@@ -946,7 +915,24 @@ def compile_epsilon(g, key, n_alt):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling a Terminal Symbol
+Using it.
+
+<!--
+############
+v = compile_epsilon(grammar, '<expr>', 1)
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = compile_epsilon(grammar, &#x27;&lt;expr&gt;&#x27;, 1)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Compiling a Terminal Symbol
 
 <!--
 ############
@@ -991,7 +977,7 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling a Nonterminal Symbol
+### Compiling a Nonterminal Symbol
 
 <!--
 ############
@@ -1026,7 +1012,35 @@ def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling a Rule
+Using it.
+
+<!--
+############
+rule = grammar['<expr>'][1]
+for i, t in enumerate(rule):
+    if fuzzer.is_nonterminal(t):
+        v = compile_nonterminal(grammar, '<expr>', 1, i, len(rule), t)
+    else:
+        v = compile_terminal(grammar, '<expr>', 1, i, len(rule), t)
+    print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rule = grammar[&#x27;&lt;expr&gt;&#x27;][1]
+for i, t in enumerate(rule):
+    if fuzzer.is_nonterminal(t):
+        v = compile_nonterminal(grammar, &#x27;&lt;expr&gt;&#x27;, 1, i, len(rule), t)
+    else:
+        v = compile_terminal(grammar, &#x27;&lt;expr&gt;&#x27;, 1, i, len(rule), t)
+    print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Compiling a Rule
+`n_alt` is the position of `rule`.
 
 <!--
 ############
@@ -1077,7 +1091,25 @@ def compile_rule(g, key, n_alt, rule):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling a Definition
+Using it.
+
+<!--
+############
+v = compile_rule(grammar, '<expr>', 1, grammar['<expr>'][1])
+print(v)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = compile_rule(grammar, &#x27;&lt;expr&gt;&#x27;, 1, grammar[&#x27;&lt;expr&gt;&#x27;][1])
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Compiling a Definition
 
 <!--
 ############
@@ -1094,11 +1126,10 @@ def compile_def(g, key, definition):
     res.append('''
             L = 'L0'
             continue''')
-    for n_alt,rule in enumerate(definition):
+    for n_alt, rule in enumerate(definition):
         r = compile_rule(g, key, n_alt, rule)
         res.append(r)
     return '\n'.join(res)
-
 
 ############
 -->
@@ -1117,7 +1148,7 @@ def compile_def(g, key, definition):
     res.append(&#x27;&#x27;&#x27;
             L = &#x27;L0&#x27;
             continue&#x27;&#x27;&#x27;)
-    for n_alt,rule in enumerate(definition):
+    for n_alt, rule in enumerate(definition):
         r = compile_rule(g, key, n_alt, rule)
         res.append(r)
     return &#x27;\n&#x27;.join(res)
@@ -1125,7 +1156,24 @@ def compile_def(g, key, definition):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Compiling a Grammar
+Using it.
+
+<!--
+############
+v = compile_def(grammar, '<expr>', grammar['<expr>'])
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = compile_def(grammar, &#x27;&lt;expr&gt;&#x27;, grammar[&#x27;&lt;expr&gt;&#x27;])
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Compiling a Grammar
 
 <!--
 ############
@@ -1139,7 +1187,7 @@ def parse_string(parser):
     )
     # L contains start nt.
     S = '%s'
-    end_rule = SPPF_dummy('$')
+    end_rule = SPPF_dummy('$', 0, 0)
     L, stack_top, current_index, current_sppf_node = S, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
@@ -1180,7 +1228,7 @@ def parse_string(parser):
     )
     # L contains start nt.
     S = &#x27;%s&#x27;
-    end_rule = SPPF_dummy(&#x27;$&#x27;)
+    end_rule = SPPF_dummy(&#x27;$&#x27;, 0, 0)
     L, stack_top, current_index, current_sppf_node = S, parser.stack_bottom, 0, end_rule
     while True:
         if L == &#x27;L0&#x27;:
@@ -1214,34 +1262,69 @@ Using it
 
 <!--
 ############
+v = compile_grammar(grammar, '<start>')
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = compile_grammar(grammar, &#x27;&lt;start&gt;&#x27;)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+# Examples
+
+<!--
+############
 G1 = {
     '<S>': [['c']]
 }
-mystring2 = 'c'
+mystring = 'c'
 res = compile_grammar(G1, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(1)
 
 G2 = {
     '<S>': [['c', 'c']]
 }
-mystring2 = 'cc'
+mystring = 'cc'
 res = compile_grammar(G2, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(2)
 
 G3 = {
     '<S>': [['c', 'c', 'c']]
 }
-mystring2 = 'ccc'
+mystring = 'ccc'
 res = compile_grammar(G3, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(3)
 
 
@@ -1249,11 +1332,17 @@ G4 = {
     '<S>': [['c'],
             ['a']]
 }
-mystring2 = 'a'
+mystring = 'a'
 res = compile_grammar(G4, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(4)
 
 
@@ -1261,175 +1350,20 @@ G5 = {
     '<S>': [['<A>']],
     '<A>': [['a']]
 }
-mystring2 = 'a'
+mystring = 'a'
 res = compile_grammar(G5, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(5)
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-G1 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;]]
-}
-mystring2 = &#x27;c&#x27;
-res = compile_grammar(G1, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring2)
-assert parse_string(g) == &#x27;success&#x27;
-print(1)
 
-G2 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;]]
-}
-mystring2 = &#x27;cc&#x27;
-res = compile_grammar(G2, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring2)
-assert parse_string(g) == &#x27;success&#x27;
-print(2)
-
-G3 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;, &#x27;c&#x27;]]
-}
-mystring2 = &#x27;ccc&#x27;
-res = compile_grammar(G3, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring2)
-assert parse_string(g) == &#x27;success&#x27;
-print(3)
-
-
-G4 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;],
-            [&#x27;a&#x27;]]
-}
-mystring2 = &#x27;a&#x27;
-res = compile_grammar(G4, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring2)
-assert parse_string(g) == &#x27;success&#x27;
-print(4)
-
-
-G5 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
-    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]]
-}
-mystring2 = &#x27;a&#x27;
-res = compile_grammar(G5, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring2)
-assert parse_string(g) == &#x27;success&#x27;
-print(5)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Parse tree
-
-<!--
-############
-import random
-
-def process_sppf_symbol(node, hmap, tab):
-    key = node.to_s(g)
-    if key is None:
-        return ['$', []]
-    assert isinstance(key, str)
-    if node.children:
-        n = random.choice(node.children)
-        return [key, process_sppf_packed(n,hmap, tab+1)]
-    return [key, []]
-
-def process_sppf_packed(node, hmap, tab):
-    key = node.to_s(g)
-    # packed nodes (rounded) represent on particular derivation. No need to add key
-    assert isinstance(node, SPPF_packed_node)
-    assert not isinstance(key, str)
-    children = []
-    # A packed node may have two children, just left and right.
-    children
-    for n in node.children:
-        if isinstance(n, SPPF_symbol_node):
-            v = process_sppf_symbol(n,hmap, tab+1)
-            children.append(v)
-        elif isinstance(n, SPPF_intermediate_node):
-            v = process_sppf_intermediate_node(n,hmap, tab+1)
-            children.extend(v)
-        else: assert False
-    return children
-
-def process_sppf_intermediate_node(node, hmap, tab):
-    key = node.to_s(g)
-    assert isinstance(node, SPPF_intermediate_node)
-    #print(' '*tab, 'I', node.to_s(g))
-    #assert len(node.children) == 1
-    #n = random.choice(node.children)
-    assert not isinstance(key, str)
-    ret = []
-    for n in node.children:
-        v = process_sppf_packed(n,hmap, tab+1)
-        ret.extend(v)
-    return ret
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import random
-
-def process_sppf_symbol(node, hmap, tab):
-    key = node.to_s(g)
-    if key is None:
-        return [&#x27;$&#x27;, []]
-    assert isinstance(key, str)
-    if node.children:
-        n = random.choice(node.children)
-        return [key, process_sppf_packed(n,hmap, tab+1)]
-    return [key, []]
-
-def process_sppf_packed(node, hmap, tab):
-    key = node.to_s(g)
-    # packed nodes (rounded) represent on particular derivation. No need to add key
-    assert isinstance(node, SPPF_packed_node)
-    assert not isinstance(key, str)
-    children = []
-    # A packed node may have two children, just left and right.
-    children
-    for n in node.children:
-        if isinstance(n, SPPF_symbol_node):
-            v = process_sppf_symbol(n,hmap, tab+1)
-            children.append(v)
-        elif isinstance(n, SPPF_intermediate_node):
-            v = process_sppf_intermediate_node(n,hmap, tab+1)
-            children.extend(v)
-        else: assert False
-    return children
-
-def process_sppf_intermediate_node(node, hmap, tab):
-    key = node.to_s(g)
-    assert isinstance(node, SPPF_intermediate_node)
-    #print(&#x27; &#x27;*tab, &#x27;I&#x27;, node.to_s(g))
-    #assert len(node.children) == 1
-    #n = random.choice(node.children)
-    assert not isinstance(key, str)
-    ret = []
-    for n in node.children:
-        v = process_sppf_packed(n,hmap, tab+1)
-        ret.extend(v)
-    return ret
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it.
-
-<!--
-############
 RR_GRAMMAR2 = {
     '<start>': [
     ['b', 'a', 'c'],
@@ -1438,28 +1372,32 @@ RR_GRAMMAR2 = {
     ],
     '<A>': [['a']],
 }
-mystring2 = 'bac'
+mystring = 'bac'
 res = compile_grammar(RR_GRAMMAR2, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 RR_GRAMMAR3 = {
     '<start>': [['c', '<A>']],
     '<A>': [['a', 'b', '<A>'], []],
 }
-mystring3 = 'cababababab'
+mystring = 'cababababab'
 
 res = compile_grammar(RR_GRAMMAR3, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring3)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(7)
 
@@ -1467,15 +1405,17 @@ RR_GRAMMAR4 = {
     '<start>': [['<A>', 'c']],
     '<A>': [['a', 'b', '<A>'], []],
 }
-mystring4 = 'ababababc'
+mystring = 'ababababc'
 
 res = compile_grammar(RR_GRAMMAR4, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring4)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(8)
 
@@ -1484,15 +1424,17 @@ RR_GRAMMAR5 = {
 '<A>': [['a', 'b', '<B>'], []],
 '<B>': [['<A>']],
 }
-mystring5 = 'abababab'
+mystring = 'abababab'
 
 res = compile_grammar(RR_GRAMMAR5, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring5)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(9)
 
@@ -1501,15 +1443,17 @@ RR_GRAMMAR6 = {
 '<A>': [['a', '<B>'], []],
 '<B>': [['b', '<A>']],
 }
-mystring6 = 'abababab'
+mystring = 'abababab'
 
 res = compile_grammar(RR_GRAMMAR6, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring6)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(10)
 
@@ -1517,15 +1461,17 @@ RR_GRAMMAR7 = {
 '<start>': [['<A>']],
 '<A>': [['a', '<A>'], ['a']],
 }
-mystring7 = 'aaaaaaaa'
+mystring = 'aaaaaaaa'
 
 res = compile_grammar(RR_GRAMMAR7, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring7)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(11)
 
@@ -1533,36 +1479,43 @@ RR_GRAMMAR8 = {
 '<start>': [['<A>']],
 '<A>': [['a', '<A>'], ['a']]
 }
-mystring8 = 'aa'
+mystring = 'aa'
 
 res = compile_grammar(RR_GRAMMAR8, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring8)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-print(12)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
+print(12)
 
 X_G1 = {
     '<start>': [['a']],
 }
-mystring2 = 'a'
+mystring = 'a'
 res = compile_grammar(X_G1, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print('X_G1')
 
 X_G2 = {
     '<start>': [['a', 'b']],
 }
-mystring2 = 'ab'
+mystring = 'ab'
 res = compile_grammar(X_G2, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
 print('X_G2')
 
@@ -1570,11 +1523,17 @@ X_G3 = {
     '<start>': [['a', '<b>']],
     '<b>': [['b']]
 }
-mystring2 = 'ab'
+mystring = 'ab'
 res = compile_grammar(X_G3, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print('X_G3')
 
 X_G4 = {
@@ -1587,14 +1546,17 @@ X_G4 = {
     '<b>': [['b']],
     '<c>': [['b']]
 }
-mystring2 = 'ab'
+mystring = 'ab'
 res = compile_grammar(X_G4, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 
 print('X_G4')
 
@@ -1606,11 +1568,18 @@ X_G5 = {
 }
 X_G5_start = '<start>'
 
-mystring2 = '1+1'
+mystring = '1+1'
 res = compile_grammar(X_G5, '<start>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+
 print('X_G5')
 
 X_G6 = {
@@ -1624,14 +1593,16 @@ X_G6 = {
 }
 X_G6_start = '<S>'
 
-mystring2 = 'bac'
+mystring = 'bac'
 res = compile_grammar(X_G6, '<S>')
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == 'success'
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print('X_G6')
 
@@ -1639,6 +1610,91 @@ print('X_G6')
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+G1 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;]]
+}
+mystring = &#x27;c&#x27;
+res = compile_grammar(G1, &#x27;&lt;S&gt;&#x27;)
+exec(res)
+g = GLLStructuredStackP(mystring)
+assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+print(1)
+
+G2 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;]]
+}
+mystring = &#x27;cc&#x27;
+res = compile_grammar(G2, &#x27;&lt;S&gt;&#x27;)
+exec(res)
+g = GLLStructuredStackP(mystring)
+assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+print(2)
+
+G3 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;, &#x27;c&#x27;]]
+}
+mystring = &#x27;ccc&#x27;
+res = compile_grammar(G3, &#x27;&lt;S&gt;&#x27;)
+exec(res)
+g = GLLStructuredStackP(mystring)
+assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+print(3)
+
+
+G4 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;],
+            [&#x27;a&#x27;]]
+}
+mystring = &#x27;a&#x27;
+res = compile_grammar(G4, &#x27;&lt;S&gt;&#x27;)
+exec(res)
+g = GLLStructuredStackP(mystring)
+assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+print(4)
+
+
+G5 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]]
+}
+mystring = &#x27;a&#x27;
+res = compile_grammar(G5, &#x27;&lt;S&gt;&#x27;)
+exec(res)
+g = GLLStructuredStackP(mystring)
+assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+print(5)
+
+
 RR_GRAMMAR2 = {
     &#x27;&lt;start&gt;&#x27;: [
     [&#x27;b&#x27;, &#x27;a&#x27;, &#x27;c&#x27;],
@@ -1647,28 +1703,32 @@ RR_GRAMMAR2 = {
     ],
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]],
 }
-mystring2 = &#x27;bac&#x27;
+mystring = &#x27;bac&#x27;
 res = compile_grammar(RR_GRAMMAR2, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 RR_GRAMMAR3 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;c&#x27;, &#x27;&lt;A&gt;&#x27;]],
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
-mystring3 = &#x27;cababababab&#x27;
+mystring = &#x27;cababababab&#x27;
 
 res = compile_grammar(RR_GRAMMAR3, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring3)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(7)
 
@@ -1676,15 +1736,17 @@ RR_GRAMMAR4 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;c&#x27;]],
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;], []],
 }
-mystring4 = &#x27;ababababc&#x27;
+mystring = &#x27;ababababc&#x27;
 
 res = compile_grammar(RR_GRAMMAR4, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring4)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(8)
 
@@ -1693,15 +1755,17 @@ RR_GRAMMAR5 = {
 &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], []],
 &#x27;&lt;B&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
 }
-mystring5 = &#x27;abababab&#x27;
+mystring = &#x27;abababab&#x27;
 
 res = compile_grammar(RR_GRAMMAR5, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring5)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(9)
 
@@ -1710,15 +1774,17 @@ RR_GRAMMAR6 = {
 &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;], []],
 &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;]],
 }
-mystring6 = &#x27;abababab&#x27;
+mystring = &#x27;abababab&#x27;
 
 res = compile_grammar(RR_GRAMMAR6, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring6)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(10)
 
@@ -1726,15 +1792,17 @@ RR_GRAMMAR7 = {
 &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
 &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]],
 }
-mystring7 = &#x27;aaaaaaaa&#x27;
+mystring = &#x27;aaaaaaaa&#x27;
 
 res = compile_grammar(RR_GRAMMAR7, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring7)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(11)
 
@@ -1742,36 +1810,43 @@ RR_GRAMMAR8 = {
 &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
 &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;a&#x27;]]
 }
-mystring8 = &#x27;aa&#x27;
+mystring = &#x27;aa&#x27;
 
 res = compile_grammar(RR_GRAMMAR8, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring8)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-print(12)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
+print(12)
 
 X_G1 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;a&#x27;]],
 }
-mystring2 = &#x27;a&#x27;
+mystring = &#x27;a&#x27;
 res = compile_grammar(X_G1, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(&#x27;X_G1&#x27;)
 
 X_G2 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;]],
 }
-mystring2 = &#x27;ab&#x27;
+mystring = &#x27;ab&#x27;
 res = compile_grammar(X_G2, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
 print(&#x27;X_G2&#x27;)
 
@@ -1779,11 +1854,17 @@ X_G3 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;b&gt;&#x27;]],
     &#x27;&lt;b&gt;&#x27;: [[&#x27;b&#x27;]]
 }
-mystring2 = &#x27;ab&#x27;
+mystring = &#x27;ab&#x27;
 res = compile_grammar(X_G3, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 print(&#x27;X_G3&#x27;)
 
 X_G4 = {
@@ -1796,14 +1877,17 @@ X_G4 = {
     &#x27;&lt;b&gt;&#x27;: [[&#x27;b&#x27;]],
     &#x27;&lt;c&gt;&#x27;: [[&#x27;b&#x27;]]
 }
-mystring2 = &#x27;ab&#x27;
+mystring = &#x27;ab&#x27;
 res = compile_grammar(X_G4, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
 
 print(&#x27;X_G4&#x27;)
 
@@ -1815,11 +1899,18 @@ X_G5 = {
 }
 X_G5_start = &#x27;&lt;start&gt;&#x27;
 
-mystring2 = &#x27;1+1&#x27;
+mystring = &#x27;1+1&#x27;
 res = compile_grammar(X_G5, &#x27;&lt;start&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+print(v)
+fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
+
+
 print(&#x27;X_G5&#x27;)
 
 X_G6 = {
@@ -1833,14 +1924,16 @@ X_G6 = {
 }
 X_G6_start = &#x27;&lt;S&gt;&#x27;
 
-mystring2 = &#x27;bac&#x27;
+mystring = &#x27;bac&#x27;
 res = compile_grammar(X_G6, &#x27;&lt;S&gt;&#x27;)
 exec(res)
-g = GLLStructuredStackP(mystring2)
+g = GLLStructuredStackP(mystring)
 assert parse_string(g) == &#x27;success&#x27;
-v = process_sppf_symbol(g.SPPF_nodes[g.root], g.SPPF_nodes, tab=0)
+v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
 print(v)
 fuzzer.display_tree(v)
+r = fuzzer.tree_to_string(v)
+assert r == mystring
 
 print(&#x27;X_G6&#x27;)
 </textarea><br />
