@@ -296,12 +296,12 @@ print(nullable(grammar))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### The GSS Graph
+## The GSS Graph
 The GLL parser uses something called a Graph Structured Stack to limit the 
 space consumption during parsing. The idea is to share as much of the stack
 during parsing as possible.
 
-#### The GSS Node
+### The GSS Node
 Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
 character consumed.
 
@@ -330,7 +330,7 @@ class GSSNode:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### The GSS container
+### The GSS container
 
 <!--
 ############
@@ -379,10 +379,10 @@ class GSS:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### SPPF Graph
+## SPPF Graph
 To ensure that we can actually extract the parsed trees, we use 
 the Shared Packed Parse Forest datastructure to represent parses.
-#### SPPF Node
+### SPPF Node
 
 <!--
 ############
@@ -423,7 +423,7 @@ class SPPFNode:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### SPPF Dummy Node
+### SPPF Dummy Node
 
 <!--
 ############
@@ -444,7 +444,7 @@ class SPPF_dummy(SPPFNode):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### SPPF Symbol Node
+### SPPF Symbol Node
 
 <!--
 ############
@@ -477,7 +477,7 @@ class SPPF_symbol_node(SPPFNode):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### SPPF Intermediate Node
+### SPPF Intermediate Node
 Has only two children max (or 1 child).
 
 <!--
@@ -521,7 +521,7 @@ class SPPF_intermediate_node(SPPFNode):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### SPPF Packed Node
+### SPPF Packed Node
 
 <!--
 ############

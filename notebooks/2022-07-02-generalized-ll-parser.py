@@ -114,12 +114,12 @@ if __name__ == '__main__':
     print(nullable(grammar))
 
 
-# ### The GSS Graph
+# ## The GSS Graph
 # The GLL parser uses something called a Graph Structured Stack to limit the 
 # space consumption during parsing. The idea is to share as much of the stack
 # during parsing as possible.
 # 
-# #### The GSS Node
+# ### The GSS Node
 # Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
 # character consumed.
 
@@ -131,7 +131,7 @@ class GSSNode:
     def __eq__(self, other): return self.label == other.label
     def __repr__(self): return str((self.label, self.children))
 
-# #### The GSS container
+# ### The GSS container
 
 class GSS:
     def __init__(self): self.gss, self.P = {}, {}
@@ -152,11 +152,11 @@ class GSS:
 
     def __repr__(self): return str(self.gss)
 
-# ### SPPF Graph
+# ## SPPF Graph
 # To ensure that we can actually extract the parsed trees, we use 
 # the Shared Packed Parse Forest datastructure to represent parses.
 
-# #### SPPF Node
+# ### SPPF Node
 
 class SPPFNode:
     def __init__(self):
@@ -173,14 +173,14 @@ class SPPFNode:
     def add_child(self, child):
         self.children.append(child)
 
-# #### SPPF Dummy Node
+# ### SPPF Dummy Node
 
 class SPPF_dummy(SPPFNode):
     def __init__(self, s='$'):
         self.label = (s, 0, 0)
         self.children = []
 
-# #### SPPF Symbol Node
+# ### SPPF Symbol Node
 
 class SPPF_symbol_node(SPPFNode):
     def __init__(self, x, j, i):
@@ -193,7 +193,7 @@ class SPPF_symbol_node(SPPFNode):
     def to_s(self, g):
         return (self.label[0])
 
-# #### SPPF Intermediate Node
+# ### SPPF Intermediate Node
 # Has only two children max (or 1 child).
 class SPPF_intermediate_node(SPPFNode):
     def __init__(self, t, j, i):
@@ -211,7 +211,7 @@ class SPPF_intermediate_node(SPPFNode):
         #        str(g.grammar[sym][n_alt][:dot]) + '.' +
         #        str(g.grammar[sym][n_alt][dot:]) + ' ' + str(i) + ',' + str(j))
 
-# #### SPPF Packed Node
+# ### SPPF Packed Node
 
 class SPPF_packed_node(SPPFNode):
     def __init__(self, t, k, children):
