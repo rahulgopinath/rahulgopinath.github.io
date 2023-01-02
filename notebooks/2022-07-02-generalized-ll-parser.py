@@ -74,10 +74,76 @@ def show_dot(g, t):
 if __name__ == '__main__':
     print(show_dot(grammar, ('<fact>', 1, 1)))
 
-# We also need nullable() [earley-parsing](/post/2021/02/06/earley-parsing/#nonterminals-deriving-empty-strings).
+# We also need first and nullable
+# 
+# Here is a nullable grammar
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+# Here is a standard algorithm to compute first, follow and nullable sets
+
+def symbols(grammar):
+    terminals, nonterminals = [], []
+    for k in grammar:
+        for r in grammar[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t):
+                    nonterminals.append(t)
+                else:
+                    terminals.append(t)
+    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        updated = False
+        for k in nonterminals:
+            for rule in grammar[k]:
+                for t in rule:
+                    updated |= union(first[k], first[t])
+                    if t not in nullable: break
+                else:
+                    updated |= union(nullable, {k})
+                    
+                aux = follow[k]
+                for t in reversed(rule):
+                    if t in follow:
+                        updated |= union(follow[t], aux)
+                    if t in nullable:
+                        aux = aux.union(first[t])
+                    else:
+                        aux = first[t]
+        if not updated:
+            return first, follow, nullable
+
+# Using
 
 if __name__ == '__main__':
-    print(ep.nullable(grammar))
+    first, follow, nullable = first_and_follow(nullable_grammar)
+    print(first)
+    print(follow)
+    print(nullable)
+
+# another
+
+if __name__ == '__main__':
+    first, follow, nullable = first_and_follow(grammar)
+    print(first)
+    print(follow)
+    print(nullable)
 
 # ## The GSS Graph
 # A naive conversion of recursive descent parsing to generalized recursive
@@ -235,7 +301,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        self.nullable = ep.nullable(g)
+        _,_,self.nullable = first_and_follow(g)
 
 # ### GLL add thread (add)
 class GLLStructuredStackP(GLLStructuredStackP):

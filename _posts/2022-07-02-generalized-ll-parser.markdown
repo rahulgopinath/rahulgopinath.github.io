@@ -203,17 +203,168 @@ print(show_dot(grammar, (&#x27;&lt;fact&gt;&#x27;, 1, 1)))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We also need nullable() [earley-parsing](/post/2021/02/06/earley-parsing/#nonterminals-deriving-empty-strings).
+We also need first and nullable
+
+Here is a nullable grammar
 
 <!--
 ############
-print(ep.nullable(grammar))
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(ep.nullable(grammar))
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is a standard algorithm to compute first, follow and nullable sets
+
+<!--
+############
+def symbols(grammar):
+    terminals, nonterminals = [], []
+    for k in grammar:
+        for r in grammar[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t):
+                    nonterminals.append(t)
+                else:
+                    terminals.append(t)
+    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        updated = False
+        for k in nonterminals:
+            for rule in grammar[k]:
+                for t in rule:
+                    updated |= union(first[k], first[t])
+                    if t not in nullable: break
+                else:
+                    updated |= union(nullable, {k})
+
+                aux = follow[k]
+                for t in reversed(rule):
+                    if t in follow:
+                        updated |= union(follow[t], aux)
+                    if t in nullable:
+                        aux = aux.union(first[t])
+                    else:
+                        aux = first[t]
+        if not updated:
+            return first, follow, nullable
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def symbols(grammar):
+    terminals, nonterminals = [], []
+    for k in grammar:
+        for r in grammar[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t):
+                    nonterminals.append(t)
+                else:
+                    terminals.append(t)
+    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        updated = False
+        for k in nonterminals:
+            for rule in grammar[k]:
+                for t in rule:
+                    updated |= union(first[k], first[t])
+                    if t not in nullable: break
+                else:
+                    updated |= union(nullable, {k})
+
+                aux = follow[k]
+                for t in reversed(rule):
+                    if t in follow:
+                        updated |= union(follow[t], aux)
+                    if t in nullable:
+                        aux = aux.union(first[t])
+                    else:
+                        aux = first[t]
+        if not updated:
+            return first, follow, nullable
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+first, follow, nullable = first_and_follow(nullable_grammar)
+print(first)
+print(follow)
+print(nullable)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+first, follow, nullable = first_and_follow(nullable_grammar)
+print(first)
+print(follow)
+print(nullable)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+another
+
+<!--
+############
+first, follow, nullable = first_and_follow(grammar)
+print(first)
+print(follow)
+print(nullable)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+first, follow, nullable = first_and_follow(grammar)
+print(first)
+print(follow)
+print(nullable)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -535,7 +686,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        self.nullable = ep.nullable(g)
+        _,_,self.nullable = first_and_follow(g)
 
 ############
 -->
@@ -557,7 +708,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        self.nullable = ep.nullable(g)
+        _,_,self.nullable = first_and_follow(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
