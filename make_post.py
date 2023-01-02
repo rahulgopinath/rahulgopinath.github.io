@@ -91,7 +91,9 @@ def get_pkg_desc(name):
     wheel_name = name[len('https://rahul.gopinath.org/py/'):]
     pkg_name, *rest = wheel_name.split('-')
     post_name = get_post_name(pkg_name)
-    return '<li><a href="%s">%s</a>%s</li>' % (name[len('https://rahul.gopinath.org'):], wheel_name, post_name)
+    # we don't want to do this because students may run the page from somewhere else.
+    # return '<li><a href="%s">%s</a>%s</li>' % (name[len('https://rahul.gopinath.org'):], wheel_name, post_name)
+    return '<li><a href="%s">%s</a>%s</li>' % (name, wheel_name, post_name)
 
 def print_data(processed_data):
     first_comment = True
