@@ -112,20 +112,23 @@ def get_first_and_follow(grammar):
         added = 0
         productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
         for k, rule in productions:
+            can_be_empty = True
             for t in rule:
                 added += union(first[k], first[t])
-                if t not in nullable: break
-            else:
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
                 added += union(nullable, {k})
-                
-            aux = follow[k]
+
+            follow_ = follow[k]
             for t in reversed(rule):
                 if t in follow:
-                    added += union(follow[t], aux)
+                    added += union(follow[t], follow_)
                 if t in nullable:
-                    aux = aux.union(first[t])
+                    follow_ = follow_.union(first[t])
                 else:
-                    aux = first[t]
+                    follow_ = first[t]
         if not added:
             return first, follow, nullable
 
