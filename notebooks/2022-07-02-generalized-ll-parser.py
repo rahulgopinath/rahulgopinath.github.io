@@ -102,7 +102,7 @@ def union(a, b):
     a |= b
     return len(a) != n
 
-def first_and_follow(grammar):
+def get_first_and_follow(grammar):
     terminals, nonterminals = symbols(grammar)
     first = {i: set() for i in nonterminals}
     first.update((i, {i}) for i in terminals)
@@ -129,10 +129,26 @@ def first_and_follow(grammar):
         if not added:
             return first, follow, nullable
 
+def get_beta_first(rule, dot, first, follow, nullable):
+    alpha = rule[:dot]
+    beta = rule[dot:]
+    fst = []
+    for t in beta:
+        if fuzzer.is_terminal(t):
+            fst.append(t)
+            break
+        else:
+            fst.extend(first[t])
+            if t not in nullable:
+                break
+            else:
+                continue
+    return sorted(list(set(fst)))
+
 # Using
 
 if __name__ == '__main__':
-    first, follow, nullable = first_and_follow(nullable_grammar)
+    first, follow, nullable = get_first_and_follow(nullable_grammar)
     print(first)
     print(follow)
     print(nullable)
@@ -140,7 +156,7 @@ if __name__ == '__main__':
 # another
 
 if __name__ == '__main__':
-    first, follow, nullable = first_and_follow(grammar)
+    first, follow, nullable = get_first_and_follow(grammar)
     print(first)
     print(follow)
     print(nullable)
@@ -301,7 +317,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        _,_,self.nullable = first_and_follow(g)
+        _,_,self.nullable = get_first_and_follow(g)
 
 # ### GLL add thread (add)
 class GLLStructuredStackP(GLLStructuredStackP):
@@ -534,18 +550,19 @@ if __name__ == '__main__':
 
 # ### Compiling a Definition
 # Note that if performance is important, you may want to check if the current
-# input symbol at `parser.I[cur_idx]` is part of the
-# `first(remaining_rule_fragment)` and if remaining_rule_fragment is nullable,
-# then also `follow(remaining_rule_fragment)` before the `parser.add_thread()`
-# is called. (Typically, in current papers, only `first()` is checked, but
-# with the same logic, you can also check follow if you remove epsilon from the
-# first set.)
+# input symbol at `parser.I[cur_idx]` is part of the following, where X is a
+# nonterminal and p is a rule fragment. Note that if you care about the
+# performance, you will want to precompute first[p] for each rule fragment
+# `rule[j:]` in the grammar, and first and follow sets for each symbol in the
+# grammar. This should be checked before `parser.add_thread`.
+
+def test_select(a, X, p, rule_first, follow):
+    if a in rule_first[p]: return True
+    if '' not in rule_first[p]: return False
+    return a in follow[X]
+
 # Given that removing this check does not affect the correctness of the
-# algorithm, I have chosen not to implement it. However, if you wish to
-# implement it, make sure to **precompute** this set for each token in each rule
-# fragment in the grammar. Do not leave it for runtime. Then, it is simply a
-# matter of a cache lookup for `(key, n_alt, npos)` and checking whether the
-# set returned contain `parser.I[cur_idx]`.
+# algorithm, I have chosen not to add it.
 
 def compile_def(g, key, definition):
     res = []
@@ -579,6 +596,7 @@ def parse_string(parser):
     parser.set_grammar(
 %s
     )
+    first, follow, nullable = get_first_and_follow(parser.grammar)
     # L contains start nt.
     S = '%s'
     end_rule = SPPF_dummy('$', 0, 0)
