@@ -533,6 +533,20 @@ if __name__ == '__main__':
 
 
 # ### Compiling a Definition
+# Note that if performance is important, you may want to check if the current
+# input symbol at `parser.I[cur_idx]` is part of the
+# `first(remaining_rule_fragment)` and if remaining_rule_fragment is nullable,
+# then also `follow(remaining_rule_fragment)` before the `parser.add_thread()`
+# is called. (Typically, in current papers, only `first()` is checked, but
+# with the same logic, you can also check follow if you remove epsilon from the
+# first set.)
+# Given that removing this check does not affect the correctness of the
+# algorithm, I have chosen not to implement it. However, if you wish to
+# implement it, make sure to **precompute** this set for each token in each rule
+# fragment in the grammar. Do not leave it for runtime. Then, it is simply a
+# matter of a cache lookup for `(key, n_alt, npos)` and checking whether the
+# set returned contain `parser.I[cur_idx]`.
+
 def compile_def(g, key, definition):
     res = []
     res.append('''\
@@ -540,7 +554,6 @@ def compile_def(g, key, definition):
 ''' % key)
     for n_alt,rule in enumerate(definition):
         res.append('''\
-            # need to check first() if performance is important.
             # %s
             parser.add_thread( ('%s',%d,0), stack_top, cur_idx, end_rule)''' % (key + '::=' + str(rule), key, n_alt))
     res.append('''
