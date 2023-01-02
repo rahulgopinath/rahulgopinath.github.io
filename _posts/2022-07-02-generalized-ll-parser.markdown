@@ -1131,28 +1131,6 @@ def compile_grammar(g, start):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     res = ['''\
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def compile_grammar(g, start):
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    res = [&#x27;&#x27;&#x27;\
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-stack_bottom = (L_0, 0) # -- GSS base node+ (u0 in the paper)
-current_index = 0        # current input index (c_i in the paper)
-stack_top = u_0      # current GSS node (c_u in the paper)
-current_sppf_node = \delta   # current SPPF Node (c_n in the paper)
-U = \empty     # descriptor set+
-R = \empty     # descriptors still to be processed+
-P = \empty     # poped nodes set.
-
-<!--
-############
 def parse_string(parser):
     parser.set_grammar(
 %s
@@ -1190,6 +1168,10 @@ def parse_string(parser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def compile_grammar(g, start):
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    res = [&#x27;&#x27;&#x27;\
 def parse_string(parser):
     parser.set_grammar(
 %s
