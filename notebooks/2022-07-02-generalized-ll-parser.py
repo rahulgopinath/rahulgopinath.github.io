@@ -533,8 +533,8 @@ if __name__ == '__main__':
     v = compile_grammar(grammar, '<start>')
     print(v)
 
-# # Running it
-# ## 1
+# ## Running it
+# ### 1
 if __name__ == '__main__':
     G1 = {
         '<S>': [['c']]
@@ -550,7 +550,7 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
-# ## 2
+# ### 2
 if __name__ == '__main__':
     G2 = {
         '<S>': [['c', 'c']]
@@ -566,7 +566,7 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
-# ## 3
+# ### 3
 if __name__ == '__main__':
     G3 = {
         '<S>': [['c', 'c', 'c']]
@@ -581,7 +581,7 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
-# ## 4
+# ### 4
 if __name__ == '__main__':
     G4 = {
         '<S>': [['c'],
@@ -597,7 +597,7 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
-# ## 5
+# ### 5
 
 if __name__ == '__main__':
     G5 = {
@@ -658,7 +658,6 @@ if __name__ == '__main__':
 
 # ## Others
 if __name__ == '__main__':
-
     RR_GRAMMAR2 = {
         '<start>': [
         ['b', 'a', 'c'],
