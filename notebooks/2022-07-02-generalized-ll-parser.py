@@ -656,7 +656,7 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
-# ## Others
+# ## A few more examples
 if __name__ == '__main__':
     RR_GRAMMAR2 = {
         '<start>': [
