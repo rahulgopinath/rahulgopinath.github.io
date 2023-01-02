@@ -15,9 +15,15 @@
 # Elizabeth Scott and Adrian Johnstone. In this post, I provide a complete
 # implementation and a tutorial on how to implement a GLL parser in Python.
 # 
+# **Note:** This post is not complete. Given the interest in GLL parsers, I am
+# simply providing the source (which substantially follows the publications)
+# until I have more bandwidth to complete the tutorial. However, the code
+# itself is complete, and can be used.
+# 
 # #### Prerequisites
 #
 # As before, we start with the prerequisite imports.
+
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
