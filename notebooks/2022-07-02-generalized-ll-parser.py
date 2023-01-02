@@ -533,7 +533,8 @@ if __name__ == '__main__':
     v = compile_grammar(grammar, '<start>')
     print(v)
 
-# # Examples
+# # Running it
+# ## 1
 if __name__ == '__main__':
     G1 = {
         '<S>': [['c']]
@@ -545,12 +546,12 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
+    ep.display_tree(v)
 
-    print(1)
-
+# ## 2
+if __name__ == '__main__':
     G2 = {
         '<S>': [['c', 'c']]
     }
@@ -561,12 +562,12 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
+    ep.display_tree(v)
 
-    print(2)
-
+# ## 3
+if __name__ == '__main__':
     G3 = {
         '<S>': [['c', 'c', 'c']]
     }
@@ -576,14 +577,12 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring)
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
-    print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
+    ep.display_tree(v)
 
-    print(3)
-
-
+# ## 4
+if __name__ == '__main__':
     G4 = {
         '<S>': [['c'],
                 ['a']]
@@ -594,14 +593,13 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring)
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
-    print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
+    ep.display_tree(v)
 
-    print(4)
+# ## 5
 
-
+if __name__ == '__main__':
     G5 = {
         '<S>': [['<A>']],
         '<A>': [['a']]
@@ -612,13 +610,54 @@ if __name__ == '__main__':
     g = GLLStructuredStackP(mystring)
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
-    print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
+    ep.display_tree(v)
 
-    print(5)
+# ## Expression
 
+# ### 1
+if __name__ == '__main__':
+    mystring = '(1+1)*(23/45)-1'
+    res = compile_grammar(grammar, START)
+    exec(res)
+    g = GLLStructuredStackP(mystring)
+    assert parse_string(g) == 'success'
+    v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+    r = fuzzer.tree_to_string(v)
+    assert r == mystring
+    ep.display_tree(v)
+
+# ### 2
+if __name__ == '__main__':
+    a_grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<expr>'],
+        ['<expr>', '-', '<expr>'],
+        ['<expr>', '*', '<expr>'],
+        ['<expr>', '/', '<expr>'],
+        ['(', '<expr>', ')'],
+        ['<integer>']],
+    '<integer>': [
+        ['<digits>']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+    }
+    mystring = '(1+1)*(23/45)-1'
+    res = compile_grammar(a_grammar, START)
+    exec(res)
+    g = GLLStructuredStackP(mystring)
+    assert parse_string(g) == 'success'
+    v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+    r = fuzzer.tree_to_string(v)
+    assert r == mystring
+    ep.display_tree(v)
+
+# ## Others
+if __name__ == '__main__':
 
     RR_GRAMMAR2 = {
         '<start>': [
@@ -635,7 +674,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -651,7 +689,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -669,7 +706,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -688,7 +724,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -707,7 +742,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -725,7 +759,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -743,7 +776,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -759,7 +791,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -786,7 +817,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -809,7 +839,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -831,7 +860,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
@@ -856,7 +884,6 @@ if __name__ == '__main__':
     assert parse_string(g) == 'success'
     v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
     print(v)
-    fuzzer.display_tree(v)
     r = fuzzer.tree_to_string(v)
     assert r == mystring
 
