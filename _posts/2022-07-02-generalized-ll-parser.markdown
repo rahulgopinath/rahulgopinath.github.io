@@ -644,16 +644,12 @@ We first define our initialization
 ############
 class GLLStructuredStackP:
     def __init__(self, input_str):
-        self.I = input_str + '$' # read the input I and set I[m] = `$`
+        self.I = input_str + '$'
         self.m = len(input_str)
         self.gss = GSS()
-        # create GSS node u_0 = (L_0, 0)
         self.stack_bottom = self.gss.get(('L0', 0))
-
-        # R := \empty
         self.threads = []
-
-        self.U = [[] for j in range(self.m+1)]
+        self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
 
     def set_grammar(self, g):
@@ -666,16 +662,12 @@ class GLLStructuredStackP:
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP:
     def __init__(self, input_str):
-        self.I = input_str + &#x27;$&#x27; # read the input I and set I[m] = `$`
+        self.I = input_str + &#x27;$&#x27;
         self.m = len(input_str)
         self.gss = GSS()
-        # create GSS node u_0 = (L_0, 0)
         self.stack_bottom = self.gss.get((&#x27;L0&#x27;, 0))
-
-        # R := \empty
         self.threads = []
-
-        self.U = [[] for j in range(self.m+1)]
+        self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
 
     def set_grammar(self, g):
@@ -690,26 +682,20 @@ class GLLStructuredStackP:
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def add_thread(self, L, u, i, w):
-        # w needs to be an SPPF node.
-        assert not isinstance(u, int)
-        assert isinstance(w, SPPFNode)
-        if (L, u, w) not in self.U[i]:
-            self.U[i].append((L, u, w))
-            self.threads.append((L, u, i, w))
+    def add_thread(self, L, stack_top, cur_idx, sppf_w):
+        if (L, stack_top, sppf_w) not in self.U[cur_idx]:
+            self.U[cur_idx].append((L, stack_top, sppf_w))
+            self.threads.append((L, stack_top, cur_idx, sppf_w))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def add_thread(self, L, u, i, w):
-        # w needs to be an SPPF node.
-        assert not isinstance(u, int)
-        assert isinstance(w, SPPFNode)
-        if (L, u, w) not in self.U[i]:
-            self.U[i].append((L, u, w))
-            self.threads.append((L, u, i, w))
+    def add_thread(self, L, stack_top, cur_idx, sppf_w):
+        if (L, stack_top, sppf_w) not in self.U[cur_idx]:
+            self.U[cur_idx].append((L, stack_top, sppf_w))
+            self.threads.append((L, stack_top, cur_idx, sppf_w))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -719,38 +705,28 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def fn_return(self, u, i, z):
-        # z needs to be SPPF.
-        assert isinstance(z, SPPFNode)
-        if u != self.stack_bottom:
-            # let (L, k) be label of u
-            (L, k) = u.label
-            self.gss.add_parsed_index(u.label, z)
-            for v,w in u.children: # edge labeled w, an SPPF node.
-                assert isinstance(w, SPPFNode)
-                #assert w.label[2] == z.label[1]
-                y = self.getNodeP(L, w, z)
-                self.add_thread(L, v, i, y)
-        return u
+    def fn_return(self, stack_top, cur_idx, sppf_z):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, sppf_z)
+            for c_st,sppf_w in stack_top.children:
+                sppf_y = self.getNodeP(L, sppf_w, sppf_z)
+                self.add_thread(L, c_st, cur_idx, sppf_y)
+        return stack_top
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def fn_return(self, u, i, z):
-        # z needs to be SPPF.
-        assert isinstance(z, SPPFNode)
-        if u != self.stack_bottom:
-            # let (L, k) be label of u
-            (L, k) = u.label
-            self.gss.add_parsed_index(u.label, z)
-            for v,w in u.children: # edge labeled w, an SPPF node.
-                assert isinstance(w, SPPFNode)
-                #assert w.label[2] == z.label[1]
-                y = self.getNodeP(L, w, z)
-                self.add_thread(L, v, i, y)
-        return u
+    def fn_return(self, stack_top, cur_idx, sppf_z):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, sppf_z)
+            for c_st,sppf_w in stack_top.children:
+                sppf_y = self.getNodeP(L, sppf_w, sppf_z)
+                self.add_thread(L, c_st, cur_idx, sppf_y)
+        return stack_top
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -760,22 +736,19 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def register_return(self, L, u, i, w): # returns to stack_top
-        assert isinstance(w, SPPFNode)
-        v = self.gss.get((L, i)) # Let v be the GSS node labeled L^i
+    def register_return(self, L, stack_top, cur_idx, sppf_w): # returns to stack_top
+        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
         # all gss children are edges, and they are labeled with SPPF nodes.
         # if there is not an edge from v to u labelled w
-        #assert not v.children # test. why are there no children?
-        v_to_u_labeled_w = [c for c,lbl in v.children if c.label == u.label and lbl == w]
+        v_to_u_labeled_w = [c for c,lbl in v.children
+                            if c.label == stack_top.label and lbl == sppf_w]
         if not v_to_u_labeled_w:
-            # create an edge from v to u labelled w
-            v.children.append((u,w))
+            v.children.append((stack_top, sppf_w))
 
-            for z in self.gss.parsed_indexes(v.label):
-                assert isinstance(z, SPPF_intermediate_node)
-                y = self.getNodeP(L, w, z)
-                h = z.label[-1]
-                self.add_thread(v.L, u, h, y) # v.L == L
+            for sppf_z in self.gss.parsed_indexes(v.label):
+                sppf_y = self.getNodeP(L, sppf_w, sppf_z)
+                h_idx = sppf_z.label[-1] # right extent
+                self.add_thread(v.L, stack_top, h_idx, sppf_y) # v.L == L
         return v
 
 ############
@@ -783,22 +756,19 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def register_return(self, L, u, i, w): # returns to stack_top
-        assert isinstance(w, SPPFNode)
-        v = self.gss.get((L, i)) # Let v be the GSS node labeled L^i
+    def register_return(self, L, stack_top, cur_idx, sppf_w): # returns to stack_top
+        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
         # all gss children are edges, and they are labeled with SPPF nodes.
         # if there is not an edge from v to u labelled w
-        #assert not v.children # test. why are there no children?
-        v_to_u_labeled_w = [c for c,lbl in v.children if c.label == u.label and lbl == w]
+        v_to_u_labeled_w = [c for c,lbl in v.children
+                            if c.label == stack_top.label and lbl == sppf_w]
         if not v_to_u_labeled_w:
-            # create an edge from v to u labelled w
-            v.children.append((u,w))
+            v.children.append((stack_top, sppf_w))
 
-            for z in self.gss.parsed_indexes(v.label):
-                assert isinstance(z, SPPF_intermediate_node)
-                y = self.getNodeP(L, w, z)
-                h = z.label[-1]
-                self.add_thread(v.L, u, h, y) # v.L == L
+            for sppf_z in self.gss.parsed_indexes(v.label):
+                sppf_y = self.getNodeP(L, sppf_w, sppf_z)
+                h_idx = sppf_z.label[-1] # right extent
+                self.add_thread(v.L, stack_top, h_idx, sppf_y) # v.L == L
         return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -858,53 +828,42 @@ the nodes w and z are not packed nodes, and will have labels of form
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
+    def not_dummy(self, sppf_w):
+        if sppf_w.label[0] == '$':
+            assert isinstance(sppf_w, SPPF_dummy_node)
+            return False
+        assert not isinstance(sppf_w, SPPF_dummy_node)
+        return True
+
     def getNodeT(self, x, i):
         j = i if x is None else i+1
         return self.sppf_find_or_create(x, i, j)
 
-    def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
+    def getNodeP(self, X_rule_pos, sppf_w, sppf_z):
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
-        alpha = rule[:dot]
-        beta = rule[dot:]
-        if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
-            return z
+        alpha, beta = rule[:dot], rule[dot:]
+
+        if self.is_non_nullable_alpha(alpha) and beta: return sppf_z
+
+        t = X if beta == [] else X_rule_pos
+
+        _q, k, i = sppf_z.label
+        if self.not_dummy(sppf_w):
+            _s,j,_k = sppf_w.label # assert k == _k
+            children = [sppf_w,sppf_z]
         else:
-            if beta == []: # if beta = epsilon from GLL_parse_tree_generation
-                t = X # symbol node.
-            else:
-                t = X_rule_pos
-            (q, k, i) = z.label # suppose z has label (q,k,i)
-            if (w.label[0] != '$'): # is not delta
-                # returns (t,j,i) <- (X:= alpha.beta, k) <- w:(s,j,k),<-z:(r,k,i)
-                (s,j,_k) = w.label # suppose w has label (s,j,k)
-                # w is the left node, and z is the right node. So the center (k)
-                # should be shared.
-                assert k == _k
-                # if there does not exist an SPPF node y labelled (t, j, i) create one
-                y = self.sppf_find_or_create(t, j, i)
+            j = k
+            children = [sppf_z]
 
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    # create a child of y with left child with w right child z
-                    # the extent of w-z is the same as y
-                    # packed nodes do not keep extents
-                    pn = SPPF_packed_node(X_rule_pos, k)
-                    for c_ in [w,z]: pn.add_child(c_)
-                    y.add_child(pn)
-            else:
-                # if there does not exist an SPPF node y labelled (t, k, i) create one
-                # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
-                y = self.sppf_find_or_create(t, k, i)
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    pn = SPPF_packed_node(X_rule_pos, k)
-                    for c_ in [z]: pn.add_child(c_)
-                    y.add_child(pn) # create a child with child z
-            return y
+        y = self.sppf_find_or_create(t, j, i)
+        if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+            pn = SPPF_packed_node(X_rule_pos, k)
+            for c_ in children: pn.add_child(c_)
+            y.add_child(pn)
+        return y
 
-    # adapted from Exploring_and_Visualizing paper.
-    def is_non_nullable_alpha(self, X, rule, dot):
-        #  we need to convert this to X := alpha . beta
-        alpha = rule[:dot]
+    def is_non_nullable_alpha(self, alpha):
         if not alpha: return False
         if len(alpha) != 1: return False
         if fuzzer.is_terminal(alpha[0]): return True
@@ -916,53 +875,42 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
+    def not_dummy(self, sppf_w):
+        if sppf_w.label[0] == &#x27;$&#x27;:
+            assert isinstance(sppf_w, SPPF_dummy_node)
+            return False
+        assert not isinstance(sppf_w, SPPF_dummy_node)
+        return True
+
     def getNodeT(self, x, i):
         j = i if x is None else i+1
         return self.sppf_find_or_create(x, i, j)
 
-    def getNodeP(self, X_rule_pos, w, z): # w is left node, z is right node
+    def getNodeP(self, X_rule_pos, sppf_w, sppf_z):
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
-        alpha = rule[:dot]
-        beta = rule[dot:]
-        if self.is_non_nullable_alpha(X, rule, dot) and beta: # beta != epsilon
-            return z
+        alpha, beta = rule[:dot], rule[dot:]
+
+        if self.is_non_nullable_alpha(alpha) and beta: return sppf_z
+
+        t = X if beta == [] else X_rule_pos
+
+        _q, k, i = sppf_z.label
+        if self.not_dummy(sppf_w):
+            _s,j,_k = sppf_w.label # assert k == _k
+            children = [sppf_w,sppf_z]
         else:
-            if beta == []: # if beta = epsilon from GLL_parse_tree_generation
-                t = X # symbol node.
-            else:
-                t = X_rule_pos
-            (q, k, i) = z.label # suppose z has label (q,k,i)
-            if (w.label[0] != &#x27;$&#x27;): # is not delta
-                # returns (t,j,i) &lt;- (X:= alpha.beta, k) &lt;- w:(s,j,k),&lt;-z:(r,k,i)
-                (s,j,_k) = w.label # suppose w has label (s,j,k)
-                # w is the left node, and z is the right node. So the center (k)
-                # should be shared.
-                assert k == _k
-                # if there does not exist an SPPF node y labelled (t, j, i) create one
-                y = self.sppf_find_or_create(t, j, i)
+            j = k
+            children = [sppf_z]
 
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    # create a child of y with left child with w right child z
-                    # the extent of w-z is the same as y
-                    # packed nodes do not keep extents
-                    pn = SPPF_packed_node(X_rule_pos, k)
-                    for c_ in [w,z]: pn.add_child(c_)
-                    y.add_child(pn)
-            else:
-                # if there does not exist an SPPF node y labelled (t, k, i) create one
-                # returns (t,k,i) &lt;- (X:= alpha.beta, k) &lt;- (r,k,i)
-                y = self.sppf_find_or_create(t, k, i)
-                if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    pn = SPPF_packed_node(X_rule_pos, k)
-                    for c_ in [z]: pn.add_child(c_)
-                    y.add_child(pn) # create a child with child z
-            return y
+        y = self.sppf_find_or_create(t, j, i)
+        if not [c for c in y.children if c.label == (X_rule_pos, k)]:
+            pn = SPPF_packed_node(X_rule_pos, k)
+            for c_ in children: pn.add_child(c_)
+            y.add_child(pn)
+        return y
 
-    # adapted from Exploring_and_Visualizing paper.
-    def is_non_nullable_alpha(self, X, rule, dot):
-        #  we need to convert this to X := alpha . beta
-        alpha = rule[:dot]
+    def is_non_nullable_alpha(self, alpha):
         if not alpha: return False
         if len(alpha) != 1: return False
         if fuzzer.is_terminal(alpha[0]): return True
@@ -1311,7 +1259,7 @@ def parse_string(parser):
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
-                (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread() # remove from R
+                (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread()
                 # goto L
                 continue
             else:
@@ -1352,7 +1300,7 @@ def parse_string(parser):
     while True:
         if L == &#x27;L0&#x27;:
             if parser.threads: # if R != \empty
-                (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread() # remove from R
+                (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread()
                 # goto L
                 continue
             else:
