@@ -6,7 +6,7 @@
 # tags: controlflow
 # categories: post
 # ---
-
+#
 # TLDR; This tutorial is a complete implementation of GLL Parser in Python
 # including SPPF parse tree extraction [^scott2013gll].
 # The Python interpreter is embedded so that you can work through the

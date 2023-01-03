@@ -6,41 +6,6 @@ comments: true
 tags: controlflow
 categories: post
 ---
-
-## Contents
-{:.no_toc}
-
-1. TOC
-{:toc}
-
-<script src="/resources/js/graphviz/index.min.js"></script>
-<script>
-// From https://github.com/hpcc-systems/hpcc-js-wasm
-// Hosted for teaching.
-var hpccWasm = window["@hpcc-js/wasm"];
-function display_dot(dot_txt, div) {
-    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
-        div.innerHTML = svg;
-    });
-}
-window.display_dot = display_dot
-// from js import display_dot
-</script>
-
-<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
-**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
-Initialization completion is indicated by a red border around *Run all* button.
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
 TLDR; This tutorial is a complete implementation of GLL Parser in Python
 including SPPF parse tree extraction [^scott2013gll].
 The Python interpreter is embedded so that you can work through the
@@ -156,6 +121,41 @@ itself is complete, and can be used.
 
 #### Prerequisites
 As before, we start with the prerequisite imports.
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 
 <details>
 <summary>Available Packages </summary>
