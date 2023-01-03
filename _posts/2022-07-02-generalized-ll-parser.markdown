@@ -292,45 +292,7 @@ START = &#x27;&lt;start&gt;&#x27;
 </form>
 ## Utilities.
 We start with a few utilities.
-### show_dot()
-We often have to display a partial parse of a rule. We use `@` to indicate
-until where the current rule has parsed.
-
-<!--
-############
-def show_dot(g, t):
-    sym, n_alt, pos = t
-    rule = g[sym][n_alt]
-    return sym + '::=' + ' '.join(rule[0:pos]) + ' @ ' + ' '.join(rule[pos:])
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def show_dot(g, t):
-    sym, n_alt, pos = t
-    rule = g[sym][n_alt]
-    return sym + &#x27;::=&#x27; + &#x27; &#x27;.join(rule[0:pos]) + &#x27; @ &#x27; + &#x27; &#x27;.join(rule[pos:])
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it:
-
-<!--
-############
-print(show_dot(grammar, ('<fact>', 1, 1)))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print(show_dot(grammar, (&#x27;&lt;fact&gt;&#x27;, 1, 1)))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We also need first and nullable
+We need first and nullable
 
 Here is a nullable grammar
 
@@ -1081,7 +1043,7 @@ def compile_epsilon(g, key, n_alt):
             cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             L = 'L_'
             continue
-''' % (key, n_alt,show_dot(g, (key, n_alt, 0)))
+''' % (key, n_alt, ep.show_dot(key, g[key][n_alt], 0))
 
 ############
 -->
@@ -1096,7 +1058,7 @@ def compile_epsilon(g, key, n_alt):
             cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             L = &#x27;L_&#x27;
             continue
-&#x27;&#x27;&#x27; % (key, n_alt,show_dot(g, (key, n_alt, 0)))
+&#x27;&#x27;&#x27; % (key, n_alt, ep.show_dot(key, g[key][n_alt], 0))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1137,7 +1099,7 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
             else:
                 L = 'L0'
             continue
-''' % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), token, Lnxt)
+''' % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), token, Lnxt)
 
 ############
 -->
@@ -1158,7 +1120,7 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
             else:
                 L = &#x27;L0&#x27;
             continue
-&#x27;&#x27;&#x27; % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), token, Lnxt)
+&#x27;&#x27;&#x27; % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), token, Lnxt)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1177,7 +1139,7 @@ def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
             stack_top = parser.register_return(%s, stack_top, cur_idx, cur_sppf_node)
             L = "%s"
             continue
-''' % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), Lnxt, token)
+''' % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), Lnxt, token)
 
 ############
 -->
@@ -1193,7 +1155,7 @@ def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
             stack_top = parser.register_return(%s, stack_top, cur_idx, cur_sppf_node)
             L = &quot;%s&quot;
             continue
-&#x27;&#x27;&#x27; % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), Lnxt, token)
+&#x27;&#x27;&#x27; % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), Lnxt, token)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1247,7 +1209,7 @@ def compile_rule(g, key, n_alt, rule):
         elif L == ('%s',%d,%d): # %s
             L = 'L_'
             continue
-''' % (key, n_alt, len(rule), show_dot(g, (key, n_alt, len(rule)))))
+''' % (key, n_alt, len(rule), ep.show_dot(key, g[key][n_alt], len(rule))))
     return '\n'.join(res)
 
 ############
@@ -1271,7 +1233,7 @@ def compile_rule(g, key, n_alt, rule):
         elif L == (&#x27;%s&#x27;,%d,%d): # %s
             L = &#x27;L_&#x27;
             continue
-&#x27;&#x27;&#x27; % (key, n_alt, len(rule), show_dot(g, (key, n_alt, len(rule)))))
+&#x27;&#x27;&#x27; % (key, n_alt, len(rule), ep.show_dot(key, g[key][n_alt], len(rule))))
     return &#x27;\n&#x27;.join(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2213,4 +2175,6 @@ def format_parsetree(t):
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2022-07-02-generalized-ll-parser.py).
 
+
+The installable python wheel `gllparser` is available [here](/py/gllparser-0.0.1-py2.py3-none-any.whl).
 

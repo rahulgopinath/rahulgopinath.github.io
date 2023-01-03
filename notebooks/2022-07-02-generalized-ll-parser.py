@@ -167,21 +167,7 @@ START = '<start>'
 
 # ## Utilities.
 # We start with a few utilities.
-# ### show_dot()
-# We often have to display a partial parse of a rule. We use `@` to indicate
-# until where the current rule has parsed.
-
-def show_dot(g, t):
-    sym, n_alt, pos = t
-    rule = g[sym][n_alt]
-    return sym + '::=' + ' '.join(rule[0:pos]) + ' @ ' + ' '.join(rule[pos:])
-
-# Using it:
-
-if __name__ == '__main__':
-    print(show_dot(grammar, ('<fact>', 1, 1)))
-
-# We also need first and nullable
+# We need first and nullable
 # 
 # Here is a nullable grammar
 nullable_grammar = {
@@ -521,7 +507,7 @@ def compile_epsilon(g, key, n_alt):
             cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
             L = 'L_'
             continue
-''' % (key, n_alt,show_dot(g, (key, n_alt, 0)))
+''' % (key, n_alt, ep.show_dot(key, g[key][n_alt], 0))
 
 # Using it.
 if __name__ == '__main__':
@@ -544,7 +530,7 @@ def compile_terminal(g, key, n_alt, r_pos, r_len, token):
             else:
                 L = 'L0'
             continue
-''' % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), token, Lnxt)
+''' % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), token, Lnxt)
 
 # ### Compiling a Nonterminal Symbol
 def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
@@ -557,7 +543,7 @@ def compile_nonterminal(g, key, n_alt, r_pos, r_len, token):
             stack_top = parser.register_return(%s, stack_top, cur_idx, cur_sppf_node)
             L = "%s"
             continue
-''' % (key, n_alt, r_pos, show_dot(g, (key, n_alt, r_pos)), Lnxt, token)
+''' % (key, n_alt, r_pos, ep.show_dot(key, g[key][n_alt], r_pos), Lnxt, token)
 
 # Using it.
 if __name__ == '__main__':
@@ -588,7 +574,7 @@ def compile_rule(g, key, n_alt, rule):
         elif L == ('%s',%d,%d): # %s
             L = 'L_'
             continue
-''' % (key, n_alt, len(rule), show_dot(g, (key, n_alt, len(rule)))))
+''' % (key, n_alt, len(rule), ep.show_dot(key, g[key][n_alt], len(rule))))
     return '\n'.join(res)
 
 # Using it.
