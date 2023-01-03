@@ -575,6 +575,11 @@ class SPPF_symbol_node(SPPFNode):
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
 
+    # **Note.** In the presence of ambiguous parsing, we choose a derivation
+    # at random. So, run the `to_tree()` multiple times to get all parse
+    # trees. If you want a better solution, see the
+    # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
+    # which can be adapted here too.
     def to_tree_(self, hmap, tab):
         key = self.to_s(g)
         if self.children:
@@ -591,6 +596,11 @@ class SPPF_symbol_node(SPPFNode):
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
 
+    # **Note.** In the presence of ambiguous parsing, we choose a derivation
+    # at random. So, run the `to_tree()` multiple times to get all parse
+    # trees. If you want a better solution, see the
+    # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
+    # which can be adapted here too.
     def to_tree_(self, hmap, tab):
         key = self.to_s(g)
         if self.children:
@@ -1569,6 +1579,8 @@ ep.display_tree(v)
 <div name='python_canvas'></div>
 </form>
 ### 2
+Since we use a random choice to get different parse trees in ambiguity, click
+the run button again and again to get different parses.
 
 <!--
 ############
