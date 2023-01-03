@@ -501,11 +501,19 @@ class SPPFNode:
 
     def add_child(self, child): self.children.append(child)
 
-    def to_tree(self, hmap, tab): raise NotImplemented
-
     def to_s(self, g): return self.label[0]
 
     def __repr__(self): return 'SPPF:%s' % str(self.label)
+
+    def to_tree(self, hmap, tab): raise NotImplemented
+
+    def to_tree_(self, hmap, tab):
+        key = self.to_s(g) # ignored
+        ret = []
+        for n in self.children:
+            v = n.to_tree_(hmap, tab+1)
+            ret.extend(v)
+        return ret
 
 
 ############
@@ -519,11 +527,19 @@ class SPPFNode:
 
     def add_child(self, child): self.children.append(child)
 
-    def to_tree(self, hmap, tab): raise NotImplemented
-
     def to_s(self, g): return self.label[0]
 
     def __repr__(self): return &#x27;SPPF:%s&#x27; % str(self.label)
+
+    def to_tree(self, hmap, tab): raise NotImplemented
+
+    def to_tree_(self, hmap, tab):
+        key = self.to_s(g) # ignored
+        ret = []
+        for n in self.children:
+            v = n.to_tree_(hmap, tab+1)
+            ret.extend(v)
+        return ret
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -534,20 +550,14 @@ The dummy SPPF node is used to indicate the empty node at the end of rules.
 <!--
 ############
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, j, i):
-        self.label, self.children = (s, j, i), []
-
-    def to_tree(self, hmap, tab): return ['$', []]
+    def __init__(self, s, j, i): self.label, self.children = (s, j, i), []
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, j, i):
-        self.label, self.children = (s, j, i), []
-
-    def to_tree(self, hmap, tab): return [&#x27;$&#x27;, []]
+    def __init__(self, s, j, i): self.label, self.children = (s, j, i), []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -561,38 +571,32 @@ representing a different derivation. See getNodeP
 <!--
 ############
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, j, i):
-        assert x is not None
-        self.label, self.children = (x, j, i), []
+    def __init__(self, x, j, i): self.label, self.children = (x, j, i), []
 
-    def to_tree(self, hmap, tab):
+    def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
+
+    def to_tree_(self, hmap, tab):
         key = self.to_s(g)
-        if key is None: return ['', []]
-        assert isinstance(key, str)
         if self.children:
             n = random.choice(self.children)
-            assert isinstance(n, SPPF_packed_node)
-            return [key, n.to_tree(hmap, tab+1)]
-        return [key, []]
+            return [[key, n.to_tree_(hmap, tab+1)]]
+        return [[key, []]]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, j, i):
-        assert x is not None
-        self.label, self.children = (x, j, i), []
+    def __init__(self, x, j, i): self.label, self.children = (x, j, i), []
 
-    def to_tree(self, hmap, tab):
+    def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
+
+    def to_tree_(self, hmap, tab):
         key = self.to_s(g)
-        if key is None: return [&#x27;&#x27;, []]
-        assert isinstance(key, str)
         if self.children:
             n = random.choice(self.children)
-            assert isinstance(n, SPPF_packed_node)
-            return [key, n.to_tree(hmap, tab+1)]
-        return [key, []]
+            return [[key, n.to_tree_(hmap, tab+1)]]
+        return [[key, []]]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -603,40 +607,14 @@ Has only two children max (or 1 child).
 <!--
 ############
 class SPPF_intermediate_node(SPPFNode):
-    def __init__(self, t, j, i):
-        self.label, self.children = (t, j, i), []
-
-    def right_extent(self): return self.label[-1]
-
-    def to_tree(self, hmap, tab):
-        key = self.to_s(g)
-        assert isinstance(self, SPPF_intermediate_node)
-        assert not isinstance(key, str)
-        ret = []
-        for n in self.children:
-            v = n.to_tree(hmap, tab+1)
-            ret.extend(v)
-        return ret
+    def __init__(self, t, j, i): self.label, self.children = (t, j, i), []
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_intermediate_node(SPPFNode):
-    def __init__(self, t, j, i):
-        self.label, self.children = (t, j, i), []
-
-    def right_extent(self): return self.label[-1]
-
-    def to_tree(self, hmap, tab):
-        key = self.to_s(g)
-        assert isinstance(self, SPPF_intermediate_node)
-        assert not isinstance(key, str)
-        ret = []
-        for n in self.children:
-            v = n.to_tree(hmap, tab+1)
-            ret.extend(v)
-        return ret
+    def __init__(self, t, j, i): self.label, self.children = (t, j, i), []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -646,58 +624,14 @@ class SPPF_intermediate_node(SPPFNode):
 <!--
 ############
 class SPPF_packed_node(SPPFNode):
-    def __init__(self, t, k, children):
-        # k is the pivot of the packed node.
-        self.label = (t,k) # t is a grammar slot X := alpha dot beta
-        self.children = children # left and right or just left
-
-    def to_tree(self, hmap, tab):
-        key = self.to_s(g)
-        # packed nodes represent one particular derivation. No need to add key
-        assert not isinstance(key, str)
-        children = []
-        # A packed node may have two children, just left and right.
-        for n in self.children:
-            if isinstance(n, SPPF_symbol_node):
-                v = n.to_tree(hmap, tab+1)
-                children.append(v)
-            elif isinstance(n, SPPF_intermediate_node):
-                v = n.to_tree(hmap, tab+1)
-                children.extend(v)
-            elif isinstance(n, SPPF_dummy_node):
-                pass
-            else:
-                assert False
-        return children
+    def __init__(self, t, k): self.label, self.children = (t,k), []
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_packed_node(SPPFNode):
-    def __init__(self, t, k, children):
-        # k is the pivot of the packed node.
-        self.label = (t,k) # t is a grammar slot X := alpha dot beta
-        self.children = children # left and right or just left
-
-    def to_tree(self, hmap, tab):
-        key = self.to_s(g)
-        # packed nodes represent one particular derivation. No need to add key
-        assert not isinstance(key, str)
-        children = []
-        # A packed node may have two children, just left and right.
-        for n in self.children:
-            if isinstance(n, SPPF_symbol_node):
-                v = n.to_tree(hmap, tab+1)
-                children.append(v)
-            elif isinstance(n, SPPF_intermediate_node):
-                v = n.to_tree(hmap, tab+1)
-                children.extend(v)
-            elif isinstance(n, SPPF_dummy_node):
-                pass
-            else:
-                assert False
-        return children
+    def __init__(self, t, k): self.label, self.children = (t,k), []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -724,7 +658,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        _,_,self.nullable = get_first_and_follow(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
 
 ############
 -->
@@ -746,7 +680,7 @@ class GLLStructuredStackP:
 
     def set_grammar(self, g):
         self.grammar = g
-        _,_,self.nullable = get_first_and_follow(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -840,7 +774,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for z in self.gss.parsed_indexes(v.label):
                 assert isinstance(z, SPPF_intermediate_node)
                 y = self.getNodeP(L, w, z)
-                h = z.right_extent()
+                h = z.label[-1]
                 self.add_thread(v.L, u, h, y) # v.L == L
         return v
 
@@ -863,7 +797,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for z in self.gss.parsed_indexes(v.label):
                 assert isinstance(z, SPPF_intermediate_node)
                 y = self.getNodeP(L, w, z)
-                h = z.right_extent()
+                h = z.label[-1]
                 self.add_thread(v.L, u, h, y) # v.L == L
         return v
 </textarea><br />
@@ -954,14 +888,16 @@ class GLLStructuredStackP(GLLStructuredStackP):
                     # create a child of y with left child with w right child z
                     # the extent of w-z is the same as y
                     # packed nodes do not keep extents
-                    pn = SPPF_packed_node(X_rule_pos, k, [w,z])
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    for c_ in [w,z]: pn.add_child(c_)
                     y.add_child(pn)
             else:
                 # if there does not exist an SPPF node y labelled (t, k, i) create one
                 # returns (t,k,i) <- (X:= alpha.beta, k) <- (r,k,i)
                 y = self.sppf_find_or_create(t, k, i)
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    pn = SPPF_packed_node(X_rule_pos, k, [z])
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    for c_ in [z]: pn.add_child(c_)
                     y.add_child(pn) # create a child with child z
             return y
 
@@ -1010,14 +946,16 @@ class GLLStructuredStackP(GLLStructuredStackP):
                     # create a child of y with left child with w right child z
                     # the extent of w-z is the same as y
                     # packed nodes do not keep extents
-                    pn = SPPF_packed_node(X_rule_pos, k, [w,z])
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    for c_ in [w,z]: pn.add_child(c_)
                     y.add_child(pn)
             else:
                 # if there does not exist an SPPF node y labelled (t, k, i) create one
                 # returns (t,k,i) &lt;- (X:= alpha.beta, k) &lt;- (r,k,i)
                 y = self.sppf_find_or_create(t, k, i)
                 if not [c for c in y.children if c.label == (X_rule_pos, k)]:
-                    pn = SPPF_packed_node(X_rule_pos, k, [z])
+                    pn = SPPF_packed_node(X_rule_pos, k)
+                    for c_ in [z]: pn.add_child(c_)
                     y.add_child(pn) # create a child with child z
             return y
 
@@ -1366,7 +1304,6 @@ def parse_string(parser):
     parser.set_grammar(
 %s
     )
-    first, follow, nullable = get_first_and_follow(parser.grammar)
     # L contains start nt.
     S = '%s'
     end_rule = SPPF_dummy_node('$', 0, 0)
@@ -1408,7 +1345,6 @@ def parse_string(parser):
     parser.set_grammar(
 %s
     )
-    first, follow, nullable = get_first_and_follow(parser.grammar)
     # L contains start nt.
     S = &#x27;%s&#x27;
     end_rule = SPPF_dummy_node(&#x27;$&#x27;, 0, 0)
