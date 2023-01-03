@@ -1413,7 +1413,8 @@ def compile_grammar(g, evaluate=True):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     res = ['''\
-def parse_on(text, start_symbol):
+def recognize_on(self, text, start_symbol):
+    parser = self.parser
     parser.initialize(text)
     parser.set_grammar(
 %s
@@ -1431,7 +1432,7 @@ def parse_on(text, start_symbol):
                 # if there is an SPPF node (start_symbol, 0, m) then report success
                 if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
                       parser.root = (start_symbol, 0, parser.m)
-                      return [parser.to_tree()]
+                      return parser
                 else: return []
         elif L == 'L_':
             stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
@@ -1444,13 +1445,21 @@ def parse_on(text, start_symbol):
     res.append('''
         else:
             assert False''')
+    res.append('''
+def parse_on(self, text, start_symbol):
+    p = self.recognize_on(text, start_symbol)
+    return [p.to_tree()]
+    ''')
+
     parse_src = '\n'.join(res)
-    if not evaluate: return parse_src
     s = GLLParser()
+    s.src = parse_src
+    if not evaluate: return parse_src
     l, g = locals().copy(), globals().copy()
-    g['parser'] = GLLStructuredStackP()
-    exec(parse_src, g, s.__dict__)
-    s.parser = g['parser']
+    exec(parse_src, g, l)
+    s.parser = GLLStructuredStackP()
+    s.recognize_on = l['recognize_on'].__get__(s)
+    s.parse_on = l['parse_on'].__get__(s)
     return s
 
 ############
@@ -1461,7 +1470,8 @@ def compile_grammar(g, evaluate=True):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     res = [&#x27;&#x27;&#x27;\
-def parse_on(text, start_symbol):
+def recognize_on(self, text, start_symbol):
+    parser = self.parser
     parser.initialize(text)
     parser.set_grammar(
 %s
@@ -1479,7 +1489,7 @@ def parse_on(text, start_symbol):
                 # if there is an SPPF node (start_symbol, 0, m) then report success
                 if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
                       parser.root = (start_symbol, 0, parser.m)
-                      return [parser.to_tree()]
+                      return parser
                 else: return []
         elif L == &#x27;L_&#x27;:
             stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
@@ -1492,13 +1502,21 @@ def parse_on(text, start_symbol):
     res.append(&#x27;&#x27;&#x27;
         else:
             assert False&#x27;&#x27;&#x27;)
+    res.append(&#x27;&#x27;&#x27;
+def parse_on(self, text, start_symbol):
+    p = self.recognize_on(text, start_symbol)
+    return [p.to_tree()]
+    &#x27;&#x27;&#x27;)
+
     parse_src = &#x27;\n&#x27;.join(res)
-    if not evaluate: return parse_src
     s = GLLParser()
+    s.src = parse_src
+    if not evaluate: return parse_src
     l, g = locals().copy(), globals().copy()
-    g[&#x27;parser&#x27;] = GLLStructuredStackP()
-    exec(parse_src, g, s.__dict__)
-    s.parser = g[&#x27;parser&#x27;]
+    exec(parse_src, g, l)
+    s.parser = GLLStructuredStackP()
+    s.recognize_on = l[&#x27;recognize_on&#x27;].__get__(s)
+    s.parse_on = l[&#x27;parse_on&#x27;].__get__(s)
     return s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
