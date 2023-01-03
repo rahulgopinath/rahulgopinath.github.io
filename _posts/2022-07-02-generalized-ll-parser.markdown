@@ -10,6 +10,7 @@ TLDR; This tutorial is a complete implementation of GLL Parser in Python
 including SPPF parse tree extraction [^scott2013gll].
 The Python interpreter is embedded so that you can work through the
 implementation steps.
+ 
 A GLL parser is a generalization of LL parsers. The first generalized LL
 parser was reported by Grune and Jacob [^grune2008parsing] (11.2) from a
 masters thesis report in 1993. However, a better known generalization
@@ -17,7 +18,7 @@ of LL parsing was described by Scott and Johnstone [^scott2010gll]. This
 post follows the later parsing technique.
 In this post, I provide a complete
 implementation and a tutorial on how to implement a GLL parser in Python.
-
+ 
 We [previously discussed](/post/2021/02/06/earley-parsing/) 
 Earley parser which is a general context-free parser. GLL
 parser is another general context-free parser that is capable of parsing
@@ -30,7 +31,7 @@ descent parsers cannot advance the parsed index as it is not immediately
 clear how many recursions are required to parse a given string. Bounding
 of recursion as we [discussed before](/post/2020/03/17/recursive-descent-contextfree-parsing-with-left-recursion/)
 is a reasonable solution. However, it is very inefficient.
-
+  
 GLL parsing offers a solution. The basic idea behind GLL parsing is to
 maintain the call stack programmatically, which allows us to iteratively
 deepen the parse for any nonterminal at any given point. This combined with
@@ -39,11 +40,11 @@ GLL parsing very efficient. Furthermore, unlike Earley, CYK, and GLR parsers,
 GLL parser operates by producing a custom parser for a given grammar. This
 means that one can actually debug the recursive descent parsing program
 directly. Hence, using GLL can be much more friendly to the practitioner.
-
+ 
 Similar to Earley, GLR, CYK, and other general context-free parsers, the worst
 case for parsing is $$O(n^3)$$. However, for LL(1) grammars, the parse time
 is $$O(n)$$.
-
+ 
 ## Synopsis
 ```python
 import gllparser as P
@@ -58,7 +59,7 @@ for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
 
 ## Definitons
 For this post, we use the following terms:
-
+ 
 * The _alphabet_ is the set all of symbols in the input language. For example,
   in this post, we use all ASCII characters as alphabet.
 
@@ -87,7 +88,7 @@ For this post, we use the following terms:
   corresponding definitions that define the structure of the nonterminal.
 
   The grammar given below is an example context-free grammar.
-
+ 
 * A terminal _derives_ a string if the string contains only the symbols in the
   terminal. A nonterminal derives a string if the corresponding definition
   derives the string. A definition derives the  string if one of the rules in
@@ -118,9 +119,6 @@ simply providing the complete source (which substantially follows the
 publications, except where I have simplified things a little bit)
 until I have more bandwidth to complete the tutorial. However, the code
 itself is complete, and can be used.
-
-#### Prerequisites
-As before, we start with the prerequisite imports.
 
 ## Contents
 {:.no_toc}
@@ -156,6 +154,9 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+#### Prerequisites
+ 
+As before, we start with the prerequisite imports.
 
 <details>
 <summary>Available Packages </summary>
