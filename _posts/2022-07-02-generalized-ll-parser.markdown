@@ -105,20 +105,6 @@ For this post, we use the following terms:
 
 * The *yield* of a tree is the string resulting from collapsing that tree.
 
-As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
-Here is an example grammar for arithmetic expressions, starting at `<start>`.
-A terminal symbol has exactly one character
-(Note that we disallow empty string (`''`) as a terminal symbol).
-Secondly, as per traditional implementations,
-there can only be one expansion rule for the `<start>` symbol. We work around
-this restriction by simply constructing as many charts as there are expansion
-rules, and returning all parse trees.
-
-**Note:** This post is not complete. Given the interest in GLL parsers, I am
-simply providing the complete source (which substantially follows the
-publications, except where I have simplified things a little bit)
-until I have more bandwidth to complete the tutorial. However, the code
-itself is complete, and can be used.
 
 ## Contents
 {:.no_toc}
@@ -227,6 +213,20 @@ import random
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
+Here is an example grammar for arithmetic expressions, starting at `<start>`.
+A terminal symbol has exactly one character
+(Note that we disallow empty string (`''`) as a terminal symbol).
+Secondly, as per traditional implementations,
+there can only be one expansion rule for the `<start>` symbol. We work around
+this restriction by simply constructing as many charts as there are expansion
+rules, and returning all parse trees.
+
+**Note:** This post is not complete. Given the interest in GLL parsers, I am
+simply providing the complete source (which substantially follows the
+publications, except where I have simplified things a little bit)
+until I have more bandwidth to complete the tutorial. However, the code
+itself is complete, and can be used.
 ## Our grammar
 
 <!--
