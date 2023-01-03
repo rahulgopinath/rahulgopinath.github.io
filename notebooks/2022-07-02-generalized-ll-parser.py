@@ -58,7 +58,7 @@
 # for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
 #     print(P.format_parsetree(tree))
 # ```
-# 
+
 # ## Definitons
 # For this post, we use the following terms:
 #  
