@@ -299,6 +299,12 @@ class Column:
 # * s_col: The starting point for this rule.
 # * e_col: The ending point for this rule.
 
+def show_dot(sym, rule, pos, dotstr='|', extents=''):
+    extents = str(extents)
+    return sym + '::= ' + ' '.join([
+           str(p)
+           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
+
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
@@ -314,10 +320,7 @@ class State:
         def idx(var):
             return var.index if var else -1
 
-        return self.name + ':= ' + ' '.join([
-            str(p)
-            for p in [*self.expr[:self.dot], '|', *self.expr[self.dot:]]
-        ]) + "(%d,%d)" % (idx(self.s_col), idx(self.e_col))
+        return show_dot(self.name, self.expr, self.dot)
 
     def copy(self):
         return State(self.name, self.expr, self.dot, self.s_col, self.e_col)

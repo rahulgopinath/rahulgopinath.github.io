@@ -435,6 +435,12 @@ Each state contains the following:
 
 <!--
 ############
+def show_dot(sym, rule, pos, dotstr='|', extents=''):
+    extents = str(extents)
+    return sym + '::= ' + ' '.join([
+           str(p)
+           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
+
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
@@ -450,10 +456,7 @@ class State:
         def idx(var):
             return var.index if var else -1
 
-        return self.name + ':= ' + ' '.join([
-            str(p)
-            for p in [*self.expr[:self.dot], '|', *self.expr[self.dot:]]
-        ]) + "(%d,%d)" % (idx(self.s_col), idx(self.e_col))
+        return show_dot(self.name, self.expr, self.dot)
 
     def copy(self):
         return State(self.name, self.expr, self.dot, self.s_col, self.e_col)
@@ -474,6 +477,12 @@ class State:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def show_dot(sym, rule, pos, dotstr=&#x27;|&#x27;, extents=&#x27;&#x27;):
+    extents = str(extents)
+    return sym + &#x27;::= &#x27; + &#x27; &#x27;.join([
+           str(p)
+           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
+
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
@@ -489,10 +498,7 @@ class State:
         def idx(var):
             return var.index if var else -1
 
-        return self.name + &#x27;:= &#x27; + &#x27; &#x27;.join([
-            str(p)
-            for p in [*self.expr[:self.dot], &#x27;|&#x27;, *self.expr[self.dot:]]
-        ]) + &quot;(%d,%d)&quot; % (idx(self.s_col), idx(self.e_col))
+        return show_dot(self.name, self.expr, self.dot)
 
     def copy(self):
         return State(self.name, self.expr, self.dot, self.s_col, self.e_col)
