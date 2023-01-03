@@ -48,6 +48,40 @@ for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
     print(P.format_parsetree(tree))
 ```
 
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 ## Definitons
 
 For this post, we use the following terms:
@@ -102,41 +136,6 @@ Secondly, as per traditional implementations,
 there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
-
-## Contents
-{:.no_toc}
-
-1. TOC
-{:toc}
-
-<script src="/resources/js/graphviz/index.min.js"></script>
-<script>
-// From https://github.com/hpcc-systems/hpcc-js-wasm
-// Hosted for teaching.
-var hpccWasm = window["@hpcc-js/wasm"];
-function display_dot(dot_txt, div) {
-    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
-        div.innerHTML = svg;
-    });
-}
-window.display_dot = display_dot
-// from js import display_dot
-</script>
-
-<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
-<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
-
-<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
-<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
-<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
-
-**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
-Initialization completion is indicated by a red border around *Run all* button.
-<form name='python_run_form'>
-<button type="button" name="python_run_all">Run all</button>
-</form>
 
 <!--
 ############
