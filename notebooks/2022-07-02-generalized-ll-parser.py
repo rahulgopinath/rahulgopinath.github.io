@@ -60,6 +60,61 @@
 # ```
 # 
 # ## Definitons
+# For this post, we use the following terms:
+# 
+# * The _alphabet_ is the set all of symbols in the input language. For example,
+#   in this post, we use all ASCII characters as alphabet.
+# 
+# * A _terminal_ is a single alphabet symbol. Note that this is slightly different
+#   from usual definitions (done here for ease of parsing). (Usually a terminal is
+#   a contiguous sequence of symbols from the alphabet. However, both kinds of
+#   grammars have a one to one correspondence, and can be converted easily.)
+# 
+#   For example, `x` is a terminal symbol.
+# 
+# * A _nonterminal_ is a symbol outside the alphabet whose expansion is _defined_
+#   in the grammar using _rules_ for expansion.
+# 
+#   For example, `<term>` is a nonterminal in the below grammar.
+# 
+# * A _rule_ is a finite sequence of _terms_ (two types of terms: terminals and
+#   nonterminals) that describe an expansion of a given terminal.
+# 
+#   For example, `[<term>+<expr>]` is one of the expansion rules of the nonterminal `<expr>`.
+# 
+# * A _definition_ is a set of _rules_ that describe the expansion of a given nonterminal.
+# 
+#   For example, `[[<digit>,<digits>],[<digit>]]` is the definition of the nonterminal `<digits>`
+# 
+# * A _context-free grammar_ is  composed of a set of nonterminals and 
+#   corresponding definitions that define the structure of the nonterminal.
+# 
+#   The grammar given below is an example context-free grammar.
+# 
+# * A terminal _derives_ a string if the string contains only the symbols in the
+#   terminal. A nonterminal derives a string if the corresponding definition
+#   derives the string. A definition derives the  string if one of the rules in
+#   the definition derives the string. A rule derives a string if the sequence
+#   of terms that make up the rule can derive the string, deriving one substring 
+#   after another contiguously (also called parsing).
+# 
+# * A *derivation tree* is an ordered tree that describes how an input string is
+#   derived by the given start symbol. Also called a *parse tree*.
+# * A derivation tree can be collapsed into its string equivalent. Such a string
+#   can be parsed again by the nonterminal at the root node of the derivation
+#   tree such that at least one of the resulting derivation trees would be the
+#   same as the one we started with.
+# 
+# * The *yield* of a tree is the string resulting from collapsing that tree.
+# 
+# As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
+# Here is an example grammar for arithmetic expressions, starting at `<start>`.
+# A terminal symbol has exactly one character
+# (Note that we disallow empty string (`''`) as a terminal symbol).
+# Secondly, as per traditional implementations,
+# there can only be one expansion rule for the `<start>` symbol. We work around
+# this restriction by simply constructing as many charts as there are expansion
+# rules, and returning all parse trees.
 # 
 # **Note:** This post is not complete. Given the interest in GLL parsers, I am
 # simply providing the complete source (which substantially follows the
