@@ -41,16 +41,61 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-We [previously discussed](/post/2021/02/06/earley-parsing/) the
-implementation of an Earley parser with Joop Leo's optimizations. Earley
-parser is one of the general context-free parsing algorithms available.
-Another popular general context-free parsing algorightm is
-*Generalized LL* parsing, which was invented by
-Elizabeth Scott and Adrian Johnstone. In this post, I provide a complete
+TLDR; This tutorial is a complete implementation of GLL Parser in Python
+including SPPF parse tree extraction [^scott2013gll].
+The Python interpreter is embedded so that you can work through the
+implementation steps.
+A GLL parser is a generalization of LL parsers. The first generalized LL
+parser was reported by Grune and Jacob [^grune2008parsing] (11.2) from a
+masters thesis report in 1993. However, a better known generalization
+of LL parsing was described by Scott and Johnstone [^scott2010gll]. This
+post follows the later parsing technique.
+In this post, I provide a complete
 implementation and a tutorial on how to implement a GLL parser in Python.
 
+We [previously discussed](/post/2021/02/06/earley-parsing/) 
+Earley parser which is a general context-free parser. GLL
+parser is another general context-free parser that is capable of parsing
+strings that conform to **any** given context-free grammar.
+The algorithm is a generalization of the traditional recursive descent parsing
+style. In traditional recursive descent parsing, the programmer uses the
+call stack for keeping track of the parse context. This approach, however,
+fails when there is left recursion. The problem is that recursive
+descent parsers cannot advance the parsed index as it is not immediately
+clear how many recursions are required to parse a given string. Bounding
+of recursion as we [discussed before](/post/2020/03/17/recursive-descent-contextfree-parsing-with-left-recursion/)
+is a reasonable solution. However, it is very inefficient.
+
+GLL parsing offers a solution. The basic idea behind GLL parsing is to
+maintain the call stack programmatically, which allows us to iteratively
+deepen the parse for any nonterminal at any given point. This combined with
+sharing of the stack (GSS) and generation of parse forest (SPPF) makes the
+GLL parsing very efficient. Furthermore, unlike Earley, CYK, and GLR parsers,
+GLL parser operates by producing a custom parser for a given grammar. This
+means that one can actually debug the recursive descent parsing program
+directly. Hence, using GLL can be much more friendly to the practitioner.
+
+Similar to Earley, GLR, CYK, and other general context-free parsers, the worst
+case for parsing is $$O(n^3)$$. However, for LL(1) grammars, the parse time
+is $$O(n)$$.
+
+## Synopsis
+```python
+import gllparser as P
+my_grammar = {'<start>': [['1', '<A>'],
+                          ['2']
+                         ],
+              '<A>'    : [['a']]}
+my_parser = P.compile_grammar(my_grammar)
+for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
+    print(P.format_parsetree(tree))
+```
+
+## Definitons
+
 **Note:** This post is not complete. Given the interest in GLL parsers, I am
-simply providing the source (which substantially follows the publications)
+simply providing the complete source (which substantially follows the
+publications, except where I have simplified things a little bit)
 until I have more bandwidth to complete the tutorial. However, the code
 itself is complete, and can be used.
 
@@ -81,19 +126,46 @@ https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </form>
 </div>
 </details>
+We need the fuzzer to generate inputs to parse and also to provide some
+utilities
 
 <!--
 ############
 import simplefuzzer as fuzzer
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import simplefuzzer as fuzzer
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We use the `display_tree()` method in earley parser for displaying trees.
+
+<!--
+############
 import earleyparser as ep
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import earleyparser as ep
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We use the random choice to extract derivation trees from the parse forest.
+
+<!--
+############
 import random
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import simplefuzzer as fuzzer
-import earleyparser as ep
 import random
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -508,7 +580,7 @@ class SPPFNode:
     def to_tree(self, hmap, tab): raise NotImplemented
 
     def to_tree_(self, hmap, tab):
-        key = self.to_s(g) # ignored
+        key = self.label[0] # ignored
         ret = []
         for n in self.children:
             v = n.to_tree_(hmap, tab+1)
@@ -534,7 +606,7 @@ class SPPFNode:
     def to_tree(self, hmap, tab): raise NotImplemented
 
     def to_tree_(self, hmap, tab):
-        key = self.to_s(g) # ignored
+        key = self.label[0] # ignored
         ret = []
         for n in self.children:
             v = n.to_tree_(hmap, tab+1)
@@ -581,7 +653,7 @@ class SPPF_symbol_node(SPPFNode):
     # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
     # which can be adapted here too.
     def to_tree_(self, hmap, tab):
-        key = self.to_s(g)
+        key = self.label[0]
         if self.children:
             n = random.choice(self.children)
             return [[key, n.to_tree_(hmap, tab+1)]]
@@ -602,7 +674,7 @@ class SPPF_symbol_node(SPPFNode):
     # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
     # which can be adapted here too.
     def to_tree_(self, hmap, tab):
-        key = self.to_s(g)
+        key = self.label[0]
         if self.children:
             n = random.choice(self.children)
             return [[key, n.to_tree_(hmap, tab+1)]]
@@ -653,7 +725,7 @@ We first define our initialization
 <!--
 ############
 class GLLStructuredStackP:
-    def __init__(self, input_str):
+    def initialize(self, input_str):
         self.I = input_str + '$'
         self.m = len(input_str)
         self.gss = GSS()
@@ -661,6 +733,10 @@ class GLLStructuredStackP:
         self.threads = []
         self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
+
+
+    def to_tree(self):
+        return self.SPPF_nodes[self.root].to_tree(self.SPPF_nodes, tab=0)
 
     def set_grammar(self, g):
         self.grammar = g
@@ -671,7 +747,7 @@ class GLLStructuredStackP:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP:
-    def __init__(self, input_str):
+    def initialize(self, input_str):
         self.I = input_str + &#x27;$&#x27;
         self.m = len(input_str)
         self.gss = GSS()
@@ -679,6 +755,10 @@ class GLLStructuredStackP:
         self.threads = []
         self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
+
+
+    def to_tree(self):
+        return self.SPPF_nodes[self.root].to_tree(self.SPPF_nodes, tab=0)
 
     def set_grammar(self, g):
         self.grammar = g
@@ -1250,22 +1330,41 @@ print(v)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+A template.
+
+<!--
+############
+class GLLParser(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        raise NotImplemented()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLParser(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        raise NotImplemented()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Compiling a Grammar
 
 <!--
 ############
-def compile_grammar(g, start):
+def compile_grammar(g, evaluate=True):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     res = ['''\
-def parse_string(parser):
+def parse_on(text, start_symbol):
+    parser.initialize(text)
     parser.set_grammar(
 %s
     )
     # L contains start nt.
-    S = '%s'
     end_rule = SPPF_dummy_node('$', 0, 0)
-    L, stack_top, cur_idx, cur_sppf_node = S, parser.stack_bottom, 0, end_rule
+    L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
             if parser.threads: # if R != \empty
@@ -1273,40 +1372,47 @@ def parse_string(parser):
                 # goto L
                 continue
             else:
-                # if there is an SPPF node (S, 0, m) then report success
-                if (S, 0, parser.m) in parser.SPPF_nodes:
-                      parser.root = (S, 0, parser.m)
-                      return 'success'
-                else: return 'error'
+                # if there is an SPPF node (start_symbol, 0, m) then report success
+                if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
+                      parser.root = (start_symbol, 0, parser.m)
+                      return [parser.to_tree()]
+                else: return []
         elif L == 'L_':
             stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
             L = 'L0' # goto L_0
             continue
-    ''' % (pp.pformat(g), start)]
+    ''' % pp.pformat(g)]
     for k in g:
         r = compile_def(g, k, g[k])
         res.append(r)
     res.append('''
         else:
             assert False''')
-    return '\n'.join(res)
+    parse_src = '\n'.join(res)
+    if not evaluate: return parse_src
+    s = GLLParser()
+    l, g = locals().copy(), globals().copy()
+    g['parser'] = GLLStructuredStackP()
+    exec(parse_src, g, s.__dict__)
+    s.parser = g['parser']
+    return s
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def compile_grammar(g, start):
+def compile_grammar(g, evaluate=True):
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
     res = [&#x27;&#x27;&#x27;\
-def parse_string(parser):
+def parse_on(text, start_symbol):
+    parser.initialize(text)
     parser.set_grammar(
 %s
     )
     # L contains start nt.
-    S = &#x27;%s&#x27;
     end_rule = SPPF_dummy_node(&#x27;$&#x27;, 0, 0)
-    L, stack_top, cur_idx, cur_sppf_node = S, parser.stack_bottom, 0, end_rule
+    L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
     while True:
         if L == &#x27;L0&#x27;:
             if parser.threads: # if R != \empty
@@ -1314,23 +1420,30 @@ def parse_string(parser):
                 # goto L
                 continue
             else:
-                # if there is an SPPF node (S, 0, m) then report success
-                if (S, 0, parser.m) in parser.SPPF_nodes:
-                      parser.root = (S, 0, parser.m)
-                      return &#x27;success&#x27;
-                else: return &#x27;error&#x27;
+                # if there is an SPPF node (start_symbol, 0, m) then report success
+                if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
+                      parser.root = (start_symbol, 0, parser.m)
+                      return [parser.to_tree()]
+                else: return []
         elif L == &#x27;L_&#x27;:
             stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
             L = &#x27;L0&#x27; # goto L_0
             continue
-    &#x27;&#x27;&#x27; % (pp.pformat(g), start)]
+    &#x27;&#x27;&#x27; % pp.pformat(g)]
     for k in g:
         r = compile_def(g, k, g[k])
         res.append(r)
     res.append(&#x27;&#x27;&#x27;
         else:
             assert False&#x27;&#x27;&#x27;)
-    return &#x27;\n&#x27;.join(res)
+    parse_src = &#x27;\n&#x27;.join(res)
+    if not evaluate: return parse_src
+    s = GLLParser()
+    l, g = locals().copy(), globals().copy()
+    g[&#x27;parser&#x27;] = GLLStructuredStackP()
+    exec(parse_src, g, s.__dict__)
+    s.parser = g[&#x27;parser&#x27;]
+    return s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1339,14 +1452,14 @@ Using it
 
 <!--
 ############
-v = compile_grammar(grammar, '<start>')
+v = compile_grammar(grammar, False)
 print(v)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-v = compile_grammar(grammar, &#x27;&lt;start&gt;&#x27;)
+v = compile_grammar(grammar, False)
 print(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1361,11 +1474,8 @@ G1 = {
     '<S>': [['c']]
 }
 mystring = 'c'
-res = compile_grammar(G1, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G1)
+v = p.parse_on(mystring, '<S>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1379,11 +1489,8 @@ G1 = {
     &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;]]
 }
 mystring = &#x27;c&#x27;
-res = compile_grammar(G1, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G1)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1400,11 +1507,8 @@ G2 = {
     '<S>': [['c', 'c']]
 }
 mystring = 'cc'
-res = compile_grammar(G2, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G2)
+v = p.parse_on(mystring, '<S>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1418,11 +1522,8 @@ G2 = {
     &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;]]
 }
 mystring = &#x27;cc&#x27;
-res = compile_grammar(G2, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G2)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1439,11 +1540,8 @@ G3 = {
     '<S>': [['c', 'c', 'c']]
 }
 mystring = 'ccc'
-res = compile_grammar(G3, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G3)
+v = p.parse_on(mystring, '<S>')[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1456,11 +1554,8 @@ G3 = {
     &#x27;&lt;S&gt;&#x27;: [[&#x27;c&#x27;, &#x27;c&#x27;, &#x27;c&#x27;]]
 }
 mystring = &#x27;ccc&#x27;
-res = compile_grammar(G3, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G3)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1477,11 +1572,8 @@ G4 = {
             ['a']]
 }
 mystring = 'a'
-res = compile_grammar(G4, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G4)
+v = p.parse_on(mystring, '<S>')[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1495,11 +1587,8 @@ G4 = {
             [&#x27;a&#x27;]]
 }
 mystring = &#x27;a&#x27;
-res = compile_grammar(G4, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G4)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1516,11 +1605,8 @@ G5 = {
     '<A>': [['a']]
 }
 mystring = 'a'
-res = compile_grammar(G5, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G5)
+v = p.parse_on(mystring, '<S>')[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1534,11 +1620,8 @@ G5 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]]
 }
 mystring = &#x27;a&#x27;
-res = compile_grammar(G5, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(G5)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1552,11 +1635,8 @@ ep.display_tree(v)
 <!--
 ############
 mystring = '(1+1)*(23/45)-1'
-res = compile_grammar(grammar, START)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(grammar)
+v = p.parse_on(mystring, START)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1566,11 +1646,8 @@ ep.display_tree(v)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;(1+1)*(23/45)-1&#x27;
-res = compile_grammar(grammar, START)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(grammar)
+v = p.parse_on(mystring, START)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1601,11 +1678,8 @@ a_grammar = {
 '<digit>': [["%s" % str(i)] for i in range(10)],
 }
 mystring = '1+2+3+4'
-res = compile_grammar(a_grammar, START)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(a_grammar)
+v = p.parse_on(mystring, START)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1631,11 +1705,8 @@ a_grammar = {
 &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
 }
 mystring = &#x27;1+2+3+4&#x27;
-res = compile_grammar(a_grammar, START)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(a_grammar)
+v = p.parse_on(mystring, START)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1656,11 +1727,8 @@ RR_GRAMMAR2 = {
     '<A>': [['a']],
 }
 mystring = 'bac'
-res = compile_grammar(RR_GRAMMAR2, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR2)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1671,11 +1739,8 @@ RR_GRAMMAR3 = {
 }
 mystring = 'cababababab'
 
-res = compile_grammar(RR_GRAMMAR3, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR3)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1688,11 +1753,8 @@ RR_GRAMMAR4 = {
 }
 mystring = 'ababababc'
 
-res = compile_grammar(RR_GRAMMAR4, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR4)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1706,11 +1768,8 @@ RR_GRAMMAR5 = {
 }
 mystring = 'abababab'
 
-res = compile_grammar(RR_GRAMMAR5, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR5)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1724,11 +1783,8 @@ RR_GRAMMAR6 = {
 }
 mystring = 'abababab'
 
-res = compile_grammar(RR_GRAMMAR6, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR6)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1741,11 +1797,8 @@ RR_GRAMMAR7 = {
 }
 mystring = 'aaaaaaaa'
 
-res = compile_grammar(RR_GRAMMAR7, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR7)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1758,11 +1811,8 @@ RR_GRAMMAR8 = {
 }
 mystring = 'aa'
 
-res = compile_grammar(RR_GRAMMAR8, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR8)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1773,11 +1823,8 @@ X_G1 = {
     '<start>': [['a']],
 }
 mystring = 'a'
-res = compile_grammar(X_G1, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G1)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1788,10 +1835,8 @@ X_G2 = {
     '<start>': [['a', 'b']],
 }
 mystring = 'ab'
-res = compile_grammar(X_G2, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
+p = compile_grammar(X_G2)
+v = p.parse_on(mystring, '<start>')[0]
 print('X_G2')
 
 X_G3 = {
@@ -1799,11 +1844,8 @@ X_G3 = {
     '<b>': [['b']]
 }
 mystring = 'ab'
-res = compile_grammar(X_G3, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G3)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1821,11 +1863,8 @@ X_G4 = {
     '<c>': [['b']]
 }
 mystring = 'ab'
-res = compile_grammar(X_G4, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G4)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1842,11 +1881,8 @@ X_G5 = {
 X_G5_start = '<start>'
 
 mystring = '1+1'
-res = compile_grammar(X_G5, '<start>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G5)
+v = p.parse_on(mystring, '<start>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1866,11 +1902,8 @@ X_G6 = {
 X_G6_start = '<S>'
 
 mystring = 'bac'
-res = compile_grammar(X_G6, '<S>')
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == 'success'
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G6)
+v = p.parse_on(mystring, '<S>')[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1890,11 +1923,8 @@ RR_GRAMMAR2 = {
     &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]],
 }
 mystring = &#x27;bac&#x27;
-res = compile_grammar(RR_GRAMMAR2, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR2)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1905,11 +1935,8 @@ RR_GRAMMAR3 = {
 }
 mystring = &#x27;cababababab&#x27;
 
-res = compile_grammar(RR_GRAMMAR3, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR3)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1922,11 +1949,8 @@ RR_GRAMMAR4 = {
 }
 mystring = &#x27;ababababc&#x27;
 
-res = compile_grammar(RR_GRAMMAR4, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR4)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1940,11 +1964,8 @@ RR_GRAMMAR5 = {
 }
 mystring = &#x27;abababab&#x27;
 
-res = compile_grammar(RR_GRAMMAR5, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR5)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1958,11 +1979,8 @@ RR_GRAMMAR6 = {
 }
 mystring = &#x27;abababab&#x27;
 
-res = compile_grammar(RR_GRAMMAR6, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR6)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1975,11 +1993,8 @@ RR_GRAMMAR7 = {
 }
 mystring = &#x27;aaaaaaaa&#x27;
 
-res = compile_grammar(RR_GRAMMAR7, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR7)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -1992,11 +2007,8 @@ RR_GRAMMAR8 = {
 }
 mystring = &#x27;aa&#x27;
 
-res = compile_grammar(RR_GRAMMAR8, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(RR_GRAMMAR8)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2007,11 +2019,8 @@ X_G1 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;a&#x27;]],
 }
 mystring = &#x27;a&#x27;
-res = compile_grammar(X_G1, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G1)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2022,10 +2031,8 @@ X_G2 = {
     &#x27;&lt;start&gt;&#x27;: [[&#x27;a&#x27;, &#x27;b&#x27;]],
 }
 mystring = &#x27;ab&#x27;
-res = compile_grammar(X_G2, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
+p = compile_grammar(X_G2)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(&#x27;X_G2&#x27;)
 
 X_G3 = {
@@ -2033,11 +2040,8 @@ X_G3 = {
     &#x27;&lt;b&gt;&#x27;: [[&#x27;b&#x27;]]
 }
 mystring = &#x27;ab&#x27;
-res = compile_grammar(X_G3, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G3)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2055,11 +2059,8 @@ X_G4 = {
     &#x27;&lt;c&gt;&#x27;: [[&#x27;b&#x27;]]
 }
 mystring = &#x27;ab&#x27;
-res = compile_grammar(X_G4, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G4)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2076,11 +2077,8 @@ X_G5 = {
 X_G5_start = &#x27;&lt;start&gt;&#x27;
 
 mystring = &#x27;1+1&#x27;
-res = compile_grammar(X_G5, &#x27;&lt;start&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G5)
+v = p.parse_on(mystring, &#x27;&lt;start&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2100,11 +2098,8 @@ X_G6 = {
 X_G6_start = &#x27;&lt;S&gt;&#x27;
 
 mystring = &#x27;bac&#x27;
-res = compile_grammar(X_G6, &#x27;&lt;S&gt;&#x27;)
-exec(res)
-g = GLLStructuredStackP(mystring)
-assert parse_string(g) == &#x27;success&#x27;
-v = g.SPPF_nodes[g.root].to_tree(g.SPPF_nodes, tab=0)
+p = compile_grammar(X_G6)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)[0]
 print(v)
 r = fuzzer.tree_to_string(v)
 assert r == mystring
@@ -2114,6 +2109,28 @@ print(&#x27;X_G6&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We assign format parse tree so that we can refer to it from this module
+
+<!--
+############
+def format_parsetree(t):
+    return ep.format_parsetree(t)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def format_parsetree(t):
+    return ep.format_parsetree(t)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+[^scott2013gll]: Elizabeth Scott and Adrian Johnstone. "GLL parse-tree generation." Science of Computer Programming 78.10 (2013): 1828-1844.
+
+[^scott2010gll]: Elizabeth Scott, and Adrian Johnstone. "GLL parsing." Electronic Notes in Theoretical Computer Science 253.7 (2010): 177-189.
+
+[^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
