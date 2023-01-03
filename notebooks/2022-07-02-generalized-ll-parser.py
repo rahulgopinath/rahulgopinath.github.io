@@ -228,7 +228,7 @@ class SPPFNode:
 # ### SPPF Dummy Node
 # The dummy SPPF node is used to indicate the empty node at the end of rules.
 
-class SPPF_dummy(SPPFNode):
+class SPPF_dummy_node(SPPFNode):
     def __init__(self, s, j, i):
         self.label, self.children = (s, j, i), []
 
@@ -283,7 +283,7 @@ class SPPF_packed_node(SPPFNode):
 
     def to_tree(self, hmap, tab):
         key = self.to_s(g)
-        # packed nodes (rounded) represent one particular derivation. No need to add key
+        # packed nodes represent one particular derivation. No need to add key
         assert not isinstance(key, str)
         children = []
         # A packed node may have two children, just left and right.
@@ -294,7 +294,7 @@ class SPPF_packed_node(SPPFNode):
             elif isinstance(n, SPPF_intermediate_node):
                 v = n.to_tree(hmap, tab+1)
                 children.extend(v)
-            elif isinstance(n, SPPF_dummy):
+            elif isinstance(n, SPPF_dummy_node):
                 pass
             else:
                 assert False
@@ -375,28 +375,15 @@ class GLLStructuredStackP(GLLStructuredStackP):
         t, *self.threads = self.threads
         return t
 
-    def get_sppf_dummy_node(self, n):
-        if n not in self.SPPF_nodes:
-            self.SPPF_nodes[n] = SPPF_dummy(*n)
-        return self.SPPF_nodes[n]
-
-    def get_sppf_symbol_node(self, n):
-        if n not in self.SPPF_nodes:
-            self.SPPF_nodes[n] = SPPF_symbol_node(*n)
-        return self.SPPF_nodes[n] 
-
-    def get_sppf_intermediate_node(self, n):
-        if n not in self.SPPF_nodes:
-            self.SPPF_nodes[n] = SPPF_intermediate_node(*n)
-        return self.SPPF_nodes[n] 
-
     def sppf_find_or_create(self, label, j, i):
-        if label is None:
-            return self.get_sppf_dummy_node((label, j, j))
-        elif isinstance(label, str):
-            return self.get_sppf_symbol_node((label, j, i))
-        else:
-            return self.get_sppf_intermediate_node((label, j, i))
+        n = (label, j, i)
+        if  n not in self.SPPF_nodes: 
+            node = None
+            if label is None:            node = SPPF_dummy_node(*n)
+            elif isinstance(label, str): node = SPPF_symbol_node(*n)
+            else:                        node = SPPF_intermediate_node(*n)
+            self.SPPF_nodes[n] = node
+        return self.SPPF_nodes[n]
 
 # We also need the to produce SPPF nodes correctly.
 # 
@@ -602,7 +589,7 @@ def parse_string(parser):
     first, follow, nullable = get_first_and_follow(parser.grammar)
     # L contains start nt.
     S = '%s'
-    end_rule = SPPF_dummy('$', 0, 0)
+    end_rule = SPPF_dummy_node('$', 0, 0)
     L, stack_top, cur_idx, cur_sppf_node = S, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
