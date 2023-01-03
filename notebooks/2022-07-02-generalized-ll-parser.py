@@ -177,7 +177,8 @@ nullable_grammar = {
     '<C>': [['<A>'], ['<B>']]
 }
 
-# Here is a standard algorithm to compute first, follow and nullable sets
+# ### Symbols in the grammar
+# Here, we extract all terminal and nonterminal symbols in the grammar.
 
 def symbols(grammar):
     terminals, nonterminals = [], []
@@ -189,6 +190,15 @@ def symbols(grammar):
                 else:
                     terminals.append(t)
     return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+
+# Using it
+if __name__ == '__main__':
+    print(symbols(grammar))
+
+
+# ### First and Follow sets
+# To optimize the GLL parsing, we need the first and follow sets.
+# This is computed in the following fashion.
 
 def union(a, b):
     n = len(a)
@@ -225,9 +235,25 @@ def get_first_and_follow(grammar):
         if not added:
             return first, follow, nullable
 
-def get_beta_first(rule, dot, first, follow, nullable):
-    alpha = rule[:dot]
-    beta = rule[dot:]
+# Using
+
+if __name__ == '__main__':
+    first, follow, nullable = get_first_and_follow(nullable_grammar)
+    print("first:", first)
+    print("follow:", follow)
+    print("nullable", nullable)
+
+    first, follow, nullable = get_first_and_follow(grammar)
+    print("first:", first)
+    print("follow:", follow)
+    print("nullable", nullable)
+
+
+# ### First of a rule fragment.
+# We need to compute the expected `first` character of a rule suffix.
+
+def get_rule_suffix_first(rule, dot, first, follow, nullable):
+    alpha, beta = rule[:dot], rule[dot:]
     fst = []
     for t in beta:
         if fuzzer.is_terminal(t):
@@ -235,27 +261,15 @@ def get_beta_first(rule, dot, first, follow, nullable):
             break
         else:
             fst.extend(first[t])
-            if t not in nullable:
-                break
-            else:
-                continue
+            if t not in nullable: break
+            else: continue
     return sorted(list(set(fst)))
 
 # Using
 
 if __name__ == '__main__':
-    first, follow, nullable = get_first_and_follow(nullable_grammar)
-    print(first)
-    print(follow)
-    print(nullable)
-
-# another
-
-if __name__ == '__main__':
-    first, follow, nullable = get_first_and_follow(grammar)
-    print(first)
-    print(follow)
-    print(nullable)
+    rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
+    print(rule_first)
 
 # ## The GSS Graph
 # A naive conversion of recursive descent parsing to generalized recursive

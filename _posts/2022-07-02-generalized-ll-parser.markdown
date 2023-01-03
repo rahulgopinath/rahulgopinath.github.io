@@ -319,7 +319,8 @@ nullable_grammar = {
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Here is a standard algorithm to compute first, follow and nullable sets
+### Symbols in the grammar
+Here, we extract all terminal and nonterminal symbols in the grammar.
 
 <!--
 ############
@@ -333,57 +334,6 @@ def symbols(grammar):
                 else:
                     terminals.append(t)
     return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
-
-def union(a, b):
-    n = len(a)
-    a |= b
-    return len(a) != n
-
-def get_first_and_follow(grammar):
-    terminals, nonterminals = symbols(grammar)
-    first = {i: set() for i in nonterminals}
-    first.update((i, {i}) for i in terminals)
-    follow = {i: set() for i in nonterminals}
-    nullable = set()
-    while True:
-        added = 0
-        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
-        for k, rule in productions:
-            can_be_empty = True
-            for t in rule:
-                added += union(first[k], first[t])
-                if t not in nullable:
-                    can_be_empty = False
-                    break
-            if can_be_empty:
-                added += union(nullable, {k})
-
-            follow_ = follow[k]
-            for t in reversed(rule):
-                if t in follow:
-                    added += union(follow[t], follow_)
-                if t in nullable:
-                    follow_ = follow_.union(first[t])
-                else:
-                    follow_ = first[t]
-        if not added:
-            return first, follow, nullable
-
-def get_beta_first(rule, dot, first, follow, nullable):
-    alpha = rule[:dot]
-    beta = rule[dot:]
-    fst = []
-    for t in beta:
-        if fuzzer.is_terminal(t):
-            fst.append(t)
-            break
-        else:
-            fst.extend(first[t])
-            if t not in nullable:
-                break
-            else:
-                continue
-    return sorted(list(set(fst)))
 
 ############
 -->
@@ -399,7 +349,32 @@ def symbols(grammar):
                 else:
                     terminals.append(t)
     return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
 
+<!--
+############
+print(symbols(grammar))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(symbols(grammar))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### First and Follow sets
+To optimize the GLL parsing, we need the first and follow sets.
+This is computed in the following fashion.
+
+<!--
+############
 def union(a, b):
     n = len(a)
     a |= b
@@ -435,21 +410,44 @@ def get_first_and_follow(grammar):
         if not added:
             return first, follow, nullable
 
-def get_beta_first(rule, dot, first, follow, nullable):
-    alpha = rule[:dot]
-    beta = rule[dot:]
-    fst = []
-    for t in beta:
-        if fuzzer.is_terminal(t):
-            fst.append(t)
-            break
-        else:
-            fst.extend(first[t])
-            if t not in nullable:
-                break
-            else:
-                continue
-    return sorted(list(set(fst)))
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def get_first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            can_be_empty = True
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
+                added += union(nullable, {k})
+
+            follow_ = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], follow_)
+                if t in nullable:
+                    follow_ = follow_.union(first[t])
+                else:
+                    follow_ = first[t]
+        if not added:
+            return first, follow, nullable
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -459,39 +457,84 @@ Using
 <!--
 ############
 first, follow, nullable = get_first_and_follow(nullable_grammar)
-print(first)
-print(follow)
-print(nullable)
+print("first:", first)
+print("follow:", follow)
+print("nullable", nullable)
+
+first, follow, nullable = get_first_and_follow(grammar)
+print("first:", first)
+print("follow:", follow)
+print("nullable", nullable)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 first, follow, nullable = get_first_and_follow(nullable_grammar)
-print(first)
-print(follow)
-print(nullable)
+print(&quot;first:&quot;, first)
+print(&quot;follow:&quot;, follow)
+print(&quot;nullable&quot;, nullable)
+
+first, follow, nullable = get_first_and_follow(grammar)
+print(&quot;first:&quot;, first)
+print(&quot;follow:&quot;, follow)
+print(&quot;nullable&quot;, nullable)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-another
+### First of a rule fragment.
+We need to compute the expected `first` character of a rule suffix.
 
 <!--
 ############
-first, follow, nullable = get_first_and_follow(grammar)
-print(first)
-print(follow)
-print(nullable)
+def get_rule_suffix_first(rule, dot, first, follow, nullable):
+    alpha, beta = rule[:dot], rule[dot:]
+    fst = []
+    for t in beta:
+        if fuzzer.is_terminal(t):
+            fst.append(t)
+            break
+        else:
+            fst.extend(first[t])
+            if t not in nullable: break
+            else: continue
+    return sorted(list(set(fst)))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-first, follow, nullable = get_first_and_follow(grammar)
-print(first)
-print(follow)
-print(nullable)
+def get_rule_suffix_first(rule, dot, first, follow, nullable):
+    alpha, beta = rule[:dot], rule[dot:]
+    fst = []
+    for t in beta:
+        if fuzzer.is_terminal(t):
+            fst.append(t)
+            break
+        else:
+            fst.extend(first[t])
+            if t not in nullable: break
+            else: continue
+    return sorted(list(set(fst)))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
+print(rule_first)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rule_first = get_rule_suffix_first(grammar[&#x27;&lt;term&gt;&#x27;][1], 1, first, follow, nullable)
+print(rule_first)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
