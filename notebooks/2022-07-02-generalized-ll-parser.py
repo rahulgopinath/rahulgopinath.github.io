@@ -78,7 +78,8 @@
 #   For example, `<term>` is a nonterminal in the below grammar.
 # 
 # * A _rule_ is a finite sequence of _terms_ (two types of terms: terminals and
-#   nonterminals) that describe an expansion of a given terminal.
+#   nonterminals) that describe an expansion of a given terminal. A rule is
+#   also called an _alternative_ expansion.
 # 
 #   For example, `[<term>+<expr>]` is one of the expansion rules of the nonterminal `<expr>`.
 # 
@@ -107,6 +108,7 @@
 # 
 # * The *yield* of a tree is the string resulting from collapsing that tree.
 # 
+# * An *epsilon* rule matches an empty string.
 
 # #### Prerequisites
 #  
@@ -134,49 +136,512 @@ import random
 # this restriction by simply constructing as many charts as there are expansion
 # rules, and returning all parse trees.
 # 
-# **Note:** This post is not complete. Given the interest in GLL parsers, I am
-# simply providing the complete source (which substantially follows the
-# publications, except where I have simplified things a little bit)
-# until I have more bandwidth to complete the tutorial. However, the code
-# itself is complete, and can be used.
 
-# ## Our grammar
 
-grammar = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
+# ## Traditional Recursive Descent
+# Consider how you will parse a string that conforms to the following grammar
+
+g1 = {
+    '<S>': [
+          ['<A>', '<B>'],
+          ['<C>']],
+   '<A>': [
+        ['a']],
+   '<B>': [
+        ['b']],
+   '<C>': [
+        ['c']],
 }
+g1_start = '<S>'
 
-# Defining the start symbol
+# In traditional recursive descent, we write a parser in the following fashion
 
-START = '<start>'
+class G1TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
 
-# ## Utilities.
-# We start with a few utilities.
-# We need first and nullable
+    # S ::= S_0 | S_1
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        if (i := self.S_1(text, cur_idx)) is not None: return i 
+        return None
+
+    # S_0 ::= <A> <B>
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        if (i := self.B(text, i)) is None: return None
+        return i
+
+    # S_1 ::= <C>
+    def S_1(self, text, cur_idx):
+        if (i := self.C(text, cur_idx)) is None: return None
+        return i
+
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i 
+        return None
+
+    # A_0 ::= a
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'a': return None
+        return i
+
+    def B(self, text, cur_idx):
+        if (i := self.B_0(text, cur_idx)) is not None: return i 
+        return None
+
+    # B_0 ::= b
+    def B_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'b': return None
+        return i
+
+    def C(self, text, cur_idx):
+        if (i := self.C_0(text, cur_idx)) is not None: return i 
+        return None
+
+    # C_0 ::= c
+    def C_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'c': return None
+        return i
+
+# Using it
+
+if __name__ == '__main__':
+    p = G1TraditionalRD()
+    assert p.recognize_on('ab')
+    assert p.recognize_on('c')
+    assert not p.recognize_on('abc')
+    assert not p.recognize_on('ac')
+    assert not p.recognize_on('')
+
+# What if there is recursion? Here is another grammar with recursion
+g2 = {
+    '<S>': [
+          ['<A>']],
+   '<A>': [
+        ['a', '<A>'],
+        []]
+}
+g2_start = '<S>'
+
+# In traditional recursive descent, we write a parser in the following fashion
+
+class G2TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
+
+    # S ::= S_0
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        return None
+
+    # S_0 ::= <A>
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        return i
+
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i 
+        if (i := self.A_1(text, cur_idx)) is not None: return i 
+        return None
+
+    # A_0 ::= a <A>
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'a': return None
+        if (i := self.A(text, i)) is None: return None
+        return i
+
+    # A_1 ::= 
+    def A_1(self, text, cur_idx):
+        return cur_idx
+
+# Using it
+
+if __name__ == '__main__':
+    p = G2TraditionalRD()
+    assert p.recognize_on('a')
+    assert not p.recognize_on('b')
+    assert p.recognize_on('aa')
+    assert not p.recognize_on('ab')
+    assert p.recognize_on('')
+
+# The problem happens when there is a left recursion. For example, the following
+# grammar contains a left recurstion eventhough it recognizes the same language
+# as before.
+
+g3 = {
+    '<S>': [
+          ['<A>']],
+   '<A>': [
+        ['<A>', 'a'],
+        []]
+}
+g3_start = '<S>'
+
+# ## Naive Threded Recognizer
+# The problem with left recursion is that in traditional recursive descent
+# style, we are forced to follow a depth first exploration, completing the
+# parse of one entire rule before attempting then next rule. We can work around
+# this by managing the call stack ourselves. The idea is to convert each
+# procedure into a case label, save the previous label in the stack
+# (managed by us) before a sub procedure. When the exploration
+# is finished, we pop the previous label off the stack, and continue where we
+# left off.
+
+class NaiveThreadedRecognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol, max_count=1000):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        self.count = 0
+        while self.count < max_count:
+            self.count += 1
+            if L == 'L0':
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                        return parser
+                    continue
+                else:
+                    return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = 'L0' # goto L_0
+                continue
+        
+            elif L == '<S>':
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx)
+                L = '<A>'
+                continue
+
+            elif L ==  ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L == ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx)
+                L = "<A>"
+                continue
+
+            elif L == ('<A>',0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    cur_idx = cur_idx+1
+                    L = ('<A>',0,2)
+                else:
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ('<A>',1,0): # <A>::= |
+                L = 'L_'
+                continue
+
+            else:
+                assert False
+
+# We also need a way to hold the call stack. The call stack is actually stored
+# as a linked list with the current stack_top on the top. With multiple
+# alternatives being explored together, we actually have a tree structure, but
+# the leaf nodes only know about their parent (not the reverse).
+# For convenience, we use a wrapper for the callstack, where we define a few
+# book keeping functions. First the initialization of the call stack.
+
+class CallStack:
+    def initialize(self, s):
+        self.threads = []
+        self.I = s + '$'
+        self.m = len(self.I)
+        self.stack_bottom = {'label':('L0', 0), 'previous': []}
+
+    def set_grammar(self, g):
+        self.grammar = g
+
+# Adding a thread simply means appending the label, current stack top, and
+# current parse index to the threads. We can also retrieve threads.
+
+class CallStack(CallStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        self.threads.append((L, stack_top, cur_idx))
+
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
+# Next, we define how returns are handed. That is, before exploring a new
+# sub procedure, we have to save the return label in the stack, which
+# is handled by `register_return()`. The current stack top is added as a child
+# of the return label.
+class CallStack(CallStack):
+    def register_return(self, L, stack_top, cur_idx):
+        v = {'label': (L, cur_idx), 'previous': [stack_top]}
+        return v
+
+# When we have finished exploring a given procedure, we return back to the
+# original position in the stack by poping off the prvious label.
+
+class CallStack(CallStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top['label']
+            for c_st in stack_top['previous']: # only one previous
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+
+# Using it.
+
+if __name__ == '__main__':
+    p = NaiveThreadedRecognizer()
+    p.parser = CallStack()
+    assert p.recognize_on('', '<S>')
+    print(p.count)
+    assert p.recognize_on('a', '<S>')
+    print(p.count)
+    assert p.recognize_on('aa', '<S>')
+    print(p.count)
+    assert p.recognize_on('aaa', '<S>')
+    print(p.count)
+
+# This unfortunately has a problem. The issue is that, when a string does not
+# parse, the recursion along with the epsilon rule means that there is always a
+# thread that keeps spawning new threads.
+if __name__ == '__main__':
+    assert not p.recognize_on('ab', '<S>', max_count=1000)
+    print(p.count)
+
+
+# ## The GSS Graph
+# The way to solve it is to use something called a *graph-structured stack*.
+# A naive conversion of recursive descent parsing to generalized recursive
+# descent parsing can be done by maintaining independent stacks for each thread.
+# However, this approach is has problems as we saw previously, when it comes to
+# left recursion. The GSS converts the tree structured stack to a graph.
 # 
-# Here is a nullable grammar
-nullable_grammar = {
-    '<start>': [['<A>', '<B>']],
-    '<A>': [['a'], [], ['<C>']],
-    '<B>': [['b']],
-    '<C>': [['<A>'], ['<B>']]
-}
+# ### The GSS Node
+# A GSS node is simply a node that can contain any number of children. Each
+# child is actually an edge in the graph.
+# 
+# (Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
+# character consumed. However, we do not need to know the internals of the label
+# here).
 
+class GSSNode:
+    def __init__(self, label): self.label, self.children = label, []
+    def __eq__(self, other): return self.label == other.label
+    def __repr__(self): return str((self.label, self.children))
+
+# ### The GSS container
+# Next, we define the graph container. We keep two structures. self.graph which
+# is the shared stack, and  P which is the set of labels that went through a
+# `fn_return`, i.e. `pop` operation.
+
+class GSS:
+    def __init__(self): self.graph, self.P = {}, {}
+
+    def get(self, my_label):
+        if my_label not in self.graph:
+            self.graph[my_label], self.P[my_label] = GSSNode(my_label), []
+        return self.graph[my_label]
+
+    def add_parsed_index(self, label, j):
+        self.P[label].append(j)
+
+    def parsed_indexes(self, label):
+        return self.P[label]
+
+    def __repr__(self): return str(self.graph)
+
+# A wrapper for book keeping functions. We add a dummy node to self.end_rule so
+# that we can check when the parse finishes.
+
+class GLLStructuredStack:
+    def initialize(self, input_str):
+        self.I = input_str + '$'
+        self.m = len(self.I)
+        self.gss = GSS()
+        self.stack_bottom = self.gss.get(('L0', 0))
+        self.threads = []
+        self.U = [[] for j in range(self.m+1)]
+
+    def set_grammar(self, g):
+        self.grammar = g
+        # self.first, self.follow, self.nullable = get_first_and_follow(g)
+
+# ### GLL+GSS add thread (add)
+# Our add_thrad increases a bit in complexity. We now check if a thread already
+# exists before starting a new thread.
+class GLLStructuredStack(GLLStructuredStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        if (L, stack_top) not in self.U[cur_idx]:  # changed
+            self.U[cur_idx].append((L, stack_top)) # changed
+            self.threads.append((L, stack_top, cur_idx))
+
+# ### GLL+GSS fn_return (pop)
+# 
+class GLLStructuredStack(GLLStructuredStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom: # changed
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
+            for c_st in stack_top.children:
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+
+# ### GLL+GSS register_return (create)
+class GLLStructuredStack(GLLStructuredStack):
+    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
+        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
+        v_to_u = [c for c in v.children
+                            if c.label == stack_top.label]
+        if not v_to_u:
+            v.children.append(stack_top)
+
+            for h_idx in self.gss.parsed_indexes(v.label):
+                self.add_thread(v.L, stack_top, h_idx)
+        return v
+
+# ### GLL+GSS utilities.
+
+class GLLStructuredStack(GLLStructuredStack):
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
+class GLLStructuredStack(GLLStructuredStack):
+    def is_non_nullable_alpha(self, alpha):
+        if not alpha: return False
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[0]): return True
+        if alpha[0] in self.nullable: return False
+        return True
+
+# With GSS, we finally have a true GLL recognizer.
+
+class GLLG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        while True:
+            if L == 'L0':
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    continue
+                else:
+                    for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
+                        if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
+                            parser.root = (start_symbol, 0, parser.m)
+                            return parser
+                    return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = 'L0' # goto L_0
+                continue
+        
+            elif L == '<S>':
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx)
+                L = '<A>'
+                continue
+
+            elif L ==  ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L == ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx)
+                L = "<A>"
+                continue
+
+            elif L == ('<A>',0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    cur_idx = cur_idx+1
+                    L = ('<A>',0,2)
+                else:
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ('<A>',1,0): # <A>::= |
+                L = 'L_'
+                continue
+
+            else:
+                assert False
+
+# Using it.
+
+if __name__ == '__main__':
+    p = GLLG1Recognizer()
+    p.parser = GLLStructuredStack()
+    assert p.recognize_on('', '<S>')
+    assert p.recognize_on('a', '<S>')
+    assert p.recognize_on('aa', '<S>')
+    assert p.recognize_on('aaa', '<S>')
+    assert not p.recognize_on('ab', '<S>')
+    assert not p.recognize_on('aaab', '<S>')
+    assert not p.recognize_on('baaa', '<S>')
+
+# ## GLL Parser
+# A recognizer is of limited utility. We need the parse tree if we are to
+# use it in practice. Hence, We will now see how to convert this recognizer to a
+# parser.
+# 
+# # ## Utilities.
+# We start with a few utilities.
+# 
 # ### Symbols in the grammar
 # Here, we extract all terminal and nonterminal symbols in the grammar.
 
@@ -191,14 +656,25 @@ def symbols(grammar):
                     terminals.append(t)
     return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
 
+
 # Using it
 if __name__ == '__main__':
-    print(symbols(grammar))
+    print(symbols(g1))
 
+# ### First, Follow, Nullable sets
+# To optimize GLL parsing, we need the [First, Follow, and Nullable](https://en.wikipedia.org/wiki/Canonical_LR_parser#FIRST_and_FOLLOW_sets) sets.
+# (*Note* we do not use this at present)
+# 
+# Here is a nullable grammar.
 
-# ### First and Follow sets
-# To optimize the GLL parsing, we need the first and follow sets.
-# This is computed in the following fashion.
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+# The definition is as follows.
 
 def union(a, b):
     n = len(a)
@@ -243,13 +719,9 @@ if __name__ == '__main__':
     print("follow:", follow)
     print("nullable", nullable)
 
-    first, follow, nullable = get_first_and_follow(grammar)
-    print("first:", first)
-    print("follow:", follow)
-    print("nullable", nullable)
-
 
 # ### First of a rule fragment.
+# (*Note* we do not use this at present)
 # We need to compute the expected `first` character of a rule suffix.
 
 def get_rule_suffix_first(rule, dot, first, follow, nullable):
@@ -265,57 +737,52 @@ def get_rule_suffix_first(rule, dot, first, follow, nullable):
             else: continue
     return sorted(list(set(fst)))
 
-# Using
+# To verify, we define an expression grammar.
+
+grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+
+grammar_start = '<start>'
 
 if __name__ == '__main__':
     rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
     print(rule_first)
 
-# ## The GSS Graph
-# A naive conversion of recursive descent parsing to generalized recursive
-# descent parsing can be done by maintaining independent stacks for each thread.
-# However, this approach is very costly. GLL optimizes what it needs to generate
-# by using a Graph-Structured Stack.
-# The idea is to share as much of the stack during parsing as possible.
-# 
-# ### The GSS Node
-# A GSS node is simply a node that can contain any number of children. Each
-# child is actually an edge in the graph.
-# 
-# (Each GSS Node is of the form $$L_i^j$$ where $$j$$ is the index of the
-# character consumed. However, we do not need to know the internals of the label
-# here).
-
-class GSSNode:
-    def __init__(self, label): self.label, self.children = label, []
-    def __eq__(self, other): return self.label == other.label
-    def __repr__(self): return str((self.label, self.children))
-
-# ### The GSS container
-# Next, we define the graph container. We keep two structures. self.graph which
-# is the shared stack, and  P which is the set of labels that went through a
-# `fn_return`, i.e. `pop` operation.
-
-class GSS:
-    def __init__(self): self.graph, self.P = {}, {}
-
-    def get(self, my_label):
-        if my_label not in self.graph:
-            self.graph[my_label], self.P[my_label] = GSSNode(my_label), []
-        return self.graph[my_label]
-
-    def add_parsed_index(self, label, j):
-        self.P[label].append(j)
-
-    def parsed_indexes(self, label):
-        return self.P[label]
-
-    def __repr__(self): return str(self.graph)
-
 # ## SPPF Graph
-# To ensure that we can actually extract the parsed trees, we use 
-# the Shared Packed Parse Forest datastructure to represent parses.
-
+# We use a datastructure called *Shared Packed Parse Forest* to represent
+# the parse forest. We cannot simply use a parse tree because there may be
+# multiple possible derivations of the same input string (possibly even an
+# infinite number of them). The basic idea here is that multiple derivations
+# (even an infinite number of derivations) can be represented as links in the
+# graph.
+# 
+# The SPPF graph contains four kinds of nodes. The *dummy* node represents an
+# empty node, and is the simplest. The *symbol* node represents the parse of a
+# nonterminal symbol within a given extent (i, j).
+# Since there can be multiple derivations for a nonterminal
+# symbol, each derivation is represented by a *packed* node, which is the third
+# kind of node. Another kind of node is the *intermediate* node. An intermediate
+# node represents a partially parsed rule, containing a prefix rule and a suffix
+# rule. As in the case of symbol nodes, there can be many derivations for a rule
+# fragment. Hence, an intermediate node can also contain multiple packed nodes.
+# A packed node inturn can contain symbol, intermediate, or dummy nodes.
+# 
 # ### SPPF Node
 
 class SPPFNode:
@@ -344,24 +811,23 @@ class SPPFNode:
 # The dummy SPPF node is used to indicate the empty node at the end of rules.
 
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, j, i): self.label, self.children = (s, j, i), []
+    def __init__(self, s, i, j): self.label, self.children = (s, i, j), []
 
 # ### SPPF Symbol Node
-# x is a terminal, nonterminal, or epsilon -- ''
 # j and i are the extents.
 # Each symbol can contain multiple packed nodes each
 # representing a different derivation. See getNodeP
+#
+# **Note.** In the presence of ambiguous parsing, we choose a derivation
+# at random. So, run the `to_tree()` multiple times to get all parse
+# trees. If you want a better solution, see the
+# [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
+# which can be adapted here too.
 
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, j, i): self.label, self.children = (x, j, i), []
+    def __init__(self, x, i, j): self.label, self.children = (x, i, j), []
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
-
-    # **Note.** In the presence of ambiguous parsing, we choose a derivation
-    # at random. So, run the `to_tree()` multiple times to get all parse
-    # trees. If you want a better solution, see the
-    # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
-    # which can be adapted here too.
     def to_tree_(self, hmap, tab):
         key = self.label[0]
         if self.children:
@@ -380,7 +846,7 @@ class SPPF_packed_node(SPPFNode):
     def __init__(self, t, k): self.label, self.children = (t,k), []
 
 # ## The GLL parser
-# We can now build our GLL parser.
+# We can now build our GLL parser. All procedures change to include SPPF nodes.
 #
 # We first define our initialization
 class GLLStructuredStackP:
@@ -393,7 +859,6 @@ class GLLStructuredStackP:
         self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
 
-
     def to_tree(self):
         return self.SPPF_nodes[self.root].to_tree(self.SPPF_nodes, tab=0)
 
@@ -401,14 +866,14 @@ class GLLStructuredStackP:
         self.grammar = g
         self.first, self.follow, self.nullable = get_first_and_follow(g)
 
-# ### GLL add thread (add)
+# ### GLL+GSS+SPPF add_thread (add)
 class GLLStructuredStackP(GLLStructuredStackP):
     def add_thread(self, L, stack_top, cur_idx, sppf_w):
         if (L, stack_top, sppf_w) not in self.U[cur_idx]:
             self.U[cur_idx].append((L, stack_top, sppf_w))
             self.threads.append((L, stack_top, cur_idx, sppf_w))
 
-# ### GLL fn_return (pop)
+# ### GLL+GSS+SPPF fn_return (pop)
 class GLLStructuredStackP(GLLStructuredStackP):
     def fn_return(self, stack_top, cur_idx, sppf_z):
         if stack_top != self.stack_bottom:
@@ -419,12 +884,10 @@ class GLLStructuredStackP(GLLStructuredStackP):
                 self.add_thread(L, c_st, cur_idx, sppf_y)
         return stack_top
 
-# ### GLL register_return (create)
+# ### GLL+GSS+SPPF register_return (create)
 class GLLStructuredStackP(GLLStructuredStackP):
-    def register_return(self, L, stack_top, cur_idx, sppf_w): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        # all gss children are edges, and they are labeled with SPPF nodes.
-        # if there is not an edge from v to u labelled w
+    def register_return(self, L, stack_top, cur_idx, sppf_w):
+        v = self.gss.get((L, cur_idx))
         v_to_u_labeled_w = [c for c,lbl in v.children
                             if c.label == stack_top.label and lbl == sppf_w]
         if not v_to_u_labeled_w:
@@ -432,14 +895,14 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
-                h_idx = sppf_z.label[-1] # right extent
-                self.add_thread(v.L, stack_top, h_idx, sppf_y) # v.L == L
+                h_idx = sppf_z.label[-1]
+                self.add_thread(v.L, stack_top, h_idx, sppf_y)
         return v
 
-# ### GLL utilities.
+# ### GLL+GSS+SPPF utilities.
 
 class GLLStructuredStackP(GLLStructuredStackP):
-    def next_thread(self): # i \in R
+    def next_thread(self):
         t, *self.threads = self.threads
         return t
 
@@ -507,8 +970,111 @@ class GLLStructuredStackP(GLLStructuredStackP):
         if alpha[0] in self.nullable: return False
         return True
 
+# We can now use all these to generate trees.
+
+class SPPFG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        # L contains start nt.
+        end_rule = SPPF_dummy_node('$', 0, 0)
+        L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
+        while True:
+            if L == 'L0':
+                if parser.threads: # if R != \empty
+                    (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread()
+                    # goto L
+                    continue
+                else:
+                    # if there is an SPPF node (start_symbol, 0, m) then report success
+                    if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
+                          parser.root = (start_symbol, 0, parser.m)
+                          return parser
+                    else: return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
+                L = 'L0' # goto L_0
+                continue
+        
+            elif L == '<S>':
+
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx, end_rule)
+
+                L = 'L0'
+                continue
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx, cur_sppf_node)
+                L = "<A>"
+                continue
+
+            elif L == ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx, end_rule)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx, end_rule)
+
+                L = 'L0'
+                continue
+            elif L ==  ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx, cur_sppf_node)
+                L = "<A>"
+                continue
+
+            elif L == ("<A>",0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    right_sppf_child = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                    cur_idx = cur_idx+1
+                    L = ("<A>",0,2)
+                    cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                else:
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ("<A>", 1, 0): # <A>::= |
+                # epsilon: If epsilon is present, we skip the end of rule with same
+                # L and go directly to L_
+                right_sppf_child = parser.getNodeT(None, cur_idx)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                L = 'L_'
+                continue
+
+
+            else:
+                assert False
+
+# We need trees
+
+class SPPFG1Recognizer(SPPFG1Recognizer):
+    def parse_on(self, text, start_symbol):
+        p = self.recognize_on(text, start_symbol)
+        return [p.to_tree()]
+
+# Using it
+
+if __name__ == '__main__':
+    p = SPPFG1Recognizer()
+    p.parser = GLLStructuredStackP()
+    for tree in p.parse_on('aa', start_symbol='<S>'):
+        print(ep.display_tree(tree))
+
 # ## Building the parser with GLL
-# At this point, we are ready to build our parser.
+# At this point, we are ready to build our parser compiler.
 # ### Compiling an empty rule
 # We start with compiling an epsilon rule.
 
@@ -772,7 +1338,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     mystring = '(1+1)*(23/45)-1'
     p = compile_grammar(grammar)
-    v = p.parse_on(mystring, START)[0]
+    v = p.parse_on(mystring, grammar_start)[0]
     r = fuzzer.tree_to_string(v)
     assert r == mystring
     ep.display_tree(v)
@@ -799,7 +1365,7 @@ if __name__ == '__main__':
     }
     mystring = '1+2+3+4'
     p = compile_grammar(a_grammar)
-    v = p.parse_on(mystring, START)[0]
+    v = p.parse_on(mystring, grammar_start)[0]
     r = fuzzer.tree_to_string(v)
     assert r == mystring
     ep.display_tree(v)

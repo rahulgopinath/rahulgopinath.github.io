@@ -110,7 +110,8 @@ For this post, we use the following terms:
   For example, `<term>` is a nonterminal in the below grammar.
 
 * A _rule_ is a finite sequence of _terms_ (two types of terms: terminals and
-  nonterminals) that describe an expansion of a given terminal.
+  nonterminals) that describe an expansion of a given terminal. A rule is
+  also called an _alternative_ expansion.
 
   For example, `[<term>+<expr>]` is one of the expansion rules of the nonterminal `<expr>`.
 
@@ -139,6 +140,7 @@ For this post, we use the following terms:
 
 * The *yield* of a tree is the string resulting from collapsing that tree.
 
+* An *epsilon* rule matches an empty string.
 #### Prerequisites
  
 As before, we start with the prerequisite imports.
@@ -221,134 +223,157 @@ there can only be one expansion rule for the `<start>` symbol. We work around
 this restriction by simply constructing as many charts as there are expansion
 rules, and returning all parse trees.
 
-**Note:** This post is not complete. Given the interest in GLL parsers, I am
-simply providing the complete source (which substantially follows the
-publications, except where I have simplified things a little bit)
-until I have more bandwidth to complete the tutorial. However, the code
-itself is complete, and can be used.
-## Our grammar
+## Traditional Recursive Descent
+Consider how you will parse a string that conforms to the following grammar
 
 <!--
 ############
-grammar = {
-    '<start>': [['<expr>']],
-    '<expr>': [
-        ['<term>', '+', '<expr>'],
-        ['<term>', '-', '<expr>'],
-        ['<term>']],
-    '<term>': [
-        ['<fact>', '*', '<term>'],
-        ['<fact>', '/', '<term>'],
-        ['<fact>']],
-    '<fact>': [
-        ['<digits>'],
-        ['(','<expr>',')']],
-    '<digits>': [
-        ['<digit>','<digits>'],
-        ['<digit>']],
-    '<digit>': [["%s" % str(i)] for i in range(10)],
+g1 = {
+    '<S>': [
+          ['<A>', '<B>'],
+          ['<C>']],
+   '<A>': [
+        ['a']],
+   '<B>': [
+        ['b']],
+   '<C>': [
+        ['c']],
 }
+g1_start = '<S>'
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-grammar = {
-    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
-    &#x27;&lt;expr&gt;&#x27;: [
-        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
-        [&#x27;&lt;term&gt;&#x27;]],
-    &#x27;&lt;term&gt;&#x27;: [
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
-        [&#x27;&lt;fact&gt;&#x27;]],
-    &#x27;&lt;fact&gt;&#x27;: [
-        [&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
-    &#x27;&lt;digits&gt;&#x27;: [
-        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
-        [&#x27;&lt;digit&gt;&#x27;]],
-    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+g1 = {
+    &#x27;&lt;S&gt;&#x27;: [
+          [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;],
+          [&#x27;&lt;C&gt;&#x27;]],
+   &#x27;&lt;A&gt;&#x27;: [
+        [&#x27;a&#x27;]],
+   &#x27;&lt;B&gt;&#x27;: [
+        [&#x27;b&#x27;]],
+   &#x27;&lt;C&gt;&#x27;: [
+        [&#x27;c&#x27;]],
 }
+g1_start = &#x27;&lt;S&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Defining the start symbol
+In traditional recursive descent, we write a parser in the following fashion
 
 <!--
 ############
-START = '<start>'
+class G1TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
+
+    # S ::= S_0 | S_1
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        if (i := self.S_1(text, cur_idx)) is not None: return i
+        return None
+
+    # S_0 ::= <A> <B>
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        if (i := self.B(text, i)) is None: return None
+        return i
+
+    # S_1 ::= <C>
+    def S_1(self, text, cur_idx):
+        if (i := self.C(text, cur_idx)) is None: return None
+        return i
+
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i
+        return None
+
+    # A_0 ::= a
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'a': return None
+        return i
+
+    def B(self, text, cur_idx):
+        if (i := self.B_0(text, cur_idx)) is not None: return i
+        return None
+
+    # B_0 ::= b
+    def B_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'b': return None
+        return i
+
+    def C(self, text, cur_idx):
+        if (i := self.C_0(text, cur_idx)) is not None: return i
+        return None
+
+    # C_0 ::= c
+    def C_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'c': return None
+        return i
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-START = &#x27;&lt;start&gt;&#x27;
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Utilities.
-We start with a few utilities.
-We need first and nullable
+class G1TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
 
-Here is a nullable grammar
+    # S ::= S_0 | S_1
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        if (i := self.S_1(text, cur_idx)) is not None: return i
+        return None
 
-<!--
-############
-nullable_grammar = {
-    '<start>': [['<A>', '<B>']],
-    '<A>': [['a'], [], ['<C>']],
-    '<B>': [['b']],
-    '<C>': [['<A>'], ['<B>']]
-}
+    # S_0 ::= &lt;A&gt; &lt;B&gt;
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        if (i := self.B(text, i)) is None: return None
+        return i
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-nullable_grammar = {
-    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
-    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
-    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
-    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
-}
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Symbols in the grammar
-Here, we extract all terminal and nonterminal symbols in the grammar.
+    # S_1 ::= &lt;C&gt;
+    def S_1(self, text, cur_idx):
+        if (i := self.C(text, cur_idx)) is None: return None
+        return i
 
-<!--
-############
-def symbols(grammar):
-    terminals, nonterminals = [], []
-    for k in grammar:
-        for r in grammar[k]:
-            for t in r:
-                if fuzzer.is_nonterminal(t):
-                    nonterminals.append(t)
-                else:
-                    terminals.append(t)
-    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i
+        return None
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def symbols(grammar):
-    terminals, nonterminals = [], []
-    for k in grammar:
-        for r in grammar[k]:
-            for t in r:
-                if fuzzer.is_nonterminal(t):
-                    nonterminals.append(t)
-                else:
-                    terminals.append(t)
-    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+    # A_0 ::= a
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != &#x27;a&#x27;: return None
+        return i
+
+    def B(self, text, cur_idx):
+        if (i := self.B_0(text, cur_idx)) is not None: return i
+        return None
+
+    # B_0 ::= b
+    def B_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != &#x27;b&#x27;: return None
+        return i
+
+    def C(self, text, cur_idx):
+        if (i := self.C_0(text, cur_idx)) is not None: return i
+        return None
+
+    # C_0 ::= c
+    def C_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != &#x27;c&#x27;: return None
+        return i
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -357,194 +382,529 @@ Using it
 
 <!--
 ############
-print(symbols(grammar))
-
+p = G1TraditionalRD()
+assert p.recognize_on('ab')
+assert p.recognize_on('c')
+assert not p.recognize_on('abc')
+assert not p.recognize_on('ac')
+assert not p.recognize_on('')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(symbols(grammar))
+p = G1TraditionalRD()
+assert p.recognize_on(&#x27;ab&#x27;)
+assert p.recognize_on(&#x27;c&#x27;)
+assert not p.recognize_on(&#x27;abc&#x27;)
+assert not p.recognize_on(&#x27;ac&#x27;)
+assert not p.recognize_on(&#x27;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### First and Follow sets
-To optimize the GLL parsing, we need the first and follow sets.
-This is computed in the following fashion.
+What if there is recursion? Here is another grammar with recursion
 
 <!--
 ############
-def union(a, b):
-    n = len(a)
-    a |= b
-    return len(a) != n
+g2 = {
+    '<S>': [
+          ['<A>']],
+   '<A>': [
+        ['a', '<A>'],
+        []]
+}
+g2_start = '<S>'
 
-def get_first_and_follow(grammar):
-    terminals, nonterminals = symbols(grammar)
-    first = {i: set() for i in nonterminals}
-    first.update((i, {i}) for i in terminals)
-    follow = {i: set() for i in nonterminals}
-    nullable = set()
-    while True:
-        added = 0
-        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
-        for k, rule in productions:
-            can_be_empty = True
-            for t in rule:
-                added += union(first[k], first[t])
-                if t not in nullable:
-                    can_be_empty = False
-                    break
-            if can_be_empty:
-                added += union(nullable, {k})
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g2 = {
+    &#x27;&lt;S&gt;&#x27;: [
+          [&#x27;&lt;A&gt;&#x27;]],
+   &#x27;&lt;A&gt;&#x27;: [
+        [&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
+        []]
+}
+g2_start = &#x27;&lt;S&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+In traditional recursive descent, we write a parser in the following fashion
 
-            follow_ = follow[k]
-            for t in reversed(rule):
-                if t in follow:
-                    added += union(follow[t], follow_)
-                if t in nullable:
-                    follow_ = follow_.union(first[t])
+<!--
+############
+class G2TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
+
+    # S ::= S_0
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        return None
+
+    # S_0 ::= <A>
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        return i
+
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i
+        if (i := self.A_1(text, cur_idx)) is not None: return i
+        return None
+
+    # A_0 ::= a <A>
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != 'a': return None
+        if (i := self.A(text, i)) is None: return None
+        return i
+
+    # A_1 ::=
+    def A_1(self, text, cur_idx):
+        return cur_idx
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class G2TraditionalRD(ep.Parser):
+    def recognize_on(self, text):
+        res =  self.S(text, 0)
+        if res == len(text): return True
+        return False
+
+    # S ::= S_0
+    def S(self, text, cur_idx):
+        if (i:= self.S_0(text, cur_idx)) is not None: return i
+        return None
+
+    # S_0 ::= &lt;A&gt;
+    def S_0(self, text, cur_idx):
+        if (i := self.A(text, cur_idx)) is None: return None
+        return i
+
+    def A(self, text, cur_idx):
+        if (i := self.A_0(text, cur_idx)) is not None: return i
+        if (i := self.A_1(text, cur_idx)) is not None: return i
+        return None
+
+    # A_0 ::= a &lt;A&gt;
+    def A_0(self, text, cur_idx):
+        i = cur_idx+1
+        if text[cur_idx:i] != &#x27;a&#x27;: return None
+        if (i := self.A(text, i)) is None: return None
+        return i
+
+    # A_1 ::=
+    def A_1(self, text, cur_idx):
+        return cur_idx
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+p = G2TraditionalRD()
+assert p.recognize_on('a')
+assert not p.recognize_on('b')
+assert p.recognize_on('aa')
+assert not p.recognize_on('ab')
+assert p.recognize_on('')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = G2TraditionalRD()
+assert p.recognize_on(&#x27;a&#x27;)
+assert not p.recognize_on(&#x27;b&#x27;)
+assert p.recognize_on(&#x27;aa&#x27;)
+assert not p.recognize_on(&#x27;ab&#x27;)
+assert p.recognize_on(&#x27;&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The problem happens when there is a left recursion. For example, the following
+grammar contains a left recurstion eventhough it recognizes the same language
+as before.
+
+<!--
+############
+g3 = {
+    '<S>': [
+          ['<A>']],
+   '<A>': [
+        ['<A>', 'a'],
+        []]
+}
+g3_start = '<S>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g3 = {
+    &#x27;&lt;S&gt;&#x27;: [
+          [&#x27;&lt;A&gt;&#x27;]],
+   &#x27;&lt;A&gt;&#x27;: [
+        [&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;],
+        []]
+}
+g3_start = &#x27;&lt;S&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Naive Threded Recognizer
+The problem with left recursion is that in traditional recursive descent
+style, we are forced to follow a depth first exploration, completing the
+parse of one entire rule before attempting then next rule. We can work around
+this by managing the call stack ourselves. The idea is to convert each
+procedure into a case label, save the previous label in the stack
+(managed by us) before a sub procedure. When the exploration
+is finished, we pop the previous label off the stack, and continue where we
+left off.
+
+<!--
+############
+class NaiveThreadedRecognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol, max_count=1000):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        self.count = 0
+        while self.count < max_count:
+            self.count += 1
+            if L == 'L0':
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                        return parser
+                    continue
                 else:
-                    follow_ = first[t]
-        if not added:
-            return first, follow, nullable
+                    return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = 'L0' # goto L_0
+                continue
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def union(a, b):
-    n = len(a)
-    a |= b
-    return len(a) != n
+            elif L == '<S>':
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
 
-def get_first_and_follow(grammar):
-    terminals, nonterminals = symbols(grammar)
-    first = {i: set() for i in nonterminals}
-    first.update((i, {i}) for i in terminals)
-    follow = {i: set() for i in nonterminals}
-    nullable = set()
-    while True:
-        added = 0
-        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
-        for k, rule in productions:
-            can_be_empty = True
-            for t in rule:
-                added += union(first[k], first[t])
-                if t not in nullable:
-                    can_be_empty = False
-                    break
-            if can_be_empty:
-                added += union(nullable, {k})
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx)
+                L = '<A>'
+                continue
 
-            follow_ = follow[k]
-            for t in reversed(rule):
-                if t in follow:
-                    added += union(follow[t], follow_)
-                if t in nullable:
-                    follow_ = follow_.union(first[t])
+            elif L ==  ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L == ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx)
+                L = "<A>"
+                continue
+
+            elif L == ('<A>',0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    cur_idx = cur_idx+1
+                    L = ('<A>',0,2)
                 else:
-                    follow_ = first[t]
-        if not added:
-            return first, follow, nullable
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ('<A>',1,0): # <A>::= |
+                L = 'L_'
+                continue
+
+            else:
+                assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class NaiveThreadedRecognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol, max_count=1000):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+         &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        self.count = 0
+        while self.count &lt; max_count:
+            self.count += 1
+            if L == &#x27;L0&#x27;:
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                        return parser
+                    continue
+                else:
+                    return []
+            elif L == &#x27;L_&#x27;:
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = &#x27;L0&#x27; # goto L_0
+                continue
+
+            elif L == &#x27;&lt;S&gt;&#x27;:
+                # &lt;S&gt;::=[&#x27;&lt;A&gt;&#x27;]
+                parser.add_thread( (&#x27;&lt;S&gt;&#x27;,0,0), stack_top, cur_idx)
+                L = &#x27;L0&#x27;
+                continue
+
+            elif L ==  (&#x27;&lt;S&gt;&#x27;,0,0): # &lt;S&gt;::= | &lt;A&gt;
+                stack_top = parser.register_return((&#x27;&lt;S&gt;&#x27;,0,1), stack_top, cur_idx)
+                L = &#x27;&lt;A&gt;&#x27;
+                continue
+
+            elif L ==  (&#x27;&lt;S&gt;&#x27;,0,1): # &lt;S&gt;::= &lt;A&gt; |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == &#x27;&lt;A&gt;&#x27;:
+                # &lt;A&gt;::=[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,0,0), stack_top, cur_idx)
+                # &lt;A&gt;::=[]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,1,0), stack_top, cur_idx)
+                L = &#x27;L0&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,0): # &lt;A&gt;::= | &lt;A&gt; a
+                stack_top = parser.register_return((&#x27;&lt;A&gt;&#x27;,0,1), stack_top, cur_idx)
+                L = &quot;&lt;A&gt;&quot;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,1): # &lt;A&gt;::= &lt;A&gt; | a
+                if parser.I[cur_idx] == &#x27;a&#x27;:
+                    cur_idx = cur_idx+1
+                    L = (&#x27;&lt;A&gt;&#x27;,0,2)
+                else:
+                    L = &#x27;L0&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,2): # &lt;A&gt;::= &lt;A&gt; a |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,1,0): # &lt;A&gt;::= |
+                L = &#x27;L_&#x27;
+                continue
+
+            else:
+                assert False
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using
+We also need a way to hold the call stack. The call stack is actually stored
+as a linked list with the current stack_top on the top. With multiple
+alternatives being explored together, we actually have a tree structure, but
+the leaf nodes only know about their parent (not the reverse).
+For convenience, we use a wrapper for the callstack, where we define a few
+book keeping functions. First the initialization of the call stack.
 
 <!--
 ############
-first, follow, nullable = get_first_and_follow(nullable_grammar)
-print("first:", first)
-print("follow:", follow)
-print("nullable", nullable)
+class CallStack:
+    def initialize(self, s):
+        self.threads = []
+        self.I = s + '$'
+        self.m = len(self.I)
+        self.stack_bottom = {'label':('L0', 0), 'previous': []}
 
-first, follow, nullable = get_first_and_follow(grammar)
-print("first:", first)
-print("follow:", follow)
-print("nullable", nullable)
+    def set_grammar(self, g):
+        self.grammar = g
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack:
+    def initialize(self, s):
+        self.threads = []
+        self.I = s + &#x27;$&#x27;
+        self.m = len(self.I)
+        self.stack_bottom = {&#x27;label&#x27;:(&#x27;L0&#x27;, 0), &#x27;previous&#x27;: []}
+
+    def set_grammar(self, g):
+        self.grammar = g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Adding a thread simply means appending the label, current stack top, and
+current parse index to the threads. We can also retrieve threads.
+
+<!--
+############
+class CallStack(CallStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        self.threads.append((L, stack_top, cur_idx))
+
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack(CallStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        self.threads.append((L, stack_top, cur_idx))
+
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define how returns are handed. That is, before exploring a new
+sub procedure, we have to save the return label in the stack, which
+is handled by `register_return()`. The current stack top is added as a child
+of the return label.
+
+<!--
+############
+class CallStack(CallStack):
+    def register_return(self, L, stack_top, cur_idx):
+        v = {'label': (L, cur_idx), 'previous': [stack_top]}
+        return v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack(CallStack):
+    def register_return(self, L, stack_top, cur_idx):
+        v = {&#x27;label&#x27;: (L, cur_idx), &#x27;previous&#x27;: [stack_top]}
+        return v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+When we have finished exploring a given procedure, we return back to the
+original position in the stack by poping off the prvious label.
+
+<!--
+############
+class CallStack(CallStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top['label']
+            for c_st in stack_top['previous']: # only one previous
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack(CallStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top[&#x27;label&#x27;]
+            for c_st in stack_top[&#x27;previous&#x27;]: # only one previous
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+p = NaiveThreadedRecognizer()
+p.parser = CallStack()
+assert p.recognize_on('', '<S>')
+print(p.count)
+assert p.recognize_on('a', '<S>')
+print(p.count)
+assert p.recognize_on('aa', '<S>')
+print(p.count)
+assert p.recognize_on('aaa', '<S>')
+print(p.count)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = NaiveThreadedRecognizer()
+p.parser = CallStack()
+assert p.recognize_on(&#x27;&#x27;, &#x27;&lt;S&gt;&#x27;)
+print(p.count)
+assert p.recognize_on(&#x27;a&#x27;, &#x27;&lt;S&gt;&#x27;)
+print(p.count)
+assert p.recognize_on(&#x27;aa&#x27;, &#x27;&lt;S&gt;&#x27;)
+print(p.count)
+assert p.recognize_on(&#x27;aaa&#x27;, &#x27;&lt;S&gt;&#x27;)
+print(p.count)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This unfortunately has a problem. The issue is that, when a string does not
+parse, the recursion along with the epsilon rule means that there is always a
+thread that keeps spawning new threads.
+
+<!--
+############
+assert not p.recognize_on('ab', '<S>', max_count=1000)
+print(p.count)
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-first, follow, nullable = get_first_and_follow(nullable_grammar)
-print(&quot;first:&quot;, first)
-print(&quot;follow:&quot;, follow)
-print(&quot;nullable&quot;, nullable)
-
-first, follow, nullable = get_first_and_follow(grammar)
-print(&quot;first:&quot;, first)
-print(&quot;follow:&quot;, follow)
-print(&quot;nullable&quot;, nullable)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### First of a rule fragment.
-We need to compute the expected `first` character of a rule suffix.
-
-<!--
-############
-def get_rule_suffix_first(rule, dot, first, follow, nullable):
-    alpha, beta = rule[:dot], rule[dot:]
-    fst = []
-    for t in beta:
-        if fuzzer.is_terminal(t):
-            fst.append(t)
-            break
-        else:
-            fst.extend(first[t])
-            if t not in nullable: break
-            else: continue
-    return sorted(list(set(fst)))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def get_rule_suffix_first(rule, dot, first, follow, nullable):
-    alpha, beta = rule[:dot], rule[dot:]
-    fst = []
-    for t in beta:
-        if fuzzer.is_terminal(t):
-            fst.append(t)
-            break
-        else:
-            fst.extend(first[t])
-            if t not in nullable: break
-            else: continue
-    return sorted(list(set(fst)))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using
-
-<!--
-############
-rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
-print(rule_first)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-rule_first = get_rule_suffix_first(grammar[&#x27;&lt;term&gt;&#x27;][1], 1, first, follow, nullable)
-print(rule_first)
+assert not p.recognize_on(&#x27;ab&#x27;, &#x27;&lt;S&gt;&#x27;, max_count=1000)
+print(p.count)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ## The GSS Graph
+The way to solve it is to use something called a *graph-structured stack*.
 A naive conversion of recursive descent parsing to generalized recursive
 descent parsing can be done by maintaining independent stacks for each thread.
-However, this approach is very costly. GLL optimizes what it needs to generate
-by using a Graph-Structured Stack.
-The idea is to share as much of the stack during parsing as possible.
+However, this approach is has problems as we saw previously, when it comes to
+left recursion. The GSS converts the tree structured stack to a graph.
 
 ### The GSS Node
 A GSS node is simply a node that can contain any number of children. Each
@@ -619,9 +979,670 @@ class GSS:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+A wrapper for book keeping functions. We add a dummy node to self.end_rule so
+that we can check when the parse finishes.
+
+<!--
+############
+class GLLStructuredStack:
+    def initialize(self, input_str):
+        self.I = input_str + '$'
+        self.m = len(self.I)
+        self.gss = GSS()
+        self.stack_bottom = self.gss.get(('L0', 0))
+        self.threads = []
+        self.U = [[] for j in range(self.m+1)]
+
+    def set_grammar(self, g):
+        self.grammar = g
+        # self.first, self.follow, self.nullable = get_first_and_follow(g)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStack:
+    def initialize(self, input_str):
+        self.I = input_str + &#x27;$&#x27;
+        self.m = len(self.I)
+        self.gss = GSS()
+        self.stack_bottom = self.gss.get((&#x27;L0&#x27;, 0))
+        self.threads = []
+        self.U = [[] for j in range(self.m+1)]
+
+    def set_grammar(self, g):
+        self.grammar = g
+        # self.first, self.follow, self.nullable = get_first_and_follow(g)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### GLL+GSS add thread (add)
+Our add_thrad increases a bit in complexity. We now check if a thread already
+exists before starting a new thread.
+
+<!--
+############
+class GLLStructuredStack(GLLStructuredStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        if (L, stack_top) not in self.U[cur_idx]:  # changed
+            self.U[cur_idx].append((L, stack_top)) # changed
+            self.threads.append((L, stack_top, cur_idx))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStack(GLLStructuredStack):
+    def add_thread(self, L, stack_top, cur_idx):
+        if (L, stack_top) not in self.U[cur_idx]:  # changed
+            self.U[cur_idx].append((L, stack_top)) # changed
+            self.threads.append((L, stack_top, cur_idx))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### GLL+GSS fn_return (pop)
+
+
+<!--
+############
+class GLLStructuredStack(GLLStructuredStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom: # changed
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
+            for c_st in stack_top.children:
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStack(GLLStructuredStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom: # changed
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
+            for c_st in stack_top.children:
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### GLL+GSS register_return (create)
+
+<!--
+############
+class GLLStructuredStack(GLLStructuredStack):
+    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
+        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
+        v_to_u = [c for c in v.children
+                            if c.label == stack_top.label]
+        if not v_to_u:
+            v.children.append(stack_top)
+
+            for h_idx in self.gss.parsed_indexes(v.label):
+                self.add_thread(v.L, stack_top, h_idx)
+        return v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStack(GLLStructuredStack):
+    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
+        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
+        v_to_u = [c for c in v.children
+                            if c.label == stack_top.label]
+        if not v_to_u:
+            v.children.append(stack_top)
+
+            for h_idx in self.gss.parsed_indexes(v.label):
+                self.add_thread(v.L, stack_top, h_idx)
+        return v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### GLL+GSS utilities.
+
+<!--
+############
+class GLLStructuredStack(GLLStructuredStack):
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
+class GLLStructuredStack(GLLStructuredStack):
+    def is_non_nullable_alpha(self, alpha):
+        if not alpha: return False
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[0]): return True
+        if alpha[0] in self.nullable: return False
+        return True
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStack(GLLStructuredStack):
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
+class GLLStructuredStack(GLLStructuredStack):
+    def is_non_nullable_alpha(self, alpha):
+        if not alpha: return False
+        if len(alpha) != 1: return False
+        if fuzzer.is_terminal(alpha[0]): return True
+        if alpha[0] in self.nullable: return False
+        return True
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+With GSS, we finally have a true GLL recognizer.
+
+<!--
+############
+class GLLG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        while True:
+            if L == 'L0':
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    continue
+                else:
+                    for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
+                        if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
+                            parser.root = (start_symbol, 0, parser.m)
+                            return parser
+                    return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = 'L0' # goto L_0
+                continue
+
+            elif L == '<S>':
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx)
+                L = '<A>'
+                continue
+
+            elif L ==  ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx)
+                L = 'L0'
+                continue
+
+            elif L == ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx)
+                L = "<A>"
+                continue
+
+            elif L == ('<A>',0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    cur_idx = cur_idx+1
+                    L = ('<A>',0,2)
+                else:
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ('<A>',1,0): # <A>::= |
+                L = 'L_'
+                continue
+
+            else:
+                assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+         &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;],
+                 []]
+        })
+        L, stack_top, cur_idx = start_symbol, parser.stack_bottom, 0
+        while True:
+            if L == &#x27;L0&#x27;:
+                if parser.threads:
+                    (L, stack_top, cur_idx) = parser.next_thread()
+                    continue
+                else:
+                    for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
+                        if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
+                            parser.root = (start_symbol, 0, parser.m)
+                            return parser
+                    return []
+            elif L == &#x27;L_&#x27;:
+                stack_top = parser.fn_return(stack_top, cur_idx) # pop
+                L = &#x27;L0&#x27; # goto L_0
+                continue
+
+            elif L == &#x27;&lt;S&gt;&#x27;:
+                # &lt;S&gt;::=[&#x27;&lt;A&gt;&#x27;]
+                parser.add_thread( (&#x27;&lt;S&gt;&#x27;,0,0), stack_top, cur_idx)
+                L = &#x27;L0&#x27;
+                continue
+
+            elif L ==  (&#x27;&lt;S&gt;&#x27;,0,0): # &lt;S&gt;::= | &lt;A&gt;
+                stack_top = parser.register_return((&#x27;&lt;S&gt;&#x27;,0,1), stack_top, cur_idx)
+                L = &#x27;&lt;A&gt;&#x27;
+                continue
+
+            elif L ==  (&#x27;&lt;S&gt;&#x27;,0,1): # &lt;S&gt;::= &lt;A&gt; |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == &#x27;&lt;A&gt;&#x27;:
+                # &lt;A&gt;::=[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,0,0), stack_top, cur_idx)
+                # &lt;A&gt;::=[]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,1,0), stack_top, cur_idx)
+                L = &#x27;L0&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,0): # &lt;A&gt;::= | &lt;A&gt; a
+                stack_top = parser.register_return((&#x27;&lt;A&gt;&#x27;,0,1), stack_top, cur_idx)
+                L = &quot;&lt;A&gt;&quot;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,1): # &lt;A&gt;::= &lt;A&gt; | a
+                if parser.I[cur_idx] == &#x27;a&#x27;:
+                    cur_idx = cur_idx+1
+                    L = (&#x27;&lt;A&gt;&#x27;,0,2)
+                else:
+                    L = &#x27;L0&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,2): # &lt;A&gt;::= &lt;A&gt; a |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,1,0): # &lt;A&gt;::= |
+                L = &#x27;L_&#x27;
+                continue
+
+            else:
+                assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+p = GLLG1Recognizer()
+p.parser = GLLStructuredStack()
+assert p.recognize_on('', '<S>')
+assert p.recognize_on('a', '<S>')
+assert p.recognize_on('aa', '<S>')
+assert p.recognize_on('aaa', '<S>')
+assert not p.recognize_on('ab', '<S>')
+assert not p.recognize_on('aaab', '<S>')
+assert not p.recognize_on('baaa', '<S>')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = GLLG1Recognizer()
+p.parser = GLLStructuredStack()
+assert p.recognize_on(&#x27;&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert p.recognize_on(&#x27;a&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert p.recognize_on(&#x27;aa&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert p.recognize_on(&#x27;aaa&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert not p.recognize_on(&#x27;ab&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert not p.recognize_on(&#x27;aaab&#x27;, &#x27;&lt;S&gt;&#x27;)
+assert not p.recognize_on(&#x27;baaa&#x27;, &#x27;&lt;S&gt;&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## GLL Parser
+A recognizer is of limited utility. We need the parse tree if we are to
+use it in practice. Hence, We will now see how to convert this recognizer to a
+parser.
+
+# ## Utilities.
+We start with a few utilities.
+
+### Symbols in the grammar
+Here, we extract all terminal and nonterminal symbols in the grammar.
+
+<!--
+############
+def symbols(grammar):
+    terminals, nonterminals = [], []
+    for k in grammar:
+        for r in grammar[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t):
+                    nonterminals.append(t)
+                else:
+                    terminals.append(t)
+    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def symbols(grammar):
+    terminals, nonterminals = [], []
+    for k in grammar:
+        for r in grammar[k]:
+            for t in r:
+                if fuzzer.is_nonterminal(t):
+                    nonterminals.append(t)
+                else:
+                    terminals.append(t)
+    return (sorted(list(set(terminals))), sorted(list(set(nonterminals))))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+print(symbols(g1))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(symbols(g1))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### First, Follow, Nullable sets
+To optimize GLL parsing, we need the [First, Follow, and Nullable](https://en.wikipedia.org/wiki/Canonical_LR_parser#FIRST_and_FOLLOW_sets) sets.
+(*Note* we do not use this at present)
+
+Here is a nullable grammar.
+
+<!--
+############
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The definition is as follows.
+
+<!--
+############
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def get_first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            can_be_empty = True
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
+                added += union(nullable, {k})
+
+            follow_ = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], follow_)
+                if t in nullable:
+                    follow_ = follow_.union(first[t])
+                else:
+                    follow_ = first[t]
+        if not added:
+            return first, follow, nullable
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def get_first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            can_be_empty = True
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
+                added += union(nullable, {k})
+
+            follow_ = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], follow_)
+                if t in nullable:
+                    follow_ = follow_.union(first[t])
+                else:
+                    follow_ = first[t]
+        if not added:
+            return first, follow, nullable
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+first, follow, nullable = get_first_and_follow(nullable_grammar)
+print("first:", first)
+print("follow:", follow)
+print("nullable", nullable)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+first, follow, nullable = get_first_and_follow(nullable_grammar)
+print(&quot;first:&quot;, first)
+print(&quot;follow:&quot;, follow)
+print(&quot;nullable&quot;, nullable)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### First of a rule fragment.
+(*Note* we do not use this at present)
+We need to compute the expected `first` character of a rule suffix.
+
+<!--
+############
+def get_rule_suffix_first(rule, dot, first, follow, nullable):
+    alpha, beta = rule[:dot], rule[dot:]
+    fst = []
+    for t in beta:
+        if fuzzer.is_terminal(t):
+            fst.append(t)
+            break
+        else:
+            fst.extend(first[t])
+            if t not in nullable: break
+            else: continue
+    return sorted(list(set(fst)))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_rule_suffix_first(rule, dot, first, follow, nullable):
+    alpha, beta = rule[:dot], rule[dot:]
+    fst = []
+    for t in beta:
+        if fuzzer.is_terminal(t):
+            fst.append(t)
+            break
+        else:
+            fst.extend(first[t])
+            if t not in nullable: break
+            else: continue
+    return sorted(list(set(fst)))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+To verify, we define an expression grammar.
+
+<!--
+############
+grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<term>', '+', '<expr>'],
+        ['<term>', '-', '<expr>'],
+        ['<term>']],
+    '<term>': [
+        ['<fact>', '*', '<term>'],
+        ['<fact>', '/', '<term>'],
+        ['<fact>']],
+    '<fact>': [
+        ['<digits>'],
+        ['(','<expr>',')']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+}
+
+grammar_start = '<start>'
+
+if __name__ == '__main__':
+    rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
+    print(rule_first)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+    &#x27;&lt;expr&gt;&#x27;: [
+        [&#x27;&lt;term&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+        [&#x27;&lt;term&gt;&#x27;]],
+    &#x27;&lt;term&gt;&#x27;: [
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;term&gt;&#x27;],
+        [&#x27;&lt;fact&gt;&#x27;]],
+    &#x27;&lt;fact&gt;&#x27;: [
+        [&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;(&#x27;,&#x27;&lt;expr&gt;&#x27;,&#x27;)&#x27;]],
+    &#x27;&lt;digits&gt;&#x27;: [
+        [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+        [&#x27;&lt;digit&gt;&#x27;]],
+    &#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+
+grammar_start = &#x27;&lt;start&gt;&#x27;
+
+if __name__ == &#x27;__main__&#x27;:
+    rule_first = get_rule_suffix_first(grammar[&#x27;&lt;term&gt;&#x27;][1], 1, first, follow, nullable)
+    print(rule_first)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## SPPF Graph
-To ensure that we can actually extract the parsed trees, we use 
-the Shared Packed Parse Forest datastructure to represent parses.
+We use a datastructure called *Shared Packed Parse Forest* to represent
+the parse forest. We cannot simply use a parse tree because there may be
+multiple possible derivations of the same input string (possibly even an
+infinite number of them). The basic idea here is that multiple derivations
+(even an infinite number of derivations) can be represented as links in the
+graph.
+
+The SPPF graph contains four kinds of nodes. The *dummy* node represents an
+empty node, and is the simplest. The *symbol* node represents the parse of a
+nonterminal symbol within a given extent (i, j).
+Since there can be multiple derivations for a nonterminal
+symbol, each derivation is represented by a *packed* node, which is the third
+kind of node. Another kind of node is the *intermediate* node. An intermediate
+node represents a partially parsed rule, containing a prefix rule and a suffix
+rule. As in the case of symbol nodes, there can be many derivations for a rule
+fragment. Hence, an intermediate node can also contain multiple packed nodes.
+A packed node inturn can contain symbol, intermediate, or dummy nodes.
+
 ### SPPF Node
 
 <!--
@@ -682,36 +1703,34 @@ The dummy SPPF node is used to indicate the empty node at the end of rules.
 <!--
 ############
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, j, i): self.label, self.children = (s, j, i), []
+    def __init__(self, s, i, j): self.label, self.children = (s, i, j), []
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, j, i): self.label, self.children = (s, j, i), []
+    def __init__(self, s, i, j): self.label, self.children = (s, i, j), []
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ### SPPF Symbol Node
-x is a terminal, nonterminal, or epsilon -- ''
 j and i are the extents.
 Each symbol can contain multiple packed nodes each
 representing a different derivation. See getNodeP
+**Note.** In the presence of ambiguous parsing, we choose a derivation
+at random. So, run the `to_tree()` multiple times to get all parse
+trees. If you want a better solution, see the
+[forest generation in earley parser](/post/2021/02/06/earley-parsing/)
+which can be adapted here too.
 
 <!--
 ############
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, j, i): self.label, self.children = (x, j, i), []
+    def __init__(self, x, i, j): self.label, self.children = (x, i, j), []
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
-
-    # **Note.** In the presence of ambiguous parsing, we choose a derivation
-    # at random. So, run the `to_tree()` multiple times to get all parse
-    # trees. If you want a better solution, see the
-    # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
-    # which can be adapted here too.
     def to_tree_(self, hmap, tab):
         key = self.label[0]
         if self.children:
@@ -724,15 +1743,9 @@ class SPPF_symbol_node(SPPFNode):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, j, i): self.label, self.children = (x, j, i), []
+    def __init__(self, x, i, j): self.label, self.children = (x, i, j), []
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
-
-    # **Note.** In the presence of ambiguous parsing, we choose a derivation
-    # at random. So, run the `to_tree()` multiple times to get all parse
-    # trees. If you want a better solution, see the
-    # [forest generation in earley parser](/post/2021/02/06/earley-parsing/)
-    # which can be adapted here too.
     def to_tree_(self, hmap, tab):
         key = self.label[0]
         if self.children:
@@ -779,7 +1792,7 @@ class SPPF_packed_node(SPPFNode):
 <div name='python_canvas'></div>
 </form>
 ## The GLL parser
-We can now build our GLL parser.
+We can now build our GLL parser. All procedures change to include SPPF nodes.
 We first define our initialization
 
 <!--
@@ -793,7 +1806,6 @@ class GLLStructuredStackP:
         self.threads = []
         self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
-
 
     def to_tree(self):
         return self.SPPF_nodes[self.root].to_tree(self.SPPF_nodes, tab=0)
@@ -816,7 +1828,6 @@ class GLLStructuredStackP:
         self.U = [[] for j in range(self.m+1)] # descriptors for each index
         self.SPPF_nodes = {}
 
-
     def to_tree(self):
         return self.SPPF_nodes[self.root].to_tree(self.SPPF_nodes, tab=0)
 
@@ -827,7 +1838,7 @@ class GLLStructuredStackP:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL add thread (add)
+### GLL+GSS+SPPF add_thread (add)
 
 <!--
 ############
@@ -850,7 +1861,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL fn_return (pop)
+### GLL+GSS+SPPF fn_return (pop)
 
 <!--
 ############
@@ -881,15 +1892,13 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL register_return (create)
+### GLL+GSS+SPPF register_return (create)
 
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def register_return(self, L, stack_top, cur_idx, sppf_w): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        # all gss children are edges, and they are labeled with SPPF nodes.
-        # if there is not an edge from v to u labelled w
+    def register_return(self, L, stack_top, cur_idx, sppf_w):
+        v = self.gss.get((L, cur_idx))
         v_to_u_labeled_w = [c for c,lbl in v.children
                             if c.label == stack_top.label and lbl == sppf_w]
         if not v_to_u_labeled_w:
@@ -897,8 +1906,8 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
-                h_idx = sppf_z.label[-1] # right extent
-                self.add_thread(v.L, stack_top, h_idx, sppf_y) # v.L == L
+                h_idx = sppf_z.label[-1]
+                self.add_thread(v.L, stack_top, h_idx, sppf_y)
         return v
 
 ############
@@ -906,10 +1915,8 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def register_return(self, L, stack_top, cur_idx, sppf_w): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        # all gss children are edges, and they are labeled with SPPF nodes.
-        # if there is not an edge from v to u labelled w
+    def register_return(self, L, stack_top, cur_idx, sppf_w):
+        v = self.gss.get((L, cur_idx))
         v_to_u_labeled_w = [c for c,lbl in v.children
                             if c.label == stack_top.label and lbl == sppf_w]
         if not v_to_u_labeled_w:
@@ -917,19 +1924,19 @@ class GLLStructuredStackP(GLLStructuredStackP):
 
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
-                h_idx = sppf_z.label[-1] # right extent
-                self.add_thread(v.L, stack_top, h_idx, sppf_y) # v.L == L
+                h_idx = sppf_z.label[-1]
+                self.add_thread(v.L, stack_top, h_idx, sppf_y)
         return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL utilities.
+### GLL+GSS+SPPF utilities.
 
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def next_thread(self): # i \in R
+    def next_thread(self):
         t, *self.threads = self.threads
         return t
 
@@ -948,7 +1955,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def next_thread(self): # i \in R
+    def next_thread(self):
         t, *self.threads = self.threads
         return t
 
@@ -1070,8 +2077,233 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We can now use all these to generate trees.
+
+<!--
+############
+class SPPFG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         '<S>': [['<A>']],
+         '<A>': [['<A>', 'a'],
+                 []]
+        })
+        # L contains start nt.
+        end_rule = SPPF_dummy_node('$', 0, 0)
+        L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
+        while True:
+            if L == 'L0':
+                if parser.threads: # if R != \empty
+                    (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread()
+                    # goto L
+                    continue
+                else:
+                    # if there is an SPPF node (start_symbol, 0, m) then report success
+                    if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
+                          parser.root = (start_symbol, 0, parser.m)
+                          return parser
+                    else: return []
+            elif L == 'L_':
+                stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
+                L = 'L0' # goto L_0
+                continue
+
+            elif L == '<S>':
+
+                # <S>::=['<A>']
+                parser.add_thread( ('<S>',0,0), stack_top, cur_idx, end_rule)
+
+                L = 'L0'
+                continue
+            elif L ==  ('<S>',0,0): # <S>::= | <A>
+                stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx, cur_sppf_node)
+                L = "<A>"
+                continue
+
+            elif L == ('<S>',0,1): # <S>::= <A> |
+                L = 'L_'
+                continue
+
+            elif L == '<A>':
+
+                # <A>::=['<A>', 'a']
+                parser.add_thread( ('<A>',0,0), stack_top, cur_idx, end_rule)
+                # <A>::=[]
+                parser.add_thread( ('<A>',1,0), stack_top, cur_idx, end_rule)
+
+                L = 'L0'
+                continue
+            elif L ==  ('<A>',0,0): # <A>::= | <A> a
+                stack_top = parser.register_return(('<A>',0,1), stack_top, cur_idx, cur_sppf_node)
+                L = "<A>"
+                continue
+
+            elif L == ("<A>",0,1): # <A>::= <A> | a
+                if parser.I[cur_idx] == 'a':
+                    right_sppf_child = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                    cur_idx = cur_idx+1
+                    L = ("<A>",0,2)
+                    cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                else:
+                    L = 'L0'
+                continue
+
+            elif L == ('<A>',0,2): # <A>::= <A> a |
+                L = 'L_'
+                continue
+
+            elif L == ("<A>", 1, 0): # <A>::= |
+                # epsilon: If epsilon is present, we skip the end of rule with same
+                # L and go directly to L_
+                right_sppf_child = parser.getNodeT(None, cur_idx)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                L = 'L_'
+                continue
+
+
+            else:
+                assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SPPFG1Recognizer(ep.Parser):
+    def recognize_on(self, text, start_symbol):
+        parser = self.parser
+        parser.initialize(text)
+        parser.set_grammar(
+        {
+         &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;]],
+         &#x27;&lt;A&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;],
+                 []]
+        })
+        # L contains start nt.
+        end_rule = SPPF_dummy_node(&#x27;$&#x27;, 0, 0)
+        L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
+        while True:
+            if L == &#x27;L0&#x27;:
+                if parser.threads: # if R != \empty
+                    (L, stack_top, cur_idx, cur_sppf_node) = parser.next_thread()
+                    # goto L
+                    continue
+                else:
+                    # if there is an SPPF node (start_symbol, 0, m) then report success
+                    if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
+                          parser.root = (start_symbol, 0, parser.m)
+                          return parser
+                    else: return []
+            elif L == &#x27;L_&#x27;:
+                stack_top = parser.fn_return(stack_top, cur_idx, cur_sppf_node) # pop
+                L = &#x27;L0&#x27; # goto L_0
+                continue
+
+            elif L == &#x27;&lt;S&gt;&#x27;:
+
+                # &lt;S&gt;::=[&#x27;&lt;A&gt;&#x27;]
+                parser.add_thread( (&#x27;&lt;S&gt;&#x27;,0,0), stack_top, cur_idx, end_rule)
+
+                L = &#x27;L0&#x27;
+                continue
+            elif L ==  (&#x27;&lt;S&gt;&#x27;,0,0): # &lt;S&gt;::= | &lt;A&gt;
+                stack_top = parser.register_return((&#x27;&lt;S&gt;&#x27;,0,1), stack_top, cur_idx, cur_sppf_node)
+                L = &quot;&lt;A&gt;&quot;
+                continue
+
+            elif L == (&#x27;&lt;S&gt;&#x27;,0,1): # &lt;S&gt;::= &lt;A&gt; |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == &#x27;&lt;A&gt;&#x27;:
+
+                # &lt;A&gt;::=[&#x27;&lt;A&gt;&#x27;, &#x27;a&#x27;]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,0,0), stack_top, cur_idx, end_rule)
+                # &lt;A&gt;::=[]
+                parser.add_thread( (&#x27;&lt;A&gt;&#x27;,1,0), stack_top, cur_idx, end_rule)
+
+                L = &#x27;L0&#x27;
+                continue
+            elif L ==  (&#x27;&lt;A&gt;&#x27;,0,0): # &lt;A&gt;::= | &lt;A&gt; a
+                stack_top = parser.register_return((&#x27;&lt;A&gt;&#x27;,0,1), stack_top, cur_idx, cur_sppf_node)
+                L = &quot;&lt;A&gt;&quot;
+                continue
+
+            elif L == (&quot;&lt;A&gt;&quot;,0,1): # &lt;A&gt;::= &lt;A&gt; | a
+                if parser.I[cur_idx] == &#x27;a&#x27;:
+                    right_sppf_child = parser.getNodeT(parser.I[cur_idx], cur_idx)
+                    cur_idx = cur_idx+1
+                    L = (&quot;&lt;A&gt;&quot;,0,2)
+                    cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                else:
+                    L = &#x27;L0&#x27;
+                continue
+
+            elif L == (&#x27;&lt;A&gt;&#x27;,0,2): # &lt;A&gt;::= &lt;A&gt; a |
+                L = &#x27;L_&#x27;
+                continue
+
+            elif L == (&quot;&lt;A&gt;&quot;, 1, 0): # &lt;A&gt;::= |
+                # epsilon: If epsilon is present, we skip the end of rule with same
+                # L and go directly to L_
+                right_sppf_child = parser.getNodeT(None, cur_idx)
+                cur_sppf_node = parser.getNodeP(L, cur_sppf_node, right_sppf_child)
+                L = &#x27;L_&#x27;
+                continue
+
+
+            else:
+                assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We need trees
+
+<!--
+############
+class SPPFG1Recognizer(SPPFG1Recognizer):
+    def parse_on(self, text, start_symbol):
+        p = self.recognize_on(text, start_symbol)
+        return [p.to_tree()]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SPPFG1Recognizer(SPPFG1Recognizer):
+    def parse_on(self, text, start_symbol):
+        p = self.recognize_on(text, start_symbol)
+        return [p.to_tree()]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+p = SPPFG1Recognizer()
+p.parser = GLLStructuredStackP()
+for tree in p.parse_on('aa', start_symbol='<S>'):
+    print(ep.display_tree(tree))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = SPPFG1Recognizer()
+p.parser = GLLStructuredStackP()
+for tree in p.parse_on(&#x27;aa&#x27;, start_symbol=&#x27;&lt;S&gt;&#x27;):
+    print(ep.display_tree(tree))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## Building the parser with GLL
-At this point, we are ready to build our parser.
+At this point, we are ready to build our parser compiler.
 ### Compiling an empty rule
 We start with compiling an epsilon rule.
 
@@ -1714,7 +2946,7 @@ ep.display_tree(v)
 ############
 mystring = '(1+1)*(23/45)-1'
 p = compile_grammar(grammar)
-v = p.parse_on(mystring, START)[0]
+v = p.parse_on(mystring, grammar_start)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1725,7 +2957,7 @@ ep.display_tree(v)
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;(1+1)*(23/45)-1&#x27;
 p = compile_grammar(grammar)
-v = p.parse_on(mystring, START)[0]
+v = p.parse_on(mystring, grammar_start)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1757,7 +2989,7 @@ a_grammar = {
 }
 mystring = '1+2+3+4'
 p = compile_grammar(a_grammar)
-v = p.parse_on(mystring, START)[0]
+v = p.parse_on(mystring, grammar_start)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
@@ -1784,7 +3016,7 @@ a_grammar = {
 }
 mystring = &#x27;1+2+3+4&#x27;
 p = compile_grammar(a_grammar)
-v = p.parse_on(mystring, START)[0]
+v = p.parse_on(mystring, grammar_start)[0]
 r = fuzzer.tree_to_string(v)
 assert r == mystring
 ep.display_tree(v)
