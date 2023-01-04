@@ -50,7 +50,7 @@
 #     print(P.format_parsetree(tree))
 # ```
 
-# ## Definitons
+# ## Definitions
 # 
 # For this post, we use the following terms:
 # 

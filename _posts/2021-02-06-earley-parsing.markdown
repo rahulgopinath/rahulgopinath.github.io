@@ -82,7 +82,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-## Definitons
+## Definitions
 
 For this post, we use the following terms:
 
