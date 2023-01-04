@@ -43,8 +43,8 @@
 # directly. Hence, using GLL can be much more friendly to the practitioner.
 #  
 # Similar to Earley, GLR, CYK, and other general context-free parsers, the worst
-# case for parsing is $$O(n^3)$$. However, for LL(1) grammars, the parse time
-# is $$O(n)$$.
+# case for parsing is $$ O(n^3) $$ . However, for LL(1) grammars, the parse time
+# is $$ O(n) $$ .
 #  
 # ## Synopsis
 #
