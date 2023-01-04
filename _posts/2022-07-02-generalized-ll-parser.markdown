@@ -1339,7 +1339,7 @@ A recognizer is of limited utility. We need the parse tree if we are to
 use it in practice. Hence, We will now see how to convert this recognizer to a
 parser.
 
-# ## Utilities.
+## Utilities.
 We start with a few utilities.
 
 ### Symbols in the grammar
