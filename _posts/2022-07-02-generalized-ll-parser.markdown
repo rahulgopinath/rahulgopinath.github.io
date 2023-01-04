@@ -141,6 +141,7 @@ For this post, we use the following terms:
 * The *yield* of a tree is the string resulting from collapsing that tree.
 
 * An *epsilon* rule matches an empty string.
+
 #### Prerequisites
  
 As before, we start with the prerequisite imports.
