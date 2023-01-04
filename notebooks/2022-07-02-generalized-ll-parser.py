@@ -59,7 +59,7 @@
 #     print(P.format_parsetree(tree))
 # ```
 
-# ## Definitons
+# ## Definitions
 # For this post, we use the following terms:
 #  
 # * The _alphabet_ is the set all of symbols in the input language. For example,
@@ -96,7 +96,7 @@
 #   terminal. A nonterminal derives a string if the corresponding definition
 #   derives the string. A definition derives the  string if one of the rules in
 #   the definition derives the string. A rule derives a string if the sequence
-#   of terms that make up the rule can derive the string, deriving one substring 
+#   of terms that make up the rule can derive the string, deriving one substring
 #   after another contiguously (also called parsing).
 # 
 # * A *derivation tree* is an ordered tree that describes how an input string is
@@ -274,7 +274,7 @@ if __name__ == '__main__':
     assert p.recognize_on('')
 
 # The problem happens when there is a left recursion. For example, the following
-# grammar contains a left recurstion eventhough it recognizes the same language
+# grammar contains a left recursion even though it recognizes the same language
 # as before.
 
 g3 = {
@@ -286,7 +286,7 @@ g3 = {
 }
 g3_start = '<S>'
 
-# ## Naive Threded Recognizer
+# ## Naive Threaded Recognizer
 # The problem with left recursion is that in traditional recursive descent
 # style, we are forced to follow a depth first exploration, completing the
 # parse of one entire rule before attempting then next rule. We can work around
@@ -374,7 +374,7 @@ class NaiveThreadedRecognizer(ep.Parser):
 # as a linked list with the current stack_top on the top. With multiple
 # alternatives being explored together, we actually have a tree structure, but
 # the leaf nodes only know about their parent (not the reverse).
-# For convenience, we use a wrapper for the callstack, where we define a few
+# For convenience, we use a wrapper for the call-stack, where we define a few
 # book keeping functions. First the initialization of the call stack.
 
 class CallStack:
@@ -461,9 +461,9 @@ class GSSNode:
     def __repr__(self): return str((self.label, self.children))
 
 # ### The GSS container
-# Next, we define the graph container. We keep two structures. self.graph which
-# is the shared stack, and  P which is the set of labels that went through a
-# `fn_return`, i.e. `pop` operation.
+# Next, we define the graph container. We keep two structures. `self.graph`
+# which is the shared stack, and `self.P` which is the set of labels that went
+# through a `fn_return`, i.e. `pop` operation.
 
 class GSS:
     def __init__(self): self.graph, self.P = {}, {}
@@ -498,7 +498,7 @@ class GLLStructuredStack:
         # self.first, self.follow, self.nullable = get_first_and_follow(g)
 
 # ### GLL+GSS add thread (add)
-# Our add_thrad increases a bit in complexity. We now check if a thread already
+# Our add_thread increases a bit in complexity. We now check if a thread already
 # exists before starting a new thread.
 class GLLStructuredStack(GLLStructuredStack):
     def add_thread(self, L, stack_top, cur_idx):
@@ -765,7 +765,7 @@ if __name__ == '__main__':
     print(rule_first)
 
 # ## SPPF Graph
-# We use a datastructure called *Shared Packed Parse Forest* to represent
+# We use a data-structure called *Shared Packed Parse Forest* to represent
 # the parse forest. We cannot simply use a parse tree because there may be
 # multiple possible derivations of the same input string (possibly even an
 # infinite number of them). The basic idea here is that multiple derivations
@@ -781,7 +781,7 @@ if __name__ == '__main__':
 # node represents a partially parsed rule, containing a prefix rule and a suffix
 # rule. As in the case of symbol nodes, there can be many derivations for a rule
 # fragment. Hence, an intermediate node can also contain multiple packed nodes.
-# A packed node inturn can contain symbol, intermediate, or dummy nodes.
+# A packed node in turn can contain symbol, intermediate, or dummy nodes.
 # 
 # ### SPPF Node
 
@@ -1167,7 +1167,7 @@ if __name__ == '__main__':
 # Note that if performance is important, you may want to check if the current
 # input symbol at `parser.I[cur_idx]` is part of the following, where X is a
 # nonterminal and p is a rule fragment. Note that if you care about the
-# performance, you will want to precompute first[p] for each rule fragment
+# performance, you will want to pre-compute first[p] for each rule fragment
 # `rule[j:]` in the grammar, and first and follow sets for each symbol in the
 # grammar. This should be checked before `parser.add_thread`.
 
