@@ -481,8 +481,7 @@ class GSS:
 
     def __repr__(self): return str(self.graph)
 
-# A wrapper for book keeping functions. We add a dummy node to self.end_rule so
-# that we can check when the parse finishes.
+# A wrapper for book keeping functions.
 
 class GLLStructuredStack:
     def initialize(self, input_str):
@@ -495,58 +494,54 @@ class GLLStructuredStack:
 
     def set_grammar(self, g):
         self.grammar = g
-        # self.first, self.follow, self.nullable = get_first_and_follow(g)
 
-# ### GLL+GSS add thread (add)
+# ### GLL+GSS add_thread (add)
 # Our add_thread increases a bit in complexity. We now check if a thread already
 # exists before starting a new thread.
 class GLLStructuredStack(GLLStructuredStack):
     def add_thread(self, L, stack_top, cur_idx):
-        if (L, stack_top) not in self.U[cur_idx]:  # changed
-            self.U[cur_idx].append((L, stack_top)) # changed
+        if (L, stack_top) not in self.U[cur_idx]:  # added
+            self.U[cur_idx].append((L, stack_top)) # added
             self.threads.append((L, stack_top, cur_idx))
 
-# ### GLL+GSS fn_return (pop)
-# 
-class GLLStructuredStack(GLLStructuredStack):
-    def fn_return(self, stack_top, cur_idx):
-        if stack_top != self.stack_bottom: # changed
-            (L, _k) = stack_top.label
-            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
-            for c_st in stack_top.children:
-                self.add_thread(L, c_st, cur_idx)
-        return stack_top
-
-# ### GLL+GSS register_return (create)
-class GLLStructuredStack(GLLStructuredStack):
-    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        v_to_u = [c for c in v.children
-                            if c.label == stack_top.label]
-        if not v_to_u:
-            v.children.append(stack_top)
-
-            for h_idx in self.gss.parsed_indexes(v.label):
-                self.add_thread(v.L, stack_top, h_idx)
-        return v
-
-# ### GLL+GSS utilities.
-
+# next_thread is same as before
 class GLLStructuredStack(GLLStructuredStack):
     def next_thread(self):
         t, *self.threads = self.threads
         return t
 
+
+# ### GLL+GSS register_return (create)
+# A major change in this method. We now look for pre-existing
+# edges before appending edges (child nodes).
 class GLLStructuredStack(GLLStructuredStack):
-    def is_non_nullable_alpha(self, alpha):
-        if not alpha: return False
-        if len(alpha) != 1: return False
-        if fuzzer.is_terminal(alpha[0]): return True
-        if alpha[0] in self.nullable: return False
-        return True
+    def register_return(self, L, stack_top, cur_idx):
+        v = self.gss.get((L, cur_idx))   # added
+        v_to_u = [c for c in v.children  # added
+                            if c.label == stack_top.label]
+        if not v_to_u:                   # added
+            v.children.append(stack_top) # added
+
+            for h_idx in self.gss.parsed_indexes(v.label): # added
+                self.add_thread(v.L, stack_top, h_idx)     # added
+        return v
+
+# ### GLL+GSS fn_return (pop)
+# A small change in fn_return. We now save all parsed indexes at
+# every label when the parse is complete.
+class GLLStructuredStack(GLLStructuredStack):
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # added
+            for c_st in stack_top.children: # changed
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
 
 # With GSS, we finally have a true GLL recognizer.
-
+# Here is the same recognizer unmodified, except for checking the parse
+# ending. Here, we check whether the start symbol is completely parsed
+# only when the threads are complete.
 class GLLG1Recognizer(ep.Parser):
     def recognize_on(self, text, start_symbol):
         parser = self.parser
@@ -563,7 +558,7 @@ class GLLG1Recognizer(ep.Parser):
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
                     continue
-                else:
+                else: # changed
                     for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
                         if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
                             parser.root = (start_symbol, 0, parser.m)

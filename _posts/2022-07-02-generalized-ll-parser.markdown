@@ -979,8 +979,7 @@ class GSS:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-A wrapper for book keeping functions. We add a dummy node to self.end_rule so
-that we can check when the parse finishes.
+A wrapper for book keeping functions.
 
 <!--
 ############
@@ -995,7 +994,6 @@ class GLLStructuredStack:
 
     def set_grammar(self, g):
         self.grammar = g
-        # self.first, self.follow, self.nullable = get_first_and_follow(g)
 
 ############
 -->
@@ -1012,12 +1010,11 @@ class GLLStructuredStack:
 
     def set_grammar(self, g):
         self.grammar = g
-        # self.first, self.follow, self.nullable = get_first_and_follow(g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL+GSS add thread (add)
+### GLL+GSS add_thread (add)
 Our add_thread increases a bit in complexity. We now check if a thread already
 exists before starting a new thread.
 
@@ -1025,8 +1022,8 @@ exists before starting a new thread.
 ############
 class GLLStructuredStack(GLLStructuredStack):
     def add_thread(self, L, stack_top, cur_idx):
-        if (L, stack_top) not in self.U[cur_idx]:  # changed
-            self.U[cur_idx].append((L, stack_top)) # changed
+        if (L, stack_top) not in self.U[cur_idx]:  # added
+            self.U[cur_idx].append((L, stack_top)) # added
             self.threads.append((L, stack_top, cur_idx))
 
 ############
@@ -1035,57 +1032,51 @@ class GLLStructuredStack(GLLStructuredStack):
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStack(GLLStructuredStack):
     def add_thread(self, L, stack_top, cur_idx):
-        if (L, stack_top) not in self.U[cur_idx]:  # changed
-            self.U[cur_idx].append((L, stack_top)) # changed
+        if (L, stack_top) not in self.U[cur_idx]:  # added
+            self.U[cur_idx].append((L, stack_top)) # added
             self.threads.append((L, stack_top, cur_idx))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL+GSS fn_return (pop)
-
+next_thread is same as before
 
 <!--
 ############
 class GLLStructuredStack(GLLStructuredStack):
-    def fn_return(self, stack_top, cur_idx):
-        if stack_top != self.stack_bottom: # changed
-            (L, _k) = stack_top.label
-            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
-            for c_st in stack_top.children:
-                self.add_thread(L, c_st, cur_idx)
-        return stack_top
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStack(GLLStructuredStack):
-    def fn_return(self, stack_top, cur_idx):
-        if stack_top != self.stack_bottom: # changed
-            (L, _k) = stack_top.label
-            self.gss.add_parsed_index(stack_top.label, cur_idx) # changed
-            for c_st in stack_top.children:
-                self.add_thread(L, c_st, cur_idx)
-        return stack_top
+    def next_thread(self):
+        t, *self.threads = self.threads
+        return t
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ### GLL+GSS register_return (create)
+A major change in this method. We now look for pre-existing
+edges before appending edges (child nodes).
 
 <!--
 ############
 class GLLStructuredStack(GLLStructuredStack):
-    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        v_to_u = [c for c in v.children
+    def register_return(self, L, stack_top, cur_idx):
+        v = self.gss.get((L, cur_idx))   # added
+        v_to_u = [c for c in v.children  # added
                             if c.label == stack_top.label]
-        if not v_to_u:
-            v.children.append(stack_top)
+        if not v_to_u:                   # added
+            v.children.append(stack_top) # added
 
-            for h_idx in self.gss.parsed_indexes(v.label):
-                self.add_thread(v.L, stack_top, h_idx)
+            for h_idx in self.gss.parsed_indexes(v.label): # added
+                self.add_thread(v.L, stack_top, h_idx)     # added
         return v
 
 ############
@@ -1093,58 +1084,55 @@ class GLLStructuredStack(GLLStructuredStack):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStack(GLLStructuredStack):
-    def register_return(self, L, stack_top, cur_idx): # returns to stack_top
-        v = self.gss.get((L, cur_idx)) # Let v be the GSS node labeled L^i
-        v_to_u = [c for c in v.children
+    def register_return(self, L, stack_top, cur_idx):
+        v = self.gss.get((L, cur_idx))   # added
+        v_to_u = [c for c in v.children  # added
                             if c.label == stack_top.label]
-        if not v_to_u:
-            v.children.append(stack_top)
+        if not v_to_u:                   # added
+            v.children.append(stack_top) # added
 
-            for h_idx in self.gss.parsed_indexes(v.label):
-                self.add_thread(v.L, stack_top, h_idx)
+            for h_idx in self.gss.parsed_indexes(v.label): # added
+                self.add_thread(v.L, stack_top, h_idx)     # added
         return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### GLL+GSS utilities.
+### GLL+GSS fn_return (pop)
+A small change in fn_return. We now save all parsed indexes at
+every label when the parse is complete.
 
 <!--
 ############
 class GLLStructuredStack(GLLStructuredStack):
-    def next_thread(self):
-        t, *self.threads = self.threads
-        return t
-
-class GLLStructuredStack(GLLStructuredStack):
-    def is_non_nullable_alpha(self, alpha):
-        if not alpha: return False
-        if len(alpha) != 1: return False
-        if fuzzer.is_terminal(alpha[0]): return True
-        if alpha[0] in self.nullable: return False
-        return True
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # added
+            for c_st in stack_top.children: # changed
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStack(GLLStructuredStack):
-    def next_thread(self):
-        t, *self.threads = self.threads
-        return t
-
-class GLLStructuredStack(GLLStructuredStack):
-    def is_non_nullable_alpha(self, alpha):
-        if not alpha: return False
-        if len(alpha) != 1: return False
-        if fuzzer.is_terminal(alpha[0]): return True
-        if alpha[0] in self.nullable: return False
-        return True
+    def fn_return(self, stack_top, cur_idx):
+        if stack_top != self.stack_bottom:
+            (L, _k) = stack_top.label
+            self.gss.add_parsed_index(stack_top.label, cur_idx) # added
+            for c_st in stack_top.children: # changed
+                self.add_thread(L, c_st, cur_idx)
+        return stack_top
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 With GSS, we finally have a true GLL recognizer.
+Here is the same recognizer unmodified, except for checking the parse
+ending. Here, we check whether the start symbol is completely parsed
+only when the threads are complete.
 
 <!--
 ############
@@ -1164,7 +1152,7 @@ class GLLG1Recognizer(ep.Parser):
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
                     continue
-                else:
+                else: # changed
                     for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
                         if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
                             parser.root = (start_symbol, 0, parser.m)
@@ -1242,7 +1230,7 @@ class GLLG1Recognizer(ep.Parser):
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
                     continue
-                else:
+                else: # changed
                     for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
                         if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
                             parser.root = (start_symbol, 0, parser.m)
