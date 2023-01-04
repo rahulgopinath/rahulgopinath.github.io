@@ -3,7 +3,7 @@ published: true
 title: Generalized LL (GLL) Parser
 layout: post
 comments: true
-tags: controlflow
+tags: parsing, gll
 categories: post
 ---
 TLDR; This tutorial is a complete implementation of GLL Parser in Python

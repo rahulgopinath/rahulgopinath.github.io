@@ -3,7 +3,7 @@
 # title: Generalized LL (GLL) Parser
 # layout: post
 # comments: true
-# tags: controlflow
+# tags: parsing, gll
 # categories: post
 # ---
 #
