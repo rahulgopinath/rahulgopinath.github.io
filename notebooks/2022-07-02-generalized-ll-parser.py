@@ -14,7 +14,10 @@
 #  
 # A GLL parser is a generalization of LL parsers. The first generalized LL
 # parser was reported by Grune and Jacob [^grune2008parsing] (11.2) from a
-# masters thesis report in 1993. However, a better known generalization
+# masters thesis report in 1993 (another possibly earlier paper looking at
+# generalized LL parsing is from Lang in 1974 [^lang1974deterministic] and
+# another from Bouckaert et al. [^bouckaert1975efficient]).
+# However, a better known generalization
 # of LL parsing was described by Scott and Johnstone [^scott2010gll]. This
 # post follows the later parsing technique.
 # In this post, I provide a complete
@@ -1565,8 +1568,13 @@ if __name__ == '__main__':
 def format_parsetree(t):
     return ep.format_parsetree(t)
 
-# [^scott2013gll]: Elizabeth Scott and Adrian Johnstone. "GLL parse-tree generation." Science of Computer Programming 78.10 (2013): 1828-1844.
+# [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
+#
+# [^bouckaert1975efficient] M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
 # 
-# [^scott2010gll]: Elizabeth Scott, and Adrian Johnstone. "GLL parsing." Electronic Notes in Theoretical Computer Science 253.7 (2010): 177-189.
+# [^scott2013gll]: Elizabeth Scott, Adrian Johnstone. "GLL parse-tree generation." Science of Computer Programming 78.10 (2013): 1828-1844.
+# 
+# [^scott2010gll]: Elizabeth Scott, Adrian Johnstone. "GLL parsing." Electronic Notes in Theoretical Computer Science 253.7 (2010): 177-189.
 # 
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
+
