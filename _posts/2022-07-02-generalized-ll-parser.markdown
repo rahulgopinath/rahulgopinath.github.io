@@ -736,7 +736,7 @@ class NaiveThreadedRecognizer(ep.Parser):
 </form>
 We also need a way to hold the call stack. The call stack is actually stored
 as a linked list with the current stack_top on the top. With multiple
-alternatives being explored together, we actually have a tree structured stack[^tomita1984lr], but
+alternatives being explored together, we actually have a tree, but
 the leaf nodes only know about their parent (not the reverse).
 For convenience, we use a wrapper for the call-stack, where we define a few
 book keeping functions. First the initialization of the call stack.
@@ -904,7 +904,7 @@ print(p.count)
 <div name='python_canvas'></div>
 </form>
 ## The GSS Graph
-The way to solve it is to use something called a *graph-structured stack*.
+The way to solve it is to use something called a *graph-structured stack* [^tomita1986efficient].
 A naive conversion of recursive descent parsing to generalized recursive
 descent parsing can be done by maintaining independent stacks for each thread.
 However, this approach is has problems as we saw previously, when it comes to
@@ -3438,6 +3438,8 @@ def format_parsetree(t):
 [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
 [^tomita1984lr]: Masaru Tomita. LR parsers for natural languages. In 22nd conference on Association for Computational Linguistics, pages 354–357, Stanford, California, 1984. Association for Computational Linguistics.
+
+[^tomita1986efficient]: Masaru Tomita. Efficient parsing for natural language: a fast algorithm for practical systems. Kluwer Academic Publishers, Boston, 1986.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>

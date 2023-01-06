@@ -445,7 +445,7 @@ if __name__ == '__main__':
 
 
 # ## The GSS Graph
-# The way to solve it is to use something called a *graph-structured stack*.
+# The way to solve it is to use something called a *graph-structured stack* [^tomita1986efficient].
 # A naive conversion of recursive descent parsing to generalized recursive
 # descent parsing can be done by maintaining independent stacks for each thread.
 # However, this approach is has problems as we saw previously, when it comes to
@@ -1579,3 +1579,5 @@ def format_parsetree(t):
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 # 
 # [^tomita1984lr]: Masaru Tomita. LR parsers for natural languages. In 22nd conference on Association for Computational Linguistics, pages 354–357, Stanford, California, 1984. Association for Computational Linguistics.
+# 
+# [^tomita1986efficient]: Masaru Tomita. Efficient parsing for natural language: a fast algorithm for practical systems. Kluwer Academic Publishers, Boston, 1986.
