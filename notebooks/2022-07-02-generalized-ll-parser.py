@@ -376,7 +376,7 @@ class NaiveThreadedRecognizer(ep.Parser):
 
 # We also need a way to hold the call stack. The call stack is actually stored
 # as a linked list with the current stack_top on the top. With multiple
-# alternatives being explored together, we actually have a tree structured stack[^tomita1984lr], but
+# alternatives being explored together, we actually have a tree, but
 # the leaf nodes only know about their parent (not the reverse).
 # For convenience, we use a wrapper for the call-stack, where we define a few
 # book keeping functions. First the initialization of the call stack.
