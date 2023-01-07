@@ -48,6 +48,13 @@ Even if we assume that the function $$h_b$$ is close syntactically to $$h$$, and
 this implies semantic closeness of functions $$h$$ and $$h_b$$, we expect the value $$k_{ab}$$
 to be near $$k_a$$, and not $$k_0$$.
 
+* Coupling Effect
+
+For coupling effect, we use the definition from [Richard A. DeMillo](https://dl.acm.org/doi/pdf/10.1145/74587.74634). 
+"The coupling effect asserts that test data that is sensitive enough to kill
+simple mutants also causes the vast majority of k-ary mutants to die." where
+1-ary mutant is a mutant with a single fault.
+
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/icst2017/gopinath2017the.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/icst2017/gopinath2017the.bib "reference")
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/the-theory-of-composite-faults "presentation")
