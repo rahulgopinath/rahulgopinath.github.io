@@ -37,9 +37,8 @@ my_grammar = {'<start>': [['1', '<A>'],
                           ['2']
                          ],
               '<A>'    : [['a']]}
-my_parser = P.compile_grammar(my_grammar)
-for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
-    print(P.format_parsetree(tree))
+my_parser = P.CYKParser(my_grammar)
+assert my_parser.recognize_on(text='1a', start_symbol='<start>'):
 ```
 
 ## Contents
