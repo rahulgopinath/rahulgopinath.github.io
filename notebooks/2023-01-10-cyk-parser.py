@@ -171,7 +171,7 @@ class CYKParser(ep.Parser):
 
 class CYKParser(CYKParser):
     def init_table(self, text, length):
-        self.table = [[{} for i in range(length+1)] for j in range(length+1)]
+        return [[{} for i in range(length+1)] for j in range(length+1)]
 
 # So, we first define the base case, when a single input token matches one of
 # the terminal symbols. In that case, we look at each character in the input,
@@ -179,38 +179,40 @@ class CYKParser(CYKParser):
 # nonterminal symbol that derives the corresponding token.
 
 class CYKParser(CYKParser):
-    def parse_1(self, text, length):
+    def parse_1(self, text, length, table):
         for s in range(0,length):
             for (key, terminal) in self.terminal_productions:
                 if text[s] == terminal:
-                    self.table[s][s+1][key] = True
+                    table[s][s+1][key] = True
+        return table
 
 # Next, we define the multi-token parse. The idea is to build the table
 # incrementally. We have already indicated in the table which nonterminals parse
 # a single token. Next, we find all nonterminals that parse two tokens, then
 # using that, we find all nonterminals that can parse three tokens etc.
 class CYKParser(CYKParser):
-    def parse_n(self, text, l, length):
+    def parse_n(self, text, l, length, table):
         # check substrings starting at s, with length l
         for s in range(0, length-l+1):
 
             # partition the substring at p (l = 1 less than the length of substring)
             for p in range(1, l):
                 for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
-                    if R_b in self.table[s][p] :
-                        if R_c in self.table[s+p][s+l]: #l - p - 1
-                            self.table[s][s+l][k] = True
+                    if R_b in table[s][p] :
+                        if R_c in table[s+p][s+l]: #l - p - 1
+                            table[s][s+l][k] = True
+        return table
 
 # We combine everything together. At the end, we check if the start_symbol can
 # parse the given tokens by checking (0, n) in the table.
 class CYKParser(CYKParser):
     def recognize_on(self, text, start_symbol):
         length = len(text)
-        self.init_table(text, length)
-        self.parse_1(text, length)
+        table = self.init_table(text, length)
+        self.parse_1(text, length, table)
         for l in range(2,length+1): # l is the length of the sub-string
-            self.parse_n(text, l, length)
-        return start_symbol in self.table[0][-1]
+            self.parse_n(text, l, length, table)
+        return start_symbol in table[0][-1]
 
 # Using it
 if __name__ == '__main__':
