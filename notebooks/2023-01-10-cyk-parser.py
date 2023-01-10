@@ -1,5 +1,5 @@
 # ---
-# published: false
+# published: true
 # title: CYK Parser
 # layout: post
 # comments: true
@@ -69,6 +69,10 @@
 #   also called an _alternative_ expansion.
 # 
 #   For example, `[<term>+<expr>]` is one of the expansion rules of the nonterminal `<expr>`.
+# 
+# * A _production_ is a combination of a nonterminal and one of its productions.
+# 
+#   For example `<expr>: [<term>+<expr>]` is a production.
 # 
 # * A _definition_ is a set of _rules_ that describe the expansion of a given nonterminal.
 # 
@@ -141,6 +145,12 @@ g1 = {
 }
 g1_start = '<S>'
 
+# We initialize our parser with the grammar, and identify the terminal and
+# nonterminal productions separately. termiinal productions are those that
+# are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
+# productions are of the form `<A>` ::= <B><C>` where `<B>` and `<C>` are
+# nonterminal symbols.
+
 class CYKParser(ep.Parser):
     def __init__(self, grammar, log=True):
         self.grammar = grammar
@@ -148,39 +158,72 @@ class CYKParser(ep.Parser):
         self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
         self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
 
-    def recognize_on(self, text, start_symbol):
-        length = len(text)
-        # table[i][j] represents the substring[i..j]
+# Next, we define the recognizer. The idea here is that CYK algorithm formulates
+# the recognition problem as a dynamic problem where the parse of a string of
+# length `n` using a nonterminal `<A>` which is defined as `<A> ::= <B> <C>` is
+# defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
+# parse of the substring `x..n` with nonterminal `<C>` where `0 < x < n`. That
+# is, `<A>` parses the string if there exists such a parse with `<B>` and `<C>`
+# for some `x`.
+#
+# We first initialize the matrix that holds the results. The `cell[i][j]`
+# represents the nonterminals that can parse the substring `text[i..j]`
+
+class CYKParser(CYKParser):
+    def init_table(self, text, length):
         self.table = [[{} for i in range(length+1)] for j in range(length+1)]
 
+# So, we first define the base case, when a single input token matches one of
+# the terminal symbols. In that case, we look at each character in the input,
+# and for each `i` in the input we identify `cell[i][i+1]` and add the
+# nonterminal symbol that derives the corresponding token.
+
+class CYKParser(CYKParser):
+    def parse_1(self, text, length):
         for s in range(0,length):
-            for (key, terminal) in self.terminal_productions: # rule R_a -> c:
+            for (key, terminal) in self.terminal_productions:
                 if text[s] == terminal:
                     self.table[s][s+1][key] = True
 
-        for l in range(2,length+1): #l is the length of the sub-string
-            # check substrings starting at s, with length l
-            for s in range(0,length-l+1):
-                # partition the substring at p (l = 1 less than the length of substring)
-                for p in range(1, l):
-                    for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
-                        if R_b in self.table[s][p] :
-                            if R_c in self.table[s+p][s+l]: #l - p - 1
-                                self.table[s][s+l][k] = True
+# Next, we define the multi-token parse. The idea is to build the table
+# incrementally. We have already indicated in the table which nonterminals parse
+# a single token. Next, we find all nonterminals that parse two tokens, then
+# using that, we find all nonterminals that can parse three tokens etc.
+class CYKParser(CYKParser):
+    def parse_n(self, text, l, length):
+        # check substrings starting at s, with length l
+        for s in range(0, length-l+1):
 
+            # partition the substring at p (l = 1 less than the length of substring)
+            for p in range(1, l):
+                for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
+                    if R_b in self.table[s][p] :
+                        if R_c in self.table[s+p][s+l]: #l - p - 1
+                            self.table[s][s+l][k] = True
+
+# We combine everything together. At the end, we check if the start_symbol can
+# parse the given tokens by checking (0, n) in the table.
+class CYKParser(CYKParser):
+    def recognize_on(self, text, start_symbol):
+        length = len(text)
+        self.init_table(text, length)
+        self.parse_1(text, length)
+        for l in range(2,length+1): # l is the length of the sub-string
+            self.parse_n(text, l, length)
         return start_symbol in self.table[0][-1]
 
-# ## A few more examples
+# Using it
 if __name__ == '__main__':
     mystring = 'bc'
     p = CYKParser(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)
 
-# We assign format parse tree so that we can refer to it from this module
+    mystring = 'cb'
+    p = CYKParser(g1)
+    v = p.recognize_on(mystring, '<S>')
+    print(v)
 
-def format_parsetree(t):
-    return ep.format_parsetree(t)
 
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
