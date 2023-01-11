@@ -273,6 +273,7 @@ class CYKParser(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.cell_width = 5
 
         # let us get an inverse cache
         self.terminal_rules = {}
@@ -293,6 +294,7 @@ class CYKParser(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.cell_width = 5
 
         # let us get an inverse cache
         self.terminal_rules = {}
@@ -341,7 +343,6 @@ Let us define a printing routine.
 ############
 class  CYKParser(CYKParser):
     def print_table(self, table):
-        cell_width = 5
         for i, row in enumerate(table):
             # f"{value:{width}.{precision}}"
             s = f'{i:<2}'
@@ -349,14 +350,14 @@ class  CYKParser(CYKParser):
                 ckeys = list(cell.keys())
                 if len(ckeys) == 0:
                     r = ''
-                    s += f'|{r:>{cell_width}}'
+                    s += f'|{r:>{self.cell_width}}'
                 elif len(ckeys) == 1:
                     r = ckeys[0]
-                    s += f'|{r:>{cell_width}}'
+                    s += f'|{r:>{self.cell_width}}'
                 else:
-                    l = 2 + (j+1) * (cell_width + 1)
+                    l = 2 + (j+1) * (self.cell_width + 1)
                     r = ckeys[0]
-                    s += f'|{r:>{cell_width}}'
+                    s += f'|{r:>{self.cell_width}}'
                     for ck in ckeys[1:]:
                         s += '\n' + f'{ck:>{l}}'
             print(s + '|')
@@ -367,7 +368,6 @@ class  CYKParser(CYKParser):
 <textarea cols="40" rows="4" name='python_edit'>
 class  CYKParser(CYKParser):
     def print_table(self, table):
-        cell_width = 5
         for i, row in enumerate(table):
             # f&quot;{value:{width}.{precision}}&quot;
             s = f&#x27;{i:&lt;2}&#x27;
@@ -375,14 +375,14 @@ class  CYKParser(CYKParser):
                 ckeys = list(cell.keys())
                 if len(ckeys) == 0:
                     r = &#x27;&#x27;
-                    s += f&#x27;|{r:&gt;{cell_width}}&#x27;
+                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
                 elif len(ckeys) == 1:
                     r = ckeys[0]
-                    s += f&#x27;|{r:&gt;{cell_width}}&#x27;
+                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
                 else:
-                    l = 2 + (j+1) * (cell_width + 1)
+                    l = 2 + (j+1) * (self.cell_width + 1)
                     r = ckeys[0]
-                    s += f&#x27;|{r:&gt;{cell_width}}&#x27;
+                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
                     for ck in ckeys[1:]:
                         s += &#x27;\n&#x27; + f&#x27;{ck:&gt;{l}}&#x27;
             print(s + &#x27;|&#x27;)
