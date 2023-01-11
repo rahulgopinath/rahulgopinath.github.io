@@ -182,14 +182,25 @@ class CYKParser(CYKParser):
 # Let us define a printing routine.
 class  CYKParser(CYKParser):
     def print_table(self, table):
+        cell_width = 5 
         for i, row in enumerate(table):
             # f"{value:{width}.{precision}}"
             s = f'{i:<2}'
-            for cell in row:
-                r = ','.join(cell.keys())
-                s += f'|{r:<12}'
-            #print(i, ')\t' + '\t\t| '.join(','.join(cell.keys()) for cell in row))
-            print(s)
+            for j,cell in enumerate(row):
+                ckeys = list(cell.keys())
+                if len(ckeys) == 0:
+                    r = ''
+                    s += f'|{r:>{cell_width}}'
+                elif len(ckeys) == 1:
+                    r = ckeys[0]
+                    s += f'|{r:>{cell_width}}'
+                else:
+                    l = 2 + (j+1) * (cell_width + 1)
+                    r = ckeys[0]
+                    s += f'|{r:>{cell_width}}'
+                    for ck in ckeys[1:]:
+                        s += '\n' + f'{ck:>{l}}'
+            print(s + '|')
 
 # Using it
 if __name__ == '__main__':
