@@ -134,10 +134,13 @@ g1 = {
     '<S>': [
           ['<A>', '<B>'],
           ['<B>', '<C>'],
+          ['<A>', '<C>'],
           ['c']],
    '<A>': [
+        ['<B>', '<C>'],
         ['a']],
    '<B>': [
+        ['<A>', '<C>'],
         ['b']],
    '<C>': [
         ['c']],
@@ -151,7 +154,7 @@ g1_start = '<S>'
 # nonterminal symbols.
 
 class CYKParser(ep.Parser):
-    def __init__(self, grammar, log=True):
+    def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
@@ -172,8 +175,27 @@ class CYKParser(CYKParser):
     def init_table(self, text, length):
         return [[{} for i in range(length+1)] for j in range(length+1)]
 
-# So, we first define the base case, when a single input token matches one of
-# the terminal symbols. In that case, we look at each character in the input,
+# Let us define a printing routine.
+class  CYKParser(CYKParser):
+    def print_table(self, table):
+        for i, row in enumerate(table):
+            # f"{value:{width}.{precision}}"
+            s = f'{i:<2}'
+            for cell in row:
+                r = ','.join(cell.keys())
+                s += f'|{r:<12}'
+            #print(i, ')\t' + '\t\t| '.join(','.join(cell.keys()) for cell in row))
+            print(s)
+
+# Using it
+if __name__ == '__main__':
+    p = CYKParser(g1)
+    t = p.init_table('abcd', 4)
+    p.print_table(t)
+    print()
+
+# Next, we define the base case, which is when a single input token matches one
+# of the terminal symbols. In that case, we look at each character in the input,
 # and for each `i` in the input we identify `cell[i][i+1]` and add the
 # nonterminal symbol that derives the corresponding token.
 
@@ -185,22 +207,51 @@ class CYKParser(CYKParser):
                     table[s][s+1][key] = True
         return table
 
+# Using it
+if __name__ == '__main__':
+    p = CYKParser(g1)
+    txt = 'aabc'
+    tbl = p.init_table(txt, len(txt))
+    p.parse_1(txt, len(txt), tbl)
+    p.print_table(tbl)
+
+
 # Next, we define the multi-token parse. The idea is to build the table
 # incrementally. We have already indicated in the table which nonterminals parse
 # a single token. Next, we find all nonterminals that parse two tokens, then
 # using that, we find all nonterminals that can parse three tokens etc.
 class CYKParser(CYKParser):
-    def parse_n(self, text, l, length, table):
-        # check substrings starting at s, with length l
-        for s in range(0, length-l+1):
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
 
-            # partition the substring at p (l = 1 less than the length of substring)
-            for p in range(1, l):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
-                    if R_b in table[s][p] :
-                        if R_c in table[s+p][s+l]: #l - p - 1
-                            table[s][s+l][k] = True
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]: #n - p - 1
+                            table[s][s+n][k] = True
         return table
+
+# Using it for example, on substrings of length 2
+if __name__ == '__main__':
+    print('length: 2')
+    p = CYKParser(g1)
+    txt = 'aabc'
+    tbl = p.init_table(txt, len(txt))
+    p.parse_1(txt, len(txt), tbl)
+    p.parse_n(txt, 2, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 3')
+    p.parse_n(txt, 3, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 4')
+    p.parse_n(txt, 4, len(txt), tbl)
+    p.print_table(tbl)
+
+
 
 # We combine everything together. At the end, we check if the start_symbol can
 # parse the given tokens by checking (0, n) in the table.
@@ -209,13 +260,13 @@ class CYKParser(CYKParser):
         length = len(text)
         table = self.init_table(text, length)
         self.parse_1(text, length, table)
-        for l in range(2,length+1): # l is the length of the sub-string
-            self.parse_n(text, l, length, table)
+        for n in range(2,length+1): # n is the length of the sub-string
+            self.parse_n(text, n, length, table)
         return start_symbol in table[0][-1]
 
 # Using it
 if __name__ == '__main__':
-    mystring = 'bc'
+    mystring = 'aabc'
     p = CYKParser(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)

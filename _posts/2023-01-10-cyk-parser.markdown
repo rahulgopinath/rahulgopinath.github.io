@@ -220,10 +220,13 @@ g1 = {
     '<S>': [
           ['<A>', '<B>'],
           ['<B>', '<C>'],
+          ['<A>', '<C>'],
           ['c']],
    '<A>': [
+        ['<B>', '<C>'],
         ['a']],
    '<B>': [
+        ['<A>', '<C>'],
         ['b']],
    '<C>': [
         ['c']],
@@ -238,10 +241,13 @@ g1 = {
     &#x27;&lt;S&gt;&#x27;: [
           [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;],
           [&#x27;&lt;B&gt;&#x27;, &#x27;&lt;C&gt;&#x27;],
+          [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;C&gt;&#x27;],
           [&#x27;c&#x27;]],
    &#x27;&lt;A&gt;&#x27;: [
+        [&#x27;&lt;B&gt;&#x27;, &#x27;&lt;C&gt;&#x27;],
         [&#x27;a&#x27;]],
    &#x27;&lt;B&gt;&#x27;: [
+        [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;C&gt;&#x27;],
         [&#x27;b&#x27;]],
    &#x27;&lt;C&gt;&#x27;: [
         [&#x27;c&#x27;]],
@@ -260,7 +266,7 @@ nonterminal symbols.
 <!--
 ############
 class CYKParser(ep.Parser):
-    def __init__(self, grammar, log=True):
+    def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
@@ -271,7 +277,7 @@ class CYKParser(ep.Parser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class CYKParser(ep.Parser):
-    def __init__(self, grammar, log=True):
+    def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
@@ -307,8 +313,62 @@ class CYKParser(CYKParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-So, we first define the base case, when a single input token matches one of
-the terminal symbols. In that case, we look at each character in the input,
+Let us define a printing routine.
+
+<!--
+############
+class  CYKParser(CYKParser):
+    def print_table(self, table):
+        for i, row in enumerate(table):
+            # f"{value:{width}.{precision}}"
+            s = f'{i:<2}'
+            for cell in row:
+                r = ','.join(cell.keys())
+                s += f'|{r:<12}'
+            #print(i, ')\t' + '\t\t| '.join(','.join(cell.keys()) for cell in row))
+            print(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class  CYKParser(CYKParser):
+    def print_table(self, table):
+        for i, row in enumerate(table):
+            # f&quot;{value:{width}.{precision}}&quot;
+            s = f&#x27;{i:&lt;2}&#x27;
+            for cell in row:
+                r = &#x27;,&#x27;.join(cell.keys())
+                s += f&#x27;|{r:&lt;12}&#x27;
+            #print(i, &#x27;)\t&#x27; + &#x27;\t\t| &#x27;.join(&#x27;,&#x27;.join(cell.keys()) for cell in row))
+            print(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+p = CYKParser(g1)
+t = p.init_table('abcd', 4)
+p.print_table(t)
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = CYKParser(g1)
+t = p.init_table(&#x27;abcd&#x27;, 4)
+p.print_table(t)
+print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define the base case, which is when a single input token matches one
+of the terminal symbols. In that case, we look at each character in the input,
 and for each `i` in the input we identify `cell[i][i+1]` and add the
 nonterminal symbol that derives the corresponding token.
 
@@ -337,6 +397,30 @@ class CYKParser(CYKParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Using it
+
+<!--
+############
+p = CYKParser(g1)
+txt = 'aabc'
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.print_table(tbl)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = CYKParser(g1)
+txt = &#x27;aabc&#x27;
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.print_table(tbl)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Next, we define the multi-token parse. The idea is to build the table
 incrementally. We have already indicated in the table which nonterminals parse
 a single token. Next, we find all nonterminals that parse two tokens, then
@@ -345,16 +429,16 @@ using that, we find all nonterminals that can parse three tokens etc.
 <!--
 ############
 class CYKParser(CYKParser):
-    def parse_n(self, text, l, length, table):
-        # check substrings starting at s, with length l
-        for s in range(0, length-l+1):
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
 
-            # partition the substring at p (l = 1 less than the length of substring)
-            for p in range(1, l):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
-                    if R_b in table[s][p] :
-                        if R_c in table[s+p][s+l]: #l - p - 1
-                            table[s][s+l][k] = True
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]: #n - p - 1
+                            table[s][s+n][k] = True
         return table
 
 ############
@@ -362,17 +446,62 @@ class CYKParser(CYKParser):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class CYKParser(CYKParser):
-    def parse_n(self, text, l, length, table):
-        # check substrings starting at s, with length l
-        for s in range(0, length-l+1):
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
 
-            # partition the substring at p (l = 1 less than the length of substring)
-            for p in range(1, l):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -&gt; R_b R_c:
-                    if R_b in table[s][p] :
-                        if R_c in table[s+p][s+l]: #l - p - 1
-                            table[s][s+l][k] = True
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]: #n - p - 1
+                            table[s][s+n][k] = True
         return table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it for example, on substrings of length 2
+
+<!--
+############
+print('length: 2')
+p = CYKParser(g1)
+txt = 'aabc'
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.parse_n(txt, 2, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 3')
+p.parse_n(txt, 3, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 4')
+p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&#x27;length: 2&#x27;)
+p = CYKParser(g1)
+txt = &#x27;aabc&#x27;
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.parse_n(txt, 2, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 3&#x27;)
+p.parse_n(txt, 3, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 4&#x27;)
+p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -387,8 +516,8 @@ class CYKParser(CYKParser):
         length = len(text)
         table = self.init_table(text, length)
         self.parse_1(text, length, table)
-        for l in range(2,length+1): # l is the length of the sub-string
-            self.parse_n(text, l, length, table)
+        for n in range(2,length+1): # n is the length of the sub-string
+            self.parse_n(text, n, length, table)
         return start_symbol in table[0][-1]
 
 ############
@@ -400,8 +529,8 @@ class CYKParser(CYKParser):
         length = len(text)
         table = self.init_table(text, length)
         self.parse_1(text, length, table)
-        for l in range(2,length+1): # l is the length of the sub-string
-            self.parse_n(text, l, length, table)
+        for n in range(2,length+1): # n is the length of the sub-string
+            self.parse_n(text, n, length, table)
         return start_symbol in table[0][-1]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -411,7 +540,7 @@ Using it
 
 <!--
 ############
-mystring = 'bc'
+mystring = 'aabc'
 p = CYKParser(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
@@ -426,7 +555,7 @@ print(v)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;bc&#x27;
+mystring = &#x27;aabc&#x27;
 p = CYKParser(g1)
 v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
 print(v)
