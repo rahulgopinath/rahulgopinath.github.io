@@ -161,8 +161,17 @@ class CYKParser(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
-        self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
-        self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
+
+        # let us get an inverse cache
+        self.terminal_rules = {}
+        self.nonterminal_rules = {}
+        for k, rule in self.productions:
+            if fuzzer.is_terminal(rule[0]):
+                if k not in self.terminal_rules: self.terminal_rules[rule[0]] = []
+                self.terminal_rules[rule[0]].append(k)
+            else:
+                if k not in self.nonterminal_rules: self.nonterminal_rules[(rule[0],rule[1])] = []
+                self.nonterminal_rules[(rule[0],rule[1])].append(k)
 
 # Next, we define the recognizer. The idea here is that CYK algorithm formulates
 # the recognition problem as a dynamic problem where the parse of a string of
@@ -217,9 +226,7 @@ if __name__ == '__main__':
 class CYKParser(CYKParser):
     def parse_1(self, text, length, table):
         for s in range(0,length):
-            for (key, terminal) in self.terminal_productions:
-                if text[s] == terminal:
-                    table[s][s+1][key] = True
+            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
         return table
 
 # Using it
@@ -239,13 +246,14 @@ class CYKParser(CYKParser):
     def parse_n(self, text, n, length, table):
         # check substrings starting at s, with length n
         for s in range(0, length-n+1):
-
             # partition the substring at p (n = 1 less than the length of substring)
             for p in range(1, n):
-                for (k, [R_b, R_c]) in self.nonterminal_productions: # R_a -> R_b R_c:
-                    if R_b in table[s][p]:
-                        if R_c in table[s+p][s+n]: #n - p - 1
-                            table[s][s+n][k] = True
+                matching_pairs = [
+                        (b,c) for b in table[s][p] for c in table[s+p][s+n]
+                            if (b,c) in self.nonterminal_rules]
+                keys = {k:True for pair in matching_pairs
+                               for k in self.nonterminal_rules[pair]}
+                table[s][s+n].update(keys)
         return table
 
 # Using it for example, on substrings of length 2
