@@ -31,7 +31,11 @@
 #  
 # Similar to Earley, GLR, GLL, and other general context-free parsers, the worst
 # case for CYK parsing is $$ O(n^3) $$ . However, unlike those parsers, the best
-# case is also $$ O(n^3) $$ for all grammars.
+# case is also $$ O(n^3) $$ for all grammars. A peculiarity of CYK parser is that
+# unlike Earley, GLL, and GLR, it is not a left-to-right parser. In this respect,
+# the best known other parser that is not left-to-right is Ungar's parser.
+# Furthermore, it is a bottom-up parser that builds substrings of fixed length
+# from the bottom up.
 #  
 # ## Synopsis
 #
