@@ -43,6 +43,8 @@ my_grammar = {'<start>': [['1', '<A>'],
               '<A>'    : [['a']]}
 my_parser = P.CYKParser(my_grammar)
 assert my_parser.recognize_on(text='1a', start_symbol='<start>'):
+for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
+    P.display_tree(tree)
 ```
 
 ## Contents
@@ -269,7 +271,7 @@ nonterminal symbols.
 
 <!--
 ############
-class CYKParser(ep.Parser):
+class CYKRecognizer(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
@@ -290,7 +292,7 @@ class CYKParser(ep.Parser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class CYKParser(ep.Parser):
+class CYKRecognizer(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
@@ -322,7 +324,7 @@ represents the nonterminals that can parse the substring `text[i..j]`
 
 <!--
 ############
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
         return [[{} for i in range(length+1)] for j in range(length+1)]
 
@@ -330,7 +332,7 @@ class CYKParser(CYKParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
         return [[{} for i in range(length+1)] for j in range(length+1)]
 </textarea><br />
@@ -341,7 +343,7 @@ Let us define a printing routine.
 
 <!--
 ############
-class  CYKParser(CYKParser):
+class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
         for i, row in enumerate(table):
             # f"{value:{width}.{precision}}"
@@ -366,7 +368,7 @@ class  CYKParser(CYKParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class  CYKParser(CYKParser):
+class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
         for i, row in enumerate(table):
             # f&quot;{value:{width}.{precision}}&quot;
@@ -394,7 +396,7 @@ Using it
 
 <!--
 ############
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 t = p.init_table('abcd', 4)
 p.print_table(t)
 print()
@@ -403,7 +405,7 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 t = p.init_table(&#x27;abcd&#x27;, 4)
 p.print_table(t)
 print()
@@ -418,7 +420,7 @@ nonterminal symbol that derives the corresponding token.
 
 <!--
 ############
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def parse_1(self, text, length, table):
         for s in range(0,length):
             table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
@@ -428,7 +430,7 @@ class CYKParser(CYKParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def parse_1(self, text, length, table):
         for s in range(0,length):
             table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
@@ -441,7 +443,7 @@ Using it
 
 <!--
 ############
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 txt = 'aabc'
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
@@ -452,7 +454,7 @@ p.print_table(tbl)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 txt = &#x27;aabc&#x27;
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
@@ -468,7 +470,7 @@ using that, we find all nonterminals that can parse three tokens etc.
 
 <!--
 ############
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def parse_n(self, text, n, length, table):
         # check substrings starting at s, with length n
         for s in range(0, length-n+1):
@@ -486,7 +488,7 @@ class CYKParser(CYKParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def parse_n(self, text, n, length, table):
         # check substrings starting at s, with length n
         for s in range(0, length-n+1):
@@ -508,7 +510,7 @@ Using it for example, on substrings of length 2
 <!--
 ############
 print('length: 2')
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 txt = 'aabc'
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
@@ -530,7 +532,7 @@ p.print_table(tbl)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(&#x27;length: 2&#x27;)
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 txt = &#x27;aabc&#x27;
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
@@ -553,7 +555,7 @@ parse the given tokens by checking (0, n) in the table.
 
 <!--
 ############
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def recognize_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
@@ -566,7 +568,7 @@ class CYKParser(CYKParser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def recognize_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
@@ -583,15 +585,186 @@ Using it
 <!--
 ############
 mystring = 'aabc'
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
 
 mystring = 'cb'
-p = CYKParser(g1)
+p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;aabc&#x27;
+p = CYKRecognizer(g1)
+v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
+print(v)
+
+mystring = &#x27;cb&#x27;
+p = CYKRecognizer(g1)
+v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## CYKParser
+Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
+restricting epsilons to the start symbol, there are no infinite parse trees.
+
+<!--
+############
+class CYKParser(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
+        self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CYKParser(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
+        self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The parse_1 for terminal symbols
+
+<!--
+############
+class CYKParser(CYKParser):
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            for (key, terminal) in self.terminal_productions:
+                if text[s] == terminal:
+                    if key not in table[s][s+1]: table[s][s+1][key] = []
+                    table[s][s+1][key].append((key, [(text[s], [])]))
+        return table
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CYKParser(CYKParser):
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            for (key, terminal) in self.terminal_productions:
+                if text[s] == terminal:
+                    if key not in table[s][s+1]: table[s][s+1][key] = []
+                    table[s][s+1][key].append((key, [(text[s], [])]))
+        return table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The substring parse
+
+<!--
+############
+class CYKParser(CYKParser):
+    def parse_n(self, text, n, length, table):
+        for s in range(0, length-n+1):
+            for p in range(1, n):
+                for (k, [R_b, R_c]) in self.nonterminal_productions:
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]:
+                            if k not in table[s][s+n]: table[s][s+n][k] = []
+                            table[s][s+n][k].append((k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CYKParser(CYKParser):
+    def parse_n(self, text, n, length, table):
+        for s in range(0, length-n+1):
+            for p in range(1, n):
+                for (k, [R_b, R_c]) in self.nonterminal_productions:
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]:
+                            if k not in table[s][s+n]: table[s][s+n][k] = []
+                            table[s][s+n][k].append((k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Parsing
+
+<!--
+############
+class CYKParser(CYKParser):
+    def trees(self, forestnode):
+        if forestnode:
+            if isinstance(forestnode, list):
+                key, children = random.choice(forestnode)
+            else:
+                key,children = forestnode
+            ret = []
+            for c in children:
+                t = self.trees(c)
+                ret.append(t)
+            return (key, ret)
+
+        return None
+
+    def parse_on(self, text, start_symbol):
+        length = len(text)
+        table = self.init_table(text, length)
+        self.parse_1(text, length, table)
+        for n in range(2,length+1):
+            self.parse_n(text, n, length, table)
+        return [self.trees(table[0][-1][start_symbol])]
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CYKParser(CYKParser):
+    def trees(self, forestnode):
+        if forestnode:
+            if isinstance(forestnode, list):
+                key, children = random.choice(forestnode)
+            else:
+                key,children = forestnode
+            ret = []
+            for c in children:
+                t = self.trees(c)
+                ret.append(t)
+            return (key, ret)
+
+        return None
+
+    def parse_on(self, text, start_symbol):
+        length = len(text)
+        table = self.init_table(text, length)
+        self.parse_1(text, length, table)
+        for n in range(2,length+1):
+            self.parse_n(text, n, length, table)
+        return [self.trees(table[0][-1][start_symbol])]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it (uses random choice, click run multiple times to get other trees).
+
+<!--
+############
+mystring = 'aabc'
+p = CYKParser(g1)
+v = p.parse_on(mystring, '<S>')
+for t in v:
+    print(ep.display_tree(t))
 
 ############
 -->
@@ -599,13 +772,26 @@ print(v)
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;aabc&#x27;
 p = CYKParser(g1)
-v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
-print(v)
+v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
+for t in v:
+    print(ep.display_tree(t))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+assign display_tree
 
-mystring = &#x27;cb&#x27;
-p = CYKParser(g1)
-v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
-print(v)
+<!--
+############
+def display_tree(t):
+    return ep.display_tree(t)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def display_tree(t):
+    return ep.display_tree(t)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

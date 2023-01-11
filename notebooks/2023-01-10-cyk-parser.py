@@ -47,6 +47,8 @@
 #               '<A>'    : [['a']]}
 # my_parser = P.CYKParser(my_grammar)
 # assert my_parser.recognize_on(text='1a', start_symbol='<start>'):
+# for tree in my_parser.parse_on(text='1a', start_symbol='<start>'):
+#     P.display_tree(tree)
 # ```
 
 # ## Definitions
@@ -157,7 +159,7 @@ g1_start = '<S>'
 # productions are of the form `<A>` ::= <B><C>` where `<B>` and `<C>` are
 # nonterminal symbols.
 
-class CYKParser(ep.Parser):
+class CYKRecognizer(ep.Parser):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
@@ -185,12 +187,12 @@ class CYKParser(ep.Parser):
 # We first initialize the matrix that holds the results. The `cell[i][j]`
 # represents the nonterminals that can parse the substring `text[i..j]`
 
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
         return [[{} for i in range(length+1)] for j in range(length+1)]
 
 # Let us define a printing routine.
-class  CYKParser(CYKParser):
+class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
         for i, row in enumerate(table):
             # f"{value:{width}.{precision}}"
@@ -213,7 +215,7 @@ class  CYKParser(CYKParser):
 
 # Using it
 if __name__ == '__main__':
-    p = CYKParser(g1)
+    p = CYKRecognizer(g1)
     t = p.init_table('abcd', 4)
     p.print_table(t)
     print()
@@ -223,7 +225,7 @@ if __name__ == '__main__':
 # and for each `i` in the input we identify `cell[i][i+1]` and add the
 # nonterminal symbol that derives the corresponding token.
 
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def parse_1(self, text, length, table):
         for s in range(0,length):
             table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
@@ -231,7 +233,7 @@ class CYKParser(CYKParser):
 
 # Using it
 if __name__ == '__main__':
-    p = CYKParser(g1)
+    p = CYKRecognizer(g1)
     txt = 'aabc'
     tbl = p.init_table(txt, len(txt))
     p.parse_1(txt, len(txt), tbl)
@@ -242,7 +244,8 @@ if __name__ == '__main__':
 # incrementally. We have already indicated in the table which nonterminals parse
 # a single token. Next, we find all nonterminals that parse two tokens, then
 # using that, we find all nonterminals that can parse three tokens etc.
-class CYKParser(CYKParser):
+
+class CYKRecognizer(CYKRecognizer):
     def parse_n(self, text, n, length, table):
         # check substrings starting at s, with length n
         for s in range(0, length-n+1):
@@ -259,7 +262,7 @@ class CYKParser(CYKParser):
 # Using it for example, on substrings of length 2
 if __name__ == '__main__':
     print('length: 2')
-    p = CYKParser(g1)
+    p = CYKRecognizer(g1)
     txt = 'aabc'
     tbl = p.init_table(txt, len(txt))
     p.parse_1(txt, len(txt), tbl)
@@ -278,7 +281,7 @@ if __name__ == '__main__':
 
 # We combine everything together. At the end, we check if the start_symbol can
 # parse the given tokens by checking (0, n) in the table.
-class CYKParser(CYKParser):
+class CYKRecognizer(CYKRecognizer):
     def recognize_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
@@ -290,15 +293,87 @@ class CYKParser(CYKParser):
 # Using it
 if __name__ == '__main__':
     mystring = 'aabc'
-    p = CYKParser(g1)
+    p = CYKRecognizer(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)
 
     mystring = 'cb'
-    p = CYKParser(g1)
+    p = CYKRecognizer(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)
 
+# ## CYKParser
+# Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
+# restricting epsilons to the start symbol, there are no infinite parse trees.
+
+class CYKParser(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
+        self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
+
+# The parse_1 for terminal symbols
+
+class CYKParser(CYKParser):
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            for (key, terminal) in self.terminal_productions:
+                if text[s] == terminal:
+                    if key not in table[s][s+1]: table[s][s+1][key] = []
+                    table[s][s+1][key].append((key, [(text[s], [])]))
+        return table
+
+# The substring parse
+
+class CYKParser(CYKParser):
+    def parse_n(self, text, n, length, table):
+        for s in range(0, length-n+1):
+            for p in range(1, n):
+                for (k, [R_b, R_c]) in self.nonterminal_productions:
+                    if R_b in table[s][p]:
+                        if R_c in table[s+p][s+n]:
+                            if k not in table[s][s+n]: table[s][s+n][k] = []
+                            table[s][s+n][k].append((k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+
+# Parsing
+
+class CYKParser(CYKParser):
+    def trees(self, forestnode):
+        if forestnode:
+            if isinstance(forestnode, list):
+                key, children = random.choice(forestnode)
+            else:
+                key,children = forestnode
+            ret = []
+            for c in children:
+                t = self.trees(c)
+                ret.append(t)
+            return (key, ret)
+
+        return None
+
+    def parse_on(self, text, start_symbol):
+        length = len(text)
+        table = self.init_table(text, length)
+        self.parse_1(text, length, table)
+        for n in range(2,length+1):
+            self.parse_n(text, n, length, table)
+        return [self.trees(table[0][-1][start_symbol])]
+
+
+# Using it (uses random choice, click run multiple times to get other trees).
+if __name__ == '__main__':
+    mystring = 'aabc'
+    p = CYKParser(g1)
+    v = p.parse_on(mystring, '<S>')
+    for t in v:
+        print(ep.display_tree(t))
+
+# assign display_tree
+
+def display_tree(t):
+    return ep.display_tree(t)
 
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
