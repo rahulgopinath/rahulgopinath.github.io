@@ -62,8 +62,12 @@ The reason palindromes are interesting is that, it hits upon the central charact
 PEGs require matching the longest prefix first, and the next prefix is checked if and only if the first prefix fails. CFGs
 on the other hand, have no defined ordering. To parse an arbitrary palindrome, CFG can start matching the shortest possible
 expansion, and then try with longer and longer expansions (with larger stacks of `S`). With PEG, to match a given palindrome,
-one needs some way to compute an arbitrary pattern (the left prefix of the mirror expansion). This likely require a Turing
-machine. The spoiler here is that, PEGs may be in some sense universal [^loff2019the].
+one needs some way to identify whether the next read symbol, say `0`  is part of
+a recursion call `0S0` or the ending `0`. This is because if we start matching
+`0S0`, and it fails, a match with the single `0` will not be attempted.
+Complicating this picture is however the ability of PEG to *cancel* a match
+using `&` and `!`.
+In fact, PEGs may be in some sense universal [^loff2019the].
 
 Finally, Medeiros et al[^medeiros2014on] show that any LL(1) grammar describes the same
 language irrespective of whether it is interpreted as PEG or a CFG. However, beyond LL(1)
