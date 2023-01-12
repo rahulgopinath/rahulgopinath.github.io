@@ -66,7 +66,10 @@ one needs some way to identify whether the next read symbol, say `0`  is part of
 a recursion call `0S0` or the ending `0`. This is because if we start matching
 `0S0`, and it fails, a match with the single `0` will not be attempted.
 Complicating this picture is however the ability of PEG to *cancel* a match
-using `&` and `!`.
+using `&` and `!`. The reason this is troublesome is that in the case of
+context-free grammars, the language is not closed under the operations of
+intersection and negation. Hence, these two operations increase the power of
+the representation, and it is not clear how much increase they provide.
 In fact, PEGs may be in some sense universal [^loff2019the].
 
 Finally, Medeiros et al[^medeiros2014on] show that any LL(1) grammar describes the same
