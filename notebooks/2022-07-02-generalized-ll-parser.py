@@ -783,9 +783,17 @@ if __name__ == '__main__':
 # A packed node in turn can contain symbol, intermediate, or dummy nodes.
 # 
 # ### SPPF Node
+N_ID = 0
 
 class SPPFNode:
-    def __init__(self): self.children, self.label = [], '<None>'
+    def __init__(self):
+        self.children, self.label= [], '<None>'
+        self.set_nid()
+
+    def set_nid(self):
+        global N_ID
+        N_ID += 1
+        self.nid  = N_ID
 
     def __eq__(self, o): return self.label == o.label
 
@@ -810,7 +818,10 @@ class SPPFNode:
 # The dummy SPPF node is used to indicate the empty node at the end of rules.
 
 class SPPF_dummy_node(SPPFNode):
-    def __init__(self, s, i, j): self.label, self.children = (s, i, j), []
+    def __init__(self, s, i, j):
+        self.label, self.children = (s, i, j), []
+        self.set_nid()
+    def __repr__(self): return 'SPPFdummy:%s' % str(self.label)
 
 # ### SPPF Symbol Node
 # j and i are the extents.
@@ -824,7 +835,10 @@ class SPPF_dummy_node(SPPFNode):
 # which can be adapted here too.
 
 class SPPF_symbol_node(SPPFNode):
-    def __init__(self, x, i, j): self.label, self.children = (x, i, j), []
+    def __repr__(self): return 'SPPFsymbol:%s' % str(self.label)
+    def __init__(self, x, i, j):
+        self.label, self.children = (x, i, j), []
+        self.set_nid()
 
     def to_tree(self, hmap, tab): return self.to_tree_(hmap, tab)[0]
     def to_tree_(self, hmap, tab):
@@ -837,12 +851,18 @@ class SPPF_symbol_node(SPPFNode):
 # ### SPPF Intermediate Node
 # Has only two children max (or 1 child).
 class SPPF_intermediate_node(SPPFNode):
-    def __init__(self, t, j, i): self.label, self.children = (t, j, i), []
+    def __repr__(self): return 'SPPFintermediate:%s' % str(self.label)
+    def __init__(self, t, j, i):
+        self.label, self.children = (t, j, i), []
+        self.set_nid()
 
 # ### SPPF Packed Node
 
 class SPPF_packed_node(SPPFNode):
-    def __init__(self, t, k): self.label, self.children = (t,k), []
+    def __repr__(self): return 'SPPFpacked:%s' % str(self.label)
+    def __init__(self, t, k):
+        self.label, self.children = (t,k), []
+        self.set_nid()
 
 # ## The GLL parser
 # We can now build our GLL parser. All procedures change to include SPPF nodes.
@@ -1266,7 +1286,6 @@ if __name__ == '__main__':
     print(v)
 
 # ## Running it
-# ### 1
 if __name__ == '__main__':
     G1 = {
         '<S>': [['c']]
@@ -1279,6 +1298,196 @@ if __name__ == '__main__':
     assert r == mystring
     ep.display_tree(v)
 
+# ## SPPF Parse Forest
+# Previously, we examined how to extract a single parse tree. However, this in
+# insufficient in many cases. Given that context-free grammars can contain
+# ambiguity we want to extract all possible parse trees. To do that, we need to
+# keep track of all choices we make.
+# 
+# ### ChoiceNode
+# The ChoiceNode is a node in a linked list of choices. The idea is that
+# whenever there is a choice between exploring different derivations, we pick
+# the first candidate, and make a note of that choice. Then, during further
+# explorations of the child nodes, if more choices are necessary, those choices
+# are marked in nodes linked from the current node.
+#  
+# * `_chosen` contains the current choice
+# * `next` holds the next choice done using _chosen
+# * `total` holds he total number of choices for this node.
+
+
+class ChoiceNode:
+    def __init__(self, parent, total):
+        self._p, self._chosen = parent, 0
+        self._total, self.next = total, None
+
+    def __str__(self):
+        return '(%s/%s %s)' % (str(self._chosen),
+                               str(self._total), str(self.next))
+
+    def __repr__(self): return repr((self._chosen, self._total))
+
+# The `chosen()` returns the current candidate.
+class ChoiceNode(ChoiceNode):
+    def chosen(self): return self._chosen
+
+# A ChoiceNode has exhausted its choices if the current candidate chosen
+# does not exist.
+class ChoiceNode(ChoiceNode):
+    def finished(self):
+        return self._chosen >= self._total
+
+# At the end of generation of a single tree, we increment the candidate number
+# in the last node in the linked list. Then, we check if the last node can
+# provide another candidate to explore. If the node has not exhausted its
+# candidates, then we have nothing more to do. However, if the node has
+# exhausted its candidates, we look for possible candidates in its parent.
+
+class ChoiceNode(ChoiceNode):
+    def increment(self):
+        # as soon as we increment, next becomes invalid
+        self.next = None
+        self._chosen += 1
+        if self.finished():
+            if self._p is None: return None
+            return self._p.increment()
+        return self
+
+# ### EnhancedExtractor
+# The EnhancedExtractor classes uses the choice linkedlist to explore possible
+# parses.
+
+class EnhancedExtractor:
+    def __init__(self, forest):
+        self.my_forest = forest
+        self.choices = ChoiceNode(None, 1)
+
+# Whenever there is a choice to be made, we look at the current node in the
+# choices linked list. If a previous iteration has exhausted all candidates,
+# we have nothing left. In that case, we simply return None, and the updated
+# linkedlist
+
+class EnhancedExtractor(EnhancedExtractor):
+    def choose_path(self, arr, choices):
+        arr_len = len(arr)
+        if choices.next is not None:
+            if choices.next.finished():
+                return None, None, None, choices.next
+        else:
+            choices.next = ChoiceNode(choices, arr_len)
+        next_choice = choices.next.chosen()
+        return arr[next_choice], next_choice, arr_len, choices.next
+
+# While extracting, we have a choice. Should we allow infinite forests, or
+# should we have a finite number of trees with no direct recursion? A direct
+# recursion is when there exists a parent node with the same nonterminal that
+# parsed the same span. We choose here not to extract such trees. They can be
+# added back after parsing.
+# 
+# This is a recursive procedure that inspects a node, extracts the path required
+# to complete that node. A single path (corresponding to a nonterminal) may
+# again be composed of a sequence of smaller paths. Such paths are again
+# extracted using another call to extract_a_node() recursively.
+# 
+# What happens when we hit on one of the node recursions we want to avoid? In
+# that case, we return the current choice node, which bubbles up to
+# `extract_a_tree()`. That procedure increments the last choice, which in turn
+# increments up the parents until we reach a choice node that still has options
+# to explore.
+# 
+# What if we hit the end of choices for a particular choice node (i.e, we have
+# exhausted paths that can be taken from a node)? In this case also, we return
+# the current choice node, which bubbles up to `extract_a_tree()`.
+# That procedure increments the last choice, which bubbles up to the next choice
+# that has some unexplored paths.
+
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_node(self, forest_node, seen, choices):
+        if isinstance(forest_node, SPPF_dummy_node):
+            return ('', []), choices
+
+        elif isinstance(forest_node, (SPPF_intermediate_node, SPPF_packed_node)):
+            key = forest_node.label[0] # ignored
+            ret = []
+            for n in forest_node.children:
+                v, new_choices = self.extract_a_node(n, seen, choices)
+                if v is None: return None, new_choices
+
+                choices = new_choices
+                ret.append(v)
+            return (None, ret), choices
+
+        elif isinstance(forest_node, SPPF_symbol_node):
+            if not forest_node.children:
+                return (forest_node.label[0], []), choices
+            cur_path, _i, _l, new_choices = self.choose_path(forest_node.children, choices)
+            if cur_path is None:
+                return None, new_choices
+            if cur_path.nid in seen: return None, new_choices
+            n, newer_choices = self.extract_a_node(cur_path, seen | {cur_path.nid}, new_choices)
+            if n is None: return None, newer_choices
+            (key, children) = n
+            assert key is None
+            return (forest_node.label[0], children), newer_choices
+
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_tree(self):
+        choices = self.choices
+        while not self.choices.finished():
+            parse_tree, choices = self.extract_a_node(self.my_forest.SPPF_nodes[self.my_forest.root], set(), self.choices)
+            choices.increment()
+            if parse_tree is not None:
+                return parse_tree
+        return None
+
+# ## Running it
+if __name__ == '__main__':
+    G1 = {
+        '<S>': [['<A>'],
+                ['<B>']],
+        '<A>': [['a']],
+        '<B>': [['a']]
+    }
+    mystring = 'a'
+    p = compile_grammar(G1)
+    forest = p.recognize_on(mystring, '<S>')
+    ee = EnhancedExtractor(forest)
+    while True:
+        t = ee.extract_a_tree()
+        if t is None: break
+        s = fuzzer.tree_to_string(t)
+    assert s == mystring
+
+# A larger example
+if __name__ == '__main__':
+    a_grammar = {
+    '<start>': [['<expr>']],
+    '<expr>': [
+        ['<expr>', '+', '<expr>'],
+        ['<expr>', '-', '<expr>'],
+        ['<expr>', '*', '<expr>'],
+        ['<expr>', '/', '<expr>'],
+        ['(', '<expr>', ')'],
+        ['<integer>']],
+    '<integer>': [
+        ['<digits>']],
+    '<digits>': [
+        ['<digit>','<digits>'],
+        ['<digit>']],
+    '<digit>': [["%s" % str(i)] for i in range(10)],
+    }
+    mystring = '1+2+3+4'
+    p = compile_grammar(a_grammar)
+    forest = p.recognize_on(mystring, grammar_start)
+    ee = EnhancedExtractor(forest)
+    while True:
+        t = ee.extract_a_tree()
+        if t is None: break
+        s = fuzzer.tree_to_string(t)
+        assert s == mystring
+        ep.display_tree(t)
+
+# A few more examples
 # ### 2
 if __name__ == '__main__':
     G2 = {
