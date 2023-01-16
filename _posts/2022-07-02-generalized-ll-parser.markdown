@@ -3059,7 +3059,21 @@ class EnhancedExtractor(EnhancedExtractor):
                 if v is None: return None, new_choices
 
                 choices = new_choices
-                ret.append(v)
+                if isinstance(n, SPPF_packed_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                elif isinstance(n, SPPF_symbol_node):
+                    assert v[0] is not None
+                    ret.append(v)
+                elif isinstance(n, SPPF_intermediate_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                elif isinstance(n, SPPF_dummy_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                else:
+                    assert False
+                    ret.append(v)
             return (None, ret), choices
 
         elif isinstance(forest_node, SPPF_symbol_node):
@@ -3092,7 +3106,21 @@ class EnhancedExtractor(EnhancedExtractor):
                 if v is None: return None, new_choices
 
                 choices = new_choices
-                ret.append(v)
+                if isinstance(n, SPPF_packed_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                elif isinstance(n, SPPF_symbol_node):
+                    assert v[0] is not None
+                    ret.append(v)
+                elif isinstance(n, SPPF_intermediate_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                elif isinstance(n, SPPF_dummy_node):
+                    assert v[0] is None
+                    ret.extend(v[1])
+                else:
+                    assert False
+                    ret.append(v)
             return (None, ret), choices
 
         elif isinstance(forest_node, SPPF_symbol_node):
