@@ -3075,16 +3075,6 @@ class EnhancedExtractor(EnhancedExtractor):
             assert key is None
             return (forest_node.label[0], children), newer_choices
 
-class EnhancedExtractor(EnhancedExtractor):
-    def extract_a_tree(self):
-        choices = self.choices
-        while not self.choices.finished():
-            parse_tree, choices = self.extract_a_node(self.my_forest.SPPF_nodes[self.my_forest.root], set(), self.choices)
-            choices.increment()
-            if parse_tree is not None:
-                return parse_tree
-        return None
-
 ############
 -->
 <form name='python_run_form'>
@@ -3117,7 +3107,28 @@ class EnhancedExtractor(EnhancedExtractor):
             (key, children) = n
             assert key is None
             return (forest_node.label[0], children), newer_choices
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The extract_a_tree extracts one parse tree at a time, and keeps track of the choices.
 
+<!--
+############
+class EnhancedExtractor(EnhancedExtractor):
+    def extract_a_tree(self):
+        choices = self.choices
+        while not self.choices.finished():
+            parse_tree, choices = self.extract_a_node(self.my_forest.SPPF_nodes[self.my_forest.root], set(), self.choices)
+            choices.increment()
+            if parse_tree is not None:
+                return parse_tree
+        return None
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 class EnhancedExtractor(EnhancedExtractor):
     def extract_a_tree(self):
         choices = self.choices

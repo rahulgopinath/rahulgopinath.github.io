@@ -1430,6 +1430,8 @@ class EnhancedExtractor(EnhancedExtractor):
             assert key is None
             return (forest_node.label[0], children), newer_choices
 
+# The extract_a_tree extracts one parse tree at a time, and keeps track of the choices.
+
 class EnhancedExtractor(EnhancedExtractor):
     def extract_a_tree(self):
         choices = self.choices
