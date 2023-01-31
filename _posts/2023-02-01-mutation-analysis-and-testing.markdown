@@ -3,7 +3,7 @@ published: true
 title: Mutation Analysis and Mutation Testing
 layout: post
 comments: true
-tags: mutation analysis, mutation testing
+tags: mutation-analysis, mutation-testing
 categories: post
 ---
 
