@@ -28,12 +28,14 @@ be killable, there is no penalty suffered by the tool.
 Hence, a deceitful tool could simply claim every single evaluated mutant to
 be detectable.
 Such a tool will be 100% effective for the induced mutations but will be utterly
-ineffective for real world faults. So, what can we do?
+ineffective for real world faults. Indeed, false positives are one of the major
+issues in static analysis. So, what can we do?
 
 One extreme suggestion would be to _require a test case_  (both input as well as
 the expected output) that can detect the mutant to count a mutant as detected.
-However, providing this would be very hard for most pattern based static
-analysis tools. Hence, we need a better idea.
+However, providing this would be very much beyond most static
+analysis tools (if we can do this, then the problem of false positives is resolved).
+Hence, we need a better idea.
 
 One way to do this is to try and lie. That is, ask the static analysis
 framework whether the program itself is faulty. If it claims the program to
@@ -43,15 +45,28 @@ known equivalent mutants: For example, we could swap the order of non
 dependent lines, or swap the operators in functions that does not ascribe
 meaning to the argument order etc. If the static analyzer claims fault in
 such equivalent mutants, then we know that static analyzer is lying. That is,
-it has high false positive rate.
+it has high false positive rate. This is the approach taken by
+Parveen et al.[^parveen2020a]. They call such
+mutants *benign*.
 
-So, in effect, if one is evaluating static analysis tools using mutation
-analysis, one should start with a green state (no flagged faults in
-the program under analysis or only known flagged faults). Next, introduce
-equivalent mutants and check how many such mutants are claimed to be
-faults. This provides the believability ratio of the static analysis tool.
+The unfortunate problem is that static analysis tools can again try to
+detect such benigh mutants.
 
-This is the approach taken by Parveen et al.[^parveen2020a].
+A third idea is to consider what static analysis tools accomplish. They reduce
+the *degrees of freedom* of the program in that they limit in what ways a
+program can change. So, perhaps this can be leveraged? The idea then is to
+simply count the number of lexical mutation points in the program where *some*
+specific value could be substituted. The difference between this and constant
+mutation pattern is that we avoid concrete values that can be easily spotted
+statically. That is, given two boolean variables `a` and `b`, we change 
+`if a:` to `if b:` rather than to `if True:`. Count the *locations* where such
+changes are possible. This can provide a truer picture about the capability of
+a static analysis tool. In a similar way, we can also evaluate stronger type
+systems (better type systems can make larger classes of bugs unrepresentable,
+so we expect the degrees of freedom to reduce), as well as effectiveness of
+language design by comparing the best implementations of similar algorithms
+across different languages (an equivalent program with smaller number of mutation
+points is better).
 
 [^gopinath2017how]: Rahul Gopinath, Eric Walkingshaw "How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations" ICSTW Mutation, 2017 URL:<https://rahul.gopinath.org/resources/icst2017/gopinath2017how.pdf>
 
