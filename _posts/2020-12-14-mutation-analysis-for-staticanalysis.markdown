@@ -70,7 +70,7 @@ points is better).
 
 [^gopinath2017how]: Rahul Gopinath, Eric Walkingshaw "How Good are Your Types? Using Mutation Analysis to Evaluate the Effectiveness of Type Annotations" ICSTW Mutation, 2017 URL:<https://rahul.gopinath.org/resources/icst2017/gopinath2017how.pdf>
 
-[^araujo2016correlating]: Cláudio A. Araujo,  Marcio E. Delamaro, Jose C. Maldonado and Auri M. R. Vincenzi "Correlating automatic static analysis andmutation testing: towards incrementalstrategies" Journal of Software Engineering Research and Development 2016 DOI:10.1186/s40411-016-0031-8 URL:<https://core.ac.uk/download/pdf/81636717.pdf>
+[^araujo2016correlating]: Cláudio A. Araujo,  Marcio E. Delamaro, Jose C. Maldonado and Auri M. R. Vincenzi "Correlating automatic static analysis and mutation testing: towards incremental strategies" Journal of Software Engineering Research and Development 2016 DOI:10.1186/s40411-016-0031-8 URL:<https://core.ac.uk/download/pdf/81636717.pdf>
 
 [^ghaleb2020how]: Asem  Ghaleb, Karthik Pattabiraman "How effective are smart contract analysis tools? evaluating smart contract static analysis tools using bug injection ISSTA 2016 URL:<https://dl.acm.org/doi/abs/10.1145/3395363.3397385>
 
