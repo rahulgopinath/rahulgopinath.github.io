@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
 def display_tree(node, level=0, c='-'):
     key, children = node
-    print(' ' * 4 * level + c+'> ' + str(key) + '|')
+    print(' ' * 4 * level + c+'> ' + key)
     for c in children:
         display_tree(c, level + 1, c='+')
 

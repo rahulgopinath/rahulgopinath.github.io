@@ -513,7 +513,7 @@ The above can only work with binary trees. Here is another that can work with al
 ############
 def display_tree(node, level=0, c='-'):
     key, children = node
-    print(' ' * 4 * level + c+'> ' + str(key) + '|')
+    print(' ' * 4 * level + c+'> ' + key)
     for c in children:
         display_tree(c, level + 1, c='+')
 
@@ -523,7 +523,7 @@ def display_tree(node, level=0, c='-'):
 <textarea cols="40" rows="4" name='python_edit'>
 def display_tree(node, level=0, c=&#x27;-&#x27;):
     key, children = node
-    print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + str(key) + &#x27;|&#x27;)
+    print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key)
     for c in children:
         display_tree(c, level + 1, c=&#x27;+&#x27;)
 </textarea><br />
