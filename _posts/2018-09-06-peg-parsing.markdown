@@ -534,7 +534,7 @@ Using
 
 <!--
 ############
-to_parse = '1+2'
+to_parse = '1+2+3+4*5/6'
 p = cfg_parse(term_grammar)
 result = p.unify_key('<expr>', to_parse, 0)
 for l,res in result:
@@ -546,7 +546,7 @@ for l,res in result:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-to_parse = &#x27;1+2&#x27;
+to_parse = &#x27;1+2+3+4*5/6&#x27;
 p = cfg_parse(term_grammar)
 result = p.unify_key(&#x27;&lt;expr&gt;&#x27;, to_parse, 0)
 for l,res in result:

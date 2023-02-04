@@ -244,7 +244,7 @@ def display_tree(node, level=0, c='-'):
 
 # Using
 if __name__ == '__main__':
-    to_parse = '1+2'
+    to_parse = '1+2+3+4*5/6'
     p = cfg_parse(term_grammar)
     result = p.unify_key('<expr>', to_parse, 0)
     for l,res in result:
