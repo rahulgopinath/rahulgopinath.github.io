@@ -454,6 +454,108 @@ for l,res in result:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Let us define a simple viewer
+
+<!--
+############
+def display_treeb(node, level=0, c='-'):
+    key, children = node
+    if children:
+        display_treeb(children[0], level + 1, c='/')
+    print(' ' * 4 * level + c+'> ' + key + '|')
+    if len(children) > 1:
+        display_treeb(children[1], level + 1, c='\\')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def display_treeb(node, level=0, c=&#x27;-&#x27;):
+    key, children = node
+    if children:
+        display_treeb(children[0], level + 1, c=&#x27;/&#x27;)
+    print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key + &#x27;|&#x27;)
+    if len(children) &gt; 1:
+        display_treeb(children[1], level + 1, c=&#x27;\\&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Driver
+
+<!--
+############
+to_parse = '1+2'
+p = cfg_parse(term_grammar)
+result = p.unify_key('<expr>', to_parse, 0)
+for l,res in result:
+    if l == len(to_parse):
+        display_treeb(res)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+to_parse = &#x27;1+2&#x27;
+p = cfg_parse(term_grammar)
+result = p.unify_key(&#x27;&lt;expr&gt;&#x27;, to_parse, 0)
+for l,res in result:
+    if l == len(to_parse):
+        display_treeb(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The above can only work with binary trees. Here is another that can work with all trees.
+
+<!--
+############
+def display_tree(node, level=0, c='-'):
+    key, children = node
+    print(' ' * 4 * level + c+'> ' + str(key) + '|')
+    for c in children:
+        display_tree(c, level + 1, c='+')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def display_tree(node, level=0, c=&#x27;-&#x27;):
+    key, children = node
+    print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + str(key) + &#x27;|&#x27;)
+    for c in children:
+        display_tree(c, level + 1, c=&#x27;+&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+to_parse = '1+2'
+p = cfg_parse(term_grammar)
+result = p.unify_key('<expr>', to_parse, 0)
+for l,res in result:
+    if l == len(to_parse):
+        display_tree(res)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+to_parse = &#x27;1+2&#x27;
+p = cfg_parse(term_grammar)
+result = p.unify_key(&#x27;&lt;expr&gt;&#x27;, to_parse, 0)
+for l,res in result:
+    if l == len(to_parse):
+        display_tree(res)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 This implementation is quite limited in that we have lost the ability to memoize (can be added back), and can not handle left recursion. See the [Earley parser](https://www.fuzzingbook.org/html/Parser.html) for a parser without these drawbacks.
 
 [^valiant1975general]: Valiant, Leslie G. "General context-free recognition in less than cubic time." Journal of computer and system sciences 10.2 (1975): 308-315. 

@@ -213,6 +213,45 @@ if __name__ == '__main__':
         if l == len(to_parse):
             print(res)
 
+# Let us define a simple viewer
+
+def display_treeb(node, level=0, c='-'):
+    key, children = node
+    if children:
+        display_treeb(children[0], level + 1, c='/')
+    print(' ' * 4 * level + c+'> ' + key + '|')
+    if len(children) > 1:
+        display_treeb(children[1], level + 1, c='\\')
+
+# Driver
+
+if __name__ == '__main__':
+    to_parse = '1+2'
+    p = cfg_parse(term_grammar)
+    result = p.unify_key('<expr>', to_parse, 0)
+    for l,res in result:
+        if l == len(to_parse):
+            display_treeb(res)
+
+
+# The above can only work with binary trees. Here is another that can work with all trees.
+
+def display_tree(node, level=0, c='-'):
+    key, children = node
+    print(' ' * 4 * level + c+'> ' + str(key) + '|')
+    for c in children:
+        display_tree(c, level + 1, c='+')
+
+# Using
+if __name__ == '__main__':
+    to_parse = '1+2'
+    p = cfg_parse(term_grammar)
+    result = p.unify_key('<expr>', to_parse, 0)
+    for l,res in result:
+        if l == len(to_parse):
+            display_tree(res)
+
+
 # This implementation is quite limited in that we have lost the ability to memoize (can be added back), and can not handle left recursion. See the [Earley parser](https://www.fuzzingbook.org/html/Parser.html) for a parser without these drawbacks.
 # 
 # [^valiant1975general]: Valiant, Leslie G. "General context-free recognition in less than cubic time." Journal of computer and system sciences 10.2 (1975): 308-315. 
