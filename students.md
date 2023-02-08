@@ -8,7 +8,7 @@ exclude: true
 ---
 # Important
 
-For all students, please workthrough, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published reseaarch, please include it in the application. **Please use to the specified subject format for applications. I use a script to identify and hence respond faster to student emails**.
+For all students, please work through, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. Please explicitly note in your application that you have gone through both. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published research, please include it in the application. **Please use to the specified subject format for applications. I use a script to identify and hence respond faster to student emails**.
 
 
 # <a id='undergrad' href='#undergrad'>Undergrad Summer Internship Applicants</a>
@@ -18,6 +18,10 @@ please check the
 [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6) scholarship.
 Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students. While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials.
 
+Before you apply, make yourself familiar with at least the basics of *regular expressions*,
+*context-free grammars*, *parsing*, and *grammar based fuzzing*. You will get
+sufficient information if you read the *fuzzingbook*.
+
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Internship%20Application:%20(Full%20Name%20here)).
 
 # <a id='honours' href='#honours'>Honours Applicants</a>
@@ -25,6 +29,14 @@ Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=In
 Please see [projects](#projects) for a list of projects.
 
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Honours%20Application:%20(Full%20Name%20here)).
+
+# <a id='honours' href='#honours'>Daytell Research Project Applicants</a>
+
+If you are an undergrad, you may look at [SCDL3991: Science Dalyell Individual Research Project](https://www.sydney.edu.au/units/SCDL3991) from Sydney University. It is a semester long
+project, and if you like any of the projects I propose, or the general area of
+research, please contact me.
+
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Daytell%20Project%20Application:%20(Full%20Name%20here)).
 
 # <a id='masters' href='#masters'>Masters Applicants</a>
 
@@ -37,9 +49,16 @@ Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Ma
 I have several ongoing projects that you may find interesting. These include,
 but not limited to grammar inference, program repair, mutation analysis,
 program coverage, debugging, fuzzing, oracles and test oracles. Pick one area,
-read up on it (especially if I have publication on it), and send me a paragraph on what you learned, and what you may want to explore further. 
+read up on it (especially if I have publication on it), and send me a paragraph
+on what you learned, and what you may want to explore further.
 
-Note that for students form Iran and China, [visa issues](https://twitter.com/ccanonne_/status/1595922255007035392) persist, and can be more than an year for the visa.
+In general, I prefer to work with the Ph.D. applicants for a few months on an
+ongoing project before offering a position. This way, we will get to know each
+other, and can evaluate each others suitability better
+
+Note that for students form Iran and China, [visa issues](https://twitter.com/ccanonne_/status/1595922255007035392) persist, and can be more than an year for the visa. So, until
+this gets resolved, unless you strongly prefer me to be your supervisor, please
+apply to other countries that does not make you wait.
 
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=PhD%20Application:%20(Full%20Name%20here)).
 
@@ -88,7 +107,7 @@ You will work with the supervisor directly for this project. You should be a fas
 ### Description
 
 Grammar based Fuzzers are one of the most important tools in cybersecurity. The
-effectiveness of fuzzing is often determined by the speed at which inputs can be generated, and highly performant grammar fuzzers are crucial. When making a grammar fuzzer, there are multiple tradeoffs that can be made to make it performant. These include fixing the depth of recursion, at which point it becomes automata that can be easily implemented in code without subroutines, or supercompiling the grammar
+effectiveness of fuzzing is often determined by the speed at which inputs can be generated, and highly performant grammar fuzzers are crucial. When making a grammar fuzzer, there are multiple trade-offs that can be made to make it performant. These include fixing the depth of recursion, at which point it becomes automata that can be easily implemented in code without subroutines, or supercompiling the grammar
 (i.e., eliminating redundant procedure calls), or superoptimizing the produced code (i.e., assembly level optimizations using solvers), or come up with other better optimization techniques.
 
 This project will explore how to make grammar fuzzers much more performant and
@@ -165,7 +184,7 @@ You should be a fast learner. Excellent skills in programming (Basic Python & Ja
 
 ### Description
 
-Delta debugging is one of the best known algorithms for quick reduction of test cases, and it operates with $O(log(n))$ best case. The problem with Delat Debugging is that it has a worst case $O(n^2)$. Can we improve this bound? What about Hierarchical Delta Debugging? Finally, can we improve delta debugging in common even when program semantics is required (such as C,Java etc.)? Can we rely on the original Delta Debugging assumptions? (Independence of deltas), or are stricter assumptions required?
+Delta debugging is one of the best known algorithms for quick reduction of test cases, and it operates with $O(log(n))$ best case. The problem with Delta-Debugging is that it has a worst case $O(n^2)$. Can we improve this bound? What about Hierarchical Delta Debugging? Finally, can we improve delta debugging in common even when program semantics is required (such as C,Java etc.)? Can we rely on the original Delta Debugging assumptions? (Independence of deltas), or are stricter assumptions required?
 
 This project, if completed successfully, may be extended for a paper in one of the A/A* conferences in Software engineering.
 
