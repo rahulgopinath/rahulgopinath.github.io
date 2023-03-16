@@ -308,35 +308,36 @@ class ValiantRecognizer(ValiantRecognizer):
         return res
 
 # We can now test it.
+# step 2 b1 = A(1)
 
 if __name__ == '__main__':
     p = ValiantRecognizer(g1)
-    # step 2 b1 = A(1)
     print('transitive closure_i', 1)
     b_1 = p.transitive_closure_i(my_A, 1, my_P)
     v=b_1
     p.print_table(v)
 
-    # step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
+# step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
+if __name__ == '__main__':
     print('transitive closure_i', 2)
     b_2 = p.transitive_closure_i(my_A, 2, my_P)
     v = union_matrices(v,b_2)
     p.print_table(v)
 
-    # step 3.b[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
-    print('_'*80)
+# step 3.b[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
+if __name__ == '__main__':
+    print()
     p.print_table(v)
-    print('_'*80)
+    print()
     b_3 = p.transitive_closure_i(my_A, 3, my_P)
     v = union_matrices(v, b_3)
     p.print_table(v)
-    print('_'*80)
+    print()
 
-    print('_'*80)
     b_4 = p.transitive_closure_i(my_A, 4, my_P)
     v = union_matrices(v, b_4)
     p.print_table(v)
-    print('_'*80)
+    print()
 
 # Building the transitive closure builds the complete parse chart. That is,
 # we can now check if the input was parsed.

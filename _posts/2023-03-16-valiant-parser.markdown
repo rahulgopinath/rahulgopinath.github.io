@@ -612,68 +612,83 @@ class ValiantRecognizer(ValiantRecognizer):
 <div name='python_canvas'></div>
 </form>
 We can now test it.
+step 2 b1 = A(1)
 
 <!--
 ############
 p = ValiantRecognizer(g1)
-# step 2 b1 = A(1)
 print('transitive closure_i', 1)
 b_1 = p.transitive_closure_i(my_A, 1, my_P)
 v=b_1
 p.print_table(v)
-
-# step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
-print('transitive closure_i', 2)
-b_2 = p.transitive_closure_i(my_A, 2, my_P)
-v = union_matrices(v,b_2)
-p.print_table(v)
-
-# step 3.b[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
-print('_'*80)
-p.print_table(v)
-print('_'*80)
-b_3 = p.transitive_closure_i(my_A, 3, my_P)
-v = union_matrices(v, b_3)
-p.print_table(v)
-print('_'*80)
-
-print('_'*80)
-b_4 = p.transitive_closure_i(my_A, 4, my_P)
-v = union_matrices(v, b_4)
-p.print_table(v)
-print('_'*80)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 p = ValiantRecognizer(g1)
-# step 2 b1 = A(1)
 print(&#x27;transitive closure_i&#x27;, 1)
 b_1 = p.transitive_closure_i(my_A, 1, my_P)
 v=b_1
 p.print_table(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
 
-# step 3.a[i=2] =&gt; b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
-print(&#x27;transitive closure_i&#x27;, 2)
+<!--
+############
+print('transitive closure_i', 2)
 b_2 = p.transitive_closure_i(my_A, 2, my_P)
 v = union_matrices(v,b_2)
 p.print_table(v)
 
-# step 3.b[i=3] =&gt; b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
-print(&#x27;_&#x27;*80)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&#x27;transitive closure_i&#x27;, 2)
+b_2 = p.transitive_closure_i(my_A, 2, my_P)
+v = union_matrices(v,b_2)
 p.print_table(v)
-print(&#x27;_&#x27;*80)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+step 3.b[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
+
+<!--
+############
+print()
+p.print_table(v)
+print()
 b_3 = p.transitive_closure_i(my_A, 3, my_P)
 v = union_matrices(v, b_3)
 p.print_table(v)
-print(&#x27;_&#x27;*80)
+print()
 
-print(&#x27;_&#x27;*80)
 b_4 = p.transitive_closure_i(my_A, 4, my_P)
 v = union_matrices(v, b_4)
 p.print_table(v)
-print(&#x27;_&#x27;*80)
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print()
+p.print_table(v)
+print()
+b_3 = p.transitive_closure_i(my_A, 3, my_P)
+v = union_matrices(v, b_3)
+p.print_table(v)
+print()
+
+b_4 = p.transitive_closure_i(my_A, 4, my_P)
+v = union_matrices(v, b_4)
+p.print_table(v)
+print()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
