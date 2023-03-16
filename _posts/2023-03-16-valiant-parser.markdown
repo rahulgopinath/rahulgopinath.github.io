@@ -32,6 +32,7 @@ $$ A -> BC $$
 $$ A -> a $$
  
 $$ S -> \epsilon $$
+
 Where A,B, and C are nonterminal symbols, a is a terminal symbol, S is the
 start symbol, and $$\epsilon$$ is the empty string.
  
@@ -405,8 +406,9 @@ allows sets of nonterminal symbols at each cell. So, we define the
 multiplication of individual cells.
 
 Given two sets of nonterminal symbols $$N_1$$, $$N_2$$, we have
-
-$$ N_1 ∗ N_2 = {A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P} $$
+ 
+$$ N_1 ∗ N_2 = \{ A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P \} $$
+ 
 where $$P$$ is the set of production rules. The essential idea is, given a
 rule $$A_i -> A_j A_k $$, and the parsing of $$A_j$$ and $$A_k$$ is available,
 then mark $$A_i$$ as parsable.
