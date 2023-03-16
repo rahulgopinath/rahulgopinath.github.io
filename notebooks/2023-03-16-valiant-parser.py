@@ -480,4 +480,4 @@ if __name__ == '__main__':
 # [^valiant1975]: Leslie G. Valiant "General context-free recognition in less than cubic time" 1975
 # [^ebert2006]: Franziska Ebert "CFG Parsing and Boolean Matrix Multiplication" 2006
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
-# [^ruzzo1979on] Ruzzo, Walter L. "On the complexity of general context-free language parsing and recognition." 1979
+# [^ruzzo1979on]: Ruzzo, Walter L. "On the complexity of general context-free language parsing and recognition." 1979
