@@ -257,7 +257,9 @@ def multiply_matrices(A, B, P):
         for j in range(m):
             for k in range(m):
                 N1 = A[i][k]
+                if not N1: continue
                 N2 = B[k][j]
+                if not N2: continue
                 C[i][j] |= multiply_subsets(N1, N2, P)
     return C
 
@@ -414,7 +416,7 @@ class ValiantParser(ValiantRecognizer):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
-        my_A = self.parse_1(text, n, table)
+        my_A = self.parse_1(text, length, table)
         my_P = self.nonterminal_productions
         ntable = transitive_closure(my_A, my_P, length)
         start = list(ntable[0][-1].keys())[0]
@@ -432,6 +434,30 @@ if __name__ == '__main__':
 
 def display_tree(t):
     return ep.display_tree(t)
+
+
+g2 = {
+    '<S>': [
+          ['<S>', '<S>'],
+          ['<U>', '<S_>'],
+          ['<U>', '<V>'],
+          ],
+    '<S_>': [
+          ['<S>', '<V>']],
+   '<U>': [['(']],
+   '<V>': [[')']],
+}
+g2_start = '<S>'
+
+# Using
+
+if __name__ == '__main__':
+    mystring = '(()(()))'
+    p = ValiantParser(g2)
+    v = p.parse_on(mystring, '<S>')
+    for t in v:
+        print(ep.display_tree(t))
+
 
 # [^valiant1975]: Leslie G. Valiant "General context-free recognition in less than cubic time" 1975
 # [^ebert2006]: Franziska Ebert "CFG Parsing and Boolean Matrix Multiplication" 2006
