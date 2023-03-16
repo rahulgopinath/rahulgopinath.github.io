@@ -384,9 +384,8 @@ if __name__ == '__main__':
     print()
 
 # ## ValiantParser
-# **Note:** The **recognizer** works well, but the tree extraction is buggy.
-# This part is a work in progress.
-#
+# **Note:** The **recognizer** works well, but the tree extraction is naive.
+#   
 # At this point, we have the *recognition matrix*. To make this into a true
 # parser, similar to CYK, we can add back pointers. However, Ruzzo[^ruzzo1979on]
 # showed that if we have the CYK or Valiant recognition matrix (both are same)
