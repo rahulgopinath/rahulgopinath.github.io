@@ -170,10 +170,12 @@ class CYKRecognizer(ep.Parser):
         self.nonterminal_rules = {}
         for k, rule in self.productions:
             if fuzzer.is_terminal(rule[0]):
-                if k not in self.terminal_rules: self.terminal_rules[rule[0]] = []
+                if k not in self.terminal_rules:
+                    self.terminal_rules[rule[0]] = []
                 self.terminal_rules[rule[0]].append(k)
             else:
-                if k not in self.nonterminal_rules: self.nonterminal_rules[(rule[0],rule[1])] = []
+                if k not in self.nonterminal_rules:
+                    self.nonterminal_rules[(rule[0],rule[1])] = []
                 self.nonterminal_rules[(rule[0],rule[1])].append(k)
 
 # Next, we define the recognizer. The idea here is that CYK algorithm formulates
@@ -310,8 +312,10 @@ class CYKParser(CYKRecognizer):
     def __init__(self, grammar):
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
-        self.terminal_productions = [(k,r[0]) for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
-        self.nonterminal_productions = [(k,r) for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
+        self.terminal_productions = [(k,r[0])
+            for (k,r) in self.productions if fuzzer.is_terminal(r[0])]
+        self.nonterminal_productions = [(k,r)
+            for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
 
 # The parse_1 for terminal symbols
 
@@ -320,7 +324,8 @@ class CYKParser(CYKParser):
         for s in range(0,length):
             for (key, terminal) in self.terminal_productions:
                 if text[s] == terminal:
-                    if key not in table[s][s+1]: table[s][s+1][key] = []
+                    if key not in table[s][s+1]:
+                        table[s][s+1][key] = []
                     table[s][s+1][key].append((key, [(text[s], [])]))
         return table
 
@@ -333,8 +338,10 @@ class CYKParser(CYKParser):
                 for (k, [R_b, R_c]) in self.nonterminal_productions:
                     if R_b in table[s][p]:
                         if R_c in table[s+p][s+n]:
-                            if k not in table[s][s+n]: table[s][s+n][k] = []
-                            table[s][s+n][k].append((k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+                            if k not in table[s][s+n]:
+                                table[s][s+n][k] = []
+                            table[s][s+n][k].append(
+                                (k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
 
 # Parsing
 
