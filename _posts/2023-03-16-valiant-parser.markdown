@@ -805,10 +805,7 @@ class ValiantParser(ValiantRecognizer):
         def find_break(A, B, table):
             for i,row in enumerate(table):
                 for j,cell in enumerate(row):
-                    # 0,2 2,4
-                    if A in cell \
-                            and B in table[j][length]:
-                                return j
+                    if A in cell and B in table[j][length]: return j
             return -1
         # identify the rules
         rules = self.grammar[sym]
@@ -830,15 +827,6 @@ class ValiantParser(ValiantRecognizer):
         r = self.extract_tree(r_table, B_j, c_j)
         return [sym, [l, r]]
 
-    def parse_on(self, text, start_symbol):
-        length = len(text)
-        table = self.init_table(text, length)
-        my_A = self.parse_1(text, length, table)
-        my_P = self.nonterminal_productions
-        ntable = self.transitive_closure(my_A, my_P, length)
-        start = list(ntable[0][-1].keys())[0]
-        return [self.extract_tree(ntable, start, length)]
-
 ############
 -->
 <form name='python_run_form'>
@@ -848,10 +836,7 @@ class ValiantParser(ValiantRecognizer):
         def find_break(A, B, table):
             for i,row in enumerate(table):
                 for j,cell in enumerate(row):
-                    # 0,2 2,4
-                    if A in cell \
-                            and B in table[j][length]:
-                                return j
+                    if A in cell and B in table[j][length]: return j
             return -1
         # identify the rules
         rules = self.grammar[sym]
@@ -872,7 +857,29 @@ class ValiantParser(ValiantRecognizer):
         r_table = [[table[i][j] for j in range(c_j,length+1)] for i in range(c_j, length+1)]
         r = self.extract_tree(r_table, B_j, c_j)
         return [sym, [l, r]]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Adding the extract tree
 
+<!--
+############
+class ValiantParser(ValiantRecognizer):
+    def parse_on(self, text, start_symbol):
+        length = len(text)
+        table = self.init_table(text, length)
+        my_A = self.parse_1(text, length, table)
+        my_P = self.nonterminal_productions
+        ntable = self.transitive_closure(my_A, my_P, length)
+        start = list(ntable[0][-1].keys())[0]
+        return [self.extract_tree(ntable, start, length)]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ValiantParser(ValiantRecognizer):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)

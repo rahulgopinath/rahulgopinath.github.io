@@ -392,10 +392,7 @@ class ValiantParser(ValiantRecognizer):
         def find_break(A, B, table):
             for i,row in enumerate(table):
                 for j,cell in enumerate(row):
-                    # 0,2 2,4
-                    if A in cell \
-                            and B in table[j][length]:
-                                return j
+                    if A in cell and B in table[j][length]: return j
             return -1
         # identify the rules
         rules = self.grammar[sym]
@@ -417,6 +414,9 @@ class ValiantParser(ValiantRecognizer):
         r = self.extract_tree(r_table, B_j, c_j)
         return [sym, [l, r]]
 
+# Adding the extract tree
+
+class ValiantParser(ValiantRecognizer):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
