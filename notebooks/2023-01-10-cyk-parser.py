@@ -16,13 +16,15 @@
 # parsers, it requires the grammar to be in the Chomsky normal form, which
 # allows at most two symbols on the right hand side of any production.
 # In particular, all the rules have to conform to
-#
+# 
 # $$ A -> BC $$
+# 
 # $$ A -> a $$
+# 
 # $$ S -> \epsilon $$
-#
+# 
 # Where A,B, and C are nonterminal symbols, a is a terminal symbol, S is the
-# start symbol, and $\epsilon$ is the empty string.
+# start symbol, and $$\epsilon$$ is the empty string.
 #  
 # We [previously discussed](/post/2021/02/06/earley-parsing/) 
 # Earley parser which is a general context-free parser. CYK
@@ -156,7 +158,7 @@ g1_start = '<S>'
 # We initialize our parser with the grammar, and identify the terminal and
 # nonterminal productions separately. termiinal productions are those that
 # are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
-# productions are of the form `<A>` ::= <B><C>` where `<B>` and `<C>` are
+# productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
 # nonterminal symbols.
 
 class CYKRecognizer(ep.Parser):

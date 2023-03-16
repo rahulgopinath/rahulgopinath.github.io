@@ -45,8 +45,8 @@
 #  
 # A peculiarity of Valiant's parser that it shares with CYK parser is that
 # unlike Earley, GLL, and GLR, it is not a left-to-right parser.
-# Furthermore, it is a bottom-up parser similar to CYK that builds substrings of
-# fixed length from the bottom up.
+# Rather, it is a bottom-up parser similar to CYK that builds substrings of
+# fixed length at each pass.
 #  
 # ## Synopsis
 #
@@ -169,7 +169,7 @@ g1_start = '<S>'
 # We initialize our parser with the grammar, and identify the terminal and
 # nonterminal productions separately. termiinal productions are those that
 # are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
-# productions are of the form `<A>` ::= <B><C>` where `<B>` and `<C>` are
+# productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
 # nonterminal symbols.
 
 class ValiantRecognizer(cykp.CYKParser):
