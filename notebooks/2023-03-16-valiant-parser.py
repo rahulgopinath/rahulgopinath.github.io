@@ -233,12 +233,7 @@ if __name__ == '__main__':
 # 
 
 def multiply_subsets(N1, N2, P):
-    #return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
-    Ais = {}
-    for Ai, (Aj,Ak) in P:
-        if Aj in N1 and Ak in N2:
-            Ais[Ai] = True
-    return Ais
+    return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
 
 
 

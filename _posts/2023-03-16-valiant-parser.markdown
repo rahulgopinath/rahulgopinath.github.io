@@ -415,12 +415,7 @@ then mark $$A_i$$ as parsable.
 <!--
 ############
 def multiply_subsets(N1, N2, P):
-    #return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
-    Ais = {}
-    for Ai, (Aj,Ak) in P:
-        if Aj in N1 and Ak in N2:
-            Ais[Ai] = True
-    return Ais
+    return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
 
 
 
@@ -429,12 +424,7 @@ def multiply_subsets(N1, N2, P):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def multiply_subsets(N1, N2, P):
-    #return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
-    Ais = {}
-    for Ai, (Aj,Ak) in P:
-        if Aj in N1 and Ak in N2:
-            Ais[Ai] = True
-    return Ais
+    return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
