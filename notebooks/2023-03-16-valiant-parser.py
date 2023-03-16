@@ -391,40 +391,71 @@ if __name__ == '__main__':
 # parser, similar to CYK, we can add back pointers. However, Ruzzo[^ruzzo1979on]
 # showed that if we have the CYK or Valiant recognition matrix (both are same)
 # we can extract a parse tree in at most $$ O(log(n))$$ slower than the recognizer.
-# 
+# Here, we implement a naive algorithm that just shows how we can extract a
+# single tree.
+#  
 # Unlike GLL, GLR, and Earley, and like
 # CYK, due to restricting epsilons to the start symbol, there are no infinite
 # parse trees. Furthermore, we only pick the first available tree. This can be
 # trivially extended if needed.
+#  
+# The basic idea here is that, given a rule $$ S -> A B $$ that parsed text
+# $$W$$, and we find $$S$$ in the recognition matrix, the nonterminal $$B$$ that
+# helped in parsing $$W$$ has to be found in the same column as that of $$S$$.
+# So, we look through the final column and generate a list of tuples where the
+# tuple has the format `(idx, nonterminal)` where `idx` is the point where $$B$$
+# started parsing from. At this point, if we look at the column `idx-1`, then at
+# the top of the column (in 0th row) there has to be the nonterminal $$A$$ that
+# is on the other side of the rule.
+
+def find_breaks(table, sym, P):
+    rules = [(l, (m, n)) for (l, (m, n)) in P if l == sym]
+    # get the last column.
+    if not table: return [] # terminal symbol
+    m = len(table)
+    last_column = [row[m-1] for row in table]
+    assert sym in last_column[0]
+
+    # Now, identify the index, and nonterminal
+    tuples = []
+    for idx, cell in enumerate(last_column):
+        for k in cell: # cell is {k:true}*
+            tuples.append((idx, k))
+    # remove start symbol
+    B_tuples = [(idx, k) for (idx,k) in tuples if k != sym or idx != 0]
+    A_tuples = []
+    for idx, B_k in B_tuples:
+        B_rules = [(d, (l, r)) for d,(l,r) in rules if r == B_k]
+        A_cell_ = table[0][idx]
+        A_rules = [(idx, (l, r)) for d,(l,r) in B_rules if l in A_cell_]
+        if A_rules: # we found a parse.
+            A_tuples.extend(A_rules)
+
+    return A_tuples
+
+# Testing it
+if __name__ == '__main__':
+    print()
+    t = find_breaks(v, '<S>', my_P)
+    print(t)
+
+# Incorporating the breaks in tree.
 
 class ValiantParser(ValiantRecognizer):
-    def extract_tree(self, table, sym, length):
-        def find_breaks(rule, table):
-            A, B = rule
-            breaks = []
-            for i,row in enumerate(table):
-                for j,cell in enumerate(row):
-                    if A in cell and B in table[j][length]:
-                        breaks.append(j)
-            return breaks
-
-        rules = self.grammar[sym]
-        possible_breaks = []
-        for rule in rules:
-            if len(rule) == 1:
-                return [sym, [(rule[0], [])]]
-            c_js = find_breaks(rule, table)
-            for c_j in c_js:
-                possible_breaks.append((rule, c_j))
-        (A_j, B_j), c_j = random.choice(possible_breaks)
+    def extract_tree(self, table, sym, text):
+        #assert len(table) == length
+        length = len(table)
+        possible_breaks = find_breaks(table, sym, self.nonterminal_productions)
+        if not possible_breaks: return [sym, [(text, [])]]
+        c_j, (A_j, B_j) = random.choice(possible_breaks)
 
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
-        l = self.extract_tree(l_table, A_j, c_j)
+        r_table = [[table[i][j] for j in range(c_j, length)] for i in range(c_j, length)]
 
-        r_table = [[table[i][j]
-                   for j in range(c_j,length+1)]
-                   for i in range(c_j, length+1)]
-        r = self.extract_tree(r_table, B_j, c_j)
+
+        l = self.extract_tree(l_table, A_j, text[0:c_j])
+
+        r = self.extract_tree(r_table, B_j, text[c_j:])
         return [sym, [l, r]]
 
 # Adding the extract tree
@@ -436,8 +467,9 @@ class ValiantParser(ValiantParser):
         my_A = self.parse_1(text, length, table)
         my_P = self.nonterminal_productions
         ntable = self.transitive_closure(my_A, my_P, length)
+        if start_symbol not in ntable[0][-1]: return []
         start = list(ntable[0][-1].keys())[0]
-        return [self.extract_tree(ntable, start, length)]
+        return [self.extract_tree(ntable, start, text)]
 
 # Using it (uses random choice, click run multiple times to get other trees).
 if __name__ == '__main__':
@@ -469,8 +501,7 @@ g2_start = '<S>'
 # Using
 
 if __name__ == '__main__':
-    #mystring = '(()(()))'
-    mystring = '(())'
+    mystring = '(()(()))'
     p = ValiantParser(g2)
     v = p.parse_on(mystring, '<S>')
     for t in v:
