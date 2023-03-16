@@ -196,6 +196,7 @@ class ValiantRecognizer(cykp.CYKParser):
 # is, `<A>` parses the string if there exists such a parse with `<B>` and `<C>`
 # for some `x`.
 #
+# ### Initialize the table
 # We first initialize the matrix that holds the results. The `cell[i][j]`
 # represents the nonterminals that can parse the substring `text[i..j]`
 
@@ -228,6 +229,7 @@ if __name__ == '__main__':
 # allows sets of nonterminal symbols at each cell. So, we define the
 # multiplication of individual cells.
 # 
+# ### Matrix multiplication
 # Given two sets of nonterminal symbols $$N_1$$, $$N_2$$, we have
 #  
 # $$ N_1 ∗ N_2 = \{ A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P \} $$
@@ -272,6 +274,7 @@ if __name__ == '__main__':
     p.print_table(my_A_2)
     print()
 
+# ### Matrix union
 # Next, we want to define how to make a union of two matrices
 
 def union_matrices(A, B):
@@ -288,6 +291,7 @@ if __name__ == '__main__':
     p.print_table(res)
     print()
 
+# ### Transitive closure
 # At this point, we are ready to define the transitive closure. We first
 # define $$a^(i) = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$
 # The base case is $$a^{(1)} = a$$
@@ -353,6 +357,7 @@ if __name__ == '__main__':
     v = p.transitive_closure(my_A, my_P, n)
     print('parsed:', '<S>' in v[0][n])
 
+# ### Recognize
 # Let us hook it up.
 class ValiantRecognizer(ValiantRecognizer):
     def recognize_on(self, text, start_symbol):
@@ -435,11 +440,11 @@ if __name__ == '__main__':
     t = find_breaks(v, '<S>', my_P)
     print(t)
 
+# ### Extracting trees
 # Incorporating the breaks in tree.
 
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, text):
-        #assert len(table) == length
         length = len(table)
         possible_breaks = find_breaks(table, sym, self.nonterminal_productions)
         if not possible_breaks: return [sym, [(text, [])]]
@@ -454,6 +459,7 @@ class ValiantParser(ValiantRecognizer):
         r = self.extract_tree(r_table, B_j, text[c_j:])
         return [sym, [l, r]]
 
+# ### Parse
 # Adding the extract tree
 
 class ValiantParser(ValiantParser):

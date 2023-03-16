@@ -336,6 +336,7 @@ defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
 parse of the substring `x..n` with nonterminal `<C>` where `0 < x < n`. That
 is, `<A>` parses the string if there exists such a parse with `<B>` and `<C>`
 for some `x`.
+### Initialize the table
 We first initialize the matrix that holds the results. The `cell[i][j]`
 represents the nonterminals that can parse the substring `text[i..j]`
 
@@ -410,6 +411,7 @@ matrices which is the core of this algorithm. The table which we defined
 allows sets of nonterminal symbols at each cell. So, we define the
 multiplication of individual cells.
 
+### Matrix multiplication
 Given two sets of nonterminal symbols $$N_1$$, $$N_2$$, we have
  
 $$ N_1 ∗ N_2 = \{ A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P \} $$
@@ -517,6 +519,7 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Matrix union
 Next, we want to define how to make a union of two matrices
 
 <!--
@@ -563,6 +566,7 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Transitive closure
 At this point, we are ready to define the transitive closure. We first
 define $$a^(i) = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$
 The base case is $$a^{(1)} = a$$
@@ -729,6 +733,7 @@ print(&#x27;parsed:&#x27;, &#x27;&lt;S&gt;&#x27; in v[0][n])
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Recognize
 Let us hook it up.
 
 <!--
@@ -901,13 +906,13 @@ print(t)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Extracting trees
 Incorporating the breaks in tree.
 
 <!--
 ############
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, text):
-        #assert len(table) == length
         length = len(table)
         possible_breaks = find_breaks(table, sym, self.nonterminal_productions)
         if not possible_breaks: return [sym, [(text, [])]]
@@ -928,7 +933,6 @@ class ValiantParser(ValiantRecognizer):
 <textarea cols="40" rows="4" name='python_edit'>
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, text):
-        #assert len(table) == length
         length = len(table)
         possible_breaks = find_breaks(table, sym, self.nonterminal_productions)
         if not possible_breaks: return [sym, [(text, [])]]
@@ -946,6 +950,7 @@ class ValiantParser(ValiantRecognizer):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Parse
 Adding the extract tree
 
 <!--
