@@ -809,6 +809,9 @@ print()
 <div name='python_canvas'></div>
 </form>
 ## ValiantParser
+**Note:** The **recognizer** works well, but the tree extraction is buggy.
+This part is a work in progress.
+
 Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, and like
 CYK, due to restricting epsilons to the start symbol, there are no infinite
 parse trees. Furthermore, we only pick the first available tree. This can be
@@ -818,23 +821,24 @@ trivially extended if needed.
 ############
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, length):
-        def find_break(A, B, table):
+        def find_breaks(rule, table):
+            A, B = rule
+            breaks = []
             for i,row in enumerate(table):
                 for j,cell in enumerate(row):
-                    if A in cell and B in table[j][length]: return j
-            return -1
+                    if A in cell and B in table[j][length]:
+                        breaks.append(j)
+            return breaks
 
         rules = self.grammar[sym]
-        c_i, c_j, c_k = -1, -1, -1
-        A_j, B_j = None, None
+        possible_breaks = []
         for rule in rules:
             if len(rule) == 1:
                 return [sym, [(rule[0], [])]]
-            A, B = rule
-            c_j = find_break(A, B, table)
-            if c_j > 0:
-                A_j, B_j = A, B
-                break
+            c_js = find_breaks(rule, table)
+            for c_j in c_js:
+                possible_breaks.append((rule, c_j))
+        (A_j, B_j), c_j = random.choice(possible_breaks)
 
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
@@ -851,23 +855,24 @@ class ValiantParser(ValiantRecognizer):
 <textarea cols="40" rows="4" name='python_edit'>
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, length):
-        def find_break(A, B, table):
+        def find_breaks(rule, table):
+            A, B = rule
+            breaks = []
             for i,row in enumerate(table):
                 for j,cell in enumerate(row):
-                    if A in cell and B in table[j][length]: return j
-            return -1
+                    if A in cell and B in table[j][length]:
+                        breaks.append(j)
+            return breaks
 
         rules = self.grammar[sym]
-        c_i, c_j, c_k = -1, -1, -1
-        A_j, B_j = None, None
+        possible_breaks = []
         for rule in rules:
             if len(rule) == 1:
                 return [sym, [(rule[0], [])]]
-            A, B = rule
-            c_j = find_break(A, B, table)
-            if c_j &gt; 0:
-                A_j, B_j = A, B
-                break
+            c_js = find_breaks(rule, table)
+            for c_j in c_js:
+                possible_breaks.append((rule, c_j))
+        (A_j, B_j), c_j = random.choice(possible_breaks)
 
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
@@ -984,7 +989,8 @@ Using
 
 <!--
 ############
-mystring = '(()(()))'
+#mystring = '(()(()))'
+mystring = '(())'
 p = ValiantParser(g2)
 v = p.parse_on(mystring, '<S>')
 for t in v:
@@ -995,7 +1001,8 @@ for t in v:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;(()(()))&#x27;
+#mystring = &#x27;(()(()))&#x27;
+mystring = &#x27;(())&#x27;
 p = ValiantParser(g2)
 v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
 for t in v:
