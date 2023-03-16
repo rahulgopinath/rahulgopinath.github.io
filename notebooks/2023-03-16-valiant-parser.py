@@ -386,7 +386,8 @@ if __name__ == '__main__':
 # ## ValiantParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, and like
 # CYK, due to restricting epsilons to the start symbol, there are no infinite
-# parse trees.
+# parse trees. Furthermore, we only pick the first available tree. This can be
+# trivially extended if needed.
 
 class ValiantParser(ValiantRecognizer):
     def extract_tree(self, table, sym, length):
