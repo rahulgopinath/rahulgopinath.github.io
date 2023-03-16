@@ -13,24 +13,27 @@ Franziska Ebert [^ebert2006], implemented in Python.
 The Python interpreter is embedded so that you can work through the
 implementation steps.
  
-Valiant's parer is a general context-free parser, and like CYK and Earley, it
+Valiant's parer is a general context-free parser, and like [CYK](/post/2023/01/10/cyk-parser/) and [Earley](/post/2021/02/06/earley-parsing/), it
 operates on a chart. The claim to fame of Valiant's parser is that it showed
 how to *transform* recognition of general-context free languages to an
 instance of Boolean Matrix Multiplication. That is, if you have a good matrix
 multiplication algorithm, you can use it to improve the speed of context-free
 language recognition. In fact, while previously known algorithms such as CYK
 and Earley were $$O(n^3)$$ in the worst case, Valiant's algorithm showed how
-recognition could be done in $$O(n^2.81)$$ time using Strassen's matrix
+recognition could be done in $$O(n^{2.81})$$ time using [Strassen's](https://en.wikipedia.org/wiki/Strassen_algorithm) matrix
 multiplication algorithm.
 It uses the same chart as that of CYK, and similar to CYK, it requires the
 grammar to be in the Chomsky Normal Form, which
 allows at most two symbols on the right hand side of any production.
 In particular, all the rules have to conform to
+
 $$ A -> BC $$
+ 
 $$ A -> a $$
+ 
 $$ S -> \epsilon $$
 Where A,B, and C are nonterminal symbols, a is a terminal symbol, S is the
-start symbol, and $\epsilon$ is the empty string.
+start symbol, and $$\epsilon$$ is the empty string.
  
 We [previously discussed](/post/2021/02/06/earley-parsing/) 
 Earley parser which is a general context-free parser. CYK
