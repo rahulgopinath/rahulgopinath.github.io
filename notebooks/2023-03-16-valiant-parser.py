@@ -13,6 +13,8 @@
 # Franziska Ebert [^ebert2006], implemented in Python.
 # The Python interpreter is embedded so that you can work through the
 # implementation steps.
+# 
+#  **Note.** This implementation is thoroughly unoptimized.
 #  
 # Valiant's parer is a general context-free parser, and like [CYK](/post/2023/01/10/cyk-parser/) and [Earley](/post/2021/02/06/earley-parsing/), it
 # operates on a chart. The claim to fame of Valiant's parser is that it showed
