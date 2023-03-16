@@ -275,8 +275,6 @@ if __name__ == '__main__':
 # Next, we want to define how to make a union of two matrices
 
 def union_matrices(A, B):
-    if B is None: return A
-    if A is None: return B
     C = [[{} for _ in range(len(A))] for _ in range(len(A))]
     for i in range(len(A)):
         for j in range(len(A)):

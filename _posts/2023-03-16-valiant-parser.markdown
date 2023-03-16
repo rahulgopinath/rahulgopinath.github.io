@@ -522,8 +522,6 @@ Next, we want to define how to make a union of two matrices
 <!--
 ############
 def union_matrices(A, B):
-    if B is None: return A
-    if A is None: return B
     C = [[{} for _ in range(len(A))] for _ in range(len(A))]
     for i in range(len(A)):
         for j in range(len(A)):
@@ -536,8 +534,6 @@ def union_matrices(A, B):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def union_matrices(A, B):
-    if B is None: return A
-    if A is None: return B
     C = [[{} for _ in range(len(A))] for _ in range(len(A))]
     for i in range(len(A)):
         for j in range(len(A)):
