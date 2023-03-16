@@ -225,7 +225,7 @@ if __name__ == '__main__':
 # 
 # Given two sets of nonterminal symbols $$N_1$$, $$N_2$$, we have
 # 
-# $$ N_1 ∗ N_2 = {A_i | \exist A_j \in N_1, A_k \in N_2 such that (A_i -> A_j A_k) \in P}
+# $$ N_1 ∗ N_2 = {A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P} $$
 #
 # where $$P$$ is the set of production rules. The essential idea is, given a
 # rule $$A_i -> A_j A_k $$, and the parsing of $$A_j$$ and $$A_k$$ is available,
