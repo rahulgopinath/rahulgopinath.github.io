@@ -24,7 +24,9 @@
 # language recognition. In fact, while previously known algorithms such as CYK
 # and Earley were $$O(n^3)$$ in the worst case, Valiant's algorithm showed how
 # recognition could be done in $$O(n^{2.81})$$ time using [Strassen's](https://en.wikipedia.org/wiki/Strassen_algorithm) matrix
-# multiplication algorithm (This post uses the traditional multiplication algorithm).
+# multiplication algorithm (This post uses the traditional multiplication
+# algorithm, but improved algorithms can be substituted at the
+# `multiply_matrices()` function ).
 #
 # It uses the same chart as that of CYK, and similar to CYK, it requires the
 # grammar to be in the Chomsky Normal Form, which
@@ -257,11 +259,7 @@ def multiply_matrices(A, B, P):
     for i in range(m):
         for j in range(m):
             for k in range(m):
-                N1 = A[i][k]
-                if not N1: continue
-                N2 = B[k][j]
-                if not N2: continue
-                C[i][j] |= multiply_subsets(N1, N2, P)
+                C[i][j] |= multiply_subsets(A[i][k], B[k][j], P)
     return C
 
 # Let us try testing it.
