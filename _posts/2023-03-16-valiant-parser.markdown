@@ -822,6 +822,7 @@ class ValiantParser(ValiantRecognizer):
                 for j,cell in enumerate(row):
                     if A in cell and B in table[j][length]: return j
             return -1
+
         rules = self.grammar[sym]
         c_i, c_j, c_k = -1, -1, -1
         A_j, B_j = None, None
@@ -832,6 +833,7 @@ class ValiantParser(ValiantRecognizer):
             c_j = find_break(A, B, table)
             if c_j > 0:
                 A_j, B_j = A, B
+                break
 
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
@@ -853,6 +855,7 @@ class ValiantParser(ValiantRecognizer):
                 for j,cell in enumerate(row):
                     if A in cell and B in table[j][length]: return j
             return -1
+
         rules = self.grammar[sym]
         c_i, c_j, c_k = -1, -1, -1
         A_j, B_j = None, None
@@ -863,6 +866,7 @@ class ValiantParser(ValiantRecognizer):
             c_j = find_break(A, B, table)
             if c_j &gt; 0:
                 A_j, B_j = A, B
+                break
 
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
