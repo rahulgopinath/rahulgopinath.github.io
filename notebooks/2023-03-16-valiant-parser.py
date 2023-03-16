@@ -386,8 +386,13 @@ if __name__ == '__main__':
 # ## ValiantParser
 # **Note:** The **recognizer** works well, but the tree extraction is buggy.
 # This part is a work in progress.
+#
+# At this point, we have the *recognition matrix*. To make this into a true
+# parser, similar to CYK, we can add back pointers. However, Ruzzo[^ruzzo1979on]
+# showed that if we have the CYK or Valiant recognition matrix (both are same)
+# we can extract a parse tree in at most $$ O(log(n))$$ slower than the recognizer.
 # 
-# Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, and like
+# Unlike GLL, GLR, and Earley, and like
 # CYK, due to restricting epsilons to the start symbol, there are no infinite
 # parse trees. Furthermore, we only pick the first available tree. This can be
 # trivially extended if needed.
@@ -475,4 +480,4 @@ if __name__ == '__main__':
 # [^valiant1975]: Leslie G. Valiant "General context-free recognition in less than cubic time" 1975
 # [^ebert2006]: Franziska Ebert "CFG Parsing and Boolean Matrix Multiplication" 2006
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
-
+# [^ruzzo1979on] Ruzzo, Walter L. "On the complexity of general context-free language parsing and recognition." 1979
