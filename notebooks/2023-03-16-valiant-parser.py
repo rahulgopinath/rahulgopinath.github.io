@@ -183,8 +183,8 @@ class ValiantRecognizer(cykp.CYKParser):
         self.nonterminal_productions = [(k,r)
             for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
 
-# Next, we define the recognizer. The idea here is that CYK algorithm formulates
-# the recognition problem as a dynamic problem where the parse of a string of
+# Next, we define the recognizer. Like in CYK idea here is that the algorithm formulates
+# the recognition problem as a problem where the parse of a string of
 # length `n` using a nonterminal `<A>` which is defined as `<A> ::= <B> <C>` is
 # defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
 # parse of the substring `x..n` with nonterminal `<C>` where `0 < x < n`. That

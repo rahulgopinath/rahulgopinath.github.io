@@ -42,8 +42,8 @@ strings that conform to **any** given context-free grammar.
  
 A peculiarity of Valiant's parser that it shares with CYK parser is that
 unlike Earley, GLL, and GLR, it is not a left-to-right parser.
-Furthermore, it is a bottom-up parser similar to CYK that builds substrings of
-fixed length from the bottom up.
+Rather, it is a bottom-up parser similar to CYK that builds substrings of
+fixed length at each pass.
  
 ## Synopsis
 ```python
@@ -289,7 +289,7 @@ g1_start = &#x27;&lt;S&gt;&#x27;
 We initialize our parser with the grammar, and identify the terminal and
 nonterminal productions separately. termiinal productions are those that
 are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
-productions are of the form `<A>` ::= <B><C>` where `<B>` and `<C>` are
+productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
 nonterminal symbols.
 
 <!--
@@ -323,8 +323,8 @@ class ValiantRecognizer(cykp.CYKParser):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Next, we define the recognizer. The idea here is that CYK algorithm formulates
-the recognition problem as a dynamic problem where the parse of a string of
+Next, we define the recognizer. Like in CYK idea here is that the algorithm formulates
+the recognition problem as a problem where the parse of a string of
 length `n` using a nonterminal `<A>` which is defined as `<A> ::= <B> <C>` is
 defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
 parse of the substring `x..n` with nonterminal `<C>` where `0 < x < n`. That
