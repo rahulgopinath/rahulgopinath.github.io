@@ -719,7 +719,7 @@ Testing.
 p = ValiantRecognizer(g1)
 n = len('aabb')
 v = p.transitive_closure(my_A, my_P, n)
-print('parsed:', '<S>' in v[0][n])
+print('parsed:', g1_start in v[0][n])
 
 ############
 -->
@@ -728,7 +728,7 @@ print('parsed:', '<S>' in v[0][n])
 p = ValiantRecognizer(g1)
 n = len(&#x27;aabb&#x27;)
 v = p.transitive_closure(my_A, my_P, n)
-print(&#x27;parsed:&#x27;, &#x27;&lt;S&gt;&#x27; in v[0][n])
+print(&#x27;parsed:&#x27;, g1_start in v[0][n])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -769,16 +769,16 @@ Using it
 ############
 p = ValiantRecognizer(g1)
 txt = 'aabb'
-result = p.recognize_on(txt, '<S>')
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 txt = 'aabc'
-result = p.recognize_on(txt, '<S>')
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 
 txt = 'aaabbb'
-result = p.recognize_on(txt, '<S>')
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 
@@ -788,16 +788,16 @@ print()
 <textarea cols="40" rows="4" name='python_edit'>
 p = ValiantRecognizer(g1)
 txt = &#x27;aabb&#x27;
-result = p.recognize_on(txt, &#x27;&lt;S&gt;&#x27;)
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 txt = &#x27;aabc&#x27;
-result = p.recognize_on(txt, &#x27;&lt;S&gt;&#x27;)
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 
 txt = &#x27;aaabbb&#x27;
-result = p.recognize_on(txt, &#x27;&lt;S&gt;&#x27;)
+result = p.recognize_on(txt, g1_start)
 print(result)
 print()
 </textarea><br />
@@ -814,6 +814,7 @@ we can extract a parse tree in at most $$ O(log(n))$$ slower than the recognizer
 Here, we implement a naive algorithm that just shows how we can extract a
 single tree.
  
+### Extracting trees
 Unlike GLL, GLR, and Earley, and like
 CYK, due to restricting epsilons to the start symbol, there are no infinite
 parse trees. Furthermore, we only pick the first available tree. This can be
@@ -892,7 +893,7 @@ Testing it
 <!--
 ############
 print()
-t = find_breaks(v, '<S>', my_P)
+t = find_breaks(v, g1_start, my_P)
 print(t)
 
 ############
@@ -900,13 +901,12 @@ print(t)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print()
-t = find_breaks(v, &#x27;&lt;S&gt;&#x27;, my_P)
+t = find_breaks(v, g1_start, my_P)
 print(t)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Extracting trees
 Incorporating the breaks in tree.
 
 <!--
@@ -963,8 +963,7 @@ class ValiantParser(ValiantParser):
         my_P = self.nonterminal_productions
         ntable = self.transitive_closure(my_A, my_P, length)
         if start_symbol not in ntable[0][-1]: return []
-        start = list(ntable[0][-1].keys())[0]
-        return [self.extract_tree(ntable, start, text)]
+        return [self.extract_tree(ntable, start_symbol, text)]
 
 ############
 -->
@@ -978,8 +977,7 @@ class ValiantParser(ValiantParser):
         my_P = self.nonterminal_productions
         ntable = self.transitive_closure(my_A, my_P, length)
         if start_symbol not in ntable[0][-1]: return []
-        start = list(ntable[0][-1].keys())[0]
-        return [self.extract_tree(ntable, start, text)]
+        return [self.extract_tree(ntable, start_symbol, text)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -990,7 +988,7 @@ Using it (uses random choice, click run multiple times to get other trees).
 ############
 mystring = 'aabb'
 p = ValiantParser(g1)
-v = p.parse_on(mystring, '<S>')
+v = p.parse_on(mystring, g1_start)
 for t in v:
     print(ep.display_tree(t))
 
@@ -1000,7 +998,7 @@ for t in v:
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;aabb&#x27;
 p = ValiantParser(g1)
-v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
+v = p.parse_on(mystring, g1_start)
 for t in v:
     print(ep.display_tree(t))
 </textarea><br />
@@ -1067,7 +1065,7 @@ Using
 ############
 mystring = '(()(()))'
 p = ValiantParser(g2)
-v = p.parse_on(mystring, '<S>')
+v = p.parse_on(mystring, g2_start)
 for t in v:
     print(display_tree(t))
 
@@ -1078,7 +1076,7 @@ for t in v:
 <textarea cols="40" rows="4" name='python_edit'>
 mystring = &#x27;(()(()))&#x27;
 p = ValiantParser(g2)
-v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
+v = p.parse_on(mystring, g2_start)
 for t in v:
     print(display_tree(t))
 </textarea><br />
