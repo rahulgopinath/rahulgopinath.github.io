@@ -172,6 +172,7 @@ g1_start = '<S>'
 
 class ValiantRecognizer(cykp.CYKParser):
     def __init__(self, grammar):
+        self.cache = {}
         self.cell_width = 5
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
@@ -295,28 +296,32 @@ if __name__ == '__main__':
 # define $$a^(i) = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$
 # The base case is $$a^{(1)} = a$$
 
-def transitive_closure_i(A, i, P):
-    if i == 1: return A
-    # 1 to i-1
-    res = [[{} for _ in range(len(A))] for _ in range(len(A))]
-    for j in range(1,i):
-        a, b = transitive_closure_i(A, j, P), transitive_closure_i(A, i-j, P)
-        a_j = multiply_matrices(a, b, P)
-        res = union_matrices(res, a_j)
-    return res
+class ValiantRecognizer(ValiantRecognizer):
+    def transitive_closure_i(self, A, i, P):
+        if i == 1: return A
+        if (str(A), i) in self.cache: return self.cache[(str(A), i)]
+        # 1 to i-1
+        res = [[{} for _ in range(len(A))] for _ in range(len(A))]
+        for j in range(1,i):
+            a, b = self.transitive_closure_i(A, j, P), self.transitive_closure_i(A, i-j, P)
+            a_j = multiply_matrices(a, b, P)
+            res = union_matrices(res, a_j)
+        self.cache[(str(A), i)] = res
+        return res
 
 # We can now test it.
 
 if __name__ == '__main__':
+    p = ValiantRecognizer(g1)
     # step 2 b1 = A(1)
     print('transitive closure_i', 1)
-    b_1 = transitive_closure_i(my_A, 1, my_P)
+    b_1 = p.transitive_closure_i(my_A, 1, my_P)
     v=b_1
     p.print_table(v)
 
     # step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
     print('transitive closure_i', 2)
-    b_2 = transitive_closure_i(my_A, 2, my_P)
+    b_2 = p.transitive_closure_i(my_A, 2, my_P)
     v = union_matrices(v,b_2)
     p.print_table(v)
 
@@ -324,13 +329,13 @@ if __name__ == '__main__':
     print('_'*80)
     p.print_table(v)
     print('_'*80)
-    b_3 = transitive_closure_i(my_A, 3, my_P)
+    b_3 = p.transitive_closure_i(my_A, 3, my_P)
     v = union_matrices(v, b_3)
     p.print_table(v)
     print('_'*80)
 
     print('_'*80)
-    b_4 = transitive_closure_i(my_A, 4, my_P)
+    b_4 = p.transitive_closure_i(my_A, 4, my_P)
     v = union_matrices(v, b_4)
     p.print_table(v)
     print('_'*80)
@@ -338,17 +343,19 @@ if __name__ == '__main__':
 # Building the transitive closure builds the complete parse chart. That is,
 # we can now check if the input was parsed.
 
-def transitive_closure(A, P, l):
-    res = [[{} for _ in range(len(A))] for _ in range(len(A))]
-    for i in range(1,l+1):
-        a_i = transitive_closure_i(A, i, P)
-        res = union_matrices(res, a_i)
-    return res
+class ValiantRecognizer(ValiantRecognizer):
+    def transitive_closure(self, A, P, l):
+        res = [[{} for _ in range(len(A))] for _ in range(len(A))]
+        for i in range(1,l+1):
+            a_i = self.transitive_closure_i(A, i, P)
+            res = union_matrices(res, a_i)
+        return res
 
 # Testing.
 if __name__ == '__main__':
+    p = ValiantRecognizer(g1)
     n = len('aabb')
-    v = transitive_closure(my_A, my_P, n)
+    v = p.transitive_closure(my_A, my_P, n)
     print('parsed:', '<S>' in v[0][n])
 
 # Let us hook it up.
@@ -358,7 +365,7 @@ class ValiantRecognizer(ValiantRecognizer):
         tbl = self.init_table(txt, n)
         my_A = self.parse_1(text, n, tbl)
         my_P = self.nonterminal_productions
-        v = transitive_closure(my_A, my_P, n)
+        v = self.transitive_closure(my_A, my_P, n)
         return start_symbol in v[0][n]
 
 # Using it
@@ -418,7 +425,7 @@ class ValiantParser(ValiantRecognizer):
         table = self.init_table(text, length)
         my_A = self.parse_1(text, length, table)
         my_P = self.nonterminal_productions
-        ntable = transitive_closure(my_A, my_P, length)
+        ntable = self.transitive_closure(my_A, my_P, length)
         start = list(ntable[0][-1].keys())[0]
         return [self.extract_tree(ntable, start, length)]
 
