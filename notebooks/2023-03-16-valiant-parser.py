@@ -168,7 +168,8 @@ g1 = {
 }
 g1_start = '<S>'
 
-# We initialize our parser with the grammar, and identify the terminal and
+# ## ValiantRecognizer
+# We initialize our recognizer with the grammar, and identify the terminal and
 # nonterminal productions separately. termiinal productions are those that
 # are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
 # productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
@@ -483,6 +484,7 @@ if __name__ == '__main__':
 def display_tree(t):
     return ep.display_tree(t)
 
+# Let us do a final test
 
 g2 = {
     '<S>': [
@@ -504,7 +506,7 @@ if __name__ == '__main__':
     p = ValiantParser(g2)
     v = p.parse_on(mystring, '<S>')
     for t in v:
-        print(ep.display_tree(t))
+        print(display_tree(t))
 
 
 # [^valiant1975]: Leslie G. Valiant "General context-free recognition in less than cubic time" 1975

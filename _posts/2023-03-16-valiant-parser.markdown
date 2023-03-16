@@ -289,7 +289,8 @@ g1_start = &#x27;&lt;S&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We initialize our parser with the grammar, and identify the terminal and
+## ValiantRecognizer
+We initialize our recognizer with the grammar, and identify the terminal and
 nonterminal productions separately. termiinal productions are those that
 are of the form `<A> ::= a` where a is a terminal symbol. Nonterminal
 productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
@@ -1018,7 +1019,20 @@ assign display_tree
 def display_tree(t):
     return ep.display_tree(t)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def display_tree(t):
+    return ep.display_tree(t)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us do a final test
 
+<!--
+############
 g2 = {
     '<S>': [
           ['<S>', '<S>'],
@@ -1036,10 +1050,6 @@ g2_start = '<S>'
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def display_tree(t):
-    return ep.display_tree(t)
-
-
 g2 = {
     &#x27;&lt;S&gt;&#x27;: [
           [&#x27;&lt;S&gt;&#x27;, &#x27;&lt;S&gt;&#x27;],
@@ -1064,7 +1074,7 @@ mystring = '(()(()))'
 p = ValiantParser(g2)
 v = p.parse_on(mystring, '<S>')
 for t in v:
-    print(ep.display_tree(t))
+    print(display_tree(t))
 
 
 ############
@@ -1075,7 +1085,7 @@ mystring = &#x27;(()(()))&#x27;
 p = ValiantParser(g2)
 v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
 for t in v:
-    print(ep.display_tree(t))
+    print(display_tree(t))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
