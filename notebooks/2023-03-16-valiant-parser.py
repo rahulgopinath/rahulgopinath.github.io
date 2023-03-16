@@ -418,7 +418,7 @@ class ValiantParser(ValiantRecognizer):
 
 # Adding the extract tree
 
-class ValiantParser(ValiantRecognizer):
+class ValiantParser(ValiantParser):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)

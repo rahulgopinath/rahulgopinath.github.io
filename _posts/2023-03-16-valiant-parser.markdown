@@ -884,7 +884,7 @@ Adding the extract tree
 
 <!--
 ############
-class ValiantParser(ValiantRecognizer):
+class ValiantParser(ValiantParser):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
@@ -898,7 +898,7 @@ class ValiantParser(ValiantRecognizer):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ValiantParser(ValiantRecognizer):
+class ValiantParser(ValiantParser):
     def parse_on(self, text, start_symbol):
         length = len(text)
         table = self.init_table(text, length)
