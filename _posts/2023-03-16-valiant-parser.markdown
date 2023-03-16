@@ -614,7 +614,7 @@ class ValiantRecognizer(ValiantRecognizer):
 <div name='python_canvas'></div>
 </form>
 We can now test it.
-step 2 b1 = A(1)
+step 2 `b1 = A(1)`
 
 <!--
 ############
@@ -637,7 +637,7 @@ p.print_table(v)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-step 3.a[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1) # till j == i-1
+step 3.a `[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1)` -- till `j == i-1`
 
 <!--
 ############
@@ -658,13 +658,10 @@ p.print_table(v)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-step 3.b[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1) # till j == i-1
+step 3.b `[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1)` -- till `j == i-1`
 
 <!--
 ############
-print()
-p.print_table(v)
-print()
 b_3 = p.transitive_closure_i(my_A, 3, my_P)
 v = union_matrices(v, b_3)
 p.print_table(v)
@@ -679,9 +676,6 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print()
-p.print_table(v)
-print()
 b_3 = p.transitive_closure_i(my_A, 3, my_P)
 v = union_matrices(v, b_3)
 p.print_table(v)
