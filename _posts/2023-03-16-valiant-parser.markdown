@@ -822,9 +822,7 @@ class ValiantParser(ValiantRecognizer):
                 for j,cell in enumerate(row):
                     if A in cell and B in table[j][length]: return j
             return -1
-        # identify the rules
         rules = self.grammar[sym]
-        # check if any of the rules match.
         c_i, c_j, c_k = -1, -1, -1
         A_j, B_j = None, None
         for rule in rules:
@@ -838,7 +836,9 @@ class ValiantParser(ValiantRecognizer):
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
 
-        r_table = [[table[i][j] for j in range(c_j,length+1)] for i in range(c_j, length+1)]
+        r_table = [[table[i][j]
+                   for j in range(c_j,length+1)]
+                   for i in range(c_j, length+1)]
         r = self.extract_tree(r_table, B_j, c_j)
         return [sym, [l, r]]
 
@@ -853,9 +853,7 @@ class ValiantParser(ValiantRecognizer):
                 for j,cell in enumerate(row):
                     if A in cell and B in table[j][length]: return j
             return -1
-        # identify the rules
         rules = self.grammar[sym]
-        # check if any of the rules match.
         c_i, c_j, c_k = -1, -1, -1
         A_j, B_j = None, None
         for rule in rules:
@@ -869,7 +867,9 @@ class ValiantParser(ValiantRecognizer):
         l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
         l = self.extract_tree(l_table, A_j, c_j)
 
-        r_table = [[table[i][j] for j in range(c_j,length+1)] for i in range(c_j, length+1)]
+        r_table = [[table[i][j]
+                   for j in range(c_j,length+1)]
+                   for i in range(c_j, length+1)]
         r = self.extract_tree(r_table, B_j, c_j)
         return [sym, [l, r]]
 </textarea><br />
