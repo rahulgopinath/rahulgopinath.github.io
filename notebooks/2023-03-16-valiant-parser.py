@@ -300,7 +300,8 @@ class ValiantRecognizer(ValiantRecognizer):
         # 1 to i-1
         res = [[{} for _ in range(len(A))] for _ in range(len(A))]
         for j in range(1,i):
-            a, b = self.transitive_closure_i(A, j, P), self.transitive_closure_i(A, i-j, P)
+            a = self.transitive_closure_i(A, j, P)
+            b = self.transitive_closure_i(A, i-j, P)
             a_j = multiply_matrices(a, b, P)
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
