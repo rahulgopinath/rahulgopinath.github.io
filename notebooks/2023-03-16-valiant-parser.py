@@ -264,26 +264,6 @@ def multiply_matrices(A, B, P):
                 C[i][j] |= multiply_subsets(A[i][k], B[k][j], P)
     return C
 
-# **If we want to convert to boolean matrices given matrices $$a$$ and $$b$$:**,
-# we start by computing $$ h = |N|$$ where $$N$$
-# is the set of nonterminals. We start with matrix $$a$$.
-# Next, we generate $$h$$ matrices one for each nonterminal $$k \in N$$.
-# Let us call such a matrix $$M_k$$. We fill it in this way:
-# If nonterminal $$k$$ is present in the cell $$(i,j)$$ of $$a$$,
-# the corresponding cell in $$M_k$$ will be `true`, and `false` otherwise.
-# We do the same for matrix $$b$$, getting $$2*h$$ boolean matrices.
-#  
-# Let us call these $$M_k^a$$ and $$M_k^b$$ where $$k$$ indicates the nonterminal.
-#  
-# Next, we pair each matrix from $$M_k^a$$ and $$M_k^b$$ for each $$k \in N$$
-# obtaining $$h^2$$ pairs, and compute the boolean matrix multiplication of each
-# pairs. We address each as $$r(l,m)$$ where $$l \in N$$ and $$m \in N$$.
-#  
-# In the final matrix $$c = a * b$$, for the cell $$c(i,j)$$ it will contain the
-# nonterminal $$p \in N$$ iff there exist l,m such that a rule $$ p -> l m $$
-# exists, and the matrix $$r(l,m)$$ contains $$1$$ in cell $$(i,j)$$.
-# **TODO**.
-#  
 # Let us try testing the matrix multiplication.
 if __name__ == '__main__':
     my_P = p.nonterminal_productions
@@ -293,6 +273,86 @@ if __name__ == '__main__':
     my_A_2 = multiply_matrices(my_A, my_A, my_P)
     p.print_table(my_A_2)
     print()
+
+# **If we want to convert to boolean matrices given matrices $$a$$ and $$b$$:**,
+# we start by computing $$ h = |N|$$ where $$N$$
+# is the set of nonterminals. We start with matrix $$a$$.
+# Next, we generate $$h$$ matrices one for each nonterminal $$k \in N$$.
+# Let us call such a matrix $$M_k$$. We fill it in this way:
+# If nonterminal $$k$$ is present in the cell $$(i,j)$$ of $$a$$,
+# the corresponding cell in $$M_k$$ will be `true`, and `false` otherwise.
+# We do the same for matrix $$b$$, getting $$2*h$$ boolean matrices.
+
+def bool_matrices(A, nonterminals):
+    m = len(A)
+    M_ks = {nt: [[False for _ in range(m)] for _ in range(m)]
+                       for nt in nonterminals}
+    for i in range(m):
+        for j in range(m):
+            for nt in A[i][j]:
+                M_ks[nt][i][j] = True
+
+    return M_ks
+ 
+# Let us call these $$M_k^a$$ and $$M_k^b$$ where $$k$$ indicates the nonterminal.
+#  
+# Next, we pair each matrix from $$M_k^a$$ and $$M_k^b$$ for each $$k \in N$$
+# obtaining $$h^2$$ pairs, and compute the boolean matrix multiplication of each
+# pairs. We address each as $$r(l,m)$$ where $$l \in N$$ and $$m \in N$$.
+
+def multiply_pairs(bool_As, bool_Bs):
+    r = []
+    for a_key in bool_As:
+        mult_rows = []
+        r.append(mult_rows)
+        for b_key in bool_Bs:
+            mult_rows.append(multiply_bool_matrices(bool_As[a_key], bool_Bs[b_key]))
+    return r
+
+def multiply_bool_matrices(A, B):
+    m = len(A)
+    C = [[False for _ in range(m)] for _ in range(m)]
+
+    for i in range(m):
+        for j in range(m):
+            for k in range(m):
+                if A[i][k] and B[k][j]:
+                    C[i][j] = True
+                    break
+    return C
+
+# In the final matrix $$c = a * b$$, for the cell $$c(i,j)$$ it will contain the
+# nonterminal $$p \in N$$ iff there exist l,m such that a rule $$ p -> l m $$
+# exists, and the matrix $$r(l,m)$$ contains $$1$$ in cell $$(i,j)$$.
+  
+def get_final_matrix(A, B, P, m):
+    result = []
+    for i in range(m):
+        rows = []
+        result.append(rows)
+        for j in range(m):
+            r = {Ai:True for Ai, (Aj,Ak) in P if A[Aj][i][j] and A[Ak][i][j]}
+            rows.append(r)
+    return result
+
+def multiply_matrices_b(A, B, P, nonterminals):
+    length = len(A)
+    bool_As = bool_matrices(A, nonterminals)
+    bool_Bs = bool_matrices(B, nonterminals)
+    r = multiply_pairs(bool_As, bool_Bs)
+    res = get_final_matrix(bool_As, bool_Bs, P, length)
+    return res
+
+# Let us try testing the matrix multiplication.
+if __name__ == '__main__':
+    my_P = p.nonterminal_productions
+    my_A = p.parse_1('aabb', len('aabb'), tbl)
+    p.print_table(my_A)
+    print()
+    my_A_2 = multiply_matrices_b(my_A, my_A, my_P, list(p.grammar.keys()))
+    p.print_table(my_A_2)
+    print()
+
 
 # ### Matrix union
 # Next, we want to define how to make a union of two matrices
@@ -335,7 +395,8 @@ class ValiantRecognizer(ValiantRecognizer):
         for j in range(1,i):
             a = self.parsed_in_steps(A, j, P)
             b = self.parsed_in_steps(A, i-j, P)
-            a_j = multiply_matrices(a, b, P)
+            #a_j = multiply_matrices(a, b, P)
+            a_j = multiply_matrices_b(a, b, P, list(self.grammar.keys()))
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
         return res
