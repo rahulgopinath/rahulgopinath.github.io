@@ -224,12 +224,12 @@ if __name__ == '__main__':
     p.print_table(tbl)
     print()
 
+# ### Matrix multiplication
 # Next, we define the multi-token parse. We start with multiplication of
 # matrices which is the core of this algorithm. The table which we defined
 # allows sets of nonterminal symbols at each cell. So, we define the
 # multiplication of individual cells.
 # 
-# ### Matrix multiplication
 # Given two sets of nonterminal symbols $$N_1$$, $$N_2$$, we have
 #  
 # $$ N_1 ∗ N_2 = \{ A_i | \exists A_j \in N_1, A_k \in N_2 : (A_i -> A_j A_k) \in P \} $$
