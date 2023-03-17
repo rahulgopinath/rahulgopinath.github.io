@@ -234,7 +234,7 @@ if __name__ == '__main__':
 # where $$P$$ is the set of production rules. The essential idea is, given a
 # rule $$A_i -> A_j A_k $$, and the parsing of $$A_j$$ and $$A_k$$ is available,
 # then mark $$A_i$$ as parsable.
-# 
+#  
 
 def multiply_subsets(N1, N2, P):
     return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
@@ -253,6 +253,7 @@ if __name__ == '__main__':
     print()
 
 # Next, we can use the cell multiplication to define table multiplication.
+# Note that we do not do transformation into boolean matrices here.
 
 def multiply_matrices(A, B, P):
     m = len(A)
@@ -262,6 +263,26 @@ def multiply_matrices(A, B, P):
             for k in range(m):
                 C[i][j] |= multiply_subsets(A[i][k], B[k][j], P)
     return C
+
+# **If we want to convert to boolean matrices given matrices $$a$$ and $$b$$:**,
+# we start by computing $$ h = |N|$$ where $$N$$
+# is the set of nonterminals. We start with matrix $$a$$.
+# Next, we generate $$h$$ matrices one for each nonterminal $$k \in N$$.
+# Let us call such a matrix $$M_k$$. We fill it in this way:
+# If nonterminal $$k$$ is present in the cell $$(i,j)$$ of $$a$$,
+# the corresponding cell in $$M_k$$ will be `true`, and `false` otherwise.
+# We do the same for matrix $$b$$, getting $$2*h$$ boolean matrices.
+#  
+# Let us call these $$M_k^a$$ and $$M_k^b$$ where $$k$$ indicates the nonterminal.
+#  
+# Next, we pair each matrix from $$M_k^a$$ and $$M_k^b$$ for each $$k \in N$$
+# obtaining $$h^2$$ pairs, and compute the boolean matrix multiplication of each
+# pairs. We address each as $$r(l,m)$$ where $$l \in N$$ and $$m \in N$$.
+#  
+# In the final matrix $$c = a * b$$, for the cell $$c(i,j)$$ it will contain the
+# nonterminal $$p \in N$$ iff there exist l,m such that a rule $$ p -> l m $$
+# exists, and the matrix $$r(l,m)$$ contains $$1$$ in cell $$(i,j)$$.
+# **TODO**.
 
 # Let us try testing it.
 if __name__ == '__main__':
