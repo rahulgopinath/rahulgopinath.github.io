@@ -127,13 +127,8 @@ import earleyparser as ep
 import random
 
 # As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
-# Here is an example grammar for arithmetic expressions, starting at `<start>`.
 # A terminal symbol has exactly one character
 # (Note that we disallow empty string (`''`) as a terminal symbol).
-# Secondly, as per traditional implementations,
-# there can only be one expansion rule for the `<start>` symbol. We work around
-# this restriction by simply constructing as many charts as there are expansion
-# rules, and returning all parse trees.
 # 
 
 # Let us start with the following grammar.
