@@ -295,11 +295,9 @@ if __name__ == '__main__':
     print()
 
 # ### Transitive closure
-# Valiant showed that the all the parsed substrings in a text of size i
-# is given in a matrix $$ a^{(i)} $$, and provided steps to compute this
-# matrix.
-#   
-# This is given by:
+# Valiant showed that we can compute the [transitive relation](https://en.wikipedia.org/wiki/Transitive_closure)
+# *parsable in i steps* can be computed by matrix multiplication.
+# It is given in a matrix $$ a^{(i)} $$, given by:
 #  
 #  $$a^{(i)} = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$ when $$ i > 1 $$
 #   
@@ -308,14 +306,14 @@ if __name__ == '__main__':
 #  At this point, we are ready to define the transitive closure.
 
 class ValiantRecognizer(ValiantRecognizer):
-    def parsed_substrings(self, A, i, P):
+    def parsed_in_steps(self, A, i, P):
         if i == 1: return A
         if (str(A), i) in self.cache: return self.cache[(str(A), i)]
         # 1 to i-1
         res = [[{} for _ in range(len(A))] for _ in range(len(A))]
         for j in range(1,i):
-            a = self.parsed_substrings(A, j, P)
-            b = self.parsed_substrings(A, i-j, P)
+            a = self.parsed_in_steps(A, j, P)
+            b = self.parsed_in_steps(A, i-j, P)
             a_j = multiply_matrices(a, b, P)
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
@@ -326,32 +324,33 @@ class ValiantRecognizer(ValiantRecognizer):
 
 if __name__ == '__main__':
     p = ValiantRecognizer(g1)
-    print('substrings_i', 1)
-    b_1 = p.parsed_substrings(my_A, 1, my_P)
+    print('steps_i', 1)
+    b_1 = p.parsed_in_steps(my_A, 1, my_P)
     v=b_1
     p.print_table(v)
 
 # step 3.a `[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1)` -- till `j == i-1`
 if __name__ == '__main__':
-    print('substrings_i', 2)
-    b_2 = p.parsed_substrings(my_A, 2, my_P)
+    print('steps_i', 2)
+    b_2 = p.parsed_in_steps(my_A, 2, my_P)
     v = union_matrices(v,b_2)
     p.print_table(v)
 
 # step 3.b `[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1)` -- till `j == i-1`
 if __name__ == '__main__':
-    b_3 = p.parsed_substrings(my_A, 3, my_P)
+    b_3 = p.parsed_in_steps(my_A, 3, my_P)
     v = union_matrices(v, b_3)
     p.print_table(v)
     print()
 
-    b_4 = p.parsed_substrings(my_A, 4, my_P)
+    b_4 = p.parsed_in_steps(my_A, 4, my_P)
     v = union_matrices(v, b_4)
     p.print_table(v)
     print()
 
-# Valiant showed that the transitive closure of all these substrings, that is
-# 
+# Valiant further showed that the transitive closure of all these substrings,
+# that is
+#  
 # $$ a^{+} = a^{(1)} U a^{(2)} ...
 #  
 # is the parse matrix.
@@ -362,7 +361,7 @@ class ValiantRecognizer(ValiantRecognizer):
     def transitive_closure(self, A, P, l):
         res = [[{} for _ in range(len(A))] for _ in range(len(A))]
         for i in range(1,l+1):
-            a_i = self.parsed_substrings(A, i, P)
+            a_i = self.parsed_in_steps(A, i, P)
             res = union_matrices(res, a_i)
         return res
 
