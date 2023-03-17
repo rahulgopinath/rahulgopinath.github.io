@@ -450,9 +450,11 @@ class ValiantParser(ValiantRecognizer):
         if not possible_breaks: return [sym, [(text, [])]]
         c_j, (A_j, B_j) = random.choice(possible_breaks)
 
-        l_table = [[table[i][j] for j in range(c_j+1)] for i in range(c_j+1)]
-        r_table = [[table[i][j] for j in range(c_j, length)] for i in range(c_j, length)]
+        l_table = [[table[i][j] for j in range(c_j+1)]
+                   for i in range(c_j+1)]
 
+        r_table = [[table[i][j] for j in range(c_j, length)]
+                   for i in range(c_j, length)]
 
         l = self.extract_tree(l_table, A_j, text[0:c_j])
 
