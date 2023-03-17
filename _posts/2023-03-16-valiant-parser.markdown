@@ -513,7 +513,8 @@ In the final matrix $$c = a * b$$, for the cell $$c(i,j)$$ it will contain the
 nonterminal $$p \in N$$ iff there exist l,m such that a rule $$ p -> l m $$
 exists, and the matrix $$r(l,m)$$ contains $$1$$ in cell $$(i,j)$$.
 **TODO**.
-Let us try testing it.
+ 
+Let us try testing the matrix multiplication.
 
 <!--
 ############
