@@ -571,16 +571,16 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Transitive closure
+### Transitive relation
 Valiant showed that we can compute the [transitive relation](https://en.wikipedia.org/wiki/Transitive_closure)
-*parsable in i steps* can be computed by matrix multiplication.
-It is given in a matrix $$ a^{(i)} $$, given by:
+-- *parsable in i steps* -- can be computed using matrix multiplication.
+For a matrix $$ a^{(i)} $$, the relation is given by:
  
  $$a^{(i)} = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$ when $$ i > 1 $$
   
- $$a^{(1)} = a$$ when $$ i == 1 $$
+ $$a^{(1)} = a$$ when $$ i = 1 $$
  
- At this point, we are ready to define the transitive closure.
+ At this point, we are ready to define the transitive relation.
 
 <!--
 ############
@@ -695,10 +695,11 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Valiant further showed that the transitive closure of all these substrings,
+### Transitive closure
+Valiant further showed that the transitive closure of all these matrices,
 that is
  
-$$ a^{+} = a^{(1)} U a^{(2)} ...
+$$ a^{+} = a^{(1)} U a^{(2)} ... $$
  
 is the parse matrix.
 That is, building the transitive closure builds the complete parse chart.
