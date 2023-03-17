@@ -188,7 +188,8 @@ class ValiantRecognizer(cykp.CYKParser):
         self.nonterminal_productions = [(k,r)
             for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
 
-# Next, we define the recognizer. Like in CYK idea here is that the algorithm formulates
+# Next, we define the recognizer. Like in CYK, the idea here is that the
+# algorithm formulates
 # the recognition problem as a problem where the parse of a string of
 # length `n` using a nonterminal `<A>` which is defined as `<A> ::= <B> <C>` is
 # defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
@@ -247,8 +248,10 @@ def multiply_subsets(N1, N2, P):
 # Let us try testing it.
 if __name__ == '__main__':
     my_P = p.nonterminal_productions
+    # <X> -> <A> <A>
     my_res = multiply_subsets({'<A>':True}, {'<A>':True}, my_P)
     print(my_res)
+    # <S> -> <X> <Y>
     my_res = multiply_subsets({'<X>':True}, {'<Y>':True}, my_P)
     print(my_res)
     print()
@@ -292,19 +295,27 @@ if __name__ == '__main__':
     print()
 
 # ### Transitive closure
-# At this point, we are ready to define the transitive closure. We first
-# define $$a^(i) = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$
-# The base case is $$a^{(1)} = a$$
+# Valiant showed that the all the parsed substrings in a text of size i
+# is given in a matrix $$ a^{(i)} $$, and provided steps to compute this
+# matrix.
+#   
+# This is given by:
+#  
+#  $$a^{(i)} = U_{j=1}^{i-1} a^{(j)} * a^{(i-j)}$$ when $$ i > 1 $$
+#   
+#  $$a^{(1)} = a$$ when $$ i == 1 $$
+#  
+#  At this point, we are ready to define the transitive closure.
 
 class ValiantRecognizer(ValiantRecognizer):
-    def transitive_closure_i(self, A, i, P):
+    def parsed_substrings(self, A, i, P):
         if i == 1: return A
         if (str(A), i) in self.cache: return self.cache[(str(A), i)]
         # 1 to i-1
         res = [[{} for _ in range(len(A))] for _ in range(len(A))]
         for j in range(1,i):
-            a = self.transitive_closure_i(A, j, P)
-            b = self.transitive_closure_i(A, i-j, P)
+            a = self.parsed_substrings(A, j, P)
+            b = self.parsed_substrings(A, i-j, P)
             a_j = multiply_matrices(a, b, P)
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
@@ -315,38 +326,43 @@ class ValiantRecognizer(ValiantRecognizer):
 
 if __name__ == '__main__':
     p = ValiantRecognizer(g1)
-    print('transitive closure_i', 1)
-    b_1 = p.transitive_closure_i(my_A, 1, my_P)
+    print('substrings_i', 1)
+    b_1 = p.parsed_substrings(my_A, 1, my_P)
     v=b_1
     p.print_table(v)
 
 # step 3.a `[i=2] => b1= A(1) U b2= A(j=1)*A(i-j=1)` -- till `j == i-1`
 if __name__ == '__main__':
-    print('transitive closure_i', 2)
-    b_2 = p.transitive_closure_i(my_A, 2, my_P)
+    print('substrings_i', 2)
+    b_2 = p.parsed_substrings(my_A, 2, my_P)
     v = union_matrices(v,b_2)
     p.print_table(v)
 
 # step 3.b `[i=3] => b1=A(1) U b2=A(j=1)*A(i-j=2) U b3=A(j=2)*A(i-j=1)` -- till `j == i-1`
 if __name__ == '__main__':
-    b_3 = p.transitive_closure_i(my_A, 3, my_P)
+    b_3 = p.parsed_substrings(my_A, 3, my_P)
     v = union_matrices(v, b_3)
     p.print_table(v)
     print()
 
-    b_4 = p.transitive_closure_i(my_A, 4, my_P)
+    b_4 = p.parsed_substrings(my_A, 4, my_P)
     v = union_matrices(v, b_4)
     p.print_table(v)
     print()
 
-# Building the transitive closure builds the complete parse chart. That is,
-# we can now check if the input was parsed.
+# Valiant showed that the transitive closure of all these substrings, that is
+# 
+# $$ a^{+} = a^{(1)} U a^{(2)} ...
+#  
+# is the parse matrix.
+# That is, building the transitive closure builds the complete parse chart.
+# We can now check if the input was parsed.
 
 class ValiantRecognizer(ValiantRecognizer):
     def transitive_closure(self, A, P, l):
         res = [[{} for _ in range(len(A))] for _ in range(len(A))]
         for i in range(1,l+1):
-            a_i = self.transitive_closure_i(A, i, P)
+            a_i = self.parsed_substrings(A, i, P)
             res = union_matrices(res, a_i)
         return res
 
