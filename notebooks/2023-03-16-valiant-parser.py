@@ -14,7 +14,7 @@
 # The Python interpreter is embedded so that you can work through the
 # implementation steps.
 # 
-#  **Note.** This implementation is thoroughly unoptimized.
+#  **Note.** This implementation is not optimized. It prioritizes clarity over performance.
 #  
 # Valiant's parer is a general context-free parser, and like [CYK](/post/2023/01/10/cyk-parser/) and [Earley](/post/2021/02/06/earley-parsing/), it
 # operates on a chart. The claim to fame of Valiant's parser is that it showed
@@ -26,31 +26,32 @@
 # recognition could be done in $$O(n^{2.81})$$ time using [Strassen's](https://en.wikipedia.org/wiki/Strassen_algorithm) matrix
 # multiplication algorithm (This post uses the traditional multiplication
 # algorithm, but improved algorithms can be substituted at the
-# `multiply_matrices()` function ).
+# `multiply_bool_matrices()` function ).
 #
 # It uses the same chart as that of CYK, and similar to CYK, it requires the
 # grammar to be in the Chomsky Normal Form, which
 # allows at most two symbols on the right hand side of any production.
 # In particular, all the rules have to conform to
 # 
-# $$ A -> BC $$
+# $$ <A> -> <B><C> $$
 #  
-# $$ A -> a $$
+# $$ <A> -> a $$
 #  
-# $$ S -> \epsilon $$
+# $$ <S> -> \epsilon $$
 # 
-# Where A,B, and C are nonterminal symbols, a is a terminal symbol, S is the
+# Where `<A>`,`<B>`, and `<C>` are nonterminal symbols, a is any terminal symbol, `<S>` is the
 # start symbol, and $$\epsilon$$ is the empty string.
 #  
 # We [previously discussed](/post/2021/02/06/earley-parsing/) 
-# Earley parser which is a general context-free parser. CYK
+# Earley parser which is a general context-free parser. [CYK](/post/2023/01/10/cyk-parser/)
 # parser is another general context-free parser that is capable of parsing
 # strings that conform to **any** given context-free grammar.
 #  
 # A peculiarity of Valiant's parser that it shares with CYK parser is that
 # unlike Earley, GLL, and GLR, it is not a left-to-right parser.
 # Rather, it is a bottom-up parser similar to CYK that builds substrings of
-# fixed length at each pass.
+# fixed length at each pass. That is, the parsing starts everywhere at once. Not
+# just at a corner.
 #  
 # ## Synopsis
 #
@@ -134,7 +135,9 @@
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities
+
 import simplefuzzer as fuzzer
+
 # We use the `display_tree()` method in earley parser for displaying trees.
 import earleyparser as ep
 
@@ -142,6 +145,7 @@ import earleyparser as ep
 import cykparser as cykp
 
 # We use the random choice to extract derivation trees from the parse forest.
+
 import random
 
 # As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
@@ -173,7 +177,7 @@ g1_start = '<S>'
 # productions are of the form `<A> ::= <B><C>` where `<B>` and `<C>` are
 # nonterminal symbols.
 
-class ValiantRecognizer(cykp.CYKParser):
+class ValiantRecognizer(cykp.CYKRecognizer):
     def __init__(self, grammar):
         self.cache = {}
         self.cell_width = 5
@@ -184,18 +188,10 @@ class ValiantRecognizer(cykp.CYKParser):
         self.nonterminal_productions = [(k,r)
             for (k,r) in self.productions if not fuzzer.is_terminal(r[0])]
 
-# Next, we define the recognizer. Like in CYK, the idea here is that the
-# algorithm formulates
-# the recognition problem as a problem where the parse of a string of
-# length `n` using a nonterminal `<A>` which is defined as `<A> ::= <B> <C>` is
-# defined as a parse of the substring `0..x` with the nonterminal `<B>` and the
-# parse of the substring `x..n` with nonterminal `<C>` where `0 < x < n`. That
-# is, `<A>` parses the string if there exists such a parse with `<B>` and `<C>`
-# for some `x`.
-#
 # ### Initialize the table
 # We first initialize the matrix that holds the results. The `cell[i][j]`
 # represents the nonterminals that can parse the substring `text[i..j]`
+# Note that this table is exactly the same as what CYK produces.
 
 class ValiantRecognizer(ValiantRecognizer):
     def init_table(self, text, length):
@@ -212,6 +208,16 @@ if __name__ == '__main__':
 # The idea is that, we look at each character in the input,
 # and for each `i` in the input we identify `cell[i][i+1]` and add the
 # nonterminal symbol that derives the corresponding token.
+
+class ValiantRecognizer(ValiantRecognizer):
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            for (key, terminal) in self.terminal_productions:
+                if text[s] == terminal:
+                    table[s][s+1][key] = True
+        return table
+
+# Using it
 
 if __name__ == '__main__':
     p = ValiantRecognizer(g1)
@@ -238,7 +244,6 @@ if __name__ == '__main__':
 
 def multiply_subsets(N1, N2, P):
     return {Ai:True for Ai, (Aj,Ak) in P if Aj in N1 and Ak in N2}
-
 
 
 # Let us try testing it.
@@ -308,6 +313,7 @@ def multiply_pairs(bool_As, bool_Bs):
             r[a_key][b_key] = multiply_bool_matrices(bool_As[a_key], bool_Bs[b_key])
     return r
 
+# multiply two boolean matrices
 def multiply_bool_matrices(A, B):
     m = len(A)
     C = [[False for _ in range(m)] for _ in range(m)]
