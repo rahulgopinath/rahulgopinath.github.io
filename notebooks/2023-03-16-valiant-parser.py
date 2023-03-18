@@ -395,8 +395,8 @@ class ValiantRecognizer(ValiantRecognizer):
         for j in range(1,i):
             a = self.parsed_in_steps(A, j, P)
             b = self.parsed_in_steps(A, i-j, P)
-            #a_j = multiply_matrices(a, b, P)
-            a_j = multiply_matrices_b(a, b, P, list(self.grammar.keys()))
+            a_j = multiply_matrices(a, b, P)
+            #a_j = multiply_matrices_b(a, b, P, list(self.grammar.keys()))
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
         return res
