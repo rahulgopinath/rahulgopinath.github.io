@@ -33,13 +33,13 @@
 # allows at most two symbols on the right hand side of any production.
 # In particular, all the rules have to conform to
 # 
-# $$ <A> -> <B><C> $$
+# $$ A -> B C $$
 #  
-# $$ <A> -> a $$
+# $$ A -> a $$
 #  
-# $$ <S> -> \epsilon $$
+# $$ S -> \epsilon $$
 # 
-# Where `<A>`,`<B>`, and `<C>` are nonterminal symbols, a is any terminal symbol, `<S>` is the
+# Where A,B, and C are nonterminal symbols, a is any terminal symbol, S is the
 # start symbol, and $$\epsilon$$ is the empty string.
 #  
 # We [previously discussed](/post/2021/02/06/earley-parsing/) 
