@@ -301,12 +301,11 @@ def bool_matrices(A, nonterminals):
 # pairs. We address each as $$r(l,m)$$ where $$l \in N$$ and $$m \in N$$.
 
 def multiply_pairs(bool_As, bool_Bs):
-    r = []
+    r = {}
     for a_key in bool_As:
-        mult_rows = []
-        r.append(mult_rows)
+        r[a_key] = {}
         for b_key in bool_Bs:
-            mult_rows.append(multiply_bool_matrices(bool_As[a_key], bool_Bs[b_key]))
+            r[a_key][b_key] = multiply_bool_matrices(bool_As[a_key], bool_Bs[b_key])
     return r
 
 def multiply_bool_matrices(A, B):
@@ -325,14 +324,14 @@ def multiply_bool_matrices(A, B):
 # nonterminal $$p \in N$$ iff there exist l,m such that a rule $$ p -> l m $$
 # exists, and the matrix $$r(l,m)$$ contains $$1$$ in cell $$(i,j)$$.
   
-def get_final_matrix(A, B, P, m):
+def get_final_matrix(r, P, m):
     result = []
     for i in range(m):
         rows = []
         result.append(rows)
         for j in range(m):
-            r = {Ai:True for Ai, (Aj,Ak) in P if A[Aj][i][j] and A[Ak][i][j]}
-            rows.append(r)
+            res = {Ai:True for Ai, (Aj,Ak) in P if r[Aj][Ak][i][j]}
+            rows.append(res)
     return result
 
 def multiply_matrices_b(A, B, P, nonterminals):
@@ -340,7 +339,7 @@ def multiply_matrices_b(A, B, P, nonterminals):
     bool_As = bool_matrices(A, nonterminals)
     bool_Bs = bool_matrices(B, nonterminals)
     r = multiply_pairs(bool_As, bool_Bs)
-    res = get_final_matrix(bool_As, bool_Bs, P, length)
+    res = get_final_matrix(r, P, length)
     return res
 
 # Let us try testing the matrix multiplication.
@@ -395,8 +394,8 @@ class ValiantRecognizer(ValiantRecognizer):
         for j in range(1,i):
             a = self.parsed_in_steps(A, j, P)
             b = self.parsed_in_steps(A, i-j, P)
-            a_j = multiply_matrices(a, b, P)
-            #a_j = multiply_matrices_b(a, b, P, list(self.grammar.keys()))
+            #a_j = multiply_matrices(a, b, P)
+            a_j = multiply_matrices_b(a, b, P, list(self.grammar.keys()))
             res = union_matrices(res, a_j)
         self.cache[(str(A), i)] = res
         return res
