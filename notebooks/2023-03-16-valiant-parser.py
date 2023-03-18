@@ -387,7 +387,7 @@ if __name__ == '__main__':
 #  
 #  The intuition here is that if we have a 4 letter input, it may be parsed by
 #  splitting into 1+3, 2+2, or 3+1. So, we compute
-#  $$ a^{(1)}$$*$$a^{(3)} U a^{(2)}$$*$$a^{(2)} U a^{(3)}$$*$$a^{(1)} $$.
+#  $$ a^{(1)}*a^{(3)} U a^{(2)}*a^{(2)} U a^{(3)}*a^{(1)} $$.
 #   
 #  At this point, we are ready to define the transitive relation.
 
