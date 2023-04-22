@@ -520,16 +520,6 @@ p.parse_1(txt, len(txt), tbl)
 p.parse_n(txt, 2, len(txt), tbl)
 p.print_table(tbl)
 
-print('length: 3')
-p.parse_n(txt, 3, len(txt), tbl)
-p.print_table(tbl)
-
-print('length: 4')
-p.parse_n(txt, 4, len(txt), tbl)
-p.print_table(tbl)
-
-
-
 ############
 -->
 <form name='python_run_form'>
@@ -541,11 +531,42 @@ tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
 p.parse_n(txt, 2, len(txt), tbl)
 p.print_table(tbl)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For length 3
 
-print(&#x27;length: 3&#x27;)
+<!--
+############
+print('length: 3')
 p.parse_n(txt, 3, len(txt), tbl)
 p.print_table(tbl)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&#x27;length: 3&#x27;)
+p.parse_n(txt, 3, len(txt), tbl)
+p.print_table(tbl)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For length 4
+
+<!--
+############
+print('length: 4')
+p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 print(&#x27;length: 4&#x27;)
 p.parse_n(txt, 4, len(txt), tbl)
 p.print_table(tbl)
@@ -596,6 +617,7 @@ mystring = 'cb'
 p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
+
 
 ############
 -->

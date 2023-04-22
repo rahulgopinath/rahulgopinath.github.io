@@ -268,14 +268,17 @@ if __name__ == '__main__':
     p.parse_n(txt, 2, len(txt), tbl)
     p.print_table(tbl)
 
+# For length 3
+if __name__ == '__main__':
     print('length: 3')
     p.parse_n(txt, 3, len(txt), tbl)
     p.print_table(tbl)
 
+# For length 4
+if __name__ == '__main__':
     print('length: 4')
     p.parse_n(txt, 4, len(txt), tbl)
     p.print_table(tbl)
-
 
 
 # We combine everything together. At the end, we check if the start_symbol can
@@ -300,6 +303,7 @@ if __name__ == '__main__':
     p = CYKRecognizer(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)
+
 
 # ## CYKParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
