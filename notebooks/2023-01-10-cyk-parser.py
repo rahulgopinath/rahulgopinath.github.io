@@ -304,6 +304,217 @@ if __name__ == '__main__':
     v = p.recognize_on(mystring, '<S>')
     print(v)
 
+# At this point, we have a recognizer for a grammar in CNF form. However, this
+# is a bit unsatisfying because the CNF form is not very userfriendly. In
+# particluar it lacks two conveniences we are used to in context-free gramamrs
+# 
+# 1. Having more than two tokens in a rule
+# 2. The ability to add epsilon rules.
+# 
+# The first one is not very difficult to solve. Given an expansion rule for a
+# nonterminal
+# ```
+# <nt> ::= <a> <b> <c> <d>
+# ```
+# we can always rewrite this as
+# ```
+# <nt> ::= <a> <nt_1_1>
+# <nt_1_1> ::= <b> <nt_1_2>
+# <nt_1_2> ::= <c> <d>
+# ```
+# and so on. We can also recover the structure back from any parse tree by
+# combining the corresponding tokens. The second restriction is more difficult
+# Having to factor out epsilon can change the grammar completely. Turns out, it
+# is not very difficult to incorporate epsilons into this parser.
+# 
+# First, we extract all nullable nonterminals of our grammar. (See Earley parser)
+
+def is_nt(k):
+    return (k[0], k[-1]) == ('<', '>')
+
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+
+# Let us test this out
+
+
+nullable_grammar = {
+    '<start>': [['<A>', '<D>']],
+    '<D>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+# Testing
+
+if __name__ == '__main__':
+    v = nullable(nullable_grammar)
+    print(v)
+
+# Once we have the nullable grammar, for each nonterminal in our grammar,
+# we want to identify whether parsinga string with one nonterminal
+# guarantees parse of a parent nonterminal. This is because if <A> parses
+# a string s1, and there exists a rule `<A> := <B> <C>` and <B> is nullable,
+# then parsing with <C> guarantees that <A> also can parse it.
+# So, this is what we will do.
+
+def extend_chain(guarantee_1):
+    # initialize it with the first level parent
+    chains = {k:set(guarantee_1[k]) for k in guarantee_1}
+    while True:
+        modified = False
+        for k in chains:
+            # for each token, get the guarantees, and add it to current
+            for t in list(chains[k]):
+                for v in chains[t]:
+                    if v not in chains[k]:
+                        chains[k].add(v)
+                        modified = True
+        if not modified: break
+    return chains
+
+def identify_gauranteed_parses(grammar):
+    guarantee_1 = {k:[] for k in grammar}
+    nullable_keys = nullable(grammar)
+    for k in grammar:
+        for r in grammar[k]:
+            if len(r) == 0: continue
+            if len(r) == 1: continue
+            # <A>:k := <B> <C>
+            b, c = r
+            if b in nullable_keys:
+                # parsing with c guarantees parsing with A
+                guarantee_1[c].append(k)
+            if c in nullable_keys:
+                # parsing with b guarantees parsing with A
+                guarantee_1[b].append(k)
+    return extend_chain(guarantee_1)
+
+# A grammar
+nullable_grammar = {
+    '<start>': [
+        ['<A>', '<B>']],
+    '<A>': [
+        ['<_a>', '<>'],
+        [],
+        ['<C>', '<>']],
+    '<B>': [
+        ['<_b>', '<>']],
+    '<C>': [
+        ['<A>', '<>'],
+        ['<B>', '<>']],
+
+    '<>': [[]],
+    '<_a>': [['a']],
+    '<_b>': [['b']]
+}
+
+
+# Testing
+if __name__ == '__main__':
+    v = identify_gauranteed_parses(nullable_grammar)
+    print(v)
+
+# So at this point, all we have to do is, after each cell is computed fully, we
+# just have to extend the cell with the guaranteed parse.
+
+class CYKRecognizer(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.cell_width = 5 
+
+        # let us get an inverse cache
+        self.terminal_rules = {}
+        self.nonterminal_rules = {}
+        for k, rule in self.productions:
+            if not rule: continue # empty
+            if fuzzer.is_terminal(rule[0]):
+                if k not in self.terminal_rules:
+                    self.terminal_rules[rule[0]] = []
+                self.terminal_rules[rule[0]].append(k)
+            else:
+                if k not in self.nonterminal_rules:
+                    self.nonterminal_rules[(rule[0],rule[1])] = []
+                self.nonterminal_rules[(rule[0],rule[1])].append(k)
+
+        self.chains = identify_gauranteed_parses(grammar)
+
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
+            for k in list(table[s][s+1]):
+                table[s][s+1].update({v:True for v in self.chains[k]})
+        return table
+
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
+                matching_pairs = [
+                        (b,c) for b in table[s][p] for c in table[s+p][s+n]
+                            if (b,c) in self.nonterminal_rules]
+                keys = {k:True for pair in matching_pairs
+                               for k in self.nonterminal_rules[pair]}
+                table[s][s+n].update(keys)
+
+        for s in range(0, length-n+1):
+            for k in list(table[s][s+n]):
+                # for each key, add the chain.
+                table[s][s+n].update({v:True for v in self.chains[k]})
+        return table
+# Testing
+if __name__ == '__main__':
+    mystring = 'b' # g.fuzz('<start>')
+    print(v)
+    p = CYKRecognizer(nullable_grammar)
+    v = p.recognize_on(mystring, '<start>')
+    print(v)
+    assert v
+
+    g = fuzzer.LimitFuzzer(nullable_grammar)
+    for i in range(100):
+        mystring = g.fuzz('<start>')
+        p = CYKRecognizer(nullable_grammar)
+        v = p.recognize_on(mystring, '<start>')
+        print(v)
+        assert v
 
 # ## CYKParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
