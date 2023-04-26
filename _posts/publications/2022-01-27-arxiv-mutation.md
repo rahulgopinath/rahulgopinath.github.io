@@ -26,4 +26,5 @@ in one of the most important areas of testing and security research. This paper
 attempts to understand the main challenges in applying mutation analysis for 
 evaluating fuzzers, so that researchers can focus on solving these challenges.
 
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2201.11303)
 
