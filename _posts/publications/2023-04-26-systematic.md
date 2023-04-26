@@ -41,4 +41,4 @@ should be seen as a challenge for future research—notably in
 improving (1) detecting failures beyond generic crashes and
 (2) triggering mutations (and thus faults).
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2212.03075)
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/usenixsecurity2023/2021_mutation_fuzzer_benchmark.pdf "paper")
