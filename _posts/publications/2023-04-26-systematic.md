@@ -25,6 +25,7 @@ of faults that can be arbitrarily hard to trigger and detect, thus
 preventing the problems of saturation and overfitting. Unfor-
 tunately, the cost of traditional mutation analysis is exorbitant
 for fuzzing, as mutations need independent evaluation.
+
 In this paper, we apply modern mutation analysis tech-
 niques that pool multiple mutations and allow us—for the
 first time—to evaluate and compare fuzzers with mutation
