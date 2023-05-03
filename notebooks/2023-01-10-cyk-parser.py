@@ -532,7 +532,7 @@ def replace_terminal_symbols(grammar):
             for t in r:
                 if fuzzer.is_terminal(t):
                     nt = '<_' + t + '>'
-                    new_g[nt] = [t]
+                    new_g[nt] = [[t]]
                     new_r.append(nt)
                 else:
                     new_r.append(t)
@@ -618,6 +618,7 @@ def cfg_to_cnf(g):
     g1 = replace_terminal_symbols(g)
     g2 = decompose_grammar(g1)
     g3 = balance_grammar(g2)
+    g3['<>'] = [[]]
     return g3
 
 # A grammar
@@ -646,6 +647,23 @@ if __name__ == '__main__':
         print(k)
         for r in g[k]:
             print('\t', r)
+
+# Testing
+if __name__ == '__main__':
+    mystring = '1+1'
+    cnf_expr = cfg_to_cnf(expr_grammar)
+    p = CYKRecognizer(cnf_expr)
+    v = p.recognize_on(mystring, '<start>')
+    print(v)
+    assert v
+
+    g = fuzzer.LimitFuzzer(cnf_expr)
+    for i in range(100):
+        mystring = g.fuzz('<start>')
+        p = CYKRecognizer(cnf_expr)
+        v = p.recognize_on(mystring, '<start>')
+        assert v
+
 
 # ## CYKParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
