@@ -646,8 +646,6 @@ if __name__ == '__main__':
         print(k)
         for r in g[k]:
             print('\t', r)
-    import sys
-    sys.exit(0)
 
 # ## CYKParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
