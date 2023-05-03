@@ -233,7 +233,7 @@ class CYKRecognizer(CYKRecognizer):
 # Using it
 if __name__ == '__main__':
     p = CYKRecognizer(g1)
-    txt = 'aabc'
+    txt = 'bcac'
     tbl = p.init_table(txt, len(txt))
     p.parse_1(txt, len(txt), tbl)
     p.print_table(tbl)
@@ -262,7 +262,7 @@ class CYKRecognizer(CYKRecognizer):
 if __name__ == '__main__':
     print('length: 2')
     p = CYKRecognizer(g1)
-    txt = 'aabc'
+    txt = 'bcac'
     tbl = p.init_table(txt, len(txt))
     p.parse_1(txt, len(txt), tbl)
     p.parse_n(txt, 2, len(txt), tbl)
@@ -294,7 +294,7 @@ class CYKRecognizer(CYKRecognizer):
 
 # Using it
 if __name__ == '__main__':
-    mystring = 'aabc'
+    mystring = 'bcac'
     p = CYKRecognizer(g1)
     v = p.recognize_on(mystring, '<S>')
     print(v)
@@ -508,7 +508,7 @@ if __name__ == '__main__':
     v = p.recognize_on(mystring, '<start>')
     print(v)
     assert v
-
+    
     g = fuzzer.LimitFuzzer(nullable_grammar)
     for i in range(100):
         mystring = g.fuzz('<start>')
@@ -651,18 +651,20 @@ if __name__ == '__main__':
 # Testing
 if __name__ == '__main__':
     mystring = '1+1'
-    cnf_expr = cfg_to_cnf(expr_grammar)
-    p = CYKRecognizer(cnf_expr)
+    cnf_grammar  = cfg_to_cnf(expr_grammar)
+    p = CYKRecognizer(cnf_grammar)
     v = p.recognize_on(mystring, '<start>')
     print(v)
     assert v
-
-    g = fuzzer.LimitFuzzer(cnf_expr)
-    for i in range(100):
+    
+    g = fuzzer.LimitFuzzer(cnf_grammar)
+    for i in range(10):
+        print(i)
         mystring = g.fuzz('<start>')
-        p = CYKRecognizer(cnf_expr)
+        p = CYKRecognizer(cnf_grammar)
         v = p.recognize_on(mystring, '<start>')
         assert v
+    print('done')
 
 
 # ## CYKParser
@@ -671,6 +673,7 @@ if __name__ == '__main__':
 
 class CYKParser(CYKRecognizer):
     def __init__(self, grammar):
+        self.cell_width = 5 
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0])
@@ -702,7 +705,7 @@ class CYKParser(CYKParser):
                             if k not in table[s][s+n]:
                                 table[s][s+n][k] = []
                             table[s][s+n][k].append(
-                                (k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+                                (k,[table[s][s+p][R_b], table[s+p][s+n][R_c]]))
 
 # Parsing
 
@@ -732,9 +735,9 @@ class CYKParser(CYKParser):
 
 # Using it (uses random choice, click run multiple times to get other trees).
 if __name__ == '__main__':
-    mystring = 'aabc'
+    mystring = 'bcac'
     p = CYKParser(g1)
-    v = p.parse_on(mystring, '<S>')
+    v = p.parse_on(mystring, g1_start)
     for t in v:
         print(ep.display_tree(t))
 

@@ -447,7 +447,7 @@ Using it
 <!--
 ############
 p = CYKRecognizer(g1)
-txt = 'aabc'
+txt = 'bcac'
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
 p.print_table(tbl)
@@ -458,7 +458,7 @@ p.print_table(tbl)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 p = CYKRecognizer(g1)
-txt = &#x27;aabc&#x27;
+txt = &#x27;bcac&#x27;
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
 p.print_table(tbl)
@@ -479,8 +479,8 @@ class CYKRecognizer(CYKRecognizer):
         for s in range(0, length-n+1):
             # partition the substring at p (n = 1 less than the length of substring)
             for p in range(1, n):
-                matching_pairs = [
-                        (b,c) for b in table[s][p] for c in table[s+p][s+n]
+                pairs = [(b,c) for b in table[s][s+p] for c in table[s+p][s+n]]
+                matching_pairs = [(b,c) for (b,c) in pairs
                             if (b,c) in self.nonterminal_rules]
                 keys = {k:True for pair in matching_pairs
                                for k in self.nonterminal_rules[pair]}
@@ -497,8 +497,8 @@ class CYKRecognizer(CYKRecognizer):
         for s in range(0, length-n+1):
             # partition the substring at p (n = 1 less than the length of substring)
             for p in range(1, n):
-                matching_pairs = [
-                        (b,c) for b in table[s][p] for c in table[s+p][s+n]
+                pairs = [(b,c) for b in table[s][s+p] for c in table[s+p][s+n]]
+                matching_pairs = [(b,c) for (b,c) in pairs
                             if (b,c) in self.nonterminal_rules]
                 keys = {k:True for pair in matching_pairs
                                for k in self.nonterminal_rules[pair]}
@@ -514,7 +514,7 @@ Using it for example, on substrings of length 2
 ############
 print('length: 2')
 p = CYKRecognizer(g1)
-txt = 'aabc'
+txt = 'bcac'
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
 p.parse_n(txt, 2, len(txt), tbl)
@@ -526,7 +526,7 @@ p.print_table(tbl)
 <textarea cols="40" rows="4" name='python_edit'>
 print(&#x27;length: 2&#x27;)
 p = CYKRecognizer(g1)
-txt = &#x27;aabc&#x27;
+txt = &#x27;bcac&#x27;
 tbl = p.init_table(txt, len(txt))
 p.parse_1(txt, len(txt), tbl)
 p.parse_n(txt, 2, len(txt), tbl)
@@ -608,7 +608,7 @@ Using it
 
 <!--
 ############
-mystring = 'aabc'
+mystring = 'bcac'
 p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
@@ -618,12 +618,11 @@ p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, '<S>')
 print(v)
 
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;aabc&#x27;
+mystring = &#x27;bcac&#x27;
 p = CYKRecognizer(g1)
 v = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
 print(v)
@@ -636,6 +635,814 @@ print(v)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+At this point, we have a recognizer for a grammar in CNF form. However, this
+is a bit unsatisfying because the CNF form is not very userfriendly. In
+particluar it lacks two conveniences we are used to in context-free gramamrs
+
+1. Having more than two tokens in a rule
+2. The ability to add epsilon rules.
+
+The first one is not very difficult to solve. Given an expansion rule for a
+nonterminal
+```
+<nt> ::= <a> <b> <c> <d>
+```
+we can always rewrite this as
+```
+<nt> ::= <a> <nt_1_1>
+<nt_1_1> ::= <b> <nt_1_2>
+<nt_1_2> ::= <c> <d>
+```
+and so on. We can also recover the structure back from any parse tree by
+combining the corresponding tokens. The second restriction is more difficult
+Having to factor out epsilon can change the grammar completely. Turns out, it
+is not very difficult to incorporate epsilons into this parser.
+
+First, we extract all nullable nonterminals of our grammar. (See Earley parser)
+
+<!--
+############
+def is_nt(k):
+    return (k[0], k[-1]) == ('<', '>')
+
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def is_nt(k):
+    return (k[0], k[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;)
+
+def rem_terminals(g):
+    g_cur = {}
+    for k in g:
+        alts = []
+        for alt in g[k]:
+            ts = [t for t in alt if not is_nt(t)]
+            if not ts:
+                alts.append(alt)
+        if alts:
+            g_cur[k] = alts
+    return g_cur
+
+def nullable(g):
+    nullable_keys = {k for k in g if [] in g[k]}
+
+    unprocessed  = list(nullable_keys)
+
+    g_cur = rem_terminals(g)
+    while unprocessed:
+        nxt, *unprocessed = unprocessed
+        g_nxt = {}
+        for k in g_cur:
+            g_alts = []
+            for alt in g_cur[k]:
+                alt_ = [t for t in alt if t != nxt]
+                if not alt_:
+                    nullable_keys.add(k)
+                    unprocessed.append(k)
+                    break
+                else:
+                    g_alts.append(alt_)
+            if g_alts:
+                g_nxt[k] = g_alts
+        g_cur = g_nxt
+
+    return nullable_keys
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this out
+
+<!--
+############
+nullable_grammar = {
+    '<start>': [['<A>', '<D>']],
+    '<D>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;D&gt;&#x27;]],
+    &#x27;&lt;D&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+
+<!--
+############
+v = nullable(nullable_grammar)
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = nullable(nullable_grammar)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Once we have the nullable grammar, for each nonterminal in our grammar,
+we want to identify whether parsinga string with one nonterminal
+guarantees parse of a parent nonterminal. This is because if <A> parses
+a string s1, and there exists a rule `<A> := <B> <C>` and <B> is nullable,
+then parsing with <C> guarantees that <A> also can parse it.
+So, this is what we will do.
+
+<!--
+############
+def extend_chain(guarantee_1):
+    # initialize it with the first level parent
+    chains = {k:set(guarantee_1[k]) for k in guarantee_1}
+    while True:
+        modified = False
+        for k in chains:
+            # for each token, get the guarantees, and add it to current
+            for t in list(chains[k]):
+                for v in chains[t]:
+                    if v not in chains[k]:
+                        chains[k].add(v)
+                        modified = True
+        if not modified: break
+    return chains
+
+def identify_gauranteed_parses(grammar):
+    guarantee_1 = {k:[] for k in grammar}
+    nullable_keys = nullable(grammar)
+    for k in grammar:
+        for r in grammar[k]:
+            if len(r) == 0: continue
+            if len(r) == 1: continue
+            # <A>:k := <B> <C>
+            b, c = r
+            if b in nullable_keys:
+                # parsing with c guarantees parsing with A
+                guarantee_1[c].append(k)
+            if c in nullable_keys:
+                # parsing with b guarantees parsing with A
+                guarantee_1[b].append(k)
+    return extend_chain(guarantee_1)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def extend_chain(guarantee_1):
+    # initialize it with the first level parent
+    chains = {k:set(guarantee_1[k]) for k in guarantee_1}
+    while True:
+        modified = False
+        for k in chains:
+            # for each token, get the guarantees, and add it to current
+            for t in list(chains[k]):
+                for v in chains[t]:
+                    if v not in chains[k]:
+                        chains[k].add(v)
+                        modified = True
+        if not modified: break
+    return chains
+
+def identify_gauranteed_parses(grammar):
+    guarantee_1 = {k:[] for k in grammar}
+    nullable_keys = nullable(grammar)
+    for k in grammar:
+        for r in grammar[k]:
+            if len(r) == 0: continue
+            if len(r) == 1: continue
+            # &lt;A&gt;:k := &lt;B&gt; &lt;C&gt;
+            b, c = r
+            if b in nullable_keys:
+                # parsing with c guarantees parsing with A
+                guarantee_1[c].append(k)
+            if c in nullable_keys:
+                # parsing with b guarantees parsing with A
+                guarantee_1[b].append(k)
+    return extend_chain(guarantee_1)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A grammar. Note that we use `<>` to represent empty (epsilon) nonterminal
+
+<!--
+############
+nullable_grammar = {
+    '<start>': [
+        ['<A>', '<B>']],
+    '<A>': [
+        ['<_a>', '<>'],
+        [],
+        ['<C>', '<>']],
+    '<B>': [
+        ['<_b>', '<>']],
+    '<C>': [
+        ['<A>', '<>'],
+        ['<B>', '<>']],
+
+    '<>': [[]],
+    '<_a>': [['a']],
+    '<_b>': [['b']]
+}
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [
+        [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [
+        [&#x27;&lt;_a&gt;&#x27;, &#x27;&lt;&gt;&#x27;],
+        [],
+        [&#x27;&lt;C&gt;&#x27;, &#x27;&lt;&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [
+        [&#x27;&lt;_b&gt;&#x27;, &#x27;&lt;&gt;&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [
+        [&#x27;&lt;A&gt;&#x27;, &#x27;&lt;&gt;&#x27;],
+        [&#x27;&lt;B&gt;&#x27;, &#x27;&lt;&gt;&#x27;]],
+
+    &#x27;&lt;&gt;&#x27;: [[]],
+    &#x27;&lt;_a&gt;&#x27;: [[&#x27;a&#x27;]],
+    &#x27;&lt;_b&gt;&#x27;: [[&#x27;b&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+
+<!--
+############
+v = identify_gauranteed_parses(nullable_grammar)
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+v = identify_gauranteed_parses(nullable_grammar)
+print(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+So at this point, all we have to do is, after each cell is computed fully, we
+just have to extend the cell with the guaranteed parse.
+
+<!--
+############
+class CYKRecognizer(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.cell_width = 5
+
+        # let us get an inverse cache
+        self.terminal_rules = {}
+        self.nonterminal_rules = {}
+        for k, rule in self.productions:
+            if not rule: continue # empty
+            if fuzzer.is_terminal(rule[0]):
+                if k not in self.terminal_rules:
+                    self.terminal_rules[rule[0]] = []
+                self.terminal_rules[rule[0]].append(k)
+            else:
+                if k not in self.nonterminal_rules:
+                    self.nonterminal_rules[(rule[0],rule[1])] = []
+                self.nonterminal_rules[(rule[0],rule[1])].append(k)
+
+        self.chains = identify_gauranteed_parses(grammar)
+
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
+            for k in list(table[s][s+1]):
+                table[s][s+1].update({v:True for v in self.chains[k]})
+        return table
+
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
+                matching_pairs = [
+                        (b,c) for b in table[s][s+p] for c in table[s+p][s+n]
+                            if (b,c) in self.nonterminal_rules]
+                keys = {k:True for pair in matching_pairs
+                               for k in self.nonterminal_rules[pair]}
+                table[s][s+n].update(keys)
+
+        for s in range(0, length-n+1):
+            for k in list(table[s][s+n]):
+                # for each key, add the chain.
+                table[s][s+n].update({v:True for v in self.chains[k]})
+        return table
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CYKRecognizer(CYKRecognizer):
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.productions = [(k,r) for k in grammar for r in grammar[k]]
+        self.cell_width = 5
+
+        # let us get an inverse cache
+        self.terminal_rules = {}
+        self.nonterminal_rules = {}
+        for k, rule in self.productions:
+            if not rule: continue # empty
+            if fuzzer.is_terminal(rule[0]):
+                if k not in self.terminal_rules:
+                    self.terminal_rules[rule[0]] = []
+                self.terminal_rules[rule[0]].append(k)
+            else:
+                if k not in self.nonterminal_rules:
+                    self.nonterminal_rules[(rule[0],rule[1])] = []
+                self.nonterminal_rules[(rule[0],rule[1])].append(k)
+
+        self.chains = identify_gauranteed_parses(grammar)
+
+    def parse_1(self, text, length, table):
+        for s in range(0,length):
+            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
+            for k in list(table[s][s+1]):
+                table[s][s+1].update({v:True for v in self.chains[k]})
+        return table
+
+    def parse_n(self, text, n, length, table):
+        # check substrings starting at s, with length n
+        for s in range(0, length-n+1):
+            # partition the substring at p (n = 1 less than the length of substring)
+            for p in range(1, n):
+                matching_pairs = [
+                        (b,c) for b in table[s][s+p] for c in table[s+p][s+n]
+                            if (b,c) in self.nonterminal_rules]
+                keys = {k:True for pair in matching_pairs
+                               for k in self.nonterminal_rules[pair]}
+                table[s][s+n].update(keys)
+
+        for s in range(0, length-n+1):
+            for k in list(table[s][s+n]):
+                # for each key, add the chain.
+                table[s][s+n].update({v:True for v in self.chains[k]})
+        return table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+
+<!--
+############
+mystring = 'b' # g.fuzz('<start>')
+print(v)
+p = CYKRecognizer(nullable_grammar)
+v = p.recognize_on(mystring, '<start>')
+print(v)
+assert v
+
+g = fuzzer.LimitFuzzer(nullable_grammar)
+for i in range(100):
+    mystring = g.fuzz('<start>')
+    p = CYKRecognizer(nullable_grammar)
+    v = p.recognize_on(mystring, '<start>')
+    assert v
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;b&#x27; # g.fuzz(&#x27;&lt;start&gt;&#x27;)
+print(v)
+p = CYKRecognizer(nullable_grammar)
+v = p.recognize_on(mystring, &#x27;&lt;start&gt;&#x27;)
+print(v)
+assert v
+
+g = fuzzer.LimitFuzzer(nullable_grammar)
+for i in range(100):
+    mystring = g.fuzz(&#x27;&lt;start&gt;&#x27;)
+    p = CYKRecognizer(nullable_grammar)
+    v = p.recognize_on(mystring, &#x27;&lt;start&gt;&#x27;)
+    assert v
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Handling epsilons now allows us to get to the next step in supporting any
+context free grammar. We require two more steps to support.
+1. Replacing terminal symbols with nonterminal symbols representing tokens
+2. Ensuring that there are exactly two nonterminal symbols in any nonterminal
+rule. We will handle the first one now.
+
+<!--
+############
+def replace_terminal_symbols(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for r in grammar[k]:
+            new_r = []
+            new_g[k].append(new_r)
+            for t in r:
+                if fuzzer.is_terminal(t):
+                    nt = '<_' + t + '>'
+                    new_g[nt] = [[t]]
+                    new_r.append(nt)
+                else:
+                    new_r.append(t)
+    return new_g
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def replace_terminal_symbols(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for r in grammar[k]:
+            new_r = []
+            new_g[k].append(new_r)
+            for t in r:
+                if fuzzer.is_terminal(t):
+                    nt = &#x27;&lt;_&#x27; + t + &#x27;&gt;&#x27;
+                    new_g[nt] = [[t]]
+                    new_r.append(nt)
+                else:
+                    new_r.append(t)
+    return new_g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test
+
+<!--
+############
+my_grammar = {
+        '<start>' : [['<p*>']],
+        '<p*>' : [['<p>', '<p*>'], []],
+        '<p>' : [['(', '<p>', ')'], ['1']]
+}
+g_new_g =  replace_terminal_symbols(my_grammar)
+print(g_new_g)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_grammar = {
+        &#x27;&lt;start&gt;&#x27; : [[&#x27;&lt;p*&gt;&#x27;]],
+        &#x27;&lt;p*&gt;&#x27; : [[&#x27;&lt;p&gt;&#x27;, &#x27;&lt;p*&gt;&#x27;], []],
+        &#x27;&lt;p&gt;&#x27; : [[&#x27;(&#x27;, &#x27;&lt;p&gt;&#x27;, &#x27;)&#x27;], [&#x27;1&#x27;]]
+}
+g_new_g =  replace_terminal_symbols(my_grammar)
+print(g_new_g)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we want to replace any rule that contains more than two tokens with
+it decomposition.
+[] = []
+[t1] = [t1]
+[t1, t2] = [t1, t2]
+[t1, t2, t3] = [t1, _t2], _t2 = [t2, t3]
+
+<!--
+############
+def decompose_rule(rule, prefix):
+    l = len(rule)
+    if l in [0, 1, 2]: return rule, {}
+    t, *r = rule
+    kp = prefix + '_'
+    nr, d = decompose_rule(r, kp)
+    k = '<' + kp + '>'
+    d[k] = [nr]
+    return [t, k], d
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def decompose_rule(rule, prefix):
+    l = len(rule)
+    if l in [0, 1, 2]: return rule, {}
+    t, *r = rule
+    kp = prefix + &#x27;_&#x27;
+    nr, d = decompose_rule(r, kp)
+    k = &#x27;&lt;&#x27; + kp + &#x27;&gt;&#x27;
+    d[k] = [nr]
+    return [t, k], d
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+test
+
+<!--
+############
+my_r = ['<a>', '<b>', '<c>', '<d>', '<e>']
+nr, d = decompose_rule(my_r, '')
+print(nr)
+for k in d:
+    print(k, d[k])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_r = [&#x27;&lt;a&gt;&#x27;, &#x27;&lt;b&gt;&#x27;, &#x27;&lt;c&gt;&#x27;, &#x27;&lt;d&gt;&#x27;, &#x27;&lt;e&gt;&#x27;]
+nr, d = decompose_rule(my_r, &#x27;&#x27;)
+print(nr)
+for k in d:
+    print(k, d[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+decompose grammar
+
+<!--
+############
+def decompose_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for i,r in enumerate(grammar[k]):
+            nr, d = decompose_rule(r, k[1:-1] + '_' + str(i))
+            new_g[k].append(nr)
+            new_g.update(d)
+    return new_g
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def decompose_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for i,r in enumerate(grammar[k]):
+            nr, d = decompose_rule(r, k[1:-1] + &#x27;_&#x27; + str(i))
+            new_g[k].append(nr)
+            new_g.update(d)
+    return new_g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+all that remains now is to ensure that each rule is exactly two
+token nonterminal, or a single token terminal.
+
+<!--
+############
+def is_newterminal(k):
+    return k[1] == '_'
+
+def balance_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        if is_newterminal(k):
+            assert len(grammar[k]) == 1
+            new_g[k] = grammar[k]
+            continue
+        new_g[k] = []
+        for r in grammar[k]:
+            l = len(r)
+            if l == 0:
+                new_g[k].append([])
+            elif l == 1:
+                new_g[k].append([r[0], '<>'])
+            elif l == 2:
+                new_g[k].append(r)
+            else:
+                assert False
+    return new_g
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def is_newterminal(k):
+    return k[1] == &#x27;_&#x27;
+
+def balance_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        if is_newterminal(k):
+            assert len(grammar[k]) == 1
+            new_g[k] = grammar[k]
+            continue
+        new_g[k] = []
+        for r in grammar[k]:
+            l = len(r)
+            if l == 0:
+                new_g[k].append([])
+            elif l == 1:
+                new_g[k].append([r[0], &#x27;&lt;&gt;&#x27;])
+            elif l == 2:
+                new_g[k].append(r)
+            else:
+                assert False
+    return new_g
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+connecting everything together
+
+<!--
+############
+def cfg_to_cnf(g):
+    g1 = replace_terminal_symbols(g)
+    g2 = decompose_grammar(g1)
+    g3 = balance_grammar(g2)
+    g3['<>'] = [[]]
+    return g3
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def cfg_to_cnf(g):
+    g1 = replace_terminal_symbols(g)
+    g2 = decompose_grammar(g1)
+    g3 = balance_grammar(g2)
+    g3[&#x27;&lt;&gt;&#x27;] = [[]]
+    return g3
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A grammar
+
+<!--
+############
+expr_grammar = {
+'<start>': [['<expr>']],
+'<expr>': [
+    ['<expr>', '+', '<expr>'],
+    ['<expr>', '-', '<expr>'],
+    ['<expr>', '*', '<expr>'],
+    ['<expr>', '/', '<expr>'],
+    ['(', '<expr>', ')'],
+    ['<integer>']],
+'<integer>': [
+    ['<digits>']],
+'<digits>': [
+    ['<digit>','<digits>'],
+    ['<digit>']],
+'<digit>': [["%s" % str(i)] for i in range(10)],
+}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+expr_grammar = {
+&#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;expr&gt;&#x27;]],
+&#x27;&lt;expr&gt;&#x27;: [
+    [&#x27;&lt;expr&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;expr&gt;&#x27;],
+    [&#x27;&lt;expr&gt;&#x27;, &#x27;-&#x27;, &#x27;&lt;expr&gt;&#x27;],
+    [&#x27;&lt;expr&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;expr&gt;&#x27;],
+    [&#x27;&lt;expr&gt;&#x27;, &#x27;/&#x27;, &#x27;&lt;expr&gt;&#x27;],
+    [&#x27;(&#x27;, &#x27;&lt;expr&gt;&#x27;, &#x27;)&#x27;],
+    [&#x27;&lt;integer&gt;&#x27;]],
+&#x27;&lt;integer&gt;&#x27;: [
+    [&#x27;&lt;digits&gt;&#x27;]],
+&#x27;&lt;digits&gt;&#x27;: [
+    [&#x27;&lt;digit&gt;&#x27;,&#x27;&lt;digits&gt;&#x27;],
+    [&#x27;&lt;digit&gt;&#x27;]],
+&#x27;&lt;digit&gt;&#x27;: [[&quot;%s&quot; % str(i)] for i in range(10)],
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test
+
+<!--
+############
+g = cfg_to_cnf(expr_grammar)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print('\t', r)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g = cfg_to_cnf(expr_grammar)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print(&#x27;\t&#x27;, r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+
+<!--
+############
+mystring = '1+1'
+cnf_grammar  = cfg_to_cnf(expr_grammar)
+p = CYKRecognizer(cnf_grammar)
+v = p.recognize_on(mystring, '<start>')
+print(v)
+assert v
+
+g = fuzzer.LimitFuzzer(cnf_grammar)
+for i in range(10):
+    print(i)
+    mystring = g.fuzz('<start>')
+    p = CYKRecognizer(cnf_grammar)
+    v = p.recognize_on(mystring, '<start>')
+    assert v
+print('done')
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+mystring = &#x27;1+1&#x27;
+cnf_grammar  = cfg_to_cnf(expr_grammar)
+p = CYKRecognizer(cnf_grammar)
+v = p.recognize_on(mystring, &#x27;&lt;start&gt;&#x27;)
+print(v)
+assert v
+
+g = fuzzer.LimitFuzzer(cnf_grammar)
+for i in range(10):
+    print(i)
+    mystring = g.fuzz(&#x27;&lt;start&gt;&#x27;)
+    p = CYKRecognizer(cnf_grammar)
+    v = p.recognize_on(mystring, &#x27;&lt;start&gt;&#x27;)
+    assert v
+print(&#x27;done&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## CYKParser
 Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
 restricting epsilons to the start symbol, there are no infinite parse trees.
@@ -644,6 +1451,7 @@ restricting epsilons to the start symbol, there are no infinite parse trees.
 ############
 class CYKParser(CYKRecognizer):
     def __init__(self, grammar):
+        self.cell_width = 5
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0])
@@ -657,6 +1465,7 @@ class CYKParser(CYKRecognizer):
 <textarea cols="40" rows="4" name='python_edit'>
 class CYKParser(CYKRecognizer):
     def __init__(self, grammar):
+        self.cell_width = 5
         self.grammar = grammar
         self.productions = [(k,r) for k in grammar for r in grammar[k]]
         self.terminal_productions = [(k,r[0])
@@ -707,12 +1516,12 @@ class CYKParser(CYKParser):
         for s in range(0, length-n+1):
             for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions:
-                    if R_b in table[s][p]:
+                    if R_b in table[s][s+p]:
                         if R_c in table[s+p][s+n]:
                             if k not in table[s][s+n]:
                                 table[s][s+n][k] = []
                             table[s][s+n][k].append(
-                                (k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+                                (k,[table[s][s+p][R_b], table[s+p][s+n][R_c]]))
 
 ############
 -->
@@ -723,12 +1532,12 @@ class CYKParser(CYKParser):
         for s in range(0, length-n+1):
             for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions:
-                    if R_b in table[s][p]:
+                    if R_b in table[s][s+p]:
                         if R_c in table[s+p][s+n]:
                             if k not in table[s][s+n]:
                                 table[s][s+n][k] = []
                             table[s][s+n][k].append(
-                                (k,[table[s][p][R_b], table[s+p][s+n][R_c]]))
+                                (k,[table[s][s+p][R_b], table[s+p][s+n][R_c]]))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -795,9 +1604,9 @@ Using it (uses random choice, click run multiple times to get other trees).
 
 <!--
 ############
-mystring = 'aabc'
+mystring = 'bcac'
 p = CYKParser(g1)
-v = p.parse_on(mystring, '<S>')
+v = p.parse_on(mystring, g1_start)
 for t in v:
     print(ep.display_tree(t))
 
@@ -805,9 +1614,9 @@ for t in v:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-mystring = &#x27;aabc&#x27;
+mystring = &#x27;bcac&#x27;
 p = CYKParser(g1)
-v = p.parse_on(mystring, &#x27;&lt;S&gt;&#x27;)
+v = p.parse_on(mystring, g1_start)
 for t in v:
     print(ep.display_tree(t))
 </textarea><br />
