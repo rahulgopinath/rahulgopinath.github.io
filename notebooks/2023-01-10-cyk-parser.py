@@ -425,7 +425,7 @@ def identify_gauranteed_parses(grammar):
                 guarantee_1[b].append(k)
     return extend_chain(guarantee_1)
 
-# A grammar
+# A grammar. Note that we use `<>` to represent empty (epsilon) nonterminal
 nullable_grammar = {
     '<start>': [
         ['<A>', '<B>']],
@@ -499,6 +499,7 @@ class CYKRecognizer(CYKRecognizer):
                 # for each key, add the chain.
                 table[s][s+n].update({v:True for v in self.chains[k]})
         return table
+
 # Testing
 if __name__ == '__main__':
     mystring = 'b' # g.fuzz('<start>')
@@ -513,8 +514,140 @@ if __name__ == '__main__':
         mystring = g.fuzz('<start>')
         p = CYKRecognizer(nullable_grammar)
         v = p.recognize_on(mystring, '<start>')
-        print(v)
         assert v
+
+# Handling epsilons now allows us to get to the next step in supporting any
+# context free grammar. We require two more steps to support.
+# 1. Replacing terminal symbols with nonterminal symbols representing tokens
+# 2. Ensuring that there are exactly two nonterminal symbols in any nonterminal
+# rule. We will handle the first one now.
+
+def replace_terminal_symbols(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for r in grammar[k]:
+            new_r = []
+            new_g[k].append(new_r)
+            for t in r:
+                if fuzzer.is_terminal(t):
+                    nt = '<_' + t + '>'
+                    new_g[nt] = [t]
+                    new_r.append(nt)
+                else:
+                    new_r.append(t)
+    return new_g
+
+# Test
+
+if __name__ == '__main__':
+    my_grammar = {
+            '<start>' : [['<p*>']],
+            '<p*>' : [['<p>', '<p*>'], []],
+            '<p>' : [['(', '<p>', ')'], ['1']]
+    }
+    g_new_g =  replace_terminal_symbols(my_grammar)
+    print(g_new_g)
+
+# Next, we want to replace any rule that contains more than two tokens with
+# it decomposition.
+# [] = []
+# [t1] = [t1]
+# [t1, t2] = [t1, t2]
+# [t1, t2, t3] = [t1, _t2], _t2 = [t2, t3]
+
+def decompose_rule(rule, prefix):
+    l = len(rule)
+    if l in [0, 1, 2]: return rule, {}
+    t, *r = rule
+    kp = prefix + '_'
+    nr, d = decompose_rule(r, kp)
+    k = '<' + kp + '>'
+    d[k] = [nr]
+    return [t, k], d
+
+
+# test
+if __name__ == '__main__':
+    my_r = ['<a>', '<b>', '<c>', '<d>', '<e>']
+    nr, d = decompose_rule(my_r, '')
+    print(nr)
+    for k in d:
+        print(k, d[k])
+
+# decompose grammar
+
+def decompose_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        new_g[k] = []
+        for i,r in enumerate(grammar[k]):
+            nr, d = decompose_rule(r, k[1:-1] + '_' + str(i))
+            new_g[k].append(nr)
+            new_g.update(d)
+    return new_g
+
+# all that remains now is to ensure that each rule is exactly two
+# token nonterminal, or a single token terminal.
+def is_newterminal(k):
+    return k[1] == '_'
+
+def balance_grammar(grammar):
+    new_g = {}
+    for k in grammar:
+        if is_newterminal(k):
+            assert len(grammar[k]) == 1
+            new_g[k] = grammar[k]
+            continue
+        new_g[k] = []
+        for r in grammar[k]:
+            l = len(r)
+            if l == 0:
+                new_g[k].append([])
+            elif l == 1:
+                new_g[k].append([r[0], '<>'])
+            elif l == 2:
+                new_g[k].append(r)
+            else:
+                assert False
+    return new_g
+
+# connecting everything together
+
+def cfg_to_cnf(g):
+    g1 = replace_terminal_symbols(g)
+    g2 = decompose_grammar(g1)
+    g3 = balance_grammar(g2)
+    return g3
+
+# A grammar
+
+expr_grammar = {
+'<start>': [['<expr>']],
+'<expr>': [
+    ['<expr>', '+', '<expr>'],
+    ['<expr>', '-', '<expr>'],
+    ['<expr>', '*', '<expr>'],
+    ['<expr>', '/', '<expr>'],
+    ['(', '<expr>', ')'],
+    ['<integer>']],
+'<integer>': [
+    ['<digits>']],
+'<digits>': [
+    ['<digit>','<digits>'],
+    ['<digit>']],
+'<digit>': [["%s" % str(i)] for i in range(10)],
+}
+
+# Test
+if __name__ == '__main__':
+    g = cfg_to_cnf(expr_grammar)
+    for k in g:
+        print(k)
+        for r in g[k]:
+            print('\t', r)
+    import sys
+    sys.exit(0)
 
 # ## CYKParser
 # Now, all we need to do is to add trees. Unlike GLL, GLR, and Earley, due to
