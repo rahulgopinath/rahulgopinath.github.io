@@ -250,7 +250,7 @@ class CYKRecognizer(CYKRecognizer):
         for s in range(0, length-n+1):
             # partition the substring at p (n = 1 less than the length of substring)
             for p in range(1, n):
-                pairs = [(b,c) for b in table[s][p] for c in table[s+p][s+n]]
+                pairs = [(b,c) for b in table[s][s+p] for c in table[s+p][s+n]]
                 matching_pairs = [(b,c) for (b,c) in pairs
                             if (b,c) in self.nonterminal_rules]
                 keys = {k:True for pair in matching_pairs
