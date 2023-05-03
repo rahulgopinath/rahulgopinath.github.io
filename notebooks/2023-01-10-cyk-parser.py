@@ -488,7 +488,7 @@ class CYKRecognizer(CYKRecognizer):
             # partition the substring at p (n = 1 less than the length of substring)
             for p in range(1, n):
                 matching_pairs = [
-                        (b,c) for b in table[s][p] for c in table[s+p][s+n]
+                        (b,c) for b in table[s][s+p] for c in table[s+p][s+n]
                             if (b,c) in self.nonterminal_rules]
                 keys = {k:True for pair in matching_pairs
                                for k in self.nonterminal_rules[pair]}
@@ -697,7 +697,7 @@ class CYKParser(CYKParser):
         for s in range(0, length-n+1):
             for p in range(1, n):
                 for (k, [R_b, R_c]) in self.nonterminal_productions:
-                    if R_b in table[s][p]:
+                    if R_b in table[s][s+p]:
                         if R_c in table[s+p][s+n]:
                             if k not in table[s][s+n]:
                                 table[s][s+n][k] = []
