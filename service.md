@@ -6,8 +6,17 @@ group: navigation
 weight: 4
 menu: Service
 ---
+##### 2024
+
+* [_ISSTA 2024_](https://conf.researchr.org/home/issta-2024)<br/>
+  PC Member
+
 ##### 2023
-* [ASE 2023_](https://conf.researchr.org/home/ase-2023)<br/>
+
+* [_ISSRE 2023_](https://issre2023.github.io/committee_research-PC.html)<br/>
+  PC Member
+
+* [ASE 2023](https://conf.researchr.org/home/ase-2023)<br/>
   PC Member
 
 * [_ISSTA 2023_](https://conf.researchr.org/home/issta-2023)<br/>
