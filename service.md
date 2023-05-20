@@ -8,6 +8,9 @@ menu: Service
 ---
 ##### 2024
 
+* [_OOPSLA SPLASH 2024_](https://2024.splashcon.org/committee/splash-2024-papers-review-committee)<br/>
+  RC Member
+
 * [_ISSTA 2024_](https://conf.researchr.org/home/issta-2024)<br/>
   PC Member
 
