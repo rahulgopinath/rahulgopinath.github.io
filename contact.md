@@ -25,7 +25,7 @@ Stuhlsatzenhaus 5, Saarland Informatics Campus
 66123 Saarbrücken, Germany  
 <p/>  -->
 
-School of Computer Science Reception, Building J12,
+Office 445, School of Computer Science, Building J12,
 1 Cleveland Street,
 Darlington NSW 2008
 
