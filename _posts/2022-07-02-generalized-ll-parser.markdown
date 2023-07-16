@@ -3891,65 +3891,6 @@ print(&#x27;X_G6&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-__
-
-<!--
-############
-gamma_2 = {
-  "<S>": [["<S>", "<S>", "<S>"],
-          ["<S>", "<S>"],
-          ["s"],
-        ],
-}
-
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-gamma_2 = {
-  &quot;&lt;S&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;&lt;S&gt;&quot;, &quot;&lt;S&gt;&quot;],
-          [&quot;&lt;S&gt;&quot;, &quot;&lt;S&gt;&quot;],
-          [&quot;s&quot;],
-        ],
-}
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-__
-
-<!--
-############
-my_string = 'sssss'
-p = compile_grammar(gamma_2)
-
-forest = p.recognize_on(my_string, '<S>')
-ee = EnhancedExtractor(forest)
-print(">>", my_string)
-while True:
-  tree = ee.extract_a_tree()
-  if tree is None: break
-  print((fuzzer.tree_to_string(tree)))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-my_string = &#x27;sssss&#x27;
-p = compile_grammar(gamma_2)
-
-forest = p.recognize_on(my_string, &#x27;&lt;S&gt;&#x27;)
-ee = EnhancedExtractor(forest)
-print(&quot;&gt;&gt;&quot;, my_string)
-while True:
-  tree = ee.extract_a_tree()
-  if tree is None: break
-  print((fuzzer.tree_to_string(tree)))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 We assign format parse tree so that we can refer to it from this module
 
 <!--

@@ -1789,28 +1789,6 @@ if __name__ == '__main__':
 
     print('X_G6')
 
-# __
-gamma_2 = {
-  "<S>": [["<S>", "<S>", "<S>"],
-          ["<S>", "<S>"],
-          ["s"],
-        ],
-}
-
-
-# __
-if __name__ == '__main__':
-    my_string = 'sssss'
-    p = compile_grammar(gamma_2)
-
-    forest = p.recognize_on(my_string, '<S>')
-    ee = EnhancedExtractor(forest)
-    print(">>", my_string)
-    while True:
-      tree = ee.extract_a_tree()
-      if tree is None: break
-      print((fuzzer.tree_to_string(tree))) 
-
 # We assign format parse tree so that we can refer to it from this module
 
 def format_parsetree(t):
