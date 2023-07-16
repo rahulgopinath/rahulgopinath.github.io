@@ -317,7 +317,8 @@ class NaiveThreadedRecognizer(ep.Parser):
             if L == 'L0':
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
-                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                    if ((L[0], stack_top, cur_idx)
+                        == (start_symbol, parser.stack_bottom, (parser.m-1))):
                         return parser
                     continue
                 else:
@@ -527,7 +528,7 @@ class GLLStructuredStack(GLLStructuredStack):
             v.children.append(stack_top) # added
 
             for h_idx in self.gss.parsed_indexes(v.label): # added
-                self.add_thread(v.L, stack_top, h_idx)     # added
+                self.add_thread(L, stack_top, h_idx)       # added
         return v
 
 # ### GLL+GSS fn_return (pop)
@@ -915,7 +916,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
                 h_idx = sppf_z.label[-1]
-                self.add_thread(v.L, stack_top, h_idx, sppf_y)
+                self.add_thread(L, stack_top, h_idx, sppf_y)
         return v
 
 # ### GLL+GSS+SPPF utilities.

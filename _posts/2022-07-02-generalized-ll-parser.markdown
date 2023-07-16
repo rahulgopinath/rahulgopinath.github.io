@@ -596,7 +596,8 @@ class NaiveThreadedRecognizer(ep.Parser):
             if L == 'L0':
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
-                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                    if ((L[0], stack_top, cur_idx)
+                        == (start_symbol, parser.stack_bottom, (parser.m-1))):
                         return parser
                     continue
                 else:
@@ -674,7 +675,8 @@ class NaiveThreadedRecognizer(ep.Parser):
             if L == &#x27;L0&#x27;:
                 if parser.threads:
                     (L, stack_top, cur_idx) = parser.next_thread()
-                    if (L[0], stack_top, cur_idx) == (start_symbol, parser.stack_bottom, (parser.m-1)):
+                    if ((L[0], stack_top, cur_idx)
+                        == (start_symbol, parser.stack_bottom, (parser.m-1))):
                         return parser
                     continue
                 else:
@@ -1080,7 +1082,7 @@ class GLLStructuredStack(GLLStructuredStack):
             v.children.append(stack_top) # added
 
             for h_idx in self.gss.parsed_indexes(v.label): # added
-                self.add_thread(v.L, stack_top, h_idx)     # added
+                self.add_thread(L, stack_top, h_idx)       # added
         return v
 
 ############
@@ -1096,7 +1098,7 @@ class GLLStructuredStack(GLLStructuredStack):
             v.children.append(stack_top) # added
 
             for h_idx in self.gss.parsed_indexes(v.label): # added
-                self.add_thread(v.L, stack_top, h_idx)     # added
+                self.add_thread(L, stack_top, h_idx)       # added
         return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1941,7 +1943,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
                 h_idx = sppf_z.label[-1]
-                self.add_thread(v.L, stack_top, h_idx, sppf_y)
+                self.add_thread(L, stack_top, h_idx, sppf_y)
         return v
 
 ############
@@ -1959,7 +1961,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for sppf_z in self.gss.parsed_indexes(v.label):
                 sppf_y = self.getNodeP(L, sppf_w, sppf_z)
                 h_idx = sppf_z.label[-1]
-                self.add_thread(v.L, stack_top, h_idx, sppf_y)
+                self.add_thread(L, stack_top, h_idx, sppf_y)
         return v
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -3906,7 +3908,6 @@ def format_parsetree(t):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
 [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 [^bouckaert1975efficient]: M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
 
