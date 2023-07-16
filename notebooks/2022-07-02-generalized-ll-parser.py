@@ -1807,7 +1807,7 @@ def format_parsetree(t):
 # ee.extract_a_tree()
 # ```
 # will extract the wrong tree for `ssss`. I have not solved the issue so far. If you find the issue, please drop me a note.
-
+# 
 # [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 #
 # [^bouckaert1975efficient]: M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
