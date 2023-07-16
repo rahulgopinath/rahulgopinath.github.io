@@ -565,7 +565,8 @@ class GLLG1Recognizer(ep.Parser):
                     continue
                 else: # changed
                     for n_alt, rule in enumerate(self.parser.grammar[start_symbol]):
-                        if ((start_symbol, n_alt, len(rule)), parser.stack_bottom) in parser.U[parser.m-1]:
+                        if ( ((start_symbol, n_alt, len(rule)), parser.stack_bottom) 
+                            in parser.U[parser.m-1]):
                             parser.root = (start_symbol, 0, parser.m)
                             return parser
                     return []
@@ -1012,7 +1013,7 @@ class SPPFG1Recognizer(ep.Parser):
                     # goto L
                     continue
                 else:
-                    # if there is an SPPF node (start_symbol, 0, m) then report success
+                    # if exists an SPPF node (start_symbol, 0, m) => success
                     if (start_symbol, 0, parser.m) in parser.SPPF_nodes:
                           parser.root = (start_symbol, 0, parser.m)
                           return parser
@@ -1030,6 +1031,7 @@ class SPPFG1Recognizer(ep.Parser):
                 L = 'L0'
                 continue
             elif L ==  ('<S>',0,0): # <S>::= | <A>
+
                 stack_top = parser.register_return(('<S>',0,1), stack_top, cur_idx, cur_sppf_node)
                 L = "<A>"
                 continue
@@ -1435,11 +1437,13 @@ class EnhancedExtractor(EnhancedExtractor):
         elif isinstance(forest_node, SPPF_symbol_node):
             if not forest_node.children:
                 return (forest_node.label[0], []), choices
-            cur_path, _i, _l, new_choices = self.choose_path(forest_node.children, choices)
+            cur_path, _i, _l, new_choices = self.choose_path(
+                    forest_node.children, choices)
             if cur_path is None:
                 return None, new_choices
             if cur_path.nid in seen: return None, new_choices
-            n, newer_choices = self.extract_a_node(cur_path, seen | {cur_path.nid}, new_choices)
+            n, newer_choices = self.extract_a_node(
+                    cur_path, seen | {cur_path.nid}, new_choices)
             if n is None: return None, newer_choices
             (key, children) = n
             assert key is None
@@ -1451,7 +1455,9 @@ class EnhancedExtractor(EnhancedExtractor):
     def extract_a_tree(self):
         choices = self.choices
         while not self.choices.finished():
-            parse_tree, choices = self.extract_a_node(self.my_forest.SPPF_nodes[self.my_forest.root], set(), self.choices)
+            parse_tree, choices = self.extract_a_node(
+                    self.my_forest.SPPF_nodes[self.my_forest.root],
+                    set(), self.choices)
             choices.increment()
             if parse_tree is not None:
                 return parse_tree
