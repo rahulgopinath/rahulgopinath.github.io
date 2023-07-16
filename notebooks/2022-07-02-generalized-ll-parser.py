@@ -1789,10 +1789,40 @@ if __name__ == '__main__':
 
     print('X_G6')
 
+# __
+gamma_2 = {
+  "<S>": [["<S>", "<S>", "<S>"],
+          ["<S>", "<S>"],
+          ["s"],
+        ],
+}
+
+
+# __
+if __name__ == '__main__':
+    my_string = 'sssss'
+    p = compile_grammar(gamma_2)
+
+    forest = p.recognize_on(my_string, '<S>')
+    ee = EnhancedExtractor(forest)
+    print(">>", my_string)
+    while True:
+      tree = ee.extract_a_tree()
+      if tree is None: break
+      print((fuzzer.tree_to_string(tree))) 
+
 # We assign format parse tree so that we can refer to it from this module
 
 def format_parsetree(t):
     return ep.format_parsetree(t)
+
+# Note: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
+# ```py
+# gamma_2 = { "<S>": [ ["<S>", "<S>", "<S>"], ["<S>", "<S>"], ["s"],] }
+# ee = EnhancedExtractor(forest)
+# ee.extract_a_tree()
+# ```
+# will extract the wrong tree for `ssss`. I have not solved the issue so far. If you find the issue, please drop me a note.
 
 # [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 #
