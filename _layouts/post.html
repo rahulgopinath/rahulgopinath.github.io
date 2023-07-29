@@ -10,6 +10,7 @@ comments: true
     <p class="post-meta">
     <b>Published: </b>{{ page.date | date: "%b %-d, %Y" }}<br/>
     {% if page.authors %} <b>Authors: </b>{{ page.authors }} <br/>{% endif %}
+    {% if page.venue %} <b>Venue: </b>{{ page.venue }} <br/>{% endif %}
     {% if page.meta %} • {{ page.meta }}{% endif %}
     {% if page.blogger_orig_url %} •
         Automatically converted from Blogger (<a href="{{ page.blogger_orig_url}}">original</a>)
