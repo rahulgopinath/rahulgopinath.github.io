@@ -42,3 +42,4 @@ improving (1) detecting failures beyond generic crashes and
 (2) triggering mutations (and thus faults).
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/usenixsecurity2023/goerz2023systematic.pdf "paper")
+[<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://github.com/CISPA-SysSec/mua_fuzzer_bench/ "replication")
