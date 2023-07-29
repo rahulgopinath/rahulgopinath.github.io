@@ -7,8 +7,9 @@ comments: true
 
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
-    <><p class="post-meta"><b>Published:</b>{{ page.date | date: "%b %-d, %Y" }}
-    {% if page.authors %} • {{ page.authors }}{% endif %}
+    <p class="post-meta">
+    <b>Published: </b>{{ page.date | date: "%b %-d, %Y" }}<br/>
+    {% if page.authors %} <b>Authors: </b>{{ page.authors }} <br/>{% endif %}
     {% if page.meta %} • {{ page.meta }}{% endif %}
     {% if page.blogger_orig_url %} •
         Automatically converted from Blogger (<a href="{{ page.blogger_orig_url}}">original</a>)
