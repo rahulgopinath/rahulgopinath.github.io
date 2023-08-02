@@ -16,30 +16,32 @@ Fuzzing is an important method to discover vulnerabilities
 in programs. Despite considerable progress in this area in
 the past years, measuring and comparing the effectiveness of
 fuzzers is still an open research question. In software testing,
-the gold standard for evaluating test quality is mutation anal-
-ysis, which evaluates a test’s ability to detect synthetic bugs:
+the gold standard for evaluating test quality is mutation analysis,
+which evaluates a test’s ability to detect synthetic bugs:
 if a set of tests fails to detect such mutations, it is expected to
-also fail to detect real bugs. Mutation analysis subsumes vari-
-ous coverage measures and provides a large and diverse set
+also fail to detect real bugs. Mutation analysis subsumes various
+coverage measures and provides a large and diverse set
 of faults that can be arbitrarily hard to trigger and detect, thus
-preventing the problems of saturation and overfitting. Unfor-
-tunately, the cost of traditional mutation analysis is exorbitant
+preventing the problems of saturation and overfitting.
+Unfortunately, the cost of traditional mutation analysis is exorbitant
 for fuzzing, as mutations need independent evaluation.
 
-In this paper, we apply modern mutation analysis tech-
-niques that pool multiple mutations and allow us—for the
+In this paper, we apply modern mutation analysis techniques that pool multiple mutations and allow us—for the
 first time—to evaluate and compare fuzzers with mutation
 analysis. We introduce an evaluation bench for fuzzers and
 apply it to a number of popular fuzzers and subjects. In a
-comprehensive evaluation, we show how we can use it to as-
-sess fuzzer performance and measure the impact of improved
+comprehensive evaluation, we show how we can use it to assess
+fuzzer performance and measure the impact of improved
 techniques. The CPU time required remains manageable:
-4.09 CPU years are needed to analyze a fuzzer on seven sub-
-jects and a total of 141,278 mutations. We find that today’s
+4.09 CPU years are needed to analyze a fuzzer on seven
+subjects and a total of 141,278 mutations. We find that today’s
 fuzzers can detect only a small percentage of mutations, which
 should be seen as a challenge for future research—notably in
 improving (1) detecting failures beyond generic crashes and
 (2) triggering mutations (and thus faults).
+
+**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
+
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/usenixsecurity2023/goerz2023systematic.pdf "paper")
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://github.com/CISPA-SysSec/mua_fuzzer_bench/ "replication")
