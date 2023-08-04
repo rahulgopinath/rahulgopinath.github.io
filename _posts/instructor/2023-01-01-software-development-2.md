@@ -4,7 +4,7 @@ categories : Coordinator
 tagline: "."
 tags : [coordinator softwaredevelopment 2023]
 
-e: Software Construction and Design 2 (SOFT3202/COMP9202)
+e: SOFT3202/COMP9202
 ---
 
 # Software Construction and Design 2 [COMP9202](https://www.sydney.edu.au/units/COMP9202/2023-S1C-ND-CC)/[SOFT3202](https://www.sydney.edu.au/units/SOFT3202/2023-S1C-ND-RE) Autumn 2023
