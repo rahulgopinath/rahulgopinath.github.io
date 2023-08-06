@@ -7,7 +7,7 @@ weight: 4
 menu: Service
 ---
 ##### 2024
-* [_SBST 2024_](https://sbft24.github.io/tools/)<br/>
+* [_SBFT 2024_](https://sbft24.github.io/tools/)<br/>
   PC Chair for Fuzzing Tool Competition
 
 * [_OOPSLA SPLASH 2024_](https://2024.splashcon.org/committee/splash-2024-papers-review-committee)<br/>
