@@ -58,7 +58,7 @@ menu: Service
 
 ##### 2021
 
-* [_Mutation Workshopp 2020_](https://icst2021.icmc.usp.br/committee/mutation-2021-papers-program-committee)<br/>
+* [_Mutation Workshop 2020_](https://icst2021.icmc.usp.br/committee/mutation-2021-papers-program-committee)<br/>
   PC Member
 
 * [_ISSRE 2021_](http://2021.issre.net/research-committees)<br/>
@@ -66,7 +66,7 @@ menu: Service
 
 ##### 2020
 
-* [_Mutation Workshopp 2020_](https://mutation-workshop.github.io/2020/)<br/>
+* [_Mutation Workshop 2020_](https://mutation-workshop.github.io/2020/)<br/>
   PC Chair
 
 * [_ISSRE 2020_](http://2020.issre.net/research-committees.html)<br/>
@@ -78,7 +78,7 @@ menu: Service
 
 ##### 2019
 
-* [_Mutation Workshopp 2019_](https://mutation-workshop.github.io/2019/)<br/>
+* [_Mutation Workshop 2019_](https://mutation-workshop.github.io/2019/)<br/>
   PC Chair
 
 * [_ISSRE 2019_](https://2019.issre.net/research-pc.html)<br/>
@@ -89,7 +89,7 @@ menu: Service
 
 ##### 2018
 
-* [_Mutation Workshopp 2018_](https://mutation-workshop.github.io/2018/)<br/>
+* [_Mutation Workshop 2018_](https://mutation-workshop.github.io/2018/)<br/>
   PC Member
 
 * [_ISSRE 2018_](https://2018.issre.net/research-pc.html)<br/>
@@ -101,11 +101,11 @@ menu: Service
 
 ##### 2017
 
-* [_Mutation Workshopp 2017_](https://mutation-workshop.github.io/2017/)<br/>
+* [_Mutation Workshop 2017_](https://mutation-workshop.github.io/2017/)<br/>
   PC Member
 
 ##### 2016
 
-* [_Mutation Workshopp 2016_](https://mutation-workshop.github.io/2016/)<br/>
+* [_Mutation Workshop 2016_](https://mutation-workshop.github.io/2016/)<br/>
   PC Member
 
