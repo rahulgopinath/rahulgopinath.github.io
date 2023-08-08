@@ -7,6 +7,10 @@ weight: 4
 menu: Service
 ---
 ##### 2024
+
+* [_ESEC/FSE 2024_](https://2024.esec-fse.org/committee/fse-2024-research-papers-program-committee)<br/>
+  PC Member
+
 * [_SBFT 2024_](https://sbft24.github.io/tools/)<br/>
   PC Chair for Fuzzing Tool Competition
 
