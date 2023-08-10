@@ -17,5 +17,5 @@ The behavior of command-line utilities can be very much influenced by passing co
 We introduce CLIfuzzer, a tool that takes an executable program and, using dynamic analysis to track input processing, automatically extract a full set of its options, arguments, and argument types. This set forms a grammar that represents the valid sequences of valid options and arguments. Producing invocations from this grammar, we can fuzz the program with an endless list of random configurations, covering the related code. This leads to increased coverage and new bugs.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fse2022/gupta2022clifuzzer.pdf "paper")
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/       rahulgopinath.github.io/master/resources/fse2022/guptha2022clifuzzer.bib "reference")
-[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/clifuzzer "presentation")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fse2022/guptha2022clifuzzer.bib "reference")
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/clifuzzer-mining-grammars-for-command-line-invocations "presentation")

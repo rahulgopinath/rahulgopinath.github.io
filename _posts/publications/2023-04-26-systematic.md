@@ -45,3 +45,5 @@ improving (1) detecting failures beyond generic crashes and
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/usenixsecurity2023/goerz2023systematic.pdf "paper")
 [<em class="fa fa-database fa-lg" aria-hidden="true"></em>](https://github.com/CISPA-SysSec/mua_fuzzer_bench/ "replication")
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/systematic-assessment-of-fuzzers-using-mutation-analysis "presentation")
+
