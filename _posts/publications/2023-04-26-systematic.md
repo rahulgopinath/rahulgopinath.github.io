@@ -40,7 +40,7 @@ should be seen as a challenge for future research—notably in
 improving (1) detecting failures beyond generic crashes and
 (2) triggering mutations (and thus faults).
 
-**Artifacts** _available_ ![ACM artifact available](/resources/acm_artifact_available_20px.png) _functional_ ![ACM artifact functional](/resources/acm_artifact_functional_20px.png) _reusable_ ![ACM artifact reusable](/resources/acm_artifact_reusable_20px.png)
+**Artifacts** _available_ ![ACM artifact available](/resources/usenixbadges-available_20px.png) _functional_ ![Usenix artifact functional](/resources/usenixbadges-functional_20px.png) _reusable_ ![Usenix artifact reusable](/resources/usenixbadges-reproduced_20px.png)
 
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/usenixsecurity2023/goerz2023systematic.pdf "paper")
