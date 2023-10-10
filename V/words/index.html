@@ -204,6 +204,15 @@
 <form id="form">
 <div class="container">
   <h1>Word Counter, counter of words</h1>
+
+  <div id='urlgen'>
+    <input type=button onclick="genurl()" value="Generate Link"/>
+    <input type=button onclick="popurl()" value="Populate From URL"/>
+    <div id='url'></div>
+  </div>
+
+
+
   <textarea placeholder="" id="text"></textarea>
   <div class="output row">
     <div>Characters: <span id="characterCount">0</span></div>
@@ -262,6 +271,7 @@
     <label for="angle-to">to</label> <input type="number" id="angle-to" value="60" min="-90" max="90"> °
 </div>
 
+
 <hr style="clear: both">
 Please note; this is from <a href="https://github.com/jasondavies/d3-cloud">jsondavies</a>. Please use his implementation. This is specifically for my personal use.
 <div id="vis"></div>
@@ -270,6 +280,23 @@ Please note; this is from <a href="https://github.com/jasondavies/d3-cloud">json
 
 <!-- partial -->
   <script>
+    function genurl() {
+      let element = document.getElementById("text");
+      let params = element.value;
+      var baseurl = window.location.origin+window.location.pathname;
+      let url = baseurl + `?url=${encodeURIComponent(params)}`;
+      let elt = document.getElementById("url");
+      elt.innerHTML = `<div id='url'><a href="${url}">link</a></div>`;
+    }
+
+    function popurl() {
+      let params = (new URL(window.location)).searchParams;
+      let url = params.get("url");
+      let txt = decodeURIComponent(url);
+      let elt = document.getElementById("text");
+      elt.innerHTML = `${txt}`;
+    }
+
 	 /*
 	  **
 	  ** User stories:
