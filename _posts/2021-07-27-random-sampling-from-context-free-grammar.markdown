@@ -678,7 +678,7 @@ This follows the same skeleton as our previous functions. First the keys
 def key_get_def(key, grammar, l_str):
     if (key, l_str) in key_strs: return key_strs[(key, l_str)]
 
-    if !fuzzer.is_nonterminal(key):
+    if not fuzzer.is_nonterminal(key):
         if l_str == len(key):
             key_strs[(key, l_str)] = KeyNode(
                     token=key, l_str=l_str, count=1, rules = [])
@@ -707,7 +707,7 @@ def key_get_def(key, grammar, l_str):
 def key_get_def(key, grammar, l_str):
     if (key, l_str) in key_strs: return key_strs[(key, l_str)]
 
-    if !fuzzer.is_nonterminal(key):
+    if not fuzzer.is_nonterminal(key):
         if l_str == len(key):
             key_strs[(key, l_str)] = KeyNode(
                     token=key, l_str=l_str, count=1, rules = [])
@@ -1128,7 +1128,7 @@ class RandomSampleCFG:
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
-        if !fuzzer.is_nonterminal(key):
+        if not fuzzer.is_nonterminal(key):
             if l_str == len(key):
                 self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
@@ -1287,7 +1287,7 @@ class RandomSampleCFG:
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
-        if !fuzzer.is_nonterminal(key):
+        if not fuzzer.is_nonterminal(key):
             if l_str == len(key):
                 self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
