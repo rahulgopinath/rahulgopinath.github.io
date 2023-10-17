@@ -315,14 +315,15 @@ EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
 
 # ### Populating the linked data structure.
 # 
-# This follows the same skeleton as our previous functions. Firt the keys
+# This follows the same skeleton as our previous functions. First the keys
 
 def key_get_def(key, grammar, l_str):
     if (key, l_str) in key_strs: return key_strs[(key, l_str)]
 
     if key not in grammar:
         if l_str == len(key):
-            key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+            key_strs[(key, l_str)] = KeyNode(
+                    token=key, l_str=l_str, count=1, rules = [])
             return key_strs[(key, l_str)]
         else:
             key_strs[(key, l_str)] = EmptyKey
@@ -332,7 +333,8 @@ def key_get_def(key, grammar, l_str):
     s = []
     count = 0
     for rule in rules:
-        s_s = rules_get_def(rule, grammar, l_str) # returns RuleNode (should it return array?)
+        # returns RuleNode (should it return array?)
+        s_s = rules_get_def(rule, grammar, l_str)
         for s_ in s_s:
             assert s_.count
             count += s_.count

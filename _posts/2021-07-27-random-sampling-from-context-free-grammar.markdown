@@ -20,6 +20,20 @@ For example, consider this grammar:
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -67,9 +81,11 @@ To generate inputs, let us load the limit fuzzer from the previous post.
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
 
 <ol>
-<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -655,7 +671,7 @@ EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
 </form>
 ### Populating the linked data structure.
 
-This follows the same skeleton as our previous functions. Firt the keys
+This follows the same skeleton as our previous functions. First the keys
 
 <!--
 ############
@@ -664,7 +680,8 @@ def key_get_def(key, grammar, l_str):
 
     if key not in grammar:
         if l_str == len(key):
-            key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+            key_strs[(key, l_str)] = KeyNode(
+                    token=key, l_str=l_str, count=1, rules = [])
             return key_strs[(key, l_str)]
         else:
             key_strs[(key, l_str)] = EmptyKey
@@ -674,7 +691,8 @@ def key_get_def(key, grammar, l_str):
     s = []
     count = 0
     for rule in rules:
-        s_s = rules_get_def(rule, grammar, l_str) # returns RuleNode (should it return array?)
+        # returns RuleNode (should it return array?)
+        s_s = rules_get_def(rule, grammar, l_str)
         for s_ in s_s:
             assert s_.count
             count += s_.count
@@ -691,7 +709,8 @@ def key_get_def(key, grammar, l_str):
 
     if key not in grammar:
         if l_str == len(key):
-            key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+            key_strs[(key, l_str)] = KeyNode(
+                    token=key, l_str=l_str, count=1, rules = [])
             return key_strs[(key, l_str)]
         else:
             key_strs[(key, l_str)] = EmptyKey
@@ -701,7 +720,8 @@ def key_get_def(key, grammar, l_str):
     s = []
     count = 0
     for rule in rules:
-        s_s = rules_get_def(rule, grammar, l_str) # returns RuleNode (should it return array?)
+        # returns RuleNode (should it return array?)
+        s_s = rules_get_def(rule, grammar, l_str)
         for s_ in s_s:
             assert s_.count
             count += s_.count
@@ -1534,3 +1554,11 @@ The code for this post is available [here](https://github.com/rahulgopinath/rahu
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-07-27-random-sampling-from-context-free-grammar.py).
+
+
+The installable python wheel `cfgrandomsample` is available [here](/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl).
+
