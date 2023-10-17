@@ -320,7 +320,7 @@ EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
 def key_get_def(key, grammar, l_str):
     if (key, l_str) in key_strs: return key_strs[(key, l_str)]
 
-    if key not in grammar:
+    if !fuzzer.is_nonterminal(key):
         if l_str == len(key):
             key_strs[(key, l_str)] = KeyNode(
                     token=key, l_str=l_str, count=1, rules = [])
@@ -528,7 +528,7 @@ class RandomSampleCFG:
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
-        if key not in self.grammar:
+        if !fuzzer.is_nonterminal(key):
             if l_str == len(key):
                 self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
