@@ -141,7 +141,7 @@ if __name__ == '__main__':
 # Removing the indirect left-recursion is a bit more trickier. The algorithm
 # starts by establishing some stable ordering of the nonterminals so that
 # they can be procesed in order. Next, we apply an algorithm called `Paull's`
-# algorithm, which is as follows:
+# algorithm [^1], which is as follows:
 
 class GrammarUtils(GrammarUtils):
     def remove_left_recursion(self) :
@@ -187,3 +187,5 @@ if __name__ == '__main__':
     gf = fuzzer.LimitFuzzer(p.grammar)
     for i in range(10):
        print(gf.iter_fuzz(key=RGstart, max_depth=10))
+
+# [^1]: Marvin C. Paull Algorithm design: a recursion transformation framework

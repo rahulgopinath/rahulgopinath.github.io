@@ -353,7 +353,8 @@ if __name__ == &#x27;__main__&#x27;:
 </form>
 Removing the indirect left-recursion is a bit more trickier. The algorithm
 starts by establishing some stable ordering of the nonterminals so that
-they can be procesed in order.
+they can be procesed in order. Next, we apply an algorithm called `Paull's`
+algorithm [^1], which is as follows:
 
 <!--
 ############
@@ -452,6 +453,7 @@ Let us see if the grammar results in the right language
 gf = fuzzer.LimitFuzzer(p.grammar)
 for i in range(10):
    print(gf.iter_fuzz(key=RGstart, max_depth=10))
+
 ############
 -->
 <form name='python_run_form'>
@@ -463,6 +465,7 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+[^1]: Marvin C. Paull Algorithm design: a recursion transformation framework
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
