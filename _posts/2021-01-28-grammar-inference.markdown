@@ -123,7 +123,7 @@ The universe is then given by
 $$ \[ \left(FN (TP) FP \right) TN \] $$
 
 We can now see that precision is $$ \frac{|L(Gl) \setminus L(Gb)|}{|L(Gl)|} $$ and recall
-is $$\frac{|L(Gb) \setminus L(Gb)|}{|L(Gb)|}$$.
+is $$\frac{|L(Gb) \setminus L(Gl)|}{|L(Gb)|}$$.
 That is, we can now sample from the particular grammars exclusively to
 approximate precision and recall using the second grammar as an acceptor. This
 allows us to ignore the fact that precision and recall are generated using two
