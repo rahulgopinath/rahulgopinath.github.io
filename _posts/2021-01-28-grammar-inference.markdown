@@ -120,7 +120,7 @@ That is, it was falsely labeled as positive.
 
 The universe is then given by
 
-$$ \[ \left(FN (TP) FP \right) TN \] $$
+$$ \left[ \left(FN (TP) FP \right) TN \right] $$
 
 We can now see that precision is $$ \frac{|L(Gl) \setminus L(Gb)|}{|L(Gl)|} $$ and recall
 is $$\frac{|L(Gb) \setminus L(Gl)|}{|L(Gb)|}$$.
