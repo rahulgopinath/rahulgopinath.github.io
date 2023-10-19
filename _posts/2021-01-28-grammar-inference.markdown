@@ -122,7 +122,7 @@ The universe is then given by
 
 $$ (FN (TP) FP) TN $$
 
-We can now see that precision is $$ \frac{|L(Gl) \in L(Gb)|}{|L(Gl)|} and recall
+We can now see that precision is $$ \frac{|L(Gl) \in L(Gb)|}{|L(Gl)|} $$ and recall
 is $$\frac{|L(Gb) \in L(Gb)|}{|L(Gb)|}$$.
 That is, we can now sample from the particular grammars exclusively to
 approximate precision and recall using the second grammar as an acceptor. This
