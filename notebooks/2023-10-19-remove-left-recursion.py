@@ -188,4 +188,6 @@ if __name__ == '__main__':
     for i in range(10):
        print(gf.iter_fuzz(key=RGstart, max_depth=10))
 
+# Another algorithm is here: https://www.microsoft.com/en-us/research/wp-content/uploads/2000/04/naacl2k-proc-rev.pdf
+# 
 # [^1]: Marvin C. Paull Algorithm design: a recursion transformation framework
