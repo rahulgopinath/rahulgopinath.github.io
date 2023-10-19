@@ -138,8 +138,10 @@ if __name__ == '__main__':
     p.remove_direct_recursion('<F>')
     print(p.has_direct_left_recursion())
 
-# Removing the indirect left-recursion is a bit more trickier. The algorithm is
-# as follows:
+# Removing the indirect left-recursion is a bit more trickier. The algorithm
+# starts by establishing some stable ordering of the nonterminals so that
+# they can be procesed in order. Next, we apply an algorithm called `Paull's`
+# algorithm, which is as follows:
 
 class GrammarUtils(GrammarUtils):
     def remove_left_recursion(self) :
@@ -151,25 +153,25 @@ class GrammarUtils(GrammarUtils):
             Ai = keylst[i]
 
             # Repeat until iteration leaves the grammar unchanged.
-            cont = True
-            while cont:
-                # For each rule Ai -> alpha_i
-                for alpha_i in self.grammar[Ai]:
-                    #   if alpha_i begins with a nonterminal Aj and j < i
-                    Ajs = [keylst[j] for j in range(i)]
-                    if alpha_i and alpha_i[0] in Ajs:
-                        Aj = alpha_i[0]
-                        # Let beta_i be alpha_i without leading Ai
-                        beta_i = alpha_i[1:]
-                        # remove rule Ai -> alpha_i
-                        lst = [r for r in self.grammar[Ai] if r != alpha_i]
-                        self.grammar[Ai] = lst
-                        # for each rule Aj -> alpha_j
-                        #   add Ai -> alpha_j beta_i
-                        for alpha_j in self.grammar[Aj]:
-                            self.grammar[Ai].append(alpha_j + beta_i)
-                        cont = True
-                cont = False
+            # cont = True
+            # while cont:
+            # For each rule Ai -> alpha_i
+            for alpha_i in self.grammar[Ai]:
+                #   if alpha_i begins with a nonterminal Aj and j < i
+                Ajs = [keylst[j] for j in range(i)]
+                if alpha_i and alpha_i[0] in Ajs:
+                    Aj = alpha_i[0]
+                    # Let beta_i be alpha_i without leading Ai
+                    beta_i = alpha_i[1:]
+                    # remove rule Ai -> alpha_i
+                    lst = [r for r in self.grammar[Ai] if r != alpha_i]
+                    self.grammar[Ai] = lst
+                    # for each rule Aj -> alpha_j
+                    #   add Ai -> alpha_j beta_i
+                    for alpha_j in self.grammar[Aj]:
+                        self.grammar[Ai].append(alpha_j + beta_i)
+            #        cont = True
+            #cont = False
             self.remove_direct_recursion(Ai)
 
 # Using it:
