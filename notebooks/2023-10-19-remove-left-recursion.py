@@ -211,7 +211,10 @@ if __name__ == '__main__':
     for i in range(10):
        print(gf.iter_fuzz(key=RGstart, max_depth=10))
 
-# A more refined algorithm is by Moore [^2].
+# A problem with this algorithm is its exponential case behavior as Moore [^2]
+# notes. The solution that Moore offers is to order the nonterminals in the
+# decreasing order of the number of distinct left corners.
+#  
 # 
 # [^1]: Marvin C. Paull, Algorithm design: a recursion transformation framework, 1988
 # [^2]: Robert C Moore, Removing Left Recursion from Context-Free Grammars [*](https://www.microsoft.com/en-us/research/wp-content/uploads/2000/04/naacl2k-proc-rev.pdf)., 2000
