@@ -484,3 +484,5 @@ decreasing order of the number of distinct left corners.
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-10-19-remove-left-recursion.py).
 
 
+The installable python wheel `removeleftrecursion` is available [here](/py/removeleftrecursion-0.0.1-py2.py3-none-any.whl).
+
