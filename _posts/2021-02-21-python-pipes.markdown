@@ -149,14 +149,75 @@ We can use it as follows:
 
 <!--
 ############
-for i in S_([i for i in range(10)]):
+for i in S_(range(10)):
     print(i)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for i in S_([i for i in range(10)]):
+for i in S_(range(10)):
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Can we do better on the sink, by avoiding the parenthesis?
+Here is a possibility
+
+<!--
+############
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+for i in T_() << range(10):
+    print(i)
+
+for i in range(10) >> T_():
+    print(i)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for i in T_() &lt;&lt; range(10):
+    print(i)
+
+for i in range(10) &gt;&gt; T_():
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -190,14 +251,14 @@ We use it as follows.
 
 <!--
 ############
-for i in S_([i for i in range(10)]) | M_(lambda s: s + 10):
+for i in T_() << range(10) | M_(lambda s: s + 10):
     print(i)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for i in S_([i for i in range(10)]) | M_(lambda s: s + 10):
+for i in T_() &lt;&lt; range(10) | M_(lambda s: s + 10):
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -242,14 +303,15 @@ This is used as follows.
 
 <!--
 ############
-for i in S_([i for i in range(10)]) | F_(lambda s: s > 5):
+for i in T_() << range(10) | F_(lambda s: s > 5):
     print(i)
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for i in S_([i for i in range(10)]) | F_(lambda s: s &gt; 5):
+for i in T_() &lt;&lt; range(10) | F_(lambda s: s &gt; 5):
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -262,9 +324,10 @@ We can also have our original names
 class F:
     Map = M_
     Where = F_
+    T = T_()
     S = S_
 
-for i in F.S([i for i in range(10)]) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
+for i in F.T << range(10) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
     print(i)
 
 ############
@@ -274,9 +337,10 @@ for i in F.S([i for i in range(10)]) | F.Where(lambda s: s > 5) | F.Map(lambda s
 class F:
     Map = M_
     Where = F_
+    T = T_()
     S = S_
 
-for i in F.S([i for i in range(10)]) | F.Where(lambda s: s &gt; 5) | F.Map(lambda s: s*2):
+for i in F.T &lt;&lt; range(10) | F.Where(lambda s: s &gt; 5) | F.Map(lambda s: s*2):
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -311,6 +375,19 @@ class S_(Chains):
 
     def __next__(self): return next(self._source)
 
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+
 
 class M_(Chains):
     def __init__(self, nxt): self._transform = nxt
@@ -354,6 +431,19 @@ class S_(Chains):
 
     def __next__(self): return next(self._source)
 
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+
 
 class M_(Chains):
     def __init__(self, nxt): self._transform = nxt
@@ -384,14 +474,14 @@ It is used a follows
 
 <!--
 ############
-for i in S_(range(10)) | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
+for i in range(10) >> T_() | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
     print(i)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for i in S_(range(10)) | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s: s*10]:
+for i in range(10) &gt;&gt; T_() | [lambda s: s + 10] | {lambda s: s &gt; 15} | [lambda s: s*10]:
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

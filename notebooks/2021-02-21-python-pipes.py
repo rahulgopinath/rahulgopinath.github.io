@@ -55,7 +55,31 @@ class S_(Chains):
 
 # We can use it as follows:
 
-for i in S_([i for i in range(10)]):
+for i in S_(range(10)):
+    print(i)
+
+# Can we do better on the sink, by avoiding the parenthesis?
+# Here is a possibility
+
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+
+# Using
+
+for i in T_() << range(10):
+    print(i)
+
+for i in range(10) >> T_():
     print(i)
 
 # ## Map
@@ -70,7 +94,7 @@ class M_(Chains):
 
 # We use it as follows.
 
-for i in S_([i for i in range(10)]) | M_(lambda s: s + 10):
+for i in T_() << range(10) | M_(lambda s: s + 10):
     print(i)
 
 # ## Filter
@@ -90,17 +114,19 @@ class F_(Chains):
 
 # This is used as follows.
 
-for i in S_([i for i in range(10)]) | F_(lambda s: s > 5):
+for i in T_() << range(10) | F_(lambda s: s > 5):
     print(i)
+
 
 # We can also have our original names
 
 class F:
     Map = M_
     Where = F_
+    T = T_()
     S = S_
 
-for i in F.S([i for i in range(10)]) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
+for i in F.T << range(10) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
     print(i)
 
 # ## Pipe DSL
@@ -130,6 +156,19 @@ class S_(Chains):
 
     def __next__(self): return next(self._source)
 
+class T_(S_):
+    def __init__(self): pass
+
+    def __lshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __rrshift__(self, nxt):
+        self._source = iter(nxt)
+        return S_(self._source)
+
+    def __next__(self): return next(self._source)
+
 
 class M_(Chains):
     def __init__(self, nxt): self._transform = nxt
@@ -155,7 +194,7 @@ class F_(Chains):
 # 
 # It is used a follows
 
-for i in S_(range(10)) | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
+for i in range(10) >> T_() | [lambda s: s + 10] | {lambda s: s > 15} | [lambda s: s*10]:
     print(i)
 
 # One final note here is that, the final iterator object that the for loop
