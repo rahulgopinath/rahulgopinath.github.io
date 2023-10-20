@@ -13,6 +13,20 @@ categories: post
 1. TOC
 {:toc}
 
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
@@ -231,12 +245,38 @@ This is used as follows.
 for i in S_([i for i in range(10)]) | F_(lambda s: s > 5):
     print(i)
 
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 for i in S_([i for i in range(10)]) | F_(lambda s: s &gt; 5):
+    print(i)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can also have our original names
+
+<!--
+############
+class F:
+    Map = M_
+    Where = F_
+    S = S_
+
+for i in F.S([i for i in range(10)]) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
+    print(i)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class F:
+    Map = M_
+    Where = F_
+    S = S_
+
+for i in F.S([i for i in range(10)]) | F.Where(lambda s: s &gt; 5) | F.Map(lambda s: s*2):
     print(i)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -376,3 +416,9 @@ the values to the later pipe stages.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-02-21-python-pipes.py).
+
+

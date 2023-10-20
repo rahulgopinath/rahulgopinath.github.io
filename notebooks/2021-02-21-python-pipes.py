@@ -93,6 +93,15 @@ class F_(Chains):
 for i in S_([i for i in range(10)]) | F_(lambda s: s > 5):
     print(i)
 
+# We can also have our original names
+
+class F:
+    Map = M_
+    Where = F_
+    S = S_
+
+for i in F.S([i for i in range(10)]) | F.Where(lambda s: s > 5) | F.Map(lambda s: s*2):
+    print(i)
 
 # ## Pipe DSL
 # 
