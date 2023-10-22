@@ -635,7 +635,11 @@ def rg_to_regex(grammar, start_nt, empty_nt=rxcanonical.NT_EMPTY):
     for k in keys:
         g_ = eliminate_nt(g, k, empty_nt)
         g = g_
+        g_ = g_produce_prefix_regex(g)
+        g = g_
         g_ = g_make_self_loops_to_star(g)
+        g = g_
+        g_ = g_produce_prefix_regex(g)
         g = g_
     g_ = g_produce_prefix_regex(g)
     assert len(g_[start_nt]) == 1
@@ -672,7 +676,11 @@ def rg_to_regex(grammar, start_nt, empty_nt=rxcanonical.NT_EMPTY):
     for k in keys:
         g_ = eliminate_nt(g, k, empty_nt)
         g = g_
+        g_ = g_produce_prefix_regex(g)
+        g = g_
         g_ = g_make_self_loops_to_star(g)
+        g = g_
+        g_ = g_produce_prefix_regex(g)
         g = g_
     g_ = g_produce_prefix_regex(g)
     assert len(g_[start_nt]) == 1
