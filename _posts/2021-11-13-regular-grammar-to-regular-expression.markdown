@@ -267,9 +267,9 @@ Next, what we want to do is to consolidate rules that have same nonterminals
 to a single rule with a regular expression prefix, and the nonterminal suffix.
 That is:
 
-1. convert <A> := a <B> | b <B> to (a|b) <B>
-2. convert <A> := <_> to <A> := <_>
-3. convert <_> := \e to <_> := \e
+```
+convert <A> := a <B> | b <B> to (a|b) <B>
+```
 
 <!--
 ############

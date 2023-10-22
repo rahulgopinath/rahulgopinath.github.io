@@ -107,9 +107,9 @@ def split_regex_prefix(rule):
 # to a single rule with a regular expression prefix, and the nonterminal suffix.
 # That is:
 # 
-# 1. convert <A> := a <B> | b <B> to (a|b) <B>
-# 2. convert <A> := <_> to <A> := <_>
-# 3. convert <_> := \e to <_> := \e
+# ```
+# convert <A> := a <B> | b <B> to (a|b) <B>
+# ```
 
 def produce_prefix_regex(rules, grammar, empty_nt=rxcanonical.NT_EMPTY):
     lnt_hash = {}
