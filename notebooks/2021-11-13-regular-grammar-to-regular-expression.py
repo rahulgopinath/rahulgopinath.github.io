@@ -59,7 +59,7 @@ R_START = '<S>'
 #
 # The grammar should have one start symbol
 # and exactly one stop symbol which is NT_EMPTY
-# So, what we do is, whenever we hae a rule that contains
+# So, what we do is, whenever we have a rule that contains
 # just a terminal symbol, we append the NT_EMPTY symbol
 # to the rule. Thus NT_EMPTY symbol becomes the final
 # nontermainal to be expanded.
