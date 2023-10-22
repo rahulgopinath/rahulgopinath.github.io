@@ -725,3 +725,5 @@ The runnable code for this post is available
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-11-13-regular-grammar-to-regular-expression.py).
 
 
+The installable python wheel `rgtorx` is available [here](/py/rgtorx-0.0.1-py2.py3-none-any.whl).
+
