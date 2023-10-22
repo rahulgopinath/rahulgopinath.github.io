@@ -169,7 +169,7 @@ class RegexToGrammar:
         grammar, start = self.convert_regex(children[0])
         return grammar, start
 
-# ## <unitexp>
+# ## unitexp
 # We first define our basic unit. The exp converter, which delegates to other
 # converters
 # ```
@@ -324,7 +324,7 @@ if __name__ == '__main__':
         v = rgf.fuzz(s)
         assert re.match(my_re, v), v
 
-# ## <exp>
+# ## exp
 # Next, we define the `<exp>`
 # ```
 #   <exp>   ::=  <unitexp>
@@ -397,7 +397,7 @@ if __name__ == '__main__':
         v = rgf.fuzz(s)
         assert re.match(my_re, v), v
 
-# ## <cex>
+# ## cex
 # One basic operation of regular expressions is concatenation. It matches
 # two patterns in sequence. We convert
 # concatenation to a rule containing two corresponding nonterminals.
