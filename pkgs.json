@@ -18,5 +18,6 @@
 "notebooks/2021-10-24-canonical-regular-grammar.py":                ["rxcanonical", "Converting a Regular Expression to DFA using Regular Grammar", "0.0.1"],
 "notebooks/2021-10-26-regular-grammar-expressions.py":              ["rxexpressions", "Conjunction, Disjunction, and Complement of Regular Grammars", "0.0.1"],
 "notebooks/2022-07-02-generalized-ll-parser.py":                    ["gllparser", "GLL Parser", "0.0.1"],
-"notebooks/2023-01-10-cyk-parser.py":                               ["cykparser", "CYK Parser", "0.0.1"]
+"notebooks/2023-01-10-cyk-parser.py":                               ["cykparser", "CYK Parser", "0.0.1"],
+"notebooks/2023-10-19-remove-left-recursion.py":                    ["removeleftrecursion", "Remove Left Recursion", "0.0.1"]
 }
