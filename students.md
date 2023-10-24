@@ -34,7 +34,9 @@ Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=In
 
 # <a id='honours' href='#honours'>Honours Applicants</a>
 
-Please see [projects](#projects) for a list of projects.
+Please see [projects](#projects) for a list of projects. Please note that
+I give preference to candidates who have worked with me previously on VRI
+projects.
 
 Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Honours%20Application:%20(Full%20Name%20here)).
 
