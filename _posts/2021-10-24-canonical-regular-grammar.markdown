@@ -36,6 +36,14 @@ single degenerate rule, $$ S \rightarrow E $$ is added to the rules.
 As you can see, each node has at most one
 transition for a given terminal symbol. Hence, this canonical form is
 equivalent to a deterministic finite state automation (**DFA**).
+
+What is the use of such a DFA compared to NFA? the great thing about a DFA is
+that there is exactly one state to which a DFA can transition to
+for any given alphabet from any given state. This means that when parsing
+with a regular grammar that directly represents a DFA, there is never a
+reason to backtrack! This means that when we parse with the grammar from such
+a DFA using an LL(1) parser, we are guaranteed $$ O(n) $$ matching time.
+ 
 We start with importing the prerequisites
 
 ## Contents
@@ -43,6 +51,20 @@ We start with importing the prerequisites
 
 1. TOC
 {:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
 
 <script src="/resources/pyodide/full/3.9/pyodide.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
@@ -85,15 +107,17 @@ sympy
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
 
 <ol>
-<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl">gatleastsinglefault-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a></li>
-<li><a href="https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl">rxregular-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl">gatleastsinglefault-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/09/09/fault-inducing-grammar/">Specializing Context-Free Grammars for Inducing Faults</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">iFuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl">rxregular-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/23/regular-expression-to-regular-grammar/">Regular Expression to Regular Grammar</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -1162,3 +1186,11 @@ The runnable code for this post is available
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-24-canonical-regular-grammar.py).
+
+
+The installable python wheel `rxcanonical` is available [here](/py/rxcanonical-0.0.1-py2.py3-none-any.whl).
+

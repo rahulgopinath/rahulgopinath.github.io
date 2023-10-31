@@ -38,7 +38,14 @@
 # As you can see, each node has at most one
 # transition for a given terminal symbol. Hence, this canonical form is
 # equivalent to a deterministic finite state automation (**DFA**).
-#
+# 
+# What is the use of such a DFA compared to NFA? the great thing about a DFA is
+# that there is exactly one state to which a DFA can transition to
+# for any given alphabet from any given state. This means that when parsing
+# with a regular grammar that directly represents a DFA, there is never a
+# reason to backtrack! This means that when we parse with the grammar from such
+# a DFA using an LL(1) parser, we are guaranteed $$ O(n) $$ matching time.
+#  
 # We start with importing the prerequisites
 
 #^
