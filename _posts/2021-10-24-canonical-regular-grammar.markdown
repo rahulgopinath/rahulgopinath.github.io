@@ -1393,34 +1393,36 @@ pairs which are indistinguished. That is, the value is `None`.
 <!--
 ############
 class RGMinimize(RGMinimize):
+    def to_name(self, k, indistinguished):
+        if k not in indistinguished: return k
+        ik_ = sorted(set(indistinguished[k]))
+        return '<(%s)>' % '|'.join([a[1:-1] for a in ik_])
+
     def minimized_grammar(self):
         self.update_matrix()
         indistinguished = {}
         for (ka, kb) in self.table:
             if self.table[(ka, kb)] is None:
-                k = '<%s|%s>' % (ka[1:-1], kb[1:-1])
-                indistinguished[ka] = k
-                indistinguished[kb] = k
+                #k = '<%s|%s>' % (ka[1:-1], kb[1:-1])
+                if ka not in indistinguished: indistinguished[ka] = []
+                indistinguished[ka].extend([ka, kb])
+                if kb not in indistinguished: indistinguished[kb] = []
+                indistinguished[kb].extend([ka, kb])
 
         new_g = {}
         for k in self.g:
-            if k in indistinguished:
-                ik = indistinguished[k]
-                if ik not in new_g:
-                    new_g[ik] = []
-                new_rules = new_g[ik]
-            else:
-                new_g[k] = []
-                new_rules = new_g[k]
+            ik = self.to_name(k, indistinguished)
+            if ik not in new_g:
+                new_g[ik] = []
+            new_rules = new_g[ik]
 
             for r in self.g[k]:
-                new_r = [(t if t not in indistinguished else indistinguished[t])
+                new_r = [self.to_name(t, indistinguished)
                          for t in r]
                 if new_r not in new_rules:
                     new_rules.append(new_r)
 
-        new_s = (self.start if self.start not in indistinguished
-                 else indistinguished[self.start])
+        new_s = self.to_name(self.start, indistinguished)
         return new_g, new_s
 
 ############
@@ -1428,34 +1430,36 @@ class RGMinimize(RGMinimize):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RGMinimize(RGMinimize):
+    def to_name(self, k, indistinguished):
+        if k not in indistinguished: return k
+        ik_ = sorted(set(indistinguished[k]))
+        return &#x27;&lt;(%s)&gt;&#x27; % &#x27;|&#x27;.join([a[1:-1] for a in ik_])
+
     def minimized_grammar(self):
         self.update_matrix()
         indistinguished = {}
         for (ka, kb) in self.table:
             if self.table[(ka, kb)] is None:
-                k = &#x27;&lt;%s|%s&gt;&#x27; % (ka[1:-1], kb[1:-1])
-                indistinguished[ka] = k
-                indistinguished[kb] = k
+                #k = &#x27;&lt;%s|%s&gt;&#x27; % (ka[1:-1], kb[1:-1])
+                if ka not in indistinguished: indistinguished[ka] = []
+                indistinguished[ka].extend([ka, kb])
+                if kb not in indistinguished: indistinguished[kb] = []
+                indistinguished[kb].extend([ka, kb])
 
         new_g = {}
         for k in self.g:
-            if k in indistinguished:
-                ik = indistinguished[k]
-                if ik not in new_g:
-                    new_g[ik] = []
-                new_rules = new_g[ik]
-            else:
-                new_g[k] = []
-                new_rules = new_g[k]
+            ik = self.to_name(k, indistinguished)
+            if ik not in new_g:
+                new_g[ik] = []
+            new_rules = new_g[ik]
 
             for r in self.g[k]:
-                new_r = [(t if t not in indistinguished else indistinguished[t])
+                new_r = [self.to_name(t, indistinguished)
                          for t in r]
                 if new_r not in new_rules:
                     new_rules.append(new_r)
 
-        new_s = (self.start if self.start not in indistinguished
-                 else indistinguished[self.start])
+        new_s = self.to_name(self.start, indistinguished)
         return new_g, new_s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
