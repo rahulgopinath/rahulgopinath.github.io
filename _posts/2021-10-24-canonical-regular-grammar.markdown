@@ -1208,6 +1208,13 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+At this point, we have a DFA that is represented as a grammar, where the
+states in the DFA are nonterminal symbols in the grammar and terminals are
+the transitions. However, this DFA is not necessarily minimal.
+Interestingly, Brzozowski observed that if you reverse the arrows in the DFA,
+resulting in an NFA, and then convert the NFA to DFA, then do this again, the
+resulting DFA is minimal. We do not do that here.
+ 
 The runnable code for this post is available
 [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-24-canonical-regular-grammar.py).
 
