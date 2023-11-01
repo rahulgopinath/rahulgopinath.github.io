@@ -1208,7 +1208,7 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### DFA Minimization
+## Minimization of the Regular Grammar
 
 At this point, we have a DFA that is represented as a grammar, where the
 states in the DFA are nonterminal symbols in the grammar and terminals are

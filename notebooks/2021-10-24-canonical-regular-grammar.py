@@ -559,7 +559,7 @@ if __name__ == '__main__':
         print(repr(v))
         assert re.match(my_re, v), v
 
-# ### DFA Minimization
+# ## Minimization of the Regular Grammar
 # 
 # At this point, we have a DFA that is represented as a grammar, where the
 # states in the DFA are nonterminal symbols in the grammar and terminals are
