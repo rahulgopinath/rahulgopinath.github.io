@@ -306,7 +306,7 @@ if __name__ == '__main__':
     k, new_rule = join_rules(rules)
     print(k, '::=', new_rule)
 
-# Next, we split any given definition into rulesets that start wit the same
+# Next, we split any given definition into rulesets that start with the same
 # terminal symbol.
 
 def definition_split_to_rulesets(d1):
