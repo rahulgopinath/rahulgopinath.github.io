@@ -920,9 +920,14 @@ class DisplayGrammar(gatleast.DisplayGrammar):
         rule_sets = defaultdict(list)
         for r in d1:
             if len(r) > 0:
-                assert not self.is_nonterminal(r[0]) # no degenerate rules
-                assert self.is_nonterminal(r[1]) # no degenerate rules
-                rule_sets[r[1]].append(r)
+                if self.is_nonterminal(r[0]):
+                    if r[0] != '<_>':
+                        assert False # no degenerate rules
+                    else:
+                        rule_sets['<_>'].append(r)
+                else:
+                    assert self.is_nonterminal(r[1]) # no degenerate rules
+                    rule_sets[r[1]].append(r)
             else:
                 rule_sets[''].append(r)
         return rule_sets
@@ -983,9 +988,14 @@ class DisplayGrammar(gatleast.DisplayGrammar):
         rule_sets = defaultdict(list)
         for r in d1:
             if len(r) &gt; 0:
-                assert not self.is_nonterminal(r[0]) # no degenerate rules
-                assert self.is_nonterminal(r[1]) # no degenerate rules
-                rule_sets[r[1]].append(r)
+                if self.is_nonterminal(r[0]):
+                    if r[0] != &#x27;&lt;_&gt;&#x27;:
+                        assert False # no degenerate rules
+                    else:
+                        rule_sets[&#x27;&lt;_&gt;&#x27;].append(r)
+                else:
+                    assert self.is_nonterminal(r[1]) # no degenerate rules
+                    rule_sets[r[1]].append(r)
             else:
                 rule_sets[&#x27;&#x27;].append(r)
         return rule_sets
