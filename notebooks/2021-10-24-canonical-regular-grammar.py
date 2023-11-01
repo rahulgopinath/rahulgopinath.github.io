@@ -115,58 +115,6 @@ G_ANY_PLUS = {
         [c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
 }
 
-# 
-# ## Remove degenerate rules
-# 
-# A degenerate rule is a rule with a format $$ A \rightarrow B $$ where $$ A $$
-# and $$ B $$ are nonterminals in the grammar. The way to eliminate such
-# nonterminals is to recursively merge the rules of $$ B $$ to the rules of $$ A $$.
-
-from collections import defaultdict
-
-def is_degenerate_rule(rule):
-    return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
-
-def remove_duplicate_rules(g):
-    new_g = {}
-    for k in g:
-        my_rules = {str(r):r for r in g[k]}
-        new_g[k] = [my_rules[k] for k in my_rules]
-    return new_g
-
-def remove_degenerate_rules(g, s):
-    g = dict(g)
-    drkeys = [k for k in g if any(is_degenerate_rule(r) for r in g[k])]
-    while drkeys:
-        drk, *drkeys = drkeys
-        new_rules = []
-        for r in g[drk]:
-            if is_degenerate_rule(r):
-                new_key = r[0]
-                if new_key == drk: continue # self recursion
-                new_rs = g[new_key]
-                if any(is_degenerate_rule(new_r) for new_r in new_rs):
-                    drkeys.append(drk)
-                new_rules.extend(new_rs)
-            else:
-                new_rules.append(r)
-        g[drk] = new_rules
-
-    return remove_duplicate_rules(g), s
-
-# Using it
-
-if __name__ == '__main__':
-   g1 = {
-        '<start1>' : [['<A1>']],
-        '<A1>' : [['a1', '<B1>']],
-        '<B1>' : [['b1','<C1>'], ['<C1>']],
-        '<C1>' : [['c1'], ['<C1>']]
-   }
-   s1 = '<start1>'
-   g, s = remove_degenerate_rules(g1, s1)
-   gatleast.display_grammar(g, s)
-
 # ## Removing terminal sequences
 # 
 # A terminal sequence is a sequence of terminal symbols in a rule. For example,
@@ -181,6 +129,16 @@ if __name__ == '__main__':
 # <Aa> ::= b <Aab>
 # <Aab> ::= c <B>
 # ```
+
+from collections import defaultdict
+
+def remove_duplicate_rules(g):
+    new_g = {}
+    for k in g:
+        my_rules = {str(r):r for r in g[k]}
+        new_g[k] = [my_rules[k] for k in my_rules]
+    return new_g
+
 
 def get_split_key(k, terminal):
     return '<%s_%s>' % (k[1:-1], terminal)
@@ -536,9 +494,8 @@ if __name__ == '__main__':
 # expression given.
 
 def regexp_to_regular_grammar(regexp):
-    g0, s0 = rxregular.RegexToRGrammar().to_grammar(regexp)
+    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
 
-    g1, s1 = remove_degenerate_rules(g0, s0)
     g2, s2 = remove_multi_terminals(g1, s1)
     g3, s3 = fix_empty_rules(g2, s2)
     g4, s4 = canonical_regular_grammar(g3, s3)
