@@ -438,7 +438,8 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                 rule_sets[''].append(r)
         return rule_sets
 
-    def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
+    def display_ruleset(self, nonterminal, ruleset, pre,
+                        all_terminal_symbols=TERMINAL_SYMBOLS):
         if ruleset == [[]]:
             print('| {EMPTY}')
             return
