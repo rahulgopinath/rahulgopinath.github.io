@@ -278,92 +278,159 @@ def fix_empty_rules(g, s):
 # 
 # Here, the idea is to join any set of rules of the form
 # $$ A \rightarrow b B $$, $$ A \rightarrow b C $$ to $$ A \rightarrow b \,or(B,C) $$.
-# First, we define how to join rules that all have the same terminal symbol
-# as the starting token.
+# We use the powerset construction from Automata theory for accomplishing this.
+# 
+# First, we define the epsilon closure. Epsilon closure of a nonterminal is any
+# nonterminal that is reachable from a given nonterminal symbol without
+# consuming any input.
 
-def join_keys(keys):
-    return '<or(%s)>' % ','.join([k[1:-1] for k in  keys])
+def find_epsilon_closure(g, ekey):
+    keys = [ekey]
+    result = {ekey: None}
+    while keys:
+        key, *keys = keys
+        for r in g[key]:
+            if not r: continue
+            k = r[0]
+            if not fuzzer.is_nonterminal(k): continue
+            assert k != '' # invalid key
+            # we assume that this is a regular grammar. So, we can
+            # be sure that only one nonterminal in the rule
+            if k not in result:
+                result[k] = None
+                keys.append(k)
 
-def join_rules(rules):
-    if len(rules) == 1: return (), rules[0]
-    terminal = rules[0][0]
-    assert all(r[0] == terminal for r in rules)
-    keys = []
-    for r in rules:
-        if len(r) > 1:
-            keys.append(r[1])
-        else:
-            keys.append('')
-    new_key = join_keys(keys)
-    return tuple(keys), [terminal, new_key]
+    return result
 
-# Using it.
-
-if __name__ == '__main__':
-    rules = [
-            ['a', '<A>'],
-            ['a', '<B>'],
-            ['a', '<C>'],
-    ]
-    k, new_rule = join_rules(rules)
-    print(k, '::=', new_rule)
-
-# Next, we split any given definition into rulesets that start with the same
-# terminal symbol.
-
-def definition_split_to_rulesets(d1):
-    rule_sets = defaultdict(list)
-    for r in d1:
-        if len(r) > 1:
-            rule_sets[r[0]].append(r)
-        elif len(r) == 1:
-            # this is the empty rule attached to start.
-            rule_sets[r[0]].append(r)
-        else:
-            # epsilon
-            rule_sets[''].append(r)
-    return rule_sets
-
-
-# Using it.
+# Using it
 
 if __name__ == '__main__':
-    rules = [
-            ['a', '<A>'],
-            ['a', '<B>'],
-            ['b', '<C>'],
-            ['b', '<D>'],
-    ]
-    rule_sets = definition_split_to_rulesets(rules)
-    for c in rule_sets:
-        print(c, rule_sets[c])
+   g1 = {
+        '<start1>' : [['<A1>']],
+        '<A1>' : [['a', '<B1>']],
+        '<B1>' : [['b','<C1>'], ['<C1>']],
+        '<C1>' : [['c'], ['<C1>'], ['<D1>']],
+        '<D1>': [[]]
+   }
+   s1 = '<start1>'
+   ks = find_epsilon_closure(g1, s1)
+   print(ks)
+   ks = find_epsilon_closure(g1, '<B1>')
+   print(ks)
 
-# Given a list of keys, construct their `or(.)` from the
-# given grammar.
+# We can also provide a name for such closures.
 
-def construct_merged_keys(merge_keys, g):
-    new_key = join_keys(merge_keys)
-    new_def = []
-    keys_to_construct = []
-    for k in merge_keys:
-        if not k:
-            new_def.append([])
-        else:
-            new_def.extend(g[k])
-    rsets = definition_split_to_rulesets(new_def)
-    new_rules = []
-    for c in rsets:
-        if not c:
-            new_rules.append([])
-            continue
-        keys_to_combine, new_rule = join_rules(rsets[c])
-        new_rules.append(new_rule)
-        if keys_to_combine:
-            keys_to_construct.append(keys_to_combine)
-    return keys_to_construct, {new_key: new_rules}
+def closure_name(eclosure):
+    rs = [s[1:-1] for s in sorted(eclosure.keys())]
+    if len(rs) == 1:
+        return '<%s>' % ','.join(rs)
+    else:
+        return '<or(%s)>' % ','.join(rs)
+
+# Using it
+
+if __name__ == '__main__':
+   n = closure_name(ks)
+   print(n)
+
+# Next, we identify the acceptance states.
+
+def get_first_accepts(grammar):
+    accepts = {}
+    for key in grammar:
+        for rule in grammar[key]:
+            if not rule:
+                accepts[key] = None
+    return accepts
+
+def get_accepts(grammar):
+    accepts = get_first_accepts(grammar) # typically <_>
+    results = dict(accepts)
+
+    for k in grammar:
+        if k in results: continue
+        ec = find_epsilon_closure(grammar, k)
+        for k in ec:
+            if k in accepts: # if k == <_>
+                results[k] = None
+    # any key that contains <_> in the epsilon closure
+    return results
+
+# Using it
+
+if __name__ == '__main__':
+   acc = get_accepts(g1)
+   print(acc)
+
+# ## Construct the canonical regular grammar (DFA)
+#  
+# The procedure is as follows:
+# Start with the start symbol. While there are unprocessed nonterminals,
+# remove one unprocessed nonterminal, then for each terminal symbol that
+# starts its rules,
+
+def reachable_with_sym(g, closure, tsym):
+    result = {}
+    states = {rule[1]:None for k in closure for rule in g[k]
+              if len(rule) == 2 and rule[0] == tsym}
+    result.update(states)
+    for s in states:
+        estates = find_epsilon_closure(g, s)
+        result.update(estates)
+    return result
 
 
-# Using it.
+def get_alphabets(grammar, estates):
+    return {rule[0]:None for key in estates for rule in grammar[key]
+                       if rule and not fuzzer.is_nonterminal(rule[0])}
+
+def canonical_regular_grammar(grammar, start):
+    eclosure = find_epsilon_closure(grammar, start)
+    start_name =  closure_name(eclosure)
+    accepts = get_accepts(grammar)
+
+    new_grammar = {}
+    my_closures = {start_name: eclosure}
+    keys_to_process = [start_name]
+
+    while keys_to_process:
+        key, *keys_to_process = keys_to_process
+        eclosure = my_closures[key]
+        if key in new_grammar: continue
+        new_grammar[key] = []
+        # is any of the nonterminals an accept state?
+        for k in eclosure:
+            if k in accepts:
+                new_grammar[key].append([])
+
+        transitions = get_alphabets(grammar, eclosure)
+        # check if eclosure has an end state.
+
+        for t in transitions:
+            reachable_nonterminals = reachable_with_sym(grammar, eclosure, t)
+            if not reachable_nonterminals: continue
+            dfa_key = closure_name(reachable_nonterminals)
+
+            new_grammar[key].append([t, dfa_key])
+            my_closures[dfa_key] = reachable_nonterminals
+            keys_to_process.append(dfa_key)
+
+    # mark accept states.
+    return new_grammar, start_name
+
+# Using it
+
+if __name__ == '__main__':
+   g1 = {
+        '<start1>' : [['<A1>']],
+        '<A1>' : [['a', '<A1>'], []],
+   }
+   s1 = '<start1>'
+   g, s = canonical_regular_grammar(g1, s1)
+   gatleast.display_grammar(g, s)
+
+
+# Another example
 
 if __name__ == '__main__':
    g3 = {
@@ -380,42 +447,8 @@ if __name__ == '__main__':
         '<C1>' : [['c1'], []]
    }
    s3 = '<start1>'
-   for k in [['<A1>', '<B1>'],
-             ['<A1>', '<C1>']]:
-       new_keys, g = construct_merged_keys(k, g3)
-       gatleast.display_grammar(g, join_keys(k))
-
-# defining the rule collapse.
-
-def collapse_similar_starting_rules(g, s):
-    new_g = defaultdict(list)
-    keys_to_construct = []
-    for k in g:
-        rsets = definition_split_to_rulesets(g[k])
-        # each ruleset will get one rule
-        for c in rsets:
-            keys_to_combine, new_rule = join_rules(rsets[c])
-            new_g[k].append(new_rule)
-            if keys_to_combine:
-                keys_to_construct.append(keys_to_combine)
-
-    seen_keys = set()
-    while keys_to_construct:
-        merge_keys, *keys_to_construct = keys_to_construct
-        if merge_keys in seen_keys: continue
-        seen_keys.add(merge_keys)
-        new_keys, g_ = construct_merged_keys(merge_keys, new_g)
-        new_g = {**new_g, **g_}
-        keys_to_construct.extend(new_keys)
-    return new_g, s
-
-
-# Using it.
-
-if __name__ == '__main__':
-   g, s = collapse_similar_starting_rules(g3, s3)
+   g, s = canonical_regular_grammar(g3, s2)
    gatleast.display_grammar(g, s)
-
 
 # ## Display canonical grammar
 #
@@ -498,43 +531,18 @@ if __name__ == '__main__':
     }, '<start0>'
     display_canonical_grammar(g0, s0)
 
-#  Now, all together.
-def canonical_regular_grammar(g0, s0):
-    g1, s1 = remove_degenerate_rules(g0, s0)
-
-    g2, s2 = remove_multi_terminals(g1, s1)
-
-    g3, s3 = collapse_similar_starting_rules(g2, s2)
-
-    g4, s4 = fix_empty_rules(g3, s3)
-    return g4, s4
-
-# Using it.
-
-if __name__ == '__main__':
-   gatleast.display_grammar(g1, s1)
-   g, s = canonical_regular_grammar(g1, s1)
-   display_canonical_grammar(g, s)
-
-   print('________')
-
-   gatleast.display_grammar(g2, s2)
-   g, s = canonical_regular_grammar(g2, s2)
-   display_canonical_grammar(g, s)
-
-   print('________')
-   gatleast.display_grammar(g3, s3)
-   g, s = canonical_regular_grammar(g3, s3)
-   display_canonical_grammar(g, s)
-
 # ## A canonical regular grammar from a regular expression.
 #  This function extracts the DFA equivalent grammar for the regular
 # expression given.
 
 def regexp_to_regular_grammar(regexp):
-    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
-    g2, s2 = canonical_regular_grammar(g1, s1)
-    return g2, s2
+    g0, s0 = rxregular.RegexToRGrammar().to_grammar(regexp)
+
+    g1, s1 = remove_degenerate_rules(g0, s0)
+    g2, s2 = remove_multi_terminals(g1, s1)
+    g3, s3 = fix_empty_rules(g2, s2)
+    g4, s4 = canonical_regular_grammar(g3, s3)
+    return g3, s3
 
 # Using it.
 
