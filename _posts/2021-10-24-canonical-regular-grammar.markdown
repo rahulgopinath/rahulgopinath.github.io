@@ -927,14 +927,6 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                 rule_sets[''].append(r)
         return rule_sets
 
-    def display_terminals(sefl, terminals, negate=False):
-        if negate: return '[^%s]' % (''.join(terminals))
-        else:
-            if len(terminals) == 1:
-                return terminals[0]
-            return '[%s]' % (''.join(terminals))
-
-
     def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
         if ruleset == [[]]:
             print('| {EMPTY}')
@@ -953,6 +945,13 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                                nonterminal)
             s = '%s|   %s' % (pre, v)
             print(s)
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return '[^%s]' % (''.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return '[%s]' % (''.join(terminals))
 
     def display_definition(self, key, r):
         if self.verbose > -1: print(key,'::=')
@@ -990,14 +989,6 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                 rule_sets[&#x27;&#x27;].append(r)
         return rule_sets
 
-    def display_terminals(sefl, terminals, negate=False):
-        if negate: return &#x27;[^%s]&#x27; % (&#x27;&#x27;.join(terminals))
-        else:
-            if len(terminals) == 1:
-                return terminals[0]
-            return &#x27;[%s]&#x27; % (&#x27;&#x27;.join(terminals))
-
-
     def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
         if ruleset == [[]]:
             print(&#x27;| {EMPTY}&#x27;)
@@ -1016,6 +1007,13 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                                nonterminal)
             s = &#x27;%s|   %s&#x27; % (pre, v)
             print(s)
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return &#x27;[^%s]&#x27; % (&#x27;&#x27;.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return &#x27;[%s]&#x27; % (&#x27;&#x27;.join(terminals))
 
     def display_definition(self, key, r):
         if self.verbose &gt; -1: print(key,&#x27;::=&#x27;)

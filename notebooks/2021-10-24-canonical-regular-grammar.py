@@ -438,14 +438,6 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                 rule_sets[''].append(r)
         return rule_sets
 
-    def display_terminals(sefl, terminals, negate=False):
-        if negate: return '[^%s]' % (''.join(terminals))
-        else:
-            if len(terminals) == 1:
-                return terminals[0]
-            return '[%s]' % (''.join(terminals))
-
-
     def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
         if ruleset == [[]]:
             print('| {EMPTY}')
@@ -464,6 +456,13 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                                nonterminal)
             s = '%s|   %s' % (pre, v)
             print(s)
+
+    def display_terminals(sefl, terminals, negate=False):
+        if negate: return '[^%s]' % (''.join(terminals))
+        else:
+            if len(terminals) == 1:
+                return terminals[0]
+            return '[%s]' % (''.join(terminals))
 
     def display_definition(self, key, r):
         if self.verbose > -1: print(key,'::=')
