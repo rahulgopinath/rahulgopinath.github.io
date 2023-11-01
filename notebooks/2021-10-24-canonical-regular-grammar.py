@@ -110,7 +110,9 @@ G_ANY_STAR = {
 NT_ANY_PLUS = '<.+>'
 
 G_ANY_PLUS = {
-    NT_ANY_PLUS: [[c, NT_ANY_PLUS] for c in TERMINAL_SYMBOLS] + [[c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
+    NT_ANY_PLUS: [
+        [c, NT_ANY_PLUS] for c in TERMINAL_SYMBOLS] + [
+        [c, NT_EMPTY] for c in TERMINAL_SYMBOLS]
 }
 
 # 
@@ -443,6 +445,7 @@ class DisplayGrammar(gatleast.DisplayGrammar):
                 return terminals[0]
             return '[%s]' % (''.join(terminals))
 
+
     def display_ruleset(self, nonterminal, ruleset, pre, all_terminal_symbols=TERMINAL_SYMBOLS):
         if ruleset == [[]]:
             print('| {EMPTY}')
@@ -457,7 +460,8 @@ class DisplayGrammar(gatleast.DisplayGrammar):
             if rem_terminals == []:
                 v = '. %s' % nonterminal
             else:
-                v = '%s %s' % (self.display_terminals(rem_terminals, negate=True), nonterminal)
+                v = '%s %s' % (self.display_terminals(rem_terminals, negate=True),
+                               nonterminal)
             s = '%s|   %s' % (pre, v)
             print(s)
 
@@ -466,7 +470,10 @@ class DisplayGrammar(gatleast.DisplayGrammar):
         rulesets = self.definition_rev_split_to_rulesets(self.grammar[key])
         for nonterminal in rulesets:
             pre = ''
-            self.display_ruleset(nonterminal, rulesets[nonterminal], pre, all_terminal_symbols=TERMINAL_SYMBOLS)
+            self.display_ruleset(nonterminal,
+                                 rulesets[nonterminal],
+                                 pre,
+                                 all_terminal_symbols=TERMINAL_SYMBOLS)
         return r
 
     def display_unused(self, unused, verbose):
