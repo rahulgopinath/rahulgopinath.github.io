@@ -1263,16 +1263,15 @@ class RGMinimize:
             for (ka,kb) in self.table:
                 distinguished = self.table[(ka,kb)]
                 if distinguished is not None: continue # distinguished
+                dA = self.transitions[ka]
+                dB = self.transitions[kb]
                 for alpha in self.alphabet:
-                    dA = self.transitions[ka]
-                    dAa = dA.get(alpha)
-                    dB = self.transitions[kb]
-                    dBa = dB.get(alpha)
-                    key = tuple(sorted([dAa, dBa]))
-                    if self.table.get(key) is not None: # distinguished
-                        self.table[(ka, kb)] = alpha
-                        updated = True
-                        break
+                    key = tuple(sorted([dA.get(alpha), dB.get(alpha)]))
+                    if self.table.get(key) is None: continue
+                    # distinguished
+                    self.table[(ka, kb)] = alpha
+                    updated = True
+                    break
             if not updated: break
 
 ############
@@ -1319,16 +1318,15 @@ class RGMinimize:
             for (ka,kb) in self.table:
                 distinguished = self.table[(ka,kb)]
                 if distinguished is not None: continue # distinguished
+                dA = self.transitions[ka]
+                dB = self.transitions[kb]
                 for alpha in self.alphabet:
-                    dA = self.transitions[ka]
-                    dAa = dA.get(alpha)
-                    dB = self.transitions[kb]
-                    dBa = dB.get(alpha)
-                    key = tuple(sorted([dAa, dBa]))
-                    if self.table.get(key) is not None: # distinguished
-                        self.table[(ka, kb)] = alpha
-                        updated = True
-                        break
+                    key = tuple(sorted([dA.get(alpha), dB.get(alpha)]))
+                    if self.table.get(key) is None: continue
+                    # distinguished
+                    self.table[(ka, kb)] = alpha
+                    updated = True
+                    break
             if not updated: break
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1416,11 +1414,13 @@ class RGMinimize(RGMinimize):
                 new_rules = new_g[k]
 
             for r in self.g[k]:
-                new_r = [(t if t not in indistinguished else indistinguished[t]) for t in r]
+                new_r = [(t if t not in indistinguished else indistinguished[t])
+                         for t in r]
                 if new_r not in new_rules:
                     new_rules.append(new_r)
 
-        new_s = self.start if self.start not in indistinguished else indistinguished[self.start]
+        new_s = (self.start if self.start not in indistinguished
+                 else indistinguished[self.start])
         return new_g, new_s
 
 ############
@@ -1449,11 +1449,13 @@ class RGMinimize(RGMinimize):
                 new_rules = new_g[k]
 
             for r in self.g[k]:
-                new_r = [(t if t not in indistinguished else indistinguished[t]) for t in r]
+                new_r = [(t if t not in indistinguished else indistinguished[t])
+                         for t in r]
                 if new_r not in new_rules:
                     new_rules.append(new_r)
 
-        new_s = self.start if self.start not in indistinguished else indistinguished[self.start]
+        new_s = (self.start if self.start not in indistinguished
+                 else indistinguished[self.start])
         return new_g, new_s
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
