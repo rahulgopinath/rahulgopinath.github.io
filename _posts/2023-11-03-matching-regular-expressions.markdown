@@ -428,7 +428,7 @@ assert not match(complicated, &#x27;ababaxyaxz&#x27;)
 <div name='python_canvas'></div>
 </form>
 The runnable code for this post is available
-[here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-03-matching-regular-expressions.py).
+[here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-matching-regular-expressions.py).
  
 
 <form name='python_run_form'>
