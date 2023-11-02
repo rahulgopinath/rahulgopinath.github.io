@@ -27,7 +27,9 @@ However, in most applications where a such a grammar can be used
 (i.e., parsing and fuzzing) the performance of algorithms can be improved much
 further by minimizing the grammar such that it has the smallest size possible
 for the language it represents. This post tackles how to minimize a DFA using
-the Hopcroft algorithm [^:hopcroft1971].
+the classical algorithm [^:xu2008]. Note, it is referred to as
+Hopcroft's erroneously in wikipedia [^:hopcroft1971], however Hopcroft has
+a different algorithm based on partitioning.
 
 We start with importing the prerequisites
 
@@ -128,7 +130,6 @@ arrows in the DFA, resulting in an NFA, and then convert the NFA to DFA, then
 do this again, the resulting DFA is minimal. However, this can have
 exponential worst case complexity (but can be much faster in common patterns).
 Hence, we look at a more common algorithm for minimization.
-The Hopcroft algorithm [:^hopcroft1971]  is based on partition refinement.
 
 The idea is as follows:
 1. Mark the start state and all final states
@@ -562,7 +563,8 @@ gatleast.display_grammar(g1, s1)
  
 The runnable code for this post is available
 [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-minimizing-canonical-regular-grammar-dfa.py).
-
+ 
+[^xu2008:] "Describing an n log n algorithm for minimizing states in deterministic finite automaton" 2008
 [^hopcroft1971:] John Hopcroft "An n log n algorithm for minimizing states in a finite automaton" 1971
 [^brzozowski1963] "Canonical regular expressions and minimal state graphs for definite events" 1963
 
