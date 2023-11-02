@@ -27,8 +27,8 @@ However, in most applications where a such a grammar can be used
 (i.e., parsing and fuzzing) the performance of algorithms can be improved much
 further by minimizing the grammar such that it has the smallest size possible
 for the language it represents. This post tackles how to minimize a DFA using
-the classical algorithm [^:xu2008]. Note, it is referred to as
-Hopcroft's erroneously in wikipedia [^:hopcroft1971], however Hopcroft has
+the classical algorithm [^xu2008]. Note, it is referred to as
+Hopcroft's erroneously in wikipedia [^hopcroft1971], however Hopcroft has
 a different algorithm based on partitioning.
 
 We start with importing the prerequisites
