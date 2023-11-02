@@ -170,5 +170,5 @@ if __name__ == '__main__':
     assert not match(complicated, 'ababaxyaxz')
 
 # The runnable code for this post is available
-# [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-03-matching-regular-expressions.py).
+# [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-matching-regular-expressions.py).
 #  
