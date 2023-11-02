@@ -272,7 +272,7 @@ if __name__ == '__main__':
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-minimizing-canonical-regular-grammar-dfa.py).
 #  
-# [^xu2008]: "Describing an n log n algorithm for minimizing states in deterministic finite automaton" 2008
+# [^xu2008]: Yingjie Xu "Describing an n log n algorithm for minimizing states in deterministic finite automaton" 2008
 # [^hopcroft1971]: John Hopcroft "An n log n algorithm for minimizing states in a finite automaton" 1971
-# [^brzozowski1963]: "Canonical regular expressions and minimal state graphs for definite events" 1963
+# [^brzozowski1963]: Janusz Brzozowski "Canonical regular expressions and minimal state graphs for definite events" 1963
 # 
