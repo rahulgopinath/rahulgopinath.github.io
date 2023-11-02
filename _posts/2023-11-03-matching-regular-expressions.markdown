@@ -6,6 +6,7 @@ comments: true
 tags: parsing
 categories: post
 ---
+
 In the previous posts, I talked about converting a regular grammar to a
 deterministic regular grammar (DRG) equivalent to a DFA and mentioned that
 it was one of the ways to ensure that there is no exponential worstcase
