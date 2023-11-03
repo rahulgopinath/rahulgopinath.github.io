@@ -80,8 +80,8 @@ if __name__ == '__main__':
 # into on successful parse (i.e `nxtstate`). We connect the nxtstate to the
 # end of rex2 by passing it as an argument. The node rex2 is then connected to
 # rex1 by passing the resultant state as the next state to rex1.
-# The functions are expanded to make it easy to understand. The node may aswell
-# have had rex1(rex2(nxtstate)) as the return value.
+# The functions are expanded to make it easy to understand. The node may as well
+# have had `rex1(rex2(nxtstate))` as the return value.
 
 def AndThen(rex1, rex2):
     def node(nxtstate):
