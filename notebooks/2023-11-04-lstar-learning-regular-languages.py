@@ -21,14 +21,14 @@
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
-# https://rahul.gopinath.org/ py/rgtorx-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities
 
 import simplefuzzer as fuzzer
 import rxfuzzer
-import rgtorx
+import earleyparser
 
 # We start with a few definitions
 # 
@@ -117,7 +117,7 @@ class StateTable:
 
         # Step 3: Identify the accepting states
         accepting = [row_map[s] for s in self.S if self.row(s)[''] == 1]
-        if not accepting: return None, None
+        if not accepting: return {'<start>': []}, '<start>'
         for s in accepting:
             grammar['<%s>' % s] = [['<_>']]
         grammar['<_>'] = [[]]
@@ -165,8 +165,11 @@ def l_star(T):
 import re
 import random
 import hashlib
+import math
 random.seed(0)
 
+# Next, we need to consider our oracle. It serves both as the
+# blackbox to learn from and also as the teacher.
 class Oracle:
     def __init__(self, rex):
         self.rex = rex
@@ -175,17 +178,17 @@ class Oracle:
         else:
             self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex)
         self.rgf = fuzzer.LimitFuzzer(self.g)
-        #self.cache = {'496d46f8': (False, 'aa'), 'daea2ea3': (False, 'bb')}
+        self.counter = 0
+        # epsilon is the accuracy and delta is the confidence
+        self.delta, self.epsilon = 0.1, 0.1
 
     def dfa_to_str(self, q):
         s = hashlib.shake_128(bytes(str(q), 'utf-8')).hexdigest(4)
         return s
 
 
-    def generate(self, g, start):
-        rgf = fuzzer.LimitFuzzer(g)
-        v = rgf.fuzz(start)
-        return v
+    def generate(self):
+        return self.rgf.fuzz(self.s)
 
     def is_member(self, q):
         if re.search(self.rex, q) is not None:
@@ -193,44 +196,27 @@ class Oracle:
         return 0 # False
 
     def is_equivalent(self, grammar, start):
-        if grammar is None:
-            return False, self.generate(self.g, self.s)
-        rex = rgtorx.rg_to_regex(grammar, start)
-        #if v in self.cache: return self.cache[v]
-        while True:
-            k = self.generate(grammar, start)
-            if not self.is_member(k):
+        self.counter += 1
+        if not grammar[start]: return False, self.generate()
+        num_calls = math.ceil(1.0/self.epsilon * (math.log(1.0/self.delta) + self.counter * math.log(2)))
+
+        rgf = fuzzer.LimitFuzzer(grammar)
+        ep = earleyparser.EarleyParser(grammar)
+        for i in range(num_calls):
+            k = rgf.fuzz(start)
+            if not self.is_member(k): return False, k
+
+            l = self.generate()
+            # check if l is parsd by grammar/start 
+            if not ep.parse_on(l):
                 return False, k
         return True, None
 
-class OracleFn(Oracle):
-    def is_equivalent(self, grammar, start):
-        if str(grammar) == "{'<1>': [['<_>'], ['a', '<0>'], ['b', '<0>']], '<0>': [['a', '<1>'], ['b', '<0>']], '<_>': [[]]}":
-            return False, 'bb'
-        if str(grammar) == "{'<10>': [['<_>'], ['a', '<01>'], ['b', '<00>']], '<01>': [['a', '<10>'], ['b', '<00>']], '<00>': [['a', '<00>'], ['b', '<10>']], '<_>': [[]]}":
-            return False, 'abb'
-        i = 0
-        while i < 1000:
-            i+= 1
-            v = self.generate(grammar, start)
-            if not self.is_member(v):
-                print(v)
-                assert False
-        return True, None
-
-    def is_member(self, q):
-        as_ = sum([1 for i in q if i == 'a'])
-        bs_ = sum([1 for i in q if i == 'b'])
-        v = (as_ % 2) == 0 and (bs_ % 2) == 0
-        if v: return 1
-        return 0
-
-oracle = OracleFn('^(aa|bb)$')
+oracle = Oracle('^(aa|bb)$')
 g_T = StateTable(['a', 'b'], oracle)
 l_star(g_T)
 print(g_T.dfa())
 
-# num of calls made in place of ith oracle query qi = [1/epsilon * (ln(1/delta) + i * ln 2)]
 
 
 # A problem with this algorithm is its exponential case behavior as Moore [^2]
