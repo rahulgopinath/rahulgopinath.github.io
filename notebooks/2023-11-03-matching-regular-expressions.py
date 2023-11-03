@@ -23,55 +23,67 @@
 # This is an attempt to document my understanding of this code.
 # 
 # We start with importing the prerequisites
-
+# 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
-
+# 
 # The imported modules
 
 import simplefuzzer as fuzzer
 import earleyparser
 
+# Here is the Python implementation slightly modified to look similar to
+# my [post](/post/2020/03/02/combinatory-parsing/) on simple combinatory
+# parsing. I also name the anonymous lambdas to make it easier to understand.
+#  
+# ## Functional
 # Note my [post](/post/2020/03/02/combinatory-parsing/) on simple combinatory
 # parsing. This construction is similar in spirit to that idea. The essential
 # idea is that a given node should be able to accept or reject a given sequence
-# of characters. So, let us take the simplest case: A literal such as `a`.
+# of characters. Given a string, it should complete its own processing of the
+# string, and identify all possible next states to pass to for the remaining
+# string.
+# 
+# ### Match
+
+def match(rex, instr):
+    states = {rex(accepting)}
+    for c in instr:
+        states = {a for state in states for a in state(c)}
+    return any('ACCEPT' in state(None) for state in states)
+
+# ### Lit
+# Let us take the simplest case: A literal such as `a`.
 # We represent the literal by a function that accepts the character, and returns
 # back a node in the NFA. The idea is that this NFA can accept or reject the
 # remaining string. So, it needs a continuation, which is given as the next
 # state. The NFA will continue with the next state only if the parsing of the
 # current symbol succeeds. So we have an inner function `parse` that does that.
+# 
+# A literal simply matches a single token
 
-def Lit(char):
+def Lit(token):
     def node(nxtstate):
-        def parse(c: str):
-            return [nxtstate] if char == c else []
+        def parse(c: str): return [nxtstate] if token == c else []
         return parse
     return node
 
-# An accepting node is a node that requires no input. It is a simple sentinel
+# An epsilon matches nothing. That is, it passes anystring it receives
+# without modification to the next state.
+# It could also be written as `lambda s: return s`
 
+def Epsilon():
+    def node(state):
+        def parse(c: str): return state(c)
+        return parse
+    return node
+
+# An accepting state is just a sentinel.
 accepting = Lit(None)('ACCEPT')
 
-# Next, we define our matching algorithm. The idea is to start with the
-# constructed NFA as the single thread, feed it our string, and check whether
-# the result contains the accepted state.
-
-def match(rex, instr):
-    nfa = rex(accepting)
-    states = {nfa}
-    for c in instr:
-        states = {a for state in states for a in state(c)}
-    return any('ACCEPT' in state(None) for state in states)
-
-# Let us test this.
-
-if __name__ == '__main__':
-    X = Lit('X')
-    assert match(X, 'X')
-    assert not match(X, 'Y')
-
+# ### AndThen
+# 
 # Next, we want to match two regular expressions. We define AndThen that
 # sequences two regular expressions. The idea is to construct the NFA from the
 # end, where we will connect `rex1() -> rex2() -> nxtstate`
@@ -85,12 +97,105 @@ if __name__ == '__main__':
 
 def AndThen(rex1, rex2):
     def node(nxtstate):
-        state2 = rex2(nxtstate)
-        state1 = rex1(state2)
-        def parse(c: str):
-            return state1(c)
+        state1 = rex1(rex2(nxtstate))
+        def parse(c: str): return state1(c)
         return parse
     return node
+
+# ### OrElse
+# 
+# OrElse is the alternative.
+def OrElse(rex1, rex2):
+    def node(nxtstate):
+        state1, state2 = rex1(nxtstate), rex2(nxtstate)
+        def parse(c: str): return state1(c) + state2(c)
+        return parse
+    return node
+
+# ### Star
+# Finally, the Star is defined similar to OrElse. Note that unlike the context
+# free grammar, we do not allow unrestricted recursion. We only allow tail
+# recursion in the star form.
+
+def Star(re):
+    def node(nxtstate):
+        def parse(c: str): return nxtstate(c) + re(parse)(c)
+        return parse
+    return node
+
+# Let us test this.
+
+if __name__ == '__main__':
+    X = Lit('X')
+    Y = Lit('Y')
+    Z = Lit('Z')
+    X_Y = OrElse(X,Y)
+    Y_X = OrElse(X,Y)
+    ZX_Y = AndThen(Z, OrElse(X,Y))
+    assert not match(X, 'XY')
+    assert match(X_Y, 'X')
+    assert match(Y_X, 'Y')
+    assert not match(X_Y, 'Z')
+    assert match(ZX_Y, 'ZY')
+
+# ## Objects
+# 
+# This machinary is a bit complex to understand due to the functions wrapping
+# functions. I have found such constructions easier to understand if I think of
+# them in terms of objects. So, here is an attempt.
+# First, the state class that defines the interface.
+
+class State:
+    def node(self, nxtstate): pass
+    def parse(self, c: str): pass
+
+# ### Match
+# The match is slightly modified
+
+def match(rex, instr):
+    states = {rex.node(accepting)}
+    for c in instr:
+        states = {a for state in states for a in state.parse(c)}
+    return any('ACCEPT' in state.parse(None) for state in states)
+
+# ### Lit
+class Lit(State):
+    def __init__(self, char): self.char = char
+
+    def parse(self, c: str):
+        return [self.nxtstate] if self.char == c else []
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+
+# An accepting node is a node that requires no input. It is a simple sentinel
+
+accepting = Lit(None).node('ACCEPT')
+
+# Next, we define our matching algorithm. The idea is to start with the
+# constructed NFA as the single thread, feed it our string, and check whether
+# the result contains the accepted state.
+
+# Let us test this.
+
+if __name__ == '__main__':
+    X = Lit('X')
+    assert match(X, 'X')
+    assert not match(X, 'Y')
+
+# ### AndThen
+
+class AndThen(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        state2 = self.rex2.node(nxtstate)
+        self.state1 = self.rex1.node(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
 
 # Let us test this.
 
@@ -101,17 +206,21 @@ if __name__ == '__main__':
     assert match(XY,'XY')
     assert not match(YX, 'XY')
 
+# ### OrElse
+# 
 # Next, we want to match alternations. As before we define the node function,
 # and inside it the parse function. The important point here is that we want to
 # pass on the next state if either of the parses succeed.
 
-def OrElse(rex1, rex2):
-    def node(nxtstate):
-        state1, state2 = rex1(nxtstate), rex2(nxtstate)
-        def parse(c: str):
-            return state1(c) + state2(c)
-        return parse
-    return node
+class OrElse(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        self.state1, self.state2 = self.rex1.node(nxtstate), self.rex2.node(nxtstate)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
 
 # Let us test this.
 
@@ -125,16 +234,18 @@ if __name__ == '__main__':
     assert not match(X_Y, 'Z')
     assert match(ZX_Y, 'ZY')
 
-# Finally, the Star is defined similar to OrElse. Note that unlike the context
-# free grammar, we do not allow unrestricted recursion. We only allow tail
-# recursion in the star form.
+# ### Star
+# 
 
-def Star(re):
-    def node(nxtstate):
-        def parse(c: str):
-            return nxtstate(c) + re(parse)(c)
-        return parse
-    return node
+class Star(State):
+    def __init__(self, re): self.re = re
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+
+    def parse(self, c: str):
+        return self.nxtstate.parse(c) + self.re.node(self).parse(c)
 
 # Let us test this.
 
@@ -144,14 +255,17 @@ if __name__ == '__main__':
     assert match(Z_, 'Z')
     assert not match(Z_, 'ZA')
 
+# ### Epsilon
+# 
 # We also define an epsilon expression.
 
-def Epsilon():
-    def node(state):
-        def parse(c: str):
-            return state(c)
-        return parse
-    return node
+class Epsilon(State):
+    def node(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
 
 # Let us test this.
 

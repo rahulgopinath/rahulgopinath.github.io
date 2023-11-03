@@ -24,6 +24,12 @@ This is an attempt to document my understanding of this code.
 
 We start with importing the prerequisites
 
+
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+
+The imported modules
+
 ## Contents
 {:.no_toc}
 
@@ -59,32 +65,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <button type="button" name="python_run_all">Run all</button>
 </form>
 
-<details>
-<summary>Available Packages </summary>
-<!--##### Available Packages-->
-
-These are packages that refer either to my previous posts or to pure python
-packages that I have compiled, and is available in the below locations. As
-before, install them if you need to run the program directly on the machine.
-To install, simply download the wheel file (`pkg.whl`) and install using
-`pip install pkg.whl`.
-
-<ol>
-<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
-</ol>
-
-<div style='display:none'>
-<form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
-</textarea>
-</form>
-</div>
-</details>
-The imported modules
-
 <!--
 ############
 import simplefuzzer as fuzzer
@@ -100,22 +80,56 @@ import earleyparser
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is the Python implementation slightly modified to look similar to
+my [post](/post/2020/03/02/combinatory-parsing/) on simple combinatory
+parsing. I also name the anonymous lambdas to make it easier to understand.
+ 
+## Functional
 Note my [post](/post/2020/03/02/combinatory-parsing/) on simple combinatory
 parsing. This construction is similar in spirit to that idea. The essential
 idea is that a given node should be able to accept or reject a given sequence
-of characters. So, let us take the simplest case: A literal such as `a`.
+of characters. Given a string, it should complete its own processing of the
+string, and identify all possible next states to pass to for the remaining
+string.
+
+### Match
+
+<!--
+############
+def match(rex, instr):
+    states = {rex(accepting)}
+    for c in instr:
+        states = {a for state in states for a in state(c)}
+    return any('ACCEPT' in state(None) for state in states)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def match(rex, instr):
+    states = {rex(accepting)}
+    for c in instr:
+        states = {a for state in states for a in state(c)}
+    return any(&#x27;ACCEPT&#x27; in state(None) for state in states)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Lit
+Let us take the simplest case: A literal such as `a`.
 We represent the literal by a function that accepts the character, and returns
 back a node in the NFA. The idea is that this NFA can accept or reject the
 remaining string. So, it needs a continuation, which is given as the next
 state. The NFA will continue with the next state only if the parsing of the
 current symbol succeeds. So we have an inner function `parse` that does that.
 
+A literal simply matches a single token
+
 <!--
 ############
-def Lit(char):
+def Lit(token):
     def node(nxtstate):
-        def parse(c: str):
-            return [nxtstate] if char == c else []
+        def parse(c: str): return [nxtstate] if token == c else []
         return parse
     return node
 
@@ -123,17 +137,41 @@ def Lit(char):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def Lit(char):
+def Lit(token):
     def node(nxtstate):
-        def parse(c: str):
-            return [nxtstate] if char == c else []
+        def parse(c: str): return [nxtstate] if token == c else []
         return parse
     return node
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-An accepting node is a node that requires no input. It is a simple sentinel
+An epsilon matches nothing. That is, it passes anystring it receives
+without modification to the next state.
+It could also be written as `lambda s: return s`
+
+<!--
+############
+def Epsilon():
+    def node(state):
+        def parse(c: str): return state(c)
+        return parse
+    return node
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def Epsilon():
+    def node(state):
+        def parse(c: str): return state(c)
+        return parse
+    return node
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+An accepting state is just a sentinel.
 
 <!--
 ############
@@ -148,33 +186,227 @@ accepting = Lit(None)(&#x27;ACCEPT&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Next, we define our matching algorithm. The idea is to start with the
-constructed NFA as the single thread, feed it our string, and check whether
-the result contains the accepted state.
+### AndThen
+
+Next, we want to match two regular expressions. We define AndThen that
+sequences two regular expressions. The idea is to construct the NFA from the
+end, where we will connect `rex1() -> rex2() -> nxtstate`
+Note that we are constructing the NFA in the `node()` function.
+That is, the `node()` is given the next state to move
+into on successful parse (i.e `nxtstate`). We connect the nxtstate to the
+end of rex2 by passing it as an argument. The node rex2 is then connected to
+rex1 by passing the resultant state as the next state to rex1.
+The functions are expanded to make it easy to understand. The node may as well
+have had `rex1(rex2(nxtstate))` as the return value.
+
+<!--
+############
+def AndThen(rex1, rex2):
+    def node(nxtstate):
+        state1 = rex1(rex2(nxtstate))
+        def parse(c: str): return state1(c)
+        return parse
+    return node
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def AndThen(rex1, rex2):
+    def node(nxtstate):
+        state1 = rex1(rex2(nxtstate))
+        def parse(c: str): return state1(c)
+        return parse
+    return node
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### OrElse
+
+OrElse is the alternative.
+
+<!--
+############
+def OrElse(rex1, rex2):
+    def node(nxtstate):
+        state1, state2 = rex1(nxtstate), rex2(nxtstate)
+        def parse(c: str): return state1(c) + state2(c)
+        return parse
+    return node
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def OrElse(rex1, rex2):
+    def node(nxtstate):
+        state1, state2 = rex1(nxtstate), rex2(nxtstate)
+        def parse(c: str): return state1(c) + state2(c)
+        return parse
+    return node
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Star
+Finally, the Star is defined similar to OrElse. Note that unlike the context
+free grammar, we do not allow unrestricted recursion. We only allow tail
+recursion in the star form.
+
+<!--
+############
+def Star(re):
+    def node(nxtstate):
+        def parse(c: str): return nxtstate(c) + re(parse)(c)
+        return parse
+    return node
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def Star(re):
+    def node(nxtstate):
+        def parse(c: str): return nxtstate(c) + re(parse)(c)
+        return parse
+    return node
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this.
+
+<!--
+############
+X = Lit('X')
+Y = Lit('Y')
+Z = Lit('Z')
+X_Y = OrElse(X,Y)
+Y_X = OrElse(X,Y)
+ZX_Y = AndThen(Z, OrElse(X,Y))
+assert not match(X, 'XY')
+assert match(X_Y, 'X')
+assert match(Y_X, 'Y')
+assert not match(X_Y, 'Z')
+assert match(ZX_Y, 'ZY')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+X = Lit(&#x27;X&#x27;)
+Y = Lit(&#x27;Y&#x27;)
+Z = Lit(&#x27;Z&#x27;)
+X_Y = OrElse(X,Y)
+Y_X = OrElse(X,Y)
+ZX_Y = AndThen(Z, OrElse(X,Y))
+assert not match(X, &#x27;XY&#x27;)
+assert match(X_Y, &#x27;X&#x27;)
+assert match(Y_X, &#x27;Y&#x27;)
+assert not match(X_Y, &#x27;Z&#x27;)
+assert match(ZX_Y, &#x27;ZY&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Objects
+
+This machinary is a bit complex to understand due to the functions wrapping
+functions. I have found such constructions easier to understand if I think of
+them in terms of objects. So, here is an attempt.
+First, the state class that defines the interface.
+
+<!--
+############
+class State:
+    def node(self, nxtstate): pass
+    def parse(self, c: str): pass
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class State:
+    def node(self, nxtstate): pass
+    def parse(self, c: str): pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Match
+The match is slightly modified
 
 <!--
 ############
 def match(rex, instr):
-    nfa = rex(accepting)
-    states = {nfa}
+    states = {rex.node(accepting)}
     for c in instr:
-        states = {a for state in states for a in state(c)}
-    return any('ACCEPT' in state(None) for state in states)
+        states = {a for state in states for a in state.parse(c)}
+    return any('ACCEPT' in state.parse(None) for state in states)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def match(rex, instr):
-    nfa = rex(accepting)
-    states = {nfa}
+    states = {rex.node(accepting)}
     for c in instr:
-        states = {a for state in states for a in state(c)}
-    return any(&#x27;ACCEPT&#x27; in state(None) for state in states)
+        states = {a for state in states for a in state.parse(c)}
+    return any(&#x27;ACCEPT&#x27; in state.parse(None) for state in states)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Lit
+
+<!--
+############
+class Lit(State):
+    def __init__(self, char): self.char = char
+
+    def parse(self, c: str):
+        return [self.nxtstate] if self.char == c else []
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Lit(State):
+    def __init__(self, char): self.char = char
+
+    def parse(self, c: str):
+        return [self.nxtstate] if self.char == c else []
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+An accepting node is a node that requires no input. It is a simple sentinel
+
+<!--
+############
+accepting = Lit(None).node('ACCEPT')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+accepting = Lit(None).node(&#x27;ACCEPT&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define our matching algorithm. The idea is to start with the
+constructed NFA as the single thread, feed it our string, and check whether
+the result contains the accepted state.
 Let us test this.
 
 <!--
@@ -194,40 +426,35 @@ assert not match(X, &#x27;Y&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Next, we want to match two regular expressions. We define AndThen that
-sequences two regular expressions. The idea is to construct the NFA from the
-end, where we will connect `rex1() -> rex2() -> nxtstate`
-Note that we are constructing the NFA in the `node()` function.
-That is, the `node()` is given the next state to move
-into on successful parse (i.e `nxtstate`). We connect the nxtstate to the
-end of rex2 by passing it as an argument. The node rex2 is then connected to
-rex1 by passing the resultant state as the next state to rex1.
-The functions are expanded to make it easy to understand. The node may as well
-have had `rex1(rex2(nxtstate))` as the return value.
+### AndThen
 
 <!--
 ############
-def AndThen(rex1, rex2):
-    def node(nxtstate):
-        state2 = rex2(nxtstate)
-        state1 = rex1(state2)
-        def parse(c: str):
-            return state1(c)
-        return parse
-    return node
+class AndThen(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        state2 = self.rex2.node(nxtstate)
+        self.state1 = self.rex1.node(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def AndThen(rex1, rex2):
-    def node(nxtstate):
-        state2 = rex2(nxtstate)
-        state1 = rex1(state2)
-        def parse(c: str):
-            return state1(c)
-        return parse
-    return node
+class AndThen(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        state2 = self.rex2.node(nxtstate)
+        self.state1 = self.rex1.node(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -255,31 +482,37 @@ assert not match(YX, &#x27;XY&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### OrElse
+
 Next, we want to match alternations. As before we define the node function,
 and inside it the parse function. The important point here is that we want to
 pass on the next state if either of the parses succeed.
 
 <!--
 ############
-def OrElse(rex1, rex2):
-    def node(nxtstate):
-        state1, state2 = rex1(nxtstate), rex2(nxtstate)
-        def parse(c: str):
-            return state1(c) + state2(c)
-        return parse
-    return node
+class OrElse(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        self.state1, self.state2 = self.rex1.node(nxtstate), self.rex2.node(nxtstate)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def OrElse(rex1, rex2):
-    def node(nxtstate):
-        state1, state2 = rex1(nxtstate), rex2(nxtstate)
-        def parse(c: str):
-            return state1(c) + state2(c)
-        return parse
-    return node
+class OrElse(State):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def node(self, nxtstate):
+        self.state1, self.state2 = self.rex1.node(nxtstate), self.rex2.node(nxtstate)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -313,29 +546,34 @@ assert match(ZX_Y, &#x27;ZY&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Finally, the Star is defined similar to OrElse. Note that unlike the context
-free grammar, we do not allow unrestricted recursion. We only allow tail
-recursion in the star form.
+### Star
+
 
 <!--
 ############
-def Star(re):
-    def node(nxtstate):
-        def parse(c: str):
-            return nxtstate(c) + re(parse)(c)
-        return parse
-    return node
+class Star(State):
+    def __init__(self, re): self.re = re
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+
+    def parse(self, c: str):
+        return self.nxtstate.parse(c) + self.re.node(self).parse(c)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def Star(re):
-    def node(nxtstate):
-        def parse(c: str):
-            return nxtstate(c) + re(parse)(c)
-        return parse
-    return node
+class Star(State):
+    def __init__(self, re): self.re = re
+
+    def node(self, nxtstate):
+        self.nxtstate = nxtstate
+        return self
+
+    def parse(self, c: str):
+        return self.nxtstate.parse(c) + self.re.node(self).parse(c)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -361,27 +599,31 @@ assert not match(Z_, &#x27;ZA&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+### Epsilon
+
 We also define an epsilon expression.
 
 <!--
 ############
-def Epsilon():
-    def node(state):
-        def parse(c: str):
-            return state(c)
-        return parse
-    return node
+class Epsilon(State):
+    def node(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def Epsilon():
-    def node(state):
-        def parse(c: str):
-            return state(c)
-        return parse
-    return node
+class Epsilon(State):
+    def node(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
