@@ -115,7 +115,9 @@ if __name__ == '__main__':
 # and the input `1+`, the `<E>` will keep getting expanded again and again generating
 # new threads. So the parser will never terminate.
 # 
-# So, what we need is a way to discard invalid potential parses immediately. In our
+# So, what we need is a way to discard invalid potential parses immediately.
+# The following technique was first described by Kuno [^kuno1965].
+# In our
 # case, we can see that if you have reached the end of `1+` where there are no more characters
 # to parse, we no longer can accept an expansion that has even a single terminal symbol that
 # is non empty. We can make this restriction into code as below:
@@ -202,3 +204,5 @@ if __name__ == '__main__':
 # **Note:** 
 # I implemented it to scratch an itch, without first checking the literature about similar parsing techniques. However, now that I have implemented it, this technique seems similar to [GLL](https://github.com/djspiewak/gll-combinators#theory)). While my implmentation is 
 # inefficient, a few avenues of optimization such as the standard memoization (packrat) techniques, and GSS (fairly easy to implement in that it is about how to maintain the `rule` structure as a tree with common prefix) can help the situation.
+# 
+# [^kuno1965]: Susumu Kuno "The predictive analyzer and a path elimination technique."  1965
