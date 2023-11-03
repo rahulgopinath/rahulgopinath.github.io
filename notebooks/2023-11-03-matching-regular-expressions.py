@@ -60,9 +60,9 @@ accepting = Lit(None)('ACCEPT')
 
 def match(rex, instr):
     nfa = rex(accepting)
-    states = [nfa]
+    states = {nfa}
     for c in instr:
-        states = list(set([a for state in states for a in state(c)]))
+        states = {a for state in states for a in state(c)}
     return any('ACCEPT' in state(None) for state in states)
 
 # Let us test this.

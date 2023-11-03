@@ -156,9 +156,9 @@ the result contains the accepted state.
 ############
 def match(rex, instr):
     nfa = rex(accepting)
-    states = [nfa]
+    states = {nfa}
     for c in instr:
-        states = list(set([a for state in states for a in state(c)]))
+        states = {a for state in states for a in state(c)}
     return any('ACCEPT' in state(None) for state in states)
 
 ############
@@ -167,9 +167,9 @@ def match(rex, instr):
 <textarea cols="40" rows="4" name='python_edit'>
 def match(rex, instr):
     nfa = rex(accepting)
-    states = [nfa]
+    states = {nfa}
     for c in instr:
-        states = list(set([a for state in states for a in state(c)]))
+        states = {a for state in states for a in state(c)}
     return any(&#x27;ACCEPT&#x27; in state(None) for state in states)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
