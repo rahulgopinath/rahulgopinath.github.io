@@ -34,20 +34,15 @@ import heapq as H
 import math
 import string
 
-# Our grammar is
+# Our grammars are
 
-grammar = {
-        "<start>": [["<E>"]],
-        "<E>": [
-            ["<E>", "+", "<E>"],
-            ["<E>", "-", "<E>"],
-            ["(", "<E>", ")"],
-            ["<digits>"],
-            ],
-        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
-        "<digit>": [[str(i)] for i in string.digits]
+nl_grammar = {
+        "<E>": [["<T>", "+", "<E>"],
+                ["<T>"]],
+        "<T>": [["1"],
+               ["(", "<E>", ")"]]
         }
-START = '<start>'
+nl_start = "<E>"
 
 # The match method assumes that our queue contains the threads of parsing.
 # It extracts the top most (`current`) thread, and explores the possible
@@ -56,10 +51,10 @@ START = '<start>'
 # and if we can, add the thread to the heap.
 
 def match(lst, key, grammar):
-    queue = [((len(lst), 0), [(0, key)])]
+    queue = [((len(lst), 0), [key])]
     while queue:
         current = H.heappop(queue)
-        rlst = explore(current, lst)
+        rlst = explore(current, lst, grammar)
         for item in rlst:
             (lst_rem, _depth), rule = item
             if lst_rem == 0:
@@ -73,6 +68,7 @@ def match(lst, key, grammar):
                     continue
                 else:
                     H.heappush(queue, item)
+
 # The `explore()` method is fairly simple. It checks if the given element is a terminal or
 # a nonterminal. If it is a terminal, it is checked for a match, and if matched, the current
 # parsing point is updated, and returned. If not a match, the current thread is discarded.
@@ -82,12 +78,13 @@ def match(lst, key, grammar):
 # the nonterminal is replaced with its particular expansion in each of the thread, and the
 # new threads are returned.
 
-def explore(current, lst):
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
@@ -96,7 +93,7 @@ def explore(current, lst):
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
+            new_rule = expansion + rule[1:]
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 
@@ -105,6 +102,10 @@ def explore(current, lst):
 def forking_parse(arg, grammar, start):
     for x in match(list(arg), start, grammar):
         print(x)
+
+if __name__ == '__main__':
+    forking_parse('1+1', nl_grammar, nl_start)
+
 
 # While this can certainly handle left recursion, there is a new problem. The issue is that
 # in the case of left recursion, and an incomplete prefix, the threads simply multiply, with
@@ -129,31 +130,57 @@ def get_key_minlength(grammar, key, seen):
 
 # we initialize the cost. This is a global variable for the purpose of this post.
 
-cost = {}
+grammar = {
+        "<start>": [["<E>"]],
+        "<E>": [
+            ["<E>", "+", "<E>"],
+            ["<E>", "-", "<E>"],
+            ["(", "<E>", ")"],
+            ["<digits>"],
+            ],
+        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
+        "<digit>": [[str(i)] for i in string.digits]
+        }
+START = '<start>'
+
+Cost = {}
 for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
+    Cost[k] = get_key_minlength(grammar, k, set())
 
 # That is, we find the minimum expansion length of each key and store it beforehand.
 # Next, we update our `explore` so that if the minimum expansion length in any
 # of the potential threads is larger than the characters remaining, that thread is not
 # started.
- 
-def explore(current, lst):
+# 
+# There is an absolute limit to the number of recursions in a left recursion.
+# We have say `m` nonterminals in the grammar. Even if at least one nonterminal
+# consumes one token, and the remaining consumes none, there cannot be more than
+# m repetitions of any key in the given stack, without consuming at least one
+# token. Hence, the maximum limit of recursion is `m * (1+ |s|)` where `s` is
+# the input length.
+
+
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
-            return [((lst_rem - len(key), math.inf), rule[1:])]
+            return [((lst_rem - len(key), depth + 1), rule[1:])]
     else:
+        max_limit = len(list(grammar.keys())) * (1 + len(lst))
+        if max_limit < depth: return [] # <- changed
+
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
-            if sum([cost.get(r, len(r)) for d,r in new_rule]) > lst_rem: continue # <-- changed
+            new_rule = expansion + rule[1:]
+            max_readable = sum([Cost.get(r, len(r)) for r in new_rule])
+            if max_readable > lst_rem: continue # <- changed
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 

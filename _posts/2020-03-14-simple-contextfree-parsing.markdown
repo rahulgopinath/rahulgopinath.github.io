@@ -81,39 +81,29 @@ import string
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Our grammar is
+Our grammars are
 
 <!--
 ############
-grammar = {
-        "<start>": [["<E>"]],
-        "<E>": [
-            ["<E>", "+", "<E>"],
-            ["<E>", "-", "<E>"],
-            ["(", "<E>", ")"],
-            ["<digits>"],
-            ],
-        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
-        "<digit>": [[str(i)] for i in string.digits]
+nl_grammar = {
+        "<E>": [["<T>", "+", "<E>"],
+                ["<T>"]],
+        "<T>": [["1"],
+               ["(", "<E>", ")"]]
         }
-START = '<start>'
+nl_start = "<E>"
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-grammar = {
-        &quot;&lt;start&gt;&quot;: [[&quot;&lt;E&gt;&quot;]],
-        &quot;&lt;E&gt;&quot;: [
-            [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
-            [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
-            [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
-            [&quot;&lt;digits&gt;&quot;],
-            ],
-        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
-        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+nl_grammar = {
+        &quot;&lt;E&gt;&quot;: [[&quot;&lt;T&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+                [&quot;&lt;T&gt;&quot;]],
+        &quot;&lt;T&gt;&quot;: [[&quot;1&quot;],
+               [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;]]
         }
-START = &#x27;&lt;start&gt;&#x27;
+nl_start = &quot;&lt;E&gt;&quot;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -127,10 +117,10 @@ and if we can, add the thread to the heap.
 <!--
 ############
 def match(lst, key, grammar):
-    queue = [((len(lst), 0), [(0, key)])]
+    queue = [((len(lst), 0), [key])]
     while queue:
         current = H.heappop(queue)
-        rlst = explore(current, lst)
+        rlst = explore(current, lst, grammar)
         for item in rlst:
             (lst_rem, _depth), rule = item
             if lst_rem == 0:
@@ -144,15 +134,16 @@ def match(lst, key, grammar):
                     continue
                 else:
                     H.heappush(queue, item)
+
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def match(lst, key, grammar):
-    queue = [((len(lst), 0), [(0, key)])]
+    queue = [((len(lst), 0), [key])]
     while queue:
         current = H.heappop(queue)
-        rlst = explore(current, lst)
+        rlst = explore(current, lst, grammar)
         for item in rlst:
             (lst_rem, _depth), rule = item
             if lst_rem == 0:
@@ -181,12 +172,13 @@ new threads are returned.
 
 <!--
 ############
-def explore(current, lst):
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
@@ -195,7 +187,7 @@ def explore(current, lst):
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
+            new_rule = expansion + rule[1:]
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 
@@ -203,12 +195,13 @@ def explore(current, lst):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def explore(current, lst):
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
@@ -217,7 +210,7 @@ def explore(current, lst):
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
+            new_rule = expansion + rule[1:]
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 </textarea><br />
@@ -232,6 +225,10 @@ def forking_parse(arg, grammar, start):
     for x in match(list(arg), start, grammar):
         print(x)
 
+if __name__ == '__main__':
+    forking_parse('1+1', nl_grammar, nl_start)
+
+
 ############
 -->
 <form name='python_run_form'>
@@ -239,6 +236,9 @@ def forking_parse(arg, grammar, start):
 def forking_parse(arg, grammar, start):
     for x in match(list(arg), start, grammar):
         print(x)
+
+if __name__ == &#x27;__main__&#x27;:
+    forking_parse(&#x27;1+1&#x27;, nl_grammar, nl_start)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -285,17 +285,43 @@ we initialize the cost. This is a global variable for the purpose of this post.
 
 <!--
 ############
-cost = {}
+grammar = {
+        "<start>": [["<E>"]],
+        "<E>": [
+            ["<E>", "+", "<E>"],
+            ["<E>", "-", "<E>"],
+            ["(", "<E>", ")"],
+            ["<digits>"],
+            ],
+        "<digits>": [["<digits>", "<digit>"], ["<digit>"]],
+        "<digit>": [[str(i)] for i in string.digits]
+        }
+START = '<start>'
+
+Cost = {}
 for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
+    Cost[k] = get_key_minlength(grammar, k, set())
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-cost = {}
+grammar = {
+        &quot;&lt;start&gt;&quot;: [[&quot;&lt;E&gt;&quot;]],
+        &quot;&lt;E&gt;&quot;: [
+            [&quot;&lt;E&gt;&quot;, &quot;+&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;&lt;E&gt;&quot;, &quot;-&quot;, &quot;&lt;E&gt;&quot;],
+            [&quot;(&quot;, &quot;&lt;E&gt;&quot;, &quot;)&quot;],
+            [&quot;&lt;digits&gt;&quot;],
+            ],
+        &quot;&lt;digits&gt;&quot;: [[&quot;&lt;digits&gt;&quot;, &quot;&lt;digit&gt;&quot;], [&quot;&lt;digit&gt;&quot;]],
+        &quot;&lt;digit&gt;&quot;: [[str(i)] for i in string.digits]
+        }
+START = &#x27;&lt;start&gt;&#x27;
+
+Cost = {}
 for k in grammar:
-    cost[k] = get_key_minlength(grammar, k, set())
+    Cost[k] = get_key_minlength(grammar, k, set())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -305,24 +331,36 @@ Next, we update our `explore` so that if the minimum expansion length in any
 of the potential threads is larger than the characters remaining, that thread is not
 started.
 
+There is an absolute limit to the number of recursions in a left recursion.
+We have say `m` nonterminals in the grammar. Even if at least one nonterminal
+consumes one token, and the remaining consumes none, there cannot be more than
+m repetitions of any key in the given stack, without consuming at least one
+token. Hence, the maximum limit of recursion is `m * (1+ |s|)` where `s` is
+the input length.
+
 <!--
 ############
-def explore(current, lst):
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
-            return [((lst_rem - len(key), math.inf), rule[1:])]
+            return [((lst_rem - len(key), depth + 1), rule[1:])]
     else:
+        max_limit = len(list(grammar.keys())) * (1 + len(lst))
+        if max_limit < depth: return [] # <- changed
+
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
-            if sum([cost.get(r, len(r)) for d,r in new_rule]) > lst_rem: continue # <-- changed
+            new_rule = expansion + rule[1:]
+            max_readable = sum([Cost.get(r, len(r)) for r in new_rule])
+            if max_readable > lst_rem: continue # <- changed
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 
@@ -330,22 +368,27 @@ def explore(current, lst):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def explore(current, lst):
+def explore(current, lst, grammar):
     (lst_rem, depth), rule = current
     lst_idx = len(lst) - lst_rem
-    depth, key = rule[0]
+    key = rule[0]
 
     if key not in grammar:
+        if lst_rem == 0: return []
         if key != lst[lst_idx]:
             return []
         else:
-            return [((lst_rem - len(key), math.inf), rule[1:])]
+            return [((lst_rem - len(key), depth + 1), rule[1:])]
     else:
+        max_limit = len(list(grammar.keys())) * (1 + len(lst))
+        if max_limit &lt; depth: return [] # &lt;- changed
+
         expansions = grammar[key]
         ret = []
         for expansion in expansions:
-            new_rule = [(depth + 1, e) for e in expansion] + rule[1:]
-            if sum([cost.get(r, len(r)) for d,r in new_rule]) &gt; lst_rem: continue # &lt;-- changed
+            new_rule = expansion + rule[1:]
+            max_readable = sum([Cost.get(r, len(r)) for r in new_rule])
+            if max_readable &gt; lst_rem: continue # &lt;- changed
             ret.append(((lst_rem, depth + 1), new_rule))
         return ret
 </textarea><br />
