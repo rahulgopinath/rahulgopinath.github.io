@@ -26,10 +26,12 @@
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 
 # The imported modules
 
 import simplefuzzer as fuzzer
+import earleyparser
 
 # Note my [post](/post/2020/03/02/combinatory-parsing/) on simple combinatory
 # parsing. This construction is similar in spirit to that idea. The essential
@@ -168,6 +170,237 @@ if __name__ == '__main__':
     assert not match(complicated, 'ababaxyab')
     assert match(complicated, 'ababaxyabz')
     assert not match(complicated, 'ababaxyaxz')
+
+
+# What about constructing regular expression literals? For that let us start
+# with a simplified grammar
+
+import string
+
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_letters)
+
+RE_GRAMMAR = {
+    '<start>' : [
+        ['<regex>']
+    ],
+    '<regex>' : [
+        ['<cex>', '|', '<regex>'],
+        ['<cex>', '|'],
+        ['<cex>']
+    ],
+    '<cex>' : [
+        ['<exp>', '<cex>'],
+        ['<exp>']
+    ],
+    '<exp>': [
+        ['<unitexp>'],
+        ['<regexstar>'],
+        ['<regexplus>'],
+    ],
+    '<unitexp>': [
+        ['<alpha>'],
+        ['<parenexp>'],
+    ],
+    '<parenexp>': [
+        ['(', '<regex>', ')'],
+    ],
+    '<regexstar>': [
+        ['<unitexp>', '*'],
+    ],
+    '<singlechars>': [
+        ['<singlechar>', '<singlechars>'],
+        ['<singlechar>'],
+    ],
+    '<singlechar>': [
+        ['<char>'],
+    ],
+    '<alpha>' : [[c] for c in TERMINAL_SYMBOLS]
+}
+RE_START = '<start>'
+
+# This is ofcourse a very limited grammar that only supports basic
+# regular expression operations concatenation, alternation, and star.
+# We can use earley parser for parsing any given regular expressions
+
+if __name__ == '__main__':
+    my_re = '(ab|c)*'
+    re_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+    parsed_expr = list(re_parser.parse_on(my_re, RE_START))[0]
+    fuzzer.display_tree(parsed_expr)
+
+# Let us define the basic machinary. The parse function parses
+# the regexp string to an AST, and to_re converts the AST
+# to the regexp structure.
+class RegexToLiteral:
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+
+    def parse(self, inex):
+        parsed_expr = list(self.parser.parse_on(inex, RE_START))[0]
+        return parsed_expr
+
+    def to_re(self, inex):
+        parsed = self.parse(inex)
+        key, children = parsed
+        assert key == '<start>'
+        assert len(children) == 1
+        lit = self.convert_regex(children[0])
+        return lit
+
+# The unit expression may e an alpha or a parenthesised expression.
+
+class RegexToLiteral(RegexToLiteral):
+    def convert_unitexp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == '<alpha>':
+            return self.convert_alpha(children[0])
+        elif key == '<parenexp>':
+            return self.convert_regexparen(children[0])
+        else:
+            assert False
+        assert False
+
+# The alpha gets converted to a Lit.
+
+class RegexToLiteral(RegexToLiteral):
+    def convert_alpha(self, node):
+        key, children = node
+        assert key == '<alpha>'
+        return Lit(children[0][0])
+
+# check it has worked
+
+if __name__ == '__main__':
+    my_re = 'a'
+    print(my_re)
+    regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+    parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
+    fuzzer.display_tree(parsed_expr)
+    l = RegexToLiteral().convert_unitexp(parsed_expr)
+    print(l)
+    assert match(l, 'a')
+
+# Next, we write the exp and cex conversions. cex gets turned into AndThen
+
+class RegexToLiteral(RegexToLiteral):
+    def convert_exp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == '<unitexp>':
+            return self.convert_unitexp(children[0])
+        elif key == '<regexstar>':
+            return self.convert_regexstar(children[0])
+        else:
+            assert False
+        assert False
+
+    def convert_cex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_exp(child)
+        if children:
+            child, *children = children
+            lit2 = self.convert_cex(child)
+            lit = AndThen(lit,lit2)
+        return lit
+
+# check it has worked
+if __name__ == '__main__':
+    my_re = 'ab'
+    print(my_re)
+    regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+    parsed_expr = list(regex_parser.parse_on(my_re, '<cex>'))[0]
+    fuzzer.display_tree(parsed_expr)
+    l = RegexToLiteral().convert_cex(parsed_expr)
+    print(l)
+    assert match(l, 'ab')
+
+#  Next, we write the regex, which gets converted to OrElse
+
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexparen(self, node):
+        key, children = node
+        assert len(children) == 3
+        return self.convert_regex(children[1])
+
+    def convert_regex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_cex(child)
+        if children:
+            if len(children) == 1: # epsilon
+                assert children[0][0] == '|'
+                lit = OrElse(lit, Epsilon()) 
+            else:
+                pipe, child, *children = children
+                assert pipe[0] == '|'
+                lit2 = self.convert_regex(child)
+                lit = OrElse(lit, lit2) 
+        return lit
+
+# check it has worked
+if __name__ == '__main__':
+    my_re = 'a|b|c'
+    print(my_re)
+    regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+    parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+    fuzzer.display_tree(parsed_expr)
+    l = RegexToLiteral().convert_regex(parsed_expr)
+    print(l)
+    assert match(l, 'a')
+    assert match(l, 'b')
+    assert match(l, 'c')
+    my_re = 'ab|c'
+    parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+    l = RegexToLiteral().convert_regex(parsed_expr)
+    assert match(l, 'ab')
+    assert match(l, 'c')
+    assert not match(l, 'a')
+    my_re = 'ab|'
+    parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+    l = RegexToLiteral().convert_regex(parsed_expr)
+    assert match(l, 'ab')
+    assert match(l, '')
+    assert not match(l, 'a')
+
+
+# Finally the Star.
+
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexstar(self, node):
+        key, children = node
+        assert len(children) == 2
+        lit = self.convert_unitexp(children[0])
+        return Star(lit)
+
+# check it has worked
+if __name__ == '__main__':
+    my_re = 'a*b'
+    print(my_re)
+    regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+    parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+    fuzzer.display_tree(parsed_expr)
+    l = RegexToLiteral().convert_regex(parsed_expr)
+    print(l)
+    assert match(l, 'b')
+    assert match(l, 'ab')
+    assert not match(l, 'abb')
+    assert match(l, 'aab')
+
+#  Wrapping everything up.
+class RegexToLiteral(RegexToLiteral):
+    def match(self, re, instring):
+        lit = self.to_re(re)
+        return match(lit, instring)
+
+# check it has worked
+if __name__ == '__main__':
+    my_re = 'a*b'
+    assert RegexToLiteral().match(my_re, 'ab')
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-03-matching-regular-expressions.py).

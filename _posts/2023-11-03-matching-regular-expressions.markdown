@@ -71,12 +71,14 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 </ol>
 
 <div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -86,12 +88,14 @@ The imported modules
 <!--
 ############
 import simplefuzzer as fuzzer
+import earleyparser
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import simplefuzzer as fuzzer
+import earleyparser
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -412,6 +416,7 @@ assert not match(complicated, 'ababaxyab')
 assert match(complicated, 'ababaxyabz')
 assert not match(complicated, 'ababaxyaxz')
 
+
 ############
 -->
 <form name='python_run_form'>
@@ -427,8 +432,560 @@ assert not match(complicated, &#x27;ababaxyaxz&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+What about constructing regular expression literals? For that let us start
+with a simplified grammar
+
+<!--
+############
+import string
+
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_letters)
+
+RE_GRAMMAR = {
+    '<start>' : [
+        ['<regex>']
+    ],
+    '<regex>' : [
+        ['<cex>', '|', '<regex>'],
+        ['<cex>', '|'],
+        ['<cex>']
+    ],
+    '<cex>' : [
+        ['<exp>', '<cex>'],
+        ['<exp>']
+    ],
+    '<exp>': [
+        ['<unitexp>'],
+        ['<regexstar>'],
+        ['<regexplus>'],
+    ],
+    '<unitexp>': [
+        ['<alpha>'],
+        ['<parenexp>'],
+    ],
+    '<parenexp>': [
+        ['(', '<regex>', ')'],
+    ],
+    '<regexstar>': [
+        ['<unitexp>', '*'],
+    ],
+    '<singlechars>': [
+        ['<singlechar>', '<singlechars>'],
+        ['<singlechar>'],
+    ],
+    '<singlechar>': [
+        ['<char>'],
+    ],
+    '<alpha>' : [[c] for c in TERMINAL_SYMBOLS]
+}
+RE_START = '<start>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import string
+
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_letters)
+
+RE_GRAMMAR = {
+    &#x27;&lt;start&gt;&#x27; : [
+        [&#x27;&lt;regex&gt;&#x27;]
+    ],
+    &#x27;&lt;regex&gt;&#x27; : [
+        [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;, &#x27;&lt;regex&gt;&#x27;],
+        [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;],
+        [&#x27;&lt;cex&gt;&#x27;]
+    ],
+    &#x27;&lt;cex&gt;&#x27; : [
+        [&#x27;&lt;exp&gt;&#x27;, &#x27;&lt;cex&gt;&#x27;],
+        [&#x27;&lt;exp&gt;&#x27;]
+    ],
+    &#x27;&lt;exp&gt;&#x27;: [
+        [&#x27;&lt;unitexp&gt;&#x27;],
+        [&#x27;&lt;regexstar&gt;&#x27;],
+        [&#x27;&lt;regexplus&gt;&#x27;],
+    ],
+    &#x27;&lt;unitexp&gt;&#x27;: [
+        [&#x27;&lt;alpha&gt;&#x27;],
+        [&#x27;&lt;parenexp&gt;&#x27;],
+    ],
+    &#x27;&lt;parenexp&gt;&#x27;: [
+        [&#x27;(&#x27;, &#x27;&lt;regex&gt;&#x27;, &#x27;)&#x27;],
+    ],
+    &#x27;&lt;regexstar&gt;&#x27;: [
+        [&#x27;&lt;unitexp&gt;&#x27;, &#x27;*&#x27;],
+    ],
+    &#x27;&lt;singlechars&gt;&#x27;: [
+        [&#x27;&lt;singlechar&gt;&#x27;, &#x27;&lt;singlechars&gt;&#x27;],
+        [&#x27;&lt;singlechar&gt;&#x27;],
+    ],
+    &#x27;&lt;singlechar&gt;&#x27;: [
+        [&#x27;&lt;char&gt;&#x27;],
+    ],
+    &#x27;&lt;alpha&gt;&#x27; : [[c] for c in TERMINAL_SYMBOLS]
+}
+RE_START = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This is ofcourse a very limited grammar that only supports basic
+regular expression operations concatenation, alternation, and star.
+We can use earley parser for parsing any given regular expressions
+
+<!--
+############
+my_re = '(ab|c)*'
+re_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(re_parser.parse_on(my_re, RE_START))[0]
+fuzzer.display_tree(parsed_expr)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;(ab|c)*&#x27;
+re_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(re_parser.parse_on(my_re, RE_START))[0]
+fuzzer.display_tree(parsed_expr)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us define the basic machinary. The parse function parses
+the regexp string to an AST, and to_re converts the AST
+to the regexp structure.
+
+<!--
+############
+class RegexToLiteral:
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+
+    def parse(self, inex):
+        parsed_expr = list(self.parser.parse_on(inex, RE_START))[0]
+        return parsed_expr
+
+    def to_re(self, inex):
+        parsed = self.parse(inex)
+        key, children = parsed
+        assert key == '<start>'
+        assert len(children) == 1
+        lit = self.convert_regex(children[0])
+        return lit
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral:
+    def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+
+    def parse(self, inex):
+        parsed_expr = list(self.parser.parse_on(inex, RE_START))[0]
+        return parsed_expr
+
+    def to_re(self, inex):
+        parsed = self.parse(inex)
+        key, children = parsed
+        assert key == &#x27;&lt;start&gt;&#x27;
+        assert len(children) == 1
+        lit = self.convert_regex(children[0])
+        return lit
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The unit expression may e an alpha or a parenthesised expression.
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def convert_unitexp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == '<alpha>':
+            return self.convert_alpha(children[0])
+        elif key == '<parenexp>':
+            return self.convert_regexparen(children[0])
+        else:
+            assert False
+        assert False
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def convert_unitexp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == &#x27;&lt;alpha&gt;&#x27;:
+            return self.convert_alpha(children[0])
+        elif key == &#x27;&lt;parenexp&gt;&#x27;:
+            return self.convert_regexparen(children[0])
+        else:
+            assert False
+        assert False
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The alpha gets converted to a Lit.
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def convert_alpha(self, node):
+        key, children = node
+        assert key == '<alpha>'
+        return Lit(children[0][0])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def convert_alpha(self, node):
+        key, children = node
+        assert key == &#x27;&lt;alpha&gt;&#x27;
+        return Lit(children[0][0])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+check it has worked
+
+<!--
+############
+my_re = 'a'
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_unitexp(parsed_expr)
+print(l)
+assert match(l, 'a')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;a&#x27;
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;unitexp&gt;&#x27;))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_unitexp(parsed_expr)
+print(l)
+assert match(l, &#x27;a&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we write the exp and cex conversions. cex gets turned into AndThen
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def convert_exp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == '<unitexp>':
+            return self.convert_unitexp(children[0])
+        elif key == '<regexstar>':
+            return self.convert_regexstar(children[0])
+        else:
+            assert False
+        assert False
+
+    def convert_cex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_exp(child)
+        if children:
+            child, *children = children
+            lit2 = self.convert_cex(child)
+            lit = AndThen(lit,lit2)
+        return lit
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def convert_exp(self, node):
+        _key, children = node
+        key = children[0][0]
+        if key == &#x27;&lt;unitexp&gt;&#x27;:
+            return self.convert_unitexp(children[0])
+        elif key == &#x27;&lt;regexstar&gt;&#x27;:
+            return self.convert_regexstar(children[0])
+        else:
+            assert False
+        assert False
+
+    def convert_cex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_exp(child)
+        if children:
+            child, *children = children
+            lit2 = self.convert_cex(child)
+            lit = AndThen(lit,lit2)
+        return lit
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+check it has worked
+
+<!--
+############
+my_re = 'ab'
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, '<cex>'))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_cex(parsed_expr)
+print(l)
+assert match(l, 'ab')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;ab&#x27;
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;cex&gt;&#x27;))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_cex(parsed_expr)
+print(l)
+assert match(l, &#x27;ab&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+ Next, we write the regex, which gets converted to OrElse
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexparen(self, node):
+        key, children = node
+        assert len(children) == 3
+        return self.convert_regex(children[1])
+
+    def convert_regex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_cex(child)
+        if children:
+            if len(children) == 1: # epsilon
+                assert children[0][0] == '|'
+                lit = OrElse(lit, Epsilon())
+            else:
+                pipe, child, *children = children
+                assert pipe[0] == '|'
+                lit2 = self.convert_regex(child)
+                lit = OrElse(lit, lit2)
+        return lit
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexparen(self, node):
+        key, children = node
+        assert len(children) == 3
+        return self.convert_regex(children[1])
+
+    def convert_regex(self, node):
+        key, children = node
+        child, *children = children
+        lit = self.convert_cex(child)
+        if children:
+            if len(children) == 1: # epsilon
+                assert children[0][0] == &#x27;|&#x27;
+                lit = OrElse(lit, Epsilon())
+            else:
+                pipe, child, *children = children
+                assert pipe[0] == &#x27;|&#x27;
+                lit2 = self.convert_regex(child)
+                lit = OrElse(lit, lit2)
+        return lit
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+check it has worked
+
+<!--
+############
+my_re = 'a|b|c'
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_regex(parsed_expr)
+print(l)
+assert match(l, 'a')
+assert match(l, 'b')
+assert match(l, 'c')
+my_re = 'ab|c'
+parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+l = RegexToLiteral().convert_regex(parsed_expr)
+assert match(l, 'ab')
+assert match(l, 'c')
+assert not match(l, 'a')
+my_re = 'ab|'
+parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+l = RegexToLiteral().convert_regex(parsed_expr)
+assert match(l, 'ab')
+assert match(l, '')
+assert not match(l, 'a')
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;a|b|c&#x27;
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_regex(parsed_expr)
+print(l)
+assert match(l, &#x27;a&#x27;)
+assert match(l, &#x27;b&#x27;)
+assert match(l, &#x27;c&#x27;)
+my_re = &#x27;ab|c&#x27;
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
+l = RegexToLiteral().convert_regex(parsed_expr)
+assert match(l, &#x27;ab&#x27;)
+assert match(l, &#x27;c&#x27;)
+assert not match(l, &#x27;a&#x27;)
+my_re = &#x27;ab|&#x27;
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
+l = RegexToLiteral().convert_regex(parsed_expr)
+assert match(l, &#x27;ab&#x27;)
+assert match(l, &#x27;&#x27;)
+assert not match(l, &#x27;a&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally the Star.
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexstar(self, node):
+        key, children = node
+        assert len(children) == 2
+        lit = self.convert_unitexp(children[0])
+        return Star(lit)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def convert_regexstar(self, node):
+        key, children = node
+        assert len(children) == 2
+        lit = self.convert_unitexp(children[0])
+        return Star(lit)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+check it has worked
+
+<!--
+############
+my_re = 'a*b'
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_regex(parsed_expr)
+print(l)
+assert match(l, 'b')
+assert match(l, 'ab')
+assert not match(l, 'abb')
+assert match(l, 'aab')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;a*b&#x27;
+print(my_re)
+regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
+parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
+fuzzer.display_tree(parsed_expr)
+l = RegexToLiteral().convert_regex(parsed_expr)
+print(l)
+assert match(l, &#x27;b&#x27;)
+assert match(l, &#x27;ab&#x27;)
+assert not match(l, &#x27;abb&#x27;)
+assert match(l, &#x27;aab&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+ Wrapping everything up.
+
+<!--
+############
+class RegexToLiteral(RegexToLiteral):
+    def match(self, re, instring):
+        lit = self.to_re(re)
+        return match(lit, instring)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class RegexToLiteral(RegexToLiteral):
+    def match(self, re, instring):
+        lit = self.to_re(re)
+        return match(lit, instring)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+check it has worked
+
+<!--
+############
+my_re = 'a*b'
+assert RegexToLiteral().match(my_re, 'ab')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_re = &#x27;a*b&#x27;
+assert RegexToLiteral().match(my_re, &#x27;ab&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The runnable code for this post is available
-[here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-matching-regular-expressions.py).
+[here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-03-matching-regular-expressions.py).
  
 
 <form name='python_run_form'>
