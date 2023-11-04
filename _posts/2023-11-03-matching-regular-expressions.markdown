@@ -7,31 +7,6 @@ tags: parsing
 categories: post
 ---
 
-In the previous posts, I talked about converting a regular grammar to a
-deterministic regular grammar (DRG) equivalent to a DFA and mentioned that
-it was one of the ways to ensure that there is no exponential wort-case
-for regular expression matching. However, this is not the only way to
-avoid exponential worst-case due to backtracking in regular expressions.
-A possible solution is the [Thompson algorithm described here](https://swtch.com/~rsc/regexp/regexp1.html).
-The idea is that, rather than backtracking, for any given NFA,
-track all possible threads in parallel. This raises a question. Is the number
-of such parallel threads bounded?
-
-Given a regular expression with size n, excluding parenthesis,
-can be represented by an NFA with n states. Furthermore, any given parsing
-thread can contain no information other than the current node.
-That is, for an NFA with n states one
-never needs to track more than n parallel threads while parsing.
-I recently found a rather elegant and tiny implementation of this in Python
-[here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
-This is an attempt to document my understanding of this code.
- 
-As before, we start with the prerequisite imports.
-
-https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
-
 ## Contents
 {:.no_toc}
 
@@ -66,6 +41,30 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+In the previous posts, I talked about converting a regular grammar to a
+deterministic regular grammar (DRG) equivalent to a DFA and mentioned that
+it was one of the ways to ensure that there is no exponential wort-case
+for regular expression matching. However, this is not the only way to
+avoid exponential worst-case due to backtracking in regular expressions.
+A possible solution is the [Thompson algorithm described here](https://swtch.com/~rsc/regexp/regexp1.html).
+The idea is that, rather than backtracking, for any given NFA,
+track all possible threads in parallel. This raises a question. Is the number
+of such parallel threads bounded?
+
+Given a regular expression with size n, excluding parenthesis,
+can be represented by an NFA with n states. Furthermore, any given parsing
+thread can contain no information other than the current node.
+That is, for an NFA with n states one
+never needs to track more than n parallel threads while parsing.
+I recently found a rather elegant and tiny implementation of this in Python
+[here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
+This is an attempt to document my understanding of this code.
+ 
+As before, we start with the prerequisite imports.
+
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 The imported modules
 
 <!--
