@@ -26,7 +26,11 @@ I recently found a rather elegant and tiny implementation of this in Python
 [here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
 This is an attempt to document my understanding of this code.
  
-We start with importing the prerequisites
+As before, we start with the prerequisite imports.
+
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 
 ## Contents
 {:.no_toc}
@@ -62,33 +66,7 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-
-<details>
-<summary>Available Packages </summary>
-<!--##### Available Packages-->
-
-These are packages that refer either to my previous posts or to pure python
-packages that I have compiled, and is available in the below locations. As
-before, install them if you need to run the program directly on the machine.
-To install, simply download the wheel file (`pkg.whl`) and install using
-`pip install pkg.whl`.
-
-<ol>
-<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
-<li><a href="The imported modules"></a></li>
-</ol>
-
-<div style='display:none'>
-<form name='python_run_form'>
-<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
-https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 The imported modules
-</textarea>
-</form>
-</div>
-</details>
 
 <!--
 ############

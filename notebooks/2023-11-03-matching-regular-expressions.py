@@ -26,12 +26,13 @@
 # [here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
 # This is an attempt to document my understanding of this code.
 #  
-# We start with importing the prerequisites
-
+# As before, we start with the prerequisite imports.
+#
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
-# 
+
 # The imported modules
 
 import simplefuzzer as fuzzer
