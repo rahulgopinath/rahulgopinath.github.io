@@ -343,9 +343,7 @@ TERMINAL_SYMBOLS = list(string.digits +
                         string.ascii_letters)
 
 RE_GRAMMAR = {
-    '<start>' : [
-        ['<regex>']
-    ],
+    '<start>' : [ ['<regex>'] ],
     '<regex>' : [
         ['<cex>', '|', '<regex>'],
         ['<cex>', '|'],
@@ -364,19 +362,8 @@ RE_GRAMMAR = {
         ['<alpha>'],
         ['<parenexp>'],
     ],
-    '<parenexp>': [
-        ['(', '<regex>', ')'],
-    ],
-    '<regexstar>': [
-        ['<unitexp>', '*'],
-    ],
-    '<singlechars>': [
-        ['<singlechar>', '<singlechars>'],
-        ['<singlechar>'],
-    ],
-    '<singlechar>': [
-        ['<char>'],
-    ],
+    '<parenexp>': [ ['(', '<regex>', ')'], ],
+    '<regexstar>': [ ['<unitexp>', '*'], ],
     '<alpha>' : [[c] for c in TERMINAL_SYMBOLS]
 }
 RE_START = '<start>'

@@ -749,9 +749,7 @@ TERMINAL_SYMBOLS = list(string.digits +
                         string.ascii_letters)
 
 RE_GRAMMAR = {
-    '<start>' : [
-        ['<regex>']
-    ],
+    '<start>' : [ ['<regex>'] ],
     '<regex>' : [
         ['<cex>', '|', '<regex>'],
         ['<cex>', '|'],
@@ -770,19 +768,8 @@ RE_GRAMMAR = {
         ['<alpha>'],
         ['<parenexp>'],
     ],
-    '<parenexp>': [
-        ['(', '<regex>', ')'],
-    ],
-    '<regexstar>': [
-        ['<unitexp>', '*'],
-    ],
-    '<singlechars>': [
-        ['<singlechar>', '<singlechars>'],
-        ['<singlechar>'],
-    ],
-    '<singlechar>': [
-        ['<char>'],
-    ],
+    '<parenexp>': [ ['(', '<regex>', ')'], ],
+    '<regexstar>': [ ['<unitexp>', '*'], ],
     '<alpha>' : [[c] for c in TERMINAL_SYMBOLS]
 }
 RE_START = '<start>'
@@ -797,9 +784,7 @@ TERMINAL_SYMBOLS = list(string.digits +
                         string.ascii_letters)
 
 RE_GRAMMAR = {
-    &#x27;&lt;start&gt;&#x27; : [
-        [&#x27;&lt;regex&gt;&#x27;]
-    ],
+    &#x27;&lt;start&gt;&#x27; : [ [&#x27;&lt;regex&gt;&#x27;] ],
     &#x27;&lt;regex&gt;&#x27; : [
         [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;, &#x27;&lt;regex&gt;&#x27;],
         [&#x27;&lt;cex&gt;&#x27;, &#x27;|&#x27;],
@@ -818,19 +803,8 @@ RE_GRAMMAR = {
         [&#x27;&lt;alpha&gt;&#x27;],
         [&#x27;&lt;parenexp&gt;&#x27;],
     ],
-    &#x27;&lt;parenexp&gt;&#x27;: [
-        [&#x27;(&#x27;, &#x27;&lt;regex&gt;&#x27;, &#x27;)&#x27;],
-    ],
-    &#x27;&lt;regexstar&gt;&#x27;: [
-        [&#x27;&lt;unitexp&gt;&#x27;, &#x27;*&#x27;],
-    ],
-    &#x27;&lt;singlechars&gt;&#x27;: [
-        [&#x27;&lt;singlechar&gt;&#x27;, &#x27;&lt;singlechars&gt;&#x27;],
-        [&#x27;&lt;singlechar&gt;&#x27;],
-    ],
-    &#x27;&lt;singlechar&gt;&#x27;: [
-        [&#x27;&lt;char&gt;&#x27;],
-    ],
+    &#x27;&lt;parenexp&gt;&#x27;: [ [&#x27;(&#x27;, &#x27;&lt;regex&gt;&#x27;, &#x27;)&#x27;], ],
+    &#x27;&lt;regexstar&gt;&#x27;: [ [&#x27;&lt;unitexp&gt;&#x27;, &#x27;*&#x27;], ],
     &#x27;&lt;alpha&gt;&#x27; : [[c] for c in TERMINAL_SYMBOLS]
 }
 RE_START = &#x27;&lt;start&gt;&#x27;
