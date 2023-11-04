@@ -1201,7 +1201,6 @@ regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
-print(l)
 assert match(l, 'b')
 assert match(l, 'ab')
 assert not match(l, 'abb')
@@ -1217,7 +1216,6 @@ regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
-print(l)
 assert match(l, &#x27;b&#x27;)
 assert match(l, &#x27;ab&#x27;)
 assert not match(l, &#x27;abb&#x27;)
@@ -1231,18 +1229,28 @@ assert match(l, &#x27;aab&#x27;)
 <!--
 ############
 class RegexToLiteral(RegexToLiteral):
-    def match(self, re, instring):
-        lit = self.to_re(re)
-        return match(lit, instring)
+    def __init__(self, rex, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+        self.lit = self.to_re(rex)
+
+    def match(self, instring):
+        return match(self.lit, instring)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class RegexToLiteral(RegexToLiteral):
-    def match(self, re, instring):
-        lit = self.to_re(re)
-        return match(lit, instring)
+    def __init__(self, rex, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+        self.lit = self.to_re(rex)
+
+    def match(self, instring):
+        return match(self.lit, instring)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1251,15 +1259,15 @@ check it has worked
 
 <!--
 ############
-my_re = 'a*b'
-assert RegexToLiteral().match(my_re, 'ab')
+my_re = RegexToLiteral('a*b')
+assert my_re.match('ab')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_re = &#x27;a*b&#x27;
-assert RegexToLiteral().match(my_re, &#x27;ab&#x27;)
+my_re = RegexToLiteral(&#x27;a*b&#x27;)
+assert my_re.match(&#x27;ab&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

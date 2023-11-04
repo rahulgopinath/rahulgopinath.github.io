@@ -534,7 +534,6 @@ if __name__ == '__main__':
     parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
     fuzzer.display_tree(parsed_expr)
     l = RegexToLiteral().convert_regex(parsed_expr)
-    print(l)
     assert match(l, 'b')
     assert match(l, 'ab')
     assert not match(l, 'abb')
@@ -542,14 +541,19 @@ if __name__ == '__main__':
 
 #  Wrapping everything up.
 class RegexToLiteral(RegexToLiteral):
-    def match(self, re, instring):
-        lit = self.to_re(re)
-        return match(lit, instring)
+    def __init__(self, rex, all_terminal_symbols=TERMINAL_SYMBOLS):
+        self.parser = earleyparser.EarleyParser(RE_GRAMMAR)
+        self.counter = 0
+        self.all_terminal_symbols = all_terminal_symbols
+        self.lit = self.to_re(rex)
+
+    def match(self, instring):
+        return match(self.lit, instring)
 
 # check it has worked
 if __name__ == '__main__':
-    my_re = 'a*b'
-    assert RegexToLiteral().match(my_re, 'ab')
+    my_re = RegexToLiteral('a*b')
+    assert my_re.match('ab')
 
 # The runnable code for this post is available
 # [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-03-matching-regular-expressions.py).
