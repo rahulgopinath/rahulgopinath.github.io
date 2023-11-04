@@ -9,16 +9,20 @@
 # 
 # In the previous posts, I talked about converting a regular grammar to a
 # deterministic regular grammar (DRG) equivalent to a DFA and mentioned that
-# it was one of the ways to ensure that there is no exponential worstcase
+# it was one of the ways to ensure that there is no exponential wort-case
 # for regular expression matching. However, this is not the only way to
-# avoid exponential worstcase due to backtracking for regular expressions.
+# avoid exponential worst-case due to backtracking in regular expressions.
 # A possible solution is the [Thompson algorithm described here](https://swtch.com/~rsc/regexp/regexp1.html).
-# The idea is that, rather than backtracking, for any given NFA, parallely
-# track all possible threads. The idea here is that, for a given regular
-# expression with size n, excluding parenthesis, an NFA with n states is
-# sufficient to represent it. Furthermore, given n states in an NFA, one
-# never needs to track more than n parallel threads while parsing. I
-# recently found a rather elegant and tiny implementation of this in Python
+# The idea is that, rather than backtracking, for any given NFA,
+# track all possible threads in parallel. This raises a question. Is the number
+# of such parallel threads bounded?
+# 
+# Given a regular expression with size n, excluding parenthesis,
+# can be represented by an NFA with n states. Furthermore, any given parsing
+# thread can contain no information other than the current node.
+# That is, for an NFA with n states one
+# never needs to track more than n parallel threads while parsing.
+# I recently found a rather elegant and tiny implementation of this in Python
 # [here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
 # This is an attempt to document my understanding of this code.
 #  
