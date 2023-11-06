@@ -400,7 +400,8 @@ assert match(Z_XY_XY, &#x27;ZXYXY&#x27;)
 <div name='python_canvas'></div>
 </form>
 In the interest of code golfing, here is how to compress it. We use the
-ycombinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)` pattern
+self application combinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)`
+pattern
 
 <!--
 ############

@@ -198,7 +198,8 @@ if __name__ == '__main__':
 
 
 # In the interest of code golfing, here is how to compress it. We use the
-# ycombinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)` pattern
+# self application combinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)`
+# pattern
 
 def lit_(token): return lambda nfa: lambda c: [nfa] if token == c else []
 def epsilon_(): return lambda state: state
