@@ -429,6 +429,8 @@ NFA (`trans`)
 class Lit(Re):
     def __init__(self, char): self.char = char
 
+    def __repr__(self): return self.char
+
     def trans(self, rnfa):
         self.rnfa = rnfa
         return self
@@ -442,6 +444,8 @@ class Lit(Re):
 <textarea cols="40" rows="4" name='python_edit'>
 class Lit(Re):
     def __init__(self, char): self.char = char
+
+    def __repr__(self): return self.char
 
     def trans(self, rnfa):
         self.rnfa = rnfa
@@ -497,6 +501,8 @@ assert not match(X, &#x27;Y&#x27;)
 class AndThen(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
 
+    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
+
     def trans(self, rnfa):
         state2 = self.rex2.trans(rnfa)
         self.state1 = self.rex1.trans(state2)
@@ -511,6 +517,8 @@ class AndThen(Re):
 <textarea cols="40" rows="4" name='python_edit'>
 class AndThen(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return &quot;(%s)&quot; % &#x27;&#x27;.join([repr(self.rex1), repr(self.rex2)])
 
     def trans(self, rnfa):
         state2 = self.rex2.trans(rnfa)
@@ -557,6 +565,8 @@ pass on the next state if either of the parses succeed.
 class OrElse(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
 
+    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
+
     def trans(self, rnfa):
         self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
         return self
@@ -570,6 +580,8 @@ class OrElse(Re):
 <textarea cols="40" rows="4" name='python_edit'>
 class OrElse(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return &quot;%s&quot; % (&#x27;|&#x27;.join([repr(self.rex1), repr(self.rex2)]))
 
     def trans(self, rnfa):
         self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
@@ -618,6 +630,8 @@ Star now becomes much easier to understand.
 class Star(Re):
     def __init__(self, re): self.re = re
 
+    def __repr__(self): return "(%s)*" % repr(self.re)
+
     def trans(self, rnfa):
         self.rnfa = rnfa
         return self
@@ -631,6 +645,8 @@ class Star(Re):
 <textarea cols="40" rows="4" name='python_edit'>
 class Star(Re):
     def __init__(self, re): self.re = re
+
+    def __repr__(self): return &quot;(%s)*&quot; % repr(self.re)
 
     def trans(self, rnfa):
         self.rnfa = rnfa
@@ -722,7 +738,6 @@ assert not match(complicated, 'ababaxyab')
 assert match(complicated, 'ababaxyabz')
 assert not match(complicated, 'ababaxyaxz')
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -738,6 +753,96 @@ assert not match(complicated, &#x27;ababaxyaxz&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Easier Regular Literals
+Typing constructors such as Lit every time you want to match a single token
+is not very friendly. Can we make them a bit better?
+
+<!--
+############
+def easier_re(expr):
+    if isinstance(expr, str):
+        return Lit(expr)
+    elif isinstance(expr, list):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = AndThen(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, tuple):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = OrElse(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, dict):
+        e, *expr = list(expr.items())
+        assert e[0] == '*'
+        rex = Star(easier_re(e[1]))
+        return rex
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def easier_re(expr):
+    if isinstance(expr, str):
+        return Lit(expr)
+    elif isinstance(expr, list):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = AndThen(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, tuple):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = OrElse(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, dict):
+        e, *expr = list(expr.items())
+        assert e[0] == &#x27;*&#x27;
+        rex = Star(easier_re(e[1]))
+        return rex
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+complicated = easier_re([{'*': (['a','b'], ['a','x','y'])}, 'z'])
+print(repr(complicated))
+assert not match(complicated, '')
+assert match(complicated, 'z')
+assert match(complicated, 'abz')
+assert not match(complicated, 'ababaxyab')
+assert match(complicated, 'ababaxyabz')
+assert not match(complicated, 'ababaxyaxz')
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+complicated = easier_re([{&#x27;*&#x27;: ([&#x27;a&#x27;,&#x27;b&#x27;], [&#x27;a&#x27;,&#x27;x&#x27;,&#x27;y&#x27;])}, &#x27;z&#x27;])
+print(repr(complicated))
+assert not match(complicated, &#x27;&#x27;)
+assert match(complicated, &#x27;z&#x27;)
+assert match(complicated, &#x27;abz&#x27;)
+assert not match(complicated, &#x27;ababaxyab&#x27;)
+assert match(complicated, &#x27;ababaxyabz&#x27;)
+assert not match(complicated, &#x27;ababaxyaxz&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Parser
 What about constructing regular expression literals? For that let us start
 with a simplified grammar
 

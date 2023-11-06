@@ -209,6 +209,8 @@ def match(rex, instr):
 
 class Lit(Re):
     def __init__(self, char): self.char = char
+    
+    def __repr__(self): return self.char
 
     def trans(self, rnfa):
         self.rnfa = rnfa
@@ -237,6 +239,8 @@ if __name__ == '__main__':
 class AndThen(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
 
+    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
+
     def trans(self, rnfa):
         state2 = self.rex2.trans(rnfa)
         self.state1 = self.rex1.trans(state2)
@@ -263,6 +267,8 @@ if __name__ == '__main__':
 class OrElse(Re):
     def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
 
+    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
+
     def trans(self, rnfa):
         self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
         return self
@@ -287,6 +293,8 @@ if __name__ == '__main__':
 
 class Star(Re):
     def __init__(self, re): self.re = re
+
+    def __repr__(self): return "(%s)*" % repr(self.re)
 
     def trans(self, rnfa):
         self.rnfa = rnfa
@@ -333,6 +341,46 @@ if __name__ == '__main__':
     assert match(complicated, 'ababaxyabz')
     assert not match(complicated, 'ababaxyaxz')
 
+# ## Easier Regular Literals
+# Typing constructors such as Lit every time you want to match a single token
+# is not very friendly. Can we make them a bit better?
+
+def easier_re(expr):
+    if isinstance(expr, str):
+        return Lit(expr)
+    elif isinstance(expr, list):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = AndThen(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, tuple):
+        e, *expr = expr
+        rex = easier_re(e)
+        while expr:
+            e, *expr = expr
+            rex = OrElse(rex, easier_re(e))
+        return rex
+    elif isinstance(expr, dict):
+        e, *expr = list(expr.items())
+        assert e[0] == '*'
+        rex = Star(easier_re(e[1]))
+        return rex
+
+# Using it.
+if __name__ == '__main__':
+    complicated = easier_re([{'*': (['a','b'], ['a','x','y'])}, 'z'])
+    print(repr(complicated))
+    assert not match(complicated, '')
+    assert match(complicated, 'z')
+    assert match(complicated, 'abz')
+    assert not match(complicated, 'ababaxyab')
+    assert match(complicated, 'ababaxyabz')
+    assert not match(complicated, 'ababaxyaxz')
+
+
+# ## Parser
 
 # What about constructing regular expression literals? For that let us start
 # with a simplified grammar
