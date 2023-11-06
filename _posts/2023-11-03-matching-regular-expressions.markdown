@@ -945,6 +945,10 @@ assert not complicated.match('ababaxyab')
 assert complicated.match('ababaxyabz')
 assert not complicated.match('ababaxyaxz')
 
+# Note: (|a)* causes pathological behavior, a problem with Thompsons matchers.
+pathological = Star(OrElse(Epsilon(), Lit('a')))
+# assert pathological.match('a')
+
 ############
 -->
 <form name='python_run_form'>
@@ -956,6 +960,10 @@ assert complicated.match(&#x27;abz&#x27;)
 assert not complicated.match(&#x27;ababaxyab&#x27;)
 assert complicated.match(&#x27;ababaxyabz&#x27;)
 assert not complicated.match(&#x27;ababaxyaxz&#x27;)
+
+# Note: (|a)* causes pathological behavior, a problem with Thompsons matchers.
+pathological = Star(OrElse(Epsilon(), Lit(&#x27;a&#x27;)))
+# assert pathological.match(&#x27;a&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

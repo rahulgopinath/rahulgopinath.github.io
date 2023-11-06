@@ -434,6 +434,10 @@ if __name__ == '__main__':
     assert complicated.match('ababaxyabz')
     assert not complicated.match('ababaxyaxz')
 
+    # Note: (|a)* causes pathological behavior, a problem with Thompsons matchers.
+    pathological = Star(OrElse(Epsilon(), Lit('a')))
+    # assert pathological.match('a')
+
 # ## Parser
 
 # What about constructing regular expression literals? For that let us start
