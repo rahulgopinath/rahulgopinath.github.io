@@ -347,11 +347,25 @@ Z = Lit('Z')
 X_Y = OrElse(X,Y)
 Y_X = OrElse(X,Y)
 ZX_Y = AndThen(Z, OrElse(X,Y))
+assert match(Star(X), '')
+assert match(Star(X), 'X')
+assert match(Star(X), 'XX')
+assert not match(Star(X), 'XY')
 assert not match(X, 'XY')
 assert match(X_Y, 'X')
 assert match(Y_X, 'Y')
 assert not match(X_Y, 'Z')
 assert match(ZX_Y, 'ZY')
+Z_XY_XY = AndThen(Z, Star(AndThen(X,Y)))
+assert not match(X, 'XY')
+assert match(X_Y, 'X')
+assert match(Y_X, 'Y')
+assert not match(X_Y, 'Z')
+assert match(ZX_Y, 'ZY')
+assert match(Z_XY_XY, 'Z')
+assert match(Z_XY_XY, 'ZXY')
+assert match(Z_XY_XY, 'ZXYXY')
+
 
 ############
 -->
@@ -363,392 +377,111 @@ Z = Lit(&#x27;Z&#x27;)
 X_Y = OrElse(X,Y)
 Y_X = OrElse(X,Y)
 ZX_Y = AndThen(Z, OrElse(X,Y))
+assert match(Star(X), &#x27;&#x27;)
+assert match(Star(X), &#x27;X&#x27;)
+assert match(Star(X), &#x27;XX&#x27;)
+assert not match(Star(X), &#x27;XY&#x27;)
 assert not match(X, &#x27;XY&#x27;)
 assert match(X_Y, &#x27;X&#x27;)
 assert match(Y_X, &#x27;Y&#x27;)
 assert not match(X_Y, &#x27;Z&#x27;)
 assert match(ZX_Y, &#x27;ZY&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Object Based Implementation
-
-This machinery is a bit complex to understand due to the multiple levels of
-closures. I have found such constructions easier to understand if I think of
-them in terms of objects. So, here is an attempt.
-First, the Re class that defines the interface.
-
-<!--
-############
-class Re:
-    def trans(self, rnfa): pass
-    def parse(self, c: str): pass
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class Re:
-    def trans(self, rnfa): pass
-    def parse(self, c: str): pass
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Match
-The match is slightly modified to account for the new Re interface.
-
-<!--
-############
-def match(rex, instr):
-    states = {rex.trans(accepting)}
-    for c in instr:
-        states = {a for state in states for a in state.parse(c)}
-    return any('ACCEPT' in state.parse(None) for state in states)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def match(rex, instr):
-    states = {rex.trans(accepting)}
-    for c in instr:
-        states = {a for state in states for a in state.parse(c)}
-    return any(&#x27;ACCEPT&#x27; in state.parse(None) for state in states)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Lit
-We separate out the construction of object, connecting it to the remaining
-NFA (`trans`)
-
-<!--
-############
-class Lit(Re):
-    def __init__(self, char): self.char = char
-
-    def __repr__(self): return self.char
-
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
-
-    def parse(self, c: str):
-        return [self.rnfa] if self.char == c else []
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class Lit(Re):
-    def __init__(self, char): self.char = char
-
-    def __repr__(self): return self.char
-
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
-
-    def parse(self, c: str):
-        return [self.rnfa] if self.char == c else []
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-An accepting node is a node that requires no input. It is a simple sentinel
-
-<!--
-############
-accepting = Lit(None).trans('ACCEPT')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-accepting = Lit(None).trans(&#x27;ACCEPT&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Next, we define our matching algorithm. The idea is to start with the
-constructed NFA as the single thread, feed it our string, and check whether
-the result contains the accepted state.
-Let us test this.
-
-<!--
-############
-X = Lit('X')
-assert match(X, 'X')
-assert not match(X, 'Y')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-X = Lit(&#x27;X&#x27;)
-assert match(X, &#x27;X&#x27;)
-assert not match(X, &#x27;Y&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### AndThen
-
-<!--
-############
-class AndThen(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
-
-    def trans(self, rnfa):
-        state2 = self.rex2.trans(rnfa)
-        self.state1 = self.rex1.trans(state2)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class AndThen(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return &quot;(%s)&quot; % &#x27;&#x27;.join([repr(self.rex1), repr(self.rex2)])
-
-    def trans(self, rnfa):
-        state2 = self.rex2.trans(rnfa)
-        self.state1 = self.rex1.trans(state2)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Let us test this.
-
-<!--
-############
-Y = Lit('Y')
-XY = AndThen(X,Y)
-YX = AndThen(Y, X)
-assert match(XY,'XY')
-assert not match(YX, 'XY')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-Y = Lit(&#x27;Y&#x27;)
-XY = AndThen(X,Y)
-YX = AndThen(Y, X)
-assert match(XY,&#x27;XY&#x27;)
-assert not match(YX, &#x27;XY&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### OrElse
-
-Next, we want to match alternations.
-The important point here is that we want to
-pass on the next state if either of the parses succeed.
-
-<!--
-############
-class OrElse(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
-
-    def trans(self, rnfa):
-        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c) + self.state2.parse(c)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class OrElse(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return &quot;%s&quot; % (&#x27;|&#x27;.join([repr(self.rex1), repr(self.rex2)]))
-
-    def trans(self, rnfa):
-        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c) + self.state2.parse(c)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Let us test this.
-
-<!--
-############
-Z = Lit('Z')
-X_Y = OrElse(X,Y)
-Y_X = OrElse(X,Y)
-ZX_Y = AndThen(Z, OrElse(X,Y))
-assert match(X_Y, 'X')
-assert match(Y_X, 'Y')
-assert not match(X_Y, 'Z')
-assert match(ZX_Y, 'ZY')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-Z = Lit(&#x27;Z&#x27;)
-X_Y = OrElse(X,Y)
-Y_X = OrElse(X,Y)
-ZX_Y = AndThen(Z, OrElse(X,Y))
+Z_XY_XY = AndThen(Z, Star(AndThen(X,Y)))
+assert not match(X, &#x27;XY&#x27;)
 assert match(X_Y, &#x27;X&#x27;)
 assert match(Y_X, &#x27;Y&#x27;)
 assert not match(X_Y, &#x27;Z&#x27;)
 assert match(ZX_Y, &#x27;ZY&#x27;)
+assert match(Z_XY_XY, &#x27;Z&#x27;)
+assert match(Z_XY_XY, &#x27;ZXY&#x27;)
+assert match(Z_XY_XY, &#x27;ZXYXY&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Star
-Star now becomes much easier to understand.
+In the interest of code golfing, here is how to compress it. We use the
+ycombinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)` pattern
 
 <!--
 ############
-class Star(Re):
-    def __init__(self, re): self.re = re
+def lit_(token): return lambda nfa: lambda c: [nfa] if token == c else []
+def epsilon_(): return lambda state: state
+def andthen_(rex1, rex2): return lambda nfa: rex1(rex2(nfa))
+def orelse_(re1, re2): return lambda nfa: lambda c: re1(nfa)(c)+ re2(nfa)(c)
+def mkrec(f): return f(f)
+def star_(r): return lambda nfa: mkrec(lambda _: lambda c: nfa(c) + r(_(_))(c))
 
-    def __repr__(self): return "(%s)*" % repr(self.re)
-
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
-
-    def parse(self, c: str):
-        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
+def match_(rex, ts, states = None):
+    if states is None: states = {rex(lit_(None)('ACCEPT'))}
+    if not ts: return any('ACCEPT' in state(None) for state in states)
+    return match_(rex, ts[1:], {a for state in states for a in state(ts[0])})
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Star(Re):
-    def __init__(self, re): self.re = re
+def lit_(token): return lambda nfa: lambda c: [nfa] if token == c else []
+def epsilon_(): return lambda state: state
+def andthen_(rex1, rex2): return lambda nfa: rex1(rex2(nfa))
+def orelse_(re1, re2): return lambda nfa: lambda c: re1(nfa)(c)+ re2(nfa)(c)
+def mkrec(f): return f(f)
+def star_(r): return lambda nfa: mkrec(lambda _: lambda c: nfa(c) + r(_(_))(c))
 
-    def __repr__(self): return &quot;(%s)*&quot; % repr(self.re)
-
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
-
-    def parse(self, c: str):
-        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
+def match_(rex, ts, states = None):
+    if states is None: states = {rex(lit_(None)(&#x27;ACCEPT&#x27;))}
+    if not ts: return any(&#x27;ACCEPT&#x27; in state(None) for state in states)
+    return match_(rex, ts[1:], {a for state in states for a in state(ts[0])})
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Let us test this.
+Testing it out
 
 <!--
 ############
-Z_ = Star(Lit('Z'))
-assert match(Z_, '')
-assert match(Z_, 'Z')
-assert not match(Z_, 'ZA')
+X = lit_('X')
+Y = lit_('Y')
+Z = lit_('Z')
+assert match_(star_(X), '')
+assert match_(star_(X), 'X')
+assert match_(star_(X), 'XX')
+assert not match_(star_(X), 'XY')
+X_Y = orelse_(X,Y)
+Y_X = orelse_(X,Y)
+ZX_Y = andthen_(Z, orelse_(X,Y))
+Z_XY_XY = andthen_(Z, star_(andthen_(X,Y)))
+assert not match_(X, 'XY')
+assert match_(X_Y, 'X')
+assert match_(Y_X, 'Y')
+assert not match_(X_Y, 'Z')
+assert match_(ZX_Y, 'ZY')
+assert match_(Z_XY_XY, 'Z')
+assert match_(Z_XY_XY, 'ZXY')
+assert match_(Z_XY_XY, 'ZXYXY')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-Z_ = Star(Lit(&#x27;Z&#x27;))
-assert match(Z_, &#x27;&#x27;)
-assert match(Z_, &#x27;Z&#x27;)
-assert not match(Z_, &#x27;ZA&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Epsilon
-
-We also define an epsilon expression.
-
-<!--
-############
-class Epsilon(Re):
-    def trans(self, state):
-        self.state = state
-        return self
-
-    def parse(self, c: str):
-        return self.state.parse(c)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class Epsilon(Re):
-    def trans(self, state):
-        self.state = state
-        return self
-
-    def parse(self, c: str):
-        return self.state.parse(c)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Let us test this.
-
-<!--
-############
-E__ = Epsilon()
-assert match(E__, '')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-E__ = Epsilon()
-assert match(E__, &#x27;&#x27;)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We can have quite complicated expressions. Again, test suite from
-[here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
-
-<!--
-############
-complicated = AndThen(Star(OrElse(AndThen(Lit('a'), Lit('b')), AndThen(Lit('a'), AndThen(Lit('x'), Lit('y'))))), Lit('z'))
-assert not match(complicated, '')
-assert match(complicated, 'z')
-assert match(complicated, 'abz')
-assert not match(complicated, 'ababaxyab')
-assert match(complicated, 'ababaxyabz')
-assert not match(complicated, 'ababaxyaxz')
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-complicated = AndThen(Star(OrElse(AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;)), AndThen(Lit(&#x27;a&#x27;), AndThen(Lit(&#x27;x&#x27;), Lit(&#x27;y&#x27;))))), Lit(&#x27;z&#x27;))
-assert not match(complicated, &#x27;&#x27;)
-assert match(complicated, &#x27;z&#x27;)
-assert match(complicated, &#x27;abz&#x27;)
-assert not match(complicated, &#x27;ababaxyab&#x27;)
-assert match(complicated, &#x27;ababaxyabz&#x27;)
-assert not match(complicated, &#x27;ababaxyaxz&#x27;)
+X = lit_(&#x27;X&#x27;)
+Y = lit_(&#x27;Y&#x27;)
+Z = lit_(&#x27;Z&#x27;)
+assert match_(star_(X), &#x27;&#x27;)
+assert match_(star_(X), &#x27;X&#x27;)
+assert match_(star_(X), &#x27;XX&#x27;)
+assert not match_(star_(X), &#x27;XY&#x27;)
+X_Y = orelse_(X,Y)
+Y_X = orelse_(X,Y)
+ZX_Y = andthen_(Z, orelse_(X,Y))
+Z_XY_XY = andthen_(Z, star_(andthen_(X,Y)))
+assert not match_(X, &#x27;XY&#x27;)
+assert match_(X_Y, &#x27;X&#x27;)
+assert match_(Y_X, &#x27;Y&#x27;)
+assert not match_(X_Y, &#x27;Z&#x27;)
+assert match_(ZX_Y, &#x27;ZY&#x27;)
+assert match_(Z_XY_XY, &#x27;Z&#x27;)
+assert match_(Z_XY_XY, &#x27;ZXY&#x27;)
+assert match_(Z_XY_XY, &#x27;ZXYXY&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -826,6 +559,7 @@ assert match(complicated, 'ababaxyabz')
 assert not match(complicated, 'ababaxyaxz')
 
 
+
 ############
 -->
 <form name='python_run_form'>
@@ -838,6 +572,389 @@ assert match(complicated, &#x27;abz&#x27;)
 assert not match(complicated, &#x27;ababaxyab&#x27;)
 assert match(complicated, &#x27;ababaxyabz&#x27;)
 assert not match(complicated, &#x27;ababaxyaxz&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Object Based Implementation
+
+This machinery is a bit complex to understand due to the multiple levels of
+closures. I have found such constructions easier to understand if I think of
+them in terms of objects. So, here is an attempt.
+First, the Re class that defines the interface.
+
+<!--
+############
+class Re:
+    def trans(self, rnfa): pass
+    def parse(self, c: str): pass
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Re:
+    def trans(self, rnfa): pass
+    def parse(self, c: str): pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Match
+The match is slightly modified to account for the new Re interface.
+
+<!--
+############
+class Re(Re):
+    def match(self, instr):
+        states = {self.trans(accepting)}
+        for c in instr:
+            states = {a for state in states for a in state.parse(c)}
+        return any('ACCEPT' in state.parse(None) for state in states)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Re(Re):
+    def match(self, instr):
+        states = {self.trans(accepting)}
+        for c in instr:
+            states = {a for state in states for a in state.parse(c)}
+        return any(&#x27;ACCEPT&#x27; in state.parse(None) for state in states)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Lit
+We separate out the construction of object, connecting it to the remaining
+NFA (`trans`)
+
+<!--
+############
+class Lit(Re):
+    def __init__(self, char): self.char = char
+
+    def __repr__(self): return self.char
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return [self.rnfa] if self.char == c else []
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Lit(Re):
+    def __init__(self, char): self.char = char
+
+    def __repr__(self): return self.char
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return [self.rnfa] if self.char == c else []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+An accepting node is a node that requires no input. It is a simple sentinel
+
+<!--
+############
+accepting = Lit(None).trans('ACCEPT')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+accepting = Lit(None).trans(&#x27;ACCEPT&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define our matching algorithm. The idea is to start with the
+constructed NFA as the single thread, feed it our string, and check whether
+the result contains the accepted state.
+Let us test this.
+
+<!--
+############
+X = Lit('X')
+assert X.match('X')
+assert not X.match('Y')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+X = Lit(&#x27;X&#x27;)
+assert X.match(&#x27;X&#x27;)
+assert not X.match(&#x27;Y&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### AndThen
+
+<!--
+############
+class AndThen(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
+
+    def trans(self, rnfa):
+        state2 = self.rex2.trans(rnfa)
+        self.state1 = self.rex1.trans(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class AndThen(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return &quot;(%s)&quot; % &#x27;&#x27;.join([repr(self.rex1), repr(self.rex2)])
+
+    def trans(self, rnfa):
+        state2 = self.rex2.trans(rnfa)
+        self.state1 = self.rex1.trans(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this.
+
+<!--
+############
+Y = Lit('Y')
+XY = AndThen(X,Y)
+YX = AndThen(Y, X)
+assert XY.match('XY')
+assert not YX.match('XY')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Y = Lit(&#x27;Y&#x27;)
+XY = AndThen(X,Y)
+YX = AndThen(Y, X)
+assert XY.match(&#x27;XY&#x27;)
+assert not YX.match(&#x27;XY&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### OrElse
+
+Next, we want to match alternations.
+The important point here is that we want to
+pass on the next state if either of the parses succeed.
+
+<!--
+############
+class OrElse(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
+
+    def trans(self, rnfa):
+        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class OrElse(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return &quot;%s&quot; % (&#x27;|&#x27;.join([repr(self.rex1), repr(self.rex2)]))
+
+    def trans(self, rnfa):
+        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this.
+
+<!--
+############
+Z = Lit('Z')
+X_Y = OrElse(X,Y)
+Y_X = OrElse(X,Y)
+ZX_Y = AndThen(Z, OrElse(X,Y))
+assert X_Y.match('X')
+assert Y_X.match('Y')
+assert not X_Y.match('Z')
+assert ZX_Y.match('ZY')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Z = Lit(&#x27;Z&#x27;)
+X_Y = OrElse(X,Y)
+Y_X = OrElse(X,Y)
+ZX_Y = AndThen(Z, OrElse(X,Y))
+assert X_Y.match(&#x27;X&#x27;)
+assert Y_X.match(&#x27;Y&#x27;)
+assert not X_Y.match(&#x27;Z&#x27;)
+assert ZX_Y.match(&#x27;ZY&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Star
+Star now becomes much easier to understand.
+
+<!--
+############
+class Star(Re):
+    def __init__(self, re): self.re = re
+
+    def __repr__(self): return "(%s)*" % repr(self.re)
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Star(Re):
+    def __init__(self, re): self.re = re
+
+    def __repr__(self): return &quot;(%s)*&quot; % repr(self.re)
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this.
+
+<!--
+############
+Z_ = Star(Lit('Z'))
+assert Z_.match('')
+assert Z_.match('Z')
+assert not Z_.match('ZA')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+Z_ = Star(Lit(&#x27;Z&#x27;))
+assert Z_.match(&#x27;&#x27;)
+assert Z_.match(&#x27;Z&#x27;)
+assert not Z_.match(&#x27;ZA&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Epsilon
+
+We also define an epsilon expression.
+
+<!--
+############
+class Epsilon(Re):
+    def trans(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Epsilon(Re):
+    def trans(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test this.
+
+<!--
+############
+E__ = Epsilon()
+assert E__.match('')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+E__ = Epsilon()
+assert E__.match(&#x27;&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can have quite complicated expressions. Again, test suite from
+[here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
+
+<!--
+############
+complicated = AndThen(Star(OrElse(AndThen(Lit('a'), Lit('b')), AndThen(Lit('a'), AndThen(Lit('x'), Lit('y'))))), Lit('z'))
+assert not complicated.match('')
+assert complicated.match('z')
+assert complicated.match('abz')
+assert not complicated.match('ababaxyab')
+assert complicated.match('ababaxyabz')
+assert not complicated.match('ababaxyaxz')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+complicated = AndThen(Star(OrElse(AndThen(Lit(&#x27;a&#x27;), Lit(&#x27;b&#x27;)), AndThen(Lit(&#x27;a&#x27;), AndThen(Lit(&#x27;x&#x27;), Lit(&#x27;y&#x27;))))), Lit(&#x27;z&#x27;))
+assert not complicated.match(&#x27;&#x27;)
+assert complicated.match(&#x27;z&#x27;)
+assert complicated.match(&#x27;abz&#x27;)
+assert not complicated.match(&#x27;ababaxyab&#x27;)
+assert complicated.match(&#x27;ababaxyabz&#x27;)
+assert not complicated.match(&#x27;ababaxyaxz&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1058,7 +1175,7 @@ parsed_expr = list(regex_parser.parse_on(my_re, '<unitexp>'))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_unitexp(parsed_expr)
 print(l)
-assert match(l, 'a')
+assert l.match('a')
 
 ############
 -->
@@ -1071,7 +1188,7 @@ parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;unitexp&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_unitexp(parsed_expr)
 print(l)
-assert match(l, &#x27;a&#x27;)
+assert l.match(&#x27;a&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1142,7 +1259,7 @@ parsed_expr = list(regex_parser.parse_on(my_re, '<cex>'))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_cex(parsed_expr)
 print(l)
-assert match(l, 'ab')
+assert l.match('ab')
 
 ############
 -->
@@ -1155,7 +1272,7 @@ parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;cex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_cex(parsed_expr)
 print(l)
-assert match(l, &#x27;ab&#x27;)
+assert l.match(&#x27;ab&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1224,21 +1341,21 @@ parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
 print(l)
-assert match(l, 'a')
-assert match(l, 'b')
-assert match(l, 'c')
+assert l.match('a')
+assert l.match('b')
+assert l.match('c')
 my_re = 'ab|c'
 parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, 'ab')
-assert match(l, 'c')
-assert not match(l, 'a')
+assert l.match('ab')
+assert l.match('c')
+assert not l.match('a')
 my_re = 'ab|'
 parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, 'ab')
-assert match(l, '')
-assert not match(l, 'a')
+assert l.match('ab')
+assert l.match('')
+assert not l.match('a')
 
 
 ############
@@ -1252,21 +1369,21 @@ parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
 print(l)
-assert match(l, &#x27;a&#x27;)
-assert match(l, &#x27;b&#x27;)
-assert match(l, &#x27;c&#x27;)
+assert l.match(&#x27;a&#x27;)
+assert l.match(&#x27;b&#x27;)
+assert l.match(&#x27;c&#x27;)
 my_re = &#x27;ab|c&#x27;
 parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, &#x27;ab&#x27;)
-assert match(l, &#x27;c&#x27;)
-assert not match(l, &#x27;a&#x27;)
+assert l.match(&#x27;ab&#x27;)
+assert l.match(&#x27;c&#x27;)
+assert not l.match(&#x27;a&#x27;)
 my_re = &#x27;ab|&#x27;
 parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, &#x27;ab&#x27;)
-assert match(l, &#x27;&#x27;)
-assert not match(l, &#x27;a&#x27;)
+assert l.match(&#x27;ab&#x27;)
+assert l.match(&#x27;&#x27;)
+assert not l.match(&#x27;a&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1306,10 +1423,10 @@ regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, 'b')
-assert match(l, 'ab')
-assert not match(l, 'abb')
-assert match(l, 'aab')
+assert l.match('b')
+assert l.match('ab')
+assert not l.match('abb')
+assert l.match('aab')
 
 ############
 -->
@@ -1321,10 +1438,10 @@ regex_parser = earleyparser.EarleyParser(RE_GRAMMAR)
 parsed_expr = list(regex_parser.parse_on(my_re, &#x27;&lt;regex&gt;&#x27;))[0]
 fuzzer.display_tree(parsed_expr)
 l = RegexToLiteral().convert_regex(parsed_expr)
-assert match(l, &#x27;b&#x27;)
-assert match(l, &#x27;ab&#x27;)
-assert not match(l, &#x27;abb&#x27;)
-assert match(l, &#x27;aab&#x27;)
+assert l.match(&#x27;b&#x27;)
+assert l.match(&#x27;ab&#x27;)
+assert not l.match(&#x27;abb&#x27;)
+assert l.match(&#x27;aab&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1341,7 +1458,7 @@ class RegexToLiteral(RegexToLiteral):
         self.lit = self.to_re(rex)
 
     def match(self, instring):
-        return match(self.lit, instring)
+        return self.lit.match(instring)
 
 ############
 -->
@@ -1355,7 +1472,7 @@ class RegexToLiteral(RegexToLiteral):
         self.lit = self.to_re(rex)
 
     def match(self, instring):
-        return match(self.lit, instring)
+        return self.lit.match(instring)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

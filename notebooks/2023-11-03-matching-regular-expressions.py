@@ -177,169 +177,62 @@ if __name__ == '__main__':
     X_Y = OrElse(X,Y)
     Y_X = OrElse(X,Y)
     ZX_Y = AndThen(Z, OrElse(X,Y))
+    assert match(Star(X), '')
+    assert match(Star(X), 'X')
+    assert match(Star(X), 'XX')
+    assert not match(Star(X), 'XY')
     assert not match(X, 'XY')
     assert match(X_Y, 'X')
     assert match(Y_X, 'Y')
     assert not match(X_Y, 'Z')
     assert match(ZX_Y, 'ZY')
-
-# ## Object Based Implementation
-# 
-# This machinery is a bit complex to understand due to the multiple levels of
-# closures. I have found such constructions easier to understand if I think of
-# them in terms of objects. So, here is an attempt.
-# First, the Re class that defines the interface.
-
-class Re:
-    def trans(self, rnfa): pass
-    def parse(self, c: str): pass
-
-# ### Match
-# The match is slightly modified to account for the new Re interface.
-
-def match(rex, instr):
-    states = {rex.trans(accepting)}
-    for c in instr:
-        states = {a for state in states for a in state.parse(c)}
-    return any('ACCEPT' in state.parse(None) for state in states)
-
-# ### Lit
-# We separate out the construction of object, connecting it to the remaining
-# NFA (`trans`)
-
-class Lit(Re):
-    def __init__(self, char): self.char = char
-    
-    def __repr__(self): return self.char
-
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
-
-    def parse(self, c: str):
-        return [self.rnfa] if self.char == c else []
-
-# An accepting node is a node that requires no input. It is a simple sentinel
-
-accepting = Lit(None).trans('ACCEPT')
-
-# Next, we define our matching algorithm. The idea is to start with the
-# constructed NFA as the single thread, feed it our string, and check whether
-# the result contains the accepted state.
-
-# Let us test this.
-
-if __name__ == '__main__':
-    X = Lit('X')
-    assert match(X, 'X')
-    assert not match(X, 'Y')
-
-# ### AndThen
-
-class AndThen(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
-
-    def trans(self, rnfa):
-        state2 = self.rex2.trans(rnfa)
-        self.state1 = self.rex1.trans(state2)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c)
-
-# Let us test this.
-
-if __name__ == '__main__':
-    Y = Lit('Y')
-    XY = AndThen(X,Y)
-    YX = AndThen(Y, X)
-    assert match(XY,'XY')
-    assert not match(YX, 'XY')
-
-# ### OrElse
-# 
-# Next, we want to match alternations.
-# The important point here is that we want to
-# pass on the next state if either of the parses succeed.
-
-class OrElse(Re):
-    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
-
-    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
-
-    def trans(self, rnfa):
-        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
-        return self
-
-    def parse(self, c: str):
-        return self.state1.parse(c) + self.state2.parse(c)
-
-# Let us test this.
-
-if __name__ == '__main__':
-    Z = Lit('Z')
-    X_Y = OrElse(X,Y)
-    Y_X = OrElse(X,Y)
-    ZX_Y = AndThen(Z, OrElse(X,Y))
+    Z_XY_XY = AndThen(Z, Star(AndThen(X,Y)))
+    assert not match(X, 'XY')
     assert match(X_Y, 'X')
     assert match(Y_X, 'Y')
     assert not match(X_Y, 'Z')
     assert match(ZX_Y, 'ZY')
+    assert match(Z_XY_XY, 'Z')
+    assert match(Z_XY_XY, 'ZXY')
+    assert match(Z_XY_XY, 'ZXYXY')
 
-# ### Star
-# Star now becomes much easier to understand.
 
-class Star(Re):
-    def __init__(self, re): self.re = re
+# In the interest of code golfing, here is how to compress it. We use the
+# ycombinator `mkrec`, and use `mkrec(lambda _: ... _(_) ...)` pattern
 
-    def __repr__(self): return "(%s)*" % repr(self.re)
+def lit_(token): return lambda nfa: lambda c: [nfa] if token == c else []
+def epsilon_(): return lambda state: state
+def andthen_(rex1, rex2): return lambda nfa: rex1(rex2(nfa))
+def orelse_(re1, re2): return lambda nfa: lambda c: re1(nfa)(c)+ re2(nfa)(c)
+def mkrec(f): return f(f)
+def star_(r): return lambda nfa: mkrec(lambda _: lambda c: nfa(c) + r(_(_))(c))
 
-    def trans(self, rnfa):
-        self.rnfa = rnfa
-        return self
+def match_(rex, ts, states = None):
+    if states is None: states = {rex(lit_(None)('ACCEPT'))}
+    if not ts: return any('ACCEPT' in state(None) for state in states)
+    return match_(rex, ts[1:], {a for state in states for a in state(ts[0])})
 
-    def parse(self, c: str):
-        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
-
-# Let us test this.
-
+# Testing it out
 if __name__ == '__main__':
-    Z_ = Star(Lit('Z'))
-    assert match(Z_, '')
-    assert match(Z_, 'Z')
-    assert not match(Z_, 'ZA')
-
-# ### Epsilon
-# 
-# We also define an epsilon expression.
-
-class Epsilon(Re):
-    def trans(self, state):
-        self.state = state
-        return self
-
-    def parse(self, c: str):
-        return self.state.parse(c)
-
-# Let us test this.
-
-if __name__ == '__main__':
-    E__ = Epsilon()
-    assert match(E__, '')
-
-# We can have quite complicated expressions. Again, test suite from
-# [here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
-
-if __name__ == '__main__':
-    complicated = AndThen(Star(OrElse(AndThen(Lit('a'), Lit('b')), AndThen(Lit('a'), AndThen(Lit('x'), Lit('y'))))), Lit('z'))
-    assert not match(complicated, '')
-    assert match(complicated, 'z')
-    assert match(complicated, 'abz')
-    assert not match(complicated, 'ababaxyab')
-    assert match(complicated, 'ababaxyabz')
-    assert not match(complicated, 'ababaxyaxz')
+    X = lit_('X')
+    Y = lit_('Y')
+    Z = lit_('Z')
+    assert match_(star_(X), '')
+    assert match_(star_(X), 'X')
+    assert match_(star_(X), 'XX')
+    assert not match_(star_(X), 'XY')
+    X_Y = orelse_(X,Y)
+    Y_X = orelse_(X,Y)
+    ZX_Y = andthen_(Z, orelse_(X,Y))
+    Z_XY_XY = andthen_(Z, star_(andthen_(X,Y)))
+    assert not match_(X, 'XY')
+    assert match_(X_Y, 'X')
+    assert match_(Y_X, 'Y')
+    assert not match_(X_Y, 'Z')
+    assert match_(ZX_Y, 'ZY')
+    assert match_(Z_XY_XY, 'Z')
+    assert match_(Z_XY_XY, 'ZXY')
+    assert match_(Z_XY_XY, 'ZXYXY')
 
 # ## Easier Regular Literals
 # Typing constructors such as Lit every time you want to match a single token
@@ -379,6 +272,166 @@ if __name__ == '__main__':
     assert match(complicated, 'ababaxyabz')
     assert not match(complicated, 'ababaxyaxz')
 
+
+
+# ## Object Based Implementation
+# 
+# This machinery is a bit complex to understand due to the multiple levels of
+# closures. I have found such constructions easier to understand if I think of
+# them in terms of objects. So, here is an attempt.
+# First, the Re class that defines the interface.
+
+class Re:
+    def trans(self, rnfa): pass
+    def parse(self, c: str): pass
+
+# ### Match
+# The match is slightly modified to account for the new Re interface.
+
+class Re(Re):
+    def match(self, instr):
+        states = {self.trans(accepting)}
+        for c in instr:
+            states = {a for state in states for a in state.parse(c)}
+        return any('ACCEPT' in state.parse(None) for state in states)
+
+# ### Lit
+# We separate out the construction of object, connecting it to the remaining
+# NFA (`trans`)
+
+class Lit(Re):
+    def __init__(self, char): self.char = char
+    
+    def __repr__(self): return self.char
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return [self.rnfa] if self.char == c else []
+
+# An accepting node is a node that requires no input. It is a simple sentinel
+
+accepting = Lit(None).trans('ACCEPT')
+
+# Next, we define our matching algorithm. The idea is to start with the
+# constructed NFA as the single thread, feed it our string, and check whether
+# the result contains the accepted state.
+
+# Let us test this.
+
+if __name__ == '__main__':
+    X = Lit('X')
+    assert X.match('X')
+    assert not X.match('Y')
+
+# ### AndThen
+
+class AndThen(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return "(%s)" % ''.join([repr(self.rex1), repr(self.rex2)])
+
+    def trans(self, rnfa):
+        state2 = self.rex2.trans(rnfa)
+        self.state1 = self.rex1.trans(state2)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c)
+
+# Let us test this.
+
+if __name__ == '__main__':
+    Y = Lit('Y')
+    XY = AndThen(X,Y)
+    YX = AndThen(Y, X)
+    assert XY.match('XY')
+    assert not YX.match('XY')
+
+# ### OrElse
+# 
+# Next, we want to match alternations.
+# The important point here is that we want to
+# pass on the next state if either of the parses succeed.
+
+class OrElse(Re):
+    def __init__(self, rex1, rex2): self.rex1, self.rex2 = rex1, rex2
+
+    def __repr__(self): return "%s" % ('|'.join([repr(self.rex1), repr(self.rex2)]))
+
+    def trans(self, rnfa):
+        self.state1, self.state2 = self.rex1.trans(rnfa), self.rex2.trans(rnfa)
+        return self
+
+    def parse(self, c: str):
+        return self.state1.parse(c) + self.state2.parse(c)
+
+# Let us test this.
+
+if __name__ == '__main__':
+    Z = Lit('Z')
+    X_Y = OrElse(X,Y)
+    Y_X = OrElse(X,Y)
+    ZX_Y = AndThen(Z, OrElse(X,Y))
+    assert X_Y.match('X')
+    assert Y_X.match('Y')
+    assert not X_Y.match('Z')
+    assert ZX_Y.match('ZY')
+
+# ### Star
+# Star now becomes much easier to understand.
+
+class Star(Re):
+    def __init__(self, re): self.re = re
+
+    def __repr__(self): return "(%s)*" % repr(self.re)
+
+    def trans(self, rnfa):
+        self.rnfa = rnfa
+        return self
+
+    def parse(self, c: str):
+        return self.rnfa.parse(c) + self.re.trans(self).parse(c)
+
+# Let us test this.
+
+if __name__ == '__main__':
+    Z_ = Star(Lit('Z'))
+    assert Z_.match('')
+    assert Z_.match('Z')
+    assert not Z_.match('ZA')
+
+# ### Epsilon
+# 
+# We also define an epsilon expression.
+
+class Epsilon(Re):
+    def trans(self, state):
+        self.state = state
+        return self
+
+    def parse(self, c: str):
+        return self.state.parse(c)
+
+# Let us test this.
+
+if __name__ == '__main__':
+    E__ = Epsilon()
+    assert E__.match('')
+
+# We can have quite complicated expressions. Again, test suite from
+# [here](https://github.com/darius/sketchbook/blob/master/regex/nfa.py).
+
+if __name__ == '__main__':
+    complicated = AndThen(Star(OrElse(AndThen(Lit('a'), Lit('b')), AndThen(Lit('a'), AndThen(Lit('x'), Lit('y'))))), Lit('z'))
+    assert not complicated.match('')
+    assert complicated.match('z')
+    assert complicated.match('abz')
+    assert not complicated.match('ababaxyab')
+    assert complicated.match('ababaxyabz')
+    assert not complicated.match('ababaxyaxz')
 
 # ## Parser
 
@@ -479,7 +532,7 @@ if __name__ == '__main__':
     fuzzer.display_tree(parsed_expr)
     l = RegexToLiteral().convert_unitexp(parsed_expr)
     print(l)
-    assert match(l, 'a')
+    assert l.match('a')
 
 # Next, we write the exp and cex conversions. cex gets turned into AndThen
 
@@ -514,7 +567,7 @@ if __name__ == '__main__':
     fuzzer.display_tree(parsed_expr)
     l = RegexToLiteral().convert_cex(parsed_expr)
     print(l)
-    assert match(l, 'ab')
+    assert l.match('ab')
 
 #  Next, we write the regex, which gets converted to OrElse
 
@@ -548,21 +601,21 @@ if __name__ == '__main__':
     fuzzer.display_tree(parsed_expr)
     l = RegexToLiteral().convert_regex(parsed_expr)
     print(l)
-    assert match(l, 'a')
-    assert match(l, 'b')
-    assert match(l, 'c')
+    assert l.match('a')
+    assert l.match('b')
+    assert l.match('c')
     my_re = 'ab|c'
     parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
     l = RegexToLiteral().convert_regex(parsed_expr)
-    assert match(l, 'ab')
-    assert match(l, 'c')
-    assert not match(l, 'a')
+    assert l.match('ab')
+    assert l.match('c')
+    assert not l.match('a')
     my_re = 'ab|'
     parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
     l = RegexToLiteral().convert_regex(parsed_expr)
-    assert match(l, 'ab')
-    assert match(l, '')
-    assert not match(l, 'a')
+    assert l.match('ab')
+    assert l.match('')
+    assert not l.match('a')
 
 
 # Finally the Star.
@@ -582,10 +635,10 @@ if __name__ == '__main__':
     parsed_expr = list(regex_parser.parse_on(my_re, '<regex>'))[0]
     fuzzer.display_tree(parsed_expr)
     l = RegexToLiteral().convert_regex(parsed_expr)
-    assert match(l, 'b')
-    assert match(l, 'ab')
-    assert not match(l, 'abb')
-    assert match(l, 'aab')
+    assert l.match('b')
+    assert l.match('ab')
+    assert not l.match('abb')
+    assert l.match('aab')
 
 #  Wrapping everything up.
 class RegexToLiteral(RegexToLiteral):
@@ -596,7 +649,7 @@ class RegexToLiteral(RegexToLiteral):
         self.lit = self.to_re(rex)
 
     def match(self, instring):
-        return match(self.lit, instring)
+        return self.lit.match(instring)
 
 # check it has worked
 if __name__ == '__main__':
