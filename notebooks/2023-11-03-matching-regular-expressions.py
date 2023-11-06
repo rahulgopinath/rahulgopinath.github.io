@@ -458,7 +458,6 @@ RE_GRAMMAR = {
     '<exp>': [
         ['<unitexp>'],
         ['<regexstar>'],
-        ['<regexplus>'],
     ],
     '<unitexp>': [
         ['<alpha>'],
