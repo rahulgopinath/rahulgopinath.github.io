@@ -158,3 +158,4 @@ wish to argue that mutation analysis is not yet ready for prime time,
 and those who ignore the complexities of mutation analysis do so at their
 own peril. Beware of spherical cows.
 
+<!-- discuss autocorrelation -->
