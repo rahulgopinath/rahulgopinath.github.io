@@ -299,11 +299,29 @@ a generator, there is a better solution. We know how to build very good
 fuzzers with grammars. Hence, it is better to convert the regular expression
 to a grammar first, and use one of our fuzzers.
 ## Regular expression to context-free grammar
+First the terminal symbols
 
 <!--
 ############
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_lowercase +
+                        string.ascii_uppercase)
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_lowercase +
+                        string.ascii_uppercase)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, the class.
+
+<!--
+############
 class RegexToGrammar:
     def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
@@ -331,8 +349,6 @@ class RegexToGrammar:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-
 class RegexToGrammar:
     def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
@@ -743,7 +759,7 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regexstar(self, node):
         key, children = node
         assert len(children) == 2
-        key, g = self.convert_unitexp(children[0])
+        g, key = self.convert_unitexp(children[0])
         nkey = self.new_key()
         return {**g, **{nkey: [[key, nkey], []]}}, nkey
 
@@ -762,7 +778,7 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regexstar(self, node):
         key, children = node
         assert len(children) == 2
-        key, g = self.convert_unitexp(children[0])
+        g, key = self.convert_unitexp(children[0])
         nkey = self.new_key()
         return {**g, **{nkey: [[key, nkey], []]}}, nkey
 

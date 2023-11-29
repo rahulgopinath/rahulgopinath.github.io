@@ -143,9 +143,12 @@ if __name__ == '__main__':
 # to a grammar first, and use one of our fuzzers.
 #
 # ## Regular expression to context-free grammar
+# First the terminal symbols
+TERMINAL_SYMBOLS = list(string.digits +
+                        string.ascii_lowercase +
+                        string.ascii_uppercase)
 
-TERMINAL_SYMBOLS = list(string.digits + string.ascii_lowercase + string.ascii_uppercase)
-
+# Next, the class.
 class RegexToGrammar:
     def __init__(self, all_terminal_symbols=TERMINAL_SYMBOLS):
         self.parser = earleyparser.EarleyParser(REGEX_GRAMMAR)
@@ -369,7 +372,7 @@ class RegexToGrammar(RegexToGrammar):
     def convert_regexstar(self, node):
         key, children = node
         assert len(children) == 2
-        key, g = self.convert_unitexp(children[0])
+        g, key = self.convert_unitexp(children[0])
         nkey = self.new_key()
         return {**g, **{nkey: [[key, nkey], []]}}, nkey
 
