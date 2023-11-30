@@ -6,6 +6,10 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+##### 2023
+* [_ Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_](#gopinath2023dancing)<br/>
+  *Gopinath* - SAPLING'23, Google, Sydney, Australia, December 1, 2023
+
 ##### 2022
 * [_Mutation Analysis: Answering the Fuzzing Challenge_](#gopinath2022answering)<br/>
   *Gopinath* - University of Melbourne, Gandhinagar, Australia, October 13, 2022
@@ -96,6 +100,19 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+#### <a id='gopinath2023dancing'></a> [Gopinath: _ Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_ SAPLING 2023]()
+
+For effective testing of programs with complex structured inputs, we need the
+input grammar. Yet, neither the input grammar nor the source code is guaranteed
+for many programs. If we have a program for which neither code nor input
+specifications are available, how can we generate test inputs? In this talk,
+I show how this is possible if the program provides failure feedback, which is
+information on whether the input is valid and, if not, the part of the input
+that was successfully processed before failure. Such feedback is available out
+of the box for most parsers. Given this feedback, I show how to leverage it for
+inferring the input grammar of the program under test.
+This grammar can then be used for effective testing of the program under test.
+
 #### <a id='gopinath2022answering'></a> [Gopinath: _Mutation Analysis: Answering the Fuzzing Challenge_ University of Melbourne 2022]()
 
 Our society now relies on software to such an extent that cyberattacks and
