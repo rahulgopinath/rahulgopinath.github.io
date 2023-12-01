@@ -7,7 +7,7 @@ weight: 3
 menu: Talks
 ---
 ##### 2023
-* [_ Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_](#gopinath2023dancing)<br/>
+* [_Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_](#gopinath2023dancing)<br/>
   *Gopinath* - SAPLING'23, Google, Sydney, Australia, December 1, 2023
 
 ##### 2022
