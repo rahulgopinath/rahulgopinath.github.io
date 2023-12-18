@@ -435,12 +435,6 @@ Each state contains the following:
 
 <!--
 ############
-def show_dot(sym, rule, pos, dotstr='|', extents=''):
-    extents = str(extents)
-    return sym + '::= ' + ' '.join([
-           str(p)
-           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
-
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
@@ -473,16 +467,16 @@ class State:
     def advance(self):
         return State(self.name, self.expr, self.dot + 1, self.s_col)
 
+def show_dot(sym, rule, pos, dotstr='|', extents=''):
+    extents = str(extents)
+    return sym + '::= ' + ' '.join([
+           str(p)
+           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
+
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def show_dot(sym, rule, pos, dotstr=&#x27;|&#x27;, extents=&#x27;&#x27;):
-    extents = str(extents)
-    return sym + &#x27;::= &#x27; + &#x27; &#x27;.join([
-           str(p)
-           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
-
 class State:
     def __init__(self, name, expr, dot, s_col, e_col=None):
         self.name, self.expr, self.dot = name, expr, dot
@@ -514,6 +508,12 @@ class State:
 
     def advance(self):
         return State(self.name, self.expr, self.dot + 1, self.s_col)
+
+def show_dot(sym, rule, pos, dotstr=&#x27;|&#x27;, extents=&#x27;&#x27;):
+    extents = str(extents)
+    return sym + &#x27;::= &#x27; + &#x27; &#x27;.join([
+           str(p)
+           for p in [*rule[0:pos], dotstr, *rule[pos:]]]) + extents
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -796,7 +796,8 @@ building parse trees.
 ############
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alts):
-        chart = [self.create_column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart = [self.create_column(i, tok)
+                    for i, tok in enumerate([None, *tokens])]
         for alt in alts:
             chart[0].add(self.create_state(start, tuple(alt), 0, chart[0]))
         return self.fill_chart(chart)
@@ -811,7 +812,8 @@ class EarleyParser(EarleyParser):
 <textarea cols="40" rows="4" name='python_edit'>
 class EarleyParser(EarleyParser):
     def chart_parse(self, tokens, start, alts):
-        chart = [self.create_column(i, tok) for i, tok in enumerate([None, *tokens])]
+        chart = [self.create_column(i, tok)
+                    for i, tok in enumerate([None, *tokens])]
         for alt in alts:
             chart[0].add(self.create_state(start, tuple(alt), 0, chart[0]))
         return self.fill_chart(chart)
@@ -1319,7 +1321,9 @@ class EarleyParser(EarleyParser):
         self.table = self.chart_parse(text, start_symbol, alts)
         for col in reversed(self.table):
             states = [st for st in col.states
-                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
+                if st.name == start_symbol
+                   and st.expr in alts
+                   and st.s_col.index == 0
             ]
             if states:
                 return col.index, states
@@ -1335,7 +1339,9 @@ class EarleyParser(EarleyParser):
         self.table = self.chart_parse(text, start_symbol, alts)
         for col in reversed(self.table):
             states = [st for st in col.states
-                if st.name == start_symbol and st.expr in alts and st.s_col.index == 0
+                if st.name == start_symbol
+                   and st.expr in alts
+                   and st.s_col.index == 0
             ]
             if states:
                 return col.index, states
@@ -1707,14 +1713,20 @@ Displaying the tree
 
 <!--
 ############
-tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
+tree=('<start>', [('<expr>', [('<expr>', [('<expr>', [('<integer>',
+ [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>',
+ [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []),
+ ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
 print(format_parsetree(tree))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
+tree=(&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;,
+ [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;,
+ [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []),
+ (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
 print(format_parsetree(tree))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2301,7 +2313,8 @@ choice, and explore a new path.
 class EnhancedExtractor(EnhancedExtractor):
     def extract_a_tree(self):
         while not self.choices.finished():
-            parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
+            parse_tree, choices = self.extract_a_node(self.my_forest,
+                                                      set(), self.choices)
             choices.increment()
             if parse_tree is not None:
                 return parse_tree
@@ -2314,7 +2327,8 @@ class EnhancedExtractor(EnhancedExtractor):
 class EnhancedExtractor(EnhancedExtractor):
     def extract_a_tree(self):
         while not self.choices.finished():
-            parse_tree, choices = self.extract_a_node(self.my_forest, set(), self.choices)
+            parse_tree, choices = self.extract_a_node(self.my_forest,
+                                                      set(), self.choices)
             choices.increment()
             if parse_tree is not None:
                 return parse_tree
