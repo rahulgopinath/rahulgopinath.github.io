@@ -410,9 +410,13 @@ if __name__ == '__main__':
     key_node = key_get_def('<start>', G, 2)
     print("len:", key_node.count)
 
-# We can of course extract the same things from this data structure
+# We can of course extract the same things from this data structure.
 # 
 # ### Count
+# For example, if we wanted to recompute counts without using the `count` attribute
+# 
+# #### Key Count
+# For the keys
 
 def key_get_count(key_node):
     if not key_node.rules: return 1
@@ -422,14 +426,18 @@ def key_get_count(key_node):
         slen += s
     return slen
 
+# #### Rule Count
+# For the rules
+
 def rule_get_count(rule_node):
     slen = 0
     s_k = key_get_count(rule_node.key)
+    if not rule_node.tail: return s_k
+
     for rule in rule_node.tail:
         s_t = rule_get_count(rule)
         slen = s_k * s_t
-    if not rule_node.tail:
-        slen += s_k
+
     return slen
 
 # Using it.
@@ -439,6 +447,9 @@ if __name__ == '__main__':
     print("len:", count)
 
 # ### Strings
+# For example, if we wanted to compute strings
+# 
+# #### Key Strings
 
 def key_extract_strings(key_node):
     # key node has a set of rules
@@ -450,16 +461,18 @@ def key_extract_strings(key_node):
             strings.extend(s)
     return strings
 
+# #### Rule Strings
+
 def rule_extract_strings(rule_node):
+    s_h = key_extract_strings(rule_node.key)
+    if not rule_node.tail: return s_h
+
     strings = []
-    s_k = key_extract_strings(rule_node.key)
     for rule in rule_node.tail:
         s_t = rule_extract_strings(rule)
-        for s1 in s_k:
+        for s1 in s_h:
             for s2 in s_t:
                 strings.append(s1 + s2)
-    if not rule_node.tail:
-        strings.extend(s_k)
     return strings
 
 # Using it.
@@ -470,11 +483,23 @@ if __name__ == '__main__':
 
 # ### Random Access
 # 
-# But more usefully, we can now use it to randomly access any particular string
+# But more usefully, we can now use it to randomly access any particular string.
+# The idea is same as before. If the index being requeted is within the strings
+# of the node expansion, return it. 
+# Any given nonterminal may be either a terminal symbol or it may be expanded by
+# one or more rules.
+# 
+# In the casee of a terminal symbol (no rules), we have no choice, but to reutrn
+# the token. (We should probably `assert at == 0`).
+# But in the case of nonterminal symbol, we can pass the request to the specifc
+# rule that has the requested index.
+# 
+# #### At Keys
 
 def key_get_string_at(key_node, at):
     assert at < key_node.count
     if not key_node.rules: return key_node.token
+
     at_ = 0
     for rule in key_node.rules:
         if at < (at_ + rule.count):
@@ -483,18 +508,38 @@ def key_get_string_at(key_node, at):
             at_ += rule.count
     return None
 
+# #### At Rules
+# In the case of rules, the idea is mostly the same as before. If there is no
+# tail, we get the base case.
+# 
+# In case there is a tail, we split the rule into a head and a tail.
+# Note that a single rule node corresponds to a
+# specific partition between the head and tail. That is, the head and tails
+# in the rule node are compatible with each other in terms of length. That is,
+# we do not have to worry about partitions.
+# 
+# The total number of strings is `num(strings in head) x num(strings in tail)`.
+# That is, for each string that correspond to the head, there is a set of tails.
+# So, to get a string at a particular index, we need to iterate through each
+# previous string in the head, multiplied by the number of strings in the tail.
+# The count of such strings in head is given by `len_s_h`, and each head is
+# indexed by `head_idx`.
+# Then, we keep appending the number of strings in the rule tail.
+# When the count reaches a given head, we identify the corresponding head by
+# head_idx, and extract the corresponding string in the tail.
+
 def rule_get_string_at(rule_node, at):
     assert at < rule_node.count
     if not rule_node.tail:
         s_k = key_get_string_at(rule_node.key, at)
         return s_k
 
-    len_s_k = rule_node.key.count
     at_ = 0
+    len_s_h = rule_node.key.count
     for rule in rule_node.tail:
-        for i in range(len_s_k):
+        for head_idx in range(len_s_h):
             if at < (at_ + rule.count):
-                s_k = key_get_string_at(rule_node.key, i)
+                s_k = key_get_string_at(rule_node.key, head_idx)
                 return s_k + rule_get_string_at(rule, at - at_)
             else:
                 at_ += rule.count
