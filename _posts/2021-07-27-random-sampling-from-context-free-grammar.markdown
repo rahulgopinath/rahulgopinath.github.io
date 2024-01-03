@@ -1252,16 +1252,43 @@ class RandomSampleCFG:
         self.recursion_ctr = {}
         self.count_nonterminals = len(grammar.keys())
 
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import bisect
+
+class RandomSampleCFG:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.rule_strs = { }
+        self.key_strs = { }
+        self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
+        self.ds = {}
+        self.recursion_ctr = {}
+        self.count_nonterminals = len(grammar.keys())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Populating the linked data structure.
+
+<!--
+############
+class RandomSampleCFG(RandomSampleCFG):
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
         if not fuzzer.is_nonterminal(key):
             if l_str == len(key):
-                self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+                self.key_strs[(key, l_str)] = KeyNode(
+                        token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
             else:
                 self.key_strs[(key, l_str)] = EmptyKey
                 return self.key_strs[(key, l_str)]
+
         # number strings in definition = sum of number of strings in rules
         if key not in self.recursion_ctr: self.recursion_ctr[key] = 0
 
@@ -1278,12 +1305,13 @@ class RandomSampleCFG:
         s = []
         count = 0
         for rule in rules:
-            s_s = self.rules_get_def(rule, l_str) # returns RuleNode (should it return array?)
+            s_s = self.rules_get_def(rule, l_str) # returns RuleNode
             for s_ in s_s:
                 assert s_.count
                 count += s_.count
                 s.append(s_)
-        self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        self.key_strs[(key, l_str)] = KeyNode(
+                token=key, l_str=l_str, count=count, rules = s)
         return self.key_strs[(key, l_str)]
 
     # Now the rules.
@@ -1399,28 +1427,19 @@ class RandomSampleCFG:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import bisect
-
-class RandomSampleCFG:
-    def __init__(self, grammar):
-        self.grammar = grammar
-        self.rule_strs = { }
-        self.key_strs = { }
-        self.EmptyKey = KeyNode(token=None, l_str=None, count=0, rules = None)
-        self.ds = {}
-        self.recursion_ctr = {}
-        self.count_nonterminals = len(grammar.keys())
-
+class RandomSampleCFG(RandomSampleCFG):
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
         if not fuzzer.is_nonterminal(key):
             if l_str == len(key):
-                self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+                self.key_strs[(key, l_str)] = KeyNode(
+                        token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
             else:
                 self.key_strs[(key, l_str)] = EmptyKey
                 return self.key_strs[(key, l_str)]
+
         # number strings in definition = sum of number of strings in rules
         if key not in self.recursion_ctr: self.recursion_ctr[key] = 0
 
@@ -1437,12 +1456,13 @@ class RandomSampleCFG:
         s = []
         count = 0
         for rule in rules:
-            s_s = self.rules_get_def(rule, l_str) # returns RuleNode (should it return array?)
+            s_s = self.rules_get_def(rule, l_str) # returns RuleNode
             for s_ in s_s:
                 assert s_.count
                 count += s_.count
                 s.append(s_)
-        self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        self.key_strs[(key, l_str)] = KeyNode(
+                token=key, l_str=l_str, count=count, rules = s)
         return self.key_strs[(key, l_str)]
 
     # Now the rules.

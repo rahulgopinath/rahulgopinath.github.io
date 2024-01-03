@@ -601,16 +601,21 @@ class RandomSampleCFG:
         self.recursion_ctr = {}
         self.count_nonterminals = len(grammar.keys())
 
+
+# Populating the linked data structure.
+class RandomSampleCFG(RandomSampleCFG):
     def key_get_def(self, key, l_str):
         if (key, l_str) in self.key_strs: return self.key_strs[(key, l_str)]
 
         if not fuzzer.is_nonterminal(key):
             if l_str == len(key):
-                self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=1, rules = [])
+                self.key_strs[(key, l_str)] = KeyNode(
+                        token=key, l_str=l_str, count=1, rules = [])
                 return self.key_strs[(key, l_str)]
             else:
                 self.key_strs[(key, l_str)] = EmptyKey
                 return self.key_strs[(key, l_str)]
+
         # number strings in definition = sum of number of strings in rules
         if key not in self.recursion_ctr: self.recursion_ctr[key] = 0
 
@@ -627,12 +632,13 @@ class RandomSampleCFG:
         s = []
         count = 0
         for rule in rules:
-            s_s = self.rules_get_def(rule, l_str) # returns RuleNode (should it return array?)
+            s_s = self.rules_get_def(rule, l_str) # returns RuleNode
             for s_ in s_s:
                 assert s_.count
                 count += s_.count
                 s.append(s_)
-        self.key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        self.key_strs[(key, l_str)] = KeyNode(
+                token=key, l_str=l_str, count=count, rules = s)
         return self.key_strs[(key, l_str)]
 
     # Now the rules.
