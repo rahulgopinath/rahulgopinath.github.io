@@ -131,7 +131,7 @@ if __name__ == '__main__':
 # 
 # * We can enumerate the strings that can be produced from the grammar, and
 #   pick a specific string given its index in the enumeration.
-#
+#  
 # Once we have both these abilities, then we can combine them to provide random
 # sampling of derived strings. So, let us see how to achieve that.
 #
