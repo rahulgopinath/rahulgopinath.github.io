@@ -390,11 +390,30 @@ class Oracle:
                 return False, c
         return True, None
 
-oracle = Oracle('ab')
-g_T = StateTable(['a', 'b'], oracle)
-l_star(g_T)
-print(g_T.dfa())
+if __name__ == '__main__':
+    oracle = Oracle('a*b*')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    print(s, g)
 
+    oracle = Oracle('a*b')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    print(s, g)
+
+    oracle = Oracle('ab')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    print(s, g)
+
+    oracle = Oracle('ab*')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    print(s, g)
 
 
 #  
