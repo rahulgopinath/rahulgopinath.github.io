@@ -7,11 +7,15 @@ tags: pipes, python
 categories: post
 ---
 
+**Note**: The algorithm discussed in this post is only useful for nonambiguous
+context-free grammars without epsilon (empty expansion nonterminal).
+ 
 In the previous [post](/post/2019/05/28/simplefuzzer-01/) I talked about
 how to generate input strings from any given context-free grammar. While that
 algorithm is quite useful for fuzzing, one of the problems with that algorithm
-is that the strings produced from that grammar is skewed toward shallow strings.
-
+is that the strings produced from that grammar is skewed toward shallow
+strings.
+ 
 For example, consider this grammar:
 
 ## Contents
@@ -732,18 +736,14 @@ def key_get_def(key, grammar, l_str):
         else:
             key_strs[(key, l_str)] = EmptyKey
             return key_strs[(key, l_str)]
-    # number strings in definition = sum of number of strings in rules
-    rules = grammar[key]
     s = []
     count = 0
+    rules = grammar[key]
     for rule in rules:
-        # returns RuleNode (should it return array?)
-        s_s = rules_get_def(rule, grammar, l_str)
-        for s_ in s_s:
-            assert s_.count
-            count += s_.count
-            s.append(s_)
-    key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        s_ = rules_get_def(rule, grammar, l_str)
+        count += sum([_.count for _ in s_])
+        s.extend(s_)
+    key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules=s)
     return key_strs[(key, l_str)]
 
 ############
@@ -761,24 +761,21 @@ def key_get_def(key, grammar, l_str):
         else:
             key_strs[(key, l_str)] = EmptyKey
             return key_strs[(key, l_str)]
-    # number strings in definition = sum of number of strings in rules
-    rules = grammar[key]
     s = []
     count = 0
+    rules = grammar[key]
     for rule in rules:
-        # returns RuleNode (should it return array?)
-        s_s = rules_get_def(rule, grammar, l_str)
-        for s_ in s_s:
-            assert s_.count
-            count += s_.count
-            s.append(s_)
-    key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules = s)
+        s_ = rules_get_def(rule, grammar, l_str)
+        count += sum([_.count for _ in s_])
+        s.extend(s_)
+    key_strs[(key, l_str)] = KeyNode(token=key, l_str=l_str, count=count, rules=s)
     return key_strs[(key, l_str)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Now the rules.
+Now the rules. The complication from before is that, if the count is zero, we
+do not return an array with a zero rulenode. Instead we return an empty array.
 
 <!--
 ############
@@ -795,19 +792,24 @@ def rules_get_def(rule_, grammar, l_str):
 
     sum_rule = []
     count = 0
-    for l_str_x in range(1, l_str+1):
-        s_ = key_get_def(token, grammar, l_str_x)
-        if not s_.count: continue
+    for partition in range(1, l_str+1):
+        h_len, t_len = partition, l_str - partition
+        s_in_h = key_get_def(token, grammar, h_len)
+        if not s_in_h.count: continue
 
-        rem = rules_get_def(tail, grammar, l_str - l_str_x)
+        s_in_t = rules_get_def(tail, grammar, t_len)
+        if not s_in_t: continue
+
         count_ = 0
-        for r in rem:
-            count_ += s_.count * r.count
+        for r in s_in_t:
+            count_ += s_in_h.count * r.count
 
-        if count_:
-            count += count_
-            rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
-            sum_rule.append(rn)
+        if not count_: continue
+
+        count += count_
+        rn = RuleNode(key=s_in_h, tail=s_in_t, l_str=partition, count=count_)
+        sum_rule.append(rn)
+
     rule_strs[(rule, l_str)] = sum_rule
     return rule_strs[(rule, l_str)]
 
@@ -828,19 +830,24 @@ def rules_get_def(rule_, grammar, l_str):
 
     sum_rule = []
     count = 0
-    for l_str_x in range(1, l_str+1):
-        s_ = key_get_def(token, grammar, l_str_x)
-        if not s_.count: continue
+    for partition in range(1, l_str+1):
+        h_len, t_len = partition, l_str - partition
+        s_in_h = key_get_def(token, grammar, h_len)
+        if not s_in_h.count: continue
 
-        rem = rules_get_def(tail, grammar, l_str - l_str_x)
+        s_in_t = rules_get_def(tail, grammar, t_len)
+        if not s_in_t: continue
+
         count_ = 0
-        for r in rem:
-            count_ += s_.count * r.count
+        for r in s_in_t:
+            count_ += s_in_h.count * r.count
 
-        if count_:
-            count += count_
-            rn = RuleNode(key=s_, tail=rem, l_str=l_str_x, count=count_)
-            sum_rule.append(rn)
+        if not count_: continue
+
+        count += count_
+        rn = RuleNode(key=s_in_h, tail=s_in_t, l_str=partition, count=count_)
+        sum_rule.append(rn)
+
     rule_strs[(rule, l_str)] = sum_rule
     return rule_strs[(rule, l_str)]
 </textarea><br />
