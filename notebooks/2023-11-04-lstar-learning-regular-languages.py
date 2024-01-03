@@ -23,6 +23,7 @@
 # https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 # http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
+# http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities
@@ -31,6 +32,7 @@ import simplefuzzer as fuzzer
 import rxfuzzer
 import earleyparser
 import cfgrandomsample
+import cfgremoveepsilon
 
 # We start with a few definitions
 # 
@@ -213,12 +215,15 @@ def deep_clone(grammar):
     grammar = dict(grammar)
     return {k:[list(r) for r in grammar[k]] for k in grammar} # deep clone
 
-def fix_epsilon(grammar):
+def fix_epsilon(grammar, start):
     grammar = deep_clone(grammar)
-    for k in grammar:
-        for r in grammar[k]:
-            if not r: r.append('$')
-    return grammar
+    #for k in grammar:
+    #    for r in grammar[k]:
+    #        if not r: r.append('$')
+    #return grammar
+    gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
+    gs.remove_epsilon_rules()
+    return gs.grammar
 
 def rem_dollar(s):
     if s[-1] == '$': return s[:-1]
@@ -226,8 +231,8 @@ def rem_dollar(s):
 
 def is_equivalent_for(g1, s1, g2, s2, l, n):
     # start with 1 length
-    g1 = fix_epsilon(g1)
-    g2 = fix_epsilon(g2)
+    g1 = fix_epsilon(g1, s1)
+    g2 = fix_epsilon(g2, s2)
     rgf1 = cfgrandomsample.RandomSampleCFG(g1)
     key_node1 = rgf1.key_get_def(s1, l)
     cnt1 = key_node1.count
@@ -291,7 +296,7 @@ if __name__ == '__main__':
                 ],
             '<1>':[
                 ['1', '<1>'],
-                ['$']
+                []
                 ]
     }
     g2 = { # should end with one.
@@ -301,7 +306,7 @@ if __name__ == '__main__':
                 ],
             '<1>':[
                 ['1', '<1>'],
-                ['$']
+                []
                 ]
     }
 
@@ -385,7 +390,7 @@ class Oracle:
                 return False, c
         return True, None
 
-oracle = Oracle('ab*')
+oracle = Oracle('ab')
 g_T = StateTable(['a', 'b'], oracle)
 l_star(g_T)
 print(g_T.dfa())
