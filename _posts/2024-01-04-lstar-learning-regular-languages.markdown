@@ -7,7 +7,7 @@ tags: regular-grammars induction
 categories: post
 ---
 
-TLDR; This tutorial is a complete implementation of Angluin's L* algorithm
+TLDR; This tutorial is a complete implementation of Angluin's L-star algorithm
 with PAC learning in Python (i.e. without using equivalence queries).
 The Python interpreter is embedded so that you
 can work through the implementation steps.
@@ -22,15 +22,16 @@ we do to learn the actual input specification of the blackbox? In such cases,
 the best option is to try and learn the input specification.
 
 This particular research field which investigates how to learn the input
-specification of blackbox programs is called blackbox grammar inference or
-grammatical inference (see the note at the end for a discussion on other
+specification of blackbox programs is called blackbox *grammar inference* or
+*grammatical inference* (see the **Note** at the end for a discussion on other
 names). In this post, I will discuss one of the classic algorithms for
-learning the input specification calle L*. L* was invented by Dana Angluin
-in 1987 [^angluin1987]. While the initial algorithm used what is called an
-equivalence query, which assumes that you can check the correctness of the
-learned grammar separate from yes/no oracle, Angluin updated this algorithm
-to make use of the PAC (Probably Approximately Correct)
-framework [^valiant1984] from Valiant in 1988 [^angluin1988].
+learning the input specification calle L\*. The L\* algorithm was invented by
+Dana Angluin in 1987 [^angluin1987]. While the initial algorithm used what is
+called an equivalence query, which assumes that you can check the correctness
+of the learned grammar separate from yes/no oracle, Angluin in the same paper
+also talks about how to update this algorithm to make use of the PAC
+(*Probably Approximately Correct*) framework from Valiant [^valiant1984].
+Angluin expands on this further in 1988 [^angluin1988].
 
 
 #### Prerequisites
@@ -137,7 +138,7 @@ import random
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-To start with, let us start with the assumption that the blackbox program
+Let us start with the assumption that the blackbox program
 accepts a regular language. In the classical algorithm from Angluin
 [^angluin1987], beyond the yes/no oracle (the program can tell you whether any
 given string is acceptable or not, traditionally called the
