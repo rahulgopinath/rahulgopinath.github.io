@@ -1,6 +1,6 @@
 ---
 published: true
-title: Learning Regular Languages with L* Algorithm from Dana Angluin
+title: Learning Regular Languages with L* Algorithm
 layout: post
 comments: true
 tags: regular-grammars induction
