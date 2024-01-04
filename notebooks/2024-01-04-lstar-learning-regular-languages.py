@@ -103,7 +103,7 @@ import random
 # 
 # Given the state table, the algorithm itself is simple
 # 
-# # L*
+# ## L*
 
 def prefixes(s): return [s[0:i] for i,a in enumerate(s)][1:]
 

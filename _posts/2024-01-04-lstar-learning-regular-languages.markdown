@@ -178,7 +178,7 @@ definitions.
 
 Given the state table, the algorithm itself is simple
 
-# L*
+## L*
 
 <!--
 ############
