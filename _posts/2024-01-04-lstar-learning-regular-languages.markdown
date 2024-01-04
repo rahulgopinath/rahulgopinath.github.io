@@ -89,6 +89,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl">fgrandomsample-0.0.1-py2.py3-none-any.whl</a></li>
 <li><a href="http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl">fgremoveepsilon-0.0.1-py2.py3-none-any.whl</a></li>
 <li><a href="https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl">gatleastsinglefault-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/09/09/fault-inducing-grammar/">Specializing Context-Free Grammars for Inducing Faults</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -100,6 +101,7 @@ https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
 http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>

@@ -44,6 +44,7 @@
 # http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
 # http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities such as conversion of regular expression to grammars, random
