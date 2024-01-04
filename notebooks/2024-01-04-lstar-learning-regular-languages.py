@@ -119,7 +119,7 @@ def l_star(T):
             if not is_consistent: T.append_AE(counter_A)
 
         g, s = T.grammar()
-        res, counterX = oracle.is_equivalent(g, s)
+        res, counterX = teacher.is_equivalent(g, s)
         if res: return T
         for p in prefixes(counterX): T.append_S(p)
 
@@ -127,14 +127,14 @@ def l_star(T):
 # 
 # Next, we define the state table, also called the observation table.
 
-# We initialize the class with an oracle, and the alphabet.
+# We initialize the class with an teacher, and the alphabet.
 # That is, we initialize the set of prefixes `S` to be { $$\epsilon $$ }
 # and the set of extensions (experiments) `E` also to be { $$\epsilon $$ }
 
 class StateTable:
-    def __init__(self, alphabet, oracle):
+    def __init__(self, alphabet, teacher):
         self._T, self.S, self.E = {}, [''], ['']
-        self.oracle = oracle
+        self.teacher = teacher
         self.A = alphabet
 
     def row(self, v): return self._T[v]
@@ -150,14 +150,14 @@ class StateTable:
 # empty string is in the language. Then, we extend the table `T`
 # to `(S u S.A).E` using membership queries.
 # 
-# - For each s in S and each a in A, query the oracle for the output of `s.a`
+# - For each s in S and each a in A, query the teacher for the output of `s.a`
 # and update table `T` with the rows.
-# - For each `t` in `E`, query the oracle for the output of `s.t` and update `T`
+# - For each `t` in `E`, query the teacher for the output of `s.t` and update `T`
 
 
 class StateTable(StateTable):
     def init_table(self):
-        self._T[''] = {'': self.oracle.is_member('') }
+        self._T[''] = {'': self.teacher.is_member('') }
         self.extend()
 
     def unique(self, l):
@@ -169,7 +169,7 @@ class StateTable(StateTable):
         for s,e in SuS_A_E:
             if s in self._T and e in self._T[s]: continue
             if s not in self._T: self._T[s] = {}
-            self._T[s][e] = self.oracle.is_member(s + e)
+            self._T[s][e] = self.teacher.is_member(s + e)
 
 
 # ### Closed
@@ -306,7 +306,7 @@ class StateTable(StateTable):
         g, s = self.remove_infinite_loops(g, s)
         return g, s
 
-# # Teacher
+# ## Teacher
 # 
 # Next, we need to construct our teacher. 
 # As I promised, we will be using the PAC framework rather than the equivalence
@@ -314,64 +314,67 @@ class StateTable(StateTable):
 # sampling, we need to remove epsilon tokens from places other than
 # the start rule.
 
-def fix_epsilon(grammar, start):
-    gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
-    gs.remove_epsilon_rules()
-    return gs.grammar, start
+class Teacher:
+    def fix_epsilon(self, grammar, start):
+        gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
+        gs.remove_epsilon_rules()
+        return gs.grammar, start
 
 # Next, we have a helper for producing the random sampler, and the
 # parser for easy comparison.
 
-def prepare_grammar(g, s, l, n):
-    g, s = fix_epsilon(g, s)
-    rgf = cfgrandomsample.RandomSampleCFG(g)
-    key_node = rgf.key_get_def(s, l)
-    cnt = key_node.count
-    ep = earleyparser.EarleyParser(g)
-    return rgf, key_node, cnt, ep
+class Teacher(Teacher):
+    def prepare_grammar(self, g, s, l, n):
+        g, s = self.fix_epsilon(g, s)
+        rgf = cfgrandomsample.RandomSampleCFG(g)
+        key_node = rgf.key_get_def(s, l)
+        cnt = key_node.count
+        ep = earleyparser.EarleyParser(g)
+        return rgf, key_node, cnt, ep
 
-def generate_a_random_string(rgf, key_node, cnt):
-    at = random.randint(0, cnt-1)
-    st_ = rgf.key_get_string_at(key_node, at)
-    return fuzzer.tree_to_string(st_)
+    def generate_a_random_string(self, rgf, key_node, cnt):
+        at = random.randint(0, cnt-1)
+        st_ = rgf.key_get_string_at(key_node, at)
+        return fuzzer.tree_to_string(st_)
 
 # ## Check Grammar Equivalence
 # Checking if two grammars are equivalent to a length of string for n count.
 
-def is_equivalent_for(g1, s1, g2, s2, l, n):
-    rgf1, key_node1, cnt1, ep1 = prepare_grammar(g1, s1, l, n)
-    rgf2, key_node2, cnt2, ep2 = prepare_grammar(g2, s2, l, n)
-    count = 0
+class Teacher(Teacher):
+    def is_equivalent_for(self, g1, s1, g2, s2, l, n):
+        rgf1, key_node1, cnt1, ep1 = self.prepare_grammar(g1, s1, l, n)
+        rgf2, key_node2, cnt2, ep2 = self.prepare_grammar(g2, s2, l, n)
+        count = 0
 
-    if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
+        if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
 
 
-    if cnt1 == 0:
-        st2 = generate_a_random_string(rgf2, key_node2, cnt2)
-        return False, (None, st2), count
+        if cnt1 == 0:
+            st2 = self.generate_a_random_string(rgf2, key_node2, cnt2)
+            return False, (None, st2), count
 
-    if cnt2 == 0:
-        st1 = generate_a_random_string(rgf1, key_node1, cnt1)
-        return False, (st1, None), count
+        if cnt2 == 0:
+            st1 = self.generate_a_random_string(rgf1, key_node1, cnt1)
+            return False, (st1, None), count
 
-    str1 = set()
-    str2 = set()
+        str1 = set()
+        str2 = set()
 
-    for i in range(n):
-        str1.add(generate_a_random_string(rgf1, key_node1, cnt1))
-        str2.add(generate_a_random_string(rgf2, key_node2, cnt2))
+        for i in range(n):
+            str1.add(self.generate_a_random_string(rgf1, key_node1, cnt1))
+            str2.add(self.generate_a_random_string(rgf2, key_node2, cnt2))
 
-    for st1 in str1:
-        count += 1
-        try: list(ep2.recognize_on(st1, s2))
-        except: return False, (st1, None), count
+        for st1 in str1:
+            count += 1
+            try: list(ep2.recognize_on(st1, s2))
+            except: return False, (st1, None), count
 
-    for st2 in str2:
-        count += 1
-        try: list(ep1.recognize_on(st2, s1))
-        except: return False, (None, st2), count
+        for st2 in str2:
+            count += 1
+            try: list(ep1.recognize_on(st2, s1))
+            except: return False, (None, st2), count
 
-    return True, None, count
+        return True, None, count
 
 # Let us test this out.
 
@@ -396,15 +399,14 @@ if __name__ == '__main__':
                 []
                 ]
     }
-
-    v = is_equivalent_for(g1, '<0>', g2, '<0>', 2, 10)
+    t = Teacher()
+    v = t.is_equivalent_for(g1, '<0>', g2, '<0>', 2, 10)
     print(v)
 
 
-# ## Oracle
 # We define a simple oracle based on regular expressions.
 
-class Oracle:
+class Teacher(Teacher):
     def __init__(self, rex):
         self.rex = rex
         if (rex[0], rex[-1]) == ('^', '$'):
@@ -412,7 +414,7 @@ class Oracle:
         else:
             self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex)
 
-        g, s = fix_epsilon(self.g, self.s)
+        g, s = self.fix_epsilon(self.g, self.s)
 
         self.ep = earleyparser.EarleyParser(g)
         self.rgf = cfgrandomsample.RandomSampleCFG(g)
@@ -449,7 +451,7 @@ class Oracle:
 
         max_length_limit = 10
         for limit in range(1, max_length_limit):
-            is_eq, counterex, c = is_equivalent_for(self.g, self.s,
+            is_eq, counterex, c = self.is_equivalent_for(self.g, self.s,
                                                     grammar, start,
                                                     limit, num_calls)
             if counterex is None: # no members of length limit
@@ -460,26 +462,26 @@ class Oracle:
         return True, None
 
 if __name__ == '__main__':
-    oracle = Oracle('a*b*')
-    g_T = StateTable(['a', 'b'], oracle)
+    teacher = Teacher('a*b*')
+    g_T = StateTable(['a', 'b'], teacher)
     l_star(g_T)
     g, s = g_T.grammar()
     print(s, g)
 
-    oracle = Oracle('a*b')
-    g_T = StateTable(['a', 'b'], oracle)
+    teacher = Teacher('a*b')
+    g_T = StateTable(['a', 'b'], teacher)
     l_star(g_T)
     g, s = g_T.grammar()
     print(s, g)
 
-    oracle = Oracle('ab')
-    g_T = StateTable(['a', 'b'], oracle)
+    teacher = Teacher('ab')
+    g_T = StateTable(['a', 'b'], teacher)
     l_star(g_T)
     g, s = g_T.grammar()
     print(s, g)
 
-    oracle = Oracle('ab*')
-    g_T = StateTable(['a', 'b'], oracle)
+    teacher = Teacher('ab*')
+    g_T = StateTable(['a', 'b'], teacher)
     l_star(g_T)
     g, s = g_T.grammar()
     print(s, g)
@@ -490,8 +492,8 @@ if __name__ == '__main__':
     import re
     exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
     for e in exprs:
-        oracle = Oracle(e)
-        tbl = StateTable(['a', 'b'], oracle)
+        teacher = Teacher(e)
+        tbl = StateTable(['a', 'b'], teacher)
         g_T = l_star(tbl)
         g, s = g_T.infer_grammar()
         print(s, g)
