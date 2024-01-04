@@ -101,10 +101,31 @@ import random
 # * The candidate states `S` is prefix closed, while the set of experiments `E`
 #   is suffix closed.
 # 
+# Given the state table, the algorithm itself is simple
 # 
+# # L*
+
+def prefixes(s): return [s[0:i] for i,a in enumerate(s)][1:]
+
+def l_star(T):
+    T.init_table()
+
+    while True:
+        while True:
+            is_closed, counter_E = T.closed()
+            is_consistent, counter_A = T.consistent()
+            if is_closed and is_consistent: break
+            if not is_closed: T.append_S(counter_E)
+            if not is_consistent: T.append_AE(counter_A)
+
+        g, s = T.grammar()
+        res, counterX = oracle.is_equivalent(g, s)
+        if res: return T
+        for p in prefixes(counterX): T.append_S(p)
+
 # ## StateTable
 # 
-# Next, we define the observation table, also called the state table.
+# Next, we define the state table, also called the observation table.
 
 # We initialize the class with an oracle, and the alphabet.
 # That is, we initialize the set of prefixes `S` to be { $$\epsilon $$ }
@@ -199,15 +220,21 @@ class StateTable(StateTable):
         self.extend()
 
 
-# ### The DFA
-# Given the observation table, we can recover the DFA from this table. The
+# ### The Grammar
+# Given the state table, we can recover the grammar from this table
+# (corresponding to the DFA). The
 # unique cell contents of rows are states. In many cases, multiple rows may
 # correspond to the same state (as the cell contents are the same).
 # The *start state* is given by the state that correspond to the epsilon row.
 # A state is acceptig if it on query of epsilon, it retunrs 1.
+#  
+# Q = {row(s) : s \in S}             --- states
+# q0 = row(e)                        -- start
+# F = {row(s) : s \in S, T(s) = 1}   -- accepting state
+# \delta(row(s), a) = row(s.a)      ---- Transition function
 
 class StateTable(StateTable):
-    def dfa(self):
+    def grammar(self):
         row_map = {}  # Mapping from row string to state ID
         states = {}
         grammar = {}
@@ -241,11 +268,18 @@ class StateTable(StateTable):
 
         return grammar, start_nt
 
+# ### Cleanup Grammar
+# The grammar output by the `grammar()` method is a bit messy. It can contain
+# keys will always lead to infinite loops. For example,
+# 
+# ```
+# <A> ::= <B> <A>
+#      |  <C> <A>
+# ```
+# We need to remove such infinite loops.
 
-# Remove infinite loops
 class StateTable(StateTable):
     def remove_infinite_loops(self, g, s):
-        g = deep_clone(g)
         rule_cost = fuzzer.compute_cost(g)
         remove_keys = []
         for k in rule_cost:
@@ -263,58 +297,30 @@ class StateTable(StateTable):
                 new_g[k].append(r)
         return new_g, s
 
+# ### Infer Grammar
+# We can now wrap up everything in one method.
+
+class StateTable(StateTable):
     def infer_grammar(self):
-        g, s = self.dfa()
+        g, s = self.grammar()
         g, s = self.remove_infinite_loops(g, s)
         return g, s
 
-
-# FOR DFA
-# Q = {row(s) : s \in S}             --- states
-# q0 = row(e)                        -- start
-# F = {row(s) : s \in S, T(s) = 1}   -- accepting state
-# \delta(row(s), a) = row(s.a)      ---- Transition function
-
-def prefixes(s):
-    pref = []
-    st = ''
-    for e in s:
-        st += e
-        pref.append(st)
-    return pref
-
-def l_star(T):
-    T.init_table()
-
-    while True:
-        while True:
-            is_closed, counter_E = T.closed()
-            is_consistent, counter_A = T.consistent()
-            if is_closed and is_consistent: break
-            if not is_closed: T.append_S(counter_E)
-            if not is_consistent: T.append_AE(counter_A)
-
-        g, s = T.dfa()
-        res, counterX = oracle.is_equivalent(g, s)
-        if res: return T
-        #print(counterX)
-        for p in prefixes(counterX): T.append_S(p)
-
-# Next, we need to consider our oracle. It serves both as the
-# blackbox to learn from and also as the teacher.
-
-# First checking if two grammars are equivalent to a length
-# of string for n count.
-
-def deep_clone(grammar):
-    grammar = dict(grammar)
-    return {k:[list(r) for r in grammar[k]] for k in grammar} # deep clone
+# # Teacher
+# 
+# Next, we need to construct our teacher. 
+# As I promised, we will be using the PAC framework rather than the equivalence
+# oracles. First, due to the limitations of our utilities for random
+# sampling, we need to remove epsilon tokens from places other than
+# the start rule.
 
 def fix_epsilon(grammar, start):
-    grammar = deep_clone(grammar)
     gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
     gs.remove_epsilon_rules()
     return gs.grammar, start
+
+# Next, we have a helper for producing the random sampler, and the
+# parser for easy comparison.
 
 def prepare_grammar(g, s, l, n):
     g, s = fix_epsilon(g, s)
@@ -324,39 +330,36 @@ def prepare_grammar(g, s, l, n):
     ep = earleyparser.EarleyParser(g)
     return rgf, key_node, cnt, ep
 
+def generate_a_random_string(rgf, key_node, cnt):
+    at = random.randint(0, cnt-1)
+    st_ = rgf.key_get_string_at(key_node, at)
+    return fuzzer.tree_to_string(st_)
+
+# ## Check Grammar Equivalence
+# Checking if two grammars are equivalent to a length of string for n count.
+
 def is_equivalent_for(g1, s1, g2, s2, l, n):
-    # start with 1 length
     rgf1, key_node1, cnt1, ep1 = prepare_grammar(g1, s1, l, n)
     rgf2, key_node2, cnt2, ep2 = prepare_grammar(g2, s2, l, n)
     count = 0
 
-    if cnt1 == 0 and cnt2 == 0:
-        return True, (None, None), count
+    if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
+
 
     if cnt1 == 0:
-        at2 = random.randint(0, cnt2-1)
-        st2_ = rgf2.key_get_string_at(key_node2, at2)
-        st2 = fuzzer.tree_to_string(st2_)
+        st2 = generate_a_random_string(rgf2, key_node2, cnt2)
         return False, (None, st2), count
 
     if cnt2 == 0:
-        at1 = random.randint(0, cnt1-1)
-        st1_ = rgf1.key_get_string_at(key_node1, at1)
-        st1 = fuzzer.tree_to_string(st1_)
+        st1 = generate_a_random_string(rgf1, key_node1, cnt1)
         return False, (st1, None), count
 
     str1 = set()
     str2 = set()
 
     for i in range(n):
-        at1, at2 = random.randint(0, cnt1-1), random.randint(0, cnt2-1)
-
-        st1_ = rgf1.key_get_string_at(key_node1, at1)
-        st1 = fuzzer.tree_to_string(st1_)
-        str1.add(st1)
-        st2_ = rgf2.key_get_string_at(key_node2, at2)
-        st2 = fuzzer.tree_to_string(st2_)
-        str2.add(st2)
+        str1.add(generate_a_random_string(rgf1, key_node1, cnt1))
+        str2.add(generate_a_random_string(rgf2, key_node2, cnt2))
 
     for st1 in str1:
         count += 1
@@ -370,7 +373,8 @@ def is_equivalent_for(g1, s1, g2, s2, l, n):
 
     return True, None, count
 
-#
+# Let us test this out.
+
 if __name__ == '__main__':
     g1 = { # should end with one.
             '<0>': [
@@ -397,7 +401,9 @@ if __name__ == '__main__':
     print(v)
 
 
-# 
+# ## Oracle
+# We define a simple oracle based on regular expressions.
+
 class Oracle:
     def __init__(self, rex):
         self.rex = rex
@@ -409,15 +415,7 @@ class Oracle:
         g, s = fix_epsilon(self.g, self.s)
 
         self.ep = earleyparser.EarleyParser(g)
-
-        # only random samplers need '$', which gets removed after.
-        # g = dict(self.g)
-        # g = {k:[list(r) for r in g[k]] for k in g} # deep clone
-        # for k in g:
-        #     for r in g[k]:
-        #         if not r: r.append('$')
         self.rgf = cfgrandomsample.RandomSampleCFG(g)
-        # self.rgf = fuzzer.LimitFuzzer(self.g)
         self.counter = 0
         # epsilon is the accuracy and delta is the confidence
         self.delta, self.epsilon = 0.1, 0.1
@@ -432,8 +430,6 @@ class Oracle:
         at = random.randint(1, cnt) # at least 1 length
         v, tree = self.rgf.random_sample(self.s, at, cache)
         return fuzzer.tree_to_string(tree)
-        #return self.rgf.fuzz(self.s)
-
 
     def is_member(self, q):
         try: list(self.ep.recognize_on(q, self.s))
@@ -441,19 +437,21 @@ class Oracle:
         return 1
 
     # There are two things to consider here. The first is that we need to
-    # generate  inputs from both our regular expression as well as the given grammar.
+    # generate inputs from both our regular expression as well as the given grammar.
     def is_equivalent(self, grammar, start):
-        #grammar = self.fix_epsilon(grammar)
         self.counter += 1
         if not grammar[start]:
             s = self.generate(self.counter)
             return False, s
-        num_calls = math.ceil(1.0/self.epsilon * (math.log(1.0/self.delta) + self.counter * math.log(2)))
 
-        #g = self.fix_epsilon(self.g)
+        num_calls = math.ceil(1.0/self.epsilon *
+                              (math.log(1.0/self.delta) + self.counter * math.log(2)))
+
         max_length_limit = 10
         for limit in range(1, max_length_limit):
-            is_eq, counterex, c = is_equivalent_for(self.g, self.s, grammar, start, limit, num_calls)
+            is_eq, counterex, c = is_equivalent_for(self.g, self.s,
+                                                    grammar, start,
+                                                    limit, num_calls)
             if counterex is None: # no members of length limit
                 continue
             if not is_eq:
@@ -465,25 +463,25 @@ if __name__ == '__main__':
     oracle = Oracle('a*b*')
     g_T = StateTable(['a', 'b'], oracle)
     l_star(g_T)
-    g, s = g_T.dfa()
+    g, s = g_T.grammar()
     print(s, g)
 
     oracle = Oracle('a*b')
     g_T = StateTable(['a', 'b'], oracle)
     l_star(g_T)
-    g, s = g_T.dfa()
+    g, s = g_T.grammar()
     print(s, g)
 
     oracle = Oracle('ab')
     g_T = StateTable(['a', 'b'], oracle)
     l_star(g_T)
-    g, s = g_T.dfa()
+    g, s = g_T.grammar()
     print(s, g)
 
     oracle = Oracle('ab*')
     g_T = StateTable(['a', 'b'], oracle)
     l_star(g_T)
-    g, s = g_T.dfa()
+    g, s = g_T.grammar()
     print(s, g)
 
 # ### Using it
