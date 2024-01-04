@@ -33,6 +33,8 @@ import rxfuzzer
 import earleyparser
 import cfgrandomsample
 import cfgremoveepsilon
+import math
+import random
 
 # We start with a few definitions
 # 
@@ -196,13 +198,11 @@ def l_star(T):
         g, s = T.dfa()
         res, counterX = oracle.is_equivalent(g, s)
         if res: return T
-        print(counterX)
+        #print(counterX)
         for p in prefixes(counterX): T.append_S(p)
 
 import re
-import random
 import hashlib
-import math
 random.seed(0)
 
 # Next, we need to consider our oracle. It serves both as the
@@ -277,12 +277,12 @@ def is_equivalent_for(g1, s1, g2, s2, l, n):
 
     for st1 in str1:
         count += 1
-        try: list(ep2.parse_on(st1, s2))
+        try: list(ep2.recognize_on(st1, s2))
         except: return False, (rem_dollar(st1), None), count
 
     for st2 in str2:
         count += 1
-        try: list(ep1.parse_on(st2, s1))
+        try: list(ep1.recognize_on(st2, s1))
         except: return False, (None, rem_dollar(st2)), count
 
     return True, None, count
@@ -357,17 +357,9 @@ class Oracle:
 
 
     def is_member(self, q):
-        try:
-            list(self.ep.parse_on(q, self.s))
-            return 1
-        except:
-            return 0
-        #if q and q[0] == 'a':
-        #    return 1
-        #return 0
-        if re.search(self.rex, q) is not None:
-            return 1 # True
-        return 0 # False
+        try: list(self.ep.recognize_on(q, self.s))
+        except: return 0
+        return 1
 
     # There are two things to consider here. The first is that we need to
     # generate  inputs from both our regular expression as well as the given grammar.
@@ -414,6 +406,73 @@ if __name__ == '__main__':
     l_star(g_T)
     g, s = g_T.dfa()
     print(s, g)
+
+# ### Cleanup
+
+if __name__ == '__main__':
+    oracle = Oracle('a*b*')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    print(g)
+    rule_cost = fuzzer.compute_cost(g)
+    for k in rule_cost:
+        print(k)
+        for r in rule_cost[k]:
+            print(" ", r, rule_cost[k][r])
+
+# Remove infinite loops
+
+def remove_infinite_loops(g, s):
+    g = deep_clone(g)
+    rule_cost = fuzzer.compute_cost(g)
+    remove_keys = []
+    for k in rule_cost:
+        # if all rules in a k cost inf, then it should be removed.
+        res = [rule_cost[k][r] for r in rule_cost[k] if rule_cost[k][r] != math.inf]
+        if not res:
+            remove_keys.append(k)
+
+    g = {k:g[k] for k in g if k not in remove_keys}
+
+    new_g = {}
+    for k in g:
+        new_g[k] = []
+        for r in g[k]:
+            if [t for t in r if t in remove_keys]: continue # skip this rule
+            new_g[k].append(r)
+    return new_g, s
+
+if __name__ == '__main__':
+    oracle = Oracle('a*b*')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    g, s = remove_infinite_loops(g, s)
+    print(s, g)
+
+    oracle = Oracle('a*b')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    g, s = remove_infinite_loops(g, s)
+    print(s, g)
+
+    oracle = Oracle('ab')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    g, s = remove_infinite_loops(g, s)
+    print(s, g)
+
+    oracle = Oracle('ab*')
+    g_T = StateTable(['a', 'b'], oracle)
+    l_star(g_T)
+    g, s = g_T.dfa()
+    g, s = remove_infinite_loops(g, s)
+    print(s, g)
+
+
 
 
 #  
