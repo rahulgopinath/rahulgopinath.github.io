@@ -37,13 +37,6 @@ framework [^valiant1984] from Valiant in 1988 [^angluin1988].
  
 As before, we start with the prerequisite imports.
 
-
-https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
-http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
-http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
-
 ## Contents
 {:.no_toc}
 
@@ -78,6 +71,37 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
+
+<ol>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
+<li><a href="http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl">fgrandomsample-0.0.1-py2.py3-none-any.whl</a></li>
+<li><a href="http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl">fgremoveepsilon-0.0.1-py2.py3-none-any.whl</a></li>
+</ol>
+
+<div style='display:none'>
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+http://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
+http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
+</textarea>
+</form>
+</div>
+</details>
 We need the fuzzer to generate inputs to parse and also to provide some
 utilities such as conversion of regular expression to grammars, random
 sampling from grammars etc. Hence, we import all that.
