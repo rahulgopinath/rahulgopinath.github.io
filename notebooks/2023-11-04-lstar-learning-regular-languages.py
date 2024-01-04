@@ -170,6 +170,34 @@ class StateTable(StateTable):
 
         return grammar, start_nt
 
+
+# Remove infinite loops
+class StateTable(StateTable):
+    def remove_infinite_loops(self, g, s):
+        g = deep_clone(g)
+        rule_cost = fuzzer.compute_cost(g)
+        remove_keys = []
+        for k in rule_cost:
+            # if all rules in a k cost inf, then it should be removed.
+            res = [rule_cost[k][r] for r in rule_cost[k]
+                   if rule_cost[k][r] != math.inf]
+            if not res: remove_keys.append(k)
+
+        new_g = {}
+        for k in g:
+            if k in remove_keys: continue
+            new_g[k] = []
+            for r in g[k]:
+                if [t for t in r if t in remove_keys]: continue
+                new_g[k].append(r)
+        return new_g, s
+
+    def infer_grammar(self):
+        g, s = self.dfa()
+        g, s = self.remove_infinite_loops(g, s)
+        return g, s
+
+
 # FOR DFA
 # Q = {row(s) : s \in S}             --- states
 # q0 = row(e)                        -- start
@@ -201,7 +229,6 @@ def l_star(T):
         #print(counterX)
         for p in prefixes(counterX): T.append_S(p)
 
-import re
 import hashlib
 random.seed(0)
 
@@ -217,36 +244,24 @@ def deep_clone(grammar):
 
 def fix_epsilon(grammar, start):
     grammar = deep_clone(grammar)
-    #for k in grammar:
-    #    for r in grammar[k]:
-    #        if not r: r.append('$')
-    #return grammar
     gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
     gs.remove_epsilon_rules()
-    return gs.grammar
+    return gs.grammar, start
 
-def rem_dollar(s):
-    if s[-1] == '$': return s[:-1]
-    return s
+def prepare_grammar(g, s, l, n):
+    g, s = fix_epsilon(g, s)
+    rgf = cfgrandomsample.RandomSampleCFG(g)
+    key_node = rgf.key_get_def(s, l)
+    cnt = key_node.count
+    ep = earleyparser.EarleyParser(g)
+    return rgf, key_node, cnt, ep
 
 def is_equivalent_for(g1, s1, g2, s2, l, n):
     # start with 1 length
-    g1 = fix_epsilon(g1, s1)
-    g2 = fix_epsilon(g2, s2)
-    rgf1 = cfgrandomsample.RandomSampleCFG(g1)
-    key_node1 = rgf1.key_get_def(s1, l)
-    cnt1 = key_node1.count
-    ep1 = earleyparser.EarleyParser(g1)
-
-    rgf2 = cfgrandomsample.RandomSampleCFG(g2)
-    key_node2 = rgf2.key_get_def(s2, l)
-    cnt2 = key_node2.count
-    ep2 = earleyparser.EarleyParser(g2)
-
+    rgf1, key_node1, cnt1, ep1 = prepare_grammar(g1, s1, l, n)
+    rgf2, key_node2, cnt2, ep2 = prepare_grammar(g2, s2, l, n)
     count = 0
 
-    # We need to check if cnt1 == cnt2, but how to extract the
-    # excluded members easily?
     if cnt1 == 0 and cnt2 == 0:
         return True, (None, None), count
 
@@ -254,13 +269,13 @@ def is_equivalent_for(g1, s1, g2, s2, l, n):
         at2 = random.randint(0, cnt2-1)
         st2_ = rgf2.key_get_string_at(key_node2, at2)
         st2 = fuzzer.tree_to_string(st2_)
-        return False, (None, rem_dollar(st2)), count
+        return False, (None, st2), count
 
     if cnt2 == 0:
         at1 = random.randint(0, cnt1-1)
         st1_ = rgf1.key_get_string_at(key_node1, at1)
         st1 = fuzzer.tree_to_string(st1_)
-        return False, (rem_dollar(st1), None), count
+        return False, (st1, None), count
 
     str1 = set()
     str2 = set()
@@ -278,12 +293,12 @@ def is_equivalent_for(g1, s1, g2, s2, l, n):
     for st1 in str1:
         count += 1
         try: list(ep2.recognize_on(st1, s2))
-        except: return False, (rem_dollar(st1), None), count
+        except: return False, (st1, None), count
 
     for st2 in str2:
         count += 1
         try: list(ep1.recognize_on(st2, s1))
-        except: return False, (None, rem_dollar(st2)), count
+        except: return False, (None, st2), count
 
     return True, None, count
 
@@ -323,15 +338,16 @@ class Oracle:
         else:
             self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex)
 
-        self.ep = earleyparser.EarleyParser(self.g)
+        g, s = fix_epsilon(self.g, self.s)
+
+        self.ep = earleyparser.EarleyParser(g)
 
         # only random samplers need '$', which gets removed after.
-        g = dict(self.g)
-        g = {k:[list(r) for r in g[k]] for k in g} # deep clone
-        for k in g:
-            for r in g[k]:
-                if not r: r.append('$')
-
+        # g = dict(self.g)
+        # g = {k:[list(r) for r in g[k]] for k in g} # deep clone
+        # for k in g:
+        #     for r in g[k]:
+        #         if not r: r.append('$')
         self.rgf = cfgrandomsample.RandomSampleCFG(g)
         # self.rgf = fuzzer.LimitFuzzer(self.g)
         self.counter = 0
@@ -407,72 +423,26 @@ if __name__ == '__main__':
     g, s = g_T.dfa()
     print(s, g)
 
-# ### Cleanup
+# ### Using it
 
 if __name__ == '__main__':
-    oracle = Oracle('a*b*')
-    g_T = StateTable(['a', 'b'], oracle)
-    l_star(g_T)
-    g, s = g_T.dfa()
-    print(g)
-    rule_cost = fuzzer.compute_cost(g)
-    for k in rule_cost:
-        print(k)
-        for r in rule_cost[k]:
-            print(" ", r, rule_cost[k][r])
+    import re
+    exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
+    for e in exprs:
+        oracle = Oracle(e)
+        tbl = StateTable(['a', 'b'], oracle)
+        g_T = l_star(tbl)
+        g, s = g_T.infer_grammar()
+        print(s, g)
 
-# Remove infinite loops
-
-def remove_infinite_loops(g, s):
-    g = deep_clone(g)
-    rule_cost = fuzzer.compute_cost(g)
-    remove_keys = []
-    for k in rule_cost:
-        # if all rules in a k cost inf, then it should be removed.
-        res = [rule_cost[k][r] for r in rule_cost[k] if rule_cost[k][r] != math.inf]
-        if not res:
-            remove_keys.append(k)
-
-    g = {k:g[k] for k in g if k not in remove_keys}
-
-    new_g = {}
-    for k in g:
-        new_g[k] = []
-        for r in g[k]:
-            if [t for t in r if t in remove_keys]: continue # skip this rule
-            new_g[k].append(r)
-    return new_g, s
-
-if __name__ == '__main__':
-    oracle = Oracle('a*b*')
-    g_T = StateTable(['a', 'b'], oracle)
-    l_star(g_T)
-    g, s = g_T.dfa()
-    g, s = remove_infinite_loops(g, s)
-    print(s, g)
-
-    oracle = Oracle('a*b')
-    g_T = StateTable(['a', 'b'], oracle)
-    l_star(g_T)
-    g, s = g_T.dfa()
-    g, s = remove_infinite_loops(g, s)
-    print(s, g)
-
-    oracle = Oracle('ab')
-    g_T = StateTable(['a', 'b'], oracle)
-    l_star(g_T)
-    g, s = g_T.dfa()
-    g, s = remove_infinite_loops(g, s)
-    print(s, g)
-
-    oracle = Oracle('ab*')
-    g_T = StateTable(['a', 'b'], oracle)
-    l_star(g_T)
-    g, s = g_T.dfa()
-    g, s = remove_infinite_loops(g, s)
-    print(s, g)
-
-
+        ep = earleyparser.EarleyParser(g)
+        gf = fuzzer.LimitFuzzer(g)
+        for i in range(10):
+            res = gf.iter_fuzz(key=s, max_depth=100)
+            v = re.fullmatch(e, res)
+            a, b = v.span()
+            assert a == 0, b == len(res)
+            print(a,b)
 
 
 #  
