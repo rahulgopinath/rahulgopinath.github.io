@@ -7,21 +7,30 @@
 # categories: post
 # ---
 # 
-# TLDR; This tutorial is a complete implementation of Angluin's L* algorithm in
-# Python. The Python interpreter is embedded so that you can work through the
-# implementation steps.
+# TLDR; This tutorial is a complete implementation of Angluin's L* algorithm
+# with PAC learning in Python (i.e. without using equivalence queries).
+# The Python interpreter is embedded so that you
+# can work through the implementation steps.
 #  
-# In many previous posts, I have discussed how to [parse with](/post/2023/11/03/matching-regular-expressions/),
+# In many previous posts, I have discussed how to
+# [parse with](/post/2023/11/03/matching-regular-expressions/),
 # [fuzz with](/post/2021/10/22/fuzzing-with-regular-expressions/), and
 # manipulate regular and context-free grammars. However, in many cases, such
 # grammars may be unavailable. If you are given a blackbox program, where the
 # program indicates in some way that the input was accepted or not, what can
-# we do to learn the actual input specification of the blackbox?
+# we do to learn the actual input specification of the blackbox? In such cases,
+# the best option is to try and learn the input specification.
 # 
 # This particular research field which investigates how to learn the input
 # specification of blackbox programs is called blackbox grammar inference or
 # grammatical inference (see the note at the end for a discussion on other
-# names).
+# names). In this post, I will discuss one of the classic algorithms for
+# learning the input specification calle L*. L* was invented by Dana Angluin
+# in 1987 [^angluin1987]. While the initial algorithm used what is called an
+# equivalence query, which assumes that you can check the correctness of the
+# learned grammar separate from yes/no oracle, Angluin updated this algorithm
+# to make use of the PAC (Probably Approximately Correct)
+# framework [^valiant1984] from Valiant in 1988 [^angluin1988].
 # 
 # 
 # #### Prerequisites
@@ -47,22 +56,57 @@ import cfgremoveepsilon
 import math
 import random
 
-# We start with a few definitions
-# 
+# To start with, let us start with the assumption that the blackbox program
+# accepts a regular language. In the classical algorithm from Angluin
+# [^angluin1987], beyond the yes/no oracle (the program can tell you whether any
+# given string is acceptable or not, traditionally called the
+# *membership query*), we also require what is called an *equivalence query*.
+# That is, the algorithm requires what is called a *Teacher* that is able to
+# accept a guess of the target language in terms of a grammar, and tell us
+# whether we guessed it right, or if not, provide us with a string that has
+# different behavior on the blackbox and the guessed grammar -- a counter
+# example. The idea is to use the counter example to refine the guess until the
+# guess matches the target grammar. To start with, we require the following
+# definitions.
+#  
 # ## Definitions
 # 
-# * A symbol X 
+# * Membership query: A string that is passed to the blackbox. The blackbox
+#   answers yes or no.
+# * Equivalence query: A grammar that is passed to the teacher as a hypothesis
+#   of what the target language is. The teacher answers yes or a counter
+#   example that behaves differetly on the blackbox and the hypothesis grammar.
+# * Prefix closed: a set is prefix closed if all prefixes of any of its elements
+#   are also in the same set.
+# * Suffix closed: a set is suffix closed if all suffixes of any of its elements
+#   are also in the same set.
+# * State table: A table whose rows correspond to the *candidate states* (S) and
+#   its extensions of one alphabet (S . a) and the columns correspond to
+#   *query strings* or *experiments* (E). This table
+#   defines the language inferred by the algorithm. The contents of the table
+#   are the answers from the oracle on a string composed of the row and column
+#   labels. That is `T[s,e] == O(s.e)`.
+#   The table has two properties
+#   *closedness* and *consistency*. If these are not met at any time, we take
+#   to resolve it.
+# * Closedness of the state table means that for each s in S and each a in the
+#   alphabet, the contents of row(s.a) has a corresponding row(t) in
+#   the state table with the same contents. The idea is that, the state
+#   corresponding to row(s) accepts alphabet a and transitions to the state
+#   represented by row(t).
+# * Consistency of the state table means that if the contents of two rows are
+#   equal, that is row(s1) == row(s2) then row(s1 . a) = row(s2 . a) for all
+#   alphabets. The idea is tht if two states are the same, then their extensions
+#   should also be the same.
+# * The candidate states `S` is prefix closed, while the set of experiments `E`
+#   is suffix closed.
 # 
-
+# 
 # ## StateTable
 # 
 # Next, we define the observation table, also called the state table.
-# The rows in the state table correspond to candidate states (`S`), and the
-# columns correspond to query strings (`E`). The state table defines the
-# deterministic finite state automaton (DFA) that is learned by the algorithm.
 
-# We initialize it with an oracle, and the
-# alphabet.
+# We initialize the class with an oracle, and the alphabet.
 # That is, we initialize the set of prefixes `S` to be { $$\epsilon $$ }
 # and the set of extensions (experiments) `E` also to be { $$\epsilon $$ }
 
@@ -109,7 +153,7 @@ class StateTable(StateTable):
 
 # ### Closed
 # 
-# An observation table (S, E) is closed if for each t in S·A
+# A state table (S, E) is closed if for each t in S·A
 # there exists an s in S such that row(t) = row(s)
 class StateTable(StateTable):
     def closed(self):
@@ -121,10 +165,10 @@ class StateTable(StateTable):
 
 # ### Consistent
 # 
-# An observation table (S, E) is consistent if, whenever s1 and s2
+# A state table (S, E) is consistent if, whenever s1 and s2
 # are elements of S such that row(s1) = row(s2), for each a in A,
-# row(s1a) = row(s2a). 
-# /If/ there are two rows in the top part of the table repeated, then the
+# row(s1.a) = row(s2.a). 
+# *If* there are two rows in the top part of the table repeated, then the
 # corresponding extensions should be the same.
 
 class StateTable(StateTable):
@@ -159,6 +203,8 @@ class StateTable(StateTable):
 # Given the observation table, we can recover the DFA from this table. The
 # unique cell contents of rows are states. In many cases, multiple rows may
 # correspond to the same state (as the cell contents are the same).
+# The *start state* is given by the state that correspond to the epsilon row.
+# A state is acceptig if it on query of epsilon, it retunrs 1.
 
 class StateTable(StateTable):
     def dfa(self):
@@ -167,10 +213,8 @@ class StateTable(StateTable):
         grammar = {}
         for s in self.S:
             sid = self.get_sid(s)
-            if sid not in states:
-                states[sid] = [s]
-            else:
-                states[sid].append(s)
+            if sid not in states: states[sid] = []
+            states[sid].append(s)
             row_map[s] = sid
 
         for sid in states: grammar['<%s>' % sid] = []
@@ -255,9 +299,6 @@ def l_star(T):
         if res: return T
         #print(counterX)
         for p in prefixes(counterX): T.append_S(p)
-
-import hashlib
-random.seed(0)
 
 # Next, we need to consider our oracle. It serves both as the
 # blackbox to learn from and also as the teacher.
@@ -381,11 +422,6 @@ class Oracle:
         # epsilon is the accuracy and delta is the confidence
         self.delta, self.epsilon = 0.1, 0.1
 
-    def dfa_to_str(self, q):
-        s = hashlib.shake_128(bytes(str(q), 'utf-8')).hexdigest(4)
-        return s
-
-
     def generate(self, l):
         cache = {}
         while not cache:
@@ -486,4 +522,6 @@ if __name__ == '__main__':
 # and grammar extraction which are all whitebox approaches based on program
 # or related artifact analysis. Language acquisition is another related term.
 # 
-# [^1]: Marvin C. Paull, Algorithm design: a recursion transformation framework, 1988
+# [^angluin1987]: Learning Regular Sets from Queries and Counterexamples, 1987 
+# [^angluin1988]: Queries and Concept Learning, 1988
+# [^valiant1984]: A theory of the learnable, 1984
