@@ -179,11 +179,13 @@ definitions.
 Given the state table, the algorithm itself is simple
 
 ## L*
+The L* algorithm loops, doing the following operations in sequence. (1) keep
+the table closed, (2) keep the table consistent, and if it is closed and
+consistent (3) ask the teacher if the corresponding hypothesis grammar is
+correct.
 
 <!--
 ############
-def prefixes(s): return [s[0:i] for i,a in enumerate(s)][1:]
-
 def l_star(T):
     T.init_table()
 
@@ -198,14 +200,13 @@ def l_star(T):
         g, s = T.grammar()
         res, counterX = teacher.is_equivalent(g, s)
         if res: return T
-        for p in prefixes(counterX): T.append_S(p)
+        prefixes = [counterX[0:i] for i,a in enumerate(counterX)][1:]
+        for p in prefixes: T.append_S(p)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def prefixes(s): return [s[0:i] for i,a in enumerate(s)][1:]
-
 def l_star(T):
     T.init_table()
 
@@ -220,7 +221,8 @@ def l_star(T):
         g, s = T.grammar()
         res, counterX = teacher.is_equivalent(g, s)
         if res: return T
-        for p in prefixes(counterX): T.append_S(p)
+        prefixes = [counterX[0:i] for i,a in enumerate(counterX)][1:]
+        for p in prefixes: T.append_S(p)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
