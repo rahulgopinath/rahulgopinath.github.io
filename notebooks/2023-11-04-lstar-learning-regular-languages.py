@@ -1,11 +1,15 @@
 # ---
 # published: true
-# title: Learning Regular Languages with Angluins L* Algorithm
+# title: Learning Regular Languages with L* Algorithm from Dana Angluin
 # layout: post
 # comments: true
 # tags: regular-grammars induction
 # categories: post
 # ---
+# 
+# TLDR; This tutorial is a complete implementation of Angluin's L* algorithm in
+# Python. The Python interpreter is embedded so that you can work through the
+# implementation steps.
 #  
 # In many previous posts, I have discussed how to [parse with](/post/2023/11/03/matching-regular-expressions/),
 # [fuzz with](/post/2021/10/22/fuzzing-with-regular-expressions/), and
@@ -13,6 +17,12 @@
 # grammars may be unavailable. If you are given a blackbox program, where the
 # program indicates in some way that the input was accepted or not, what can
 # we do to learn the actual input specification of the blackbox?
+# 
+# This particular research field which investigates how to learn the input
+# specification of blackbox programs is called blackbox grammar inference or
+# grammatical inference (see the note at the end for a discussion on other
+# names).
+# 
 # 
 # #### Prerequisites
 #  
@@ -26,7 +36,8 @@
 # http://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
 
 # We need the fuzzer to generate inputs to parse and also to provide some
-# utilities
+# utilities such as conversion of regular expression to grammars, random
+# sampling from grammars etc. Hence, we import all that.
 
 import simplefuzzer as fuzzer
 import rxfuzzer
@@ -45,15 +56,30 @@ import random
 
 # ## StateTable
 # 
-# Next, we define the state table. We initialize it with an oracle, and the
+# Next, we define the observation table, also called the state table.
+# The rows in the state table correspond to candidate states (`S`), and the
+# columns correspond to query strings (`E`). The state table defines the
+# deterministic finite state automaton (DFA) that is learned by the algorithm.
+
+# We initialize it with an oracle, and the
 # alphabet.
 # That is, we initialize the set of prefixes `S` to be { $$\epsilon $$ }
 # and the set of extensions (experiments) `E` also to be { $$\epsilon $$ }
+
 class StateTable:
     def __init__(self, alphabet, oracle):
         self._T, self.S, self.E = {}, [''], ['']
         self.oracle = oracle
         self.A = alphabet
+
+    def row(self, v): return self._T[v]
+
+    def cell(self, v, e): return self._T[v][e]
+
+    def get_sid(self, s):
+        row = self.row(s)
+        return ''.join([str(row[e]) for e in self.E])
+
 
 # We can initialize the table as follows. First, we check whether the
 # empty string is in the language. Then, we extend the table `T`
@@ -79,10 +105,6 @@ class StateTable(StateTable):
             if s in self._T and e in self._T[s]: continue
             if s not in self._T: self._T[s] = {}
             self._T[s][e] = self.oracle.is_member(s + e)
-
-    def row(self, v): return self._T[v]
-
-    def cell(self, v, e): return self._T[v][e]
 
 
 # ### Closed
@@ -117,6 +139,10 @@ class StateTable(StateTable):
         return True, None
 
 # ### Table utilities
+# Next, we define two utilities, one for appending a new S, and another
+# for appending a new E. We also define a utility for naming a state,
+# which corresponds to a unique row contents.
+
 class StateTable(StateTable):
     def append_S(self, s):
         if s in self.S: return
@@ -128,12 +154,13 @@ class StateTable(StateTable):
         self.E.append(ae)
         self.extend()
 
-# ### The DFA
-# 
-    def get_sid(self, s):
-        row = self.row(s)
-        return ''.join([str(row[e]) for e in self.E])
 
+# ### The DFA
+# Given the observation table, we can recover the DFA from this table. The
+# unique cell contents of rows are states. In many cases, multiple rows may
+# correspond to the same state (as the cell contents are the same).
+
+class StateTable(StateTable):
     def dfa(self):
         row_map = {}  # Mapping from row string to state ID
         states = {}
@@ -445,6 +472,18 @@ if __name__ == '__main__':
             print(a,b)
 
 
-#  
+# # Notes
+# While there is no strict specifications as to what grammar induction,
+# inference, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
+# Grammar inference is about learning a *grammar* (i.e. the representation) when
+# given information about a language, and focuses on the target, the grammar.
+# That is, you start with the assumption that a target gramamr exists. Then,
+# try to guess that grammar based on your observations.
+# If on the other hand, you do not believe that a particular target grammar
+# exists, but want to do the best to learn the underlying principles, then it is
+# grammar induction. That is, it focues on the best possible grammar for the
+# given data. Closely related fiels are grammar mining, grammar recovery,
+# and grammar extraction which are all whitebox approaches based on program
+# or related artifact analysis. Language acquisition is another related term.
 # 
 # [^1]: Marvin C. Paull, Algorithm design: a recursion transformation framework, 1988
