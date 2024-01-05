@@ -288,9 +288,9 @@ if __name__ == '__main__':
 #  
 # We start with the start state in the table, because we know for sure
 # that it exists, and is represented by the empty string in row and column,
-# which together (prefix + suffix) is the empty string '' or $$ \epsilon $$.
+# which together (prefix + suffix) is the empty string `''` or $$ \epsilon $$.
 # We ask the program if it accepts the empty string, and if it accepts, we mark
-# the corresponding cell in the table as accept (or `1`).
+# the corresponding cell in the table as *accept* (or `1`).
 #  
 # For any given state in the DFA, we should be able to say what happens when
 # an input symbol is fed into the machine in that state. So, we can extend the
@@ -425,14 +425,15 @@ if __name__ == '__main__':
 # 
 # ### Consistent
 # 
-# An observation table $$ P \times S $$ is consistent if, whenever p1 and p2
+# An observation table $$ P \times S $$ is consistent if, whenever $$ p1 $$
+# and $$ p2 $$
 # are elements of P such that $$ [p1] = [p2] $$, for each $$ a \in A $$,
 # $$ [p1.a] = [p2.a] $$.
 # *If* there are two rows in the top part of the table repeated, then the
 # corresponding suffix results should be the same.
-# If not, we found a counter example, and we report the alphabet + the
-# suffix that distinguished. We will then add the new string (a + suffix)
-# as a new suffix to the table.
+# If not, we have found a counter example. So we report the alphabet and
+# the suffix that distinguished the rows. We will then add the new
+# string (a + suffix) as a new suffix to the table.
 
 class ObservationTable(ObservationTable):
     def consistent(self):
@@ -480,15 +481,16 @@ if __name__ == '__main__':
     is_consistent,_, unknown_A = ot.consistent() 
     assert is_consistent
 
-# Finally, L\* also relies on a *Teacher* for it to suggest new suffixes that
-# can distinguish unrecognized states from current ones.
-# 
 # (Of course readers will quickly note that the table is not the best data
 # structure here, and just because a suffix distinguished two particular
 # states does not mean that it is a good idea to evaluate the same suffix
 # on all other states. These are ideas that will be explored in later
 # algorithms).
-
+# 
+# 
+# Finally, L\* also relies on a *Teacher* for it to suggest new suffixes that
+# can distinguish unrecognized states from current ones.
+# 
 # ## Teacher
 # We now construct our teacher. We have two requirements for the teacher.
 # The first is that it should fulfil the requirement for Oracle. That is,
