@@ -214,7 +214,7 @@ class ObservationTable:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using the observation table
+Using the observation table with some pre-cooked data.
 
 <!--
 ############
@@ -928,7 +928,7 @@ algorithms).
 ## Teacher
 We now construct our teacher. We have two requirements for the teacher.
 The first is that it should fulfil the requirement for Oracle. That is,
-it should answer `is_membeer()` queries. Secondly, it should also answer
+it should answer `is_member()` queries. Secondly, it should also answer
 `is_equivalent()` queries.
 First, we define the oracle interface.
 

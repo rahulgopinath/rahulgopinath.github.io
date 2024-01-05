@@ -118,7 +118,7 @@ class ObservationTable:
     def get_sid(self, p):
         return '<%s>' % ''.join([str(self.cell(p,s)) for s in self.S])
 
-# Using the observation table
+# Using the observation table with some pre-cooked data.
 
 if __name__ == '__main__':
     alphabet = list('abcdefgh')
@@ -486,7 +486,7 @@ if __name__ == '__main__':
 # ## Teacher
 # We now construct our teacher. We have two requirements for the teacher.
 # The first is that it should fulfil the requirement for Oracle. That is,
-# it should answer `is_membeer()` queries. Secondly, it should also answer
+# it should answer `is_member()` queries. Secondly, it should also answer
 # `is_equivalent()` queries.
 #
 # First, we define the oracle interface.
