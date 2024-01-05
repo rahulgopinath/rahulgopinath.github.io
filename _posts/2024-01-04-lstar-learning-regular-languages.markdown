@@ -221,7 +221,6 @@ Using the observation table
 alphabet = list('abcdefgh')
 o = ObservationTable(alphabet)
 o._T = {p:{'':1, 'a':0, 'ba':1, 'cba':0} for p in alphabet}
-print(o.row('a'))
 print(o.cell('a', 'ba'))
 print(o.get_sid('a'))
 
@@ -232,7 +231,6 @@ print(o.get_sid('a'))
 alphabet = list(&#x27;abcdefgh&#x27;)
 o = ObservationTable(alphabet)
 o._T = {p:{&#x27;&#x27;:1, &#x27;a&#x27;:0, &#x27;ba&#x27;:1, &#x27;cba&#x27;:0} for p in alphabet}
-print(o.row(&#x27;a&#x27;))
 print(o.cell(&#x27;a&#x27;, &#x27;ba&#x27;))
 print(o.get_sid(&#x27;a&#x27;))
 </textarea><br />
@@ -244,8 +242,12 @@ print(o.get_sid(&#x27;a&#x27;))
 Given the observation table, we can recover the grammar from this table
 (corresponding to the DFA). The
 unique cell contents of rows are states. In many cases, multiple rows may
-correspond to the same state (as the cell contents are the same).
-The *start state* is given by the state that correspond to the epsilon row.
+correspond to the same state (as the cell contents are the same). We take
+the first prefix that resulted in a particular state as its representative
+prefix, and we denote the representative prefix of a state $$ s $$ by
+$$ <s> $$ (this is not used in this post).
+The *start state* is given by the state that correspond to the $$\epsilon$$
+row.
 A state is accepting if it on query of epsilon, it returns 1. The formal
 definitions are as follows. The notation $$ [p] $$ means the state
 corresponding to the prefix $$ p $$. The notation $$ [[p,s]] $$ means the
@@ -258,10 +260,16 @@ symbol $$ a $$ to the state $$ [p] $$.
 * transition function: $$ [p](a) \rightarrow [p.a] $$
 * accepting state: $$ F = {[p] : p \in P : [[p,\epsilon]] = 1} $$
 
+For constructing the grammar from the table, we first identify all
+distinguished states. Next, we identify the start state, followed by
+accepting states. Finally, we connect states together with transitions
+between them.
+
 <!--
 ############
 class ObservationTable(ObservationTable):
     def table_to_grammar(self):
+        # Step 1: identify all distinguished states.
         prefix_to_state = {}  # Mapping from row string to state ID
         states = {}
         grammar = {}
@@ -297,6 +305,7 @@ class ObservationTable(ObservationTable):
 <textarea cols="40" rows="4" name='python_edit'>
 class ObservationTable(ObservationTable):
     def table_to_grammar(self):
+        # Step 1: identify all distinguished states.
         prefix_to_state = {}  # Mapping from row string to state ID
         states = {}
         grammar = {}
@@ -388,53 +397,69 @@ for k in g:
 This gets us a grammar that can accept the string `a`, but it also has a
 problem. The issue is that the key `<00>` has no rule that does not include
 `<00>` in its expansion. That is, `<00>` is an infinite loop that once the
-machine goes in, is impossible to exit. We need to remove such rules
+machine goes in, is impossible to exit. We need to remove such rules. We do
+that using the `compute_cost()` function of LimitFuzzer. The idea is that
+if all rules of a nonterminal have `inf` as the cost, then that nonterminal
+produces an infinite loop and hence both the nonterminal, as well as any rule
+that references that nonterminal have to be removed recursively.
 
 <!--
 ############
 class ObservationTable(ObservationTable):
-    def remove_infinite_loops(self, g, s):
+    def remove_infinite_loops(self, g, start):
         rule_cost = fuzzer.compute_cost(g)
         remove_keys = []
         for k in rule_cost:
-            if k == s: continue
-            # if all rules in a k cost inf, then it should be removed.
+            if k == start: continue
             res = [rule_cost[k][r] for r in rule_cost[k]
                    if rule_cost[k][r] != math.inf]
             if not res: remove_keys.append(k)
 
-        new_g = {}
-        for k in g:
-            if k in remove_keys: continue
-            new_g[k] = []
-            for r in g[k]:
-                if [t for t in r if t in remove_keys]: continue
-                new_g[k].append(r)
-        return new_g, s
+        cont = True
+        while cont:
+            cont = False
+            new_g = {}
+            for k in g:
+                if k in remove_keys: continue
+                new_g[k] = []
+                for r in g[k]:
+                    if [t for t in r if t in remove_keys]: continue
+                    new_g[k].append(r)
+                if not new_g[k]:
+                    if k == start: continue
+                    remove_keys.append(k)
+                    cont = True
+        return new_g, start
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ObservationTable(ObservationTable):
-    def remove_infinite_loops(self, g, s):
+    def remove_infinite_loops(self, g, start):
         rule_cost = fuzzer.compute_cost(g)
         remove_keys = []
         for k in rule_cost:
-            if k == s: continue
-            # if all rules in a k cost inf, then it should be removed.
+            if k == start: continue
             res = [rule_cost[k][r] for r in rule_cost[k]
                    if rule_cost[k][r] != math.inf]
             if not res: remove_keys.append(k)
 
-        new_g = {}
-        for k in g:
-            if k in remove_keys: continue
-            new_g[k] = []
-            for r in g[k]:
-                if [t for t in r if t in remove_keys]: continue
-                new_g[k].append(r)
-        return new_g, s
+        cont = True
+        while cont:
+            cont = False
+            new_g = {}
+            for k in g:
+                if k in remove_keys: continue
+                new_g[k] = []
+                for r in g[k]:
+                    if [t for t in r if t in remove_keys]: continue
+                    new_g[k].append(r)
+                if not new_g[k]:
+                    if k == start: continue
+                    remove_keys.append(k)
+                    cont = True
+        return new_g, start
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -446,8 +471,7 @@ We can wrap up everything in one method.
 class ObservationTable(ObservationTable):
     def grammar(self):
         g, s = self.table_to_grammar()
-        g, s = self.remove_infinite_loops(g, s)
-        return g, s
+        return self.remove_infinite_loops(g, s)
 
 ############
 -->
@@ -456,8 +480,7 @@ class ObservationTable(ObservationTable):
 class ObservationTable(ObservationTable):
     def grammar(self):
         g, s = self.table_to_grammar()
-        g, s = self.remove_infinite_loops(g, s)
-        return g, s
+        return self.remove_infinite_loops(g, s)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
