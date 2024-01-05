@@ -174,357 +174,76 @@ is rejected (or the end state is not an accept).
 Given this information, a data structure for keeping track of our experiments
 presents itself -- the *observation table* where we keep our prefix strings
 as rows, and suffix strings as columns. The table content simply marks
-whether program accepted the prefix + suffix string or not.
+whether program accepted the prefix + suffix string or not. So, here
+is our data structure.
 
-Next, we start with the start state in the table, because we know for sure
-that it exists, and is represented by the empty string in row and column,
-which together (prefix + suffix = '' + '') is the empty string. We ask the
-program if it accepts the empty string, and if it accepts, we mark the
-corresponding cell in the table as accept (or `1`).
-
-For any given state in the DFA, we should be able to say what happens when
-an input symbol is fed into the machine in that state. So, we can extend the
-table with what happens when each input symbol is fed into the start state.
-This means that we extend the table with rows corresponding to each symbol
-in the input alphabet. Since we want to know what state we reached when we
-fed the input symbol to the start state, we add a set of cleverly chosen
-suffixes (columns) to the table, determine the machine response to these
-suffixes (by feeding the machine prefix+suffix for each combination), and
-check whether any new state other than the start state was identified. A
-new state reached by a prefix can be distinguished from the start state using
-some suffix, if, after consuming that particular prefix, followed by the
-particular suffix, the machine moved to say *accept*, but when the machine
-at the start state was fed the same suffix, the end state was not *accept*.
-(i.e. the machine accepted prefix + suffix but not suffix on its own).
-Symmetrically, if the machine did not accept the string prefix + suffix
-but did accept the string suffix, that also distinguishes the state from
-the start state. Once we have identified a new state, we can then extend
-the DFA with transitions from this new state, and check whether more
-states can be identified. This is essentially the intuition behind most
-of the grammar inference algorithms, and the cleverness lies in how the
-suffixes are chosen. In the case of L\*, the when we find that one of the
-transitions from the current states result in a new state, we add the
-alphabet that caused the transition from the current state and the suffix
-that distinguished the new state to the suffixes (i.e, a + suffix is
-added to the columns). Furthermore, L\* also relies on something called
-a *Teacher* for it to suggest new suffixes that can distinguish
-unrecognized states from current ones.
-
-(Of course readers will quickly note that the table is not the best data
-structure here, and just because a suffix distinguished two particular
-states does not mean that it is a good idea to evaluate the same suffix
-on all other states. These are ideas that will be explored in later
-algorithms).
- 
-# The classical L* algorithm
- 
-In the classical algorithm from Angluin [^angluin1987], beyond the yes/no
-oracle (the program can tell you whether any given string is acceptable or
-not, traditionally called the *membership query*), we also require what is
-called an *equivalence query*. That is, the algorithm requires what is called
-a *Teacher* that is able to accept a guess of the target language in terms of
-a grammar, and tell us whether we guessed it right, or if not, provide us with
-a string that has different behavior on the blackbox and the guessed grammar
--- a counter example. The idea is to use the counter example to refine the
-guess until the guess matches the target grammar. To start with, we require
-the following definitions.
- 
-## Definitions
-
-* Input symbol: A single symbol that is consumed by the machine which can move
-  it from one state to another. The set of such symbols is called an alphabet,
-  and is represented by $$ A $$.
-* Membership query: A string that is passed to the blackbox. The blackbox
-  answers yes or no.
-* Equivalence query: A grammar that is passed to the teacher as a hypothesis
-  of what the target language is. The teacher answers yes or a counter
-  example that behaves differently on the blackbox and the hypothesis grammar.
-* Prefix closed: a set is prefix closed if all prefixes of any of its elements
-  are also in the same set.
-* Suffix closed: a set is suffix closed if all suffixes of any of its elements
-  are also in the same set.
-* Observation table: A table whose rows correspond to the *candidate states*.
-  The rows are made up of prefix strings that can reach given states ---
-  commonly represented as $$ S $$, but here we will denote these by $$ P $$
-  for prefixes --- and the columns are made up of suffix strings that serves
-  to distinguish these states --- commonly expressed as $$ E $$ for
-  extensions, but we will use $$ S $$ to denote suffixes here. The table
-  contains auxiliary rows that extends each item $$ p \in P $$ with each
-  alphabet $$ a \in A $$ as we discuss later in *closedness*.
-  This table defines the language inferred by the algorithm. The contents of
-  the table are the answers from the oracle on a string composed of the row
-  and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
-  The table has two properties: *closedness* and *consistency*.
-  If these are not met at any time, we take to resolve it.
-* The state: A state in the DFA is represented by a prefix in the observation
-  table, and is named by the pattern of 1s and 0s in the cell contents.
-  We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
-* Closedness of the observation table means that for each $$ p \in P $$ and
-  each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
-  (i.e., its contents) exists in $$ P $$. That is, there is some
-  $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
-  corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
-  state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
-* Consistency of the observation table means that if two prefixes represents
-  the same state (i.e. the contents of two rows are equal), that is
-  $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
-  The idea is that if two prefixes reach the state, then when fed any
-  alphabet, both prefixes should transition to the same next state
-  (represented by the pattern produced by the suffixes).
-* The candidate states `P` is prefix closed, while the set of suffixes `S`
-  is suffix closed.
-
-Given the observation table, the algorithm itself is simple
-
-## L star main loop
-The L* algorithm loops, doing the following operations in sequence. (1) keep
-the table closed, (2) keep the table consistent, and if it is closed and
-consistent (3) ask the teacher if the corresponding hypothesis grammar is
-correct.
-
-<!--
-############
-def l_star(T):
-    T.init_table()
-
-    while True:
-        while True:
-            is_closed, unknown_P = T.closed()
-            is_consistent, _, unknown_AS = T.consistent()
-            if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P)
-            if not is_consistent: T.append_S(unknown_AS)
-
-        grammar, start = T.grammar()
-        eq, counterX = teacher.is_equivalent(grammar, start)
-        if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1])
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def l_star(T):
-    T.init_table()
-
-    while True:
-        while True:
-            is_closed, unknown_P = T.closed()
-            is_consistent, _, unknown_AS = T.consistent()
-            if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P)
-            if not is_consistent: T.append_S(unknown_AS)
-
-        grammar, start = T.grammar()
-        eq, counterX = teacher.is_equivalent(grammar, start)
-        if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1])
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 ## ObservationTable
 
-Next, we define the state table, also called the observation table.
-We initialize the class with an teacher, and the alphabet.
-That is, we initialize the set of prefixes `P` to be { $$\epsilon $$ }
-and the set of suffixes (experiments) `S` also to be { $$\epsilon $$ }
+We initialize the observation table with the alphabet. We keep the table
+itself as an internal dict `_T`. We also keep the prefixes in `P` and
+suffixes in `S`.
+We initialize the set of prefixes `P` to be { $$\epsilon $$ }
+and the set of suffixes `S` also to be { $$\epsilon $$ }. We also add
+a few utility functions.
 
 <!--
 ############
 class ObservationTable:
-    def __init__(self, alphabet, teacher):
-        self._T, self.P, self.S = {}, [''], ['']
-        self.teacher = teacher
-        self.A = alphabet
+    def __init__(self, alphabet):
+        self._T, self.P, self.S, self.A = {}, [''], [''], alphabet
 
     def row(self, v): return self._T[v]
 
     def cell(self, v, e): return self._T[v][e]
 
-    def get_sid(self, s):
-        return '<%s>' % ''.join([str(self.cell(s,e)) for e in self.S])
+    def get_sid(self, p):
+        return '<%s>' % ''.join([str(self.cell(p,s)) for s in self.S])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ObservationTable:
-    def __init__(self, alphabet, teacher):
-        self._T, self.P, self.S = {}, [&#x27;&#x27;], [&#x27;&#x27;]
-        self.teacher = teacher
-        self.A = alphabet
+    def __init__(self, alphabet):
+        self._T, self.P, self.S, self.A = {}, [&#x27;&#x27;], [&#x27;&#x27;], alphabet
 
     def row(self, v): return self._T[v]
 
     def cell(self, v, e): return self._T[v][e]
 
-    def get_sid(self, s):
-        return &#x27;&lt;%s&gt;&#x27; % &#x27;&#x27;.join([str(self.cell(s,e)) for e in self.S])
+    def get_sid(self, p):
+        return &#x27;&lt;%s&gt;&#x27; % &#x27;&#x27;.join([str(self.cell(p,s)) for s in self.S])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We can initialize the table as follows. First, we check whether the
-empty string is in the language. Then, we extend the table `T`
-to `(P u P.A).S` using membership queries.
-
-- For each p in P and each a in A, query the teacher for the output of `p.a`
-and update table `T` with the rows.
-- For each `s` in `S`, query the teacher for the output of `p.s` and update `T`
+Using the observation table
 
 <!--
 ############
-class ObservationTable(ObservationTable):
-    def init_table(self):
-        self._T[''] = {'': self.teacher.is_member('') }
-        self.update_table()
-
-    def update_table(self):
-        def unique(l): return list({s:None for s in l}.keys())
-        rows = self.P
-        auxrows = [p + a for p in self.P for a in self.A]
-        PuPxA = unique(rows + auxrows)
-        PuPxA_E = [(s,e) for s in PuPxA for e in self.S]
-        for s,e in PuPxA_E:
-            if s in self._T and e in self._T[s]: continue
-            if s not in self._T: self._T[s] = {}
-            self._T[s][e] = self.teacher.is_member(s + e)
-
+alphabet = list('abcdefgh')
+o = ObservationTable(alphabet)
+o._T = {p:{'':1, 'a':0, 'ba':1, 'cba':0} for p in alphabet}
+print(o.row('a'))
+print(o.cell('a', 'ba'))
+print(o.get_sid('a'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ObservationTable(ObservationTable):
-    def init_table(self):
-        self._T[&#x27;&#x27;] = {&#x27;&#x27;: self.teacher.is_member(&#x27;&#x27;) }
-        self.update_table()
-
-    def update_table(self):
-        def unique(l): return list({s:None for s in l}.keys())
-        rows = self.P
-        auxrows = [p + a for p in self.P for a in self.A]
-        PuPxA = unique(rows + auxrows)
-        PuPxA_E = [(s,e) for s in PuPxA for e in self.S]
-        for s,e in PuPxA_E:
-            if s in self._T and e in self._T[s]: continue
-            if s not in self._T: self._T[s] = {}
-            self._T[s][e] = self.teacher.is_member(s + e)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Closed
-
-A state table $$ P \times S $$ is closed if for each $$ t \in P·A $$
-there exists a $$ p \in P $$ such that $$ [t] = [p] $$
-
-<!--
-############
-class ObservationTable(ObservationTable):
-    def closed(self):
-        P_A = [p+a for p in self.P for a in self.A]
-        for t in P_A:
-            res = [p for p in self.P if self.row(t) == self.row(p)]
-            if not res: return False, t
-        return True, None
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ObservationTable(ObservationTable):
-    def closed(self):
-        P_A = [p+a for p in self.P for a in self.A]
-        for t in P_A:
-            res = [p for p in self.P if self.row(t) == self.row(p)]
-            if not res: return False, t
-        return True, None
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Consistent
-
-A state table $$ P \times S $$ is consistent if, whenever p1 and p2
-are elements of P such that $$ [p1] = [p2] $$, for each $$ a \in A $$,
-$$ [p1.a] = [p2.a] $$.
-*If* there are two rows in the top part of the table repeated, then the
-corresponding extensions should be the same.
-If not, we found a counter example, and we report the alphabet + the
-suffix that distinguished. We will then add the new string (a + suffix)
-as a new suffix to the table.
-
-<!--
-############
-class ObservationTable(ObservationTable):
-    def consistent(self):
-        prefixpairs = [(p1,p2) for p1 in self.P for p2 in self.P if p1 != p2]
-        for p1,p2 in prefixpairs:
-            if self.row(p1) != self.row(p2): continue
-            for a in self.A:
-                for s in self.S:
-                    if self.cell(p1+a,s) != self.cell(p2+a,s):
-                        return False, (p1, p2), (a + s)
-        return True, None, None
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ObservationTable(ObservationTable):
-    def consistent(self):
-        prefixpairs = [(p1,p2) for p1 in self.P for p2 in self.P if p1 != p2]
-        for p1,p2 in prefixpairs:
-            if self.row(p1) != self.row(p2): continue
-            for a in self.A:
-                for s in self.S:
-                    if self.cell(p1+a,s) != self.cell(p2+a,s):
-                        return False, (p1, p2), (a + s)
-        return True, None, None
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-### Table utilities
-Next, we define two utilities, one for appending a new S, and another
-for appending a new E. We also define a utility for naming a state,
-which corresponds to a unique row contents.
-
-<!--
-############
-class ObservationTable(ObservationTable):
-    def append_P(self, p):
-        if p in self.P: return
-        self.P.append(p)
-        self.update_table()
-
-    def append_S(self, a_s):
-        if a_s in self.S: return
-        self.S.append(a_s)
-        self.update_table()
-
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class ObservationTable(ObservationTable):
-    def append_P(self, p):
-        if p in self.P: return
-        self.P.append(p)
-        self.update_table()
-
-    def append_S(self, a_s):
-        if a_s in self.S: return
-        self.S.append(a_s)
-        self.update_table()
+alphabet = list(&#x27;abcdefgh&#x27;)
+o = ObservationTable(alphabet)
+o._T = {p:{&#x27;&#x27;:1, &#x27;a&#x27;:0, &#x27;ba&#x27;:1, &#x27;cba&#x27;:0} for p in alphabet}
+print(o.row(&#x27;a&#x27;))
+print(o.cell(&#x27;a&#x27;, &#x27;ba&#x27;))
+print(o.get_sid(&#x27;a&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ### Convert Table to Grammar
+
 Given the observation table, we can recover the grammar from this table
 (corresponding to the DFA). The
 unique cell contents of rows are states. In many cases, multiple rows may
@@ -608,15 +327,66 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Cleanup Grammar
-The grammar output by the `grammar()` method is a bit messy. It can contain
-keys will always lead to infinite loops. For example,
+Let us try the observation to grammar conversion for an observation table 
+that corresponds to recognition of the string `a`. We will use the alphabet
+`a`, `b`.
 
-```
-<A> ::= <B> <A>
-     |  <C> <A>
-```
-We need to remove such infinite loops.
+<!--
+############
+alphabet = list('ab')
+o = ObservationTable(alphabet)
+o._T = {'':    {'': 0, 'a': 1},
+        'a':   {'': 1, 'a': 0},
+        'b':   {'': 0, 'a': 0},
+        'aa':  {'': 0, 'a': 0},
+        'ab':  {'': 0, 'a': 0},
+        'ba':  {'': 0, 'a': 0},
+        'bb':  {'': 0, 'a': 0},
+        'baa': {'': 0, 'a': 0},
+        'bab': {'': 0, 'a': 0}}
+P = [k for k in o._T]
+S = [k for k in o._T['']]
+o.P, o.S = P, S
+g, s = o.table_to_grammar()
+print('start: ', s)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print(" | ", r)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+alphabet = list(&#x27;ab&#x27;)
+o = ObservationTable(alphabet)
+o._T = {&#x27;&#x27;:    {&#x27;&#x27;: 0, &#x27;a&#x27;: 1},
+        &#x27;a&#x27;:   {&#x27;&#x27;: 1, &#x27;a&#x27;: 0},
+        &#x27;b&#x27;:   {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;aa&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;ab&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;ba&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;bb&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;baa&#x27;: {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;bab&#x27;: {&#x27;&#x27;: 0, &#x27;a&#x27;: 0}}
+P = [k for k in o._T]
+S = [k for k in o._T[&#x27;&#x27;]]
+o.P, o.S = P, S
+g, s = o.table_to_grammar()
+print(&#x27;start: &#x27;, s)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print(&quot; | &quot;, r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Cleanup Grammar
+This gets us a grammar that can accept the string `a`, but it also has a
+problem. The issue is that the key `<00>` has no rule that does not include
+`<00>` in its expansion. That is, `<00>` is an infinite loop that once the
+machine goes in, is impossible to exit. We need to remove such rules
 
 <!--
 ############
@@ -667,8 +437,7 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Infer Grammar
-We can now wrap up everything in one method.
+We can wrap up everything in one method.
 
 <!--
 ############
@@ -687,6 +456,351 @@ class ObservationTable(ObservationTable):
         g, s = self.table_to_grammar()
         g, s = self.remove_infinite_loops(g, s)
         return g, s
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+once again
+
+<!--
+############
+o = ObservationTable(alphabet)
+o._T = {'':    {'': 0, 'a': 1},
+        'a':   {'': 1, 'a': 0},
+        'b':   {'': 0, 'a': 0},
+        'aa':  {'': 0, 'a': 0},
+        'ab':  {'': 0, 'a': 0},
+        'ba':  {'': 0, 'a': 0},
+        'bb':  {'': 0, 'a': 0},
+        'baa': {'': 0, 'a': 0},
+        'bab': {'': 0, 'a': 0}}
+o.P, o.S = P, S
+g, s = o.grammar()
+print('start: ', s)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print(" | ", r)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+o = ObservationTable(alphabet)
+o._T = {&#x27;&#x27;:    {&#x27;&#x27;: 0, &#x27;a&#x27;: 1},
+        &#x27;a&#x27;:   {&#x27;&#x27;: 1, &#x27;a&#x27;: 0},
+        &#x27;b&#x27;:   {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;aa&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;ab&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;ba&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;bb&#x27;:  {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;baa&#x27;: {&#x27;&#x27;: 0, &#x27;a&#x27;: 0},
+        &#x27;bab&#x27;: {&#x27;&#x27;: 0, &#x27;a&#x27;: 0}}
+o.P, o.S = P, S
+g, s = o.grammar()
+print(&#x27;start: &#x27;, s)
+for k in g:
+    print(k)
+    for r in g[k]:
+        print(&quot; | &quot;, r)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now that we are convinced that we can produce a DFA or a grammar out of the
+table let us proceed to examining how to produce this table.
+ 
+We start with the start state in the table, because we know for sure
+that it exists, and is represented by the empty string in row and column,
+which together (prefix + suffix = '' + '') is the empty string. We ask the
+program if it accepts the empty string, and if it accepts, we mark the
+corresponding cell in the table as accept (or `1`).
+
+For any given state in the DFA, we should be able to say what happens when
+an input symbol is fed into the machine in that state. So, we can extend the
+table with what happens when each input symbol is fed into the start state.
+This means that we extend the table with rows corresponding to each symbol
+in the input alphabet. 
+
+So, we can initialize the table as follows. First, we check whether the
+empty string is in the language. Then, we extend the table `T`
+to `(P u P.A).S` using membership queries. This is given in `update_table()`
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def init_table(self, oracle):
+        self._T[''] = {'': oracle.is_member('') }
+        self.update_table(oracle)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def init_table(self, oracle):
+        self._T[&#x27;&#x27;] = {&#x27;&#x27;: oracle.is_member(&#x27;&#x27;) }
+        self.update_table(oracle)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The update table has two parts. First, it takes the current set of prefixes
+(`rows`) and determines the auxiliary rows to compute based on extensions of
+the current rows with the symbols in the alphabet (`auxrows`). This gives the
+complete set of rows for the table. Then, for each suffix in `S`, ensure that
+the table has a cell, and it is updated with the oracle result.
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def update_table(self, oracle):
+        def unique(l): return list({s:None for s in l}.keys())
+        rows = self.P
+        auxrows = [p + a for p in self.P for a in self.A]
+        PuPxA = unique(rows + auxrows)
+        for p in PuPxA:
+            if p not in self._T: self._T[p] = {}
+            for s in self.S:
+                if p in self._T and s in self._T[p]: continue
+                self._T[p][s] = oracle.is_member(p + s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def update_table(self, oracle):
+        def unique(l): return list({s:None for s in l}.keys())
+        rows = self.P
+        auxrows = [p + a for p in self.P for a in self.A]
+        PuPxA = unique(rows + auxrows)
+        for p in PuPxA:
+            if p not in self._T: self._T[p] = {}
+            for s in self.S:
+                if p in self._T and s in self._T[p]: continue
+                self._T[p][s] = oracle.is_member(p + s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Table utilities
+Next, we define two utilities, one for appending a new prefix, and another
+for appending a new suffix.
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def append_P(self, p, oracle):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table(oracle)
+
+    def append_S(self, a_s, oracle):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table(oracle)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def append_P(self, p, oracle):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table(oracle)
+
+    def append_S(self, a_s, oracle):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table(oracle)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Since we want to know what state we reached when we
+fed the input symbol to the start state, we add a set of cleverly chosen
+suffixes (columns) to the table, determine the machine response to these
+suffixes (by feeding the machine prefix+suffix for each combination), and
+check whether any new state other than the start state was identified. A
+new state reached by a prefix can be distinguished from the start state using
+some suffix, if, after consuming that particular prefix, followed by the
+particular suffix, the machine moved to say *accept*, but when the machine
+at the start state was fed the same suffix, the end state was not *accept*.
+(i.e. the machine accepted prefix + suffix but not suffix on its own).
+Symmetrically, if the machine did not accept the string prefix + suffix
+but did accept the string suffix, that also distinguishes the state from
+the start state. Once we have identified a new state, we can then extend
+the DFA with transitions from this new state, and check whether more
+states can be identified.
+ 
+While doing this, there is one requirement we need to ensure. The result
+of transition from every state for every alphabet needs to be defined.
+The property that ensures this for the observation table is called
+*closedness* or equivalently, the observation table is *closed* if the
+table has the following property.
+ 
+### Closed
+The idea is that for every prefix we have, in set $$ P $$, we need to find
+the state that is reached for every $$ a \in A $$. Then, we need to make sure
+that the *state* represented by that prefix exists in $$ P $$. (If such a
+state does not exist in P, then it means that we have found a new state).
+ 
+Formally:
+An observation table $$ P \times S $$ is closed if for each $$ t \in P·A $$
+there exists a $$ p \in P $$ such that $$ [t] = [p] $$
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def closed(self):
+        states_in_P = {self.get_sid(p) for p in self.P}
+        P_A = [p+a for p in self.P for a in self.A]
+        for t in P_A:
+            if self.get_sid(t) not in states_in_P: return False, t
+        return True, None
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def closed(self):
+        states_in_P = {self.get_sid(p) for p in self.P}
+        P_A = [p+a for p in self.P for a in self.A]
+        for t in P_A:
+            if self.get_sid(t) not in states_in_P: return False, t
+        return True, None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This is essentially the intuition behind most
+of the grammar inference algorithms, and the cleverness lies in how the
+suffixes are chosen. In the case of L\*, the when we find that one of the
+transitions from the current states result in a new state, we add the
+alphabet that caused the transition from the current state and the suffix
+that distinguished the new state to the suffixes (i.e, a + suffix is
+added to the columns).
+
+This particular aspect is governed by the *consistence* property of the
+observation table.
+
+### Consistent
+
+An observation table $$ P \times S $$ is consistent if, whenever p1 and p2
+are elements of P such that $$ [p1] = [p2] $$, for each $$ a \in A $$,
+$$ [p1.a] = [p2.a] $$.
+*If* there are two rows in the top part of the table repeated, then the
+corresponding suffix results should be the same.
+If not, we found a counter example, and we report the alphabet + the
+suffix that distinguished. We will then add the new string (a + suffix)
+as a new suffix to the table.
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def consistent(self):
+        matchingpairs = [(p1, p2) for p1 in self.P for p2 in self.P
+                         if p1 != p2 and self.get_sid(p1) == self.get_sid(p2)]
+        suffixext = [(a, s) for a in self.A for s in self.S]
+        for p1,p2 in matchingpairs:
+            for a, s in suffixext:
+                if self.cell(p1+a,s) != self.cell(p2+a,s):
+                        return False, (p1, p2), (a + s)
+        return True, None, None
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def consistent(self):
+        matchingpairs = [(p1, p2) for p1 in self.P for p2 in self.P
+                         if p1 != p2 and self.get_sid(p1) == self.get_sid(p2)]
+        suffixext = [(a, s) for a in self.A for s in self.S]
+        for p1,p2 in matchingpairs:
+            for a, s in suffixext:
+                if self.cell(p1+a,s) != self.cell(p2+a,s):
+                        return False, (p1, p2), (a + s)
+        return True, None, None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Furthermore, L\* also relies on something called
+a *Teacher* for it to suggest new suffixes that can distinguish
+unrecognized states from current ones.
+
+(Of course readers will quickly note that the table is not the best data
+structure here, and just because a suffix distinguished two particular
+states does not mean that it is a good idea to evaluate the same suffix
+on all other states. These are ideas that will be explored in later
+algorithms).
+ 
+# The classical L* algorithm
+ 
+In the classical algorithm from Angluin [^angluin1987], beyond the yes/no
+oracle (the program can tell you whether any given string is acceptable or
+not, traditionally called the *membership query*), we also require what is
+called an *equivalence query*. That is, the algorithm requires what is called
+a *Teacher* that is able to accept a guess of the target language in terms of
+a grammar, and tell us whether we guessed it right, or if not, provide us with
+a string that has different behavior on the blackbox and the guessed grammar
+-- a counter example. The idea is to use the counter example to refine the
+guess until the guess matches the target grammar. To start with, we require
+the following definitions.
+ 
+
+Given the observation table, the algorithm itself is simple
+
+## L star main loop
+The L* algorithm loops, doing the following operations in sequence. (1) keep
+the table closed, (2) keep the table consistent, and if it is closed and
+consistent (3) ask the teacher if the corresponding hypothesis grammar is
+correct.
+
+<!--
+############
+def l_star(T, teacher):
+    T.init_table(teacher)
+
+    while True:
+        while True:
+            is_closed, unknown_P = T.closed()
+            is_consistent, _, unknown_AS = T.consistent()
+            if is_closed and is_consistent: break
+            if not is_closed: T.append_P(unknown_P, teacher)
+            if not is_consistent: T.append_S(unknown_AS, teacher)
+
+        grammar, start = T.grammar()
+        eq, counterX = teacher.is_equivalent(grammar, start)
+        if eq: return grammar, start
+        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
+
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def l_star(T, teacher):
+    T.init_table(teacher)
+
+    while True:
+        while True:
+            is_closed, unknown_P = T.closed()
+            is_consistent, _, unknown_AS = T.consistent()
+            if is_closed and is_consistent: break
+            if not is_closed: T.append_P(unknown_P, teacher)
+            if not is_consistent: T.append_S(unknown_AS, teacher)
+
+        grammar, start = T.grammar()
+        eq, counterX = teacher.is_equivalent(grammar, start)
+        if eq: return grammar, start
+        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -965,23 +1079,23 @@ class Teacher(Teacher):
 
 if __name__ == '__main__':
     teacher = Teacher('a*b*')
-    g_T = ObservationTable(['a', 'b'], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable(['a', 'b'])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher('a*b')
-    g_T = ObservationTable(['a', 'b'], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable(['a', 'b'])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher('ab')
-    g_T = ObservationTable(['a', 'b'], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable(['a', 'b'])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher('ab*')
-    g_T = ObservationTable(['a', 'b'], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable(['a', 'b'])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
 ############
@@ -1045,23 +1159,23 @@ class Teacher(Teacher):
 
 if __name__ == &#x27;__main__&#x27;:
     teacher = Teacher(&#x27;a*b*&#x27;)
-    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher(&#x27;a*b&#x27;)
-    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher(&#x27;ab&#x27;)
-    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 
     teacher = Teacher(&#x27;ab*&#x27;)
-    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;], teacher)
-    g, s = l_star(g_T)
+    g_T = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    g, s = l_star(g_T, teacher)
     print(s, g)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1075,8 +1189,8 @@ import re
 exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
 for e in exprs:
     teacher = Teacher(e)
-    tbl = ObservationTable(['a', 'b'], teacher)
-    g, s = l_star(tbl)
+    tbl = ObservationTable(['a', 'b'])
+    g, s = l_star(tbl, teacher)
     print(s, g)
 
     ep = earleyparser.EarleyParser(g)
@@ -1088,7 +1202,6 @@ for e in exprs:
         assert a == 0, b == len(res)
         print(a,b)
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -1097,8 +1210,8 @@ import re
 exprs = [&#x27;a*b*&#x27;, &#x27;ab&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;aba&#x27;]
 for e in exprs:
     teacher = Teacher(e)
-    tbl = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;], teacher)
-    g, s = l_star(tbl)
+    tbl = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    g, s = l_star(tbl, teacher)
     print(s, g)
 
     ep = earleyparser.EarleyParser(g)
@@ -1113,6 +1226,52 @@ for e in exprs:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Definitions
+
+* Input symbol: A single symbol that is consumed by the machine which can move
+  it from one state to another. The set of such symbols is called an alphabet,
+  and is represented by $$ A $$.
+* Membership query: A string that is passed to the blackbox. The blackbox
+  answers yes or no.
+* Equivalence query: A grammar that is passed to the teacher as a hypothesis
+  of what the target language is. The teacher answers yes or a counter
+  example that behaves differently on the blackbox and the hypothesis grammar.
+* Prefix closed: a set is prefix closed if all prefixes of any of its elements
+  are also in the same set.
+* Suffix closed: a set is suffix closed if all suffixes of any of its elements
+  are also in the same set.
+* Observation table: A table whose rows correspond to the *candidate states*.
+  The rows are made up of prefix strings that can reach given states ---
+  commonly represented as $$ S $$, but here we will denote these by $$ P $$
+  for prefixes --- and the columns are made up of suffix strings that serves
+  to distinguish these states --- commonly expressed as $$ E $$ for
+  extensions, but we will use $$ S $$ to denote suffixes here. The table
+  contains auxiliary rows that extends each item $$ p \in P $$ with each
+  alphabet $$ a \in A $$ as we discuss later in *closedness*.
+  This table defines the language inferred by the algorithm. The contents of
+  the table are the answers from the oracle on a string composed of the row
+  and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
+  The table has two properties: *closedness* and *consistency*.
+  If these are not met at any time, we take to resolve it.
+* The state: A state in the DFA is represented by a prefix in the observation
+  table, and is named by the pattern of 1s and 0s in the cell contents.
+  We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
+* Closedness of the observation table means that for each $$ p \in P $$ and
+  each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
+  (i.e., its contents) exists in $$ P $$. That is, there is some
+  $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
+  corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
+  state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
+* Consistency of the observation table means that if two prefixes represents
+  the same state (i.e. the contents of two rows are equal), that is
+  $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
+  The idea is that if two prefixes reach the state, then when fed any
+  alphabet, both prefixes should transition to the same next state
+  (represented by the pattern produced by the suffixes).
+* The candidate states `P` is prefix closed, while the set of suffixes `S`
+  is suffix closed.
+
+ 
 # Notes
 While there is no strict specifications as to what grammar induction,
 inference, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
