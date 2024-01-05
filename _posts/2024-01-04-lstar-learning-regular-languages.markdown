@@ -8,7 +8,9 @@ categories: post
 ---
 
 TLDR; This tutorial is a complete implementation of Angluin's L-star algorithm
-with PAC learning in Python (i.e. without using equivalence queries).
+with PAC learning for inferring input grammars of blackbox programs in Python
+(i.e. without using equivalence queries). Such grammars are typically useful
+for fuzzing such programs.
 The Python interpreter is embedded so that you
 can work through the implementation steps.
  
