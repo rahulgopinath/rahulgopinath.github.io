@@ -174,7 +174,7 @@ is rejected (or the end state is not an accept).
 
 Given this information, a data structure for keeping track of our experiments
 presents itself -- the *observation table* where we keep our prefix strings
-as rows, and suffix strings as columns. The table content simply marks
+as rows, and suffix strings as columns. The cell content simply marks
 whether program accepted the prefix + suffix string or not. So, here
 is our data structure.
 
