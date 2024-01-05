@@ -722,7 +722,7 @@ print(counter)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Append_P
+### Add prefix
 
 <!--
 ############
@@ -835,7 +835,7 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Append_S
+### Add suffix
 
 <!--
 ############

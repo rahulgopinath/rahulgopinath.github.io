@@ -383,7 +383,7 @@ if __name__ == '__main__':
     assert not res
     print(counter)
 
-# ### Append_P
+# ### Add prefix
 class ObservationTable(ObservationTable):
     def add_prefix(self, p, oracle):
         if p in self.P: return
@@ -439,7 +439,7 @@ class ObservationTable(ObservationTable):
                         return False, (p1, p2), (a + s)
         return True, None, None
 
-# ### Append_S
+# ### Add suffix
 
 class ObservationTable(ObservationTable):
     def add_suffix(self, a_s, oracle):
