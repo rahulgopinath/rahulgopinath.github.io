@@ -1104,7 +1104,7 @@ class Teacher(Teacher):
         ep = earleyparser.EarleyParser(g)
         return cnt, key_node, ep
 
-    def generate_a_random_string(self, key_node, cnt):
+    def gen_random(self, key_node, cnt):
         if cnt == 0: return None
         at = random.randint(0, cnt-1)
         # sampler does not store state.
@@ -1125,7 +1125,7 @@ class Teacher(Teacher):
         ep = earleyparser.EarleyParser(g)
         return cnt, key_node, ep
 
-    def generate_a_random_string(self, key_node, cnt):
+    def gen_random(self, key_node, cnt):
         if cnt == 0: return None
         at = random.randint(0, cnt-1)
         # sampler does not store state.
@@ -1146,29 +1146,17 @@ class Teacher(Teacher):
         cnt2, key_node2, ep2 = self.digest_grammar(g2, s2, l, n)
         count = 0
 
-        if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
-
-        if cnt1 == 0:
-            st2 = self.generate_a_random_string(key_node2, cnt2)
-            return False, (None, st2), count
-
-        if cnt2 == 0:
-            st1 = self.generate_a_random_string(key_node1, cnt1)
-            return False, (st1, None), count
-
-        str1 = set()
-        str2 = set()
-
-        for i in range(n):
-            str1.add(self.generate_a_random_string(key_node1, cnt1))
-            str2.add(self.generate_a_random_string(key_node2, cnt2))
+        str1 = {self.gen_random(key_node1, cnt1) for _ in range(n)}
+        str2 = {self.gen_random(key_node2, cnt2) for _ in range(n)}
 
         for st1 in str1:
+            if st1 is None: continue
             count += 1
             try: list(ep2.recognize_on(st1, s2))
             except: return False, (st1, None), count
 
         for st2 in str2:
+            if st2 is None: continue
             count += 1
             try: list(ep1.recognize_on(st2, s1))
             except: return False, (None, st2), count
@@ -1185,29 +1173,17 @@ class Teacher(Teacher):
         cnt2, key_node2, ep2 = self.digest_grammar(g2, s2, l, n)
         count = 0
 
-        if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
-
-        if cnt1 == 0:
-            st2 = self.generate_a_random_string(key_node2, cnt2)
-            return False, (None, st2), count
-
-        if cnt2 == 0:
-            st1 = self.generate_a_random_string(key_node1, cnt1)
-            return False, (st1, None), count
-
-        str1 = set()
-        str2 = set()
-
-        for i in range(n):
-            str1.add(self.generate_a_random_string(key_node1, cnt1))
-            str2.add(self.generate_a_random_string(key_node2, cnt2))
+        str1 = {self.gen_random(key_node1, cnt1) for _ in range(n)}
+        str2 = {self.gen_random(key_node2, cnt2) for _ in range(n)}
 
         for st1 in str1:
+            if st1 is None: continue
             count += 1
             try: list(ep2.recognize_on(st1, s2))
             except: return False, (st1, None), count
 
         for st2 in str2:
+            if st2 is None: continue
             count += 1
             try: list(ep1.recognize_on(st2, s1))
             except: return False, (None, st2), count
@@ -1331,11 +1307,11 @@ def l_star(T, teacher):
 
 <!--
 ############
-import re
-exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', 'aba']
+import re, string
+exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', '(ab|cd|ef)*']
 for e in exprs:
     teacher = Teacher(e)
-    tbl = ObservationTable(['a', 'b'])
+    tbl = ObservationTable(list(string.ascii_letters))
     g, s = l_star(tbl, teacher)
     print(s, g)
 
@@ -1352,11 +1328,11 @@ for e in exprs:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-import re
-exprs = [&#x27;a&#x27;, &#x27;ab&#x27;, &#x27;a*b*&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;aba&#x27;]
+import re, string
+exprs = [&#x27;a&#x27;, &#x27;ab&#x27;, &#x27;a*b*&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;(ab|cd|ef)*&#x27;]
 for e in exprs:
     teacher = Teacher(e)
-    tbl = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])
+    tbl = ObservationTable(list(string.ascii_letters))
     g, s = l_star(tbl, teacher)
     print(s, g)
 
