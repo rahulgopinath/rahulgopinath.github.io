@@ -1303,7 +1303,7 @@ def l_star(T, teacher):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Using it
+Using it
 
 <!--
 ############

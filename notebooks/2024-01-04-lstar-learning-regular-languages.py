@@ -657,7 +657,7 @@ def l_star(T, teacher):
         for i,_ in enumerate(counterX): T.add_prefix(counterX[0:i+1], teacher)
 
 
-# ### Using it
+# Using it
 
 if __name__ == '__main__':
     import re, string
