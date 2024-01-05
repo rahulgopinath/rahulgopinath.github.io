@@ -34,9 +34,6 @@ also talks about how to update this algorithm to make use of the PAC
 Angluin expands on this further in 1988 [^angluin1988].
 
 
-#### Prerequisites
- 
-As before, we start with the prerequisite imports.
 
 ## Contents
 {:.no_toc}
@@ -109,6 +106,8 @@ https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 </form>
 </div>
 </details>
+#### Prerequisites
+
 We need the fuzzer to generate inputs to parse and also to provide some
 utilities such as conversion of regular expression to grammars, random
 sampling from grammars etc. Hence, we import all that.
@@ -138,6 +137,8 @@ import random
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+# Grammar Inference
+
 Let us start with the assumption that the blackbox program
 accepts a [regular language](https://en.wikipedia.org/wiki/Regular_language).
 By *accept* I mean that the program does some processing with input given
@@ -146,10 +147,10 @@ parser, it will *accept* a string in the JSON format, and *reject* strings
 that are not in the JSON format.
  
 So, given such a program, and you are not allowed to peek inside the program
-source code, how do you find what the program accepts? Knowing that the
+source code, how do you find what the program accepts? assuming that the
 program accepts a regular language, we can start by constructing a
-[DFA](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (A finite
-state machine).
+[DFA](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (A
+deterministic finite state machine).
  
 Finite state machines are of course the bread and butter of
 computer science. The idea is that the given program can be represented as a
@@ -182,8 +183,8 @@ is our data structure.
 We initialize the observation table with the alphabet. We keep the table
 itself as an internal dict `_T`. We also keep the prefixes in `P` and
 suffixes in `S`.
-We initialize the set of prefixes `P` to be { $$\epsilon $$ }
-and the set of suffixes `S` also to be { $$\epsilon $$ }. We also add
+We initialize the set of prefixes `P` to be $${\epsilon}$$
+and the set of suffixes `S` also to be $$ {\epsilon} $$. We also add
 a few utility functions.
 
 <!--
@@ -191,8 +192,6 @@ a few utility functions.
 class ObservationTable:
     def __init__(self, alphabet):
         self._T, self.P, self.S, self.A = {}, [''], [''], alphabet
-
-    def row(self, v): return self._T[v]
 
     def cell(self, v, e): return self._T[v][e]
 
@@ -206,8 +205,6 @@ class ObservationTable:
 class ObservationTable:
     def __init__(self, alphabet):
         self._T, self.P, self.S, self.A = {}, [&#x27;&#x27;], [&#x27;&#x27;], alphabet
-
-    def row(self, v): return self._T[v]
 
     def cell(self, v, e): return self._T[v][e]
 
@@ -249,12 +246,17 @@ Given the observation table, we can recover the grammar from this table
 unique cell contents of rows are states. In many cases, multiple rows may
 correspond to the same state (as the cell contents are the same).
 The *start state* is given by the state that correspond to the epsilon row.
-A state is accepting if it on query of epsilon, it returns 1.
+A state is accepting if it on query of epsilon, it returns 1. The formal
+definitions are as follows. The notation $$ [p] $$ means the state
+corresponding to the prefix $$ p $$. The notation $$ [[p,s]] $$ means the
+result of oracle for the prefix $$ p $$ and the suffix $$ s $$.
+The notation $$ [p](a) $$ means the state obtained by feeding the input
+symbol $$ a $$ to the state $$ [p] $$.
  
-* $$ Q = {row(p) : p \in P} $$             -- states
-* $$ q0 = [\epsilon] $$                    -- start
-* $$ \delta([s], a) = [s.a] $$             -- Transition function
-* $$ F = {[p] : p \in P, \delta([p],\epsilon) = 1} $$      -- accepting state
+* states: $$ Q = {[p] : p \in P} $$
+* start state: $$ q0 = [\epsilon] $$
+* transition function: $$ [p](a) \rightarrow [p.a] $$
+* accepting state: $$ F = {[p] : p \in P : [[p,\epsilon]] = 1} $$
 
 <!--
 ############
@@ -1226,7 +1228,7 @@ for e in exprs:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Definitions
+# Definitions
 
 * Input symbol: A single symbol that is consumed by the machine which can move
   it from one state to another. The set of such symbols is called an alphabet,
@@ -1273,6 +1275,7 @@ for e in exprs:
 
  
 # Notes
+
 While there is no strict specifications as to what grammar induction,
 inference, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
 Grammar inference is about learning a *grammar* (i.e. the representation) when
@@ -1285,6 +1288,16 @@ grammar induction. That is, it focuses on the best possible grammar for the
 given data. Closely related fields are grammar mining, grammar recovery,
 and grammar extraction which are all whitebox approaches based on program
 or related artifact analysis. Language acquisition is another related term.
+
+## Context Free Languages
+Here, we discussed how to infer a regular grammar. In many cases the blackbox
+may accept a language that is beyond regular, for example, it could be
+context-free. The nice thing about L\* is that it can provide us a close
+approximation of such context-free language in terms of a regular grammar.
+One can then take the regular grammar thus produced, and try and identify
+context-free structure in that DFA based on recognition of repeating
+structures. It is still an open question on how to recover the context-free
+structure from such a DFA.
 
 [^angluin1987]: Learning Regular Sets from Queries and Counterexamples, 1987 
 [^angluin1988]: Queries and Concept Learning, 1988
