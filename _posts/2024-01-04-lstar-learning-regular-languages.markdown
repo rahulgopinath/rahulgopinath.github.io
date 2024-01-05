@@ -537,10 +537,10 @@ table let us proceed to examining how to produce this table.
  
 We start with the start state in the table, because we know for sure
 that it exists, and is represented by the empty string in row and column,
-which together (prefix + suffix = '' + '') is the empty string. We ask the
-program if it accepts the empty string, and if it accepts, we mark the
-corresponding cell in the table as accept (or `1`).
-
+which together (prefix + suffix) is the empty string '' or $$ \epsilon $$.
+We ask the program if it accepts the empty string, and if it accepts, we mark
+the corresponding cell in the table as accept (or `1`).
+ 
 For any given state in the DFA, we should be able to say what happens when
 an input symbol is fed into the machine in that state. So, we can extend the
 table with what happens when each input symbol is fed into the start state.
@@ -609,37 +609,25 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Table utilities
-Next, we define two utilities, one for appending a new prefix, and another
-for appending a new suffix.
+Using init_table and update_table
 
 <!--
 ############
-class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
-        if p in self.P: return
-        self.P.append(p)
-        self.update_table(oracle)
-
-    def append_S(self, a_s, oracle):
-        if a_s in self.S: return
-        self.S.append(a_s)
-        self.update_table(oracle)
+o = ObservationTable(alphabet)
+def orcl(): pass
+orcl.is_member = lambda x: 1
+o.init_table(orcl)
+for p in o._T: print(p, o._T[p])
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
-        if p in self.P: return
-        self.P.append(p)
-        self.update_table(oracle)
-
-    def append_S(self, a_s, oracle):
-        if a_s in self.S: return
-        self.S.append(a_s)
-        self.update_table(oracle)
+o = ObservationTable(alphabet)
+def orcl(): pass
+orcl.is_member = lambda x: 1
+o.init_table(orcl)
+for p in o._T: print(p, o._T[p])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -701,6 +689,99 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Using closed.
+
+<!--
+############
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+ot = ObservationTable(list('ab'))
+ot.init_table(orcl)
+for p in ot._T: print(p, ot._T[p])
+
+res, counter = ot.closed()
+assert not res
+print(counter)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in [&#x27;a&#x27;] else 0
+
+ot = ObservationTable(list(&#x27;ab&#x27;))
+ot.init_table(orcl)
+for p in ot._T: print(p, ot._T[p])
+
+res, counter = ot.closed()
+assert not res
+print(counter)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Append_P
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def append_P(self, p, oracle):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table(oracle)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def append_P(self, p, oracle):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table(oracle)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using append_P
+
+<!--
+############
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+ot = ObservationTable(list('ab'))
+ot.init_table(orcl)
+res, counter = ot.closed()
+assert not res
+
+ot.append_P('a', orcl)
+for p in ot._T: print(p, ot._T[p])
+res, counter = ot.closed()
+assert res
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in [&#x27;a&#x27;] else 0
+
+ot = ObservationTable(list(&#x27;ab&#x27;))
+ot.init_table(orcl)
+res, counter = ot.closed()
+assert not res
+
+ot.append_P(&#x27;a&#x27;, orcl)
+for p in ot._T: print(p, ot._T[p])
+res, counter = ot.closed()
+assert res
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 This is essentially the intuition behind most
 of the grammar inference algorithms, and the cleverness lies in how the
 suffixes are chosen. In the case of L\*, the when we find that one of the
@@ -754,9 +835,91 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Furthermore, L\* also relies on something called
-a *Teacher* for it to suggest new suffixes that can distinguish
-unrecognized states from current ones.
+### Append_S
+
+<!--
+############
+class ObservationTable(ObservationTable):
+    def append_S(self, a_s, oracle):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table(oracle)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class ObservationTable(ObservationTable):
+    def append_S(self, a_s, oracle):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table(oracle)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using append_S
+
+<!--
+############
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+ot = ObservationTable(list('ab'))
+ot.init_table(orcl)
+is_closed, counter = ot.closed()
+assert not is_closed
+ot.append_P('a', orcl)
+ot.append_P('b', orcl)
+ot.append_P('ba', orcl)
+for p in ot._T: print(p, ot._T[p])
+
+is_closed, unknown_P = ot.closed()
+print(is_closed)
+
+is_consistent,_, unknown_A = ot.consistent()
+assert not is_consistent
+
+ot.append_S('a', orcl)
+for p in ot._T: print(p, ot._T[p])
+
+is_consistent,_, unknown_A = ot.consistent()
+assert is_consistent
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def orcl(): pass
+orcl.is_member = lambda x: 1 if x in [&#x27;a&#x27;] else 0
+
+ot = ObservationTable(list(&#x27;ab&#x27;))
+ot.init_table(orcl)
+is_closed, counter = ot.closed()
+assert not is_closed
+ot.append_P(&#x27;a&#x27;, orcl)
+ot.append_P(&#x27;b&#x27;, orcl)
+ot.append_P(&#x27;ba&#x27;, orcl)
+for p in ot._T: print(p, ot._T[p])
+
+is_closed, unknown_P = ot.closed()
+print(is_closed)
+
+is_consistent,_, unknown_A = ot.consistent()
+assert not is_consistent
+
+ot.append_S(&#x27;a&#x27;, orcl)
+for p in ot._T: print(p, ot._T[p])
+
+is_consistent,_, unknown_A = ot.consistent()
+assert is_consistent
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally, L\* also relies on a *Teacher* for it to suggest new suffixes that
+can distinguish unrecognized states from current ones. We have been
+using a very skeletal teacher so far.
 
 (Of course readers will quickly note that the table is not the best data
 structure here, and just because a suffix distinguished two particular
@@ -803,9 +966,6 @@ def l_star(T, teacher):
         eq, counterX = teacher.is_equivalent(grammar, start)
         if eq: return grammar, start
         for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
-
-
-
 
 ############
 -->
@@ -1211,7 +1371,7 @@ if __name__ == &#x27;__main__&#x27;:
 <!--
 ############
 import re
-exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
+exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', 'aba']
 for e in exprs:
     teacher = Teacher(e)
     tbl = ObservationTable(['a', 'b'])
@@ -1232,7 +1392,7 @@ for e in exprs:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import re
-exprs = [&#x27;a*b*&#x27;, &#x27;ab&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;aba&#x27;]
+exprs = [&#x27;a&#x27;, &#x27;ab&#x27;, &#x27;a*b*&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;aba&#x27;]
 for e in exprs:
     teacher = Teacher(e)
     tbl = ObservationTable([&#x27;a&#x27;, &#x27;b&#x27;])

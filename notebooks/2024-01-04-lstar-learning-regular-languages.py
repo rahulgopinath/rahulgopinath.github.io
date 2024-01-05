@@ -282,10 +282,10 @@ if __name__ == '__main__':
 #  
 # We start with the start state in the table, because we know for sure
 # that it exists, and is represented by the empty string in row and column,
-# which together (prefix + suffix = '' + '') is the empty string. We ask the
-# program if it accepts the empty string, and if it accepts, we mark the
-# corresponding cell in the table as accept (or `1`).
-# 
+# which together (prefix + suffix) is the empty string '' or $$ \epsilon $$.
+# We ask the program if it accepts the empty string, and if it accepts, we mark
+# the corresponding cell in the table as accept (or `1`).
+#  
 # For any given state in the DFA, we should be able to say what happens when
 # an input symbol is fed into the machine in that state. So, we can extend the
 # table with what happens when each input symbol is fed into the start state.
@@ -320,20 +320,14 @@ class ObservationTable(ObservationTable):
                 if p in self._T and s in self._T[p]: continue
                 self._T[p][s] = oracle.is_member(p + s)
 
-# ### Table utilities
-# Next, we define two utilities, one for appending a new prefix, and another
-# for appending a new suffix.
+# Using init_table and update_table
 
-class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
-        if p in self.P: return
-        self.P.append(p)
-        self.update_table(oracle)
-
-    def append_S(self, a_s, oracle):
-        if a_s in self.S: return
-        self.S.append(a_s)
-        self.update_table(oracle)
+if __name__ == '__main__':
+    o = ObservationTable(alphabet)
+    def orcl(): pass
+    orcl.is_member = lambda x: 1
+    o.init_table(orcl)
+    for p in o._T: print(p, o._T[p])
 
 # Since we want to know what state we reached when we
 # fed the input symbol to the start state, we add a set of cleverly chosen
@@ -375,6 +369,43 @@ class ObservationTable(ObservationTable):
             if self.get_sid(t) not in states_in_P: return False, t
         return True, None
 
+# Using closed.
+
+if __name__ == '__main__':
+    def orcl(): pass
+    orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+    ot = ObservationTable(list('ab'))
+    ot.init_table(orcl)
+    for p in ot._T: print(p, ot._T[p])
+
+    res, counter = ot.closed()
+    assert not res
+    print(counter)
+
+# ### Append_P
+class ObservationTable(ObservationTable):
+    def append_P(self, p, oracle):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table(oracle)
+
+# Using append_P
+
+if __name__ == '__main__':
+    def orcl(): pass
+    orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+    ot = ObservationTable(list('ab'))
+    ot.init_table(orcl)
+    res, counter = ot.closed()
+    assert not res
+
+    ot.append_P('a', orcl)
+    for p in ot._T: print(p, ot._T[p])
+    res, counter = ot.closed()
+    assert res
+
 # This is essentially the intuition behind most
 # of the grammar inference algorithms, and the cleverness lies in how the
 # suffixes are chosen. In the case of L\*, the when we find that one of the
@@ -408,9 +439,44 @@ class ObservationTable(ObservationTable):
                         return False, (p1, p2), (a + s)
         return True, None, None
 
-# Furthermore, L\* also relies on something called
-# a *Teacher* for it to suggest new suffixes that can distinguish
-# unrecognized states from current ones.
+# ### Append_S
+
+class ObservationTable(ObservationTable):
+    def append_S(self, a_s, oracle):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table(oracle)
+
+# Using append_S
+
+if __name__ == '__main__':
+    def orcl(): pass
+    orcl.is_member = lambda x: 1 if x in ['a'] else 0
+
+    ot = ObservationTable(list('ab'))
+    ot.init_table(orcl)
+    is_closed, counter = ot.closed()
+    assert not is_closed
+    ot.append_P('a', orcl)
+    ot.append_P('b', orcl)
+    ot.append_P('ba', orcl)
+    for p in ot._T: print(p, ot._T[p])
+
+    is_closed, unknown_P = ot.closed() 
+    print(is_closed)
+
+    is_consistent,_, unknown_A = ot.consistent() 
+    assert not is_consistent
+
+    ot.append_S('a', orcl)
+    for p in ot._T: print(p, ot._T[p])
+
+    is_consistent,_, unknown_A = ot.consistent() 
+    assert is_consistent
+
+# Finally, L\* also relies on a *Teacher* for it to suggest new suffixes that
+# can distinguish unrecognized states from current ones. We have been
+# using a very skeletal teacher so far.
 # 
 # (Of course readers will quickly note that the table is not the best data
 # structure here, and just because a suffix distinguished two particular
@@ -457,9 +523,6 @@ def l_star(T, teacher):
         eq, counterX = teacher.is_equivalent(grammar, start)
         if eq: return grammar, start
         for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
-
-
-
 
 # ## Teacher
 # 
@@ -641,7 +704,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     import re
-    exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
+    exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', 'aba']
     for e in exprs:
         teacher = Teacher(e)
         tbl = ObservationTable(['a', 'b'])
