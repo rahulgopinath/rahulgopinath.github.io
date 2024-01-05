@@ -117,7 +117,7 @@ class ObservationTable:
 
     def cell(self, v, e): return self._T[v][e]
 
-    def get_sid(self, p):
+    def state(self, p):
         return '<%s>' % ''.join([str(self.cell(p,s)) for s in self.S])
 
 # Using the observation table with some pre-cooked data.
@@ -127,25 +127,29 @@ if __name__ == '__main__':
     o = ObservationTable(alphabet)
     o._T = {p:{'':1, 'a':0, 'ba':1, 'cba':0} for p in alphabet}
     print(o.cell('a', 'ba'))
-    print(o.get_sid('a'))
+    print(o.state('a'))
 
 # ### Convert Table to Grammar
 # 
 # Given the observation table, we can recover the grammar from this table
 # (corresponding to the DFA). The
 # unique cell contents of rows are states. In many cases, multiple rows may
-# correspond to the same state (as the cell contents are the same). We take
-# the first prefix that resulted in a particular state as its representative
-# prefix, and we denote the representative prefix of a state $$ s $$ by
-# $$ <s> $$ (this is not used in this post).
+# correspond to the same state (as the cell contents are the same). 
 # The *start state* is given by the state that correspond to the $$\epsilon$$
 # row.
-# A state is accepting if it on query of epsilon, it returns 1. The formal
-# definitions are as follows. The notation $$ [p] $$ means the state
+# A state is accepting if it on query of $$ \epsilon $$ i.e. `''`,
+# it returns 1.
+# 
+# The formal
+# notations are as follows. The notation $$ [p] $$ means the state
 # corresponding to the prefix $$ p $$. The notation $$ [[p,s]] $$ means the
 # result of oracle for the prefix $$ p $$ and the suffix $$ s $$.
 # The notation $$ [p](a) $$ means the state obtained by feeding the input
-# symbol $$ a $$ to the state $$ [p] $$.
+# symbol $$ a $$ to the state $$ [p] $$. We take
+# the first prefix that resulted in a particular state as its representative
+# prefix, and we denote the representative prefix of a state $$ s $$ by
+# $$ \langle{}s\rangle $$ (this is not used in this post). The following
+# is the DFA from our table.
 #  
 # * states: $$ Q = {[p] : p \in P} $$
 # * start state: $$ q0 = [\epsilon] $$
@@ -165,7 +169,7 @@ class ObservationTable(ObservationTable):
         states = {}
         grammar = {}
         for p in self.P:
-            stateid = self.get_sid(p)
+            stateid = self.state(p)
             if stateid not in states: states[stateid] = []
             states[stateid].append(p)
             prefix_to_state[p] = stateid
@@ -185,7 +189,7 @@ class ObservationTable(ObservationTable):
         for sid1 in states:
             first_such_row = states[sid1][0]
             for a in self.A:
-                sid2 = self.get_sid(first_such_row + a)
+                sid2 = self.state(first_such_row + a)
                 grammar[sid1].append([a, sid2])
 
         return grammar, start_nt
@@ -365,10 +369,10 @@ if __name__ == '__main__':
 
 class ObservationTable(ObservationTable):
     def closed(self):
-        states_in_P = {self.get_sid(p) for p in self.P}
+        states_in_P = {self.state(p) for p in self.P}
         P_A = [p+a for p in self.P for a in self.A]
         for t in P_A:
-            if self.get_sid(t) not in states_in_P: return False, t
+            if self.state(t) not in states_in_P: return False, t
         return True, None
 
 # Using closed.
@@ -433,7 +437,7 @@ if __name__ == '__main__':
 class ObservationTable(ObservationTable):
     def consistent(self):
         matchingpairs = [(p1, p2) for p1 in self.P for p2 in self.P
-                         if p1 != p2 and self.get_sid(p1) == self.get_sid(p2)]
+                         if p1 != p2 and self.state(p1) == self.state(p2)]
         suffixext = [(a, s) for a in self.A for s in self.S]
         for p1,p2 in matchingpairs:
             for a, s in suffixext:
