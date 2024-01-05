@@ -66,9 +66,9 @@ import random
 # Let us start with the assumption that the blackbox program
 # accepts a [regular language](https://en.wikipedia.org/wiki/Regular_language).
 # By *accept* I mean that the program does some processing with input given
-# rather than error out. For example, if the blackbox actually contained a JSON
-# parser, it will *accept* a string in the JSON format, and *reject* strings
-# that are not in the JSON format.
+# rather than error out. For example, if the blackbox actually contained a URL
+# parser, it will *accept* a string that look like a URL, and *reject* strings
+# that are not in the URL format.
 #  
 # So, given such a program, and you are not allowed to peek inside the program
 # source code, how do you find what the program accepts? assuming that the
