@@ -385,12 +385,12 @@ if __name__ == '__main__':
 
 # ### Append_P
 class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
+    def add_prefix(self, p, oracle):
         if p in self.P: return
         self.P.append(p)
         self.update_table(oracle)
 
-# Using append_P
+# Using add_prefix
 
 if __name__ == '__main__':
     def orcl(): pass
@@ -401,7 +401,7 @@ if __name__ == '__main__':
     res, counter = ot.closed()
     assert not res
 
-    ot.append_P('a', orcl)
+    ot.add_prefix('a', orcl)
     for p in ot._T: print(p, ot._T[p])
     res, counter = ot.closed()
     assert res
@@ -442,12 +442,12 @@ class ObservationTable(ObservationTable):
 # ### Append_S
 
 class ObservationTable(ObservationTable):
-    def append_S(self, a_s, oracle):
+    def add_suffix(self, a_s, oracle):
         if a_s in self.S: return
         self.S.append(a_s)
         self.update_table(oracle)
 
-# Using append_S
+# Using add_suffix
 
 if __name__ == '__main__':
     def orcl(): pass
@@ -457,9 +457,9 @@ if __name__ == '__main__':
     ot.init_table(orcl)
     is_closed, counter = ot.closed()
     assert not is_closed
-    ot.append_P('a', orcl)
-    ot.append_P('b', orcl)
-    ot.append_P('ba', orcl)
+    ot.add_prefix('a', orcl)
+    ot.add_prefix('b', orcl)
+    ot.add_prefix('ba', orcl)
     for p in ot._T: print(p, ot._T[p])
 
     is_closed, unknown_P = ot.closed() 
@@ -468,7 +468,7 @@ if __name__ == '__main__':
     is_consistent,_, unknown_A = ot.consistent() 
     assert not is_consistent
 
-    ot.append_S('a', orcl)
+    ot.add_suffix('a', orcl)
     for p in ot._T: print(p, ot._T[p])
 
     is_consistent,_, unknown_A = ot.consistent() 
@@ -658,13 +658,13 @@ def l_star(T, teacher):
             is_closed, unknown_P = T.closed()
             is_consistent, _, unknown_AS = T.consistent()
             if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P, teacher)
-            if not is_consistent: T.append_S(unknown_AS, teacher)
+            if not is_closed: T.add_prefix(unknown_P, teacher)
+            if not is_consistent: T.add_suffix(unknown_AS, teacher)
 
         grammar, start = T.grammar()
         eq, counterX = teacher.is_equivalent(grammar, start)
         if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
+        for i,_ in enumerate(counterX): T.add_prefix(counterX[0:i+1], teacher)
 
 
 # ### Using it

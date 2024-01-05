@@ -727,7 +727,7 @@ print(counter)
 <!--
 ############
 class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
+    def add_prefix(self, p, oracle):
         if p in self.P: return
         self.P.append(p)
         self.update_table(oracle)
@@ -737,7 +737,7 @@ class ObservationTable(ObservationTable):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ObservationTable(ObservationTable):
-    def append_P(self, p, oracle):
+    def add_prefix(self, p, oracle):
         if p in self.P: return
         self.P.append(p)
         self.update_table(oracle)
@@ -745,7 +745,7 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using append_P
+Using add_prefix
 
 <!--
 ############
@@ -757,7 +757,7 @@ ot.init_table(orcl)
 res, counter = ot.closed()
 assert not res
 
-ot.append_P('a', orcl)
+ot.add_prefix('a', orcl)
 for p in ot._T: print(p, ot._T[p])
 res, counter = ot.closed()
 assert res
@@ -774,7 +774,7 @@ ot.init_table(orcl)
 res, counter = ot.closed()
 assert not res
 
-ot.append_P(&#x27;a&#x27;, orcl)
+ot.add_prefix(&#x27;a&#x27;, orcl)
 for p in ot._T: print(p, ot._T[p])
 res, counter = ot.closed()
 assert res
@@ -840,7 +840,7 @@ class ObservationTable(ObservationTable):
 <!--
 ############
 class ObservationTable(ObservationTable):
-    def append_S(self, a_s, oracle):
+    def add_suffix(self, a_s, oracle):
         if a_s in self.S: return
         self.S.append(a_s)
         self.update_table(oracle)
@@ -850,7 +850,7 @@ class ObservationTable(ObservationTable):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class ObservationTable(ObservationTable):
-    def append_S(self, a_s, oracle):
+    def add_suffix(self, a_s, oracle):
         if a_s in self.S: return
         self.S.append(a_s)
         self.update_table(oracle)
@@ -858,7 +858,7 @@ class ObservationTable(ObservationTable):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Using append_S
+Using add_suffix
 
 <!--
 ############
@@ -869,9 +869,9 @@ ot = ObservationTable(list('ab'))
 ot.init_table(orcl)
 is_closed, counter = ot.closed()
 assert not is_closed
-ot.append_P('a', orcl)
-ot.append_P('b', orcl)
-ot.append_P('ba', orcl)
+ot.add_prefix('a', orcl)
+ot.add_prefix('b', orcl)
+ot.add_prefix('ba', orcl)
 for p in ot._T: print(p, ot._T[p])
 
 is_closed, unknown_P = ot.closed()
@@ -880,7 +880,7 @@ print(is_closed)
 is_consistent,_, unknown_A = ot.consistent()
 assert not is_consistent
 
-ot.append_S('a', orcl)
+ot.add_suffix('a', orcl)
 for p in ot._T: print(p, ot._T[p])
 
 is_consistent,_, unknown_A = ot.consistent()
@@ -897,9 +897,9 @@ ot = ObservationTable(list(&#x27;ab&#x27;))
 ot.init_table(orcl)
 is_closed, counter = ot.closed()
 assert not is_closed
-ot.append_P(&#x27;a&#x27;, orcl)
-ot.append_P(&#x27;b&#x27;, orcl)
-ot.append_P(&#x27;ba&#x27;, orcl)
+ot.add_prefix(&#x27;a&#x27;, orcl)
+ot.add_prefix(&#x27;b&#x27;, orcl)
+ot.add_prefix(&#x27;ba&#x27;, orcl)
 for p in ot._T: print(p, ot._T[p])
 
 is_closed, unknown_P = ot.closed()
@@ -908,7 +908,7 @@ print(is_closed)
 is_consistent,_, unknown_A = ot.consistent()
 assert not is_consistent
 
-ot.append_S(&#x27;a&#x27;, orcl)
+ot.add_suffix(&#x27;a&#x27;, orcl)
 for p in ot._T: print(p, ot._T[p])
 
 is_consistent,_, unknown_A = ot.consistent()
@@ -1291,13 +1291,13 @@ def l_star(T, teacher):
             is_closed, unknown_P = T.closed()
             is_consistent, _, unknown_AS = T.consistent()
             if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P, teacher)
-            if not is_consistent: T.append_S(unknown_AS, teacher)
+            if not is_closed: T.add_prefix(unknown_P, teacher)
+            if not is_consistent: T.add_suffix(unknown_AS, teacher)
 
         grammar, start = T.grammar()
         eq, counterX = teacher.is_equivalent(grammar, start)
         if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
+        for i,_ in enumerate(counterX): T.add_prefix(counterX[0:i+1], teacher)
 
 
 ############
@@ -1312,13 +1312,13 @@ def l_star(T, teacher):
             is_closed, unknown_P = T.closed()
             is_consistent, _, unknown_AS = T.consistent()
             if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P, teacher)
-            if not is_consistent: T.append_S(unknown_AS, teacher)
+            if not is_closed: T.add_prefix(unknown_P, teacher)
+            if not is_consistent: T.add_suffix(unknown_AS, teacher)
 
         grammar, start = T.grammar()
         eq, counterX = teacher.is_equivalent(grammar, start)
         if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
+        for i,_ in enumerate(counterX): T.add_prefix(counterX[0:i+1], teacher)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
