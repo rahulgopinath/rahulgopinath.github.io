@@ -475,8 +475,7 @@ if __name__ == '__main__':
     assert is_consistent
 
 # Finally, L\* also relies on a *Teacher* for it to suggest new suffixes that
-# can distinguish unrecognized states from current ones. We have been
-# using a very skeletal teacher so far.
+# can distinguish unrecognized states from current ones.
 # 
 # (Of course readers will quickly note that the table is not the best data
 # structure here, and just because a suffix distinguished two particular
@@ -484,55 +483,76 @@ if __name__ == '__main__':
 # on all other states. These are ideas that will be explored in later
 # algorithms).
 
-
-#  
-# # The classical L* algorithm
-#  
-# In the classical algorithm from Angluin [^angluin1987], beyond the yes/no
-# oracle (the program can tell you whether any given string is acceptable or
-# not, traditionally called the *membership query*), we also require what is
-# called an *equivalence query*. That is, the algorithm requires what is called
-# a *Teacher* that is able to accept a guess of the target language in terms of
-# a grammar, and tell us whether we guessed it right, or if not, provide us with
-# a string that has different behavior on the blackbox and the guessed grammar
-# -- a counter example. The idea is to use the counter example to refine the
-# guess until the guess matches the target grammar. To start with, we require
-# the following definitions.
-#  
-# 
-# Given the observation table, the algorithm itself is simple
-# 
-# ## L star main loop
-# The L* algorithm loops, doing the following operations in sequence. (1) keep
-# the table closed, (2) keep the table consistent, and if it is closed and
-# consistent (3) ask the teacher if the corresponding hypothesis grammar is
-# correct.
-
-def l_star(T, teacher):
-    T.init_table(teacher)
-
-    while True:
-        while True:
-            is_closed, unknown_P = T.closed()
-            is_consistent, _, unknown_AS = T.consistent()
-            if is_closed and is_consistent: break
-            if not is_closed: T.append_P(unknown_P, teacher)
-            if not is_consistent: T.append_S(unknown_AS, teacher)
-
-        grammar, start = T.grammar()
-        eq, counterX = teacher.is_equivalent(grammar, start)
-        if eq: return grammar, start
-        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
-
 # ## Teacher
-# 
-# Next, we need to construct our teacher. 
+# We now construct our teacher. We have two requirements for the teacher.
+# The first is that it should fulfil the requirement for Oracle. That is,
+# it should answer `is_membeer()` queries. Secondly, it should also answer
+# `is_equivalent()` queries.
+#
+# First, we define the oracle interface.
+
+class Oracle:
+    def is_member(self, q): pass
+
 # As I promised, we will be using the PAC framework rather than the equivalence
 # oracles. First, due to the limitations of our utilities for random
 # sampling, we need to remove epsilon tokens from places other than
 # the start rule.
+# 
+# We define a simple teacher based on regular expressions. That is, if you
+# give it a regular expression, will convert it to an acceptor based on a
+# [parser](/post/2021/02/06/earley-parsing/) and a generator based on a
+# [random sampler](/post/2021/07/27/random-sampling-from-context-free-grammar/),
+# and will then use it for verification of hypothesis grammars. We also
+# input the PAC parameters delta for confidence and epsilon for accuracy
 
-class Teacher:
+class Teacher(Oracle):
+    def is_equivalent(self, grammar, start): assert False
+
+class Teacher(Teacher):
+    def __init__(self, rex, delta=0.1, epsilon=0.1):
+        self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex)
+        self.parser = earleyparser.EarleyParser(self.g)
+        self.sampler = cfgrandomsample.RandomSampleCFG(self.g)
+        self.equivalence_query_counter = 0
+        self.delta, self.epsilon = delta, epsilon
+
+# We can define the membership query `is_member()` as follows:
+class Teacher(Teacher):
+    def is_member(self, q):
+        try: list(self.parser.recognize_on(q, self.s))
+        except: return 0
+        return 1
+
+# Given a grammar, check whether it is equivalent to the given grammar.
+# The PAC guarantee is that we only need `num_calls` for the `n`th equivalence
+# query. For equivalence check here, we check for strings of length 1, then
+# length 2 etc, whose sum should be `num_calls`. We take the easy way out here,
+# and just use `num_calls` as the number of calls for each string length.
+
+class Teacher(Teacher):
+    def is_equivalent(self, grammar, start, max_length_limit=10):
+        self.equivalence_query_counter += 1
+        num_calls = math.ceil(1.0/self.epsilon *
+                  (math.log(1.0/self.delta) +
+                              self.equivalence_query_counter * math.log(2)))
+
+        for limit in range(1, max_length_limit):
+            is_eq, counterex, c = self.is_equivalent_for(self.g, self.s,
+                                                    grammar, start,
+                                                    limit, num_calls)
+            if counterex is None: # no members of length limit
+                continue
+            if not is_eq:
+                c = [a for a in counterex if a is not None][0]
+                return False, c
+        return True, None
+
+# Due to the limitations of our utilities for random
+# sampling, we need to remove epsilon tokens from places other than
+# the start rule.
+
+class Teacher(Teacher):
     def fix_epsilon(self, grammar, start):
         gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
         gs.remove_epsilon_rules()
@@ -543,6 +563,7 @@ class Teacher:
 
 class Teacher(Teacher):
     def prepare_grammar(self, g, s, l, n):
+        if not g[s]: return None, None, 0, None
         g, s = self.fix_epsilon(g, s)
         rgf = cfgrandomsample.RandomSampleCFG(g)
         key_node = rgf.key_get_def(s, l)
@@ -565,7 +586,6 @@ class Teacher(Teacher):
         count = 0
 
         if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
-
 
         if cnt1 == 0:
             st2 = self.generate_a_random_string(rgf2, key_node2, cnt2)
@@ -617,88 +637,35 @@ if __name__ == '__main__':
                 []
                 ]
     }
-    t = Teacher()
+    t = Teacher('a')
     v = t.is_equivalent_for(g1, '<0>', g2, '<0>', 2, 10)
     print(v)
 
 
-# We define a simple oracle based on regular expressions.
+#  
+# ## L star main loop
+# Given the observation table and the teacher, the algorithm itself is simple.
+# The L* algorithm loops, doing the following operations in sequence. (1) keep
+# the table closed, (2) keep the table consistent, and if it is closed and
+# consistent (3) ask the teacher if the corresponding hypothesis grammar is
+# correct.
 
-class Teacher(Teacher):
-    def __init__(self, rex):
-        self.rex = rex
-        if (rex[0], rex[-1]) == ('^', '$'):
-            self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex[1:-1])
-        else:
-            self.g, self.s = rxfuzzer.RegexToGrammar().to_grammar(rex)
+def l_star(T, teacher):
+    T.init_table(teacher)
 
-        g, s = self.fix_epsilon(self.g, self.s)
+    while True:
+        while True:
+            is_closed, unknown_P = T.closed()
+            is_consistent, _, unknown_AS = T.consistent()
+            if is_closed and is_consistent: break
+            if not is_closed: T.append_P(unknown_P, teacher)
+            if not is_consistent: T.append_S(unknown_AS, teacher)
 
-        self.ep = earleyparser.EarleyParser(g)
-        self.rgf = cfgrandomsample.RandomSampleCFG(g)
-        self.counter = 0
-        # epsilon is the accuracy and delta is the confidence
-        self.delta, self.epsilon = 0.1, 0.1
+        grammar, start = T.grammar()
+        eq, counterX = teacher.is_equivalent(grammar, start)
+        if eq: return grammar, start
+        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1], teacher)
 
-    def generate(self, l):
-        cache = {}
-        while not cache:
-            l += 1
-            self.rgf.produce_shared_forest(self.s, l)
-            cache = self.rgf.compute_cached_index(l, {})
-        cnt = self.rgf.get_total_count(cache)
-        at = random.randint(1, cnt) # at least 1 length
-        v, tree = self.rgf.random_sample(self.s, at, cache)
-        return fuzzer.tree_to_string(tree)
-
-    def is_member(self, q):
-        try: list(self.ep.recognize_on(q, self.s))
-        except: return 0
-        return 1
-
-    # There are two things to consider here. The first is that we need to
-    # generate inputs from both our regular expression as well as the given grammar.
-    def is_equivalent(self, grammar, start):
-        self.counter += 1
-        if not grammar[start]:
-            s = self.generate(self.counter)
-            return False, s
-
-        num_calls = math.ceil(1.0/self.epsilon *
-                              (math.log(1.0/self.delta) + self.counter * math.log(2)))
-
-        max_length_limit = 10
-        for limit in range(1, max_length_limit):
-            is_eq, counterex, c = self.is_equivalent_for(self.g, self.s,
-                                                    grammar, start,
-                                                    limit, num_calls)
-            if counterex is None: # no members of length limit
-                continue
-            if not is_eq:
-                c = [a for a in counterex if a is not None][0]
-                return False, c
-        return True, None
-
-if __name__ == '__main__':
-    teacher = Teacher('a*b*')
-    g_T = ObservationTable(['a', 'b'])
-    g, s = l_star(g_T, teacher)
-    print(s, g)
-
-    teacher = Teacher('a*b')
-    g_T = ObservationTable(['a', 'b'])
-    g, s = l_star(g_T, teacher)
-    print(s, g)
-
-    teacher = Teacher('ab')
-    g_T = ObservationTable(['a', 'b'])
-    g, s = l_star(g_T, teacher)
-    print(s, g)
-
-    teacher = Teacher('ab*')
-    g_T = ObservationTable(['a', 'b'])
-    g, s = l_star(g_T, teacher)
-    print(s, g)
 
 # ### Using it
 
