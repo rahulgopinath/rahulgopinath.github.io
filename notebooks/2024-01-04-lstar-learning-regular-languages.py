@@ -25,7 +25,7 @@
 # specification of blackbox programs is called blackbox *grammar inference* or
 # *grammatical inference* (see the **Note** at the end for a discussion on other
 # names). In this post, I will discuss one of the classic algorithms for
-# learning the input specification calle L\*. The L\* algorithm was invented by
+# learning the input specification called L\*. The L\* algorithm was invented by
 # Dana Angluin in 1987 [^angluin1987]. While the initial algorithm used what is
 # called an equivalence query, which assumes that you can check the correctness
 # of the learned grammar separate from yes/no oracle, Angluin in the same paper
@@ -61,53 +61,144 @@ import math
 import random
 
 # Let us start with the assumption that the blackbox program
-# accepts a regular language. In the classical algorithm from Angluin
-# [^angluin1987], beyond the yes/no oracle (the program can tell you whether any
-# given string is acceptable or not, traditionally called the
-# *membership query*), we also require what is called an *equivalence query*.
-# That is, the algorithm requires what is called a *Teacher* that is able to
-# accept a guess of the target language in terms of a grammar, and tell us
-# whether we guessed it right, or if not, provide us with a string that has
-# different behavior on the blackbox and the guessed grammar -- a counter
-# example. The idea is to use the counter example to refine the guess until the
-# guess matches the target grammar. To start with, we require the following
-# definitions.
+# accepts a [regular language](https://en.wikipedia.org/wiki/Regular_language).
+# By *accept* I mean that the program does some processing with input given
+# rather than error out. For example, if the blackbox actually contained a JSON
+# parser, it will *accept* a string in the JSON format, and *reject* strings
+# that are not in the JSON format.
+#  
+# So, given such a program, and you are not allowed to peek inside the program
+# source code, how do you find what the program accepts? Knowing that the
+# program accepts a regular language, we can start by constructing a
+# [DFA](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (A finite
+# state machine).
+#  
+# Finite state machines are of course the bread and butter of
+# computer science. The idea is that the given program can be represented as a
+# set of discrete states, and transitions between them. The DFA is
+# initialized to the start state. A state transitions to another when it is
+# fed an input symbol. Some states are marked as *accepting*. That is, starting
+# from the start state, and after consuming all the symbols in the input, the
+# state reached is one of the accept states, then we say that the input was
+# *accepted* by the machine.
+#  
+# Given this information, how would we go about reconstructing the machine?
+# An intuitive approach is to recognize that a state is represented by exactly
+# two sets of strings. The first set of strings (the prefixes) is how the state
+# can be reached from the start state. The second set of strings are
+# continuations of input from the current state that distinguishes
+# this state from every other state. That is, two states can be distinguished
+# by the DFA if and only if there is at least one suffix string, which when fed
+# into the pair of states, produces different answers -- i.e. for one, the
+# machine accepts (or reaches one of the accept states), while for the other
+# is rejected (or the end state is not an accept).
+# 
+# Given this information, a data structure for keeping track of our experiments
+# presents itself -- the *observation table* where we keep our prefix strings
+# as rows, and suffix strings as columns. The table content simply marks
+# whether program accepted the prefix + suffix string or not.
+# 
+# Next, we start with the start state in the table, because we know for sure
+# that it exists, and is represented by the empty string in row and column,
+# which together (prefix + suffix = '' + '') is the empty string. We ask the
+# program if it accepts the empty string, and if it accepts, we mark the
+# corresponding cell in the table as accept (or `1`).
+# 
+# For any given state in the DFA, we should be able to say what happens when
+# an input symbol is fed into the machine in that state. So, we can extend the
+# table with what happens when each input symbol is fed into the start state.
+# This means that we extend the table with rows corresponding to each symbol
+# in the input alphabet. Since we want to know what state we reached when we
+# fed the input symbol to the start state, we add a set of cleverly chosen
+# suffixes (columns) to the table, determine the machine response to these
+# suffixes (by feeding the machine prefix+suffix for each combination), and
+# check whether any new state other than the start state was identified. A
+# new state reached by a prefix can be distinguished from the start state using
+# some suffix, if, after consuming that particular prefix, followed by the
+# particular suffix, the machine moved to say *accept*, but when the machine
+# at the start state was fed the same suffix, the end state was not *accept*.
+# (i.e. the machine accepted prefix + suffix but not suffix on its own).
+# Symmetrically, if the machine did not accept the string prefix + suffix
+# but did accept the string suffix, that also distinguishes the state from
+# the start state. Once we have identified a new state, we can then extend
+# the DFA with transitions from this new state, and check whether more
+# states can be identified. This is essentially the intuition behind most
+# of the grammar inference algorithms, and the cleverness lies in how the
+# suffixes are chosen. In the case of L\*, the when we find that one of the
+# transitions from the current states result in a new state, we add the
+# alphabet that caused the transition from the current state and the suffix
+# that distinguished the new state to the suffixes (i.e, a + suffix is
+# added to the columns). Furthermore, L\* also relies on something called
+# a *Teacher* for it to suggest new suffixes that can distinguish
+# unrecognized states from current ones.
+# 
+# (Of course readers will quickly note that the table is not the best data
+# structure here, and just because a suffix distinguished two particular
+# states does not mean that it is a good idea to evaluate the same suffix
+# on all other states. These are ideas that will be explored in later
+# algorithms).
+#  
+# # The classical L* algorithm
+#  
+# In the classical algorithm from Angluin [^angluin1987], beyond the yes/no
+# oracle (the program can tell you whether any given string is acceptable or
+# not, traditionally called the *membership query*), we also require what is
+# called an *equivalence query*. That is, the algorithm requires what is called
+# a *Teacher* that is able to accept a guess of the target language in terms of
+# a grammar, and tell us whether we guessed it right, or if not, provide us with
+# a string that has different behavior on the blackbox and the guessed grammar
+# -- a counter example. The idea is to use the counter example to refine the
+# guess until the guess matches the target grammar. To start with, we require
+# the following definitions.
 #  
 # ## Definitions
 # 
+# * Input symbol: A single symbol that is consumed by the machine which can move
+#   it from one state to another. The set of such symbols is called an alphabet,
+#   and is represented by $$ A $$.
 # * Membership query: A string that is passed to the blackbox. The blackbox
 #   answers yes or no.
 # * Equivalence query: A grammar that is passed to the teacher as a hypothesis
 #   of what the target language is. The teacher answers yes or a counter
-#   example that behaves differetly on the blackbox and the hypothesis grammar.
+#   example that behaves differently on the blackbox and the hypothesis grammar.
 # * Prefix closed: a set is prefix closed if all prefixes of any of its elements
 #   are also in the same set.
 # * Suffix closed: a set is suffix closed if all suffixes of any of its elements
 #   are also in the same set.
-# * State table: A table whose rows correspond to the *candidate states* (S) and
-#   its extensions of one alphabet (S . a) and the columns correspond to
-#   *query strings* or *experiments* (E). This table
-#   defines the language inferred by the algorithm. The contents of the table
-#   are the answers from the oracle on a string composed of the row and column
-#   labels. That is `T[s,e] == O(s.e)`.
-#   The table has two properties
-#   *closedness* and *consistency*. If these are not met at any time, we take
-#   to resolve it.
-# * Closedness of the state table means that for each s in S and each a in the
-#   alphabet, the contents of row(s.a) has a corresponding row(t) in
-#   the state table with the same contents. The idea is that, the state
-#   corresponding to row(s) accepts alphabet a and transitions to the state
-#   represented by row(t).
-# * Consistency of the state table means that if the contents of two rows are
-#   equal, that is row(s1) == row(s2) then row(s1 . a) = row(s2 . a) for all
-#   alphabets. The idea is tht if two states are the same, then their extensions
-#   should also be the same.
-# * The candidate states `S` is prefix closed, while the set of experiments `E`
+# * Observation table: A table whose rows correspond to the *candidate states*.
+#   The rows are made up of prefix strings that can reach given states ---
+#   commonly represented as $$ S $$, but here we will denote these by $$ P $$
+#   for prefixes --- and the columns are made up of suffix strings that serves
+#   to distinguish these states --- commonly expressed as $$ E $$ for
+#   extensions, but we will use $$ S $$ to denote suffixes here. The table
+#   contains auxiliary rows that extends each item $$ p \in P $$ with each
+#   alphabet $$ a \in A $$ as we discuss later in *closedness*.
+#   This table defines the language inferred by the algorithm. The contents of
+#   the table are the answers from the oracle on a string composed of the row
+#   and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
+#   The table has two properties: *closedness* and *consistency*.
+#   If these are not met at any time, we take to resolve it.
+# * The state: A state in the DFA is represented by a prefix in the observation
+#   table, and is named by the pattern of 1s and 0s in the cell contents.
+#   We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
+# * Closedness of the observation table means that for each $$ p \in P $$ and
+#   each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
+#   (i.e., its contents) exists in $$ P $$. That is, there is some
+#   $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
+#   corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
+#   state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
+# * Consistency of the observation table means that if two prefixes represents
+#   the same state (i.e. the contents of two rows are equal), that is
+#   $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
+#   The idea is that if two prefixes reach the state, then when fed any
+#   alphabet, both prefixes should transition to the same next state
+#   (represented by the pattern produced by the suffixes).
+# * The candidate states `P` is prefix closed, while the set of suffixes `S`
 #   is suffix closed.
 # 
-# Given the state table, the algorithm itself is simple
+# Given the observation table, the algorithm itself is simple
 # 
-# ## L*
+# ## L star main loop
 # The L* algorithm loops, doing the following operations in sequence. (1) keep
 # the table closed, (2) keep the table consistent, and if it is closed and
 # consistent (3) ask the teacher if the corresponding hypothesis grammar is
@@ -118,29 +209,28 @@ def l_star(T):
 
     while True:
         while True:
-            is_closed, counter_E = T.closed()
-            is_consistent, counter_A = T.consistent()
+            is_closed, unknown_P = T.closed()
+            is_consistent, _, unknown_AS = T.consistent()
             if is_closed and is_consistent: break
-            if not is_closed: T.append_S(counter_E)
-            if not is_consistent: T.append_AE(counter_A)
+            if not is_closed: T.append_P(unknown_P)
+            if not is_consistent: T.append_S(unknown_AS)
 
-        g, s = T.grammar()
-        res, counterX = teacher.is_equivalent(g, s)
-        if res: return T
-        prefixes = [counterX[0:i] for i,a in enumerate(counterX)][1:]
-        for p in prefixes: T.append_S(p)
+        grammar, start = T.grammar()
+        eq, counterX = teacher.is_equivalent(grammar, start)
+        if eq: return grammar, start
+        for i,_ in enumerate(counterX): T.append_P(counterX[0:i+1])
 
-# ## StateTable
+# ## ObservationTable
 # 
 # Next, we define the state table, also called the observation table.
 
 # We initialize the class with an teacher, and the alphabet.
-# That is, we initialize the set of prefixes `S` to be { $$\epsilon $$ }
-# and the set of extensions (experiments) `E` also to be { $$\epsilon $$ }
+# That is, we initialize the set of prefixes `P` to be { $$\epsilon $$ }
+# and the set of suffixes (experiments) `S` also to be { $$\epsilon $$ }
 
-class StateTable:
+class ObservationTable:
     def __init__(self, alphabet, teacher):
-        self._T, self.S, self.E = {}, [''], ['']
+        self._T, self.P, self.S = {}, [''], ['']
         self.teacher = teacher
         self.A = alphabet
 
@@ -149,31 +239,29 @@ class StateTable:
     def cell(self, v, e): return self._T[v][e]
 
     def get_sid(self, s):
-        row = self.row(s)
-        return ''.join([str(row[e]) for e in self.E])
-
+        return '<%s>' % ''.join([str(self.cell(s,e)) for e in self.S])
 
 # We can initialize the table as follows. First, we check whether the
 # empty string is in the language. Then, we extend the table `T`
-# to `(S u S.A).E` using membership queries.
+# to `(P u P.A).S` using membership queries.
 # 
-# - For each s in S and each a in A, query the teacher for the output of `s.a`
+# - For each p in P and each a in A, query the teacher for the output of `p.a`
 # and update table `T` with the rows.
-# - For each `t` in `E`, query the teacher for the output of `s.t` and update `T`
+# - For each `s` in `S`, query the teacher for the output of `p.s` and update `T`
 
 
-class StateTable(StateTable):
+class ObservationTable(ObservationTable):
     def init_table(self):
         self._T[''] = {'': self.teacher.is_member('') }
-        self.extend()
+        self.update_table()
 
-    def unique(self, l):
-        return list({s:None for s in l}.keys())
-
-    def extend(self):
-        SuS_A = self.unique(self.S + [s + a for s in self.S for a in self.A])
-        SuS_A_E = [(s,e) for s in SuS_A for e in self.E]
-        for s,e in SuS_A_E:
+    def update_table(self):
+        def unique(l): return list({s:None for s in l}.keys())
+        rows = self.P
+        auxrows = [p + a for p in self.P for a in self.A]
+        PuPxA = unique(rows + auxrows)
+        PuPxA_E = [(s,e) for s in PuPxA for e in self.S]
+        for s,e in PuPxA_E:
             if s in self._T and e in self._T[s]: continue
             if s not in self._T: self._T[s] = {}
             self._T[s][e] = self.teacher.is_member(s + e)
@@ -181,97 +269,96 @@ class StateTable(StateTable):
 
 # ### Closed
 # 
-# A state table (S, E) is closed if for each t in S·A
-# there exists an s in S such that row(t) = row(s)
-class StateTable(StateTable):
+# A state table $$ P \times S $$ is closed if for each $$ t \in P·A $$
+# there exists a $$ p \in P $$ such that $$ [t] = [p] $$
+class ObservationTable(ObservationTable):
     def closed(self):
-        S_A = [s+a for s in self.S for a in self.A]
-        for t in S_A:
-            res = [s for s in self.S if self.row(t) == self.row(s)]
+        P_A = [p+a for p in self.P for a in self.A]
+        for t in P_A:
+            res = [p for p in self.P if self.row(t) == self.row(p)]
             if not res: return False, t
         return True, None
 
 # ### Consistent
 # 
-# A state table (S, E) is consistent if, whenever s1 and s2
-# are elements of S such that row(s1) = row(s2), for each a in A,
-# row(s1.a) = row(s2.a). 
+# A state table $$ P \times S $$ is consistent if, whenever p1 and p2
+# are elements of P such that $$ [p1] = [p2] $$, for each $$ a \in A $$,
+# $$ [p1.a] = [p2.a] $$.
 # *If* there are two rows in the top part of the table repeated, then the
 # corresponding extensions should be the same.
+# If not, we found a counter example, and we report the alphabet + the
+# suffix that distinguished. We will then add the new string (a + suffix)
+# as a new suffix to the table.
 
-class StateTable(StateTable):
+class ObservationTable(ObservationTable):
     def consistent(self):
-        for s1,s2 in [(s1,s2) for s1 in self.S for s2 in self.S if s1 != s2]:
-            if self.row(s1) != self.row(s2): continue
+        prefixpairs = [(p1,p2) for p1 in self.P for p2 in self.P if p1 != p2]
+        for p1,p2 in prefixpairs:
+            if self.row(p1) != self.row(p2): continue
             for a in self.A:
-                for e in self.E:
-                    if self.cell(s1+a,e) != self.cell(s2+a,e):
-                        return False, (a + e)
-                #assert False
-        return True, None
+                for s in self.S:
+                    if self.cell(p1+a,s) != self.cell(p2+a,s):
+                        return False, (p1, p2), (a + s)
+        return True, None, None
 
 # ### Table utilities
 # Next, we define two utilities, one for appending a new S, and another
 # for appending a new E. We also define a utility for naming a state,
 # which corresponds to a unique row contents.
 
-class StateTable(StateTable):
-    def append_S(self, s):
-        if s in self.S: return
-        self.S.append(s)
-        self.extend()
+class ObservationTable(ObservationTable):
+    def append_P(self, p):
+        if p in self.P: return
+        self.P.append(p)
+        self.update_table()
 
-    def append_AE(self, ae):
-        if ae in self.E: return
-        self.E.append(ae)
-        self.extend()
+    def append_S(self, a_s):
+        if a_s in self.S: return
+        self.S.append(a_s)
+        self.update_table()
 
 
-# ### The Grammar
-# Given the state table, we can recover the grammar from this table
+# ### Convert Table to Grammar
+# Given the observation table, we can recover the grammar from this table
 # (corresponding to the DFA). The
 # unique cell contents of rows are states. In many cases, multiple rows may
 # correspond to the same state (as the cell contents are the same).
 # The *start state* is given by the state that correspond to the epsilon row.
-# A state is acceptig if it on query of epsilon, it retunrs 1.
+# A state is accepting if it on query of epsilon, it returns 1.
 #  
-# Q = {row(s) : s \in S}             --- states
-# q0 = row(e)                        -- start
-# F = {row(s) : s \in S, T(s) = 1}   -- accepting state
-# \delta(row(s), a) = row(s.a)      ---- Transition function
+# * $$ Q = {row(p) : p \in P} $$             -- states
+# * $$ q0 = [\epsilon] $$                    -- start
+# * $$ \delta([s], a) = [s.a] $$             -- Transition function
+# * $$ F = {[p] : p \in P, \delta([p],\epsilon) = 1} $$      -- accepting state
 
-class StateTable(StateTable):
-    def grammar(self):
-        row_map = {}  # Mapping from row string to state ID
+class ObservationTable(ObservationTable):
+    def table_to_grammar(self):
+        prefix_to_state = {}  # Mapping from row string to state ID
         states = {}
         grammar = {}
-        for s in self.S:
-            sid = self.get_sid(s)
-            if sid not in states: states[sid] = []
-            states[sid].append(s)
-            row_map[s] = sid
+        for p in self.P:
+            stateid = self.get_sid(p)
+            if stateid not in states: states[stateid] = []
+            states[stateid].append(p)
+            prefix_to_state[p] = stateid
 
-        for sid in states: grammar['<%s>' % sid] = []
+        for stateid in states: grammar[stateid] = []
 
         # Step 2: Identify the start state, which corresponds to epsilon row
-        start_state = row_map['']
-        start_nt = '<%s>' % start_state
-        grammar[start_nt] = []
+        start_nt = prefix_to_state['']
 
         # Step 3: Identify the accepting states
-        accepting = [row_map[s] for s in self.S if self.row(s)[''] == 1]
+        accepting = [prefix_to_state[p] for p in self.P if self.cell(p,'') == 1]
         if not accepting: return {'<start>': []}, '<start>'
-        for s in accepting:
-            grammar['<%s>' % s] = [['<_>']]
+        for s in accepting: grammar[s] = [['<_>']]
         grammar['<_>'] = [[]]
 
         # Step 4: Create the transition function
-
         for sid1 in states:
             first_such_row = states[sid1][0]
             for a in self.A:
                 sid2 = self.get_sid(first_such_row + a)
-                grammar['<%s>' % sid1].append([a, '<%s>' % sid2])
+                grammar[sid1].append([a, sid2])
 
         return grammar, start_nt
 
@@ -285,11 +372,12 @@ class StateTable(StateTable):
 # ```
 # We need to remove such infinite loops.
 
-class StateTable(StateTable):
+class ObservationTable(ObservationTable):
     def remove_infinite_loops(self, g, s):
         rule_cost = fuzzer.compute_cost(g)
         remove_keys = []
         for k in rule_cost:
+            if k == s: continue
             # if all rules in a k cost inf, then it should be removed.
             res = [rule_cost[k][r] for r in rule_cost[k]
                    if rule_cost[k][r] != math.inf]
@@ -307,9 +395,9 @@ class StateTable(StateTable):
 # ### Infer Grammar
 # We can now wrap up everything in one method.
 
-class StateTable(StateTable):
-    def infer_grammar(self):
-        g, s = self.grammar()
+class ObservationTable(ObservationTable):
+    def grammar(self):
+        g, s = self.table_to_grammar()
         g, s = self.remove_infinite_loops(g, s)
         return g, s
 
@@ -470,27 +558,23 @@ class Teacher(Teacher):
 
 if __name__ == '__main__':
     teacher = Teacher('a*b*')
-    g_T = StateTable(['a', 'b'], teacher)
-    l_star(g_T)
-    g, s = g_T.grammar()
+    g_T = ObservationTable(['a', 'b'], teacher)
+    g, s = l_star(g_T)
     print(s, g)
 
     teacher = Teacher('a*b')
-    g_T = StateTable(['a', 'b'], teacher)
-    l_star(g_T)
-    g, s = g_T.grammar()
+    g_T = ObservationTable(['a', 'b'], teacher)
+    g, s = l_star(g_T)
     print(s, g)
 
     teacher = Teacher('ab')
-    g_T = StateTable(['a', 'b'], teacher)
-    l_star(g_T)
-    g, s = g_T.grammar()
+    g_T = ObservationTable(['a', 'b'], teacher)
+    g, s = l_star(g_T)
     print(s, g)
 
     teacher = Teacher('ab*')
-    g_T = StateTable(['a', 'b'], teacher)
-    l_star(g_T)
-    g, s = g_T.grammar()
+    g_T = ObservationTable(['a', 'b'], teacher)
+    g, s = l_star(g_T)
     print(s, g)
 
 # ### Using it
@@ -500,9 +584,8 @@ if __name__ == '__main__':
     exprs = ['a*b*', 'ab', 'a*b', 'ab*', 'a|b', 'aba']
     for e in exprs:
         teacher = Teacher(e)
-        tbl = StateTable(['a', 'b'], teacher)
-        g_T = l_star(tbl)
-        g, s = g_T.infer_grammar()
+        tbl = ObservationTable(['a', 'b'], teacher)
+        g, s = l_star(tbl)
         print(s, g)
 
         ep = earleyparser.EarleyParser(g)
@@ -520,12 +603,12 @@ if __name__ == '__main__':
 # inference, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
 # Grammar inference is about learning a *grammar* (i.e. the representation) when
 # given information about a language, and focuses on the target, the grammar.
-# That is, you start with the assumption that a target gramamr exists. Then,
+# That is, you start with the assumption that a target grammar exists. Then,
 # try to guess that grammar based on your observations.
 # If on the other hand, you do not believe that a particular target grammar
 # exists, but want to do the best to learn the underlying principles, then it is
-# grammar induction. That is, it focues on the best possible grammar for the
-# given data. Closely related fiels are grammar mining, grammar recovery,
+# grammar induction. That is, it focuses on the best possible grammar for the
+# given data. Closely related fields are grammar mining, grammar recovery,
 # and grammar extraction which are all whitebox approaches based on program
 # or related artifact analysis. Language acquisition is another related term.
 # 
