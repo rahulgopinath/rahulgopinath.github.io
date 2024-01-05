@@ -1095,18 +1095,20 @@ parser for easy comparison.
 <!--
 ############
 class Teacher(Teacher):
-    def prepare_grammar(self, g, s, l, n):
-        if not g[s]: return None, None, 0, None
+    def digest_grammar(self, g, s, l, n):
+        if not g[s]: return 0, None, None
         g, s = self.fix_epsilon(g, s)
         rgf = cfgrandomsample.RandomSampleCFG(g)
         key_node = rgf.key_get_def(s, l)
         cnt = key_node.count
         ep = earleyparser.EarleyParser(g)
-        return rgf, key_node, cnt, ep
+        return cnt, key_node, ep
 
-    def generate_a_random_string(self, rgf, key_node, cnt):
+    def generate_a_random_string(self, key_node, cnt):
+        if cnt == 0: return None
         at = random.randint(0, cnt-1)
-        st_ = rgf.key_get_string_at(key_node, at)
+        # sampler does not store state.
+        st_ = self.sampler.key_get_string_at(key_node, at)
         return fuzzer.tree_to_string(st_)
 
 ############
@@ -1114,18 +1116,20 @@ class Teacher(Teacher):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Teacher(Teacher):
-    def prepare_grammar(self, g, s, l, n):
-        if not g[s]: return None, None, 0, None
+    def digest_grammar(self, g, s, l, n):
+        if not g[s]: return 0, None, None
         g, s = self.fix_epsilon(g, s)
         rgf = cfgrandomsample.RandomSampleCFG(g)
         key_node = rgf.key_get_def(s, l)
         cnt = key_node.count
         ep = earleyparser.EarleyParser(g)
-        return rgf, key_node, cnt, ep
+        return cnt, key_node, ep
 
-    def generate_a_random_string(self, rgf, key_node, cnt):
+    def generate_a_random_string(self, key_node, cnt):
+        if cnt == 0: return None
         at = random.randint(0, cnt-1)
-        st_ = rgf.key_get_string_at(key_node, at)
+        # sampler does not store state.
+        st_ = self.sampler.key_get_string_at(key_node, at)
         return fuzzer.tree_to_string(st_)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1138,26 +1142,26 @@ Checking if two grammars are equivalent to a length of string for n count.
 ############
 class Teacher(Teacher):
     def is_equivalent_for(self, g1, s1, g2, s2, l, n):
-        rgf1, key_node1, cnt1, ep1 = self.prepare_grammar(g1, s1, l, n)
-        rgf2, key_node2, cnt2, ep2 = self.prepare_grammar(g2, s2, l, n)
+        cnt1, key_node1, ep1 = self.digest_grammar(g1, s1, l, n)
+        cnt2, key_node2, ep2 = self.digest_grammar(g2, s2, l, n)
         count = 0
 
         if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
 
         if cnt1 == 0:
-            st2 = self.generate_a_random_string(rgf2, key_node2, cnt2)
+            st2 = self.generate_a_random_string(key_node2, cnt2)
             return False, (None, st2), count
 
         if cnt2 == 0:
-            st1 = self.generate_a_random_string(rgf1, key_node1, cnt1)
+            st1 = self.generate_a_random_string(key_node1, cnt1)
             return False, (st1, None), count
 
         str1 = set()
         str2 = set()
 
         for i in range(n):
-            str1.add(self.generate_a_random_string(rgf1, key_node1, cnt1))
-            str2.add(self.generate_a_random_string(rgf2, key_node2, cnt2))
+            str1.add(self.generate_a_random_string(key_node1, cnt1))
+            str2.add(self.generate_a_random_string(key_node2, cnt2))
 
         for st1 in str1:
             count += 1
@@ -1177,26 +1181,26 @@ class Teacher(Teacher):
 <textarea cols="40" rows="4" name='python_edit'>
 class Teacher(Teacher):
     def is_equivalent_for(self, g1, s1, g2, s2, l, n):
-        rgf1, key_node1, cnt1, ep1 = self.prepare_grammar(g1, s1, l, n)
-        rgf2, key_node2, cnt2, ep2 = self.prepare_grammar(g2, s2, l, n)
+        cnt1, key_node1, ep1 = self.digest_grammar(g1, s1, l, n)
+        cnt2, key_node2, ep2 = self.digest_grammar(g2, s2, l, n)
         count = 0
 
         if cnt1 == 0 and cnt2 == 0: return True, (None, None), count
 
         if cnt1 == 0:
-            st2 = self.generate_a_random_string(rgf2, key_node2, cnt2)
+            st2 = self.generate_a_random_string(key_node2, cnt2)
             return False, (None, st2), count
 
         if cnt2 == 0:
-            st1 = self.generate_a_random_string(rgf1, key_node1, cnt1)
+            st1 = self.generate_a_random_string(key_node1, cnt1)
             return False, (st1, None), count
 
         str1 = set()
         str2 = set()
 
         for i in range(n):
-            str1.add(self.generate_a_random_string(rgf1, key_node1, cnt1))
-            str2.add(self.generate_a_random_string(rgf2, key_node2, cnt2))
+            str1.add(self.generate_a_random_string(key_node1, cnt1))
+            str2.add(self.generate_a_random_string(key_node2, cnt2))
 
         for st1 in str1:
             count += 1
