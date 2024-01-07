@@ -1421,41 +1421,40 @@ So, we can compute the precision and recall as follows.
 
 <!--
 ############
+import re
+exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', '(ab|cd|ef)*']
+for e in exprs:
+    teacher = Teacher(e)
+    t_g, t_s = teacher.g, teacher.s
+    t_p, t_f = teacher.parser, fuzzer.LimitFuzzer(t_g)
 
-    import re
-    exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', '(ab|cd|ef)*']
-    for e in exprs:
-        teacher = Teacher(e)
-        t_g, t_s = teacher.g, teacher.s
-        t_p, t_f = teacher.parser, fuzzer.LimitFuzzer(t_g)
+    tbl = ObservationTable(list(string.ascii_letters))
+    i_g, i_s = l_star(tbl, teacher)
+    i_p = earleyparser.EarleyParser(i_g)
+    i_f = fuzzer.LimitFuzzer(i_g)
 
-        tbl = ObservationTable(list(string.ascii_letters))
-        i_g, i_s = l_star(tbl, teacher)
-        i_p = earleyparser.EarleyParser(i_g)
-        i_f = fuzzer.LimitFuzzer(i_g)
+    lgi = 0
+    lgi_lgb = 0
 
-        lgi = 0
-        lgi_lgb = 0
+    lgb = 0
+    lgb_lgi = 0
 
-        lgb = 0
-        lgb_lgi = 0
+    for i in range(100):
+        val = i_f.iter_fuzz(key=i_s, max_depth=100)
+        v = match(t_p, t_s, val)
+        lgi += 1
+        if v: lgi_lgb += 1
 
-        for i in range(100):
-            val = i_f.iter_fuzz(key=i_s, max_depth=100)
-            v = match(t_p, t_s, val)
-            lgi += 1
-            if v: lgi_lgb += 1
-
-            val = t_f.iter_fuzz(key=t_s, max_depth=100)
-            v = match(i_p, i_s, val)
-            lgb += 1
-            if v: lgb_lgi += 1
-        print('expr:', e)
-        precision = lgi_lgb / lgi
-        print('precision: ', precision)
-        recall = lgb_lgi / lgb
-        print('recall: ', recall)
-        print('F1:', 2 * precision*recall/(precision + recall))
+        val = t_f.iter_fuzz(key=t_s, max_depth=100)
+        v = match(i_p, i_s, val)
+        lgb += 1
+        if v: lgb_lgi += 1
+    print('expr:', e)
+    precision = lgi_lgb / lgi
+    print('precision: ', precision)
+    recall = lgb_lgi / lgb
+    print('recall: ', recall)
+    print('F1:', 2 * precision*recall/(precision + recall))
 
 
 ############
@@ -1463,39 +1462,39 @@ So, we can compute the precision and recall as follows.
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import re
-    exprs = [&#x27;a&#x27;, &#x27;ab&#x27;, &#x27;a*b*&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;(ab|cd|ef)*&#x27;]
-    for e in exprs:
-        teacher = Teacher(e)
-        t_g, t_s = teacher.g, teacher.s
-        t_p, t_f = teacher.parser, fuzzer.LimitFuzzer(t_g)
+exprs = [&#x27;a&#x27;, &#x27;ab&#x27;, &#x27;a*b*&#x27;, &#x27;a*b&#x27;, &#x27;ab*&#x27;, &#x27;a|b&#x27;, &#x27;(ab|cd|ef)*&#x27;]
+for e in exprs:
+    teacher = Teacher(e)
+    t_g, t_s = teacher.g, teacher.s
+    t_p, t_f = teacher.parser, fuzzer.LimitFuzzer(t_g)
 
-        tbl = ObservationTable(list(string.ascii_letters))
-        i_g, i_s = l_star(tbl, teacher)
-        i_p = earleyparser.EarleyParser(i_g)
-        i_f = fuzzer.LimitFuzzer(i_g)
+    tbl = ObservationTable(list(string.ascii_letters))
+    i_g, i_s = l_star(tbl, teacher)
+    i_p = earleyparser.EarleyParser(i_g)
+    i_f = fuzzer.LimitFuzzer(i_g)
 
-        lgi = 0
-        lgi_lgb = 0
+    lgi = 0
+    lgi_lgb = 0
 
-        lgb = 0
-        lgb_lgi = 0
+    lgb = 0
+    lgb_lgi = 0
 
-        for i in range(100):
-            val = i_f.iter_fuzz(key=i_s, max_depth=100)
-            v = match(t_p, t_s, val)
-            lgi += 1
-            if v: lgi_lgb += 1
+    for i in range(100):
+        val = i_f.iter_fuzz(key=i_s, max_depth=100)
+        v = match(t_p, t_s, val)
+        lgi += 1
+        if v: lgi_lgb += 1
 
-            val = t_f.iter_fuzz(key=t_s, max_depth=100)
-            v = match(i_p, i_s, val)
-            lgb += 1
-            if v: lgb_lgi += 1
-        print(&#x27;expr:&#x27;, e)
-        precision = lgi_lgb / lgi
-        print(&#x27;precision: &#x27;, precision)
-        recall = lgb_lgi / lgb
-        print(&#x27;recall: &#x27;, recall)
-        print(&#x27;F1:&#x27;, 2 * precision*recall/(precision + recall))
+        val = t_f.iter_fuzz(key=t_s, max_depth=100)
+        v = match(i_p, i_s, val)
+        lgb += 1
+        if v: lgb_lgi += 1
+    print(&#x27;expr:&#x27;, e)
+    precision = lgi_lgb / lgi
+    print(&#x27;precision: &#x27;, precision)
+    recall = lgb_lgi / lgb
+    print(&#x27;recall: &#x27;, recall)
+    print(&#x27;F1:&#x27;, 2 * precision*recall/(precision + recall))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

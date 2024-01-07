@@ -728,7 +728,6 @@ def match(p, start, text):
 # So, we can compute the precision and recall as follows.
 # 
 if __name__ == '__main__':
-
     import re
     exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', '(ab|cd|ef)*']
     for e in exprs:
