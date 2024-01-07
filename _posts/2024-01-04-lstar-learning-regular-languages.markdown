@@ -988,6 +988,9 @@ at the $$ i^{th} $$ equivalence query.
 
 $$ n=\lceil\frac{1}{\epsilon}\times log(\frac{1}{\delta}+i\times log(2))\rceil $$
  
+In essence the PAC framework says that there is $$ 1 - \delta  $$ probability
+that the model learned will classify samples with an error rate less than
+$$ \epsilon $$.
 
 <!--
 ############
