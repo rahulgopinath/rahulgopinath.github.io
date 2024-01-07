@@ -414,7 +414,7 @@ if __name__ == '__main__':
 
 # This is essentially the intuition behind most
 # of the grammar inference algorithms, and the cleverness lies in how the
-# suffixes are chosen. In the case of L\*, the when we find that one of the
+# suffixes are chosen. In the case of L\*, when we find that one of the
 # transitions from the current states result in a new state, we add the
 # alphabet that caused the transition from the current state and the suffix
 # that distinguished the new state to the suffixes (i.e, a + suffix is
@@ -503,19 +503,44 @@ class Oracle:
     def is_member(self, q): pass
 
 # As I promised, we will be using the PAC framework rather than the equivalence
-# oracles. First, due to the limitations of our utilities for random
-# sampling, we need to remove epsilon tokens from places other than
-# the start rule.
+# oracles. 
 # 
 # We define a simple teacher based on regular expressions. That is, if you
 # give it a regular expression, will convert it to an acceptor based on a
 # [parser](/post/2021/02/06/earley-parsing/) and a generator based on a
 # [random sampler](/post/2021/07/27/random-sampling-from-context-free-grammar/),
-# and will then use it for verification of hypothesis grammars. We also
-# input the PAC parameters delta for confidence and epsilon for accuracy
+# and will then use it for verification of hypothesis grammars.
+#
+# ### PAC Learning
+# PAC learning was introduced by Valiant in 1984 [^valiant1984] as a way to
+# think about inferred models in computational linguistics and machine learning.
+# The basic idea is that given a blackbox model, we need to be able to produce
+# samples that can then be tested against the model to construct an inferred
+# model (i.e, to train the model). For sampling during training, we have to
+# assume some sampling procedure, and hence a distribution for training.
+# Per PAC learning, we can only guarantee the performance of the
+# learned model when tested using samples from the same distribution. Given
+# that we are sampling from a distribution, there is a possibility that due
+# to non-determinism, the data is not as spread out as we may like, and hence
+# the training data is not optimal by a certain probability. This reflects on
+# the quality of the model learned. This is indicated by the concept of
+# confidence intervals, and indicated by the $$ \delta $$ parameter. That is,
+# $$ 1 - \delta $$ quantifies the confidence we have in our model. Next,
+# given any training data, due to the fact that the training data is finite,
+# our grammar learned is an approximation of the real grammar, and there will
+# always be an error term. This error is quantified by the $$ \epsilon $$
+# parameter. Given the desired $$ \delta $$ and $$ \epsilon $$ Angluin provides
+# a formula to compute the number of calls to make to the membership oracle
+# at the $$ i^{th} $$ equivalence query.
+# 
+# $$ n=\lceil\frac{1}{\epsilon}\times log(\frac{1}{\delta}+i\times log(2))\rceil $$
+#  
+
 
 class Teacher(Oracle):
     def is_equivalent(self, grammar, start): assert False
+
+# We input the PAC parameters delta for confidence and epsilon for accuracy
 
 class Teacher(Teacher):
     def __init__(self, rex, delta=0.1, epsilon=0.1):
@@ -533,10 +558,12 @@ class Teacher(Teacher):
         return 1
 
 # Given a grammar, check whether it is equivalent to the given grammar.
-# The PAC guarantee is that we only need `num_calls` for the `n`th equivalence
+# The PAC guarantee is that we only need `num_calls` for the `i`th equivalence
 # query. For equivalence check here, we check for strings of length 1, then
 # length 2 etc, whose sum should be `num_calls`. We take the easy way out here,
-# and just use `num_calls` as the number of calls for each string length.
+# and just use `num_calls` as the number of calls for each string length. We
+# also take the easy way out and only check for a maximum length of 10.
+# (I will revisit this if there is interest on expanding this).
 
 class Teacher(Teacher):
     def is_equivalent(self, grammar, start, max_length_limit=10):
