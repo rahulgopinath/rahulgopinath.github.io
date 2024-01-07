@@ -536,8 +536,8 @@ class Oracle:
 # $$ n=\lceil\frac{1}{\epsilon}\times log(\frac{1}{\delta}+i\times log(2))\rceil $$
 #  
 # In essence the PAC framework says that there is $$ 1 - \delta  $$ probability
-# that the model learned will classify samples with an error rate less than
-# $$ \epsilon $$.
+# that the model learned will be approximately correct. That is, it will
+# classify samples with an error rate less than $$ \epsilon $$.
 
 
 class Teacher(Oracle):
@@ -591,7 +591,9 @@ class Teacher(Teacher):
 # the start rule.
 
 class Teacher(Teacher):
-    def fix_epsilon(self, grammar, start):
+    def fix_epsilon(self, grammar_, start):
+        # clone
+        grammar = {k:[[t for t in r] for r in grammar_[k]] for k in grammar_}
         gs = cfgremoveepsilon.GrammarShrinker(grammar, start)
         gs.remove_epsilon_rules()
         return gs.grammar, start
@@ -698,22 +700,70 @@ def l_star(T, teacher):
 # Using it
 
 if __name__ == '__main__':
-    import re, string
+    import string
+    e = '(ab|cd|ef)*'
+    teacher = Teacher(e)
+    tbl = ObservationTable(list(string.ascii_letters))
+    g, s = l_star(tbl, teacher)
+    print(s, g)
+
+    gf = fuzzer.LimitFuzzer(g)
+    for i in range(10):
+        res = gf.iter_fuzz(key=s, max_depth=100)
+        print(res)
+
+# we define a match function for converting syntax error to boolean
+def match(p, start, text):
+    try: p.recognize_on(text, start)
+    except SyntaxError as e: return False
+    return True
+
+# ## The F1 score.
+# 
+# There is of course an additional question here. From the perspective of
+# language learning for software engineering *how we learned* is less important
+# than *what we learned*. That is, the precision and recall of the model that
+# we learned is important. I have discussed how to compute the precision and
+# recall, and the F1 score [previously](/post/2021/01/28/grammar-inference/).
+# So, we can compute the precision and recall as follows.
+# 
+if __name__ == '__main__':
+
+    import re
     exprs = ['a', 'ab', 'a*b*', 'a*b', 'ab*', 'a|b', '(ab|cd|ef)*']
     for e in exprs:
         teacher = Teacher(e)
-        tbl = ObservationTable(list(string.ascii_letters))
-        g, s = l_star(tbl, teacher)
-        print(s, g)
+        t_g, t_s = teacher.g, teacher.s
+        t_p, t_f = teacher.parser, fuzzer.LimitFuzzer(t_g)
 
-        ep = earleyparser.EarleyParser(g)
-        gf = fuzzer.LimitFuzzer(g)
-        for i in range(10):
-            res = gf.iter_fuzz(key=s, max_depth=100)
-            v = re.fullmatch(e, res)
-            a, b = v.span()
-            assert a == 0, b == len(res)
-            print(a,b)
+        tbl = ObservationTable(list(string.ascii_letters))
+        i_g, i_s = l_star(tbl, teacher)
+        i_p = earleyparser.EarleyParser(i_g)
+        i_f = fuzzer.LimitFuzzer(i_g)
+        
+        lgi = 0
+        lgi_lgb = 0
+
+        lgb = 0
+        lgb_lgi = 0
+
+        for i in range(100):
+            val = i_f.iter_fuzz(key=i_s, max_depth=100)
+            v = match(t_p, t_s, val)
+            lgi += 1
+            if v: lgi_lgb += 1
+
+            val = t_f.iter_fuzz(key=t_s, max_depth=100)
+            v = match(i_p, i_s, val)
+            lgb += 1
+            if v: lgb_lgi += 1
+        print('expr:', e)
+        precision = lgi_lgb / lgi
+        print('precision: ', precision)
+        recall = lgb_lgi / lgb
+        print('recall: ', recall)
+        print('F1:', 2 * precision*recall/(precision + recall))
+
 
 # # Definitions
 # 
