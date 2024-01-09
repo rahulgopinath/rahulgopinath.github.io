@@ -146,9 +146,9 @@ if __name__ == '__main__':
 # result of oracle for the prefix $$ p $$ and the suffix $$ s $$.
 # The notation $$ [p](a) $$ means the state obtained by feeding the input
 # symbol $$ a $$ to the state $$ [p] $$. We take
-# the first prefix that resulted in a particular state as its representative
-# prefix, and we denote the representative prefix of a state $$ s $$ by
-# $$ \langle{}s\rangle $$ (this is not used in this post). The following
+# the first prefix that resulted in a particular state as its *access prefix*,
+# and we denote the access prefix of a state $$ s $$ by
+# $$ \lfloor{}s\rfloor $$ (this is not used in this post). The following
 # is the DFA from our table.
 #  
 # * states: $$ Q = {[p] : p \in P} $$
@@ -564,8 +564,10 @@ class Teacher(Teacher):
 # The PAC guarantee is that we only need `num_calls` for the `i`th equivalence
 # query. For equivalence check here, we check for strings of length 1, then
 # length 2 etc, whose sum should be `num_calls`. We take the easy way out here,
-# and just use `num_calls` as the number of calls for each string length. We
-# also take the easy way out and only check for a maximum length of 10.
+# and just use `num_calls` as the number of calls for each string length.
+# We have what is called a *cooperative teacher*, that tries to respond with
+# a shortest possible counter example. We # also take the easy way out and only
+# check for a maximum length of 10.
 # (I will revisit this if there is interest on expanding this).
 
 class Teacher(Teacher):
