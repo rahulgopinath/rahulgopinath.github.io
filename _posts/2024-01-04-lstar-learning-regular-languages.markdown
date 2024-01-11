@@ -1550,14 +1550,17 @@ for e in exprs:
 # Notes
 
 While there is no strict specifications as to what grammar induction,
-inference, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
-Grammar inference is about learning a *grammar* (i.e. the representation) when
-given information about a language, and focuses on the target, the grammar.
-That is, you start with the assumption that a target grammar exists. Then,
-try to guess that grammar based on your observations.
+inference, identification, and learning is, according to [Higuera](http://videolectures.net/mlcs07_higuera_giv/),
+Grammar inference is about learning **the** grammar (i.e. the representation)
+when given information about a language, and focuses on the target, the
+grammar. That is, you start with the assumption that a target grammar exists.
+Then, try to guess that grammar based on your observations.
 If on the other hand, you do not believe that a particular target grammar
-exists, but want to do the best to learn the underlying principles, then it is
-grammar induction. That is, it focuses on the best possible grammar for the
+exists, but want to do the best to learn the underlying principles, or find
+*a* grammar that explain the data, then it is grammar induction.
+(This is also mentioned in the preface of the book "Grammatical Inference"
+by Higuera)
+That is, it focuses on the best possible grammar for the
 given data. Closely related fields are grammar mining, grammar recovery,
 and grammar extraction which are all whitebox approaches based on program
 or related artifact analysis. Language acquisition is another related term.
