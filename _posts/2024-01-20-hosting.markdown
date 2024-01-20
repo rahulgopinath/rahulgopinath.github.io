@@ -1,3 +1,11 @@
+---
+published: true
+title: Hosting your own ActivityPub instance for free
+layout: post
+comments: true
+tags: activitypub, mastodon
+categories: post
+
 # Hosting your own ActivityPub instance for free
 
 For those who are impatient, here is the quick and dirty procedure:
