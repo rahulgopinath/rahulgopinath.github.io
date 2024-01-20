@@ -13,6 +13,12 @@ Note: You can view this post in the hosted activitypub instance [here](https://g
 
 For those who are impatient, here is the quick and dirty procedure:
 
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
 ## DNS
 
 0. You need a domain name for this to work. You have two choices
