@@ -19,11 +19,11 @@ For those who are impatient, here is the quick and dirty procedure:
 
 ## DNS
 
-0. You need a domain name for this to work. You have two choices
+* You need a domain name for this to work. You have two choices
 
-(a) Head over to any of the domain registrars like domains.google and  buy a domain name-- say mydomain.org, or
+(a) Head over to any of the domain registrars like domains.google and  buy a domain name-- say `mydomain.org`, or
 
-(b) use a free dynamic dns service like freemyip which will get you something like mydomain.freemyip.com. If you use a dynamic dns, you will have to use Let Us Encrypt to handle your own  certificate. If you own the domain, you can use Cloudflare to https-front-end your server. If using the freemyip, make sure to save your token securely.
+(b) use a free dynamic dns service like freemyip which will get you something like `mydomain.freemyip.com.` If you use a dynamic dns, you will have to use Let Us Encrypt to handle your own  certificate. If you own the domain, you can use Cloudflare to https-front-end your server. If using the freemyip, make sure to save your token securely.
 
 In the steps below, I will mark (a) or (b) based on the solution you chose.
 
@@ -112,23 +112,27 @@ Next, we open the ports in Oracle cloud so that browsers outside can connect to 
 (b) freemyip+letusencrypyt  --- Stateless, Source CIDR is 0.0.0.0/0 IP Protocol is TCP, Destination port range is 443 create another rule for 80 also. You will need it for testing, but you can turn it off later.
 
  
-* HTTPS Frontend. 
+### HTTPS Frontend. 
 
 (a) If using cloud flare, head over to CloudFlare, add site (your sitename), choose the free plan. Add DNS Records, create a [A] record with [@] or the full name for your site, content is the public ip of the oracle instance you just created, and mark proxied.
 
-At this point, you are done, and your Ktistec instance will be available at https://mydomain.org. You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
+At this point, you are done, and your Ktistec instance will be available at `https://mydomain.org`. You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
 
 (b) if using freemyip+letusencrypt then you have to be a little careful. The usual method of creating a certificate requires you to add a TXT record to DNS or use nginx directly. I have not been able to get this to work. Instead, follow these steps to generate a letusencrypt certificate.
 
-i) Install nginx on the system. Make sure that you can reach the nginx installation from outside by connecting to it over the http://<publicip>:80
+i) Install nginx on the system. Make sure that you can reach the nginx installation from outside by connecting to it over the `http://publicip:80`
+
+```
 sudo apt install nginx
+```
+
 If it does not work, flush your iptables so that it can connect from outside (not sure how better to do this, but if you are familiar with iptables, add a rule to connect instead. Flush worked for me.)
 
 ```
 iptables -F
 ```
 
-Try http://-publicip-:80 again. It should show the welcome page.
+Try `http://publicip:80` again. It should show the welcome page.
 
 ii) To generate a certificate with letusencrypt, you need to first install certbot.
 
@@ -144,7 +148,7 @@ sudo certbot -d <mydomain>.freemyip.com \
     --manual --preferred-challenges http certonly
 ```
 
-iii) Provide <mydomain>.freemyip.com as the domain name if asked. It will ask you to place a file <filename> inside the root directory of nginx followed by .well-known/acme-challenge/ with a value <the value>.  The root directory is typically at /var/www/html. So, you have to create the directory, and place the file.
+iii) Provide `<mydomain>.freemyip.com` as the domain name if asked. It will ask you to place a file `<filename>` inside the root directory of nginx followed by `.well-known/acme-challenge/` with a value `<the value>`.  The root directory is typically at `/var/www/html`. So, you have to create the directory, and place the file.
 
 ```
 mkdir -p /var/www/html.well-known/acme-challenge/
@@ -177,7 +181,7 @@ sudo ln -s /etc/nginx/sites-available/<mydomain>.freemyip.com \
            /etc/nginx/sites-enabled/
 ```
 
-vi) Then edit /etc/nginx/sites-available/<mydomain>.freemyip.com and add the following.
+vi) Then edit `/etc/nginx/sites-available/<mydomain>.freemyip.com` and add the following.
 
 ```
 server {
@@ -207,7 +211,7 @@ vii) Restart nginx
 sudo systemctl restart nginx
 ```
 
-At this point, your site should be available  as https://mydomain.freemyip.com.  You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
+At this point, your site should be available  as `https://mydomain.freemyip.com`.  You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
 
 Once this is done, you can remove the port 80 from the Ingress rules in oracle cloud.
 
