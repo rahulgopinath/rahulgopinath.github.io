@@ -209,7 +209,7 @@ At this point, your site should be available  as https://mydomain.freemyip.com. 
 
 Once this is done, you can remove the port 80 from the Ingress rules in oracle cloud.
 
-## More
+## Binary instead of Docker
 
 If you find that the docker is taking up too much memory, you can also compile ktistec externally, and copy it over to the server. You will need to ensure the following files are available in the directory.  The server is the ktistec executable. The ktistec.db is your ktistec database. The following are the files I have. You will have to copy over these files into the directory, either from the docker image or from elsewhere.
 
