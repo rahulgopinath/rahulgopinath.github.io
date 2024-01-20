@@ -22,7 +22,9 @@ For those who are impatient, here is the quick and dirty procedure:
 ## DNS
 
 0. You need a domain name for this to work. You have two choices
+
 (a) Head over to any of the domain registrars like domains.google and  buy a domain name-- say mydomain.org, or
+
 (b) use a free dynamic dns service like freemyip which will get you something like mydomain.freemyip.com. If you use a dynamic dns, you will have to use Let Us Encrypt to handle your own  certificate. If you own the domain, you can use Cloudflare to https-front-end your server. If using the freemyip, make sure to save your token securely.
 
 In the steps below, I will mark (a) or (b) based on the solution you chose.
@@ -31,19 +33,19 @@ In the steps below, I will mark (a) or (b) based on the solution you chose.
 
 Ktistec is a server that supports the ActivityPub protocol. That is, in simple terms, it can collaborate with Mastodon and other servers that support ActivityPub. One trouble we have is that Ktistec does not distribute binaries yet, so we have to build it on our own. Unfortunately the Oracle free tier does not have sufficient computing power to build it. So you will have to build it in a local machine. I use an Ubuntu 22.04 vagrant image to build it (I used the Ubuntu 22.04 image because that is what is available in Oracle free tier box).
 
-1. Within the vagrant box, checkout Ktistec
+* Within the vagrant box, checkout Ktistec
 
 ```
 git clone https://github.com/toddsundsted/ktistec; cd ktistec
 ```
 
-2. Use the provided docker to build an image. 
+* Use the provided docker to build an image. 
 
 ```
 docker build -t "ktistec:latest" .
 ```
 
-3. Export the docker image
+* Export the docker image
 
 ```
 docker  save ktistec:latest | gzip > ktistec.tgz
@@ -53,27 +55,27 @@ docker  save ktistec:latest | gzip > ktistec.tgz
 
 Next, we host the Ktistec instance in the oracle cloud. We have to do three things; Create and prepare a free compute box, start the server, and open ports so that it is accessible over the public internet.
 
-5. Head over to the oracle cloud, create a free compute box instance with the Ubuntu 22.04 image. Prepare the image so that it can run docker.  Digital ocean has a reasonable tutorial. Make sure to create your own ssh keypair and upload the public key when creating the compute box. We need to connect to the machine using SSH. Also, make sure that you have a public IP when you create the compute box. Copy the public IP once the machine is created. (You can delete and recreate machines easily, so if you make a mistake, start over)
+* Head over to the oracle cloud, create a free compute box instance with the Ubuntu 22.04 image. Prepare the image so that it can run docker.  Digital ocean has a reasonable tutorial. Make sure to create your own ssh keypair and upload the public key when creating the compute box. We need to connect to the machine using SSH. Also, make sure that you have a public IP when you create the compute box. Copy the public IP once the machine is created. (You can delete and recreate machines easily, so if you make a mistake, start over)
 
-6. Next, we copy ktistec.tgz to this machine,
+* Next, we copy ktistec.tgz to this machine,
 
 ```
 scp ktistec.tgz my_public_ip:~/
 ```
 
-7. Connect to your machine
+* Connect to your machine
 
 ```
 ssh my_public_ip
 ```
 
-7.  Load the docker image within your newly created machine.
+*  Load the docker image within your newly created machine.
 
 ```
 docker image load -i ~/ktistec.tgz
 ```
 
-8. Check it has loaded
+* Check it has loaded
 
 ```
 docker image ls
@@ -81,8 +83,9 @@ REPOSITORY   TAG         IMAGE ID       CREATED        SIZE
 ktistec       latest      22d6ac8c8cd5   2 days ago     37.1MB
 ```
 
-9. Start the machine. You have two options here. 
-    (a) The first is if you own the domain name.
+* Start the machine. You have two options here. 
+
+(a) The first is if you own the domain name.
 
 ```
 mkdir -p ktistec/db ktistec/uploads; cd ktistec;
@@ -90,7 +93,7 @@ docker run -p 80:3000 \
    -v `pwd`/db:/db -v `pwd`/uploads:/uploads ktistec:latest
 ```
 
- (b) If you are using the freemyip subdomain, then you need a separate nginx reverse proxy to front end your system. In that case run this instead.
+(b) If you are using the freemyip subdomain, then you need a separate nginx reverse proxy to front end your system. In that case run this instead.
 
 ```
 mkdir -p ktistec/db ktistec/uploads; cd ktistec
@@ -102,19 +105,20 @@ Note that the db and uploads contain the data from your instance. Back them up p
 
 Next, we open the ports in Oracle cloud so that browsers outside can connect to port 80 if you are using a custom domain and cloudflare, and port 443 if you are going with freemyip and letusencrypt.
 
-6.  In cloud.oracle.com, click on [Instance Information] -> [Primary VNIC: Subnet]
+*  In cloud.oracle.com, click on [Instance Information] -> [Primary VNIC: Subnet]
 
-7. Click on default security list, click on [Add Ingress Rules]
+* Click on default security list, click on [Add Ingress Rules]
 
 (a) domain+cloudflare  --- Stateless, Source CIDR is 0.0.0.0/0 IP Protocol is TCP, Destination port range is 80
+
 (b) freemyip+letusencrypyt  --- Stateless, Source CIDR is 0.0.0.0/0 IP Protocol is TCP, Destination port range is 443 create another rule for 80 also. You will need it for testing, but you can turn it off later.
 
  
-9. HTTPS Frontend. 
+* HTTPS Frontend. 
 
 (a) If using cloud flare, head over to CloudFlare, add site (your sitename), choose the free plan. Add DNS Records, create a [A] record with [@] or the full name for your site, content is the public ip of the oracle instance you just created, and mark proxied.
 
- At this point, you are done, and your Ktistec instance will be available at https://mydomain.org. You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
+At this point, you are done, and your Ktistec instance will be available at https://mydomain.org. You will need to immediately open the instance in a browser and set the primary username password, and other site configuration details.
 
 (b) if using freemyip+letusencrypt then you have to be a little careful. The usual method of creating a certificate requires you to add a TXT record to DNS or use nginx directly. I have not been able to get this to work. Instead, follow these steps to generate a letusencrypt certificate.
 
