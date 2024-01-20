@@ -7,9 +7,7 @@ tags: activitypub, mastodon
 categories: post
 ---
 
-# Hosting your own ActivityPub instance for free
-
-Note: You can view this post in the hosted activitypub instance [here](https://gopinath.org/2022-11-11-hosting-ktistec-on-oracle-cloud)
+**Note:** You can view this post in the hosted activitypub instance [here](https://gopinath.org/2022-11-11-hosting-ktistec-on-oracle-cloud)
 
 For those who are impatient, here is the quick and dirty procedure:
 
