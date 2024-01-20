@@ -5,6 +5,7 @@ layout: post
 comments: true
 tags: activitypub, mastodon
 categories: post
+---
 
 # Hosting your own ActivityPub instance for free
 
