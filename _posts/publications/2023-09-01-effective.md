@@ -5,7 +5,7 @@ tagline: "."
 tags : publication
 e:  Effective Fuzzing of Binary File Formats
 title: Effective Fuzzing of Binary File Formats
-authors: Rafael Dutra, Rahul Gopinath and Andreas Zeller
+authors: Rafael Dutra, Rahul Gopinath, and Andreas Zeller
 venue: ACM TOSEM
 kind: journal
 thesort: peerreviewed
