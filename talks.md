@@ -118,6 +118,7 @@ of the long-standing questions in software engineering is the inference of such
 grammars. That is, given a parser, how do we /invert/ such parsers, and get the
 input specification back? This talk will focus on how to extract such grammars
 from parsers themselves, and what can we do with such grammars.
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-to-talk-to-strange-programs-and-find-bugs)
 
 
 #### <a id='gopinath2023dancing'></a> [Gopinath: _Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_ SAPLING 2023]()
@@ -132,6 +133,8 @@ that was successfully processed before failure. Such feedback is available out
 of the box for most parsers. Given this feedback, I show how to leverage it for
 inferring the input grammar of the program under test.
 This grammar can then be used for effective testing of the program under test.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/dancing-to-an-unknown-music-grammar-inferrence-with-prefix-queries)
 
 #### <a id='gopinath2022answering'></a> [Gopinath: _Mutation Analysis: Answering the Fuzzing Challenge_ University of Melbourne 2022]()
 
