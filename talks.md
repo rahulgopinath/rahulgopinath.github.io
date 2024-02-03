@@ -6,13 +6,18 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+##### 2024
+* [_How to Talk to Strange Programs and Find Bugs_](#gopinath2024how)<br/>
+  *Gopinath* - ASESS'24, NSW, Sydney, Australia, February 1, 2024
+
 ##### 2023
+
 * [_Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_](#gopinath2023dancing)<br/>
   *Gopinath* - SAPLING'23, Google, Sydney, Australia, December 1, 2023
 
 ##### 2022
 * [_Mutation Analysis: Answering the Fuzzing Challenge_](#gopinath2022answering)<br/>
-  *Gopinath* - University of Melbourne, Gandhinagar, Australia, October 13, 2022
+  *Gopinath* - University of Melbourne, Melbourne, Australia, October 13, 2022
 
 * [_Building Blocks for Fuzzing_](#gopinath2022building)<br/>
   *Gopinath* - Indian Institute of Technology, Gandhinagar, India, July 19, 2022
@@ -100,6 +105,22 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+#### <a id='gopinath2024how'></a> [Gopinath: _How to Talk to Strange Programs and Find Bugs_ ASESSG 2024]()
+
+For effective testing of programs with complex structured inputs, the input
+specification or the input grammar is practically mandatory.  Given an input
+grammar, we can use it to produce inputs that reach program internals and induce
+interesting behaviours. We can also use such grammars for quickly generating
+inputs, for characterizing program behaviours, for repair of inputs, as well as
+for quick input validation. However, many programs that require complex
+structured inputs come with a precise input grammar. Even when such a grammar is
+available, the grammar could be incomplete, obsolete, or incorrect. Hence, one
+of the long-standing questions in software engineering is the inference of such
+grammars. That is, given a parser, how do we /invert/ such parsers, and get the
+input specification back? This talk will focus on how to extract such grammars
+from parsers themselves, and what can we do with such grammars.
+
+
 #### <a id='gopinath2023dancing'></a> [Gopinath: _ Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_ SAPLING 2023]()
 
 For effective testing of programs with complex structured inputs, we need the
