@@ -11,7 +11,6 @@ menu: Talks
   *Gopinath* - ASESS'24, NSW, Sydney, Australia, February 1, 2024
 
 ##### 2023
-
 * [_Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_](#gopinath2023dancing)<br/>
   *Gopinath* - SAPLING'23, Google, Sydney, Australia, December 1, 2023
 
@@ -121,7 +120,7 @@ input specification back? This talk will focus on how to extract such grammars
 from parsers themselves, and what can we do with such grammars.
 
 
-#### <a id='gopinath2023dancing'></a> [Gopinath: _ Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_ SAPLING 2023]()
+#### <a id='gopinath2023dancing'></a> [Gopinath: _Dancing to Unknown Music: Learning Black-Box Program Input Grammars with Prefix Queries_ SAPLING 2023]()
 
 For effective testing of programs with complex structured inputs, we need the
 input grammar. Yet, neither the input grammar nor the source code is guaranteed
