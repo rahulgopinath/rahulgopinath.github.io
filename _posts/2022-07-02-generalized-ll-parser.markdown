@@ -3920,13 +3920,15 @@ def format_parsetree(t):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Note: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
+**Note**: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
 ```py
 gamma_2 = { "<S>": [ ["<S>", "<S>", "<S>"], ["<S>", "<S>"], ["s"],] }
 ee = EnhancedExtractor(forest)
 ee.extract_a_tree()
 ```
 will extract the wrong tree for `ssss`. I have not solved the issue so far. If you find the issue, please drop me a note.
+
+**Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation). Unfortunately, I did not have access to this when I was developing this post, which means that there might be bugs (such as above) in my code, and in case of such bugs please refer to this repository for an authoritative implementation.
 
 [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 [^bouckaert1975efficient]: M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
