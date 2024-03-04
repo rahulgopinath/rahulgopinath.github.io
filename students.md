@@ -25,7 +25,7 @@ like to work in areas of common interest, and I will be happy to provide
 a reference and documentation. If this is the case, please indicate this in
 your email. (Update: The School of Computer Science at University of Sydney is
 looking into funding competitive Indian students. I will update this when
-I have more information. Please watch this space. Latest: The School of
+I have more information. Please watch this space. Latest (2024-03-04): The School of
 Computer Science has decided not to support VRI for Indian students this year.)
 <!-- While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials. -->
 
