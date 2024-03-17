@@ -11,6 +11,9 @@ menu: Contact
 rahul@gopinath.org [^personal]
 rahul.gopinath@sydney.edu.au [^unisydney]  
 
+[Zoom](https://uni-sydney.zoom.us/my/rahulgopinath)
+
+
 #### Phone [^note]
 
 +61 4609 52088 [^personal]
