@@ -233,9 +233,8 @@ def gen_regex():
 
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_alpha(), gen_cex()])
-        case 1: return ('cex', [gen_alpha()])
+    if r == 0: return ('cex', [gen_alpha(), gen_cex()])
+    if r == 1: return ('cex', [gen_alpha()])
 
 def gen_alpha():
     return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
@@ -249,9 +248,8 @@ def gen_regex():
 
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return (&#x27;cex&#x27;, [gen_alpha(), gen_cex()])
-        case 1: return (&#x27;cex&#x27;, [gen_alpha()])
+    if r == 0: return (&#x27;cex&#x27;, [gen_alpha(), gen_cex()])
+    if r == 1: return (&#x27;cex&#x27;, [gen_alpha()])
 
 def gen_alpha():
     return (&#x27;alpha&#x27;, [(random.choice([c for c in string.printable if c not in &#x27;|*()&#x27;]), [])])
@@ -286,9 +284,8 @@ def gen_regex():
 
 def gen_exp():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_cex(), ('|', []), gen_exp()])
-        case 1: return ('cex', [gen_cex()])
+    if r == 0: return ('cex', [gen_cex(), ('|', []), gen_exp()])
+    if r == 1: return ('cex', [gen_cex()])
 
 ############
 -->
@@ -299,9 +296,8 @@ def gen_regex():
 
 def gen_exp():
     r = random.randint(0,1)
-    match r:
-        case 0: return (&#x27;cex&#x27;, [gen_cex(), (&#x27;|&#x27;, []), gen_exp()])
-        case 1: return (&#x27;cex&#x27;, [gen_cex()])
+    if r == 0: return (&#x27;cex&#x27;, [gen_cex(), (&#x27;|&#x27;, []), gen_exp()])
+    if r == 1: return (&#x27;cex&#x27;, [gen_cex()])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -332,9 +328,8 @@ character that comes after.
 ############
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_unitexp(), gen_cex()])
-        case 1: return ('cex', [gen_unitexp()])
+    if r == 0: return ('cex', [gen_unitexp(), gen_cex()])
+    if r == 1: return ('cex', [gen_unitexp()])
 
 ############
 -->
@@ -342,9 +337,8 @@ def gen_cex():
 <textarea cols="40" rows="4" name='python_edit'>
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return (&#x27;cex&#x27;, [gen_unitexp(), gen_cex()])
-        case 1: return (&#x27;cex&#x27;, [gen_unitexp()])
+    if r == 0: return (&#x27;cex&#x27;, [gen_unitexp(), gen_cex()])
+    if r == 1: return (&#x27;cex&#x27;, [gen_unitexp()])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -356,9 +350,8 @@ trick to avoid that instead.
 ############
 def gen_unitexp():
     r = random.randint(0,9)
-    match r:
-        case 1|2|3|4|5|6|7|8|9: return ('unitexp', [gen_alpha()])
-        case 0: return ('unitexp', [gen_parenexp()])
+    if r in [1,2,3,4,5,6,7,8,9]: return ('unitexp', [gen_alpha()])
+    if r == 0: return ('unitexp', [gen_parenexp()])
 
 def gen_parenexp():
     return ('parenexp', [('(', []), gen_regex() ,(')', [])])
@@ -369,9 +362,8 @@ def gen_parenexp():
 <textarea cols="40" rows="4" name='python_edit'>
 def gen_unitexp():
     r = random.randint(0,9)
-    match r:
-        case 1|2|3|4|5|6|7|8|9: return (&#x27;unitexp&#x27;, [gen_alpha()])
-        case 0: return (&#x27;unitexp&#x27;, [gen_parenexp()])
+    if r in [1,2,3,4,5,6,7,8,9]: return (&#x27;unitexp&#x27;, [gen_alpha()])
+    if r == 0: return (&#x27;unitexp&#x27;, [gen_parenexp()])
 
 def gen_parenexp():
     return (&#x27;parenexp&#x27;, [(&#x27;(&#x27;, []), gen_regex() ,(&#x27;)&#x27;, [])])
@@ -404,9 +396,8 @@ def gen_regex():
 
 def gen_rex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('rex', [gen_exp(), ('*', [])])
-        case 1: return ('rex', [gen_exp()])
+    if r == 0: return ('rex', [gen_exp(), ('*', [])])
+    if r == 1: return ('rex', [gen_exp()])
 
 ############
 -->
@@ -417,9 +408,8 @@ def gen_regex():
 
 def gen_rex():
     r = random.randint(0,1)
-    match r:
-        case 0: return (&#x27;rex&#x27;, [gen_exp(), (&#x27;*&#x27;, [])])
-        case 1: return (&#x27;rex&#x27;, [gen_exp()])
+    if r == 0: return (&#x27;rex&#x27;, [gen_exp(), (&#x27;*&#x27;, [])])
+    if r == 1: return (&#x27;rex&#x27;, [gen_exp()])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -620,6 +610,6 @@ matching rule should come first.
 
 ## Artifacts
 
-The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2024-03-23-designing-grammars-for-fun-and-profit.py).
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2024-03-22-designing-grammars-for-fun-and-profit.py).
 
 

@@ -123,9 +123,8 @@ def gen_regex():
 
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_alpha(), gen_cex()])
-        case 1: return ('cex', [gen_alpha()])
+    if r == 0: return ('cex', [gen_alpha(), gen_cex()])
+    if r == 1: return ('cex', [gen_alpha()])
 
 def gen_alpha():
     return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
@@ -143,9 +142,8 @@ def gen_regex():
     
 def gen_exp():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_cex(), ('|', []), gen_exp()])
-        case 1: return ('cex', [gen_cex()])
+    if r == 0: return ('cex', [gen_cex(), ('|', []), gen_exp()])
+    if r == 1: return ('cex', [gen_cex()])
 
 # This again works as expected.
 
@@ -160,18 +158,16 @@ if __name__ == '__main__':
 
 def gen_cex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('cex', [gen_unitexp(), gen_cex()])
-        case 1: return ('cex', [gen_unitexp()])
+    if r == 0: return ('cex', [gen_unitexp(), gen_cex()])
+    if r == 1: return ('cex', [gen_unitexp()])
 
 # symmetric probabilities will exhaust the stack. So, use this
 # trick to avoid that instead.
 
 def gen_unitexp():
     r = random.randint(0,9)
-    match r:
-        case 1|2|3|4|5|6|7|8|9: return ('unitexp', [gen_alpha()])
-        case 0: return ('unitexp', [gen_parenexp()])
+    if r in [1,2,3,4,5,6,7,8,9]: return ('unitexp', [gen_alpha()])
+    if r == 0: return ('unitexp', [gen_parenexp()])
 
 def gen_parenexp():
     return ('parenexp', [('(', []), gen_regex() ,(')', [])])
@@ -188,9 +184,8 @@ def gen_regex():
 
 def gen_rex():
     r = random.randint(0,1)
-    match r:
-        case 0: return ('rex', [gen_exp(), ('*', [])])
-        case 1: return ('rex', [gen_exp()])
+    if r == 0: return ('rex', [gen_exp(), ('*', [])])
+    if r == 1: return ('rex', [gen_exp()])
 
 # Testing it again.
 if __name__ == '__main__':
