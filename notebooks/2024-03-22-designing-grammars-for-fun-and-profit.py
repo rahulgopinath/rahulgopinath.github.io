@@ -262,7 +262,7 @@ if __name__ == '__main__':
     inrex = '(ab|cb)*d'
     print()
     f, r = peg_parse(regex_grammar).unify_key(regex_start, inrex)
-    print(repr(collapse(r)), "<")
+    print(repr(collapse(r)))
 
 # However, there are some caveats to the grammars thus produced.
 # The main caveat is that you have to be careful in how you order your rules.

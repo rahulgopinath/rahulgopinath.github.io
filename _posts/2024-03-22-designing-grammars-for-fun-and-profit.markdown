@@ -567,7 +567,7 @@ Using it
 inrex = '(ab|cb)*d'
 print()
 f, r = peg_parse(regex_grammar).unify_key(regex_start, inrex)
-print(repr(collapse(r)), "<")
+print(repr(collapse(r)))
 
 ############
 -->
@@ -576,7 +576,7 @@ print(repr(collapse(r)), "<")
 inrex = &#x27;(ab|cb)*d&#x27;
 print()
 f, r = peg_parse(regex_grammar).unify_key(regex_start, inrex)
-print(repr(collapse(r)), &quot;&lt;&quot;)
+print(repr(collapse(r)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
