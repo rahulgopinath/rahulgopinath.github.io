@@ -102,6 +102,7 @@ def gen_alpha():
 # This works as expected
 if __name__ == '__main__':
     t = gen_regex()
+    print(t)
 
 # We define a function to collapse the derivation tree
 
