@@ -93,11 +93,13 @@ import random
 
 import string, random
 
+ALPHABET = [c for c in string.printable if c not in '|*()']
+
 def gen_regex():
     return ('regex', [gen_alpha()])
 
 def gen_alpha():
-    return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
+    return ('alpha', [(random.choice(ALPHABET), [])])
 
 # This works as expected
 if __name__ == '__main__':
@@ -126,9 +128,6 @@ def gen_cex():
     r = random.randint(0,1)
     if r == 0: return ('cex', [gen_alpha(), gen_cex()])
     if r == 1: return ('cex', [gen_alpha()])
-
-def gen_alpha():
-    return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
 
 # This again works as expected.
 if __name__ == '__main__':

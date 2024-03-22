@@ -150,11 +150,13 @@ expressions. We will return a derivation tree as the result.
 ############
 import string, random
 
+ALPHABET = [c for c in string.printable if c not in '|*()']
+
 def gen_regex():
     return ('regex', [gen_alpha()])
 
 def gen_alpha():
-    return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
+    return ('alpha', [(random.choice(ALPHABET), [])])
 
 ############
 -->
@@ -162,11 +164,13 @@ def gen_alpha():
 <textarea cols="40" rows="4" name='python_edit'>
 import string, random
 
+ALPHABET = [c for c in string.printable if c not in &#x27;|*()&#x27;]
+
 def gen_regex():
     return (&#x27;regex&#x27;, [gen_alpha()])
 
 def gen_alpha():
-    return (&#x27;alpha&#x27;, [(random.choice([c for c in string.printable if c not in &#x27;|*()&#x27;]), [])])
+    return (&#x27;alpha&#x27;, [(random.choice(ALPHABET), [])])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -238,9 +242,6 @@ def gen_cex():
     if r == 0: return ('cex', [gen_alpha(), gen_cex()])
     if r == 1: return ('cex', [gen_alpha()])
 
-def gen_alpha():
-    return ('alpha', [(random.choice([c for c in string.printable if c not in '|*()']), [])])
-
 ############
 -->
 <form name='python_run_form'>
@@ -252,9 +253,6 @@ def gen_cex():
     r = random.randint(0,1)
     if r == 0: return (&#x27;cex&#x27;, [gen_alpha(), gen_cex()])
     if r == 1: return (&#x27;cex&#x27;, [gen_alpha()])
-
-def gen_alpha():
-    return (&#x27;alpha&#x27;, [(random.choice([c for c in string.printable if c not in &#x27;|*()&#x27;]), [])])
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
