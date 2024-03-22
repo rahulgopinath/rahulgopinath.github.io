@@ -6,7 +6,7 @@
 # tags: grammars peg
 # categories: post
 # ---
-# 
+#  
 # TLDR; This tutorial describes how to design test cases that can effectively
 # cover features of a given context-free grammar using the k-path strategy.
 # 
@@ -256,5 +256,4 @@ if __name__ == '__main__':
 # complete test input.
 # 
 # [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 34th IEEE/ACM international conference on automated software engineering (ASE). IEEE, 2019.
-
 
