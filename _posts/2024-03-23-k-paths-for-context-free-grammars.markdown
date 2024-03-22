@@ -133,7 +133,7 @@ are the traditional test design objectives.
 
 However, these test design objectives do not produce inputs that are diverse
 enough for modern grammars. Hence, one may have to rely on stronger
-criteria. One such is called *K-Paths*
+criteria. One such is called *K-Paths* [^havricov2019].
 
 ###  K-Paths
 
@@ -522,6 +522,7 @@ Using it
 <!--
 ############
 display_tree(tree)
+
 ############
 -->
 <form name='python_run_form'>
@@ -531,6 +532,10 @@ display_tree(tree)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Note that the tree is partial. We need to expad the nodes to make this into a
+complete test input.
+
+[^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 34th IEEE/ACM international conference on automated software engineering (ASE). IEEE, 2019.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>

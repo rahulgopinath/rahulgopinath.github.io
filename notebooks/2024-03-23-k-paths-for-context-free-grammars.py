@@ -78,7 +78,7 @@ import random
 # 
 # However, these test design objectives do not produce inputs that are diverse
 # enough for modern grammars. Hence, one may have to rely on stronger
-# criteria. One such is called *K-Paths*
+# criteria. One such is called *K-Paths* [^havricov2019].
 # 
 # ###  K-Paths
 # 
@@ -251,3 +251,10 @@ def display_tree(node, level=0, c='-'):
 # Using it
 if __name__ == '__main__':
     display_tree(tree)
+
+# Note that the tree is partial. We need to expad the nodes to make this into a
+# complete test input.
+# 
+# [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 34th IEEE/ACM international conference on automated software engineering (ASE). IEEE, 2019.
+
+
