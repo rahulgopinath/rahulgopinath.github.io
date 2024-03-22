@@ -174,7 +174,8 @@ def gen_parenexp():
 
 # Testing it again.
 if __name__ == '__main__':
-    print(gen_regex())
+    t = gen_regex()
+    print(repr(collapse(t)))
 
 # All that remains is to define the kleene star `*` for zero or
 # more repetitions
@@ -189,7 +190,8 @@ def gen_rex():
 
 # Testing it again.
 if __name__ == '__main__':
-    print(gen_regex())
+    t = gen_regex()
+    print(repr(collapse(t)))
 
 # At this point, you would have a fully explored test generator that is ready to
 # test any parser you would write, and can be improved upon for any extensions

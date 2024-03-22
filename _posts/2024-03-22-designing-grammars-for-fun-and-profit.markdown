@@ -375,13 +375,15 @@ Testing it again.
 
 <!--
 ############
-print(gen_regex())
+t = gen_regex()
+print(repr(collapse(t)))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(gen_regex())
+t = gen_regex()
+print(repr(collapse(t)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -418,13 +420,15 @@ Testing it again.
 
 <!--
 ############
-print(gen_regex())
+t = gen_regex()
+print(repr(collapse(t)))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-print(gen_regex())
+t = gen_regex()
+print(repr(collapse(t)))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
