@@ -124,16 +124,26 @@ import random
 When the abstract model of a program is a graph, to test such programs
 effectively, one uses the syntax based testing. Similarly, if the input domain
 of a program is a context-free language, to test such programs effectively,
-one needs to rely on syntax based testing. In both these cases, the following
-are the traditional test design objectives.
+one needs to rely on syntax based testing.
+
+As Havricov et al. [^havricov2019] discusses, a high variation of inputs is
+desirable because it can induce a high variation in how programs behave, which
+is highly desirable. In particular, if some feature of the input domain is not
+present in the test cases, the corresponding code that processes that element
+may not get exercised. Finally, some elements may be processed only by the
+combination of input elements in specific order. In all such cases, producing
+inputs that cover all combinations is desirable.
+The traditional test design objectives [^purdom1972] for syntax based testing
+are as follows:
 
 * Covering all terminal symbols in the context-free grammar
 * Covering all definitions in the context-free grammar
 * Covering all rules in the context-free grammar (subsumes the above two).
 
-However, these test design objectives do not produce inputs that are diverse
-enough for modern grammars. Hence, one may have to rely on stronger
-criteria. One such is called *K-Paths* [^havricov2019].
+However, note that none of them actually produce inputs that are a combination
+of input features. Hence, to ensure that we can produce such inputs, Havricov
+et al. [^havricov2019] introduces a new measure of test obligations called  
+*k-path*.
 
 ###  K-Paths
 
@@ -536,6 +546,7 @@ Note that the tree is partial. We need to expad the nodes to make this into a
 complete test input.
 
 [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 34th IEEE/ACM international conference on automated software engineering (ASE). IEEE, 2019.
+[^purdom1972]: Paul Purdom. 1972. A Sentence Generator for Testing Parsers. BIT Numerical Mathematics, 1972
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
