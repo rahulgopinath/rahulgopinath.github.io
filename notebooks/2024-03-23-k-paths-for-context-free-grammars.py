@@ -270,5 +270,5 @@ if __name__ == '__main__':
 # Note that the tree is partial. We need to expad the nodes to make this into a
 # complete test input.
 # 
-# [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 34th IEEE/ACM international conference on automated software engineering (ASE). IEEE, 2019.
-# [^purdom1972]: Paul Purdom. 1972. A Sentence Generator for Testing Parsers. BIT Numerical Mathematics, 1972
+# [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 IEEE/ACM international conference on Automated Software Engineering (ASE). IEEE, 2019.
+# [^purdom1972]: Paul Purdom. "A Sentence Generator for Testing Parsers." BIT Numerical Mathematics, 1972
