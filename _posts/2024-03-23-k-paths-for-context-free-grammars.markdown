@@ -142,8 +142,8 @@ are as follows:
 
 However, note that none of them actually produce inputs that are a combination
 of input features. Hence, to ensure that we can produce such inputs, Havricov
-et al. [^havricov2019] introduces a new measure of test obligations called  
-*k-path*.
+et al. [^havricov2019] introduces a new measure of test obligations
+called *k-path*.
 
 ###  K-Paths
 
