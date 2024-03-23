@@ -165,7 +165,9 @@ EXPR_GRAMMAR = {
  '<digit>': [['0'], ['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9']]}
 
 EXPR_START = '<start>'
+
 # The parents are
+
 if __name__ == '__main__' :
     parent = parents(EXPR_GRAMMAR)
     for k in parent:
@@ -187,6 +189,7 @@ def _k_paths(g, k, parent):
     return new_paths
 
 # Using it:
+
 if __name__ == '__main__' :
     for path in _k_paths(EXPR_GRAMMAR, 4, parent):
         if path[0] in ['<start>']: # limit the output
@@ -242,6 +245,7 @@ def path_to_tree(path_, g):
         root = [leaf, rule]
 
 # Using it.
+
 if __name__ == '__main__':
     path = ['<start>', '<expr>', '<term>', '<factor>', '<integer>']
     tree = path_to_tree(path, EXPR_GRAMMAR)
@@ -259,6 +263,7 @@ def display_tree(node, level=0, c='-'):
             display_tree(c, level + 1, c='+')
 
 # Using it
+
 if __name__ == '__main__':
     display_tree(tree)
 
