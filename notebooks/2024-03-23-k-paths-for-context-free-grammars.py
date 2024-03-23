@@ -168,7 +168,7 @@ EXPR_START = '<start>'
 
 # The parents are
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     parent = parents(EXPR_GRAMMAR)
     for k in parent:
         print('parent nodes for', k)
@@ -190,7 +190,7 @@ def _k_paths(g, k, parent):
 
 # Using it:
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     for path in _k_paths(EXPR_GRAMMAR, 4, parent):
         if path[0] in ['<start>']: # limit the output
             print(path)
@@ -202,7 +202,7 @@ def k_paths(g, k):
     return _k_paths(g, k, g_parents)
 
 # Using
-if __name__ == '__main__' :
+if __name__ == '__main__':
     for path in k_paths(EXPR_GRAMMAR, 4):
         if path[0] in ['<start>']: # limit the output
             print(path)
@@ -227,7 +227,7 @@ def find_rule_containing_key(g, key, root):
     assert False
 
 # using it
-if __name__ == '__main__' :
+if __name__ == '__main__':
     node = ('<digit>', [('1', [])])
     v = find_rule_containing_key(EXPR_GRAMMAR, '<integer>', node)
     # this would be the tree.

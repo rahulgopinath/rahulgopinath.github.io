@@ -271,23 +271,21 @@ The parents are
 
 <!--
 ############
-if __name__ == '__main__' :
-    parent = parents(EXPR_GRAMMAR)
-    for k in parent:
-        print('parent nodes for', k)
-        for v in parent[k]:
-            print("  ", v)
+parent = parents(EXPR_GRAMMAR)
+for k in parent:
+    print('parent nodes for', k)
+    for v in parent[k]:
+        print("  ", v)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__&#x27; :
-    parent = parents(EXPR_GRAMMAR)
-    for k in parent:
-        print(&#x27;parent nodes for&#x27;, k)
-        for v in parent[k]:
-            print(&quot;  &quot;, v)
+parent = parents(EXPR_GRAMMAR)
+for k in parent:
+    print(&#x27;parent nodes for&#x27;, k)
+    for v in parent[k]:
+        print(&quot;  &quot;, v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -329,19 +327,17 @@ Using it:
 
 <!--
 ############
-if __name__ == '__main__' :
-    for path in _k_paths(EXPR_GRAMMAR, 4, parent):
-        if path[0] in ['<start>']: # limit the output
-            print(path)
+for path in _k_paths(EXPR_GRAMMAR, 4, parent):
+    if path[0] in ['<start>']: # limit the output
+        print(path)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__&#x27; :
-    for path in _k_paths(EXPR_GRAMMAR, 4, parent):
-        if path[0] in [&#x27;&lt;start&gt;&#x27;]: # limit the output
-            print(path)
+for path in _k_paths(EXPR_GRAMMAR, 4, parent):
+    if path[0] in [&#x27;&lt;start&gt;&#x27;]: # limit the output
+        print(path)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -369,19 +365,17 @@ Using
 
 <!--
 ############
-if __name__ == '__main__' :
-    for path in k_paths(EXPR_GRAMMAR, 4):
-        if path[0] in ['<start>']: # limit the output
-            print(path)
+for path in k_paths(EXPR_GRAMMAR, 4):
+    if path[0] in ['<start>']: # limit the output
+        print(path)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__&#x27; :
-    for path in k_paths(EXPR_GRAMMAR, 4):
-        if path[0] in [&#x27;&lt;start&gt;&#x27;]: # limit the output
-            print(path)
+for path in k_paths(EXPR_GRAMMAR, 4):
+    if path[0] in [&#x27;&lt;start&gt;&#x27;]: # limit the output
+        print(path)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -430,21 +424,19 @@ using it
 
 <!--
 ############
-if __name__ == '__main__' :
-    node = ('<digit>', [('1', [])])
-    v = find_rule_containing_key(EXPR_GRAMMAR, '<integer>', node)
-    # this would be the tree.
-    print(('<integer>', v))
+node = ('<digit>', [('1', [])])
+v = find_rule_containing_key(EXPR_GRAMMAR, '<integer>', node)
+# this would be the tree.
+print(('<integer>', v))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__&#x27; :
-    node = (&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])
-    v = find_rule_containing_key(EXPR_GRAMMAR, &#x27;&lt;integer&gt;&#x27;, node)
-    # this would be the tree.
-    print((&#x27;&lt;integer&gt;&#x27;, v))
+node = (&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])
+v = find_rule_containing_key(EXPR_GRAMMAR, &#x27;&lt;integer&gt;&#x27;, node)
+# this would be the tree.
+print((&#x27;&lt;integer&gt;&#x27;, v))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
