@@ -638,8 +638,6 @@ print(collapse(t))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Note that the tree is partial. We need to expad the nodes to make this into a
-complete test input.
 
 [^havricov2019]: Havrikov, Nikolas, and Andreas Zeller. "Systematically covering input structure." 2019 IEEE/ACM international conference on Automated Software Engineering (ASE). IEEE, 2019.
 [^purdom1972]: Paul Purdom. "A Sentence Generator for Testing Parsers." BIT Numerical Mathematics, 1972
