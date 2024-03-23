@@ -109,6 +109,7 @@ https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 ############
 import math
 import random
+import simplefuzzer as fuzzer
 
 ############
 -->
@@ -116,6 +117,7 @@ import random
 <textarea cols="40" rows="4" name='python_edit'>
 import math
 import random
+import simplefuzzer as fuzzer
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -396,9 +398,9 @@ def find_rule_containing_key(g, key, root):
         while rule:
             token, *rule = rule
             if leaf != token:
-                r.append(token)
+                r.append((token, None))
             else:
-                return r + [root] + rule
+                return r + [root] + [(t, None) for t in rule]
     assert False
 
 ############
@@ -412,9 +414,9 @@ def find_rule_containing_key(g, key, root):
         while rule:
             token, *rule = rule
             if leaf != token:
-                r.append(token)
+                r.append((token, None))
             else:
-                return r + [root] + rule
+                return r + [root] + [(t, None) for t in rule]
     assert False
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -497,12 +499,15 @@ Let us define a method to display such trees
 ############
 def display_tree(node, level=0, c='-'):
     key, children = node
-    print(' ' * 4 * level + c+'> ' + key)
-    for c in children:
-        if isinstance(c, str):
-            print(' ' * 4 * (level+1) + c)
-        else:
-            display_tree(c, level + 1, c='+')
+    if children is None:
+        print(' ' * 4 * level + c+'> ' + key)
+    else:
+        print(' ' * 4 * level + c+'> ' + key)
+        for c in children:
+            if isinstance(c, str):
+                print(' ' * 4 * (level+1) + c)
+            else:
+                display_tree(c, level + 1, c='+')
 
 ############
 -->
@@ -510,12 +515,15 @@ def display_tree(node, level=0, c='-'):
 <textarea cols="40" rows="4" name='python_edit'>
 def display_tree(node, level=0, c=&#x27;-&#x27;):
     key, children = node
-    print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key)
-    for c in children:
-        if isinstance(c, str):
-            print(&#x27; &#x27; * 4 * (level+1) + c)
-        else:
-            display_tree(c, level + 1, c=&#x27;+&#x27;)
+    if children is None:
+        print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key)
+    else:
+        print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key)
+        for c in children:
+            if isinstance(c, str):
+                print(&#x27; &#x27; * 4 * (level+1) + c)
+            else:
+                display_tree(c, level + 1, c=&#x27;+&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -531,6 +539,101 @@ display_tree(tree)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 display_tree(tree)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Filling the partial tree
+
+<!--
+############
+def tree_fill_(g, pt, f):
+    key, children = pt
+    if not children:
+        if key in g:
+            return (key, [(f.fuzz(key), [])])
+        else:
+            return (key, [])
+    else:
+        return (key, [tree_fill_(g, c, f) for c in children])
+
+def tree_fill(g, pt):
+    rgf = fuzzer.LimitFuzzer(g)
+    return tree_fill_(g, pt, rgf)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def tree_fill_(g, pt, f):
+    key, children = pt
+    if not children:
+        if key in g:
+            return (key, [(f.fuzz(key), [])])
+        else:
+            return (key, [])
+    else:
+        return (key, [tree_fill_(g, c, f) for c in children])
+
+def tree_fill(g, pt):
+    rgf = fuzzer.LimitFuzzer(g)
+    return tree_fill_(g, pt, rgf)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+t = tree_fill(EXPR_GRAMMAR, tree)
+display_tree(t)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+t = tree_fill(EXPR_GRAMMAR, tree)
+display_tree(t)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us make it into a test case
+
+<!--
+############
+def collapse(t):
+    key, children = t
+    if not children:
+        return key
+    return ''.join([collapse(c) for c in children])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def collapse(t):
+    key, children = t
+    if not children:
+        return key
+    return &#x27;&#x27;.join([collapse(c) for c in children])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+print(collapse(t))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(collapse(t))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

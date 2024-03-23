@@ -64,6 +64,7 @@
 
 import math
 import random
+import simplefuzzer as fuzzer
 
 # ## Syntax Based Testing
 # When the abstract model of a program is a graph, to test such programs
@@ -221,9 +222,9 @@ def find_rule_containing_key(g, key, root):
         while rule:
             token, *rule = rule
             if leaf != token:
-                r.append(token)
+                r.append((token, None))
             else:
-                return r + [root] + rule
+                return r + [root] + [(t, None) for t in rule]
     assert False
 
 # using it
@@ -255,17 +256,53 @@ if __name__ == '__main__':
 
 def display_tree(node, level=0, c='-'):
     key, children = node
-    print(' ' * 4 * level + c+'> ' + key)
-    for c in children:
-        if isinstance(c, str):
-            print(' ' * 4 * (level+1) + c)
-        else:
-            display_tree(c, level + 1, c='+')
+    if children is None:
+        print(' ' * 4 * level + c+'> ' + key)
+    else:
+        print(' ' * 4 * level + c+'> ' + key)
+        for c in children:
+            if isinstance(c, str):
+                print(' ' * 4 * (level+1) + c)
+            else:
+                display_tree(c, level + 1, c='+')
 
 # Using it
 
 if __name__ == '__main__':
     display_tree(tree)
+
+# Filling the partial tree
+
+def tree_fill_(g, pt, f):
+    key, children = pt
+    if not children:
+        if key in g:
+            return (key, [(f.fuzz(key), [])])
+        else:
+            return (key, [])
+    else:
+        return (key, [tree_fill_(g, c, f) for c in children])
+
+def tree_fill(g, pt):
+    rgf = fuzzer.LimitFuzzer(g)
+    return tree_fill_(g, pt, rgf)
+
+# Using it
+if __name__ == '__main__':
+    t = tree_fill(EXPR_GRAMMAR, tree)
+    display_tree(t)
+
+# Let us make it into a test case
+def collapse(t):
+    key, children = t
+    if not children:
+        return key
+    return ''.join([collapse(c) for c in children])
+
+# Using it
+if __name__ == '__main__':
+    print(collapse(t))
+
 
 # Note that the tree is partial. We need to expad the nodes to make this into a
 # complete test input.
