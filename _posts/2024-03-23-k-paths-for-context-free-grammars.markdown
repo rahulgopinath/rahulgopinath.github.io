@@ -10,6 +10,9 @@ categories: post
 TLDR; This tutorial describes how to design test cases that can effectively
 cover features of a given context-free grammar using the k-path strategy.
 
+*Note*: The k-path here has nothing to do with the k-path cover from
+algorithms.
+
 ## Definitions
 For this post, we use the following terms as we have defiend  previously:
 * The _alphabet_ is the set all of symbols in the input language. For example,
