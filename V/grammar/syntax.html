@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Visualize Syntax Diagrams</title>
+    <style>
+        /* #outertable { */
+        /*     width: 90%; */
+        /*     /\* margin: auto; *\/ */
+        /*     margin-left: 50px; */
+        /*     margin-right: 50px; */
+        /* } */
+
+        /* /\* .JCLRgrips { *\/ */
+        /* /\*     width: 100% !important; *\/ */
+        /* /\*     margin: 0 !important; *\/ */
+        /* /\* } *\/ */
+
+        /* #maintdleft { */
+        /*     width: 100%; */
+        /* } */
+
+        /* #maintdright { */
+        /*     width: 100%; */
+        /* } */
+
+        #editor {
+            position: relative !important;
+            /* position: absolute; */
+            /* margin: auto; */
+            top: 0;
+            border: 1px solid lightgray;
+            margin-top: 0px;
+            height: 420px;
+            width: 545px;
+            /* width: 100%; */
+            /* height: 100%; */
+            z-index: 1;
+            margin-bottom: 0px;
+            padding-bottom: 0px;
+            border-bottom: groove;
+        }
+
+        #tabs {
+            width: 100%;
+        }
+
+        #output {
+            position: relative !important;
+            /* position: absolute; */
+            top: 0;
+            border: 1px solid lightgray;
+            /* height: 100%; */
+            /* width: 100%; */
+            width: 545px;
+        }
+
+        .fullwidth {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .ui-state-active {
+            background: #606060 !important;
+            border-color: #909090 !important;
+            /*background: #909090 !important;*/
+        }
+
+        #content {
+            width: 100%;
+            text-align: left;
+            margin: auto;
+        }
+
+        #undereditor {
+            margin-top: 3px;
+            margin-left: 4px;
+        }
+
+        #feedback {
+            margin: auto;
+            margin-top: 10px;
+            font-size: 12px;
+            display: inline;
+            width: 100%;
+        }
+
+        .myButton {
+            position: relative;
+            z-index: 3;
+        }
+
+        .plusminusbutton {
+            width: 20px;
+            margin-left: 1px;
+            margin-right: 1px;
+        }
+
+        .nomarginpadding {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table {
+            border: ridge;
+            border-width: 1px;
+        }
+
+        td {
+            vertical-align: top;
+            border: groove;
+            border-width: 1px;
+        }
+
+        footer {
+            margin-top: 10px;
+            bottom: 0px;
+            text-align: center;
+        }
+
+        .noborder {
+            border: none !important;
+        }
+
+        .tokenMarker {
+            position: absolute;
+            background: rgba(100,200,100,0.5);
+            z-index: 20
+        }
+
+        #outputtab {
+            padding-left: 0px;
+            position: relative;
+        }
+
+        #tokenstab, #asttab {
+            padding-left: 5px;
+            padding-top: 0px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <!--script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
+    <script>
+var railroad = (function () {
+
+// Figure out the name of the corner specific border radius style properties 
+// used by the current platform.
+var borderBottomLeftRadius = 'borderBottomLeftRadius',
+    borderBottomRightRadius = 'borderBottomRightRadius',
+    borderTopLeftRadius = 'borderTopLeftRadius',
+    borderTopRightRadius = 'borderTopRightRadius';
+
+(function () {
+  var style = document.createElement('DIV').style;
+  if (style.borderBottomLeftRadius !== 'string') {
+    if (typeof style.MozBorderRadiusBottomleft === 'string') {
+      borderBottomLeftRadius = 'MozBorderRadiusBottomleft';
+      borderBottomRightRadius = 'MozBorderRadiusBottomright';
+      borderTopLeftRadius = 'MozBorderRadiusTopleft';
+      borderTopRightRadius = 'MozBorderRadiusTopright';
+    } else if (typeof style.WebkitBorderRadiusBottomLeft === 'string') {
+      borderBottomLeftRadius = 'WebkitBorderRadiusBottomLeft';
+      borderBottomRightRadius = 'WebkitBorderRadiusBottomRight';
+      borderTopLeftRadius = 'WebkitBorderRadiusTopLeft';
+      borderTopRightRadius = 'WebkitBorderRadiusTopRight';
+    }
+  }
+})();
+
+/**
+ * Converts its input to a railroad node.
+ * Strings are interpreted as HTML, and railroad nodes are returned unchanged.
+ */
+function toNode(content) {
+  if (typeof content === 'string') {
+    return { op: 'html', content: content };
+  } else if (typeof content === 'object' && typeof content.op === 'string') {
+    return content;
+  }
+  throw new Error(content);
+}
+
+/**
+ * Like <kbd>|</kbd> in EBNF, a railroad node representing a branch.
+ */
+function or(var_args) {
+  var options = [];
+  var alreadySeen = {};
+  function addOption(child) {
+    switch (child.op) {
+      case '|':
+        for (var i = 0, n = child.children.length; i < n; ++i) {
+          addOption(child.children[i]);
+        }
+        break;
+      case 'html':
+        if (alreadySeen[child.content] !== alreadySeen) {
+          alreadySeen[child.content] = alreadySeen;
+          options.push(child);
+        }
+        break;
+      default:
+        options.push(toNode(child));
+        break;
+    }
+  }
+  for (var i = 0, n = var_args.length; i < n; ++i) {
+    addOption(var_args[i]);
+  }
+  if (options.length == 1) {
+    return options[0];
+  }
+  return { op: '|', children: options };
+}
+
+/**
+ * Like <kbd>?</kbd> in EBNF, a railroad node that either follows its child or
+ * an empty branch.
+ */
+function maybe(child) {
+  // \u25b6 is a right pointing arrowhead that indicates an empty transition.
+  return or(toNode('\u25b6'), toNode(child));
+}
+
+/**
+ * Like <kbd>*</kbd> in EBNF, a railroad node that repeats its child any number
+ * of times.
+ * @param opt_loopback A node to use on the return edge.  For a comma separated
+ *     list of numbers, make child a number and make the loopback a comma.
+ */
+function any(child, opt_loopback) {
+  return maybe(many(child, opt_loopback));
+}
+
+/**
+ * Like <kbd>+</kbd> in EBNF, a railroad node that passes through its child and
+ * then repeats any number of times.
+ * @param opt_loopback A node to use on the return edge.  For a comma separated
+ *     list of numbers, make child a number and make the loopback a comma.
+ */
+function many(child, opt_loopback) {
+  return {
+    op: '+',
+    children: [child],
+    loopback: opt_loopback ? toNode(opt_loopback) : null
+  };
+}
+
+/**
+ * A railroad node that passes through each of its children once in order.
+ */
+function each(var_args) {
+  var items = [];
+  function addItem(item) {
+    if (item.op === '.') {
+      for (var i = 0, n = item.children.length; i < n; ++i) {
+        addItem(item.children[i]);
+      }
+    } else {
+      items.push(toNode(item));
+    }
+  }
+  for (var i = 0, n = var_args.length; i < n; ++i) {
+    addItem(var_args[i]);
+  }
+  if (items.length === 1) {
+    return items[0];
+  }
+  return { op: '.', children: items };
+}
+
+
+/**
+ * Attaches an HTML DOM node representing the given node to parent.
+ *
+ * @param node A railroad node as produced by {@link each}, {@link any}, ....
+ * @param {HTMLElement} parent The DOM parent of the created node.
+ *     This must be part of the visible DOM so that the browser computes width
+ *     and height for the node as we build it.
+ * @param {Object} opt_stats An output object that receives computed layout
+ *     statistics such as width and height.
+ */
+function appendToDOM(node, parent, opt_stats) {
+  var document = parent.ownerDocument;
+
+  node = toNode(node);
+
+  var div = document.createElement('DIV');
+  div.style.display = 'inline-block';
+  div.style.position = 'absolute';
+  parent.appendChild(div);
+  if (node.op === 'html') {
+    div.innerHTML = node.content;
+    if (node.content === '\u25b6') {  // Line up arrowhead nicely.
+      div.style.fontSize = div.style.height = '8px';
+    }
+    if (opt_stats) {
+      opt_stats.width = div.offesetWidth;
+      opt_stats.height = div.offesetHeight;
+    }
+    return div;
+  }
+
+  // Render all the children.
+  var children = [];
+  var n = node.children.length;
+  for (var i = 0; i < n; ++i) {
+    children[i] = appendToDOM(node.children[i], div);
+  }
+
+  /**
+   * Fraw a left facing arrow using a unicode arrowhead. 
+   * This is used for the loopback for many/any nodes.
+   */
+  function renderArrowhead(arrowheadText, parent) {
+    var arrowhead = document.createElement('SPAN');
+    parent.insertBefore(arrowhead, parent.firstChild);
+    arrowhead.appendChild(document.createTextNode(arrowheadText));
+    arrowhead.style.position = 'absolute';
+    arrowhead.style.display = 'inline-block';
+    arrowhead.style.left = '0px';
+    arrowhead.style.top = '-5px';
+    arrowhead.style.width = '100%';
+    arrowhead.style.height = '8px';
+    arrowhead.style.fontSize = '8px';
+    arrowhead.style.textAlign = 'center';
+    arrowhead.style.verticalAlign = 'middle';
+  }
+
+  /**
+   * Draw an arrow from left to right like
+   * <pre>
+   * --\
+   *   |
+   *   \--
+   * </pre>
+   * or if height is negative, like
+   * <pre>
+   *   /--
+   *   |
+   * --/
+   * </pre>
+   */
+  function rightArrow(x, width, y, height, junctionX) {
+    if (!height) {
+      var span = document.createElement('SPAN');
+      span.style.position = 'absolute';
+      span.style.left = x + 'px';
+      span.style.width = width + 'px';
+      span.style.top = y + 'px';
+      span.style.height = '0px';
+      span.style.borderBottom = '1px solid #000';
+      div.appendChild(span);
+    } else {
+      if (junctionX === void 0) { junctionX = x + (width >> 1); }
+
+      var halfHeight = (Math.abs(height) + 1) >> 1;
+
+      var left = document.createElement('SPAN');
+      left.style.position = 'absolute';
+      left.style.left = x + 'px';
+      left.style.width = (junctionX - x) + 'px';
+      if (height > 0) {
+        left.style.top = y + 'px';
+        left.style.height = halfHeight + 'px';
+        left.style.borderTop = '1px solid #000';
+        left.style[borderTopRightRadius] = '6px';
+      } else {
+        left.style.top = (y - halfHeight) + 'px';
+        left.style.height = halfHeight + 'px';
+        left.style.borderBottom = '1px solid #000';
+        left.style[borderBottomRightRadius] = '6px';
+      }
+      left.style.borderRight = '1px solid #000';
+      div.insertBefore(left, div.firstChild);
+
+      var right = document.createElement('SPAN');
+      right.style.position = 'absolute';
+      right.style.left = (junctionX) + 'px';
+      right.style.width = (x + width - junctionX) + 'px';
+      if (height > 0) {
+        right.style.top = (y + halfHeight) + 'px';
+        right.style.height = (height - halfHeight) + 'px';
+        right.style.borderBottom = '1px solid #000';
+        right.style[borderBottomLeftRadius] = '6px';
+      } else {
+        right.style.top = (y + height) + 'px';
+        right.style.height = halfHeight + 'px';
+        right.style.borderTop = '1px solid #000';
+        right.style[borderTopLeftRadius] = '6px';
+      }
+      right.style.borderLeft = '1px solid #000';
+      div.insertBefore(right, div.firstChild);
+    }
+  }
+
+  var width = 0, height = 0;
+  switch (node.op) {
+    case '|':
+      for (var i = 0; i < n; ++i) {
+        var child = children[i];
+        width = Math.max(width, 32 + child.offsetWidth);
+      }
+      var childYCenters = [];
+      var leftXs = [];
+      var rightXs = [];
+      for (var i = 0; i < n; ++i) {
+        if (i) { height += 16; }
+        var child = children[i];
+        child.style.top = height + 'px';
+        var childHeight = child.offsetHeight, childWidth = child.offsetWidth;
+        var leftX = ((width - childWidth) >> 1), rightX = leftX + childWidth;
+        child.style.left = leftX + 'px';
+        leftXs[i] = leftX;
+        rightXs[i] = rightX;
+        childYCenters[i] = height + (childHeight >> 1);
+        height += childHeight;
+      }
+      var centerY = (height >> 1);
+      for (var i = 0; i < n; ++i) {
+        rightArrow(0, leftXs[i], centerY, childYCenters[i] - centerY, 8);
+        rightArrow(rightXs[i], width - rightXs[i], childYCenters[i],
+                   centerY - childYCenters[i], width - 8);
+      }
+      break;
+    case '+':
+      var child = children[0];
+
+      var loopback = document.createElement('SPAN');
+      div.insertBefore(loopback, div.firstChild);
+
+      var minLBHeight = 8;
+      var loopbackNode;
+      var vpadding = 0;
+      if (node.loopback) {
+        loopbackNode = appendToDOM(node.loopback, div);
+        height = Math.max(minLBHeight, loopbackNode.offsetHeight);
+        width = Math.max(child.offsetWidth, loopbackNode.offsetWidth) + 32;
+        loopbackNode.style.top
+            = ((height - loopbackNode.offsetHeight) >> 1) + 'px';
+        loopbackNode.style.left
+            = ((width - loopbackNode.offsetWidth) >> 1) + 'px';
+        height += 4;
+      } else {
+        height = minLBHeight;
+        width = child.offsetWidth + 32;
+      }
+
+      child.style.top = height + 'px';
+      child.style.left = ((width - child.offsetWidth) >> 1) + 'px';
+      height = height * 2 + child.offsetHeight;
+
+      var centerY = (height >> 1);
+
+      loopback.style.display = 'inline-block';
+      loopback.style.borderLeft = loopback.style.borderRight
+          = loopback.style.borderTop = '1px solid #000';
+      loopback.style[borderTopLeftRadius] = loopback.style[borderTopRightRadius]
+          = '6px';
+      loopback.style.position = 'absolute';
+      loopback.style.left = '8px';
+      var loopbackTop = loopbackNode ? (loopbackNode.offsetHeight >> 1) : 0;
+      loopback.style.top = loopbackTop + 'px';
+      loopback.style.height = (centerY - loopbackTop - 8) + 'px';
+      loopback.style.width = (width - 16) + 'px';
+
+      loopback = document.createElement('SPAN');
+      loopback.style.display = 'inline-block';
+      loopback.style.borderLeft = loopback.style.borderBottom
+          = '1px solid #000';
+      loopback.style[borderBottomLeftRadius] = '6px';
+      loopback.style.position = 'absolute';
+      loopback.style.left = '8px';
+      loopback.style.top = (centerY - 12) + 'px';
+      loopback.style.width = '8px';
+      loopback.style.height = '12px';
+      div.insertBefore(loopback, div.firstChild);
+
+      loopback = document.createElement('SPAN');
+      loopback.style.display = 'inline-block';
+      loopback.style.borderRight = loopback.style.borderBottom
+          = '1px solid #000';
+      loopback.style[borderBottomRightRadius] = '6px';
+      loopback.style.position = 'absolute';
+      loopback.style.left = (width - 16) + 'px';
+      loopback.style.top = (centerY - 12) + 'px';
+      loopback.style.width = '8px';
+      loopback.style.height = '12px';
+      div.insertBefore(loopback, div.firstChild);
+
+      if (!loopbackNode) {
+        renderArrowhead('\u25C0', div);
+      }
+
+      rightArrow(0, 16, centerY, 0);
+      rightArrow(width - 16, 16, centerY, 0);
+      break;
+    case '.':
+      for (var i = 0; i < n; ++i) {
+        var child = children[i];
+        height = Math.max(height, child.offsetHeight);
+      }
+      rightArrow(0, 16, (height >> 1), 0);
+      width = 16;
+      for (var i = 0; i < n; ++i) {
+        var child = children[i];
+        child.style.left = width + 'px';
+        width += child.offsetWidth;
+        rightArrow(width, 16, (height >> 1), 0);
+        width += 16;
+        child.style.top = ((height - child.offsetHeight) >> 1) + 'px';
+      }
+      break;
+    default:
+      throw new Error(node.op);
+  }
+
+  div.style.width = width + 'px';
+  div.style.height = height + 'px';
+
+  if (opt_stats) {
+    opt_stats.width = width;
+    opt_stats.height = height;
+  }
+
+  return div;
+}
+
+return {
+  any: any,
+  each: each,
+  many: many,
+  maybe: maybe,
+  or: or,
+  appendToDOM: appendToDOM
+};
+
+})();
+    </script>
+    <!-- We can style railroad nodes however we like.  The names "terminal" and "nonterminal" are conventions used by this file, and not restrictions imposed by the underlying library. -->
+    <style>
+    .terminal { border: 1px solid black; border-radius: 6px; padding: 2px; background: #efe; display: inline-block; text-align: center }
+    .nonterminal { border: 1px solid black; padding: 2px; background: #efe; display: inline-block }
+    </style>
+  </head>
+  <body>
+    <div id="content" class="container">
+      <h2>Visualize Syntax Diagrams</h2>
+
+      <div align="center">
+    <table id="outertable" class="noborder"><tr><td class="noborder">
+          <button type="button" id="editorplusbutton"
+              class="btn btn-xs plusminusbutton">+</button>
+          <br>
+          <button type="button" id="editorminusbutton"
+              class="btn btn-xs plusminusbutton">-</button>
+          <br>
+          <button type="button" id="editorrightbutton"
+              class="btn btn-xs plusminusbutton">&gt</button>
+          <br>
+          <button type="button" id="editorleftbutton"
+              class="btn btn-xs plusminusbutton">&lt</button>          
+          <br>
+          <button type="button" id="editorwrapbutton"
+              class="btn btn-xs plusminusbutton">()</button>    
+          <br>
+          <button type="button" id="editorunwrapbutton"
+              class="btn btn-xs plusminusbutton">)(</button>    
+        </td><td class="noborder">
+          <table id="maintable" border="1">
+        <tr>
+          <td id="maintdleft">
+            <pre id="editor"></pre>
+
+            <div id="undereditor">
+              <div id="feedback"></div>
+            </div>
+
+          </td>
+          <td id="maintdright" class="noborder">
+              <input id="zoom" min="1" max="10" value='10' step="1" onchange="showVal(this.value)" type="range"/>
+
+            <table class="noborder">
+              <tr>
+            <td class="noborder">
+              <div id="railroad-diagram" width="0" height="0">
+              </div>
+            </td>
+              </tr>
+              <tr>
+            <td class="noborder">
+            </td>
+              </tr>
+            </table>
+      </div>
+
+      <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+   <script>
+def_grammar = (function () {
+// Import the grammar definition functions from railroad.js
+var any = railroad.any,      // Like * in EBNF (0 or more repetitions)
+    each = railroad.each,    // each(a, b, c)  produces (A -> B -> C)
+    many = railroad.many,    // Like + in EBNF (1 or more repetitions)
+    maybe = railroad.maybe,  // Like ? in EBNF (0 or 1 occurences)
+    or = railroad.or;        // Like | in EBNF (choose 1 of)
+
+// Define some helper functions that format things the way we like.
+/** Plain text to HTML. */
+function html(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\u0022/g, '&quot;').replace(/\u0027/g, '&#39;');
+}
+
+/** Produces HTML for a literal sequence of characters. */
+function terminal(str) {
+  return '<span class=terminal>`<kbd>' + html(str) + '<\/kbd>`<\/span>';
+}
+
+/** Generate a reference to another production, possibly linking to it. */
+function nonTerminal(name) {
+  if (document.getElementById(name + '-railroad')) {
+    return '<span class=nonterminal><a href="#' + html(name) + '-railroad">' + html(name) + '<\/a><\/span>';
+  } else {
+    return '<span class=nonterminal>' + html(name) + '<\/span>';
+  }
+}
+
+/** Fills in one of the <div id=*-railroad> above. */
+function grammar(name, root) {
+  var stats = {};
+  var railroadContainer = document.getElementById(name + '-railroad');
+  railroad.appendToDOM(root, railroadContainer, stats);
+  railroadContainer.style.width = stats.width + 'px';
+  railroadContainer.style.height = stats.height + 'px';
+}
+
+
+// Use a declarative syntax to define the grammar.
+grammar('object',
+    each(
+        terminal('{'),
+        any(
+            each(nonTerminal('string'), terminal(':'), nonTerminal('value')),
+            terminal(',')),
+        terminal('}')));
+
+grammar('array',
+    each(
+        terminal('['),
+        any(
+            nonTerminal('value'),
+            terminal(',')),
+        terminal(']')));
+
+grammar('value',
+    or(
+        nonTerminal('string'),
+        nonTerminal('number'),
+        nonTerminal('object'),
+        nonTerminal('array'),
+        terminal('true'),
+        terminal('false'),
+        terminal('null')));
+
+grammar('string',
+    each(
+        terminal('\u0022'),
+        any(
+            or(
+                '<span class=terminal><i>Any&nbsp;UNICODE&nbsp;code&nbsp;unit&nbsp;except<br>`<kbd>&quot;</kbd>`,&nbsp;<kbd>`\\`</kbd>,&nbsp;or&nbsp;a&nbsp;control&nbsp;character</i></span>',
+                each(
+                    terminal('\\'),
+                    or(
+                         terminal('\u0022', 'quotation mark'),
+                         terminal('\\', 'reverse solidus'),
+                         terminal('/', 'solidus'),
+                         terminal('b', 'backspace'),
+                         terminal('f', 'backspace'),
+                         terminal('n', 'backspace'),
+                         terminal('r', 'backspace'),
+                         terminal('t', 'backspace'),
+                         each(terminal('u'), '<span class=terminal>4&nbsp;hexadecimal<br>digits<\/span>'))))),
+        terminal('\u0022')));
+
+var digit = '<span class=terminal>digit</span>';
+grammar('number',
+    each(
+        maybe(terminal('-')),
+        or(
+            terminal('0'),
+            each('<span class=terminal>digit<br>1-9</span>', any(digit))),
+        maybe(
+            each(terminal('.'), any(digit))),
+        maybe(
+            each(
+                or(terminal('e'), terminal('E')),
+                maybe(or(terminal('+'), terminal('-'))),
+                many(digit)))));
+   });
+
+//---[
+function Sexp(source) {
+          var SPACE   = /[ \r\n\t]/,
+              ATOM    = /[^\(\)'"\r\n\t ]/,
+              NUMBER  = /^-?\d+(?:\.\d+)?$/;
+
+          function sexp(source, opts) {
+
+              opts = opts || {};
+
+              var tSymbol = opts.translateSymbol || function(sym) { return sym; },
+                  tString = opts.translateString || function(str) { return str; },
+                  tNumber = opts.translateNumber || parseFloat;
+
+              var ix  = 0,
+                  len = source.length;
+
+              function parseAtom() {
+                  var start = ix++;
+                  while (ix < len && ATOM.test(source[ix]))
+                      ix++;
+                  var atom = source.substring(start, ix);
+                  if (NUMBER.test(atom)) {
+                      return tNumber(atom);
+                  } else {
+                      return tSymbol(atom);
+                  }
+              }
+
+              function parseString(quote) {
+                  var start = ix++;
+                  while (ix < len && source[ix] !== quote)
+                      ix++;
+                  if (ix === len)
+                      throw new Error("parse error - unterminated string");
+                  ix++;
+                  return tString(source.substring(start + 1, ix - 1));
+              }
+
+              function parseSexp() {
+
+                  while (SPACE.test(source[ix]))
+                      ix++;
+
+                  if (source[ix++] !== '(')
+                      throw new Error("parse error");
+
+                  var items   = [],
+                      state   = 'out',
+                      start   = null;
+
+                  while (ix < source.length) {
+                      var ch = source[ix];
+                      if (ch === ')') {
+                          ix++;
+                          return items;
+                      } else if (ch === '(') {
+                          items.push(parseSexp());
+                      } else if (ch === '"' || ch === '\'') {
+                          items.push(parseString(ch));
+                      } else if (SPACE.test(ch)) {
+                          ix++;
+                      } else {
+                          items.push(parseAtom());
+                      }
+                  }
+
+                  throw new Error("parse error");
+
+              }
+
+              return parseSexp();
+
+          }
+}
+// Import the grammar definition functions from railroad.js
+var any = railroad.any,      // Like * in EBNF (0 or more repetitions)
+    each = railroad.each,    // each(a, b, c)  produces (A -> B -> C)
+    many = railroad.many,    // Like + in EBNF (1 or more repetitions)
+    maybe = railroad.maybe,  // Like ? in EBNF (0 or 1 occurences)
+    or = railroad.or;        // Like | in EBNF (choose 1 of)
+
+// Define some helper functions that format things the way we like.
+/** Plain text to HTML. */
+function html(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\u0022/g, '&quot;').replace(/\u0027/g, '&#39;');
+}
+
+/** Produces HTML for a literal sequence of characters. */
+function terminal(str) {
+  return '<span class=terminal>`<kbd>' + html(str) + '<\/kbd>`<\/span>';
+}
+
+/** Generate a reference to another production, possibly linking to it. */
+function nonTerminal(name) {
+  if (document.getElementById(name + '-railroad')) {
+    return '<span class=nonterminal><a href="#' + html(name) + '-railroad">' + html(name) + '<\/a><\/span>';
+  } else {
+    return '<span class=nonterminal>' + html(name) + '<\/span>';
+  }
+}
+
+/** Fills in one of the <div id=*-railroad> above. */
+function grammar(name, root) {
+  var stats = {};
+  var railroadContainer = document.getElementById(name + '-railroad');
+  railroad.appendToDOM(root, railroadContainer, stats);
+  railroadContainer.style.width = stats.width + 'px';
+  railroadContainer.style.height = stats.height + 'px';
+}
+
+
+
+//---]
+function setError(err) {
+  // $("#feedback").text("Error");
+  $("#feedback").text(err);
+} 
+            
+function clearError() {
+  $("#feedback").text("");
+} 
+
+function loadRule(key, rr, rule) {
+  let my_rule = [];
+  for (const i in rule) {
+    token = rule[i];
+    if (token[0] == '<') {
+       my_rule.push(nonTerminal(token.slice(1,-1)));
+     } else {
+       my_rule.push(terminal(token));
+     }
+  }
+  return each(my_rule);
+}
+
+function loadRules(key, rr, rules) {
+  let my_rules = [];
+  for (const i in rules) {
+    r = rules[i];
+    my_rules.push(loadRule(key, rr, r))
+  }
+  return or(my_rules);
+}
+
+// parse sexp and load tree
+function loadGrammar(rr, g) {
+    rr.innerHTML = '';
+    for (const key in g) {
+      console.log("Added " + key);
+      rr.innerHTML += '<b>' + key.slice(1,-1) + '</b><hr><div id="' + key.slice(1,-1) + '-railroad"></div><p/>';
+    }
+    for (const key in g) {
+      console.log("parsed " + key);
+      console.log("rules: " + g[key]);
+      rules = loadRules(key, rr, g[key])
+      grammar(key.slice(1,-1), rules);
+      /*grammar(key,
+          or(
+              nonTerminal('string'),
+              nonTerminal('number'),
+              nonTerminal('object'),
+              nonTerminal('array'),
+              terminal('true'),
+              terminal('false'),
+              terminal('null')));*/
+
+          }
+}
+function parse() {
+  let editor = ace.edit("editor");
+  var txt = editor.getValue();
+  console.log('parsing: ' + txt);
+  try {
+    rr = document.getElementById('railroad-diagram');
+    val = JSON.parse(txt);
+    loadGrammar(rr, val);
+    clearError();
+  } catch (err) {
+    console.log(err);
+    setError(err);
+  }
+}
+</script>
+<script>
+
+          var editorWidthOverride = null;
+          var x_margin = 75;
+          var y_margin = 135;
+
+          var editorShift = 0;
+
+          // fit everything to the screen
+          function rescale() {
+              const screen_width = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+              const screen_height = window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+              //console.log("width: " + screen_width + ", height: " + screen_height);
+
+              let w = screen_width - x_margin;
+              let h = screen_height - y_margin; // vertical space available
+
+              if (editorWidthOverride) {
+              var editor_width = editorWidthOverride * w;
+              }
+              // give editor 80 columns or half the width if not enough space
+              else {
+              editor_width = Math.min(545, w / 2) + editorShift;
+              }
+              $("#editor").css("width", editor_width);
+              $("#feedback").css("width", editor_width - 4); // minus left margin
+
+              $("#maintdleft").css("width", editor_width);
+              $("#maintdright").css("width", w - editor_width);
+
+              let railroad = document.getElementById("railroad-diagram");
+              railroad.width = w - editor_width - 15;
+
+              railroad.height = h;
+              $("#editor").css("height", h);
+
+              // refresh editor
+              let editor = ace.edit("editor");
+              editor.resize();
+
+          }
+
+          function increaseFontSize(editor) {
+              editor.setOption("fontSize", editor.getOption("fontSize") + 1);
+              editor.resize();
+          }
+
+          function decreaseFontSize(editor) {
+              editor.setOption("fontSize",
+                       Math.max(6, editor.getOption("fontSize") - 1));
+              editor.resize();
+          }
+
+          // compute mouse pos relative to canvas given event object
+          function getMousePos(canvas, evt) {
+              var rect = canvas.getBoundingClientRect();
+              return {
+                  x: evt.clientX - rect.left,
+                  y: evt.clientY - rect.top
+              };
+          }
+
+          var scrollSpeed = 20;
+
+          function scrollLeft(evt) {
+              if (activeRenderer) {
+              if (evt) {
+                  evt.preventDefault();
+              }
+              activeRenderer.translate(new Vector(scrollSpeed, 0));
+              }
+          }
+
+          function scrollUp(evt) {
+              if (activeRenderer) {
+              if (evt) {
+                  evt.preventDefault();
+              }
+              activeRenderer.translate(new Vector(0, scrollSpeed));
+              }
+          }
+
+          function scrollRight(evt) {
+              if (activeRenderer) {
+              if (evt) {
+                  evt.preventDefault();
+              }
+              activeRenderer.translate(new Vector(-scrollSpeed, 0));
+              }
+          }
+
+          function scrollDown(evt) {
+              if (activeRenderer) {
+              if (evt) {
+                  evt.preventDefault();
+              }
+              activeRenderer.translate(new Vector(0, -scrollSpeed));
+              }
+          }
+          
+          function squeeze(evt) {
+              activeRenderer.optimize();
+          }
+
+          // set up editors, canvases, and renderers
+          function init() {
+              let editor = ace.edit("editor");
+              editor.setTheme("ace/theme/chrome");
+              editor.session.setMode("ace/mode/python");
+              editor.session.setUseWorker(false);
+              editor.setOption("showPrintMargin", false)
+              editor.setOption("wrap", true)
+              editor.setKeyboardHandler("ace/keyboard/vim");
+
+              editor.on('change', function() {
+              // Parse sexp and load tree
+              parse();
+              });
+
+              editor.on('focus', function() {
+              enablePlusMinusScale = false;
+              });
+              editor.on('blur', function() {
+              enablePlusMinusScale = true;
+              });
+
+              $("#editorplusbutton").click(function() {
+              increaseFontSize(editor);
+              });
+              $("#editorminusbutton").click(function() {
+              decreaseFontSize(editor);
+              });
+              $("#editorleftbutton").click(function() {
+              editorShift -= 25;
+              rescale();
+              });
+              $("#editorrightbutton").click(function() {
+              editorShift += 25;
+              rescale();
+              });
+              $("#editorwrapbutton").click(function() {
+                  editor.setOption("wrap", true)
+                    rescale();
+              });
+              $("#editorunwrapbutton").click(function() {
+                  editor.setOption("wrap", false)
+                    rescale();
+              });              
+
+              $(window).mouseup(function(){
+              isDragging = false;
+              });
+          }
+
+          window.addEventListener('resize', function(event){
+              rescale();
+          });
+
+          function setZoom(zoom,el) {
+                
+                transformOrigin = [0,0];
+                //el = el || instance.getContainer();
+                var p = ["webkit", "moz", "ms", "o"],
+                      s = "scale(" + zoom + ")",
+                      oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
+
+                for (var i = 0; i < p.length; i++) {
+                    el.style[p[i] + "Transform"] = s;
+                    el.style[p[i] + "TransformOrigin"] = oString;
+                }
+
+                el.style["transform"] = s;
+                el.style["transformOrigin"] = oString;
+          }
+
+          function showVal(a){
+             let zoomScale = Number(a)/10;
+             let railroad = document.getElementById("railroad-diagram");
+             setZoom(zoomScale,railroad);
+          }
+
+          $(document).ready(function() {
+              init();
+              rescale();
+          });
+      </script>
+      <footer>
+    <!-- <em> -->
+    <!--   <a href="about.html">About</a> -->
+    <!-- </em> -->
+      </footer>
+    </div>
+  </body>
+</html>
