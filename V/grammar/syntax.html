@@ -628,7 +628,6 @@ return {
 
       <script src="../trees/ace/ace.js" type="text/javascript" charset="utf-8"></script>
    <script>
-def_grammar = (function () {
 // Import the grammar definition functions from railroad.js
 var any = railroad.any,      // Like * in EBNF (0 or more repetitions)
     each = railroad.each,    // each(a, b, c)  produces (A -> B -> C)
@@ -645,189 +644,13 @@ function html(str) {
 
 /** Produces HTML for a literal sequence of characters. */
 function terminal(str) {
-  return '<span class=terminal>`<kbd>' + html(str) + '<\/kbd>`<\/span>';
+  return '<span class=terminal><kbd>' + html(str) + '<\/kbd><\/span>';
 }
 
 /** Generate a reference to another production, possibly linking to it. */
 function nonTerminal(name) {
   if (document.getElementById(name + '-railroad')) {
-    return '<span class=nonterminal><a href="#' + html(name) + '-railroad">' + html(name) + '<\/a><\/span>';
-  } else {
-    return '<span class=nonterminal>' + html(name) + '<\/span>';
-  }
-}
-
-/** Fills in one of the <div id=*-railroad> above. */
-function grammar(name, root) {
-  var stats = {};
-  var railroadContainer = document.getElementById(name + '-railroad');
-  railroad.appendToDOM(root, railroadContainer, stats);
-  railroadContainer.style.width = stats.width + 'px';
-  railroadContainer.style.height = stats.height + 'px';
-}
-
-
-// Use a declarative syntax to define the grammar.
-O = grammar('object',
-    each(
-        terminal('{'),
-        any(
-            each(nonTerminal('string'), terminal(':'), nonTerminal('value')),
-            terminal(',')),
-        terminal('}')));
-
-grammar('array',
-    each(
-        terminal('['),
-        any(
-            nonTerminal('value'),
-            terminal(',')),
-        terminal(']')));
-
-grammar('value',
-    or(
-        nonTerminal('string'),
-        nonTerminal('number'),
-        nonTerminal('object'),
-        nonTerminal('array'),
-        terminal('true'),
-        terminal('false'),
-        terminal('null')));
-
-grammar('string',
-    each(
-        terminal('\u0022'),
-        any(
-            or(
-                '<span class=terminal><i>Any&nbsp;UNICODE&nbsp;code&nbsp;unit&nbsp;except<br>`<kbd>&quot;</kbd>`,&nbsp;<kbd>`\\`</kbd>,&nbsp;or&nbsp;a&nbsp;control&nbsp;character</i></span>',
-                each(
-                    terminal('\\'),
-                    or(
-                         terminal('\u0022', 'quotation mark'),
-                         terminal('\\', 'reverse solidus'),
-                         terminal('/', 'solidus'),
-                         terminal('b', 'backspace'),
-                         terminal('f', 'backspace'),
-                         terminal('n', 'backspace'),
-                         terminal('r', 'backspace'),
-                         terminal('t', 'backspace'),
-                         each(terminal('u'), '<span class=terminal>4&nbsp;hexadecimal<br>digits<\/span>'))))),
-        terminal('\u0022')));
-
-var digit = '<span class=terminal>digit</span>';
-grammar('number',
-    each(
-        maybe(terminal('-')),
-        or(
-            terminal('0'),
-            each('<span class=terminal>digit<br>1-9</span>', any(digit))),
-        maybe(
-            each(terminal('.'), any(digit))),
-        maybe(
-            each(
-                or(terminal('e'), terminal('E')),
-                maybe(or(terminal('+'), terminal('-'))),
-                many(digit)))));
-   });
-
-//---[
-function Sexp(source) {
-          var SPACE   = /[ \r\n\t]/,
-              ATOM    = /[^\(\)'"\r\n\t ]/,
-              NUMBER  = /^-?\d+(?:\.\d+)?$/;
-
-          function sexp(source, opts) {
-
-              opts = opts || {};
-
-              var tSymbol = opts.translateSymbol || function(sym) { return sym; },
-                  tString = opts.translateString || function(str) { return str; },
-                  tNumber = opts.translateNumber || parseFloat;
-
-              var ix  = 0,
-                  len = source.length;
-
-              function parseAtom() {
-                  var start = ix++;
-                  while (ix < len && ATOM.test(source[ix]))
-                      ix++;
-                  var atom = source.substring(start, ix);
-                  if (NUMBER.test(atom)) {
-                      return tNumber(atom);
-                  } else {
-                      return tSymbol(atom);
-                  }
-              }
-
-              function parseString(quote) {
-                  var start = ix++;
-                  while (ix < len && source[ix] !== quote)
-                      ix++;
-                  if (ix === len)
-                      throw new Error("parse error - unterminated string");
-                  ix++;
-                  return tString(source.substring(start + 1, ix - 1));
-              }
-
-              function parseSexp() {
-
-                  while (SPACE.test(source[ix]))
-                      ix++;
-
-                  if (source[ix++] !== '(')
-                      throw new Error("parse error");
-
-                  var items   = [],
-                      state   = 'out',
-                      start   = null;
-
-                  while (ix < source.length) {
-                      var ch = source[ix];
-                      if (ch === ')') {
-                          ix++;
-                          return items;
-                      } else if (ch === '(') {
-                          items.push(parseSexp());
-                      } else if (ch === '"' || ch === '\'') {
-                          items.push(parseString(ch));
-                      } else if (SPACE.test(ch)) {
-                          ix++;
-                      } else {
-                          items.push(parseAtom());
-                      }
-                  }
-
-                  throw new Error("parse error");
-
-              }
-
-              return parseSexp();
-
-          }
-}
-// Import the grammar definition functions from railroad.js
-var any = railroad.any,      // Like * in EBNF (0 or more repetitions)
-    each = railroad.each,    // each(a, b, c)  produces (A -> B -> C)
-    many = railroad.many,    // Like + in EBNF (1 or more repetitions)
-    maybe = railroad.maybe,  // Like ? in EBNF (0 or 1 occurences)
-    or = railroad.or;        // Like | in EBNF (choose 1 of)
-
-// Define some helper functions that format things the way we like.
-/** Plain text to HTML. */
-function html(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\u0022/g, '&quot;').replace(/\u0027/g, '&#39;');
-}
-
-/** Produces HTML for a literal sequence of characters. */
-function terminal(str) {
-  return '<span class=terminal>`<kbd>' + html(str) + '<\/kbd>`<\/span>';
-}
-
-/** Generate a reference to another production, possibly linking to it. */
-function nonTerminal(name) {
-  if (document.getElementById(name + '-railroad')) {
-    return '<span class=nonterminal><a href="#' + html(name) + '-railroad">' + html(name) + '<\/a><\/span>';
+    return '<span class=nonterminal><a href="#' + html(name) + '_railroad">' + html('<' + name + '>') + '<\/a><\/span>';
   } else {
     return '<span class=nonterminal>' + html(name) + '<\/span>';
   }
@@ -881,7 +704,7 @@ function loadGrammar(rr, g) {
     rr.innerHTML = '';
     for (const key in g) {
       console.log("Added " + key);
-      rr.innerHTML += '<b>' + key.slice(1,-1) + '</b><hr><div id="' + key.slice(1,-1) + '-railroad"></div><p/>';
+      rr.innerHTML += '<span><b><a id="' + key.slice(1,-1) + '_railroad">' + html(key) + '</a></b><p/><div id="' + key.slice(1,-1) + '-railroad"></div><p></span>';
     }
     for (const key in g) {
       console.log("parsed " + key);
