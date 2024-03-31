@@ -144,7 +144,6 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <!--script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script-->
     <script>
 var railroad = (function () {
 
@@ -544,7 +543,7 @@ return {
     </script>
     <!-- We can style railroad nodes however we like.  The names "terminal" and "nonterminal" are conventions used by this file, and not restrictions imposed by the underlying library. -->
     <style>
-    .terminal { border: 1px solid black; border-radius: 6px; padding: 2px; background: #efe; display: inline-block; text-align: center }
+    .terminal { border: 1px solid black; border-radius: 6px; padding: 2px; background: #ffe; display: inline-block; text-align: center }
     .nonterminal { border: 1px solid black; padding: 2px; background: #efe; display: inline-block }
     </style>
   </head>
@@ -579,6 +578,34 @@ return {
 
             <div id="undereditor">
               <div id="feedback"></div>
+            <pre>
+            <b>Example:</b><p/>
+{
+    &quot;&lt;start&gt;&quot;: [[&quot;&lt;expr&gt;&quot;]],
+    &quot;&lt;expr&gt;&quot;: [
+        [&quot;&lt;term&gt;&quot;, &quot;+&quot;, &quot;&lt;expr&gt;&quot;],
+        [&quot;&lt;term&gt;&quot;, &quot;-&quot;, &quot;&lt;expr&gt;&quot;],
+        [&quot;&lt;term&gt;&quot;]],
+    &quot;&lt;term&gt;&quot;: [
+        [&quot;&lt;factor&gt;&quot;, &quot;*&quot;, &quot;&lt;term&gt;&quot;],
+        [&quot;&lt;factor&gt;&quot;, &quot;/&quot;, &quot;&lt;term&gt;&quot;],
+        [&quot;&lt;factor&gt;&quot;]],
+    &quot;&lt;factor&gt;&quot;: [
+        [&quot;+&quot;, &quot;&lt;factor&gt;&quot;],
+        [&quot;-&quot;, &quot;&lt;factor&gt;&quot;],
+        [&quot;(&quot;, &quot;&lt;expr&gt;&quot;, &quot;)&quot;],
+        [&quot;&lt;integer&gt;&quot;, &quot;.&quot;, &quot;&lt;integer&gt;&quot;],
+        [&quot;&lt;integer&gt;&quot;]],
+    &quot;&lt;integer&gt;&quot;: [
+        [&quot;&lt;digit&gt;&quot;, &quot;&lt;integer&gt;&quot;],
+        [&quot;&lt;digit&gt;&quot;]],
+    &quot;&lt;digit&gt;&quot;: [[&quot;0&quot;], [&quot;1&quot;], [&quot;2&quot;],
+    [&quot;3&quot;], [&quot;4&quot;], [&quot;5&quot;], [&quot;6&quot;],
+    [&quot;7&quot;], [&quot;8&quot;], [&quot;9&quot;]]
+}
+ 
+</pre>
+
             </div>
 
           </td>
@@ -641,7 +668,7 @@ function grammar(name, root) {
 
 
 // Use a declarative syntax to define the grammar.
-grammar('object',
+O = grammar('object',
     each(
         terminal('{'),
         any(
