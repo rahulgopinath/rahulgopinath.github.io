@@ -711,17 +711,7 @@ function loadGrammar(rr, g) {
       console.log("rules: " + g[key]);
       rules = loadRules(key, rr, g[key])
       grammar(key.slice(1,-1), rules);
-      /*grammar(key,
-          or(
-              nonTerminal('string'),
-              nonTerminal('number'),
-              nonTerminal('object'),
-              nonTerminal('array'),
-              terminal('true'),
-              terminal('false'),
-              terminal('null')));*/
-
-          }
+    }
 }
 function parse() {
   let editor = ace.edit("editor");
