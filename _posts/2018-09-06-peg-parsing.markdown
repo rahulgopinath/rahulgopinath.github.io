@@ -41,26 +41,6 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-Notes: It has been five years since I wrote this post, and I have had some
-time to better understand the research behind PEG, CFG, LR(k), and LL(k).
-At this point, I would say that this parser is an implementation of the
-TDPL (Top Down Parsing Language) from Alexander Birman in 1970[^birman1970].
-The main difference between TDPL and PEG is that PEG allows a few convenience
-operators such as `*`, `+`, `?`, `&`, `!` and grouping which are taken from
-EBNF and regular expression syntax. However, the resulting language is
-equivalent in recognition power to TDPL and GTDPL[^ford2004parsing], and PEGs
-can be reduced to GTDPL, which in turn can be reduced to TDPL.
-
-However, more importantly, the language expressed with PEG grammars coincide
-with the language expressed by Context Free Grammars within the LL(1) set.
-That is, the algorithm expressed below should actually be considered an LL(1)
-parser when the grammar is LL(1). That is, any rule in a given definition
-can be unambiguously chosen based only on the next token in the stream. This
-is important because in the literature, LL(1) parsing requires computation of
-*first* sets. This parser shows you how to do LL(1) parsing without parse
-tables.
-## The Original Post
-
 In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
 write a simple recursive descent parser by hand -- that is using a set of
 mutually recursive procedures. Actually, I lied when I said context-free.
@@ -578,7 +558,26 @@ for l,res in result:
 </form>
 This implementation is quite limited in that we have lost the ability to memoize (can be added back), and can not handle left recursion. See the [Earley parser](https://www.fuzzingbook.org/html/Parser.html) for a parser without these drawbacks.
 
-Note: I recently found a very tiny PEG parser described [here](https://news.ycombinator.com/item?id=3202505).
+**Note**: I recently found a very tiny PEG parser described [here](https://news.ycombinator.com/item?id=3202505).
+
+**Note**: It has been five years since I wrote this post, and I have had some
+time to better understand the research behind PEG, CFG, LR(k), and LL(k).
+At this point, I would say that this parser is an implementation of the
+TDPL (Top Down Parsing Language) from Alexander Birman in 1970[^birman1970].
+The main difference between TDPL and PEG is that PEG allows a few convenience
+operators such as `*`, `+`, `?`, `&`, `!` and grouping which are taken from
+EBNF and regular expression syntax. However, the resulting language is
+equivalent in recognition power to TDPL and GTDPL[^ford2004parsing], and PEGs
+can be reduced to GTDPL, which in turn can be reduced to TDPL.
+
+However, more importantly, the language expressed with PEG grammars coincide
+with the language expressed by Context Free Grammars within the LL(1) set.
+That is, the algorithm expressed below should actually be considered an LL(1)
+parser when the grammar is LL(1). That is, any rule in a given definition
+can be unambiguously chosen based only on the next token in the stream. This
+is important because in the literature, LL(1) parsing requires computation of
+*first* sets. This parser shows you how to do LL(1) parsing without parse
+tables.
  
 [^valiant1975general]: Valiant, Leslie G. "General context-free recognition in less than cubic time." Journal of computer and system sciences 10.2 (1975): 308-315. 
 
