@@ -584,7 +584,8 @@ tables.
 [^lee2002fast]: Lee, Lillian. "Fast context-free grammar parsing requires fast boolean matrix multiplication." Journal of the ACM (JACM) 49.1 (2002): 1-15.
 
 [^ford2004parsing]: Ford, Bryan. "Parsing expression grammars: a recognition-based syntactic foundation." Proceedings of the 31st ACM SIGPLAN-SIGACT symposium on Principles of programming languages. 2004.  <https://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf>
-[^birman1970]  Birman, Alexander (1970). The TMG Recognition Schema. ACM Digital Library (phd). Princeton University. 
+
+[^birman1970]:  Birman, Alexander (1970). The TMG Recognition Schema. ACM Digital Library (phd). Princeton University. 
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
