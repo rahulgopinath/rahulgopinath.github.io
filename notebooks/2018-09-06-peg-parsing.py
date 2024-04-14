@@ -6,7 +6,28 @@
 # tags: parsing
 # categories: post
 # ---
- 
+
+# Notes: It has been five years since I wrote this post, and I have had some
+# time to better understand the research behind PEG, CFG, LR(k), and LL(k).
+# At this point, I would say that this parser is an implementation of the
+# TDPL (Top Down Parsing Language) from Alexander Birman in 1970[^birman1970].
+# The main difference between TDPL and PEG is that PEG allows a few convenience
+# operators such as `*`, `+`, `?`, `&`, `!` and grouping which are taken from
+# EBNF and regular expression syntax. However, the resulting language is
+# equivalent in recognition power to TDPL and GTDPL[^ford2004parsing], and PEGs
+# can be reduced to GTDPL, which in turn can be reduced to TDPL.
+# 
+# However, more importantly, the language expressed with PEG grammars coincide
+# with the language expressed by Context Free Grammars within the LL(1) set.
+# That is, the algorithm expressed below should actually be considered an LL(1)
+# parser when the grammar is LL(1). That is, any rule in a given definition
+# can be unambiguously chosen based only on the next token in the stream. This
+# is important because in the literature, LL(1) parsing requires computation of
+# *first* sets. This parser shows you how to do LL(1) parsing without parse
+# tables.
+
+# ## The Original Post
+# 
 # In the [previous](/post/2018/09/05/top-down-parsing/) post, I showed how to
 # write a simple recursive descent parser by hand -- that is using a set of
 # mutually recursive procedures. Actually, I lied when I said context-free.
@@ -261,4 +282,4 @@ if __name__ == '__main__':
 # [^lee2002fast]: Lee, Lillian. "Fast context-free grammar parsing requires fast boolean matrix multiplication." Journal of the ACM (JACM) 49.1 (2002): 1-15.
 # 
 # [^ford2004parsing]: Ford, Bryan. "Parsing expression grammars: a recognition-based syntactic foundation." Proceedings of the 31st ACM SIGPLAN-SIGACT symposium on Principles of programming languages. 2004.  <https://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf>
-
+# [^birman1970]  Birman, Alexander (1970). The TMG Recognition Schema. ACM Digital Library (phd). Princeton University. 
