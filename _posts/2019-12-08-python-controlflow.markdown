@@ -1966,7 +1966,7 @@ First, we make sure that all the child nodes are linked to from the parents.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def update_children(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             for p in node.parents:
                 p.add_child(node)
 
@@ -1976,7 +1976,7 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def update_children(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             for p in node.parents:
                 p.add_child(node)
 </textarea><br />
@@ -2000,7 +2000,7 @@ class PyCFGExtractor(PyCFGExtractor):
         return val
 
     def update_functions(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             _n = self.get_defining_function(node)
 
 ############
@@ -2019,7 +2019,7 @@ class PyCFGExtractor(PyCFGExtractor):
         return val
 
     def update_functions(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             _n = self.get_defining_function(node)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2031,7 +2031,7 @@ Finally, we link functions call sites.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def link_functions(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             if not node.calls: continue
             for calls in node.calls:
                 if not calls in self.functions: continue
@@ -2050,7 +2050,7 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def link_functions(self):
-        for nid,node in CFGNode.registry.items():
+        for nid,node in self.gstate.registry.items():
             if not node.calls: continue
             for calls in node.calls:
                 if not calls in self.functions: continue
