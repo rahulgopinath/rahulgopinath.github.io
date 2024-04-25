@@ -267,9 +267,9 @@ function each(var_args) {
   for (var i = 0, n = var_args.length; i < n; ++i) {
     addItem(var_args[i]);
   }
-  if (items.length === 1) {
+  /*if (items.length === 1) {
     return items[0];
-  }
+  }*/
   return { op: '.', children: items };
 }
 
