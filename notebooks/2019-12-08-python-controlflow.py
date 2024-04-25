@@ -107,13 +107,18 @@ def get_shape(p):
 
 # The `to_graph()` function produces a graph from the nodes in the registry.
 
-def to_graph(my_nodes, arcs=[], comment='', get_shape=lambda n: 'rectangle', get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
+def to_graph(my_nodes, arcs=[], comment='',
+             get_shape=lambda n: 'rectangle',
+             get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
     G = pydot.Dot(comment, graph_type="digraph")
     for nid, cnode in my_nodes:
         if not cnode.annotation():
             continue
         sn = cnode.annotation()
-        G.add_node(pydot.Node(cnode.name(), label=sn, shape=get_shape(cnode), peripheries=get_peripheries(cnode)))
+        G.add_node(pydot.Node(cnode.name(),
+                              label=sn,
+                              shape=get_shape(cnode),
+                              peripheries=get_peripheries(cnode)))
         for pn in cnode.parents:
             gp = pn.get_gparent_id()
             color = get_color(pn, cnode)
@@ -191,7 +196,8 @@ class CFGNode(CFGNode):
         
     def __str__(self):
         return "id:%d line[%d] parents: %s : %s" % \
-           (self.rid, self.lineno(), str([p.rid for p in self.parents]), self.source())
+           (self.rid, self.lineno(),
+            str([p.rid for p in self.parents]), self.source())
 
     def __repr__(self):
         return str(self)
@@ -221,7 +227,10 @@ class CFGNode(CFGNode):
 if __name__ == '__main__':
     gs = GraphState()
     start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
-    g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(gs.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # ### Extracting the control flow
@@ -232,7 +241,9 @@ if __name__ == '__main__':
 class PyCFGExtractor(metacircularinterpreter.PyMCInterpreter):
     def __init__(self):
         self.gstate = self.create_graphstate()
-        self.founder = CFGNode(parents=[], ast=ast.parse('start').body[0], state=self.gstate) # sentinel
+        self.founder = CFGNode(parents=[],
+                               ast=ast.parse('start').body[0],
+                               state=self.gstate) # sentinel
         self.founder.ast_node.lineno = 0
         self.functions = {}
         self.functions_node = {}
@@ -260,14 +271,19 @@ class PyCFGExtractor(PyCFGExtractor):
             return getattr(self, fname)(node, myparents)
         raise SyntaxError('walk: Not Implemented in %s' % type(node))
 
+# parse is just ast.parse
 class PyCFGExtractor(PyCFGExtractor):
     def parse(self, src):
         return ast.parse(src)
 
+# defining eval.
+class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
-        self.last_node = CFGNode(parents=nodes, ast=ast.parse('stop').body[0], state=self.gstate)
+        self.last_node = CFGNode(parents=nodes,
+                                 ast=ast.parse('stop').body[0],
+                                 state=self.gstate)
         ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
 
 
@@ -288,7 +304,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### Module(stmt* body)
@@ -312,7 +331,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # ### Expressions
@@ -350,7 +372,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 
@@ -387,7 +412,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 
@@ -417,7 +445,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 
@@ -440,14 +471,24 @@ class PyCFGExtractor(PyCFGExtractor):
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node, annot="if: %s" % ast.unparse(node.test).strip(), state=self.gstate)]
+        test_node = [CFGNode(parents=p, ast=node,
+                             annot="if: %s" % ast.unparse(node.test).strip(),
+                             state=self.gstate)]
         g1 = test_node
-        g_true = [CFGNode(parents=g1, ast=None, label="if:True", annot='', state=self.gstate)]
+        g_true = [CFGNode(parents=g1,
+                          ast=None,
+                          label="if:True",
+                          annot='',
+                          state=self.gstate)]
         g1 = g_true
         for n in node.body:
             g1 = self.walk(n, g1)
         g2 = test_node
-        g_false = [CFGNode(parents=g2, ast=None, label="if:False", annot='', state=self.gstate)]
+        g_false = [CFGNode(parents=g2,
+                           ast=None,
+                           label="if:False",
+                           annot='',
+                           state=self.gstate)]
         g2 = g_false
         for n in node.orelse:
             g2 = self.walk(n, g2)
@@ -465,7 +506,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### While
@@ -508,13 +552,25 @@ if __name__ == '__main__':
 class PyCFGExtractor(PyCFGExtractor):
     def on_while(self, node, myparents):
         loop_id = self.gstate.counter
-        lbl1_node = CFGNode(parents=myparents, ast=node, label='loop_entry', annot='%s: while' % loop_id, state=self.gstate)
+        lbl1_node = CFGNode(parents=myparents,
+                            ast=node,
+                            label='loop_entry',
+                            annot='%s: while' % loop_id,
+                            state=self.gstate)
         p = self.walk(node.test, [lbl1_node])
 
         lbl2_node = CFGNode(parents=p, ast=node.test, label='while:test',
                annot='if: %s' % ast.unparse(node.test).strip(), state=self.gstate)
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='', state=self.gstate)
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='', state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node],
+                          ast=None,
+                          label="if:False",
+                          annot='',
+                          state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node],
+                         ast=None,
+                         label="if:True",
+                         annot='',
+                         state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -537,7 +593,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### Break
@@ -575,7 +634,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### Continue
@@ -609,7 +671,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### For
@@ -643,7 +708,11 @@ class PyCFGExtractor(PyCFGExtractor):
         for a in node.args:
             p = self.walk(a, p)
         myparents[0].add_calls(node.func)
-        p = [CFGNode(parents=p, ast=node, label='call', annot='', state=self.gstate)]
+        p = [CFGNode(parents=p,
+                     ast=node,
+                     label='call',
+                     annot='',
+                     state=self.gstate)]
         return p
 
 class PyCFGExtractor(PyCFGExtractor):
@@ -651,18 +720,39 @@ class PyCFGExtractor(PyCFGExtractor):
         #node.target in node.iter: node.body
         loop_id = self.gstate.counter
 
-        for_pre = CFGNode(parents=myparents, ast=None, label='for_pre', annot='', state=self.gstate)
+        for_pre = CFGNode(parents=myparents,
+                          ast=None,
+                          label='for_pre',
+                          annot='',
+                          state=self.gstate)
 
-        init_node = ast.parse('__iv_%d = iter(%s)' % (loop_id, ast.unparse(node.iter).strip())).body[0]
+        init_node = ast.parse('__iv_%d = iter(%s)' % (
+            loop_id, ast.unparse(node.iter).strip())).body[0]
         p = self.walk(init_node, [for_pre])
 
-        lbl1_node = CFGNode(parents=p, ast=node, label='loop_entry', annot='%s: for' % loop_id, state=self.gstate)
-        _test_node = ast.parse('__iv_%d.__length__hint__() > 0' % loop_id).body[0].value
+        lbl1_node = CFGNode(parents=p,
+                            ast=node,
+                            label='loop_entry',
+                            annot='%s: for' % loop_id,
+                            state=self.gstate)
+        _test_node = ast.parse(
+                '__iv_%d.__length__hint__() > 0' % loop_id).body[0].value
         p = self.walk(_test_node, [lbl1_node])
 
-        lbl2_node = CFGNode(parents=p, ast=_test_node, label='for:test', annot='for: %s' % ast.unparse(_test_node).strip(), state=self.gstate)
-        g_false = CFGNode(parents=[lbl2_node], ast=None, label="if:False", annot='', state=self.gstate)
-        g_true = CFGNode(parents=[lbl2_node], ast=None, label="if:True", annot='', state=self.gstate)
+        lbl2_node = CFGNode(parents=p,
+                            ast=_test_node,
+                            label='for:test',
+                            annot='for: %s' % ast.unparse(_test_node).strip(),
+                            state=self.gstate)
+        g_false = CFGNode(parents=[lbl2_node],
+                          ast=None,
+                          label="if:False",
+                          annot='', state=self.gstate)
+        g_true = CFGNode(parents=[lbl2_node],
+                         ast=None,
+                         label="if:True",
+                         annot='',
+                         state=self.gstate)
         lbl1_node.exit_nodes = [g_false]
 
         p = [g_true]
@@ -687,7 +777,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # more
@@ -702,7 +795,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # more
@@ -717,7 +813,10 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
 # #### FunctionDef
@@ -791,6 +890,9 @@ if __name__ == '__main__':
     """
     cfge = PyCFGExtractor()
     cfge.eval(s)
-    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    g = to_graph(cfge.gstate.registry.items(),
+                 get_color=get_color,
+                 get_peripheries=get_peripheries,
+                 get_shape=get_shape)
     graphics.display_dot(g.to_string())
 
