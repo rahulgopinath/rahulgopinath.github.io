@@ -650,7 +650,7 @@ function terminal(str) {
 /** Generate a reference to another production, possibly linking to it. */
 function nonTerminal(name) {
   if (document.getElementById(name + '-railroad')) {
-    return '<span class=nonterminal><a href="#' + html(name) + '_railroad">' + html('<' + name + '>') + '<\/a><\/span>';
+    return '<span class=nonterminal><a style="text-decoration:none" href="#' + html(name) + '_railroad">' + html('<' + name + '>') + '<\/a><\/span>';
   } else {
     return '<span class=nonterminal>' + html(name) + '<\/span>';
   }
@@ -699,6 +699,13 @@ function loadRules(key, rr, rules) {
   return or(my_rules);
 }
 
+function setLink(fragment) {
+  grammarlink = document.getElementById("grammarlink");
+  console.log(fragment);
+  console.log(window.location.origin);
+  grammarlink.href =  window.location.href + "#" + fragment;
+}
+
 // parse sexp and load tree
 function loadGrammar(rr, g) {
     rr.innerHTML = '';
@@ -722,6 +729,7 @@ function parse() {
     val = JSON.parse(txt);
     loadGrammar(rr, val);
     clearError();
+    setLink(encodeURIComponent(txt));
   } catch (err) {
     console.log(err);
     setError(err);
@@ -838,6 +846,11 @@ function parse() {
 
           // set up editors, canvases, and renderers
           function init() {
+              let url = window.location.href;
+              let hash = window.location.hash.substr(1);
+              console.log(url);
+              console.log(hash);
+
               let editor = ace.edit("editor");
               editor.setTheme("ace/theme/chrome");
               editor.session.setMode("ace/mode/python");
@@ -845,6 +858,11 @@ function parse() {
               editor.setOption("showPrintMargin", false)
               editor.setOption("wrap", true)
               editor.setKeyboardHandler("ace/keyboard/vim");
+
+              if (hash) {
+                 editor.session.setValue(decodeURIComponent(hash));
+                 parse();
+              }
 
               editor.on('change', function() {
               // Parse sexp and load tree
@@ -920,6 +938,7 @@ function parse() {
       </script>
       <footer>
         Original comes from <a href='https://code.google.com/archive/p/html-railroad-diagram/source'>here</a>.
+        Link to this page is <a id='grammarlink' href=''>here</a>.
     <!-- <em> -->
     <!--   <a href="about.html">About</a> -->
     <!-- </em> -->
