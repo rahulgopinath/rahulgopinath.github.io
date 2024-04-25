@@ -285,7 +285,9 @@ class PyCFGExtractor(PyCFGExtractor):
                                  ast=ast.parse('stop').body[0],
                                  state=self.gstate)
         ast.copy_location(self.last_node.ast_node, self.founder.ast_node)
+        self.post_eval()
 
+    def post_eval(self): ... # to be overridden
 
 # #### Pass
 # 
@@ -876,6 +878,53 @@ class PyCFGExtractor(PyCFGExtractor):
         # return doesnt have immediate children
         return []
 
+# We just need few more functions to ensure that our arrows are linked up
+class PyCFGExtractor(PyCFGExtractor):
+    def post_eval(self):
+        self.update_children()
+        self.update_functions()
+        self.link_functions()
+
+# First, we make sure that all the child nodes are linked to from the parents.
+class PyCFGExtractor(PyCFGExtractor):
+    def update_children(self):
+        for nid,node in CFGNode.registry.items():
+            for p in node.parents:
+                p.add_child(node)
+
+# Next, we make sure that for any node (marked by its line number), we know
+# where it is defined.
+class PyCFGExtractor(PyCFGExtractor):
+    def get_defining_function(self, node):
+        if node.lineno() in self.functions_node:
+            return self.functions_node[node.lineno()]
+        if not node.parents:
+            self.functions_node[node.lineno()] = ''
+            return ''
+        val = self.get_defining_function(node.parents[0])
+        self.functions_node[node.lineno()] = val
+        return val
+
+    def update_functions(self):
+        for nid,node in CFGNode.registry.items():
+            _n = self.get_defining_function(node)
+        
+# Finally, we link functions call sites.
+class PyCFGExtractor(PyCFGExtractor):
+    def link_functions(self):
+        for nid,node in CFGNode.registry.items():
+            if not node.calls: continue
+            for calls in node.calls:
+                if not calls in self.functions: continue
+                enter, exit = self.functions[calls]
+                enter.add_parent(node)
+                if node.children:
+                    # # unlink the call statement
+                    assert node.calllink > -1
+                    node.calllink += 1
+                    for i in node.children:
+                        i.add_parent(exit)
+
 # Example
  
 if __name__ == '__main__':
@@ -895,4 +944,5 @@ if __name__ == '__main__':
                  get_peripheries=get_peripheries,
                  get_shape=get_shape)
     graphics.display_dot(g.to_string())
+
 
