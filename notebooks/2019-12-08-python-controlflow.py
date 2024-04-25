@@ -160,6 +160,9 @@ class CFGNode(CFGNode):
         if c not in self.children:
             self.children.append(c)
 
+    def set_parents(self, p):
+        self.parents = p
+
     def add_parent(self, p):
         if p not in self.parents:
             self.parents.append(p)
@@ -186,6 +189,9 @@ class CFGNode(CFGNode):
         return self.rid != other.rid
 
     def lineno(self):
+        if (isinstance(self.ast_node, ast.AnnAssign)):
+            if self.ast_node.target.id == 'exit':
+                return -self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else -0
         return self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else 0
         
     def name(self):
@@ -203,6 +209,7 @@ class CFGNode(CFGNode):
         return str(self)
 
     def source(self):
+        if self.ast_node is None: return ''
         return ast.unparse(self.ast_node).strip()
 
     def annotation(self):
@@ -832,26 +839,38 @@ if __name__ == '__main__':
 # is independent of the previous statements. Hence, here, we choose not to have
 # parents for the definition.
 
-DEFS_HAVE_PARENTS = False
-
 class PyCFGExtractor(PyCFGExtractor):  
     def on_functiondef(self, node, myparents):
         # name, args, body, decorator_list, returns
         fname = node.name
         args = node.args
         returns = node.returns
-        p = myparents if DEFS_HAVE_PARENTS else []
-        enter_node = CFGNode(parents=p, ast=node, label='enter',
-                annot='<define>: %s' % node.name, state=self.gstate)
+        enter_node = CFGNode(
+                parents=[], ast=ast.parse('enter: %s(%s)' % (
+                node.name, ', '.join([a.arg for a in node.args.args]))).body[0],
+                annot='<define>: %s' % node.name, state=self.gstate
+                )  # sentinel
+        enter_node.calleelink = True
+        ast.copy_location(enter_node.ast_node, node)
+
+        exit_node = CFGNode(parents=[], ast=ast.parse('exit: %s(%s)' % (
+               node.name, ', '.join([a.arg for a in node.args.args]))).body[0],
+               annot='<>: %s' % node.name, state=self.gstate
+               ) #  sentinel
         enter_node.return_nodes = [] # sentinel
 
         p = [enter_node]
         for n in node.body:
             p = self.walk(n, p)
 
-        enter_node.return_nodes.extend(p)
+        for n in p:
+            if n not in enter_node.return_nodes:
+                enter_node.return_nodes.append(n)
 
-        self.functions[fname] = [enter_node, enter_node.return_nodes]
+        for n in enter_node.return_nodes:
+            exit_node.add_parent(n)
+
+        self.functions[fname] = [enter_node, exit_node]
         self.functions_node[enter_node.lineno()] = fname
 
         return myparents
