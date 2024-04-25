@@ -65,7 +65,9 @@ class CLIGraphics(Graphics):
         graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
         self.i += 1
 
-graphics = WebGraphics()
+# 
+if __name__ == '__main__':
+    graphics = WebGraphics()
  
 # The *color* is used to determine whether true or false branch was taken.
 
@@ -216,10 +218,11 @@ class CFGNode(CFGNode):
         return str(p.rid)
 
 # The usage is as below:
-gs = GraphState()
-start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
-g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    gs = GraphState()
+    start = CFGNode(parents=[], ast=ast.parse('start').body, state=gs)
+    g = to_graph(gs.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # ### Extracting the control flow
 # 
@@ -279,14 +282,14 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Here is the CFG from a single pass statement.
 # 
-s = """\
-pass
-"""
-
-cfge = PyCFGExtractor()
-cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    pass
+    """
+    cfge = PyCFGExtractor()
+    cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### Module(stmt* body)
 # 
@@ -302,16 +305,15 @@ class PyCFGExtractor(PyCFGExtractor):
         return p
 
 # Here is the CFG from the following which is wrapped in a module
-
-s = """\
-pass
-pass
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    pass
+    pass
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # ### Expressions
 # #### Primitives
@@ -341,15 +343,15 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Generating the following CFG
 # 
-s = """\
-10
-'a'
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    10
+    'a'
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 
 # ### Arithmetic expressions
@@ -379,14 +381,14 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # CFG for this expression
 # 
-s = """
-10+1
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """
+    10+1
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 
 # #### Assign(expr* targets, expr value)
@@ -409,14 +411,14 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
 
-s = """
-a = 10+1
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """
+    a = 10+1
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 
 # #### Name
@@ -453,18 +455,18 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
 # 
-s = """\
-a = 1
-if a>1:
+if __name__ == '__main__':
+    s = """\
     a = 1
-else:
-    a = 0
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+    if a>1:
+        a = 1
+    else:
+        a = 0
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### While
 
@@ -526,17 +528,17 @@ class PyCFGExtractor(PyCFGExtractor):
         return lbl1_node.exit_nodes
 
 # Example
-s = """\
-x = 1
-while x > 0:
-    x = x -1
-y = x
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    while x > 0:
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### Break
 # 
@@ -562,19 +564,19 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
 
-s = """\
-x = 1
-while x > 0:
-    if x > 1:
-        break
-    x = x -1
-y = x
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    while x > 0:
+        if x > 1:
+            break
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### Continue
 # 
@@ -596,19 +598,19 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
 # 
-s = """\
-x = 1
-while x > 0:
-    if x > 1:
-        continue
-    x = x -1
-y = x
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    while x > 0:
+        if x > 1:
+            continue
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### For
 # 
@@ -676,48 +678,47 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
  
-s = """\
-x = 1
-for i in val:
-    x = x -1
-y = x
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
-
-# more
-
-s = """\
-x = 1
-for i in val:
-    if x > 1:
-        break
-    x = x -1
-y = x
-"""
-
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    for i in val:
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # more
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    for i in val:
+        if x > 1:
+            break
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
-s = """\
-x = 1
-for i in val:
-    if x > 1:
-        continue
-    x = x -1
-y = x
-"""
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+# more
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    for i in val:
+        if x > 1:
+            continue
+        x = x -1
+    y = x
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
 # #### FunctionDef
 # 
@@ -778,17 +779,18 @@ class PyCFGExtractor(PyCFGExtractor):
 
 # Example
  
-s = """\
-x = 1
-def my_fn(v1, v2):
-    if v1 > v2:
-        return v1
-    else:
-        return v2
-y = 2
-"""
-cfge = PyCFGExtractor()
-cfge.eval(s)
-g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
-graphics.display_dot(g.to_string())
+if __name__ == '__main__':
+    s = """\
+    x = 1
+    def my_fn(v1, v2):
+        if v1 > v2:
+            return v1
+        else:
+            return v2
+    y = 2
+    """
+    cfge = PyCFGExtractor()
+    cfge.eval(s)
+    g = to_graph(cfge.gstate.registry.items(), get_color=get_color, get_peripheries=get_peripheries, get_shape=get_shape)
+    graphics.display_dot(g.to_string())
 
