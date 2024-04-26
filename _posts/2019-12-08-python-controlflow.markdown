@@ -694,8 +694,6 @@ defining eval.
 ############
 class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
-        for i,l in enumerate(src.split('\n')):
-            print(i+1, l)
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
         self.last_node = CFGNode(parents=nodes,
@@ -712,8 +710,6 @@ class PyCFGExtractor(PyCFGExtractor):
 <textarea cols="40" rows="4" name='python_edit'>
 class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
-        for i,l in enumerate(src.split(&#x27;\n&#x27;)):
-            print(i+1, l)
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
         self.last_node = CFGNode(parents=nodes,

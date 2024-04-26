@@ -289,8 +289,6 @@ class PyCFGExtractor(PyCFGExtractor):
 # defining eval.
 class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
-        for i,l in enumerate(src.split('\n')):
-            print(i+1, l)
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
         self.last_node = CFGNode(parents=nodes,
