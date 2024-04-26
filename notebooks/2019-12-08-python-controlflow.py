@@ -189,10 +189,13 @@ class CFGNode(CFGNode):
         return self.rid != other.rid
 
     def lineno(self):
-        if (isinstance(self.ast_node, ast.AnnAssign)):
-            if self.ast_node.target.id == 'exit':
-                return -self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else -0
-        return self.ast_node.lineno if hasattr(self.ast_node, 'lineno') else 0
+        if hasattr(self.ast_node, 'lineno'):
+            if (isinstance(self.ast_node, ast.AnnAssign)):
+                if self.ast_node.target.id == 'exit':
+                    return -self.ast_node.lineno
+            return self.ast_node.lineno
+        # should we return the parent line numbers instead?
+        return 0
         
     def name(self):
         return str(self.rid)
@@ -286,6 +289,8 @@ class PyCFGExtractor(PyCFGExtractor):
 # defining eval.
 class PyCFGExtractor(PyCFGExtractor):
     def eval(self, src):
+        for i,l in enumerate(src.split('\n')):
+            print(i+1, l)
         node = self.parse(src)
         nodes = self.walk(node, [self.founder])
         self.last_node = CFGNode(parents=nodes,
@@ -480,24 +485,28 @@ class PyCFGExtractor(PyCFGExtractor):
 class PyCFGExtractor(PyCFGExtractor):
     def on_if(self, node, myparents):
         p = self.walk(node.test, myparents)
-        test_node = [CFGNode(parents=p, ast=node,
-                             annot="if: %s" % ast.unparse(node.test).strip(),
-                             state=self.gstate)]
+        test_node = [CFGNode(parents=myparents, ast=ast.parse(
+                            '_if: %s' % ast.unparse(node.test).strip()).body[0],
+                            annot="if: %s" % ast.unparse(node.test).strip(),
+                            state=self.gstate)]
+        ast.copy_location(test_node[0].ast_node, node.test)
         g1 = test_node
         g_true = [CFGNode(parents=g1,
-                          ast=None,
+                          ast=ast.parse('_if: True').body[0],
                           label="if:True",
                           annot='',
                           state=self.gstate)]
+        ast.copy_location(g_true[0].ast_node, node.test)
         g1 = g_true
         for n in node.body:
             g1 = self.walk(n, g1)
         g2 = test_node
         g_false = [CFGNode(parents=g2,
-                           ast=None,
+                           ast=ast.parse('_if: False').body[0],
                            label="if:False",
                            annot='',
                            state=self.gstate)]
+        ast.copy_location(g_false[0].ast_node, node.test)
         g2 = g_false
         for n in node.orelse:
             g2 = self.walk(n, g2)
