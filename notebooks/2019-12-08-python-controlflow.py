@@ -42,6 +42,7 @@
 import ast
 import pydot
 import metacircularinterpreter
+import textwrap as tw
 
 # #### A few helper functions for visualization
 
@@ -225,7 +226,7 @@ class CFGNode(CFGNode):
     def to_json(self):
         return {'id':self.rid, 'parents': [p.rid for p in self.parents],
                'children': [c.rid for c in self.children],
-               'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
+               'calls': self.calls, 'at': (self.lineno(), self.rid) ,'ast':self.source()}
                
     def get_gparent_id(self):
         p = self.state.registry[self.rid]
@@ -315,7 +316,7 @@ if __name__ == '__main__':
     pass
     """
     cfge = PyCFGExtractor()
-    cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+    cfge.on_pass(node=ast.parse(tw.dedent(s)).body[0], myparents=[start])
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -342,7 +343,7 @@ if __name__ == '__main__':
     pass
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -383,7 +384,7 @@ if __name__ == '__main__':
     'a'
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -423,7 +424,7 @@ if __name__ == '__main__':
     10+1
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -456,7 +457,7 @@ if __name__ == '__main__':
     a = 10+1
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -521,7 +522,7 @@ if __name__ == '__main__':
         a = 0
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -608,7 +609,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -649,7 +650,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -686,7 +687,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -792,7 +793,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -810,7 +811,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -828,7 +829,7 @@ if __name__ == '__main__':
     y = x
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,
@@ -964,7 +965,7 @@ if __name__ == '__main__':
     y = 2
     """
     cfge = PyCFGExtractor()
-    cfge.eval(s)
+    cfge.eval(tw.dedent(s))
     g = to_graph(cfge.gstate.registry.items(),
                  get_color=get_color,
                  get_peripheries=get_peripheries,

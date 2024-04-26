@@ -115,6 +115,7 @@ https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl
 import ast
 import pydot
 import metacircularinterpreter
+import textwrap as tw
 
 ############
 -->
@@ -123,6 +124,7 @@ import metacircularinterpreter
 import ast
 import pydot
 import metacircularinterpreter
+import textwrap as tw
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -499,7 +501,7 @@ class CFGNode(CFGNode):
     def to_json(self):
         return {'id':self.rid, 'parents': [p.rid for p in self.parents],
                'children': [c.rid for c in self.children],
-               'calls': self.calls, 'at':self.lineno() ,'ast':self.source()}
+               'calls': self.calls, 'at': (self.lineno(), self.rid) ,'ast':self.source()}
 
     def get_gparent_id(self):
         p = self.state.registry[self.rid]
@@ -555,7 +557,7 @@ class CFGNode(CFGNode):
     def to_json(self):
         return {&#x27;id&#x27;:self.rid, &#x27;parents&#x27;: [p.rid for p in self.parents],
                &#x27;children&#x27;: [c.rid for c in self.children],
-               &#x27;calls&#x27;: self.calls, &#x27;at&#x27;:self.lineno() ,&#x27;ast&#x27;:self.source()}
+               &#x27;calls&#x27;: self.calls, &#x27;at&#x27;: (self.lineno(), self.rid) ,&#x27;ast&#x27;:self.source()}
 
     def get_gparent_id(self):
         p = self.state.registry[self.rid]
@@ -755,7 +757,7 @@ s = """\
 pass
 """
 cfge = PyCFGExtractor()
-cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+cfge.on_pass(node=ast.parse(tw.dedent(s)).body[0], myparents=[start])
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -770,7 +772,7 @@ s = &quot;&quot;&quot;\
 pass
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.on_pass(node=ast.parse(s).body[0], myparents=[start])
+cfge.on_pass(node=ast.parse(tw.dedent(s)).body[0], myparents=[start])
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -818,7 +820,7 @@ pass
 pass
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -834,7 +836,7 @@ pass
 pass
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -917,7 +919,7 @@ s = """\
 'a'
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -934,7 +936,7 @@ s = &quot;&quot;&quot;\
 &#x27;a&#x27;
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1004,7 +1006,7 @@ s = """
 10+1
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1020,7 +1022,7 @@ s = &quot;&quot;&quot;
 10+1
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1072,7 +1074,7 @@ s = """
 a = 10+1
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1088,7 +1090,7 @@ s = &quot;&quot;&quot;
 a = 10+1
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1210,7 +1212,7 @@ else:
     a = 0
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1229,7 +1231,7 @@ else:
     a = 0
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1363,7 +1365,7 @@ while x > 0:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1381,7 +1383,7 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1450,7 +1452,7 @@ while x > 0:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1470,7 +1472,7 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1532,7 +1534,7 @@ while x > 0:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1552,7 +1554,7 @@ while x &gt; 0:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1734,7 +1736,7 @@ for i in val:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1752,7 +1754,7 @@ for i in val:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1775,7 +1777,7 @@ for i in val:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1795,7 +1797,7 @@ for i in val:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1818,7 +1820,7 @@ for i in val:
 y = x
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -1838,7 +1840,7 @@ for i in val:
 y = x
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -2132,7 +2134,7 @@ def my_fn(v1, v2):
 y = 2
 """
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
@@ -2154,7 +2156,7 @@ def my_fn(v1, v2):
 y = 2
 &quot;&quot;&quot;
 cfge = PyCFGExtractor()
-cfge.eval(s)
+cfge.eval(tw.dedent(s))
 g = to_graph(cfge.gstate.registry.items(),
              get_color=get_color,
              get_peripheries=get_peripheries,
