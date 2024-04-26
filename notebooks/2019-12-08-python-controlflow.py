@@ -226,7 +226,7 @@ class CFGNode(CFGNode):
     def to_json(self):
         return {'id':self.rid, 'parents': [p.rid for p in self.parents],
                'children': [c.rid for c in self.children],
-               'calls': self.calls, 'at': (self.lineno(), self.rid) ,'ast':self.source()}
+               'calls': self.calls, 'at': self.lineno(), 'ast':self.source()}
                
     def get_gparent_id(self):
         p = self.state.registry[self.rid]
