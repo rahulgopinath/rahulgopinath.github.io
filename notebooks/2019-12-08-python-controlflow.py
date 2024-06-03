@@ -54,6 +54,8 @@ class WebGraphics(Graphics):
     def display_dot(self, dotsrc):
         __canvas__(g.to_string())
 
+# Use `CLIGraphics` if you are running it from the
+# command line.
 
 class CLIGraphics(Graphics):
     def __init__(self):

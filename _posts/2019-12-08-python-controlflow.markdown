@@ -141,7 +141,26 @@ class WebGraphics(Graphics):
     def display_dot(self, dotsrc):
         __canvas__(g.to_string())
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
 
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Use `CLIGraphics` if you are running it from the
+command line.
+
+<!--
+############
 class CLIGraphics(Graphics):
     def __init__(self):
         global graphviz
@@ -157,15 +176,6 @@ class CLIGraphics(Graphics):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class Graphics:
-    def display_dot(self, dotsrc):
-        raise NotImplemented
-
-class WebGraphics(Graphics):
-    def display_dot(self, dotsrc):
-        __canvas__(g.to_string())
-
-
 class CLIGraphics(Graphics):
     def __init__(self):
         global graphviz
