@@ -177,7 +177,7 @@ inputs and hence the expected behavior.
 
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/building-blocks-for-fuzzing)
 
-#### <a id='gopinath2022learning'></a> [Gopinath: _Learning And Refining Input Grammars For Effective Fuzzing _ SBST 2022]()
+#### <a id='gopinath2022learning'></a> [Gopinath: _Learning And Refining Input Grammars For Effective Fuzzing_ SBST 2022]()
 
 Fuzzing is one of the key techniques for evaluating robustness of programs against malicious inputs. To fuzz the program logic effectively, one needs the input specification of the program under fuzzing. However, such input specifications are rarely available, and even when present, can be obsolete, incomplete or incorrect leading to fuzzing blind spots. In this tutorial, I will show how to mine the input specification from a given program from the ground up, first generating sample inputs, then using such inputs to mine the program input grammar, and finally using the mined grammar to fuzz the program and find any bugs.
 
