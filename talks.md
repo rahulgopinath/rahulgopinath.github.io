@@ -7,6 +7,10 @@ weight: 3
 menu: Talks
 ---
 ##### 2024
+* [_Look Ma, No Hands! Testing Software Without Specifications_](#gopinath2024look)<br/>
+  *Gopinath* - Australian National University, Canberra, Australia, June 10, 2024
+
+
 * [_How to Talk to Strange Programs and Find Bugs_](#gopinath2024how)<br/>
   *Gopinath* - ASESS'24, NSW, Sydney, Australia, February 1, 2024
 
