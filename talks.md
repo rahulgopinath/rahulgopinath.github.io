@@ -108,6 +108,12 @@ menu: Talks
   *Gopinath* - GTAC, 2016
 
 ---
+#### <a id='gopinath2024look'></a> [Gopinath: _Look Ma, No Hands! Testing Software Without Specifications_ ANU, 2024]()
+
+How do we test software when detailed specifications are unavailable? Effective testing requires both input and behavioural specifications. However, often in the industry, one cannot rely on the availability or reliability of either. In this talk, I will demonstrate how to extract detailed specifications from given programs when the provided specifications are unreliable. I will explain how to leverage detailed error feedback to construct input and behavioural models of the program. These models can be used to verify program behaviour, identifying, and eliminating software bugs before they are deployed in production.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/look-ma-no-hands-testing-software-without-specifications)
+
 #### <a id='gopinath2024how'></a> [Gopinath: _How to Talk to Strange Programs and Find Bugs_ ASESSG 2024]()
 
 For effective testing of programs with complex structured inputs, the input
@@ -122,6 +128,7 @@ of the long-standing questions in software engineering is the inference of such
 grammars. That is, given a parser, how do we /invert/ such parsers, and get the
 input specification back? This talk will focus on how to extract such grammars
 from parsers themselves, and what can we do with such grammars.
+
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-to-talk-to-strange-programs-and-find-bugs)
 
 
