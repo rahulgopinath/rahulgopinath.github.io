@@ -4,7 +4,7 @@ categories : student
 tagline: "."
 tags : [student evefernando 2022]
 e: 
---- Example-Free Learning of Regular Languages with Prefix Queries
+--- Example Free Learning of Regular Languages with Prefix Queries
 
 #### Honours Thesis
 
