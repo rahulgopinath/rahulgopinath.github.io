@@ -10,6 +10,8 @@ e: Lowering Barriers to Using Computational Notebooks
 
 Lowering barriers to using computational notebooks
 
+**by Tanaka Chitete**
+
 
 #### Abstract
 

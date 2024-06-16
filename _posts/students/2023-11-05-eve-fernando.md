@@ -10,6 +10,8 @@ e: Example Free Learning of Regular Languages with Prefix Queries
 
 Example-Free Learning of Regular Languages with Prefix Queries
 
+**By Eve Fernando**
+
 Supervised by: Sasha Rubin, Rahul Gopinath
 
 #### Abstract
