@@ -3,8 +3,8 @@ layout: post
 categories : student
 tagline: "."
 tags : [student evefernando 2022]
-e: Grammar Inference
----
+e: 
+--- Example-Free Learning of Regular Languages with Prefix Queries
 
 #### Honours Thesis
 
