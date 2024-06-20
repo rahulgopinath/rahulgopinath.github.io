@@ -5,7 +5,7 @@ tagline: "."
 tags : publication
 e:  Empirical Evaluation of Frequency Based Statistical Models for Estimating Killable Mutants
 title: Empirical Evaluation of Frequency Based Statistical Models for Estimating Killable Mutants
-authors: Konstantin	Kuznetsov, Alessio	Gambi, Saikrishna Dhiddi, Julia Hess, Rahul	Gopinath	
+authors: Konstantin Kuznetsov, Alessio Gambi, Saikrishna Dhiddi, Julia Hess, Rahul Gopinath
 venue: ESEM
 kind: conference
 thesort: peerreviewed
