@@ -190,7 +190,7 @@ class CLIGraphics(Graphics):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
+If you want to run it in command line, change the `WebGraphics` here to `CLIGraphics`.
 
 <!--
 ############

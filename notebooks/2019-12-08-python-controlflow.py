@@ -68,7 +68,8 @@ class CLIGraphics(Graphics):
         graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
         self.i += 1
 
-# 
+# If you want to run it in command line, change the `WebGraphics` here to `CLIGraphics`.
+
 if __name__ == '__main__':
     graphics = WebGraphics()
  
