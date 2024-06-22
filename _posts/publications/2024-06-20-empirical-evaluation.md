@@ -20,5 +20,5 @@ Method. In this paper, we report the results of a large-scale empirical study on
 
 Result. Our investigation suggests that the considered statistical estimators lack sufficient predictive power and cannot produce reliable or useful estimates of killable mutants.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>]("paper" /resources/esem2024/kuznetzov2024an.pdf)
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/esem2024/kuznetzov2024an.pdf "paper")
 
