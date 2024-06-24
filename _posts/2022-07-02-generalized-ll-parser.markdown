@@ -3921,11 +3921,23 @@ def format_parsetree(t):
 <div name='python_canvas'></div>
 </form>
 **Note**: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
-```py
-gamma_2 = { "<S>": [ ["<S>", "<S>", "<S>"], ["<S>", "<S>"], ["s"],] }
-ee = EnhancedExtractor(forest)
-ee.extract_a_tree()
 ```
+gamma_2 = { "<S>":
+           [['<S1>'],
+            ['<S2>'],
+            ["s"],],
+           '<S1>': [["<S>", "<S>", "<S>"]],
+           '<S2>': [["<S>", "<S>"]]
+           }
+p = compile_grammar(gamma_2)
+f = p.recognize_on('ssss', '<S>')
+ee = EnhancedExtractor(f)
+r = ee.extract_a_tree()
+print(format_parsetree(r))
+v = fuzzer.tree_to_string(r)
+print(v)
+```
+
 will extract the wrong tree for `ssss`. I have not solved the issue so far. If you find the issue, please drop me a note.
 
 **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation). Unfortunately, I did not have access to this when I was developing this post, which means that there might be bugs (such as above) in my code, and in case of such bugs please refer to this repository for an authoritative implementation.
