@@ -43,9 +43,10 @@ that produced an execution closest to the target program element has a better
 chance of producing inputs that are even more closer than mutating inputs that
 produced executions that were more farther.
 
-In this post, I will be covering two simple techniques -- *approach level*
-(also called *approximation level*) and *branch distance* that can be used
-for computing the execution distance of inputs.
+In this post, I will be covering *approach level*
+(also called *approximation level*) a metric that can be used
+for computing the execution distance of inputs. Approach level was first
+proposed by Wegener et al.[^wegener2001]
 
 As before, we start by importing the prerequisites
 
@@ -952,6 +953,7 @@ input. We choose all inputs (based on our population size) that have the least
 approach level, and use that for evolution.
 
 [^korel1990]: Bogdan Korel. "Automated software test data generation." IEEE Transactions on software engineering, 1990
+[^wegener2001]: J. Wegener, A. Baresel, and H. Sthamer. "Evolutionary test environment for automatic structural testing." Information and software technology, 2001
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
