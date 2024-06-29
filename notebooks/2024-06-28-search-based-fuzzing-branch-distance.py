@@ -177,10 +177,12 @@ CmpOP = {
           ast.LtE: lambda self, a, b:  0 if a <= b else (a - b) + self.K,
           ast.Gt: lambda self, a, b: 0 if a > b else (b - a) + self.K,
           ast.GtE: lambda self, a, b:  0 if a >= b else (b - a) + self.K,
-          ast.Is: lambda self, a, b: 0 if a is b else self.K, # not in traditional
-          ast.IsNot: lambda self, a, b:  0 if a is not b else self.K, # not in traditional
-          ast.In: lambda self, a, b: 0 if a in b else self.K, # not in traditional
-          ast.NotIn: lambda self, a, b: 0 if a not in b else self.K, # not in traditional
+          # The following are not in traditional branch distance,
+          # but we can make an informed guess.
+          ast.Is: lambda self, a, b: 0 if a is b else self.K,
+          ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
+          ast.In: lambda self, a, b: 0 if a in b else self.K,
+          ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
 }
 
 BoolOP = {
