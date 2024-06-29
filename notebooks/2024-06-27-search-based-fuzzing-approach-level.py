@@ -97,7 +97,7 @@ class CLIGraphics(Graphics):
 # Change WebGraphics to CLIGraphics here if you want to run from the command line
 
 if __name__ == '__main__':
-    graphics = CLIGraphics()
+    graphics = WebGraphics()
 
 # More helper functions for visualization from the control flow post.
 

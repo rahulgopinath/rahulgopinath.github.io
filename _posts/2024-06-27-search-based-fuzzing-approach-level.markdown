@@ -209,13 +209,13 @@ Change WebGraphics to CLIGraphics here if you want to run from the command line
 
 <!--
 ############
-graphics = CLIGraphics()
+graphics = WebGraphics()
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-graphics = CLIGraphics()
+graphics = WebGraphics()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
