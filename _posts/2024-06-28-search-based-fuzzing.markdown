@@ -1,0 +1,953 @@
+---
+published: true
+title: Search Based Fuzzing with Approach Distance and Branch Distance
+layout: post
+comments: true
+tags: search fuzzing
+categories: post
+---
+ 
+Fuzzing is one of the more easy to use and efficient means of testing software
+systems. The idea is that we produce random inputs that are then executed by
+the system. If the system does something unexpected (such as crashing) then we
+know that the path taken by the execution was not considered by the
+programmer, and that such a path may be exploited to make the program do
+something that was unintended by the developer.
+
+However, simply throwing random inputs at the program does not work well
+beyond a point. The issue is that the vast majority of such inputs will be
+rejected by common validations present in the program, and hence will not
+penetrate deep into the program. If there are say ten validations in the
+input processing section of the program, and there is 0.5 probability at
+each branch point for failing the validation, only one out of thousand inputs
+will successfully traverse the input processing stage. This ratio can worsen
+quickly when loops and recursion is present, leaving a majority of statements
+in the program uncovered.
+
+One possible solution to enable better coverage of the program is to guide
+new inputs toward statements branches and paths that were not taken
+previously. This is the basic intuition behind search based testing.
+The field of search based software testing starts from Korel [^korel1990] in
+1990.
+
+Directed fuzzing leverages intuitions behind search based testing for
+generating inputs.
+The idea is that given a set of inputs, and a set of uncovered program
+elements we compute how far away each input execution is from the uncovered
+program elements. Then, if we want to new inputs to cover these uncovered
+elements, we choose those inputs that produced executions that are closest to
+the targeted element, mutate them, generating new inputs, and execute these
+inputs, and choose those that produce executions that are closest to the
+required program element. The intuition here is that mutating those inputs
+that produced an execution closest to the target program element has a better
+chance of producing inputs that are even more closer than mutating inputs that
+produced executions that were more farther.
+
+In this post, I will be covering two simple techniques -- *approach level*
+(also called *approximation level*) and *branch distance* that can be used
+for computing the execution distance of inputs.
+
+As before, we start by importing the prerequisites
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+<details>
+<summary>Available Packages </summary>
+<!--##### Available Packages-->
+
+These are packages that refer either to my previous posts or to pure python
+packages that I have compiled, and is available in the below locations. As
+before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
+
+<ol>
+<li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/pycfg-0.0.1-py2.py3-none-any.whl">pycfg-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/08/python-controlflow/">The Python Control Flow Graph</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">pydot-1.4.1-py2.py3-none-any.whl</a></li>
+<li><a href="https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl">metacircularinterpreter-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/07/python-mci/">Python Meta Circular Interpreter</a>".</li>
+</ol>
+
+<div style='display:none'>
+<form name='python_run_form'>
+<textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
+https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/pycfg-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/metacircularinterpreter-0.0.1-py2.py3-none-any.whl
+</textarea>
+</form>
+</div>
+</details>
+
+<!--
+############
+import random
+import simplefuzzer as fuzzer
+import pycfg
+
+import pydot
+import textwrap as tw
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import random
+import simplefuzzer as fuzzer
+import pycfg
+
+import pydot
+import textwrap as tw
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Visualization prerequisites
+If you are unfamiliar with control-flow, please see the
+[post on control flow](/post/2019/12/08/python-controlflow/)
+to understand what control flow is about.
+
+From the same post, we need a few visualization functions, which we redefine,
+as they are slightly different.
+
+<!--
+############
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
+
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Graphics:
+    def display_dot(self, dotsrc):
+        raise NotImplemented
+
+class WebGraphics(Graphics):
+    def display_dot(self, dotsrc):
+        __canvas__(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Use CLIGraphics if you are running from the command line
+
+<!--
+############
+class CLIGraphics(Graphics):
+    def __init__(self):
+        global graphviz
+        import graphviz
+        globals()['graphviz'] = graphviz
+        self.i = 0
+
+    def display_dot(self, dotsrc):
+        graphviz.Source(dotsrc).render(format='png', outfile='%s.png' % self.i)
+        self.i += 1
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CLIGraphics(Graphics):
+    def __init__(self):
+        global graphviz
+        import graphviz
+        globals()[&#x27;graphviz&#x27;] = graphviz
+        self.i = 0
+
+    def display_dot(self, dotsrc):
+        graphviz.Source(dotsrc).render(format=&#x27;png&#x27;, outfile=&#x27;%s.png&#x27; % self.i)
+        self.i += 1
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Change WebGraphics to CLIGraphics here if you want to run from the command line
+
+<!--
+############
+graphics = CLIGraphics()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+graphics = CLIGraphics()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+More helper functions for visualization from the control flow post.
+
+<!--
+############
+def get_color(p, c):
+    color='black'
+    while not p.annotation():
+        if p.label == 'if:True':
+            return 'blue'
+        elif p.label == 'if:False':
+            return 'red'
+        p = p.parents[0]
+    return color
+
+def get_peripheries(p):
+    annot = p.annotation()
+    if annot  in {'<start>', '<stop>'}:
+        return '2'
+    if annot.startswith('<define>') or annot.startswith('<exit>'):
+        return '2'
+    return '1'
+
+def get_shape(p):
+    annot = p.annotation()
+    if annot in {'<start>', '<stop>'}:
+        return 'oval'
+    if annot.startswith('<define>') or annot.startswith('<exit>'):
+        return 'oval'
+
+    if annot.startswith('if:'):
+        return 'diamond'
+    else:
+        return 'rectangle'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_color(p, c):
+    color=&#x27;black&#x27;
+    while not p.annotation():
+        if p.label == &#x27;if:True&#x27;:
+            return &#x27;blue&#x27;
+        elif p.label == &#x27;if:False&#x27;:
+            return &#x27;red&#x27;
+        p = p.parents[0]
+    return color
+
+def get_peripheries(p):
+    annot = p.annotation()
+    if annot  in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;2&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;2&#x27;
+    return &#x27;1&#x27;
+
+def get_shape(p):
+    annot = p.annotation()
+    if annot in {&#x27;&lt;start&gt;&#x27;, &#x27;&lt;stop&gt;&#x27;}:
+        return &#x27;oval&#x27;
+    if annot.startswith(&#x27;&lt;define&gt;&#x27;) or annot.startswith(&#x27;&lt;exit&gt;&#x27;):
+        return &#x27;oval&#x27;
+
+    if annot.startswith(&#x27;if:&#x27;):
+        return &#x27;diamond&#x27;
+    else:
+        return &#x27;rectangle&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Finally the to_graph stitches all these together.
+
+<!--
+############
+def to_graph(my_nodes, arcs=[], comment='',
+             get_shape=lambda n: 'rectangle',
+             get_peripheries=lambda n: '1', get_color=lambda p,c: 'black'):
+    G = pydot.Dot(comment, graph_type="digraph")
+    for nid, cnode in my_nodes:
+        if not cnode.annotation():
+            continue
+        sn = '%s: %s' % (nid, cnode.annotation())
+        G.add_node(pydot.Node(cnode.name(),
+                              label=sn,
+                              shape=get_shape(cnode),
+                              peripheries=get_peripheries(cnode)))
+        for pn in cnode.parents:
+            gp = pn.get_gparent_id()
+            color = get_color(pn, cnode)
+            G.add_edge(pydot.Edge(gp, str(cnode.rid), color=color))
+    return G
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def to_graph(my_nodes, arcs=[], comment=&#x27;&#x27;,
+             get_shape=lambda n: &#x27;rectangle&#x27;,
+             get_peripheries=lambda n: &#x27;1&#x27;, get_color=lambda p,c: &#x27;black&#x27;):
+    G = pydot.Dot(comment, graph_type=&quot;digraph&quot;)
+    for nid, cnode in my_nodes:
+        if not cnode.annotation():
+            continue
+        sn = &#x27;%s: %s&#x27; % (nid, cnode.annotation())
+        G.add_node(pydot.Node(cnode.name(),
+                              label=sn,
+                              shape=get_shape(cnode),
+                              peripheries=get_peripheries(cnode)))
+        for pn in cnode.parents:
+            gp = pn.get_gparent_id()
+            color = get_color(pn, cnode)
+            G.add_edge(pydot.Edge(gp, str(cnode.rid), color=color))
+    return G
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us consider the triangle function. This is a simple function that given
+three sides of a triangle, tells you what kind of a triangle it is.
+
+<!--
+############
+triangle = '''\
+def triangle(a, b, c):
+    if a == b:
+        if b == c:
+            return 'Equilateral'
+        else:
+            return 'Isosceles'
+    else:
+        if b == c:
+            return "Isosceles"
+        else:
+            if a == c:
+                return "Isosceles"
+            else:
+                return "Scalene"
+'''
+cfge = pycfg.PyCFGExtractor()
+cfge.eval(tw.dedent(triangle))
+g = to_graph(cfge.gstate.registry.items(),
+         get_color=get_color,
+         get_peripheries=get_peripheries,
+         get_shape=get_shape)
+graphics.display_dot(g.to_string())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+triangle = &#x27;&#x27;&#x27;\
+def triangle(a, b, c):
+    if a == b:
+        if b == c:
+            return &#x27;Equilateral&#x27;
+        else:
+            return &#x27;Isosceles&#x27;
+    else:
+        if b == c:
+            return &quot;Isosceles&quot;
+        else:
+            if a == c:
+                return &quot;Isosceles&quot;
+            else:
+                return &quot;Scalene&quot;
+&#x27;&#x27;&#x27;
+cfge = pycfg.PyCFGExtractor()
+cfge.eval(tw.dedent(triangle))
+g = to_graph(cfge.gstate.registry.items(),
+         get_color=get_color,
+         get_peripheries=get_peripheries,
+         get_shape=get_shape)
+graphics.display_dot(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another example, which is the GCD of two numbers.
+
+<!--
+############
+gcd = '''
+def gcd(a,b):
+    if a < b:
+        c = a
+        a = b
+        b = c
+    while b != 0:
+        c = a
+        a = b
+        b = c % b
+    return a
+'''
+cfge = pycfg.PyCFGExtractor()
+cfge.eval(tw.dedent(gcd))
+g = to_graph(cfge.gstate.registry.items(),
+         get_color=get_color,
+         get_peripheries=get_peripheries,
+         get_shape=get_shape)
+graphics.display_dot(g.to_string())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gcd = &#x27;&#x27;&#x27;
+def gcd(a,b):
+    if a &lt; b:
+        c = a
+        a = b
+        b = c
+    while b != 0:
+        c = a
+        a = b
+        b = c % b
+    return a
+&#x27;&#x27;&#x27;
+cfge = pycfg.PyCFGExtractor()
+cfge.eval(tw.dedent(gcd))
+g = to_graph(cfge.gstate.registry.items(),
+         get_color=get_color,
+         get_peripheries=get_peripheries,
+         get_shape=get_shape)
+graphics.display_dot(g.to_string())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Extract control-flow-graph in JSON
+Next, we need a helper function to extract the control flow graph.
+Note, function definitions do not have a parent.
+
+<!--
+############
+import ast
+def get_fn_cfg(src):
+    m = ast.parse(src)
+    name = m.body[0].name
+
+    parent_keys = {}
+    child_keys = {}
+    cfg = pycfg.PyCFGExtractor()
+    cfg.eval(src)
+    cache = cfg.gstate.registry
+    g = {}
+
+    for k,v in cache.items():
+        j = v.to_json()
+        at_key = 'id' # use the id rather than line number
+        at = j[at_key]
+        parents_at = [cache[p].to_json()[at_key] for p in j['parents']]
+        children_at = [cache[c].to_json()[at_key] for c in j['children']]
+        if at not in g:
+            g[at] = {'parents':set(), 'children':set()}
+        # remove dummy nodes
+        ps = set([p for p in parents_at if p != at])
+        cs = set([c for c in children_at if c != at])
+        g[at]['parents'] |= ps
+        g[at]['children'] |= cs
+
+    start, stop = cfg.functions[name]
+    return (g, start.rid, stop.rid)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import ast
+def get_fn_cfg(src):
+    m = ast.parse(src)
+    name = m.body[0].name
+
+    parent_keys = {}
+    child_keys = {}
+    cfg = pycfg.PyCFGExtractor()
+    cfg.eval(src)
+    cache = cfg.gstate.registry
+    g = {}
+
+    for k,v in cache.items():
+        j = v.to_json()
+        at_key = &#x27;id&#x27; # use the id rather than line number
+        at = j[at_key]
+        parents_at = [cache[p].to_json()[at_key] for p in j[&#x27;parents&#x27;]]
+        children_at = [cache[c].to_json()[at_key] for c in j[&#x27;children&#x27;]]
+        if at not in g:
+            g[at] = {&#x27;parents&#x27;:set(), &#x27;children&#x27;:set()}
+        # remove dummy nodes
+        ps = set([p for p in parents_at if p != at])
+        cs = set([c for c in children_at if c != at])
+        g[at][&#x27;parents&#x27;] |= ps
+        g[at][&#x27;children&#x27;] |= cs
+
+    start, stop = cfg.functions[name]
+    return (g, start.rid, stop.rid)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us consider our triangle.
+
+<!--
+############
+tri_cfg, tri_first, tri_last = get_fn_cfg(tw.dedent(triangle))
+for k in tri_cfg: print(k, tri_cfg[k])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+tri_cfg, tri_first, tri_last = get_fn_cfg(tw.dedent(triangle))
+for k in tri_cfg: print(k, tri_cfg[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The GCD
+
+<!--
+############
+gcd_cfg, gcd_first, gcd_last = get_fn_cfg(tw.dedent(gcd))
+for k in gcd_cfg: print(k, gcd_cfg[k])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gcd_cfg, gcd_first, gcd_last = get_fn_cfg(tw.dedent(gcd))
+for k in gcd_cfg: print(k, gcd_cfg[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, we are ready for the main content.
+
+## Approach Level
+
+How do you compute the distance between an execution and a program element?
+The approach level says that given an execution path, the distance is given
+by how many critical branches there are between the program element and the
+execution. A critical branch is a branch that, once taken, removes the target
+from reachable nodes. More intuitively, it is the number of potential problem
+nodes that lay on the shortest path from the closest node that diverted
+control flow away from the target goal node. Stated otherwise, approach level
+gives the minimum number of control dependencies between the goal and
+the execution path of the current input.
+
+A is *control dependent* on B if and only if the following are true:
+
+* B has two successors
+* B dominates A
+* B is not post-dominated by A
+* There is a successor of B that is post dominated by A.
+
+So, let us start defining these. The simplest is the successors
+
+### Successors
+
+<!--
+############
+def successors(cfg, a, key='children'):
+    seen = set()
+    successors = list(cfg[a][key])
+    to_process = list(successors)
+    while to_process:
+        nodeid, *to_process = to_process
+        seen.add(nodeid)
+        new_children = [c for c in cfg[nodeid][key] if c not in seen]
+        successors.extend(new_children)
+        to_process.extend(new_children)
+    return set(successors)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def successors(cfg, a, key=&#x27;children&#x27;):
+    seen = set()
+    successors = list(cfg[a][key])
+    to_process = list(successors)
+    while to_process:
+        nodeid, *to_process = to_process
+        seen.add(nodeid)
+        new_children = [c for c in cfg[nodeid][key] if c not in seen]
+        successors.extend(new_children)
+        to_process.extend(new_children)
+    return set(successors)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it.
+
+<!--
+############
+s = successors(gcd_cfg, gcd_first)
+print(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = successors(gcd_cfg, gcd_first)
+print(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Same with triangle.
+
+<!--
+############
+s = successors(tri_cfg, tri_first)
+print(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = successors(tri_cfg, tri_first)
+print(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we define the dominator.
+
+### Dominator
+
+From the wiki, a node $A$ on a control-flow graph dominates a node $$ B $$ if
+every path from the entry node to $$ B $$ must go through $$ A $$. It is 
+typically written as $$ A >> B $$. A *post dominates* B if every path from
+$$ B $$ must go through $$ A $$.
+
+Let us see how to compute the dominator set.
+
+<!--
+############
+def compute_dominator(cfg, start = 0, key='parents'):
+    dominator = {}
+    dominator[start] = {start}
+    all_nodes = set(cfg.keys())
+    rem_nodes = all_nodes - {start}
+    for n in rem_nodes:
+        dominator[n] = all_nodes
+
+    c = True
+    while c:
+        c = False
+        for n in rem_nodes:
+            pred_n = cfg[n][key]
+            doms = [dominator[p] for p in pred_n]
+            i = set.intersection(*doms) if doms else set()
+            v = {n} | i
+            if dominator[n] != v:
+                c = True
+            dominator[n] = v
+    return dominator
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compute_dominator(cfg, start = 0, key=&#x27;parents&#x27;):
+    dominator = {}
+    dominator[start] = {start}
+    all_nodes = set(cfg.keys())
+    rem_nodes = all_nodes - {start}
+    for n in rem_nodes:
+        dominator[n] = all_nodes
+
+    c = True
+    while c:
+        c = False
+        for n in rem_nodes:
+            pred_n = cfg[n][key]
+            doms = [dominator[p] for p in pred_n]
+            i = set.intersection(*doms) if doms else set()
+            v = {n} | i
+            if dominator[n] != v:
+                c = True
+            dominator[n] = v
+    return dominator
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it for GCD
+
+<!--
+############
+dom = compute_dominator(gcd_cfg, start=gcd_first)
+for k in dom:
+    print(k, dom[k])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dom = compute_dominator(gcd_cfg, start=gcd_first)
+for k in dom:
+    print(k, dom[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For Triangle
+
+<!--
+############
+dom = compute_dominator(tri_cfg, start=tri_first)
+for k in dom:
+    print(k, dom[k])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dom = compute_dominator(tri_cfg, start=tri_first)
+for k in dom:
+    print(k, dom[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Control Dependent
+
+We can now define control dependence directly.
+
+<!--
+############
+def a_control_dependent_on_b(cfg, dom, postdom, a, b):
+    # B has at least 2 successors in CFG
+    if len(cfg[b]['children']) < 2: return False
+
+    b_successors = successors(cfg, b)
+    # B dominates A
+    v1 = b in dom[a]
+    # B is not post dominated by A
+    v2 = a not in postdom[b]
+    # there exist a successor for B that is post dominated by A
+    v3 = any(a in postdom[s] for s in b_successors)
+    return v1 and v2 and v3
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def a_control_dependent_on_b(cfg, dom, postdom, a, b):
+    # B has at least 2 successors in CFG
+    if len(cfg[b][&#x27;children&#x27;]) &lt; 2: return False
+
+    b_successors = successors(cfg, b)
+    # B dominates A
+    v1 = b in dom[a]
+    # B is not post dominated by A
+    v2 = a not in postdom[b]
+    # there exist a successor for B that is post dominated by A
+    v3 = any(a in postdom[s] for s in b_successors)
+    return v1 and v2 and v3
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it. Note how node 8 is control dependent on 6 from the main figure.
+
+<!--
+############
+gcd_dom = compute_dominator(gcd_cfg, start=gcd_first)
+gcd_postdom = compute_dominator(gcd_cfg, start=gcd_last, key='children')
+c = a_control_dependent_on_b(gcd_cfg, gcd_dom, gcd_postdom, 8, 6)
+print(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gcd_dom = compute_dominator(gcd_cfg, start=gcd_first)
+gcd_postdom = compute_dominator(gcd_cfg, start=gcd_last, key=&#x27;children&#x27;)
+c = a_control_dependent_on_b(gcd_cfg, gcd_dom, gcd_postdom, 8, 6)
+print(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+For triangle
+Note how node 22 is control dependent on 6 from the main figure.
+
+<!--
+############
+tri_dom = compute_dominator(tri_cfg, start=tri_first)
+tri_postdom = compute_dominator(tri_cfg, start=tri_last, key='children')
+c = a_control_dependent_on_b(tri_cfg, tri_dom, tri_postdom, 22, 6)
+print(c)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+tri_dom = compute_dominator(tri_cfg, start=tri_first)
+tri_postdom = compute_dominator(tri_cfg, start=tri_last, key=&#x27;children&#x27;)
+c = a_control_dependent_on_b(tri_cfg, tri_dom, tri_postdom, 22, 6)
+print(c)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Approach Level of given path
+Next, we compute the approach level of a given path. The idea is that we may
+have reached the head of the path, and we have a potential path from the head
+node to the tail node. We now want to find how far away the head is from the
+tail. We first define a small class to hold the path.
+
+<!--
+############
+class PathFitness:
+    def __init__(self, cfg, dom, postdom):
+        self.cfg = cfg
+        self.dom = dom
+        self.postdom = postdom
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class PathFitness:
+    def __init__(self, cfg, dom, postdom):
+        self.cfg = cfg
+        self.dom = dom
+        self.postdom = postdom
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, the approach level itself. We need to go from the tail to the head.
+Remember that our target is the last node. That is, if we reverse the path,
+then the first node (hd).
+
+<!--
+############
+def approach_level(cfg, dom, postdom, path):
+    hd, *tl = reversed(path)
+    return _approach_level(cfg, dom, postdom, hd, tl)
+
+def _approach_level(cfg, dom, postdom, target, path):
+    if not path: return 0
+    # find the node
+    nxt_target = None
+    while path:
+        n, *path = path
+        if a_control_dependent_on_b(cfg, dom, postdom, target, n):
+            nxt_target = n
+            break
+    cost = 1 if nxt_target is not None else 0
+    return cost + _approach_level(cfg, dom, postdom, nxt_target, path)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def approach_level(cfg, dom, postdom, path):
+    hd, *tl = reversed(path)
+    return _approach_level(cfg, dom, postdom, hd, tl)
+
+def _approach_level(cfg, dom, postdom, target, path):
+    if not path: return 0
+    # find the node
+    nxt_target = None
+    while path:
+        n, *path = path
+        if a_control_dependent_on_b(cfg, dom, postdom, target, n):
+            nxt_target = n
+            break
+    cost = 1 if nxt_target is not None else 0
+    return cost + _approach_level(cfg, dom, postdom, nxt_target, path)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it for triangle
+
+<!--
+############
+ffn = PathFitness(tri_cfg, tri_dom, tri_postdom)
+print('TRI Approach Level %d' % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 30, 36]))
+print('TRI Approach Level %d' % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 30]))
+print('TRI Approach Level %d' % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 25]))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ffn = PathFitness(tri_cfg, tri_dom, tri_postdom)
+print(&#x27;TRI Approach Level %d&#x27; % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 30, 36]))
+print(&#x27;TRI Approach Level %d&#x27; % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 30]))
+print(&#x27;TRI Approach Level %d&#x27; % approach_level(tri_cfg, tri_dom, tri_postdom, [1, 6, 22, 25]))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it for GCD
+
+<!--
+############
+ffn = PathFitness(gcd_cfg, gcd_dom, gcd_postdom)
+print('GCD Approach Level %d' % approach_level(gcd_cfg, gcd_dom, gcd_postdom, [1, 6, 8, 10, 12, 15, 19, 31]))
+print('GCD Approach Level %d' % approach_level(gcd_cfg, gcd_dom, gcd_postdom, [1, 6, 15, 19, 31]))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+ffn = PathFitness(gcd_cfg, gcd_dom, gcd_postdom)
+print(&#x27;GCD Approach Level %d&#x27; % approach_level(gcd_cfg, gcd_dom, gcd_postdom, [1, 6, 8, 10, 12, 15, 19, 31]))
+print(&#x27;GCD Approach Level %d&#x27; % approach_level(gcd_cfg, gcd_dom, gcd_postdom, [1, 6, 15, 19, 31]))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+[^korel1990]: Bogdan Korel. "Automated software test data generation." IEEE Transactions on software engineering, 1990
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2024-06-28-search-based-fuzzing.py).
+
+
