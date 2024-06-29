@@ -1,6 +1,6 @@
 ---
 published: true
-title: Search Based Fuzzing with Approach Distance and Branch Distance
+title: Search Based Fuzzing with Approach Level
 layout: post
 comments: true
 tags: search fuzzing
@@ -940,6 +940,17 @@ print(&#x27;GCD Approach Level %d&#x27; % approach_level(gcd_cfg, gcd_dom, gcd_p
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+So, how do you use this for fuzzing? Given a program, and an uncovered
+program element such as a node (the target), we find all nodesin the program
+from which we can reach the uncovered node. Next, we compute the shortest path
+from such nodes to the target node. Then we compute the approach level to the
+target for each of these nodes. Given an input, we compute all the nodes that
+it covers, then identify all the nodes from which it can *reach* the target
+node, and finally, we find the node with the *minimum* of the approach levels
+that we computed previously. This would be the score of the corresponding
+input. We choose all inputs (based on our population size) that have the least
+approach level, and use that for evolution.
+
 [^korel1990]: Bogdan Korel. "Automated software test data generation." IEEE Transactions on software engineering, 1990
 
 <form name='python_run_form'>
@@ -948,6 +959,6 @@ print(&#x27;GCD Approach Level %d&#x27; % approach_level(gcd_cfg, gcd_dom, gcd_p
 
 ## Artifacts
 
-The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2024-06-28-search-based-fuzzing.py).
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2024-06-27-search-based-fuzzing-approach-level.py).
 
 
