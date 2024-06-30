@@ -1,6 +1,6 @@
 ---
 published: true
-title: Search Based Fuzzing with Branch Distance
+title: Search Based Fuzzing -- Computing Branch Distance
 layout: post
 comments: true
 tags: search fuzzing
