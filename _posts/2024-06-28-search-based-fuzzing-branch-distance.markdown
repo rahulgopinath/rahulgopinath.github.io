@@ -1048,8 +1048,11 @@ class BDInterpreter(BDInterpreter):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We need one more step. That is, if we find a `Not`, we need to distributed it
-inside, inverting any comparisons. For that, we need a DistributeNot class
+We need one more step. That is, we need to run the evaluator. In the below, we
+assume that we need to take the `True` branch. Hence, we use the `normal_ast` to
+find how to flip from the `False` branch. If on the other hand, you want to flip
+from the `True` branch to `False` branch of the conditional, then you need the
+`negated_ast`.
 
 <!--
 ############
@@ -1057,12 +1060,12 @@ class BDInterpreter(BDInterpreter):
     def eval(self, src, K=1):
         self.K = K
         myast = self.parse(src)
-        print(ast.unparse(myast))
+        #print(ast.unparse(myast))
         normal_ast = DistributeNot().walk(myast)
-        print(ast.unparse(normal_ast))
+        #print(ast.unparse(normal_ast))
         myast = self.parse(src)
         negated_ast = NegateDistributeNot().walk(myast)
-        print(ast.unparse(negated_ast))
+        #print(ast.unparse(negated_ast))
         # use the negated_ast if you are using the false branch.
         return self.walk(normal_ast)
 
@@ -1074,27 +1077,36 @@ class BDInterpreter(BDInterpreter):
     def eval(self, src, K=1):
         self.K = K
         myast = self.parse(src)
-        print(ast.unparse(myast))
+        #print(ast.unparse(myast))
         normal_ast = DistributeNot().walk(myast)
-        print(ast.unparse(normal_ast))
+        #print(ast.unparse(normal_ast))
         myast = self.parse(src)
         negated_ast = NegateDistributeNot().walk(myast)
-        print(ast.unparse(negated_ast))
+        #print(ast.unparse(negated_ast))
         # use the negated_ast if you are using the false branch.
         return self.walk(normal_ast)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Let us try to make it run
+Let us try to make it run. Note that the examples would typically be present
+in code as
+```
+if a>b:
+   # target branch
+   print('Hello') 
+else:
+   # this branch was taken.
+   print('Hi') 
+```
 
 <!--
 ############
 bd = BDInterpreter({'a':10, 'b':20}, [])
-r = bd.eval('not a>b')
-assert r == 0
 r = bd.eval('a>b')
 assert r == 11
+r = bd.eval('not a>b')
+assert r == 0
 r = bd.eval('a>b or a<(20*b)')
 assert r == 0
 r = bd.eval('not (a>b or a< (2 + b))')
@@ -1105,10 +1117,10 @@ assert r == 13
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 bd = BDInterpreter({&#x27;a&#x27;:10, &#x27;b&#x27;:20}, [])
-r = bd.eval(&#x27;not a&gt;b&#x27;)
-assert r == 0
 r = bd.eval(&#x27;a&gt;b&#x27;)
 assert r == 11
+r = bd.eval(&#x27;not a&gt;b&#x27;)
+assert r == 0
 r = bd.eval(&#x27;a&gt;b or a&lt;(20*b)&#x27;)
 assert r == 0
 r = bd.eval(&#x27;not (a&gt;b or a&lt; (2 + b))&#x27;)
