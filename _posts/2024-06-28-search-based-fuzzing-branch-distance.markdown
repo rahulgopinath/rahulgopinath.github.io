@@ -224,30 +224,6 @@ for (x_, y_) in zip(xs, ys):
     print(v_)
     minxy.append((x_, y_, v_))
 print(minxy)
-# That is, as per this computation, 0, 0 is closer to flipping the branch.
-# let us explore the neighbours again
-X, Y, v = 0, 0, 2
-minxy = [(X, Y, v)]
-xs = [X-1, X, X+1]
-ys = [Y-1, Y, Y+1]
-for (x_, y_) in zip(xs, ys):
-    v_ = abs(x_ - 2*(y_+1))
-    print(v_)
-    minxy.append((x_, y_, v_))
-print(minxy)
-# again
-X, Y, v = -1, -1, 1
-minxy = [(X, Y, v)]
-xs = [X-1, X, X+1]
-ys = [Y-1, Y, Y+1]
-for (x_, y_) in zip(xs, ys):
-    v_ = abs(x_ - 2*(y_+1))
-    print(v_)
-    minxy.append((x_, y_, v_))
-print(minxy)
-# at this point, we have a zero
-v = test_me(-2, -2)
-print(v)
 
 ############
 -->
@@ -261,8 +237,15 @@ for (x_, y_) in zip(xs, ys):
     print(v_)
     minxy.append((x_, y_, v_))
 print(minxy)
-# That is, as per this computation, 0, 0 is closer to flipping the branch.
-# let us explore the neighbours again
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+That is, as per this computation, 0, 0 is closer to flipping the branch.
+let us explore the neighbours again
+
+<!--
+############
 X, Y, v = 0, 0, 2
 minxy = [(X, Y, v)]
 xs = [X-1, X, X+1]
@@ -272,7 +255,27 @@ for (x_, y_) in zip(xs, ys):
     print(v_)
     minxy.append((x_, y_, v_))
 print(minxy)
-# again
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+X, Y, v = 0, 0, 2
+minxy = [(X, Y, v)]
+xs = [X-1, X, X+1]
+ys = [Y-1, Y, Y+1]
+for (x_, y_) in zip(xs, ys):
+    v_ = abs(x_ - 2*(y_+1))
+    print(v_)
+    minxy.append((x_, y_, v_))
+print(minxy)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+again
+
+<!--
+############
 X, Y, v = -1, -1, 1
 minxy = [(X, Y, v)]
 xs = [X-1, X, X+1]
@@ -282,7 +285,35 @@ for (x_, y_) in zip(xs, ys):
     print(v_)
     minxy.append((x_, y_, v_))
 print(minxy)
-# at this point, we have a zero
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+X, Y, v = -1, -1, 1
+minxy = [(X, Y, v)]
+xs = [X-1, X, X+1]
+ys = [Y-1, Y, Y+1]
+for (x_, y_) in zip(xs, ys):
+    v_ = abs(x_ - 2*(y_+1))
+    print(v_)
+    minxy.append((x_, y_, v_))
+print(minxy)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+at this point, we have a zero
+
+<!--
+############
+v = test_me(-2, -2)
+print(v)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 v = test_me(-2, -2)
 print(v)
 </textarea><br />
@@ -319,7 +350,7 @@ class BDInterpreter(mci.PySemantics):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Let us now run it and see.
+Here is a quick check to show that the meta-circular interpreter works expected.
 
 <!--
 ############
@@ -925,94 +956,49 @@ assert ast.unparse(res) == &#x27;a &gt; b&#x27;
 <div name='python_canvas'></div>
 </form>
 We can now define branch distance conversions in `BDInterpreter` class.
-
-<!--
-############
-CmpOP = {
-          ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
-          ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
-          ast.Lt: lambda self, a, b: 0 if a < b else (a - b) + self.K,
-          ast.LtE: lambda self, a, b:  0 if a <= b else (a - b) + self.K,
-          ast.Gt: lambda self, a, b: 0 if a > b else (b - a) + self.K,
-          ast.GtE: lambda self, a, b:  0 if a >= b else (b - a) + self.K,
-          # The following are not in traditional branch distance,
-          # but we can make an informed guess.
-          ast.Is: lambda self, a, b: 0 if a is b else self.K,
-          ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
-          ast.In: lambda self, a, b: 0 if a in b else self.K,
-          ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
-}
-
-BoolOP = {
-          ast.And: lambda a, b: a + b,
-          ast.Or: lambda a, b: min(a, b)
-}
-
-UnaryOP = {
-          ast.Invert: lambda self, a: self.K,
-          ast.Not: lambda self, a: self.K,
-          ast.UAdd: lambda self, a: self.K,
-          ast.USub: lambda self, a: self.K
-}
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-CmpOP = {
-          ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
-          ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
-          ast.Lt: lambda self, a, b: 0 if a &lt; b else (a - b) + self.K,
-          ast.LtE: lambda self, a, b:  0 if a &lt;= b else (a - b) + self.K,
-          ast.Gt: lambda self, a, b: 0 if a &gt; b else (b - a) + self.K,
-          ast.GtE: lambda self, a, b:  0 if a &gt;= b else (b - a) + self.K,
-          # The following are not in traditional branch distance,
-          # but we can make an informed guess.
-          ast.Is: lambda self, a, b: 0 if a is b else self.K,
-          ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
-          ast.In: lambda self, a, b: 0 if a in b else self.K,
-          ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
-}
-
-BoolOP = {
-          ast.And: lambda a, b: a + b,
-          ast.Or: lambda a, b: min(a, b)
-}
-
-UnaryOP = {
-          ast.Invert: lambda self, a: self.K,
-          ast.Not: lambda self, a: self.K,
-          ast.UAdd: lambda self, a: self.K,
-          ast.USub: lambda self, a: self.K
-}
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Inserting these into our `BDInterpreter` class.
+we want the comparator to have access to K. So we pass in `self`.
 
 <!--
 ############
 from functools import reduce
 class BDInterpreter(BDInterpreter):
-    def unaryop(self, val): return UnaryOP[val]
-
     def on_unaryop(self, node):
         v = self.walk(node.operand)
-        return self.unaryop(type(node.op))(v)
+        UnaryOP = {
+        ast.Invert: lambda self, a: self.K,
+        ast.Not: lambda self, a: self.K,
+        ast.UAdd: lambda self, a: self.K,
+        ast.USub: lambda self, a: self.K
+        }
+        return UnaryOP[type(node.op)](v)
 
-    def cmpop(self, val): return CmpOP[val]
-    # we want the comparator to have access to K. So we pass in `self`.
     def on_compare(self, node):
         hd = self.walk(node.left)
         op = node.ops[0]
         tl = self.walk(node.comparators[0])
-        return self.cmpop(type(op))(self, hd, tl)
+        CmpOP = {
+        ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
+        ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
+        ast.Lt: lambda self, a, b: 0 if a < b else (a - b) + self.K,
+        ast.LtE: lambda self, a, b:  0 if a <= b else (a - b) + self.K,
+        ast.Gt: lambda self, a, b: 0 if a > b else (b - a) + self.K,
+        ast.GtE: lambda self, a, b:  0 if a >= b else (b - a) + self.K,
+        # The following are not in traditional branch distance,
+        # but we can make an informed guess.
+        ast.Is: lambda self, a, b: 0 if a is b else self.K,
+        ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
+        ast.In: lambda self, a, b: 0 if a in b else self.K,
+        ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
+        }
+        return CmpOP[type(op)](self, hd, tl)
 
-    def boolop(self, val): return BoolOP[val]
     def on_boolop(self, node):
         vl = [self.walk(n) for n in node.values]
-        return reduce(self.boolop(type(node.op)), vl)
+        BoolOP = {
+        ast.And: lambda a, b: a + b,
+        ast.Or: lambda a, b: min(a, b)
+        }
+        return reduce(BoolOP[type(node.op)], vl)
 
 ############
 -->
@@ -1020,24 +1006,43 @@ class BDInterpreter(BDInterpreter):
 <textarea cols="40" rows="4" name='python_edit'>
 from functools import reduce
 class BDInterpreter(BDInterpreter):
-    def unaryop(self, val): return UnaryOP[val]
-
     def on_unaryop(self, node):
         v = self.walk(node.operand)
-        return self.unaryop(type(node.op))(v)
+        UnaryOP = {
+        ast.Invert: lambda self, a: self.K,
+        ast.Not: lambda self, a: self.K,
+        ast.UAdd: lambda self, a: self.K,
+        ast.USub: lambda self, a: self.K
+        }
+        return UnaryOP[type(node.op)](v)
 
-    def cmpop(self, val): return CmpOP[val]
-    # we want the comparator to have access to K. So we pass in `self`.
     def on_compare(self, node):
         hd = self.walk(node.left)
         op = node.ops[0]
         tl = self.walk(node.comparators[0])
-        return self.cmpop(type(op))(self, hd, tl)
+        CmpOP = {
+        ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
+        ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
+        ast.Lt: lambda self, a, b: 0 if a &lt; b else (a - b) + self.K,
+        ast.LtE: lambda self, a, b:  0 if a &lt;= b else (a - b) + self.K,
+        ast.Gt: lambda self, a, b: 0 if a &gt; b else (b - a) + self.K,
+        ast.GtE: lambda self, a, b:  0 if a &gt;= b else (b - a) + self.K,
+        # The following are not in traditional branch distance,
+        # but we can make an informed guess.
+        ast.Is: lambda self, a, b: 0 if a is b else self.K,
+        ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
+        ast.In: lambda self, a, b: 0 if a in b else self.K,
+        ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
+        }
+        return CmpOP[type(op)](self, hd, tl)
 
-    def boolop(self, val): return BoolOP[val]
     def on_boolop(self, node):
         vl = [self.walk(n) for n in node.values]
-        return reduce(self.boolop(type(node.op)), vl)
+        BoolOP = {
+        ast.And: lambda a, b: a + b,
+        ast.Or: lambda a, b: min(a, b)
+        }
+        return reduce(BoolOP[type(node.op)], vl)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

@@ -107,8 +107,10 @@ if __name__ == '__main__':
         print(v_)
         minxy.append((x_, y_, v_))
     print(minxy)
-    # That is, as per this computation, 0, 0 is closer to flipping the branch.
-    # let us explore the neighbours again
+
+# That is, as per this computation, 0, 0 is closer to flipping the branch.
+# let us explore the neighbours again
+if __name__ == '__main__':
     X, Y, v = 0, 0, 2
     minxy = [(X, Y, v)]
     xs = [X-1, X, X+1]
@@ -118,7 +120,8 @@ if __name__ == '__main__':
         print(v_)
         minxy.append((x_, y_, v_))
     print(minxy)
-    # again
+# again
+if __name__ == '__main__':
     X, Y, v = -1, -1, 1
     minxy = [(X, Y, v)]
     xs = [X-1, X, X+1]
@@ -128,7 +131,9 @@ if __name__ == '__main__':
         print(v_)
         minxy.append((x_, y_, v_))
     print(minxy)
-    # at this point, we have a zero
+
+# at this point, we have a zero
+if __name__ == '__main__':
     v = test_me(-2, -2)
     print(v)
 
@@ -145,7 +150,7 @@ class BDInterpreter(mci.PySemantics):
         raise mci.SynErr('walk: Not Implemented in %s' % type(node))
 
 
-# Let us now run it and see.
+# Here is a quick check to show that the meta-circular interpreter works expected.
 
 if __name__ == '__main__':
     bd = BDInterpreter({'a':10, 'b':20}, [])
@@ -426,56 +431,47 @@ if __name__ == '__main__':
 
 
 # We can now define branch distance conversions in `BDInterpreter` class.
-
-CmpOP = {
-          ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
-          ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
-          ast.Lt: lambda self, a, b: 0 if a < b else (a - b) + self.K,
-          ast.LtE: lambda self, a, b:  0 if a <= b else (a - b) + self.K,
-          ast.Gt: lambda self, a, b: 0 if a > b else (b - a) + self.K,
-          ast.GtE: lambda self, a, b:  0 if a >= b else (b - a) + self.K,
-          # The following are not in traditional branch distance,
-          # but we can make an informed guess.
-          ast.Is: lambda self, a, b: 0 if a is b else self.K,
-          ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
-          ast.In: lambda self, a, b: 0 if a in b else self.K,
-          ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
-}
-
-BoolOP = {
-          ast.And: lambda a, b: a + b,
-          ast.Or: lambda a, b: min(a, b)
-}
-
-UnaryOP = {
-          ast.Invert: lambda self, a: self.K,
-          ast.Not: lambda self, a: self.K,
-          ast.UAdd: lambda self, a: self.K,
-          ast.USub: lambda self, a: self.K
-}
-
-# Inserting these into our `BDInterpreter` class.
+# we want the comparator to have access to K. So we pass in `self`.
 
 from functools import reduce
 class BDInterpreter(BDInterpreter):
-    def unaryop(self, val): return UnaryOP[val]
-
     def on_unaryop(self, node):
         v = self.walk(node.operand)
-        return self.unaryop(type(node.op))(v)
+        UnaryOP = {
+        ast.Invert: lambda self, a: self.K,
+        ast.Not: lambda self, a: self.K,
+        ast.UAdd: lambda self, a: self.K,
+        ast.USub: lambda self, a: self.K
+        }
+        return UnaryOP[type(node.op)](v)
 
-    def cmpop(self, val): return CmpOP[val]
-    # we want the comparator to have access to K. So we pass in `self`.
     def on_compare(self, node):
         hd = self.walk(node.left)
         op = node.ops[0]
         tl = self.walk(node.comparators[0])
-        return self.cmpop(type(op))(self, hd, tl)
+        CmpOP = {
+        ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
+        ast.NotEq: lambda self, a, b: 0 if a != b else math.abs(a - b) + self.K,
+        ast.Lt: lambda self, a, b: 0 if a < b else (a - b) + self.K,
+        ast.LtE: lambda self, a, b:  0 if a <= b else (a - b) + self.K,
+        ast.Gt: lambda self, a, b: 0 if a > b else (b - a) + self.K,
+        ast.GtE: lambda self, a, b:  0 if a >= b else (b - a) + self.K,
+        # The following are not in traditional branch distance,
+        # but we can make an informed guess.
+        ast.Is: lambda self, a, b: 0 if a is b else self.K,
+        ast.IsNot: lambda self, a, b:  0 if a is not b else self.K,
+        ast.In: lambda self, a, b: 0 if a in b else self.K,
+        ast.NotIn: lambda self, a, b: 0 if a not in b else self.K,
+        }
+        return CmpOP[type(op)](self, hd, tl)
 
-    def boolop(self, val): return BoolOP[val]
     def on_boolop(self, node):
         vl = [self.walk(n) for n in node.values]
-        return reduce(self.boolop(type(node.op)), vl)
+        BoolOP = {
+        ast.And: lambda a, b: a + b,
+        ast.Or: lambda a, b: min(a, b)
+        }
+        return reduce(BoolOP[type(node.op)], vl)
 
 # We need one more step. That is, if we find a `Not`, we need to distributed it
 # inside, inverting any comparisons. For that, we need a DistributeNot class
