@@ -85,7 +85,6 @@ def test_me(x, y):
         return False
 
 # say we have the following inputs
-
 if __name__ == '__main__':
     X, Y = 1, 1
     v = test_me(X, Y)
@@ -110,6 +109,7 @@ if __name__ == '__main__':
 
 # That is, as per this computation, 0, 0 is closer to flipping the branch.
 # let us explore the neighbours again
+
 if __name__ == '__main__':
     X, Y, v = 0, 0, 2
     minxy = [(X, Y, v)]
@@ -120,7 +120,9 @@ if __name__ == '__main__':
         print(v_)
         minxy.append((x_, y_, v_))
     print(minxy)
+
 # again
+
 if __name__ == '__main__':
     X, Y, v = -1, -1, 1
     minxy = [(X, Y, v)]
@@ -133,6 +135,7 @@ if __name__ == '__main__':
     print(minxy)
 
 # at this point, we have a zero
+
 if __name__ == '__main__':
     v = test_me(-2, -2)
     print(v)

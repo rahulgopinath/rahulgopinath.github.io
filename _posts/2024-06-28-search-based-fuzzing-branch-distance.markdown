@@ -255,6 +255,7 @@ for (x_, y_) in zip(xs, ys):
     print(v_)
     minxy.append((x_, y_, v_))
 print(minxy)
+
 ############
 -->
 <form name='python_run_form'>
