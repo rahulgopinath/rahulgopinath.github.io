@@ -417,44 +417,46 @@ just wrapper classes
 <!--
 ############
 class Distribute(Distribute):
+    def fix(self, v):
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
     def on_module(self, node):
         body = []
         for p in node.body:
             v = self.walk(p)
             body.append(v)
         v = ast.Module(body, node.type_ignores)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
     def on_expr(self, node):
         e = self.walk(node.value)
         v = ast.Expr(e)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class Distribute(Distribute):
+    def fix(self, v):
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
     def on_module(self, node):
         body = []
         for p in node.body:
             v = self.walk(p)
             body.append(v)
         v = ast.Module(body, node.type_ignores)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
     def on_expr(self, node):
         e = self.walk(node.value)
         v = ast.Expr(e)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -496,22 +498,17 @@ class DistributeNot(DistributeNot):
 class NegateDistributeNot(NegateDistributeNot):
     def on_name(self, node):
         v = ast.UnaryOp(ast.Not(), node)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
     def on_constant(self, node):
         if node.value == True:
             v = ast.Constant(False)
-            v.lineno = 0
-            v.col_offset = 0
-            return v
+            return self.fix(v)
         if node.value == False:
             v = ast.Constant(True)
-            v.lineno = 0
-            v.col_offset = 0
-            return v
-        return ast.UnaryOp(ast.Not(), node)
+            return self.fix(v)
+        v = ast.UnaryOp(ast.Not(), node)
+        return self.fix(v)
 
 ############
 -->
@@ -527,22 +524,17 @@ class DistributeNot(DistributeNot):
 class NegateDistributeNot(NegateDistributeNot):
     def on_name(self, node):
         v = ast.UnaryOp(ast.Not(), node)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
     def on_constant(self, node):
         if node.value == True:
             v = ast.Constant(False)
-            v.lineno = 0
-            v.col_offset = 0
-            return v
+            return self.fix(v)
         if node.value == False:
             v = ast.Constant(True)
-            v.lineno = 0
-            v.col_offset = 0
-            return v
-        return ast.UnaryOp(ast.Not(), node)
+            return self.fix(v)
+        v = ast.UnaryOp(ast.Not(), node)
+        return self.fix(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -724,9 +716,7 @@ class DistributeNot(DistributeNot):
             r = self.walk(v)
             values.append(r)
         v = ast.BoolOp(node.op, values)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
 class NegateDistributeNot(NegateDistributeNot):
     def on_boolop(self, node):
@@ -736,9 +726,7 @@ class NegateDistributeNot(NegateDistributeNot):
             values.append(r)
         newop = ast.Or() if isinstance(node.op, ast.And) else ast.And()
         v = ast.BoolOp(newop, values)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
 ############
 -->
@@ -751,9 +739,7 @@ class DistributeNot(DistributeNot):
             r = self.walk(v)
             values.append(r)
         v = ast.BoolOp(node.op, values)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
 class NegateDistributeNot(NegateDistributeNot):
     def on_boolop(self, node):
@@ -763,9 +749,7 @@ class NegateDistributeNot(NegateDistributeNot):
             values.append(r)
         newop = ast.Or() if isinstance(node.op, ast.And) else ast.And()
         v = ast.BoolOp(newop, values)
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -875,9 +859,7 @@ class NegateDistributeNot(NegateDistributeNot):
             v = ast.Compare(node.left, [ast.In()], node.comparators)
         else:
             assert False
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 
 ############
 -->
@@ -909,9 +891,7 @@ class NegateDistributeNot(NegateDistributeNot):
             v = ast.Compare(node.left, [ast.In()], node.comparators)
         else:
             assert False
-        v.lineno = 0
-        v.col_offset = 0
-        return v
+        return self.fix(v)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
