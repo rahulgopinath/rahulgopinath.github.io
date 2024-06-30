@@ -167,8 +167,275 @@ if __name__ == '__main__':
 # |   a **or** b  | min(bdistance(a), bdistance(b))                     |
 # |   a **and** b  | bdistance(a) + bdistance(b)                         |
 # |   **not** a     | Negation is moved inward and propagated over a  |
-#
+
 import ast
+
+# For ease of discourse, let us consider the last one first. The idea is that if
+# one encounters a `not` unary, then it should be moved inward to the outermost
+# comparison, which gets flipped. Any `and` or `or` that is encountered gets
+# switched.
+# 
+# The same also gets applied when we want to take the `false` branch of a
+# conditional. So, let us create a new class, that given an expression `e`,
+# transforms it as equivalent to `not e`, but without the `not` in the
+# expression, and normalizes it. So, we need two classes that correspond to
+# both distributing any internal `not` and negating a given expression.
+# 
+# ## DistributeNot
+# 
+# This class normalizes any `Not` by distributing it inside.
+# First the infrastructure.
+
+class Distribute(mci.PyMCInterpreter):
+    def walk(self, node):
+        if node is None: return
+        res = "on_%s" % node.__class__.__name__.lower()
+        if hasattr(self, res):
+            v = getattr(self,res)(node)
+            return v
+        raise mci.SynErr('walk: Not Implemented in %s' % type(node))
+
+
+# When we find `module`, and `expr` there is no change, because they are
+# just wrapper classes
+class Distribute(Distribute):
+    def on_module(self, node):
+        body = []
+        for p in node.body:
+            v = self.walk(p)
+            body.append(v)
+        v = ast.Module(body, node.type_ignores)
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+    def on_expr(self, node):
+        e = self.walk(node.value)
+        v = ast.Expr(e)
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+# We need two classes, the `DistributeNot` which is responsible for
+# non-negated and `NegateDistributeNot` which is responsible for carrying
+# a negated expression.
+
+class DistributeNot(Distribute): pass
+
+class NegateDistributeNot(Distribute): pass
+
+
+# Simple things like names and constants should get translated directly by
+# the `DistributeNot`, but should be negated by `NegateDistributeNot`.
+class DistributeNot(DistributeNot):
+    def on_name(self, node):
+        return node
+
+    def on_constant(self, node):
+        return node
+
+class NegateDistributeNot(NegateDistributeNot):
+    def on_name(self, node):
+        v = ast.UnaryOp(ast.Not(), node)
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+    def on_constant(self, node):
+        if node.value == True:
+            v = ast.Constant(False)
+            v.lineno = 0
+            v.col_offset = 0
+            return v
+        if node.value == False:
+            v = ast.Constant(True)
+            v.lineno = 0
+            v.col_offset = 0
+            return v
+        return ast.UnaryOp(ast.Not(), node)
+
+# Check that it works.
+
+if __name__ == '__main__':
+    v = DistributeNot()
+    myast = v.parse('a')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'a'
+
+    u = NegateDistributeNot()
+    myast = u.parse('a')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'not a'
+
+    myast = v.parse('True')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'True'
+
+    myast = v.parse('False')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'False'
+
+    myast = u.parse('True')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'False'
+
+    myast = u.parse('False')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'True'
+
+# What should happen for `not a`? It should get pushed into a
+# if possible. That is, `DistributeNot` should then switch
+# to `NegateDistributeNot`. However, if we are starting with
+# `NegateDistributeNot`, then it is already carrying a negation,
+# so it should switch to `DistributeNot`.
+
+class DistributeNot(DistributeNot):
+    def on_unaryop(self, node):
+        if isinstance(node.op, ast.Not):
+            ne = NegateDistributeNot()
+            v = ne.walk(node.operand)
+            return v
+        else: 
+            return self.walk(node)
+
+class NegateDistributeNot(NegateDistributeNot):
+    def on_unaryop(self, node):
+        if isinstance(node.op, ast.Not):
+            dn = DistributeNot()
+            v = dn.walk(node.operand)
+            return v
+        else:
+            return self.walk(node)
+
+# Check that it works
+if __name__ == '__main__':
+    v = DistributeNot()
+    u = NegateDistributeNot()
+
+    myast = v.parse('not a')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'not a'
+
+    myast = v.parse('not True')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'False'
+
+    myast = u.parse('not a')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'a'
+
+    myast = u.parse('not True')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'True'
+
+
+# What should happen for `a and b`? It should get turned into
+# `not (a and b)` which is `(not a) or (not b)`, but only
+# on NegateDistributeNot. For DistributeNot, there is no change.
+
+class DistributeNot(DistributeNot):
+    def on_boolop(self, node):
+        values = []
+        for v in node.values:
+            r = self.walk(v)
+            values.append(r)
+        v = ast.BoolOp(node.op, values)
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+class NegateDistributeNot(NegateDistributeNot):
+    def on_boolop(self, node):
+        values = []
+        for v in node.values:
+            r = self.walk(v)
+            values.append(r)
+        newop = ast.Or() if isinstance(node.op, ast.And) else ast.And()
+        v = ast.BoolOp(newop, values)
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+# Check that it works
+if __name__ == '__main__':
+    v = DistributeNot()
+    myast = v.parse('a and b')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'a and b'
+    myast = v.parse('a or b')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'a or b'
+
+    u = NegateDistributeNot()
+    myast = u.parse('a and b')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'not a or not b'
+    myast = u.parse('a or b')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'not a and (not b)'
+
+    myast = v.parse('not (a and b)')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'not a or not b'
+    myast = v.parse('not (a or b)')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'not a and (not b)'
+
+    myast = u.parse('not (a and b)')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'a and b'
+    myast = u.parse('not (a or b)')
+    res = u.walk(myast)
+    assert ast.unparse(res) == 'a or b'
+
+# The on_compare method is simply itself in `DistributeNot` because we do not
+# expect a `not` inside the compare. The `NegateDistributeNot` switches to
+# its anti operation. We also do not have to `walk` inside the comparators
+# because we do not expect either boolean operators or other comparators inside
+# comparators.
+
+class DistributeNot(DistributeNot):
+    def on_compare(self, node):
+        return node
+
+class NegateDistributeNot(NegateDistributeNot):
+    def on_compare(self, node):
+        assert len(node.ops) == 1
+        op = node.ops[0]
+        if isinstance(op, ast.Eq):
+            v = ast.Compare(node.left, [ast.NotEq()], node.comparators)
+        elif isinstance(op, ast.NotEq):
+            v = ast.Compare(node.left, [ast.Eq()], node.comparators)
+        elif isinstance(op, ast.Lt):
+            v =  ast.Compare(node.left, [ast.GtE()], node.comparators)
+        elif isinstance(op, ast.Gt):
+            v =  ast.Compare(node.left, [ast.LtE()], node.comparators)
+        elif isinstance(op, ast.GtE):
+            v = ast.Compare(node.left, [ast.Lt()], node.comparators)
+        elif isinstance(op, ast.LtE):
+            v = ast.Compare(node.left, [ast.Gt()], node.comparators)
+        elif isinstance(op, ast.In):
+            v = ast.Compare(node.left, [ast.NotIn()], node.comparators)
+        elif isinstance(op, ast.NotIn):
+            v = ast.Compare(node.left, [ast.In()], node.comparators)
+        else:
+            assert False
+        v.lineno = 0
+        v.col_offset = 0
+        return v
+
+# Check that it works
+if __name__ == '__main__':
+    v = NegateDistributeNot()
+    myast = v.parse('a > b')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'a <= b'
+    myast = v.parse('a <= b')
+    res = v.walk(myast)
+    assert ast.unparse(res) == 'a > b'
+
+
+# We can now define branch distance conversions in `BDInterpreter` class.
 
 CmpOP = {
           ast.Eq: lambda self, a, b: 0 if a == b else math.abs(a - b) + self.K,
@@ -191,22 +458,23 @@ BoolOP = {
 }
 
 UnaryOP = {
-          ast.Invert: lambda a: ~a,
-          ast.Not: None, # should not exist
-          ast.UAdd: lambda a: +a,
-          ast.USub: lambda a: -a
+          ast.Invert: lambda self, a: self.K,
+          ast.Not: lambda self, a: self.K,
+          ast.UAdd: lambda self, a: self.K,
+          ast.USub: lambda self, a: self.K
 }
 
-# We can now insert these into our `BDInterpreter` class.
+# Inserting these into our `BDInterpreter` class.
+
 from functools import reduce
 class BDInterpreter(BDInterpreter):
     def unaryop(self, val): return UnaryOP[val]
-    def cmpop(self, val): return CmpOP[val]
-    def boolop(self, val): return BoolOP[val]
 
     def on_unaryop(self, node):
-        return self.unaryop(type(node.op))(self.walk(node.operand))
+        v = self.walk(node.operand)
+        return self.unaryop(type(node.op))(v)
 
+    def cmpop(self, val): return CmpOP[val]
     # we want the comparator to have access to K. So we pass in `self`.
     def on_compare(self, node):
         hd = self.walk(node.left)
@@ -214,113 +482,26 @@ class BDInterpreter(BDInterpreter):
         tl = self.walk(node.comparators[0])
         return self.cmpop(type(op))(self, hd, tl)
 
+    def boolop(self, val): return BoolOP[val]
     def on_boolop(self, node):
-        return reduce(self.boolop(type(node.op)), [self.walk(n) for n in node.values])
+        vl = [self.walk(n) for n in node.values]
+        return reduce(self.boolop(type(node.op)), vl)
 
 # We need one more step. That is, if we find a `Not`, we need to distributed it
-# inside, inverting any comparisons. For that, we need a Normalizer class
+# inside, inverting any comparisons. For that, we need a DistributeNot class
 
 class BDInterpreter(BDInterpreter):
     def eval(self, src, K=1):
         self.K = K
-        return self.walk(self.normalize(self.parse(src)))
-
-    def normalize(self, myast):
-        return Normalizer().walk(myast)
-
-# ## Normalizer
-# 
-# This class normalizes any `Not` by distributing it inside.
-# First the infrastructure.
-
-class Normalizer(mci.PyMCInterpreter):
-    def walk(self, node):
-        if node is None: return
-        res = "on_%s" % node.__class__.__name__.lower()
-        if hasattr(self, res):
-            v = getattr(self,res)(node)
-            return v
-        raise mci.SynErr('walk: Not Implemented in %s' % type(node))
-
-    def on_module(self, node):
-        body = []
-        for p in node.body:
-            v = self.walk(p)
-            body.append(v)
-        v = ast.Module(body, node.type_ignores)
-        ast.fix_missing_locations(v)
-        return v
-
-    def on_expr(self, node):
-        v = ast.Expr(self.walk(node.value))
-        ast.fix_missing_locations(v)
-        return v
-
-    def on_compare(self, node):
-        # nothing to do, because we do not expect a `not`
-        # inside the compare.
-        return node
-
-    def on_boolop(self, node):
-        values = []
-        for v in node.values:
-            r = self.walk(v)
-            values.append(v)
-        v = ast.BoolOp(node.op, values)
-        ast.fix_missing_locations(v)
-        return v
-
-# if there is a not, then transform the inner nodes.
-class Normalizer(Normalizer):
-    def on_unaryop(self, node):
-        if isinstance(node.op, ast.Not):
-            v = self.convert_not(node.operand)
-            ast.fix_missing_locations(v)
-            return v
-        else: 
-            return ast.UnaryOp(node.op, node.operand)
-
-# Now, the actual conversion if `Not` is found
-class Normalizer(Normalizer):
-    def convert_compare(self, node):
-        assert len(node.ops) == 1
-        op = node.ops[0]
-        if isinstance(op, ast.Eq):
-            v = ast.Compare(node.left, [ast.NotEq()], node.comparators)
-        elif isinstance(op, ast.NotEq):
-            v = ast.Compare(node.left, [ast.Eq()], node.comparators)
-        elif isinstance(op, ast.Lt):
-            v =  ast.Compare(node.left, [ast.GtE()], node.comparators)
-        elif isinstance(op, ast.Gt):
-            v =  ast.Compare(node.left, [ast.LtE()], node.comparators)
-        elif isinstance(op, ast.GtE):
-            v = ast.Compare(node.left, [ast.Lt()], node.comparators)
-        elif isinstance(op, ast.LtE):
-            v = ast.Compare(node.left, [ast.Gt()], node.comparators)
-        elif isinstance(op, ast.In):
-            v = ast.Compare(node.left, [ast.NotIn()], node.comparators)
-        elif isinstance(op, ast.NotIn):
-            v = ast.Compare(node.left, [ast.In()], node.comparators)
-        else:
-            assert False
-        ast.fix_missing_locations(v)
-        return v
-
-    def convert_boolop(self, node):
-        nots = [self.convert_not(v) for v in node.values]
-        if isinstance(node.op, ast.Or):
-            return ast.BoolOp(ast.And(), nots)
-        elif isinstance(node.op, ast.And):
-            return ast.BoolOp(ast.Or(), nots)
-        else:
-            assert False
-
-    def convert_not(self, node):
-        if isinstance(node, ast.Compare):
-            return self.convert_compare(node)
-        elif isinstance(node, ast.BoolOp):
-            return self.convert_boolop(node)
-        assert False
+        myast = self.parse(src)
+        print(ast.unparse(myast))
+        normal_ast = DistributeNot().walk(myast)
+        print(ast.unparse(normal_ast))
+        myast = self.parse(src)
+        negated_ast = NegateDistributeNot().walk(myast)
+        print(ast.unparse(negated_ast))
+        # use the negated_ast if you are using the false branch.
+        return self.walk(normal_ast)
 
 # Let us try to make it run
 
@@ -335,6 +516,6 @@ if __name__ == '__main__':
     r = bd.eval('not (a>b or a< (2 + b))')
     assert r == 13
 
- 
 # [^tracey1998]: Tracey, Nigel, et al. "An automated framework for structural test-data generation." IEEE International Conference on Automated Software Engineering, 1998.
 # [^arcuri2011]: Andrea Arcuri "It really does matter how you normalize the branch distance in search-based software testing" 2011
+
