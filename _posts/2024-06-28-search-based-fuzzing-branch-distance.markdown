@@ -21,7 +21,7 @@ branch taken by an input execution determines if we can make progress. That is
 given several inputs, each of which reach a given decision node, we need to
 prioritize those inputs that are closest to switching to an uncovered branch.
 To do this, we use what is called the *Branch Distance*. This was first
-proposed by Tracey et al[^tracey1998]. In this post, I will discuss how to
+proposed by Bogdan Korel in 1990 [^korel1990]. In this post, I will discuss how to
 compute branch distance for computing the fitness score of an input in
 flipping a branch condition.
 
@@ -1129,7 +1129,7 @@ assert r == 13
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-[^tracey1998]: Tracey, Nigel, et al. "An automated framework for structural test-data generation." IEEE International Conference on Automated Software Engineering, 1998.
+[^korel1990]: Bogdan Korel "Automated software test data generation." IEEE Transactions on software engineering, 1990
 [^arcuri2011]: Andrea Arcuri "It really does matter how you normalize the branch distance in search-based software testing" 2011
 
 <form name='python_run_form'>
