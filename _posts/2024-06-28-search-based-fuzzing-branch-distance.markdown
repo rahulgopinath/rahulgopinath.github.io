@@ -1138,6 +1138,9 @@ where the control flow diverged from the desired path. However, this is not
 the only way it can be used. Korel [^korel1990] initially suggested using the
 branch distance directly, computing the fitness based on the entire set of
 boolean conditions encountered on a desired path.
+
+Note: A particularly good resource on SBST is Simon Marcus Poulding's Ph.D. thesis
+"[The Use of Automated Search in Deriving Software Testing Strategies](https://etheses.whiterose.ac.uk/4698/1/poulding_phd_thesis_2013_final.pdf#cite.Pargas1999a)".
 [^korel1990]: Bogdan Korel "Automated software test data generation." IEEE Transactions on software engineering, 1990
 [^arcuri2011]: Andrea Arcuri "It really does matter how you normalize the branch distance in search-based software testing" 2011
 
