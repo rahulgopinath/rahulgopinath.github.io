@@ -517,6 +517,16 @@ if __name__ == '__main__':
     r = bd.eval('not (a>b or a< (2 + b))')
     assert r == 13
 
+# How would you use the branch distance metric? Currently (2024) it is used to
+# further fine-tune the fitness of a given input with respect to a given
+# condition. That is, the approach distance is used as the whole number
+# component of the fitness, and the branch distance is used as the fractional
+# component, and the branch distance is only computed at the particular branch
+# where the control flow diverged from the desired path. However, this is not
+# the only way it can be used. Korel [^korel1990] initially suggested using the
+# branch distance directly, computing the fitness based on the entire set of
+# boolean conditions encountered on a desired path.
+
 # [^korel1990]: Bogdan Korel "Automated software test data generation." IEEE Transactions on software engineering, 1990
 # [^arcuri2011]: Andrea Arcuri "It really does matter how you normalize the branch distance in search-based software testing" 2011
 
