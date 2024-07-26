@@ -1277,6 +1277,7 @@ def parse_on(self, text, start_symbol):
     s.src = parse_src
     if not evaluate: return parse_src
     l, g = locals().copy(), globals().copy()
+    self.parse_src = parse_src
     exec(parse_src, g, l)
     s.parser = GLLStructuredStackP()
     s.recognize_on = l['recognize_on'].__get__(s)
