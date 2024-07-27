@@ -1277,9 +1277,9 @@ def parse_on(self, text, start_symbol):
     s.src = parse_src
     if not evaluate: return parse_src
     l, g = locals().copy(), globals().copy()
-    self.parse_src = parse_src
     exec(parse_src, g, l)
     s.parser = GLLStructuredStackP()
+    s.parse_src = parse_src
     s.recognize_on = l['recognize_on'].__get__(s)
     s.parse_on = l['parse_on'].__get__(s)
     return s
@@ -1503,6 +1503,7 @@ if __name__ == '__main__':
     mystring = '1+2+3+4'
     p = compile_grammar(a_grammar)
     forest = p.recognize_on(mystring, grammar_start)
+    assert forest
     ee = EnhancedExtractor(forest)
     while True:
         t = ee.extract_a_tree()
