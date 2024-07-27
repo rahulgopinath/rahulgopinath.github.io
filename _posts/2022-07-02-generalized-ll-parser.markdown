@@ -1877,6 +1877,11 @@ class GLLStructuredStackP:
 <div name='python_canvas'></div>
 </form>
 ### GLL+GSS+SPPF add_thread (add)
+From parse tree generation [^scott2013gll] we have:
+```
+add(L, u, i, w) {
+   if ((L, u, w) ̸∈ Ui { add (L, u, w) to Ui, add (L, u, i, w) to R } }
+```
 
 <!--
 ############
@@ -1900,6 +1905,17 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <div name='python_canvas'></div>
 </form>
 ### GLL+GSS+SPPF fn_return (pop)
+From parse tree generation [^scott2013gll] we have:
+```
+pop(u, i, z) {
+  if (u ̸= u0) {
+      let (L, k) be the label of u
+      add (u, z) to P
+      for each edge (u, w, v) {
+          let y be the node returned by getNodeP(L, w, z)
+          add(L, v, i, y)) } } }
+```
+in the above, an edge is from u to v labeled w.
 
 <!--
 ############
@@ -1931,6 +1947,18 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <div name='python_canvas'></div>
 </form>
 ### GLL+GSS+SPPF register_return (create)
+From parse tree generation [^scott2013gll] we have:
+```
+create(L, u, i, w) {
+    if there is not already a GSS node labelled (L, i) create one
+    let v be the GSS node labelled (L, i)
+    if there is not an edge from v to u labelled w {
+       create an edge from v to u labelled w
+       for all ((v, z) ∈ P ) {
+          let y be the node returned by getNodeP(L, w, z)
+          add(L, u, h, y) where h is the right extent of z } }
+    return v }
+```
 
 <!--
 ############
@@ -2012,28 +2040,62 @@ class GLLStructuredStackP(GLLStructuredStackP):
 </form>
 We also need the to produce SPPF nodes correctly.
 
-`getNode(x, i)` creates and returns an SPPF node labeled `(x, i, i+1)` or
+`getNodeT(x, i)` creates and returns an SPPF node labeled `(x, i, i+1)` or
 `(epsilon, i, i)` if x is epsilon
+
+From parse tree generation [^scott2013gll] we have:
+```
+getNodeT (x, i) {
+  if (x = ε) h := i else h := i + 1
+  if there is no SPPF node labelled (x, i, h) create one
+  return the SPPF node labelled (x, i, h) }
+```
+
+<!--
+############
+class GLLStructuredStackP(GLLStructuredStackP):
+    def getNodeT(self, x, i):
+        j = i if x is None else i+1
+        return self.sppf_find_or_create(x, i, j)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class GLLStructuredStackP(GLLStructuredStackP):
+    def getNodeT(self, x, i):
+        j = i if x is None else i+1
+        return self.sppf_find_or_create(x, i, j)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 `getNodeP(X::= alpha.beta, w, z)` takes a grammar slot `X ::= alpha . beta`
 and two SPPF nodes w, and z (z may be dummy node $).
 the nodes w and z are not packed nodes, and will have labels of form
 `(s, j, k)` and `(r, k, i)`
 
+From parse tree generation [^scott2013gll] we have:
+```
+getNodeP(X ::= α · β, w, z) {
+  if (α is a terminal or a non-nullable nontermial and if β ̸= ε) return z
+  else { if (β = ε) t := X else t := (X ::= α · β)
+  suppose that z has label (q, k, i)
+  if (w ̸= $) { suppose that w has label (s, j, k)
+  if there does not exist an SPPF node y labelled (t, j, i) create one
+  if y does not have a child labelled (X ::= α · β, k)
+            create one with left child w and right child z }
+  else {
+     if there does not exist an SPPF node y labelled (t, k, i) create one
+     if y does not have a child labelled (X ::= α · β, k)
+       create one with child z }
+  return y } }
+```
+
 <!--
 ############
 class GLLStructuredStackP(GLLStructuredStackP):
-    def not_dummy(self, sppf_w):
-        if sppf_w.label[0] == '$':
-            assert isinstance(sppf_w, SPPF_dummy_node)
-            return False
-        assert not isinstance(sppf_w, SPPF_dummy_node)
-        return True
-
-    def getNodeT(self, x, i):
-        j = i if x is None else i+1
-        return self.sppf_find_or_create(x, i, j)
-
     def getNodeP(self, X_rule_pos, sppf_w, sppf_z):
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
@@ -2057,6 +2119,14 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for c_ in children: pn.add_child(c_)
             y.add_child(pn)
         return y
+
+    def not_dummy(self, sppf_w):
+        if sppf_w.label[0] == '$':
+            assert isinstance(sppf_w, SPPF_dummy_node)
+            return False
+        assert not isinstance(sppf_w, SPPF_dummy_node)
+        return True
+
 
     def is_non_nullable_alpha(self, alpha):
         if not alpha: return False
@@ -2070,17 +2140,6 @@ class GLLStructuredStackP(GLLStructuredStackP):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class GLLStructuredStackP(GLLStructuredStackP):
-    def not_dummy(self, sppf_w):
-        if sppf_w.label[0] == &#x27;$&#x27;:
-            assert isinstance(sppf_w, SPPF_dummy_node)
-            return False
-        assert not isinstance(sppf_w, SPPF_dummy_node)
-        return True
-
-    def getNodeT(self, x, i):
-        j = i if x is None else i+1
-        return self.sppf_find_or_create(x, i, j)
-
     def getNodeP(self, X_rule_pos, sppf_w, sppf_z):
         X, nalt, dot = X_rule_pos
         rule = self.grammar[X][nalt]
@@ -2104,6 +2163,14 @@ class GLLStructuredStackP(GLLStructuredStackP):
             for c_ in children: pn.add_child(c_)
             y.add_child(pn)
         return y
+
+    def not_dummy(self, sppf_w):
+        if sppf_w.label[0] == &#x27;$&#x27;:
+            assert isinstance(sppf_w, SPPF_dummy_node)
+            return False
+        assert not isinstance(sppf_w, SPPF_dummy_node)
+        return True
+
 
     def is_non_nullable_alpha(self, alpha):
         if not alpha: return False
