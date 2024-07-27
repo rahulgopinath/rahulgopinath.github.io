@@ -3994,14 +3994,14 @@ def format_parsetree(t):
 **Note**: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
 ```
 gamma_2 = { "<S>":
-           [['<S1>'],
+           [['<S3>'],
             ['<S2>'],
-            ["s"],],
-           '<S1>': [["<S>", "<S>", "<S>"]],
+            ["x"],],
+           '<S3>': [["<S>", "<S>", "<S>"]],
            '<S2>': [["<S>", "<S>"]]
            }
 p = compile_grammar(gamma_2)
-f = p.recognize_on('ssss', '<S>')
+f = p.recognize_on('xxxx', '<S>')
 ee = EnhancedExtractor(f)
 r = ee.extract_a_tree()
 print(format_parsetree(r))
