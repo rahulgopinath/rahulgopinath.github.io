@@ -1466,7 +1466,7 @@ class EnhancedExtractor(EnhancedExtractor):
         if isinstance(forest_node, SPPF_dummy_node):
             return ('', []), choices
 
-        elif isinstance(forest_node, (SPPF_intermediate_node, SPPF_packed_node)):
+        elif isinstance(forest_node, SPPF_packed_node):
             key = forest_node.label[0] # ignored
             ret = []
             for n in forest_node.children:
@@ -1490,6 +1490,25 @@ class EnhancedExtractor(EnhancedExtractor):
                     assert False
                     ret.append(v)
             return (None, ret), choices
+
+        elif isinstance(forest_node, (SPPF_intermediate_node)):
+            if not forest_node.children:
+                return (None, []), choices
+
+            cur_path, _i, _l, new_choices = self.choose_path(
+                    forest_node.children, choices)
+
+            if cur_path is None: assert False
+            if cur_path.nid in seen: return None, new_choices
+
+            key = forest_node.label[0] # ignored
+
+            v, new_choices = self.extract_a_node(cur_path, seen | {cur_path.nid}, new_choices) # SPPFintermediate:(('<S3>', 0, 2), 0, 3) (23) 
+            if v is None: return None, new_choices
+            key, children = v
+            return (None, children), new_choices
+
+
 
         elif isinstance(forest_node, SPPF_symbol_node):
             if not forest_node.children:
@@ -1858,27 +1877,30 @@ if __name__ == '__main__':
 def format_parsetree(t):
     return ep.format_parsetree(t)
 
-# **Note**: There is a bug in the SPPF EnhancedExtractor as of now (thanks Michael)
+# **Note**: The bug that was there previously in EnhancedExtractor has now been
+# fixed. The follow was its test case.
 # ```
-# gamma_2 = { "<S>":
-#            [['<S3>'],
-#             ['<S2>'],
-#             ["x"],],
-#            '<S3>': [["<S>", "<S>", "<S>"]],
-#            '<S2>': [["<S>", "<S>"]]
-#            }
-# p = compile_grammar(gamma_2)
-# f = p.recognize_on('xxxx', '<S>')
-# ee = EnhancedExtractor(f)
-# r = ee.extract_a_tree()
-# print(format_parsetree(r))
-# v = fuzzer.tree_to_string(r)
-# print(v)
+gamma_2 = { "<S>":
+           [['<S3>'],
+            ['<S2>'],
+            ["x"],],
+           '<S3>': [["<Sx>", "<Sx>", "<Sx>"]],
+           '<S2>': [["<S>", "<S>"]],
+           '<Sx>': [['<S2>'], ['<S3>'], ['x']],
+           }
+p = compile_grammar(gamma_2)
+f = p.recognize_on('xxxx', '<S>')
+ee = EnhancedExtractor(f)
+while True:
+    t = ee.extract_a_tree()
+    if t is None: break
+    s = fuzzer.tree_to_string(t)
+    assert s == 'xxxx'
+
 # ```
 # 
-# will extract the wrong tree for `ssss`. I have not solved the issue so far. If you find the issue, please drop me a note.
 # 
-# **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation). Unfortunately, I did not have access to this when I was developing this post, which means that there might be bugs (such as above) in my code, and in case of such bugs please refer to this repository for an authoritative implementation.
+# **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 
 # [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 #
