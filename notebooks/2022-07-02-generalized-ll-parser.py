@@ -1897,6 +1897,24 @@ while True:
     s = fuzzer.tree_to_string(t)
     assert s == 'xxxx'
 
+# Here is a torture test
+
+gamma_3 = { "<S>":
+           [['<S>', '<S>'],
+            ['<S>', '<S>', '<S>'],
+            ["x"]],
+           }
+string = 'xxxxxx'
+p = compile_grammar(gamma_3)
+f = p.recognize_on(string, '<S>')
+ee = EnhancedExtractor(f)
+while True:
+    t = ee.extract_a_tree()
+    if t is None: break
+    s = fuzzer.tree_to_string(t)
+    assert s == string
+print('done')
+
 # 
 # **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 

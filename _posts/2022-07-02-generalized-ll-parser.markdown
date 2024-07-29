@@ -4075,6 +4075,49 @@ while True:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is a torture test
+
+<!--
+############
+gamma_3 = { "<S>":
+           [['<S>', '<S>'],
+            ['<S>', '<S>', '<S>'],
+            ["x"]],
+           }
+string = 'xxxxxx'
+p = compile_grammar(gamma_3)
+f = p.recognize_on(string, '<S>')
+ee = EnhancedExtractor(f)
+while True:
+    t = ee.extract_a_tree()
+    if t is None: break
+    s = fuzzer.tree_to_string(t)
+    assert s == string
+print('done')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gamma_3 = { &quot;&lt;S&gt;&quot;:
+           [[&#x27;&lt;S&gt;&#x27;, &#x27;&lt;S&gt;&#x27;],
+            [&#x27;&lt;S&gt;&#x27;, &#x27;&lt;S&gt;&#x27;, &#x27;&lt;S&gt;&#x27;],
+            [&quot;x&quot;]],
+           }
+string = &#x27;xxxxxx&#x27;
+p = compile_grammar(gamma_3)
+f = p.recognize_on(string, &#x27;&lt;S&gt;&#x27;)
+ee = EnhancedExtractor(f)
+while True:
+    t = ee.extract_a_tree()
+    if t is None: break
+    s = fuzzer.tree_to_string(t)
+    assert s == string
+print(&#x27;done&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 
 **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 
