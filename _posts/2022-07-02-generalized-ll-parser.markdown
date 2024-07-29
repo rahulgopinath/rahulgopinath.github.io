@@ -4031,7 +4031,6 @@ def format_parsetree(t):
 </form>
 **Note**: The bug that was there previously in EnhancedExtractor has now been
 fixed. The follow was its test case.
-```
 
 <!--
 ############
@@ -4076,8 +4075,6 @@ while True:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-```
-
 
 **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 

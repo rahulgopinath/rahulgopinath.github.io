@@ -1879,7 +1879,7 @@ def format_parsetree(t):
 
 # **Note**: The bug that was there previously in EnhancedExtractor has now been
 # fixed. The follow was its test case.
-# ```
+
 gamma_2 = { "<S>":
            [['<S3>'],
             ['<S2>'],
@@ -1897,8 +1897,6 @@ while True:
     s = fuzzer.tree_to_string(t)
     assert s == 'xxxx'
 
-# ```
-# 
 # 
 # **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 
