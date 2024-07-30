@@ -1980,20 +1980,6 @@ while True:
     assert s == string
 print('done')
 
-#
-def to_graph(forest):
-    G = pydot.Dot("my_graph", graph_type="digraph")
-    for nid, cnode in self.opcodes.items():
-        G.add_node(pydot.Node(str(cnode.bid)))
-        ns = G.get_node(str(cnode.bid))
-        ns[0].set_label("%d: %s" % (nid, cnode.i.opname))
-        for cn in cnode.children:
-            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
-    return G
-
-#
-if __name__ == '__main__':
-    print(1)
 # 
 # **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 

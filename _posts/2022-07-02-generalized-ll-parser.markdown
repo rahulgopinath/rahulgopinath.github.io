@@ -4276,49 +4276,6 @@ print(&#x27;done&#x27;)
 <div name='python_canvas'></div>
 </form>
 
-<!--
-############
-def to_graph(forest):
-    G = pydot.Dot("my_graph", graph_type="digraph")
-    for nid, cnode in self.opcodes.items():
-        G.add_node(pydot.Node(str(cnode.bid)))
-        ns = G.get_node(str(cnode.bid))
-        ns[0].set_label("%d: %s" % (nid, cnode.i.opname))
-        for cn in cnode.children:
-            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
-    return G
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def to_graph(forest):
-    G = pydot.Dot(&quot;my_graph&quot;, graph_type=&quot;digraph&quot;)
-    for nid, cnode in self.opcodes.items():
-        G.add_node(pydot.Node(str(cnode.bid)))
-        ns = G.get_node(str(cnode.bid))
-        ns[0].set_label(&quot;%d: %s&quot; % (nid, cnode.i.opname))
-        for cn in cnode.children:
-            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
-    return G
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
-<!--
-############
-print(1)
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-print(1)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-
 **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 
 [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
