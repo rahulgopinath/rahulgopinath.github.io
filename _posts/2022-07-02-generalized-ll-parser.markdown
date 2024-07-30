@@ -162,6 +162,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <ol>
 <li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl">pydot-1.4.1-py2.py3-none-any.whl</a></li>
 </ol>
 
 <div style='display:none'>
@@ -169,6 +170,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -214,6 +216,21 @@ import random
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 import random
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Pydot is needed for drawing
+
+<!--
+############
+import pydot
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+import pydot
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2019,7 +2036,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
         n = (label, j, i)
         if  n not in self.SPPF_nodes:
             node = None
-            if label is None:            node = SPPF_dummy_node(*n)
+            if label is None or label == '$': node = SPPF_dummy_node(*n)
             elif isinstance(label, str): node = SPPF_symbol_node(*n)
             else:                        node = SPPF_intermediate_node(*n)
             self.SPPF_nodes[n] = node
@@ -2038,7 +2055,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
         n = (label, j, i)
         if  n not in self.SPPF_nodes:
             node = None
-            if label is None:            node = SPPF_dummy_node(*n)
+            if label is None or label == &#x27;$&#x27;: node = SPPF_dummy_node(*n)
             elif isinstance(label, str): node = SPPF_symbol_node(*n)
             else:                        node = SPPF_intermediate_node(*n)
             self.SPPF_nodes[n] = node
@@ -2125,6 +2142,9 @@ class GLLStructuredStackP(GLLStructuredStackP):
         y = self.sppf_find_or_create(t, j, i)
         if not [c for c in y.children if c.label == (X_rule_pos, k)]:
             pn = SPPF_packed_node(X_rule_pos, k)
+            key =  (('P', X_rule_pos, k), j, i)
+            assert key not in self.SPPF_nodes
+            self.SPPF_nodes[key] = pn
             for c_ in children: pn.add_child(c_)
             y.add_child(pn)
         return y
@@ -2169,6 +2189,9 @@ class GLLStructuredStackP(GLLStructuredStackP):
         y = self.sppf_find_or_create(t, j, i)
         if not [c for c in y.children if c.label == (X_rule_pos, k)]:
             pn = SPPF_packed_node(X_rule_pos, k)
+            key =  ((&#x27;P&#x27;, X_rule_pos, k), j, i)
+            assert key not in self.SPPF_nodes
+            self.SPPF_nodes[key] = pn
             for c_ in children: pn.add_child(c_)
             y.add_child(pn)
         return y
@@ -2206,7 +2229,7 @@ class SPPFG1Recognizer(ep.Parser):
                  []]
         })
         # L contains start nt.
-        end_rule = SPPF_dummy_node('$', 0, 0)
+        end_rule = parser.sppf_find_or_create('$', 0, 0)
         L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
         while True:
             if L == 'L0':
@@ -2297,7 +2320,7 @@ class SPPFG1Recognizer(ep.Parser):
                  []]
         })
         # L contains start nt.
-        end_rule = SPPF_dummy_node(&#x27;$&#x27;, 0, 0)
+        end_rule = parser.sppf_find_or_create(&#x27;$&#x27;, 0, 0)
         L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
         while True:
             if L == &#x27;L0&#x27;:
@@ -2772,7 +2795,7 @@ def recognize_on(self, text, start_symbol):
 %s
     )
     # L contains start nt.
-    end_rule = SPPF_dummy_node('$', 0, 0)
+    end_rule = parser.sppf_find_or_create('$', 0, 0)
     L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
@@ -2830,7 +2853,7 @@ def recognize_on(self, text, start_symbol):
 %s
     )
     # L contains start nt.
-    end_rule = SPPF_dummy_node(&#x27;$&#x27;, 0, 0)
+    end_rule = parser.sppf_find_or_create(&#x27;$&#x27;, 0, 0)
     L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
     while True:
         if L == &#x27;L0&#x27;:
@@ -2927,6 +2950,125 @@ ep.display_tree(v)
 <div name='python_canvas'></div>
 </form>
 ## SPPF Parse Forest
+Let us see how to visualize the forest
+
+<!--
+############
+def to_graph(forest):
+    forest.SPPF_nodes[forest.root]
+    G = pydot.Dot("my_graph", graph_type="digraph")
+    for k in forest.SPPF_nodes:
+        cnode = forest.SPPF_nodes[k]
+        label = "%s :%d" % (cnode, cnode.nid)
+        shape = 'rectangle'# rectangle, oval, diamond
+        if isinstance(cnode, SPPF_packed_node):
+            label = "%d" % (cnode.nid)
+            shape = 'oval'
+        elif isinstance(cnode, SPPF_symbol_node):
+            label = "%s: %d" % (cnode.label, cnode.nid)
+        elif isinstance(cnode, SPPF_intermediate_node):
+            label = "%s: %d" % (cnode, cnode.nid)
+        elif isinstance(cnode, SPPF_dummy_node):
+            label = "$: %d" % (cnode.nid)
+        else:
+        	label = "%s: %d" % (cnode, cnode.nid)
+
+        G.add_node(pydot.Node(str(cnode.nid),
+            label=label,
+            shape=shape,
+            peripheries= '2' if k == forest.root else '1'
+        ))
+        ns = G.get_node(str(cnode.nid))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.nid), str(cn.nid), color='black'))
+    return G
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def to_graph(forest):
+    forest.SPPF_nodes[forest.root]
+    G = pydot.Dot(&quot;my_graph&quot;, graph_type=&quot;digraph&quot;)
+    for k in forest.SPPF_nodes:
+        cnode = forest.SPPF_nodes[k]
+        label = &quot;%s :%d&quot; % (cnode, cnode.nid)
+        shape = &#x27;rectangle&#x27;# rectangle, oval, diamond
+        if isinstance(cnode, SPPF_packed_node):
+            label = &quot;%d&quot; % (cnode.nid)
+            shape = &#x27;oval&#x27;
+        elif isinstance(cnode, SPPF_symbol_node):
+            label = &quot;%s: %d&quot; % (cnode.label, cnode.nid)
+        elif isinstance(cnode, SPPF_intermediate_node):
+            label = &quot;%s: %d&quot; % (cnode, cnode.nid)
+        elif isinstance(cnode, SPPF_dummy_node):
+            label = &quot;$: %d&quot; % (cnode.nid)
+        else:
+        	label = &quot;%s: %d&quot; % (cnode, cnode.nid)
+
+        G.add_node(pydot.Node(str(cnode.nid),
+            label=label,
+            shape=shape,
+            peripheries= &#x27;2&#x27; if k == forest.root else &#x27;1&#x27;
+        ))
+        ns = G.get_node(str(cnode.nid))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.nid), str(cn.nid), color=&#x27;black&#x27;))
+    return G
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing it
+
+<!--
+############
+G1 = {
+    '<S>': [['<A>','<B>'],
+            ['<B>']],
+    '<A>': [['a']],
+    '<B>': [['b']]
+}
+p = compile_grammar(G1)
+mystring = 'ab'
+forest = p.recognize_on(mystring, '<S>')
+g = to_graph(forest)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+G1 = {
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;,&#x27;&lt;B&gt;&#x27;],
+            [&#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]]
+}
+p = compile_grammar(G1)
+mystring = &#x27;ab&#x27;
+forest = p.recognize_on(mystring, &#x27;&lt;S&gt;&#x27;)
+g = to_graph(forest)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can view it as follows:
+
+<!--
+############
+__canvas__(str(g))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+__canvas__(str(g))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Extracting all trees
+
 Previously, we examined how to extract a single parse tree. However, this in
 insufficient in many cases. Given that context-free grammars can contain
 ambiguity we want to extract all possible parse trees. To do that, we need to
@@ -4123,6 +4265,49 @@ while True:
     s = fuzzer.tree_to_string(t)
     assert s == string
 print(&#x27;done&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+def to_graph(forest):
+    G = pydot.Dot("my_graph", graph_type="digraph")
+    for nid, cnode in self.opcodes.items():
+        G.add_node(pydot.Node(str(cnode.bid)))
+        ns = G.get_node(str(cnode.bid))
+        ns[0].set_label("%d: %s" % (nid, cnode.i.opname))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
+    return G
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def to_graph(forest):
+    G = pydot.Dot(&quot;my_graph&quot;, graph_type=&quot;digraph&quot;)
+    for nid, cnode in self.opcodes.items():
+        G.add_node(pydot.Node(str(cnode.bid)))
+        ns = G.get_node(str(cnode.bid))
+        ns[0].set_label(&quot;%d: %s&quot; % (nid, cnode.i.opname))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
+    return G
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+<!--
+############
+print(1)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(1)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

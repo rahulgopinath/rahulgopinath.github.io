@@ -121,6 +121,7 @@
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities
@@ -130,6 +131,9 @@ import earleyparser as ep
 
 # We use the random choice to extract derivation trees from the parse forest.
 import random
+
+# Pydot is needed for drawing
+import pydot
 
 # As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar style.
 # Here is an example grammar for arithmetic expressions, starting at `<start>`.
@@ -960,7 +964,7 @@ class GLLStructuredStackP(GLLStructuredStackP):
         n = (label, j, i)
         if  n not in self.SPPF_nodes: 
             node = None
-            if label is None:            node = SPPF_dummy_node(*n)
+            if label is None or label == '$': node = SPPF_dummy_node(*n)
             elif isinstance(label, str): node = SPPF_symbol_node(*n)
             else:                        node = SPPF_intermediate_node(*n)
             self.SPPF_nodes[n] = node
@@ -1029,6 +1033,9 @@ class GLLStructuredStackP(GLLStructuredStackP):
         y = self.sppf_find_or_create(t, j, i)
         if not [c for c in y.children if c.label == (X_rule_pos, k)]:
             pn = SPPF_packed_node(X_rule_pos, k)
+            key =  (('P', X_rule_pos, k), j, i)
+            assert key not in self.SPPF_nodes
+            self.SPPF_nodes[key] = pn
             for c_ in children: pn.add_child(c_)
             y.add_child(pn)
         return y
@@ -1061,7 +1068,7 @@ class SPPFG1Recognizer(ep.Parser):
                  []]
         })
         # L contains start nt.
-        end_rule = SPPF_dummy_node('$', 0, 0)
+        end_rule = parser.sppf_find_or_create('$', 0, 0)
         L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
         while True:
             if L == 'L0':
@@ -1298,7 +1305,7 @@ def recognize_on(self, text, start_symbol):
 %s
     )
     # L contains start nt.
-    end_rule = SPPF_dummy_node('$', 0, 0)
+    end_rule = parser.sppf_find_or_create('$', 0, 0)
     L, stack_top, cur_idx, cur_sppf_node = start_symbol, parser.stack_bottom, 0, end_rule
     while True:
         if L == 'L0':
@@ -1360,6 +1367,57 @@ if __name__ == '__main__':
     ep.display_tree(v)
 
 # ## SPPF Parse Forest
+# Let us see how to visualize the forest
+
+def to_graph(forest):
+    forest.SPPF_nodes[forest.root]
+    G = pydot.Dot("my_graph", graph_type="digraph")
+    for k in forest.SPPF_nodes:
+        cnode = forest.SPPF_nodes[k]
+        label = "%s :%d" % (cnode, cnode.nid)
+        shape = 'rectangle'# rectangle, oval, diamond
+        if isinstance(cnode, SPPF_packed_node):
+            label = "%d" % (cnode.nid)
+            shape = 'oval'
+        elif isinstance(cnode, SPPF_symbol_node):
+            label = "%s: %d" % (cnode.label, cnode.nid)
+        elif isinstance(cnode, SPPF_intermediate_node):
+            label = "%s: %d" % (cnode, cnode.nid)
+        elif isinstance(cnode, SPPF_dummy_node):
+            label = "$: %d" % (cnode.nid)
+        else:
+        	label = "%s: %d" % (cnode, cnode.nid)
+            
+        G.add_node(pydot.Node(str(cnode.nid),
+            label=label,
+            shape=shape, 
+            peripheries= '2' if k == forest.root else '1'
+        ))
+        ns = G.get_node(str(cnode.nid))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.nid), str(cn.nid), color='black'))
+    return G
+
+# Testing it
+
+if __name__ == '__main__':
+    G1 = {
+        '<S>': [['<A>','<B>'],
+                ['<B>']],
+        '<A>': [['a']],
+        '<B>': [['b']]
+    }
+    p = compile_grammar(G1)
+    mystring = 'ab'
+    forest = p.recognize_on(mystring, '<S>')
+    g = to_graph(forest)
+
+# We can view it as follows:
+if __name__ == '__main__':
+    __canvas__(str(g))
+
+# ## Extracting all trees
+# 
 # Previously, we examined how to extract a single parse tree. However, this in
 # insufficient in many cases. Given that context-free grammars can contain
 # ambiguity we want to extract all possible parse trees. To do that, we need to
@@ -1916,6 +1974,20 @@ while True:
     assert s == string
 print('done')
 
+#
+def to_graph(forest):
+    G = pydot.Dot("my_graph", graph_type="digraph")
+    for nid, cnode in self.opcodes.items():
+        G.add_node(pydot.Node(str(cnode.bid)))
+        ns = G.get_node(str(cnode.bid))
+        ns[0].set_label("%d: %s" % (nid, cnode.i.opname))
+        for cn in cnode.children:
+            G.add_edge(pydot.Edge(str(cnode.bid), str(cn.bid)))
+    return G
+
+#
+if __name__ == '__main__':
+    print(1)
 # 
 # **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 
