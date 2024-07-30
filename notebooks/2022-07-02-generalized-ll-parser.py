@@ -1382,7 +1382,7 @@ def to_graph(forest):
         elif isinstance(cnode, SPPF_symbol_node):
             label = "%s: %d" % (cnode.label, cnode.nid)
         elif isinstance(cnode, SPPF_intermediate_node):
-            label = "%s: %d" % (cnode, cnode.nid)
+            label = "%s: %d" % (cnode.label, cnode.nid)
         elif isinstance(cnode, SPPF_dummy_node):
             label = "$: %d" % (cnode.nid)
         else:
