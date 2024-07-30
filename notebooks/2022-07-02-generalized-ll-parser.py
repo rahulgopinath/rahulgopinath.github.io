@@ -117,6 +117,12 @@
 # #### Prerequisites
 #  
 # As before, we start with the prerequisite imports.
+# If you are running this on command line, please uncomment the following line.
+# 
+# ```
+# def __canvas__(g):
+#    print(g)
+# ```
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl

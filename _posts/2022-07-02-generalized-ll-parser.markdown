@@ -148,6 +148,12 @@ For this post, we use the following terms:
 #### Prerequisites
  
 As before, we start with the prerequisite imports.
+If you are running this on command line, please uncomment the following line.
+
+```
+def __canvas__(g):
+   print(g)
+```
 
 <details>
 <summary>Available Packages </summary>
