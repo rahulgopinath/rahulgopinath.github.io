@@ -1584,10 +1584,6 @@ grammar = {
 
 grammar_start = '<start>'
 
-if __name__ == '__main__':
-    rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
-    print(rule_first)
-
 ############
 -->
 <form name='python_run_form'>
@@ -1612,10 +1608,23 @@ grammar = {
 }
 
 grammar_start = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+using 
 
-if __name__ == &#x27;__main__&#x27;:
-    rule_first = get_rule_suffix_first(grammar[&#x27;&lt;term&gt;&#x27;][1], 1, first, follow, nullable)
-    print(rule_first)
+<!--
+############
+rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
+print(rule_first)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+rule_first = get_rule_suffix_first(grammar[&#x27;&lt;term&gt;&#x27;][1], 1, first, follow, nullable)
+print(rule_first)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

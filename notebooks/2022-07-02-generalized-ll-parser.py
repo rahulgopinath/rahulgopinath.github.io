@@ -761,6 +761,7 @@ grammar = {
 
 grammar_start = '<start>'
 
+# using 
 if __name__ == '__main__':
     rule_first = get_rule_suffix_first(grammar['<term>'][1], 1, first, follow, nullable)
     print(rule_first)
