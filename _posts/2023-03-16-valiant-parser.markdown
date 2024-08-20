@@ -1060,7 +1060,11 @@ Testing.
 <!--
 ############
 p = ValiantRecognizer(g1)
-n = len('aabb')
+txt = 'aabb'
+n = len(txt)
+tbl = p.init_table(txt, n)
+my_P = p.nonterminal_productions
+my_A = p.parse_1(txt, n, tbl)
 v = p.transitive_closure(my_A, my_P, n)
 print('parsed:', g1_start in v[0][n])
 
@@ -1069,7 +1073,11 @@ print('parsed:', g1_start in v[0][n])
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 p = ValiantRecognizer(g1)
-n = len(&#x27;aabb&#x27;)
+txt = &#x27;aabb&#x27;
+n = len(txt)
+tbl = p.init_table(txt, n)
+my_P = p.nonterminal_productions
+my_A = p.parse_1(txt, n, tbl)
 v = p.transitive_closure(my_A, my_P, n)
 print(&#x27;parsed:&#x27;, g1_start in v[0][n])
 </textarea><br />

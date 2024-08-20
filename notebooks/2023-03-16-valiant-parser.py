@@ -516,7 +516,11 @@ class ValiantRecognizer(ValiantRecognizer):
 # Testing.
 if __name__ == '__main__':
     p = ValiantRecognizer(g1)
-    n = len('aabb')
+    txt = 'aabb'
+    n = len(txt)
+    tbl = p.init_table(txt, n)
+    my_P = p.nonterminal_productions
+    my_A = p.parse_1(txt, n, tbl)
     v = p.transitive_closure(my_A, my_P, n)
     print('parsed:', g1_start in v[0][n])
 
