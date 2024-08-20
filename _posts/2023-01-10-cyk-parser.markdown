@@ -562,13 +562,102 @@ print('length: 4')
 p.parse_n(txt, 4, len(txt), tbl)
 p.print_table(tbl)
 
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 print(&#x27;length: 4&#x27;)
 p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Here is another example,
+
+<!--
+############
+g2 = {
+"<S>": [["<A>","<B>"], ["<B>","<C>"]],
+"<A>": [["<B>","<A>"], ["a"]],
+"<B>": [["<C>","<C>"], ["b"]],
+"<C>": [["<A>","<B>"], ["a"]]}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g2 = {
+&quot;&lt;S&gt;&quot;: [[&quot;&lt;A&gt;&quot;,&quot;&lt;B&gt;&quot;], [&quot;&lt;B&gt;&quot;,&quot;&lt;C&gt;&quot;]],
+&quot;&lt;A&gt;&quot;: [[&quot;&lt;B&gt;&quot;,&quot;&lt;A&gt;&quot;], [&quot;a&quot;]],
+&quot;&lt;B&gt;&quot;: [[&quot;&lt;C&gt;&quot;,&quot;&lt;C&gt;&quot;], [&quot;b&quot;]],
+&quot;&lt;C&gt;&quot;: [[&quot;&lt;A&gt;&quot;,&quot;&lt;B&gt;&quot;], [&quot;a&quot;]]}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+On parsing `ababa`, we get the following CYK table.
+| a       | b      | a      | b      | a       |
+|---------|--------|--------|--------|---------|
+| S, C, A | B      | S, C   | A, S   | A, C    |
+| B       | B      | A, C   | B      |         |
+| B       | S, C   | B      |        |         |
+| S, C    | A, S   |        |        |         |
+| A, C    | B      |        |        |         |
+Please note that the representation of the matrix is different from how
+we do it.
+
+Now, let us work through each steps
+
+<!--
+############
+p = CYKRecognizer(g2)
+txt = 'ababa'
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 2')
+p.parse_n(txt, 2, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 3')
+p.parse_n(txt, 3, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 4')
+p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
+
+print('length: 5')
+p.parse_n(txt, 5, len(txt), tbl)
+p.print_table(tbl)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = CYKRecognizer(g2)
+txt = &#x27;ababa&#x27;
+tbl = p.init_table(txt, len(txt))
+p.parse_1(txt, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 2&#x27;)
+p.parse_n(txt, 2, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 3&#x27;)
+p.parse_n(txt, 3, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 4&#x27;)
+p.parse_n(txt, 4, len(txt), tbl)
+p.print_table(tbl)
+
+print(&#x27;length: 5&#x27;)
+p.parse_n(txt, 5, len(txt), tbl)
 p.print_table(tbl)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

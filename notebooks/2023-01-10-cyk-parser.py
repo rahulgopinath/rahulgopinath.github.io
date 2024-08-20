@@ -280,6 +280,51 @@ if __name__ == '__main__':
     p.parse_n(txt, 4, len(txt), tbl)
     p.print_table(tbl)
 
+# Here is another example,
+
+g2 = {
+"<S>": [["<A>","<B>"], ["<B>","<C>"]],
+"<A>": [["<B>","<A>"], ["a"]],
+"<B>": [["<C>","<C>"], ["b"]],
+"<C>": [["<A>","<B>"], ["a"]]}
+
+# On parsing `ababa`, we get the following CYK table.
+#
+# | a       | b      | a      | b      | a       |
+# |---------|--------|--------|--------|---------|
+# | S, C, A | B      | S, C   | A, S   | A, C    |
+# | B       | B      | A, C   | B      |         |
+# | B       | S, C   | B      |        |         |
+# | S, C    | A, S   |        |        |         |
+# | A, C    | B      |        |        |         |
+#
+# Please note that the representation of the matrix is different from how
+# we do it.
+# 
+# Now, let us work through each steps
+if __name__ == '__main__':
+    p = CYKRecognizer(g2)
+    txt = 'ababa'
+    tbl = p.init_table(txt, len(txt))
+    p.parse_1(txt, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 2')
+    p.parse_n(txt, 2, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 3')
+    p.parse_n(txt, 3, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 4')
+    p.parse_n(txt, 4, len(txt), tbl)
+    p.print_table(tbl)
+
+    print('length: 5')
+    p.parse_n(txt, 5, len(txt), tbl)
+    p.print_table(tbl)
+
 
 # We combine everything together. At the end, we check if the start_symbol can
 # parse the given tokens by checking (0, n) in the table.
