@@ -303,12 +303,12 @@ g2 = {
 # On parsing `ababa`, we get the following CYK table.
 #  
 # | a       | b      | a      | b      | a       |
-# |---------|--------|--------|--------|---------|
-# | S, C, A | B      | S, C   | A, S   | A, C    |
-# | B       | B      | A, C   | B      |         |
-# | B       | S, C   | B      |        |         |
-# | S, C    | A, S   |        |        |         |
+# |:-------:|:------:|:------:|:------:|:-------:|
 # | A, C    | B      |        |        |         |
+# | S, C    | A, S   |        |        |         |
+# | B       | S, C   | B      |        |         |
+# | B       | B      | A, C   | B      |         |
+# | S, C, A | B      | S, C   | A, S   | A, C    |
 #  
 # Please note that the representation of the matrix is different from how
 # we do it.
