@@ -475,22 +475,22 @@ if __name__ == '__main__':
 
     print('steps_i', 2)
     b_2 = p.parsed_in_steps(my_A, 2, my_P)
-    v=b_2
+    v = union_matrices(v, b_2)
     p.print_table(v)
 
     print('steps_i', 3)
     b_3 = p.parsed_in_steps(my_A, 3, my_P)
-    v=b_3
+    v = union_matrices(v, b_3)
     p.print_table(v)
 
     print('steps_i', 4)
     b_4 = p.parsed_in_steps(my_A, 4, my_P)
-    v=b_4
+    v = union_matrices(v, b_4)
     p.print_table(v)
 
     print('steps_i', 5)
     b_5 = p.parsed_in_steps(my_A, 5, my_P)
-    v=b_5
+    v = union_matrices(v, b_5)
     p.print_table(v)
 
 
