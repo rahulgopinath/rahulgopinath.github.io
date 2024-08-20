@@ -597,6 +597,7 @@ g2 = {
 <div name='python_canvas'></div>
 </form>
 On parsing `ababa`, we get the following CYK table.
+ 
 | a       | b      | a      | b      | a       |
 |---------|--------|--------|--------|---------|
 | S, C, A | B      | S, C   | A, S   | A, C    |
@@ -604,6 +605,7 @@ On parsing `ababa`, we get the following CYK table.
 | B       | S, C   | B      |        |         |
 | S, C    | A, S   |        |        |         |
 | A, C    | B      |        |        |         |
+ 
 Please note that the representation of the matrix is different from how
 we do it.
 

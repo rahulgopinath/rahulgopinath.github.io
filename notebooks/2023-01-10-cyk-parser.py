@@ -289,7 +289,7 @@ g2 = {
 "<C>": [["<A>","<B>"], ["a"]]}
 
 # On parsing `ababa`, we get the following CYK table.
-#
+#  
 # | a       | b      | a      | b      | a       |
 # |---------|--------|--------|--------|---------|
 # | S, C, A | B      | S, C   | A, S   | A, C    |
@@ -297,7 +297,7 @@ g2 = {
 # | B       | S, C   | B      |        |         |
 # | S, C    | A, S   |        |        |         |
 # | A, C    | B      |        |        |         |
-#
+#  
 # Please note that the representation of the matrix is different from how
 # we do it.
 # 
