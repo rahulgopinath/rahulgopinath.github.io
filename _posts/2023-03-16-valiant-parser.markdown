@@ -772,6 +772,123 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Here is another grammar. This is from [here](https://cyk.rushikeshtote.com/)
+
+<!--
+############
+g2 = {
+"<S>": [["<A>","<B>"], ["<B>","<C>"]],
+"<A>": [["<B>","<A>"], ["a"]],
+"<B>": [["<C>","<C>"], ["b"]],
+"<C>": [["<A>","<B>"], ["a"]]}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g2 = {
+&quot;&lt;S&gt;&quot;: [[&quot;&lt;A&gt;&quot;,&quot;&lt;B&gt;&quot;], [&quot;&lt;B&gt;&quot;,&quot;&lt;C&gt;&quot;]],
+&quot;&lt;A&gt;&quot;: [[&quot;&lt;B&gt;&quot;,&quot;&lt;A&gt;&quot;], [&quot;a&quot;]],
+&quot;&lt;B&gt;&quot;: [[&quot;&lt;C&gt;&quot;,&quot;&lt;C&gt;&quot;], [&quot;b&quot;]],
+&quot;&lt;C&gt;&quot;: [[&quot;&lt;A&gt;&quot;,&quot;&lt;B&gt;&quot;], [&quot;a&quot;]]}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+On parsing `ababa`, we get the following CYK table.
+
+| a       | b      | a      | b      | a       |
+|---------|--------|--------|--------|---------|
+| S, C, A | B      | S, C   | A, S   | A, C    |
+| B       | B      | A, C   | B      |         |
+| B       | S, C   | B      |        |         |
+| S, C    | A, S   |        |        |         |
+| A, C    | B      |        |        |         |
+
+Please note that the representation of the matrix is different from how
+we do it.
+
+Next, let us run the steps
+
+<!--
+############
+p = ValiantRecognizer(g2)
+
+my_P = p.nonterminal_productions
+txt = 'ababa'
+tbl = p.init_table(txt, len(txt))
+
+my_A = p.parse_1(txt, len(txt), tbl)
+
+
+print('steps_i', 1)
+b_1 = p.parsed_in_steps(my_A, 1, my_P)
+v=b_1
+p.print_table(v)
+
+print('steps_i', 2)
+b_2 = p.parsed_in_steps(my_A, 2, my_P)
+v=b_2
+p.print_table(v)
+
+print('steps_i', 3)
+b_3 = p.parsed_in_steps(my_A, 3, my_P)
+v=b_3
+p.print_table(v)
+
+print('steps_i', 4)
+b_4 = p.parsed_in_steps(my_A, 4, my_P)
+v=b_4
+p.print_table(v)
+
+print('steps_i', 5)
+b_5 = p.parsed_in_steps(my_A, 5, my_P)
+v=b_5
+p.print_table(v)
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+p = ValiantRecognizer(g2)
+
+my_P = p.nonterminal_productions
+txt = &#x27;ababa&#x27;
+tbl = p.init_table(txt, len(txt))
+
+my_A = p.parse_1(txt, len(txt), tbl)
+
+
+print(&#x27;steps_i&#x27;, 1)
+b_1 = p.parsed_in_steps(my_A, 1, my_P)
+v=b_1
+p.print_table(v)
+
+print(&#x27;steps_i&#x27;, 2)
+b_2 = p.parsed_in_steps(my_A, 2, my_P)
+v=b_2
+p.print_table(v)
+
+print(&#x27;steps_i&#x27;, 3)
+b_3 = p.parsed_in_steps(my_A, 3, my_P)
+v=b_3
+p.print_table(v)
+
+print(&#x27;steps_i&#x27;, 4)
+b_4 = p.parsed_in_steps(my_A, 4, my_P)
+v=b_4
+p.print_table(v)
+
+print(&#x27;steps_i&#x27;, 5)
+b_5 = p.parsed_in_steps(my_A, 5, my_P)
+v=b_5
+p.print_table(v)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Transitive relation
 Valiant showed that we can compute the [transitive relation](https://en.wikipedia.org/wiki/Transitive_closure)
 -- *parsable in i steps* -- can be computed using matrix multiplication.
