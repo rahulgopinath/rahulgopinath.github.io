@@ -350,24 +350,34 @@ Let us define a printing routine.
 ############
 class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
-        for i, row in enumerate(table):
+        row_size = len(table[0])
+        for i, row_ in enumerate(table):
+            row = {i:list(cell.keys()) for i,cell in enumerate(row_)}
             # f"{value:{width}.{precision}}"
-            s = f'{i:<2}'
-            for j,cell in enumerate(row):
-                ckeys = list(cell.keys())
-                if len(ckeys) == 0:
-                    r = ''
-                    s += f'|{r:>{self.cell_width}}'
-                elif len(ckeys) == 1:
-                    r = ckeys[0]
-                    s += f'|{r:>{self.cell_width}}'
-                else:
-                    l = 2 + (j+1) * (self.cell_width + 1)
-                    r = ckeys[0]
-                    s += f'|{r:>{self.cell_width}}'
-                    for ck in ckeys[1:]:
-                        s += '\n' + f'{ck:>{l}}'
-            print(s + '|')
+            rows = [row]
+            while rows:
+                row, *rows = rows
+                s = f'{i:<2}'
+                remaining = {}
+                for j in range(row_size):
+                    if j in row: ckeys = row[j]
+                    else: ckeys = []
+                    if len(ckeys) == 0:
+                        r = ''
+                        s += f'|{r:>{self.cell_width}}'
+                    elif len(ckeys) >= 1:
+                        r = ckeys[0]
+                        s += f'|{r:>{self.cell_width}}'
+                        remaining[j] = ckeys[1:]
+                print(s + '|')
+                # construct the next row
+                nxt_row = {}
+                for k in remaining:
+                    if remaining[k]:
+                        nxt_row[k] = remaining[k]
+                if nxt_row: rows.append(nxt_row)
+            #
+            print('  |'+'_____|'*row_size)
 
 ############
 -->
@@ -375,24 +385,34 @@ class  CYKRecognizer(CYKRecognizer):
 <textarea cols="40" rows="4" name='python_edit'>
 class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
-        for i, row in enumerate(table):
+        row_size = len(table[0])
+        for i, row_ in enumerate(table):
+            row = {i:list(cell.keys()) for i,cell in enumerate(row_)}
             # f&quot;{value:{width}.{precision}}&quot;
-            s = f&#x27;{i:&lt;2}&#x27;
-            for j,cell in enumerate(row):
-                ckeys = list(cell.keys())
-                if len(ckeys) == 0:
-                    r = &#x27;&#x27;
-                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
-                elif len(ckeys) == 1:
-                    r = ckeys[0]
-                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
-                else:
-                    l = 2 + (j+1) * (self.cell_width + 1)
-                    r = ckeys[0]
-                    s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
-                    for ck in ckeys[1:]:
-                        s += &#x27;\n&#x27; + f&#x27;{ck:&gt;{l}}&#x27;
-            print(s + &#x27;|&#x27;)
+            rows = [row]
+            while rows:
+                row, *rows = rows
+                s = f&#x27;{i:&lt;2}&#x27;
+                remaining = {}
+                for j in range(row_size):
+                    if j in row: ckeys = row[j]
+                    else: ckeys = []
+                    if len(ckeys) == 0:
+                        r = &#x27;&#x27;
+                        s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
+                    elif len(ckeys) &gt;= 1:
+                        r = ckeys[0]
+                        s += f&#x27;|{r:&gt;{self.cell_width}}&#x27;
+                        remaining[j] = ckeys[1:]
+                print(s + &#x27;|&#x27;)
+                # construct the next row
+                nxt_row = {}
+                for k in remaining:
+                    if remaining[k]:
+                        nxt_row[k] = remaining[k]
+                if nxt_row: rows.append(nxt_row)
+            #
+            print(&#x27;  |&#x27;+&#x27;_____|&#x27;*row_size)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

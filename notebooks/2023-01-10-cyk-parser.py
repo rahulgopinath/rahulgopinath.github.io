@@ -194,24 +194,34 @@ class CYKRecognizer(CYKRecognizer):
 # Let us define a printing routine.
 class  CYKRecognizer(CYKRecognizer):
     def print_table(self, table):
-        for i, row in enumerate(table):
+        row_size = len(table[0])
+        for i, row_ in enumerate(table):
+            row = {i:list(cell.keys()) for i,cell in enumerate(row_)}
             # f"{value:{width}.{precision}}"
-            s = f'{i:<2}'
-            for j,cell in enumerate(row):
-                ckeys = list(cell.keys())
-                if len(ckeys) == 0:
-                    r = ''
-                    s += f'|{r:>{self.cell_width}}'
-                elif len(ckeys) == 1:
-                    r = ckeys[0]
-                    s += f'|{r:>{self.cell_width}}'
-                else:
-                    l = 2 + (j+1) * (self.cell_width + 1)
-                    r = ckeys[0]
-                    s += f'|{r:>{self.cell_width}}'
-                    for ck in ckeys[1:]:
-                        s += '\n' + f'{ck:>{l}}'
-            print(s + '|')
+            rows = [row]
+            while rows:
+                row, *rows = rows
+                s = f'{i:<2}'
+                remaining = {}
+                for j in range(row_size):
+                    if j in row: ckeys = row[j]
+                    else: ckeys = []
+                    if len(ckeys) == 0:
+                        r = ''
+                        s += f'|{r:>{self.cell_width}}'
+                    elif len(ckeys) >= 1:
+                        r = ckeys[0]
+                        s += f'|{r:>{self.cell_width}}'
+                        remaining[j] = ckeys[1:]
+                print(s + '|')
+                # construct the next row
+                nxt_row = {}
+                for k in remaining:
+                    if remaining[k]:
+                        nxt_row[k] = remaining[k]
+                if nxt_row: rows.append(nxt_row)
+            #
+            print('  |'+'_____|'*row_size)
 
 # Using it
 if __name__ == '__main__':
