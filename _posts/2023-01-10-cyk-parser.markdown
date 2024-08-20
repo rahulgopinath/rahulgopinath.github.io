@@ -282,7 +282,8 @@ class CYKRecognizer(ep.Parser):
         for k, rule in self.productions:
             if fuzzer.is_terminal(rule[0]):
                 if k not in self.terminal_rules:
-                    self.terminal_rules[rule[0]] = []
+                    if rule[0] not in self.terminal_rules:
+                        self.terminal_rules[rule[0]] = []
                 self.terminal_rules[rule[0]].append(k)
             else:
                 if k not in self.nonterminal_rules:
@@ -305,7 +306,8 @@ class CYKRecognizer(ep.Parser):
         for k, rule in self.productions:
             if fuzzer.is_terminal(rule[0]):
                 if k not in self.terminal_rules:
-                    self.terminal_rules[rule[0]] = []
+                    if rule[0] not in self.terminal_rules:
+                        self.terminal_rules[rule[0]] = []
                 self.terminal_rules[rule[0]].append(k)
             else:
                 if k not in self.nonterminal_rules:
@@ -426,7 +428,8 @@ nonterminal symbol that derives the corresponding token.
 class CYKRecognizer(CYKRecognizer):
     def parse_1(self, text, length, table):
         for s in range(0,length):
-            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
+            for key in self.terminal_rules[text[s]]:
+                table[s][s+1][key] = True
         return table
 
 ############
@@ -436,7 +439,8 @@ class CYKRecognizer(CYKRecognizer):
 class CYKRecognizer(CYKRecognizer):
     def parse_1(self, text, length, table):
         for s in range(0,length):
-            table[s][s+1] = {key:True for key in self.terminal_rules[text[s]]}
+            for key in self.terminal_rules[text[s]]:
+                table[s][s+1][key] = True
         return table
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -616,6 +620,9 @@ Now, let us work through each steps
 p = CYKRecognizer(g2)
 txt = 'ababa'
 tbl = p.init_table(txt, len(txt))
+p.print_table(tbl)
+
+print('length: 1')
 p.parse_1(txt, len(txt), tbl)
 p.print_table(tbl)
 
@@ -643,6 +650,9 @@ p.print_table(tbl)
 p = CYKRecognizer(g2)
 txt = &#x27;ababa&#x27;
 tbl = p.init_table(txt, len(txt))
+p.print_table(tbl)
+
+print(&#x27;length: 1&#x27;)
 p.parse_1(txt, len(txt), tbl)
 p.print_table(tbl)
 
