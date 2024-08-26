@@ -131,14 +131,80 @@
             const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
             
             const formatDatetime = (date) => {
-                return date.toISOString().slice(0, 16);
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
             };
             
             document.getElementById('startDatetime').value = formatDatetime(now);
             document.getElementById('endDatetime').value = formatDatetime(oneHourLater);
         }
 
-        window.onload = setDefaultDateTimes;
+        function adjustTimeForTimezone() {
+            const timezone = document.getElementById('timezone').value;
+            const startDatetime = document.getElementById('startDatetime');
+            const endDatetime = document.getElementById('endDatetime');
+
+            if (startDatetime.value && endDatetime.value) {
+                const startDate = new Date(startDatetime.value);
+                const endDate = new Date(endDatetime.value);
+
+                // Convert to the selected timezone
+                const options = { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                const adjustedStartDate = new Date(startDate.toLocaleString('en-US', options));
+                const adjustedEndDate = new Date(endDate.toLocaleString('en-US', options));
+
+                // Format the adjusted dates back to the input format
+                startDatetime.value = adjustedStartDate.toISOString().slice(0, 16);
+                endDatetime.value = adjustedEndDate.toISOString().slice(0, 16);
+            }
+        }
+
+        function setUserTimeZone() {
+            const timeZoneSelect = document.getElementById('timezone');
+            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            for (let i = 0; i < timeZoneSelect.options.length; i++) {
+                if (timeZoneSelect.options[i].value === userTimeZone) {
+                    timeZoneSelect.selectedIndex = i;
+                    break;
+                }
+            }
+
+            // If the exact time zone is not found, try to match the offset
+            if (timeZoneSelect.selectedIndex === 0) {
+                const userOffset = new Date().getTimezoneOffset();
+                for (let i = 0; i < timeZoneSelect.options.length; i++) {
+                    const optionOffset = getTimezoneOffset(timeZoneSelect.options[i].value);
+                    if (optionOffset === userOffset) {
+                        timeZoneSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        function getTimezoneOffset(timeZone) {
+            const date = new Date();
+            const options = { timeZone, timeZoneName: 'short' };
+            const dateString = date.toLocaleString('en-US', options);
+            const offset = dateString.split(' ').pop();
+            const [, sign, hours, minutes] = offset.match(/^GMT([-+])(\d{1,2}):?(\d{2})?/) || [];
+            return (sign === '-' ? 1 : -1) * ((+hours || 0) * 60 + (+minutes || 0));
+        }
+
+        window.onload = function() {
+            setDefaultDateTimes();
+            setUserTimeZone();
+            document.getElementById('timezone').addEventListener('change', adjustTimeForTimezone);
+        };
+
+        document.getElementById('recurring').addEventListener('change', function() {
+            document.getElementById('recurringOptions').style.display = this.checked ? 'block' : 'none';
+        });
     </script>
 
 <form onsubmit="event.preventDefault(); generateICS();">
@@ -150,7 +216,7 @@
         <label for="timezone">Time Zone:</label>
         <select id="timezone" required>
             <option value="UTC">UTC</option>
-            <option value="Australia/Sydney" selected >(GMT+10:00) Sydney</option>
+            <option value="Australia/Sydney">(GMT+10:00) Sydney</option>
             <option value="Asia/Kolkata">(GMT+5:30) Kolkata</option>
             <option value="Africa/Abidjan">(GMT+0:00) Abidjan</option>
             <option value="Africa/Accra">(GMT+0:00) Accra</option>
