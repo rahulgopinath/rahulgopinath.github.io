@@ -190,6 +190,8 @@ class CYKRecognizer(ep.Parser):
 class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
         res = [[{} for i in range(length+1)] for j in range(length+1)]
+        # this is just for demonstration of which lterals are invloved.
+        # You can remove the loop
         for i in range(length):
             res[i][i] = {text[i]: text[i]}
         return res
