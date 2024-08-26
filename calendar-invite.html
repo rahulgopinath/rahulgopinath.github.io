@@ -46,8 +46,8 @@
         const description = document.getElementById("description").value;
         const location = document.getElementById("location").value;
         const organizer = document.getElementById("organizer").value;
-        const status = document.getElementById("status").value;
-        const priority = document.getElementById("priority").value;
+        //const status = document.getElementById("status").value;
+        //const priority = document.getElementById("priority").value;
         const timezone = document.getElementById("timezone").value;
 
         // Recurring event options
@@ -95,8 +95,8 @@
         ics_content += "DESCRIPTION:" + description + "\r\n";
         ics_content += "LOCATION:" + location + "\r\n";
         ics_content += "ORGANIZER:" + organizer + "\r\n";
-        ics_content += "STATUS:" + status + "\r\n";
-        ics_content += "PRIORITY:" + priority + "\r\n";
+        //ics_content += "STATUS:" + status + "\r\n";
+        //ics_content += "PRIORITY:" + priority + "\r\n";
         if (isRecurring) {
           ics_content += rrule + "\r\n";
         }
@@ -125,18 +125,32 @@
             a.click();
             window.URL.revokeObjectURL(url);
         }
+
+        function setDefaultDateTimes() {
+            const now = new Date();
+            const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+            
+            const formatDatetime = (date) => {
+                return date.toISOString().slice(0, 16);
+            };
+            
+            document.getElementById('startDatetime').value = formatDatetime(now);
+            document.getElementById('endDatetime').value = formatDatetime(oneHourLater);
+        }
+
+        window.onload = setDefaultDateTimes;
     </script>
 
 <form onsubmit="event.preventDefault(); generateICS();">
     <div class="form-group">
         <label for="eventName">Event Name:</label>
-        <input type="text" id="eventName" required>
+        <input type="text" id="eventName" required value="meeting with (Topic here)">
     </div>
     <div class="form-group">
         <label for="timezone">Time Zone:</label>
         <select id="timezone" required>
             <option value="UTC">UTC</option>
-            <option value="Australia/Sydney">(GMT+10:00) Sydney</option>
+            <option value="Australia/Sydney" selected >(GMT+10:00) Sydney</option>
             <option value="Asia/Kolkata">(GMT+5:30) Kolkata</option>
             <option value="Africa/Abidjan">(GMT+0:00) Abidjan</option>
             <option value="Africa/Accra">(GMT+0:00) Accra</option>
@@ -247,21 +261,21 @@
     </div>
     <div class="form-group">
         <label for="location">Location:</label>
-        <input type="text" id="location">
+        <input type="text" id="location" value="Zoom">
     </div>
     <div class="form-group">
         <label for="organizer">Organizer:</label>
-        <input type="text" id="organizer">
+        <input type="text" id="organizer" value="Your name here">
     </div>
-    <div class="form-group">
+    <!--div class="form-group">
         <label for="status">Status:</label>
         <select id="status">
             <option value="CONFIRMED">Confirmed</option>
             <option value="TENTATIVE">Tentative</option>
             <option value="CANCELLED">Cancelled</option>
         </select>
-    </div>
-    <div class="form-group">
+    </div-->
+    <!--div class="form-group">
         <label for="priority">Priority:</label>
         <select id="priority">
             <option value="0">Undefined</option>
@@ -275,7 +289,7 @@
             <option value="8">8</option>
             <option value="9">Lowest (9)</option>
         </select>
-    </div>
+    </div-->
     <div class="form-group">
         <label for="description">Description:</label>
         <textarea id="description" rows="4" cols="50"></textarea>
