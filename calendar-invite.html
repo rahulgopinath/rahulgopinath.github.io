@@ -38,174 +38,6 @@
             margin: 10px 5px;
         }
     </style>
-    <script>
-      function generateICS() {
-        const event_name = document.getElementById("eventName").value;
-        const start_datetime = new Date(document.getElementById("startDatetime").value);
-        const end_datetime = new Date(document.getElementById("endDatetime").value);
-        const description = document.getElementById("description").value;
-        const location = document.getElementById("location").value;
-        const organizer = document.getElementById("organizer").value;
-        //const status = document.getElementById("status").value;
-        //const priority = document.getElementById("priority").value;
-        const timezone = document.getElementById("timezone").value;
-
-        // Recurring event options
-        const isRecurring = document.getElementById("recurring").checked;
-        let rrule = "";
-        if (isRecurring) {
-          const frequency = document.getElementById("frequency").value;
-          const interval = document.getElementById("interval").value;
-          const count = document.getElementById("count").value;
-          const until = document.getElementById("until").value;
-
-          rrule = `RRULE:FREQ=${frequency};INTERVAL=${interval}`;
-          if (count) {
-            rrule += `;COUNT=${count}`;
-          } else if (until) {
-            const untilDate = new Date(until);
-            const untilFormatted = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-            rrule += `;UNTIL=${untilFormatted}`;
-          }
-        }
-
-        // Convert the datetime to the ICS format
-        const formatDatetime = (date) => {
-          return date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-        };
-
-        const start_datetime_ics = formatDatetime(start_datetime);
-        const end_datetime_ics = formatDatetime(end_datetime);
-        const dtstamp = formatDatetime(new Date());
-        const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
-
-        // Create the ICS content
-        let ics_content = "BEGIN:VCALENDAR\r\n";
-        ics_content += "VERSION:2.0\r\n";
-        ics_content += "PRODID:-//University of Sydney//Software Engineering//EN\r\n";
-        ics_content += "BEGIN:VTIMEZONE\r\n";
-        ics_content += "TZID:" + timezone + "\r\n";
-        ics_content += "END:VTIMEZONE\r\n";
-        ics_content += "BEGIN:VEVENT\r\n";
-        ics_content += "SUMMARY:" + event_name + "\r\n";
-        ics_content += "DTSTART;TZID=" + timezone + ":" + start_datetime_ics + "\r\n";
-        ics_content += "DTEND;TZID=" + timezone + ":" + end_datetime_ics + "\r\n";
-        ics_content += "DTSTAMP:" + dtstamp + "\r\n";
-        ics_content += "UID:" + uid + "\r\n";
-        ics_content += "DESCRIPTION:" + description + "\r\n";
-        ics_content += "LOCATION:" + location + "\r\n";
-        ics_content += "ORGANIZER:" + organizer + "\r\n";
-        //ics_content += "STATUS:" + status + "\r\n";
-        //ics_content += "PRIORITY:" + priority + "\r\n";
-        if (isRecurring) {
-          ics_content += rrule + "\r\n";
-        }
-        ics_content += "END:VEVENT\r\n";
-        ics_content += "END:VCALENDAR\r\n";
-
-        document.getElementById("icsOutput").value = ics_content;
-      }
-
-
-        function copyToClipboard() {
-            const textBox = document.getElementById("icsOutput");
-            textBox.select();
-            document.execCommand("copy");
-        }
-
-        function downloadICS() {
-            const ics_content = document.getElementById("icsOutput").value;
-            const blob = new Blob([ics_content], { type: "text/calendar" });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.style.display = "none";
-            a.href = url;
-            a.download = "event.ics";
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function setDefaultDateTimes() {
-            const now = new Date();
-            const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-            
-            const formatDatetime = (date) => {
-                const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                const hours = date.getHours().toString().padStart(2, '0');
-                const minutes = date.getMinutes().toString().padStart(2, '0');
-                return `${year}-${month}-${day}T${hours}:${minutes}`;
-            };
-            
-            document.getElementById('startDatetime').value = formatDatetime(now);
-            document.getElementById('endDatetime').value = formatDatetime(oneHourLater);
-        }
-
-        function adjustTimeForTimezone() {
-            const timezone = document.getElementById('timezone').value;
-            const startDatetime = document.getElementById('startDatetime');
-            const endDatetime = document.getElementById('endDatetime');
-
-            if (startDatetime.value && endDatetime.value) {
-                const startDate = new Date(startDatetime.value);
-                const endDate = new Date(endDatetime.value);
-
-                // Convert to the selected timezone
-                const options = { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-                const adjustedStartDate = new Date(startDate.toLocaleString('en-US', options));
-                const adjustedEndDate = new Date(endDate.toLocaleString('en-US', options));
-
-                // Format the adjusted dates back to the input format
-                startDatetime.value = adjustedStartDate.toISOString().slice(0, 16);
-                endDatetime.value = adjustedEndDate.toISOString().slice(0, 16);
-            }
-        }
-
-        function setUserTimeZone() {
-            const timeZoneSelect = document.getElementById('timezone');
-            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            
-            for (let i = 0; i < timeZoneSelect.options.length; i++) {
-                if (timeZoneSelect.options[i].value === userTimeZone) {
-                    timeZoneSelect.selectedIndex = i;
-                    break;
-                }
-            }
-
-            // If the exact time zone is not found, try to match the offset
-            if (timeZoneSelect.selectedIndex === 0) {
-                const userOffset = new Date().getTimezoneOffset();
-                for (let i = 0; i < timeZoneSelect.options.length; i++) {
-                    const optionOffset = getTimezoneOffset(timeZoneSelect.options[i].value);
-                    if (optionOffset === userOffset) {
-                        timeZoneSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-
-        function getTimezoneOffset(timeZone) {
-            const date = new Date();
-            const options = { timeZone, timeZoneName: 'short' };
-            const dateString = date.toLocaleString('en-US', options);
-            const offset = dateString.split(' ').pop();
-            const [, sign, hours, minutes] = offset.match(/^GMT([-+])(\d{1,2}):?(\d{2})?/) || [];
-            return (sign === '-' ? 1 : -1) * ((+hours || 0) * 60 + (+minutes || 0));
-        }
-
-        window.onload = function() {
-            setDefaultDateTimes();
-            setUserTimeZone();
-            document.getElementById('timezone').addEventListener('change', adjustTimeForTimezone);
-        };
-
-        document.getElementById('recurring').addEventListener('change', function() {
-            document.getElementById('recurringOptions').style.display = this.checked ? 'block' : 'none';
-        });
-    </script>
 
 <form onsubmit="event.preventDefault(); generateICS();">
     <div class="form-group">
@@ -314,9 +146,8 @@
             <option value="Pacific/Pago_Pago">(GMT-11:00) Pago Pago</option>
             <option value="Pacific/Port_Moresby">(GMT+10:00) Port Moresby</option>
             <option value="Pacific/Tongatapu">(GMT+13:00) Tongatapu</option>
-            <!-- Add more time zones as needed -->
         </select>
-            </div>
+    </div>
     <div class="form-group">
         <label for="startDatetime">Start Date and Time:</label>
         <input type="datetime-local" id="startDatetime" required>
@@ -327,35 +158,12 @@
     </div>
     <div class="form-group">
         <label for="location">Location:</label>
-        <input type="text" id="location" value="Zoom">
+        <input type="text" id="location" value="https://uni-sydney.zoom.us/my/soft.eng">
     </div>
     <div class="form-group">
         <label for="organizer">Organizer:</label>
-        <input type="text" id="organizer" value="Your name here">
+        <input type="text" id="organizer" value="(Your email here)">
     </div>
-    <!--div class="form-group">
-        <label for="status">Status:</label>
-        <select id="status">
-            <option value="CONFIRMED">Confirmed</option>
-            <option value="TENTATIVE">Tentative</option>
-            <option value="CANCELLED">Cancelled</option>
-        </select>
-    </div-->
-    <!--div class="form-group">
-        <label for="priority">Priority:</label>
-        <select id="priority">
-            <option value="0">Undefined</option>
-            <option value="1">Highest (1)</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">Medium (5)</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">Lowest (9)</option>
-        </select>
-    </div-->
     <div class="form-group">
         <label for="description">Description:</label>
         <textarea id="description" rows="4" cols="50"></textarea>
@@ -369,7 +177,7 @@
               <label for="frequency">Frequency:</label>
               <select id="frequency" name="frequency">
                   <option value="DAILY">Daily</option>
-                  <option value="WEEKLY">Weekly</option>
+                  <option value="WEEKLY" selected>Weekly</option>
                   <option value="MONTHLY">Monthly</option>
                   <option value="YEARLY">Yearly</option>
               </select>
@@ -387,11 +195,6 @@
               <input type="date" id="until" name="until">
           </div>
     </div>
-    <script>
-        document.getElementById('recurring').addEventListener('change', function() {
-            document.getElementById('recurringOptions').style.display = this.checked ? 'block' : 'none';
-        });
-    </script>
     <input type="submit" value="Generate ICS" style="margin: 10px 5px;">
 </form>
 
@@ -399,5 +202,164 @@
 <textarea id="icsOutput" rows="10" cols="70"></textarea><br>
 <button onclick="copyToClipboard()">Copy</button>
 <button onclick="downloadICS()">Download</button>
+
+<script>
+function setDefaultDateTimes() {
+    const now = new Date();
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    
+    const formatDatetime = (date) => {
+        return date.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(', ', 'T');
+    };
+    
+    document.getElementById('startDatetime').value = formatDatetime(now);
+    document.getElementById('endDatetime').value = formatDatetime(oneHourLater);
+}
+
+function setUserTimeZone() {
+    const timeZoneSelect = document.getElementById('timezone');
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+    for (let i = 0; i < timeZoneSelect.options.length; i++) {
+        if (timeZoneSelect.options[i].value === userTimeZone) {
+            timeZoneSelect.selectedIndex = i;
+            break;
+        }
+    }
+    
+    // If user's time zone is not found, default to Sydney
+    if (timeZoneSelect.selectedIndex === 0) {
+        const sydneyOption = Array.from(timeZoneSelect.options).find(option => option.value === 'Australia/Sydney');
+        if (sydneyOption) {
+            sydneyOption.selected = true;
+        }
+    }
+}
+
+function adjustTimeForTimezone() {
+    const timezone = document.getElementById('timezone').value;
+    const startDatetime = document.getElementById('startDatetime');
+    const endDatetime = document.getElementById('endDatetime');
+
+    if (startDatetime.value && endDatetime.value) {
+        const startDate = new Date(startDatetime.value);
+        const endDate = new Date(endDatetime.value);
+
+        const formatDateForTimezone = (date, timeZone) => {
+            return date.toLocaleString('en-CA', {
+                timeZone: timeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).replace(', ', 'T');
+        };
+
+        startDatetime.value = formatDateForTimezone(startDate, timezone);
+        endDatetime.value = formatDateForTimezone(endDate, timezone);
+    }
+}
+
+function setEndDateOneYearFromStart() {
+    const startDate = new Date(document.getElementById('startDatetime').value);
+    const oneYearFromStart = new Date(startDate);
+    oneYearFromStart.setFullYear(oneYearFromStart.getFullYear() + 1);
+    const formattedDate = oneYearFromStart.toISOString().split('T')[0];
+    document.getElementById('until').value = formattedDate;
+}
+
+window.onload = function() {
+    setDefaultDateTimes();
+    setUserTimeZone();
+    document.getElementById('timezone').addEventListener('change', adjustTimeForTimezone);
+    document.getElementById('recurring').addEventListener('change', function() {
+        const recurringOptions = document.getElementById('recurringOptions');
+        recurringOptions.style.display = this.checked ? 'block' : 'none';
+        if (this.checked) {
+            setEndDateOneYearFromStart();
+        }
+    });
+    document.getElementById('startDatetime').addEventListener('change', function() {
+        if (document.getElementById('recurring').checked) {
+            setEndDateOneYearFromStart();
+        }
+    });
+};
+
+function generateICS() {
+    const event_name = document.getElementById("eventName").value;
+    const start_datetime = new Date(document.getElementById("startDatetime").value);
+    const end_datetime = new Date(document.getElementById("endDatetime").value);
+    const description = document.getElementById("description").value;
+    const location = document.getElementById("location").value;
+    const organizer = document.getElementById("organizer").value;
+    const timezone = document.getElementById("timezone").value;
+
+    // Recurring event options
+    const isRecurring = document.getElementById("recurring").checked;
+    let rrule = "";
+    if (isRecurring) {
+        const until = document.getElementById("until").value;
+        const untilDate = new Date(until);
+        const untilFormatted = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+        rrule = `RRULE:FREQ=DAILY;UNTIL=${untilFormatted}`;
+    }
+
+    // Convert the datetime to the ICS format
+    const formatDatetime = (date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+    };
+
+    const start_datetime_ics = formatDatetime(start_datetime);
+    const end_datetime_ics = formatDatetime(end_datetime);
+    const dtstamp = formatDatetime(new Date());
+    const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
+
+    // Create the ICS content
+    let ics_content = "BEGIN:VCALENDAR\r\n";
+    ics_content += "VERSION:2.0\r\n";
+    ics_content += "PRODID:-//University of Sydney//Software Engineering//EN\r\n";
+    ics_content += "BEGIN:VTIMEZONE\r\n";
+    ics_content += "TZID:" + timezone + "\r\n";
+    ics_content += "END:VTIMEZONE\r\n";
+    ics_content += "BEGIN:VEVENT\r\n";
+    ics_content += "SUMMARY:" + event_name + "\r\n";
+    ics_content += "DTSTART;TZID=" + timezone + ":" + start_datetime_ics + "\r\n";
+    ics_content += "DTEND;TZID=" + timezone + ":" + end_datetime_ics + "\r\n";
+    ics_content += "DTSTAMP:" + dtstamp + "\r\n";
+    ics_content += "UID:" + uid + "\r\n";
+    ics_content += "DESCRIPTION:" + description + "\r\n";
+    ics_content += "LOCATION:" + location + "\r\n";
+    ics_content += "ORGANIZER:" + organizer + "\r\n";
+    if (isRecurring) {
+        ics_content += rrule + "\r\n";
+    }
+    ics_content += "END:VEVENT\r\n";
+    ics_content += "END:VCALENDAR\r\n";
+
+    document.getElementById("icsOutput").value = ics_content;
+}
+
+function copyToClipboard() {
+    const textBox = document.getElementById("icsOutput");
+    textBox.select();
+    document.execCommand("copy");
+}
+
+function downloadICS() {
+    const ics_content = document.getElementById("icsOutput").value;
+    const blob = new Blob([ics_content], { type: "text/calendar" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = "event.ics";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
 </body>
 </html>
