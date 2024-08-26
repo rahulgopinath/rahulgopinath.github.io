@@ -39,50 +39,73 @@
         }
     </style>
     <script>
+      function generateICS() {
+        const event_name = document.getElementById("eventName").value;
+        const start_datetime = new Date(document.getElementById("startDatetime").value);
+        const end_datetime = new Date(document.getElementById("endDatetime").value);
+        const description = document.getElementById("description").value;
+        const location = document.getElementById("location").value;
+        const organizer = document.getElementById("organizer").value;
+        const status = document.getElementById("status").value;
+        const priority = document.getElementById("priority").value;
+        const timezone = document.getElementById("timezone").value;
 
-        function generateICS() {
-            const event_name = document.getElementById("eventName").value;
-            const start_datetime = new Date(document.getElementById("startDatetime").value);
-            const end_datetime = new Date(document.getElementById("endDatetime").value);
-            const description = document.getElementById("description").value;
-            const location = document.getElementById("location").value;
-            const organizer = document.getElementById("organizer").value;
-            const status = document.getElementById("status").value;
-            const priority = document.getElementById("priority").value;
-            const timezone = document.getElementById("timezone").value;
+        // Recurring event options
+        const isRecurring = document.getElementById("recurring").checked;
+        let rrule = "";
+        if (isRecurring) {
+          const frequency = document.getElementById("frequency").value;
+          const interval = document.getElementById("interval").value;
+          const count = document.getElementById("count").value;
+          const until = document.getElementById("until").value;
 
-            // Convert the datetime to the ICS format with time zone
-            const formatDatetime = (date) => {
-                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-            };
-
-            const start_datetime_ics = formatDatetime(start_datetime);
-            const end_datetime_ics = formatDatetime(end_datetime);
-            const dtstamp = formatDatetime(new Date());
-            const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
-
-            // Create the ICS content
-            let ics_content = "BEGIN:VCALENDAR\r\n";
-            ics_content += "VERSION:2.0\r\n";
-            ics_content += "BEGIN:VTIMEZONE\r\n";
-            ics_content += "TZID:" + timezone + "\r\n";
-            ics_content += "END:VTIMEZONE\r\n";
-            ics_content += "BEGIN:VEVENT\r\n";
-            ics_content += "SUMMARY:" + event_name + "\r\n";
-            ics_content += "DTSTART;TZID=" + timezone + ":" + start_datetime_ics + "\r\n";
-            ics_content += "DTEND;TZID=" + timezone + ":" + end_datetime_ics + "\r\n";
-            ics_content += "DTSTAMP:" + dtstamp + "\r\n";
-            ics_content += "UID:" + uid + "\r\n";
-            ics_content += "DESCRIPTION:" + description + "\r\n";
-            ics_content += "LOCATION:" + location + "\r\n";
-            ics_content += "ORGANIZER:" + organizer + "\r\n";
-            ics_content += "STATUS:" + status + "\r\n";
-            ics_content += "PRIORITY:" + priority + "\r\n";
-            ics_content += "END:VEVENT\r\n";
-            ics_content += "END:VCALENDAR\r\n";
-
-            document.getElementById("icsOutput").value = ics_content;
+          rrule = `RRULE:FREQ=${frequency};INTERVAL=${interval}`;
+          if (count) {
+            rrule += `;COUNT=${count}`;
+          } else if (until) {
+            const untilDate = new Date(until);
+            const untilFormatted = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+            rrule += `;UNTIL=${untilFormatted}`;
+          }
         }
+
+        // Convert the datetime to the ICS format
+        const formatDatetime = (date) => {
+          return date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+        };
+
+        const start_datetime_ics = formatDatetime(start_datetime);
+        const end_datetime_ics = formatDatetime(end_datetime);
+        const dtstamp = formatDatetime(new Date());
+        const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
+
+        // Create the ICS content
+        let ics_content = "BEGIN:VCALENDAR\r\n";
+        ics_content += "VERSION:2.0\r\n";
+        ics_content += "PRODID:-//University of Sydney//Software Engineering//EN\r\n";
+        ics_content += "BEGIN:VTIMEZONE\r\n";
+        ics_content += "TZID:" + timezone + "\r\n";
+        ics_content += "END:VTIMEZONE\r\n";
+        ics_content += "BEGIN:VEVENT\r\n";
+        ics_content += "SUMMARY:" + event_name + "\r\n";
+        ics_content += "DTSTART;TZID=" + timezone + ":" + start_datetime_ics + "\r\n";
+        ics_content += "DTEND;TZID=" + timezone + ":" + end_datetime_ics + "\r\n";
+        ics_content += "DTSTAMP:" + dtstamp + "\r\n";
+        ics_content += "UID:" + uid + "\r\n";
+        ics_content += "DESCRIPTION:" + description + "\r\n";
+        ics_content += "LOCATION:" + location + "\r\n";
+        ics_content += "ORGANIZER:" + organizer + "\r\n";
+        ics_content += "STATUS:" + status + "\r\n";
+        ics_content += "PRIORITY:" + priority + "\r\n";
+        if (isRecurring) {
+          ics_content += rrule + "\r\n";
+        }
+        ics_content += "END:VEVENT\r\n";
+        ics_content += "END:VCALENDAR\r\n";
+
+        document.getElementById("icsOutput").value = ics_content;
+      }
+
 
         function copyToClipboard() {
             const textBox = document.getElementById("icsOutput");
@@ -257,6 +280,38 @@
         <label for="description">Description:</label>
         <textarea id="description" rows="4" cols="50"></textarea>
     </div>
+    <div class="form-group">
+          <label for="recurring">Recurring Event:</label>
+          <input type="checkbox" id="recurring" name="recurring">
+    </div>
+    <div id="recurringOptions" style="display:none;">
+          <div class="form-group">
+              <label for="frequency">Frequency:</label>
+              <select id="frequency" name="frequency">
+                  <option value="DAILY">Daily</option>
+                  <option value="WEEKLY">Weekly</option>
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="YEARLY">Yearly</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label for="interval">Interval:</label>
+              <input type="number" id="interval" name="interval" min="1" value="1">
+          </div>
+          <div class="form-group">
+              <label for="count">Number of occurrences:</label>
+              <input type="number" id="count" name="count" min="1">
+          </div>
+          <div class="form-group">
+              <label for="until">End date:</label>
+              <input type="date" id="until" name="until">
+          </div>
+    </div>
+    <script>
+        document.getElementById('recurring').addEventListener('change', function() {
+            document.getElementById('recurringOptions').style.display = this.checked ? 'block' : 'none';
+        });
+    </script>
     <input type="submit" value="Generate ICS" style="margin: 10px 5px;">
 </form>
 
