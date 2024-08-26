@@ -331,7 +331,10 @@ represents the nonterminals that can parse the substring `text[i..j]`
 ############
 class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
-        return [[{} for i in range(length+1)] for j in range(length+1)]
+        res = [[{} for i in range(length+1)] for j in range(length+1)]
+        for i in range(length):
+            res[i][i] = {text[i]: text[i]}
+        return res
 
 ############
 -->
@@ -339,7 +342,10 @@ class CYKRecognizer(CYKRecognizer):
 <textarea cols="40" rows="4" name='python_edit'>
 class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
-        return [[{} for i in range(length+1)] for j in range(length+1)]
+        res = [[{} for i in range(length+1)] for j in range(length+1)]
+        for i in range(length):
+            res[i][i] = {text[i]: text[i]}
+        return res
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

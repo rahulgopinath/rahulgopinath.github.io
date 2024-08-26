@@ -189,7 +189,10 @@ class CYKRecognizer(ep.Parser):
 
 class CYKRecognizer(CYKRecognizer):
     def init_table(self, text, length):
-        return [[{} for i in range(length+1)] for j in range(length+1)]
+        res = [[{} for i in range(length+1)] for j in range(length+1)]
+        for i in range(length):
+            res[i][i] = {text[i]: text[i]}
+        return res
 
 # Let us define a printing routine.
 class  CYKRecognizer(CYKRecognizer):
