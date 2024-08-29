@@ -214,8 +214,8 @@ sample_grammar = {
 # ```
 # which represents two parsing paths to complete `<A>`.
 # 
-# After processing of column `0` (which corresponds to input character `a`), we
-# would find the following in column `1` (which corresponds to the input character `b`)
+# After processing of column `0` (corresponds to the start of the parse), we
+# would find the following in column `1` (which corresponds to the end of parse for literal `a`)
 # 
 # ```
 #    <A>: a | <B> c
