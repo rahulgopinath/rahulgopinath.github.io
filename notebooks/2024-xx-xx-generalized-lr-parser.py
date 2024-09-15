@@ -187,9 +187,9 @@ if __name__ == '__main__':
     MY_TBL[9]['$'] = ['r2']
 
     hdr = MY_TBL[0]
-    print('\t'.join(k for k in hdr))
-    for row in MY_TBL:
-        print('\t'.join(str(row[k]) for k in row))
+    print('State\t', '\t'.join(k for k in hdr))
+    for i, row in enumerate(MY_TBL):
+        print(str(i)+'\t', '\t'.join(str(row[k]) for k in row))
 
 
 # Show graph
@@ -211,7 +211,6 @@ def to_graph(nfa_tbl):
 #
 if __name__ == '__main__':
     g = to_graph(MY_TBL)
-    print(str(g))
     __canvas__(str(g))
 
 # Consider how you will parse a string that conforms to the following grammar
@@ -594,9 +593,9 @@ if __name__ == '__main__':
     my_dfa = DFA(g1a, g1a_start)
     table = my_dfa.build_dfa()
     rowh = table[0]
-    print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+    print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
     for i,row in enumerate(table):
-        print(i, '\t','\t'.join([str(row[c]) for c in row.keys()]))
+        print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
 
