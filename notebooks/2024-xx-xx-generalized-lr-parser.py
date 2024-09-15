@@ -80,17 +80,18 @@
 # #### Prerequisites
 #  
 # As before, we start with the prerequisite imports.
-# If you are running this on command line, please uncomment the following line.
-# 
-# ```
-if '__canvas__' not in globals():
-    __canvas__ = lambda g: print(g)
-# ```
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
+
+
+# If you are running this on command line, please uncomment the following line.
+if __name__ == '__main__':
+    if '__canvas__' not in globals():
+        __canvas__ = lambda g: print(g)
+
 
 # We need the fuzzer to generate inputs to parse and also to provide some
 # utilities
@@ -202,7 +203,7 @@ def to_graph(nfa_tbl):
         label = str(i)
         # if the state contains 'accept', then it is an accept state.
         for k in state:
-            if state[k] == 'accept': shape='doublecircle'
+            if  'accept' in state[k]: shape='doublecircle'
         G.add_node(pydot.Node(label, label=label, shape=shape, peripheries='1')
             #peripheries= '2' if i == root else '1')
                    )
@@ -210,13 +211,16 @@ def to_graph(nfa_tbl):
             cell = state[transition]
             if not cell: continue
             color = 'black'
-            if cell[0][0] == 'g': color='blue'
-            if cell[0][0] == 'r': color='red'
-            state_name = cell[0][1]
+            state_name = cell[0]
             if state_name == 'accept':
-                pass
+                continue
+            elif state_name[0] == 'g':
+                color='blue'
+            elif state_name[0] == 'r':
+                color='red'
             else:
-                G.add_edge(pydot.Edge(label, state_name, color=color, label=transition))
+                assert state_name[0] == 's'
+            G.add_edge(pydot.Edge(label, state_name[1], color=color, label=transition))
     return G
 #
 if __name__ == '__main__':
