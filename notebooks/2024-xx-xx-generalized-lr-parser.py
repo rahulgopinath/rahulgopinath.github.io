@@ -83,8 +83,8 @@
 # If you are running this on command line, please uncomment the following line.
 # 
 # ```
-# def __canvas__(g):
-#    print(g)
+if '__canvas__' not in globals():
+    __canvas__ = lambda g: print(g)
 # ```
 
 #@
@@ -200,16 +200,30 @@ def to_graph(nfa_tbl):
         # 0: a:s2 means on s0, on transition with a, it goes to state s2
         shape = 'rectangle'# rectangle, oval, diamond
         label = str(i)
+        # if the state contains 'accept', then it is an accept state.
+        for k in state:
+            if state[k] == 'accept': shape='doublecircle'
         G.add_node(pydot.Node(label, label=label, shape=shape, peripheries='1')
             #peripheries= '2' if i == root else '1')
                    )
         for transition in state:
             cell = state[transition]
             if not cell: continue
-            G.add_edge(pydot.Edge(label, cell[0][1], color='black', label=transition))
+            color = 'black'
+            if cell[0][0] == 'g': color='blue'
+            if cell[0][0] == 'r': color='red'
+            state_name = cell[0][1]
+            if state_name == 'accept':
+                pass
+            else:
+                G.add_edge(pydot.Edge(label, state_name, color=color, label=transition))
     return G
 #
 if __name__ == '__main__':
+    hdr = MY_TBL[0]
+    print('State\t', '\t'.join(k for k in hdr))
+    for i, row in enumerate(MY_TBL):
+        print(str(i)+'\t', '\t'.join(str(row[k]) for k in row))
     g = to_graph(MY_TBL)
     __canvas__(str(g))
 
