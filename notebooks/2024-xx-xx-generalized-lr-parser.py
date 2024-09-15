@@ -206,13 +206,13 @@ def to_graph(nfa_tbl):
         for transition in state:
             cell = state[transition]
             if not cell: continue
-            G.add_edge(pydot.Edge(label, cell[0][1], color='black'))
+            G.add_edge(pydot.Edge(label, cell[0][1], color='black', label=transition))
     return G
 #
 if __name__ == '__main__':
     g = to_graph(MY_TBL)
     print(str(g))
-    #__canvas__(str(g))
+    __canvas__(str(g))
 
 # Consider how you will parse a string that conforms to the following grammar
 
@@ -275,7 +275,7 @@ class State:
         return self.expr[self.dot] if self.dot < len(self.expr) else None
 
     def __repr__(self):
-        return "{%s : %d}" % (str(self), self.sid)
+        return "<%s : %d>" % (str(self), self.sid)
 
 
     def show_dot(self, sym, rule, pos, dotstr='|', extents=''):
@@ -444,9 +444,9 @@ if __name__ == '__main__':
     my_nfa = NFA(g1a, g1a_start)
     table = my_nfa.build_nfa()
     rowh = table[0]
-    print('>', '\t','\t\t'.join([repr(c) for c in rowh.keys()]))
+    print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
     for i,row in enumerate(table):
-        print(i, '\t','\t\t'.join([str(row[c]) for c in row.keys()]))
+        print(i, '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
 # ## Building a DFA.
@@ -594,16 +594,14 @@ if __name__ == '__main__':
     my_dfa = DFA(g1a, g1a_start)
     table = my_dfa.build_dfa()
     rowh = table[0]
-    print('>', '\t','\t\t'.join([repr(c) for c in rowh.keys()]))
+    print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
     for i,row in enumerate(table):
-        print(i, '\t','\t\t'.join([str(row[c]) for c in row.keys()]))
+        print(i, '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
 
 # Now, let us recursively build the NFA.
 
-# 
-# **Note**: There is now (2024) a reference implementation for GLL from the authors. It is available at [https://github.com/AJohnstone2007/referenceImplementation](https://github.com/AJohnstone2007/referenceImplementation).
 # 
 # [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 #
