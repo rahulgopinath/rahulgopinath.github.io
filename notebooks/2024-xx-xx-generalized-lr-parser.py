@@ -242,27 +242,28 @@ if __name__ == '__main__':
     // Edge definitions with labels
     0 -> 2 [label="a"];
     0 -> 3 [label="b"];
-    0 -> 1 [label="S"];
+    0 -> 1 [label="S", style=dashed];
 
     2 -> 5 [label="b"];
-    2 -> 4 [label="A"];
+    2 -> 4 [label="A", style=dashed];
 
     3 -> 5 [label="b"];
-    3 -> 6 [label="A"];
+    3 -> 6 [label="A", style=dashed];
 
     4 -> 7 [label="c"];
 
-    5 -> 4 [label="A", style=dashed]; // GOTO after reduction in state 5
-    5 -> 6 [label="A", style=dashed]; // GOTO after reduction in state 5
+    5 -> 4 [label="A", color=red]; // GOTO after reduction in state 5
+    5 -> 6 [label="A", color=red]; // GOTO after reduction in state 5
 
     6 -> 8 [label="d"];
 
-    7 -> 1 [label="S", style=dashed]; // GOTO after reduction in state 7
+    7 -> 1 [label="S", color=red]; // GOTO after reduction in state 7
 
     8 -> 9 [label="d"];
 
-    9 -> 1 [label="S", style=dashed]; // GOTO after reduction in state 9
+    9 -> 1 [label="S", color=red]; // GOTO after reduction in state 9
     }''')
+
 # Show graph
 
 def to_graph(nfa_tbl):
