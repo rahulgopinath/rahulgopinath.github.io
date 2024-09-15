@@ -142,6 +142,32 @@ def create_tbl(nstates, hdr):
 # | 8     | []    | []    | []    | ['s9']| []       | []    | []    |
 # | 9     | ['r2']| ['r2']| ['r2']| ['r2']| ['r2']   | []    | []    |
 #  
+
+# This corresponds to the grammar (augmented)
+# 
+# ```
+# S' -> S
+# S -> aA
+#   |  bA
+# A -> bc
+#   |  bdd
+# ```
+# Equivalently
+
+my_g = {'<S`>': [['<S>']],
+        '<S>': [ ['a', '<A>', 'c'],
+                 ['b', '<A>', 'd', 'd']],
+        '<A>': [ ['b']]}
+
+# The grammar production rules are:
+if __name__ == '__main__':
+    i = 1
+    for k in my_g:
+        for r in my_g[k]:
+            print(i, k, r)
+            i+=1
+
+
 # Printing it.
 
 if __name__ == '__main__':
@@ -192,7 +218,51 @@ if __name__ == '__main__':
     for i, row in enumerate(MY_TBL):
         print(str(i)+'\t', '\t'.join(str(row[k]) for k in row))
 
+# The closure is as below
+if __name__ == '__main__':
+    __canvas__('''
+    digraph ParsingAutomaton {
+    rankdir=TB;
 
+    // Node definitions with labels
+    node [shape=rectangle];
+
+    // State definitions with reduction instructions
+    0 [label="I0:\nS' → • S\nS → • a A c\nS → • b A d d"];
+    1 [label="I1:\nS' → S •\n[Accept]"];
+    2 [label="I2:\nS → a • A c\nA → • b"];
+    3 [label="I3:\nS → b • A d d\nA → • b"];
+    4 [label="I4:\nS → a A • c"];
+    5 [label="I5:\nA → b •"];
+    6 [label="I6:\nS → b A • d d"];
+    7 [label="I7:\nS → a A c •"];
+    8 [label="I8:\nS → b A d • d"];
+    9 [label="I9:\nS → b A d d •"];
+
+    // Edge definitions with labels
+    0 -> 2 [label="a"];
+    0 -> 3 [label="b"];
+    0 -> 1 [label="S"];
+
+    2 -> 5 [label="b"];
+    2 -> 4 [label="A"];
+
+    3 -> 5 [label="b"];
+    3 -> 6 [label="A"];
+
+    4 -> 7 [label="c"];
+
+    5 -> 4 [label="A", style=dashed]; // GOTO after reduction in state 5
+    5 -> 6 [label="A", style=dashed]; // GOTO after reduction in state 5
+
+    6 -> 8 [label="d"];
+
+    7 -> 1 [label="S", style=dashed]; // GOTO after reduction in state 7
+
+    8 -> 9 [label="d"];
+
+    9 -> 1 [label="S", style=dashed]; // GOTO after reduction in state 9
+    }''')
 # Show graph
 
 def to_graph(nfa_tbl):
@@ -212,15 +282,19 @@ def to_graph(nfa_tbl):
             if not cell: continue
             color = 'black'
             state_name = cell[0]
+            transition_prefix = ''
             if state_name == 'accept':
                 continue
             elif state_name[0] == 'g':
                 color='blue'
+                transition_prefix = '(g) '
             elif state_name[0] == 'r':
                 color='red'
+                transition_prefix = '(r) '
             else:
                 assert state_name[0] == 's'
-            G.add_edge(pydot.Edge(label, state_name[1], color=color, label=transition))
+                transition_prefix = '(s) '
+            G.add_edge(pydot.Edge(label, state_name[1], color=color, label=transition_prefix + transition))
     return G
 #
 if __name__ == '__main__':
@@ -230,6 +304,138 @@ if __name__ == '__main__':
         print(str(i)+'\t', '\t'.join(str(row[k]) for k in row))
     g = to_graph(MY_TBL)
     __canvas__(str(g))
+
+# The parser 
+
+def state_0(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'a':
+        # Shift 'a' and go to state 2
+        stack.append(('a', 2))
+        return state_2(stack, input_string[1:])
+    elif symbol == 'b':
+        # Shift 'b' and go to state 3
+        stack.append(('b', 3))
+        return state_3(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'a' or 'b'")
+
+def state_1(stack, input_string):
+    symbol = input_string[0]
+    if symbol == '$':
+        # Accept the input
+        print("Input accepted.")
+    else:
+        raise Exception("Expected end of input")
+
+def state_2(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'b':
+        # Shift 'b' and go to state 5
+        stack.append(('b', 5))
+        return state_5(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'b'")
+
+def state_3(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'b':
+        # Shift 'b' and go to state 5
+        stack.append(('b', 5))
+        return state_5(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'b'")
+
+def state_4(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'c':
+        # Shift 'c' and go to state 7
+        stack.append(('c', 7))
+        return state_7(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'c'")
+
+def state_5(stack, input_string):
+    # Reduction by A → b (Production 4)
+    # Pop 'b' and state
+    stack.pop()  # Pop state 'b', 5
+    # Push 'A'
+    state_before_reduction = stack[-1]
+    # GOTO[state, 'A']
+    if state_before_reduction[1] == 2:
+        stack.append(('A', 4))
+        return state_4(stack, input_string)
+    elif state_before_reduction[1] == 3:
+        stack.append(('A', 6))
+        return state_6(stack, input_string)
+    else:
+        raise Exception(position, "Invalid state during reduction by A → b")
+
+def state_6(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'd':
+        # Shift 'd' and go to state 8
+        stack.append(('d', 8))
+        return state_8(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'd'")
+
+def state_7(stack, input_string):
+    # Reduction by S → a A c (Production 2)
+    # Pop 'c', state 7; 'A', state 4; 'a', state 2
+    stack.pop()  # Pop state 'c', 7
+    stack.pop()  # Pop state 'A' 4
+    stack.pop()  # Pop state 'a' 2
+    # Push 'S'
+    state_before_reduction = stack[-1]
+    # GOTO[state, 'S']
+    if state_before_reduction[1] == 0:
+        stack.append(('S', 1))
+        return state_1(stack, input_string)
+    else:
+        raise Exception("Invalid state during reduction by S → a A c")
+
+def state_8(stack, input_string):
+    symbol = input_string[0]
+    if symbol == 'd':
+        # Shift 'd' and go to state 9
+        stack.append(('d', 9))
+        return state_9(stack, input_string[1:])
+    else:
+        raise Exception("Expected 'd'")
+
+def state_9(stack, input_string):
+    # Reduction by S → b A d d (Production 3)
+    # Pop 'd', state 9; 'd', state 8; 'A', state 6; 'b', state 3
+    stack.pop()  # Pop state d 9
+    stack.pop()  # Pop state d 8
+    stack.pop()  # Pop state A 6
+    stack.pop()  # Pop state b 3
+    # Push 'S'
+    state_before_reduction = stack[-1]
+    # GOTO[state, 'S']
+    if state_before_reduction[1] == 0:
+        stack.append(('S', 1))
+        return state_1(stack, input_string)
+    else:
+        return Exception("Invalid state during reduction by S → b A d d")
+
+# Test
+if __name__ == '__main__':
+    test_strings = [("abc", True), ("bbdd", True), ("bdd", False), ("baddd", False)]
+
+    for test_string, res in test_strings:
+        print(f"Parsing: {test_string}")
+        input_string = ['a', 'b', 'c', '$']  # Example input
+        input_string = list(test_string) + ['$']
+        stack = [(None, 0)]  # Stack initialized with state 0
+
+        try:
+            val = state_0(stack, input_string)
+        except Exception as e:
+            if res:
+                print(e)
+
 
 # Consider how you will parse a string that conforms to the following grammar
 
