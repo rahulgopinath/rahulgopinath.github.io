@@ -668,8 +668,12 @@ class NFA(NFA):
         t_symbols, nt_symbols = symbols(self.g)
         start_item = self.create_start(self.start)[0]
         queue = [('$', start_item)]
+        seen = set()
         while queue:
             (pkey, state), *queue = queue
+            if str(state) in seen: continue
+            seen.add(str(state))
+
             new_states = self.find_transitions(state)
             if not new_states:
                 # this happens when the dot has reached the end of the rule.
@@ -815,6 +819,9 @@ class DFAState:
     def __repr__(self):
         return '(%s)' % self.sid
 
+    def __str__(self):
+        return str(sorted([str(i) for i in self.items]))
+
 # We define our DFA initialization.
 
 class DFA(NFA):
@@ -853,8 +860,8 @@ class DFA(DFA):
         while to_process:
             item_, *to_process = to_process
             if str(item_) in seen: continue
-            new_items[str(item_)] = item_
             seen.add(str(item_))
+            new_items[str(item_)] = item_
             key = item_.at_dot()
             if key is None:
                 continue
@@ -962,8 +969,12 @@ class DFA(DFA):
     def build_dfa(self):
         start_dfastate = self.create_start(self.start)
         queue = [('$', start_dfastate)]
+        seen = set()
         while queue:
             (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
             new_dfastates = self.find_transitions(dfastate)
             if not new_dfastates:
                 # This happens when the dot has reached the end of the rule.
