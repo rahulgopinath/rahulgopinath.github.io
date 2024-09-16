@@ -1567,6 +1567,19 @@ LR_s = '<S`>'
 if __name__ == '__main__':
     my_dfa = LR1DFA(LR_g, LR_s)
     parser = LR1Parser(my_dfa)
+
+    for k in my_dfa.states:
+      print(k)
+      for v in my_dfa.states[k].items:
+        print('', v)
+
+    rowh = parser.parse_table[0]
+    print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+    for i,row in enumerate(parser.parse_table):
+        print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
+    print()
+
+
     # Test the parser with some input strings
     test_strings = ["abc", "abd", "bd"]
     for test_string in test_strings:
