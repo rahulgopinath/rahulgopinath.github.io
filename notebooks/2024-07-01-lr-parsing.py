@@ -990,7 +990,7 @@ class DFA(DFA):
 
             # Add reductions for all finished items
             # this happens when the dot has reached the end of the rule.
-            # in this case, find the main_def (for NFA, there is only one),
+            # in this case, (LR(0)) there should be only one.
             # and add its number as the rN
             for item in dfastate.items:
                 if not item.finished(): continue
