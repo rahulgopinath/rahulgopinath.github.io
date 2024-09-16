@@ -542,6 +542,11 @@ class NFA:
     def get_key(self, kr):
         return "%s -> %s" %kr
 
+    def new_state(self, name, texpr, pos):
+        state = State(name, texpr, pos, self.sid_counter)
+        self.sid_counter += 1
+        return state
+
     def get_production_rules(self, g):
         productions = {}
         count = 0
@@ -561,8 +566,7 @@ class NFA:
     def create_state(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_states:
-            state = State(name, texpr, pos, self.sid_counter)
-            self.sid_counter += 1
+            state = self.new_state(name, texpr, pos)
             self.my_states[(name, texpr, pos)] = state
             self.states[state.sid] = state
         return self.my_states[(name, texpr, pos)]
@@ -847,9 +851,13 @@ class DFA(NFA):
 # rather than returning multiple states, we return a single state containing
 # multiple items.
 class DFA(DFA):
-    def create_start_item(self, s, rule):
+    def new_item(self, name, texpr, pos):
+        item =  Item(name, texpr, pos, self.sid_counter)
         self.sid_counter += 1
-        return Item(s, tuple(rule), 0, self.sid_counter-1)
+        return item
+
+    def create_start_item(self, s, rule):
+        return self.new_item(s, tuple(rule), 0)
 
     # the start in DFA is simply a closure of all rules from that key.
     def create_start(self, s):
@@ -923,8 +931,7 @@ class DFA(DFA):
     def create_item(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_items:
-            self.sid_counter += 1
-            item = Item(name, texpr, pos, self.sid_counter-1)
+            item = self.new_item(name, texpr, pos)
             self.my_items[(name, texpr, pos)] = item
             self.items[item.sid] = item
         return self.my_items[(name, texpr, pos)]
