@@ -1506,7 +1506,8 @@ class NFA(NFA):
             new_states = self.find_transitions(state)
             if not new_states:
                 # this happens when the dot has reached the end of the rule.
-                # in this case, find the main_def, and add its number as the rN
+                # in this case, find the main_def (for NFA, there is only one),
+                # and add its number as the rN
                 N = self.productions[self.get_key(state.main_item())]
                 for k in self.terminals:
                     self.add_reduction(state, k, N, 'reduce')
@@ -1573,7 +1574,8 @@ class NFA(NFA):
             new_states = self.find_transitions(state)
             if not new_states:
                 # this happens when the dot has reached the end of the rule.
-                # in this case, find the main_def, and add its number as the rN
+                # in this case, find the main_def (for NFA, there is only one),
+                # and add its number as the rN
                 N = self.productions[self.get_key(state.main_item())]
                 for k in self.terminals:
                     self.add_reduction(state, k, N, &#x27;reduce&#x27;)
@@ -2176,6 +2178,8 @@ class DFA(DFA):
             if not new_dfastates:
                 # This happens when the dot has reached the end of the rule.
                 # in this case, find the main_def, and add its number as the rN
+                # Note: The assumption here is that we are working on LR(0)
+                # tables. So there is at most one such (no conflict).
                 itm = dfastate.main_item()
                 N = self.productions[self.get_key((itm.name, list(itm.expr)))]
                 for k in self.terminals:
@@ -2244,6 +2248,8 @@ class DFA(DFA):
             if not new_dfastates:
                 # This happens when the dot has reached the end of the rule.
                 # in this case, find the main_def, and add its number as the rN
+                # Note: The assumption here is that we are working on LR(0)
+                # tables. So there is at most one such (no conflict).
                 itm = dfastate.main_item()
                 N = self.productions[self.get_key((itm.name, list(itm.expr)))]
                 for k in self.terminals:
@@ -2292,37 +2298,59 @@ Let us test building the DFA.
 
 <!--
 ############
-my_dfa = DFA(S_g, S_s)
-table = my_dfa.build_dfa()
+E_g = {
+        '<E`>': [['<E>']],
+    '<E>': [['<E>', '+', '<T>'],
+            ['<T>']],
+    '<T>': [['id'],
+            ['(', '<E>', ')']]
+}
 
-for k in my_dfa.states:
-  print(k)
-  for v in my_dfa.states[k].items:
-    print('', v)
+E_s = '<E`>'
 
-rowh = table[0]
-print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
-for i,row in enumerate(table):
-    print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
-print()
+if __name__ == '__main__':
+    my_dfa = DFA(E_g, E_s)
+    table = my_dfa.build_dfa()
+
+    for k in my_dfa.states:
+      print(k)
+      for v in my_dfa.states[k].items:
+        print('', v)
+
+    rowh = table[0]
+    print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+    for i,row in enumerate(table):
+        print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
+    print()
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(S_g, S_s)
-table = my_dfa.build_dfa()
+E_g = {
+        &#x27;&lt;E`&gt;&#x27;: [[&#x27;&lt;E&gt;&#x27;]],
+    &#x27;&lt;E&gt;&#x27;: [[&#x27;&lt;E&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;T&gt;&#x27;],
+            [&#x27;&lt;T&gt;&#x27;]],
+    &#x27;&lt;T&gt;&#x27;: [[&#x27;id&#x27;],
+            [&#x27;(&#x27;, &#x27;&lt;E&gt;&#x27;, &#x27;)&#x27;]]
+}
 
-for k in my_dfa.states:
-  print(k)
-  for v in my_dfa.states[k].items:
-    print(&#x27;&#x27;, v)
+E_s = &#x27;&lt;E`&gt;&#x27;
 
-rowh = table[0]
-print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
-for i,row in enumerate(table):
-    print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
-print()
+if __name__ == &#x27;__main__&#x27;:
+    my_dfa = DFA(E_g, E_s)
+    table = my_dfa.build_dfa()
+
+    for k in my_dfa.states:
+      print(k)
+      for v in my_dfa.states[k].items:
+        print(&#x27;&#x27;, v)
+
+    rowh = table[0]
+    print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
+    for i,row in enumerate(table):
+        print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
+    print()
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

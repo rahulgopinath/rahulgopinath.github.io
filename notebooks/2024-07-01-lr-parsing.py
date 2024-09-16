@@ -677,7 +677,8 @@ class NFA(NFA):
             new_states = self.find_transitions(state)
             if not new_states:
                 # this happens when the dot has reached the end of the rule.
-                # in this case, find the main_def, and add its number as the rN
+                # in this case, find the main_def (for NFA, there is only one),
+                # and add its number as the rN
                 N = self.productions[self.get_key(state.main_item())]
                 for k in self.terminals:
                     self.add_reduction(state, k, N, 'reduce')
@@ -979,6 +980,8 @@ class DFA(DFA):
             if not new_dfastates:
                 # This happens when the dot has reached the end of the rule.
                 # in this case, find the main_def, and add its number as the rN
+                # Note: The assumption here is that we are working on LR(0)
+                # tables. So there is at most one such (no conflict).
                 itm = dfastate.main_item()
                 N = self.productions[self.get_key((itm.name, list(itm.expr)))]
                 for k in self.terminals:
@@ -1022,8 +1025,18 @@ class DFA(DFA):
 
 
 # Let us test building the DFA.
+E_g = {
+        '<E`>': [['<E>']],
+    '<E>': [['<E>', '+', '<T>'],
+            ['<T>']],
+    '<T>': [['id'],
+            ['(', '<E>', ')']]
+}
+
+E_s = '<E`>'
+
 if __name__ == '__main__':
-    my_dfa = DFA(S_g, S_s)
+    my_dfa = DFA(E_g, E_s)
     table = my_dfa.build_dfa()
 
     for k in my_dfa.states:
