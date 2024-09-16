@@ -480,7 +480,7 @@ over-approximating the grammar, and secondly, there can be multiple possible
 paths for a given prefix.  Hence, it is not very optimal.
 Let us next see how to generate a DFA instead.
 
-## LR Automata
+## LR0 Automata
  An LR automata is composed of multiple states, and each state represents a set
 of items that indicate the parsing progress. The states are connected together
 using transitions which are composed of the terminal and nonterminal symbols
@@ -1868,7 +1868,7 @@ We define our DFA initialization.
 
 <!--
 ############
-class DFA(NFA):
+class LR0DFA(NFA):
     def __init__(self, g, start):
         self.items = {}
         self.states = {}
@@ -1887,7 +1887,7 @@ class DFA(NFA):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class DFA(NFA):
+class LR0DFA(NFA):
     def __init__(self, g, start):
         self.items = {}
         self.states = {}
@@ -1911,7 +1911,7 @@ multiple items.
 
 <!--
 ############
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def new_item(self, name, texpr, pos):
         item =  Item(name, texpr, pos, self.sid_counter)
         self.sid_counter += 1
@@ -1936,14 +1936,12 @@ class DFA(DFA):
             seen.add(str(item_))
             new_items[str(item_)] = item_
             key = item_.at_dot()
-            if key is None:
-                continue
+            if key is None: continue
             # no closure for terminals
             if not fuzzer.is_nonterminal(key): continue
-            new_items_ = [self.create_start_item(key, rule) for rule in self.g[key] ]
-            to_process.extend(list(new_items_))
-            for t in new_items_:
-                new_items[str(t)] = t
+            for rule in self.g[key]:
+                new_item = self.create_start_item(key, rule)
+                to_process.append(new_item)
         return list(new_items.values())
 
     def create_state(self, items):
@@ -1959,7 +1957,7 @@ class DFA(DFA):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def new_item(self, name, texpr, pos):
         item =  Item(name, texpr, pos, self.sid_counter)
         self.sid_counter += 1
@@ -1984,14 +1982,12 @@ class DFA(DFA):
             seen.add(str(item_))
             new_items[str(item_)] = item_
             key = item_.at_dot()
-            if key is None:
-                continue
+            if key is None: continue
             # no closure for terminals
             if not fuzzer.is_nonterminal(key): continue
-            new_items_ = [self.create_start_item(key, rule) for rule in self.g[key] ]
-            to_process.extend(list(new_items_))
-            for t in new_items_:
-                new_items[str(t)] = t
+            for rule in self.g[key]:
+                new_item = self.create_start_item(key, rule)
+                to_process.append(new_item)
         return list(new_items.values())
 
     def create_state(self, items):
@@ -2010,7 +2006,7 @@ Let us test this.
 
 <!--
 ############
-my_dfa = DFA(g1a, g1a_start)
+my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
         ['<>::= | <S>',
@@ -2023,7 +2019,7 @@ assert [str(s) for s in st.items] == \
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(g1a, g1a_start)
+my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
         [&#x27;&lt;&gt;::= | &lt;S&gt;&#x27;,
@@ -2039,7 +2035,7 @@ Next, we define the transitions.
 
 <!--
 ############
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def add_child(self, p, key, c, notes):
         self.children.append((p.sid, key, c.sid, notes))
 
@@ -2087,7 +2083,7 @@ class DFA(DFA):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def add_child(self, p, key, c, notes):
         self.children.append((p.sid, key, c.sid, notes))
 
@@ -2138,7 +2134,7 @@ Let us test this.
 
 <!--
 ############
-my_dfa = DFA(g1a, g1a_start)
+my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
         ['<>::= | <S>', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
@@ -2155,7 +2151,7 @@ assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(g1a, g1a_start)
+my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
         [&#x27;&lt;&gt;::= | &lt;S&gt;&#x27;, &#x27;&lt;S&gt;::= | &lt;A&gt; &lt;B&gt;&#x27;, &#x27;&lt;S&gt;::= | &lt;C&gt;&#x27;, &#x27;&lt;A&gt;::= | a&#x27;, &#x27;&lt;C&gt;::= | c&#x27;]
@@ -2174,7 +2170,7 @@ Bringing all these together, let us build the DFA.
 
 <!--
 ############
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def get_all_states_with_dot_after_key(self, key):
         states = []
         for s in self.states:
@@ -2195,9 +2191,7 @@ class DFA(DFA):
             new_dfastates = self.find_transitions(dfastate)
             for key, s in new_dfastates:
                 # if the key is a nonterminal then it is a goto
-                if key == '':
-                    self.add_child(dfastate, key, s, 'shift')
-                elif fuzzer.is_nonterminal(key):
+                if fuzzer.is_nonterminal(key):
                     self.add_child(dfastate, key, s, 'goto')
                 else:
                     self.add_child(dfastate, key, s, 'shift')
@@ -2249,7 +2243,7 @@ class DFA(DFA):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class DFA(DFA):
+class LR0DFA(LR0DFA):
     def get_all_states_with_dot_after_key(self, key):
         states = []
         for s in self.states:
@@ -2270,9 +2264,7 @@ class DFA(DFA):
             new_dfastates = self.find_transitions(dfastate)
             for key, s in new_dfastates:
                 # if the key is a nonterminal then it is a goto
-                if key == &#x27;&#x27;:
-                    self.add_child(dfastate, key, s, &#x27;shift&#x27;)
-                elif fuzzer.is_nonterminal(key):
+                if fuzzer.is_nonterminal(key):
                     self.add_child(dfastate, key, s, &#x27;goto&#x27;)
                 else:
                     self.add_child(dfastate, key, s, &#x27;shift&#x27;)
@@ -2326,7 +2318,7 @@ Let us test building the DFA.
 
 <!--
 ############
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 table = my_dfa.build_dfa()
 
 for k in my_dfa.states:
@@ -2344,7 +2336,7 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 table = my_dfa.build_dfa()
 
 for k in my_dfa.states:
@@ -2497,7 +2489,7 @@ Testing it.
 
 <!--
 ############
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
@@ -2512,7 +2504,7 @@ for test_string in test_strings:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
@@ -2647,7 +2639,7 @@ Now, let us build parse trees
 
 <!--
 ############
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
@@ -2664,7 +2656,7 @@ for test_string in test_strings:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g, S_s)
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
@@ -2680,7 +2672,914 @@ for test_string in test_strings:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+Next, let us consider the following grammar.
 
+<!--
+############
+G2_g = {
+        '<S`>' : [['<S>', '$']],
+        '<S>' :  [['a', '<B>', 'c'],
+                  ['a', '<D>', 'd']],
+        '<B>' :  [[ 'b']],
+        '<D>' :  [['b']]
+        }
+G2_s = '<S`>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+G2_g = {
+        &#x27;&lt;S`&gt;&#x27; : [[&#x27;&lt;S&gt;&#x27;, &#x27;$&#x27;]],
+        &#x27;&lt;S&gt;&#x27; :  [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;c&#x27;],
+                  [&#x27;a&#x27;, &#x27;&lt;D&gt;&#x27;, &#x27;d&#x27;]],
+        &#x27;&lt;B&gt;&#x27; :  [[ &#x27;b&#x27;]],
+        &#x27;&lt;D&gt;&#x27; :  [[&#x27;b&#x27;]]
+        }
+G2_s = &#x27;&lt;S`&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us build the parse table.
+
+<!--
+############
+my_dfa = LR0DFA(G2_g, G2_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print('', v)
+
+rowh = table[0]
+print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_dfa = LR0DFA(G2_g, G2_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print(&#x27;&#x27;, v)
+
+rowh = table[0]
+print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
+print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+As you can see, on State 3, we have a two possible reductions -- r3 and r4.
+This is called a reduce/reduce conflict. The issue is that when we come to
+state 3, that is.
+```
+<B>::= b |
+<D>::= b |
+```
+We have two possible choices of reduction. We can either reduce to `<B>` or
+to `<D>`. To determine which one to reduce to, we need a lookahead. If the
+next token is `c`, then we should reduce to `<B>`. If the next one is `d`,
+we should reduce to `<D>`. This is what SLR parsers do.
+
+## SLR1 Automata
+
+For using SLR1 automation, we require first and follow sets. This has been
+discussed previously. Hence, providing the code here directly.
+### First and follow
+
+<!--
+############
+nullable_grammar = {
+    '<start>': [['<A>', '<B>']],
+    '<A>': [['a'], [], ['<C>']],
+    '<B>': [['b']],
+    '<C>': [['<A>'], ['<B>']]
+}
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+nullable_grammar = {
+    &#x27;&lt;start&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;, &#x27;&lt;B&gt;&#x27;]],
+    &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;], [], [&#x27;&lt;C&gt;&#x27;]],
+    &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;]],
+    &#x27;&lt;C&gt;&#x27;: [[&#x27;&lt;A&gt;&#x27;], [&#x27;&lt;B&gt;&#x27;]]
+}
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The definition is as follows.
+
+<!--
+############
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def get_first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            can_be_empty = True
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
+                added += union(nullable, {k})
+
+            follow_ = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], follow_)
+                if t in nullable:
+                    follow_ = follow_.union(first[t])
+                else:
+                    follow_ = first[t]
+        if not added:
+            return first, follow, nullable
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def union(a, b):
+    n = len(a)
+    a |= b
+    return len(a) != n
+
+def get_first_and_follow(grammar):
+    terminals, nonterminals = symbols(grammar)
+    first = {i: set() for i in nonterminals}
+    first.update((i, {i}) for i in terminals)
+    follow = {i: set() for i in nonterminals}
+    nullable = set()
+    while True:
+        added = 0
+        productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+        for k, rule in productions:
+            can_be_empty = True
+            for t in rule:
+                added += union(first[k], first[t])
+                if t not in nullable:
+                    can_be_empty = False
+                    break
+            if can_be_empty:
+                added += union(nullable, {k})
+
+            follow_ = follow[k]
+            for t in reversed(rule):
+                if t in follow:
+                    added += union(follow[t], follow_)
+                if t in nullable:
+                    follow_ = follow_.union(first[t])
+                else:
+                    follow_ = first[t]
+        if not added:
+            return first, follow, nullable
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing it.
+
+<!--
+############
+first, follow, nullable = get_first_and_follow(nullable_grammar)
+print("first:", first)
+print("follow:", follow)
+print("nullable", nullable)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+first, follow, nullable = get_first_and_follow(nullable_grammar)
+print(&quot;first:&quot;, first)
+print(&quot;follow:&quot;, follow)
+print(&quot;nullable&quot;, nullable)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+At this point, we can update our parsing algorithm.
+
+<!--
+############
+class SLR1DFA(LR0DFA):
+    def __init__(self, g, start):
+        self.items = {}
+        self.states = {}
+        self.g = g
+        self.start = start
+        self.nfa_table = None
+        self.children = []
+        self.my_items = {}
+        self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
+        self.terminals, self.non_terminals = symbols(g)
+        self.productions, self.production_rules = self.get_production_rules(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SLR1DFA(LR0DFA):
+    def __init__(self, g, start):
+        self.items = {}
+        self.states = {}
+        self.g = g
+        self.start = start
+        self.nfa_table = None
+        self.children = []
+        self.my_items = {}
+        self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
+        self.terminals, self.non_terminals = symbols(g)
+        self.productions, self.production_rules = self.get_production_rules(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we build the dfa. There is only one change. (See CHANGED) When reducing,
+we only reduce if the token lookahead is in the follow set.
+
+<!--
+############
+class SLR1DFA(SLR1DFA):
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [('$', start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+
+            # Add shifts and gotos
+            for key, s in new_dfastates:
+                if fuzzer.is_nonterminal(key):
+                    self.add_child(dfastate, key, s, 'goto')
+                else:
+                    self.add_child(dfastate, key, s, 'shift')
+
+            # Add reductions for all finished items
+            for item in dfastate.items:
+                if not item.finished(): continue
+                N = self.productions[self.get_key((item.name, list(item.expr)))]
+                terminal_set = self.follow[item.name]  # <-- CHANGED HERE
+                for k in terminal_set:
+                    self.add_reduction(dfastate, k, N, 'reduce')
+
+                # Add "to" transitions for the graph
+                key = item.def_key()
+                list_of_return_states = self.get_all_states_with_dot_after_key(key)
+                for s in list_of_return_states:
+                    self.add_child(dfastate, '', s, 'to')
+
+            queue.extend(new_dfastates)
+
+        # Build the DFA table
+        state_count = len(self.states.keys())
+        dfa_table = [[] for _ in range(state_count)]
+        t_symbols, nt_symbols = symbols(self.g)
+        for i in range(0, state_count):
+            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
+
+        # Resolve conflicts and build the table
+        for parent, key, child, notes in self.children:
+            if notes == 'reduce': prefix = 'r:'
+            elif notes == 'shift': prefix = 's'
+            elif notes == 'goto': prefix = 'g'
+            elif notes == 'to': prefix = 't'
+            else: continue
+            if key not in dfa_table[parent]: dfa_table[parent][key] = []
+            v = prefix+str(child)
+            if v not in dfa_table[parent][key]:
+                dfa_table[parent][key].append(v)
+
+        return dfa_table
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SLR1DFA(SLR1DFA):
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [(&#x27;$&#x27;, start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+
+            # Add shifts and gotos
+            for key, s in new_dfastates:
+                if fuzzer.is_nonterminal(key):
+                    self.add_child(dfastate, key, s, &#x27;goto&#x27;)
+                else:
+                    self.add_child(dfastate, key, s, &#x27;shift&#x27;)
+
+            # Add reductions for all finished items
+            for item in dfastate.items:
+                if not item.finished(): continue
+                N = self.productions[self.get_key((item.name, list(item.expr)))]
+                terminal_set = self.follow[item.name]  # &lt;-- CHANGED HERE
+                for k in terminal_set:
+                    self.add_reduction(dfastate, k, N, &#x27;reduce&#x27;)
+
+                # Add &quot;to&quot; transitions for the graph
+                key = item.def_key()
+                list_of_return_states = self.get_all_states_with_dot_after_key(key)
+                for s in list_of_return_states:
+                    self.add_child(dfastate, &#x27;&#x27;, s, &#x27;to&#x27;)
+
+            queue.extend(new_dfastates)
+
+        # Build the DFA table
+        state_count = len(self.states.keys())
+        dfa_table = [[] for _ in range(state_count)]
+        t_symbols, nt_symbols = symbols(self.g)
+        for i in range(0, state_count):
+            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [&#x27;&#x27;])}
+
+        # Resolve conflicts and build the table
+        for parent, key, child, notes in self.children:
+            if notes == &#x27;reduce&#x27;: prefix = &#x27;r:&#x27;
+            elif notes == &#x27;shift&#x27;: prefix = &#x27;s&#x27;
+            elif notes == &#x27;goto&#x27;: prefix = &#x27;g&#x27;
+            elif notes == &#x27;to&#x27;: prefix = &#x27;t&#x27;
+            else: continue
+            if key not in dfa_table[parent]: dfa_table[parent][key] = []
+            v = prefix+str(child)
+            if v not in dfa_table[parent][key]:
+                dfa_table[parent][key].append(v)
+
+        return dfa_table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us see if it works.
+
+<!--
+############
+my_dfa = SLR1DFA(G2_g, G2_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print('', v)
+
+rowh = table[0]
+print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_dfa = SLR1DFA(G2_g, G2_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print(&#x27;&#x27;, v)
+
+rowh = table[0]
+print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
+print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+There is no difference in the parser.
+
+<!--
+############
+class SLR1Parser(LR0Parser): pass
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SLR1Parser(LR0Parser): pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us try parsing with it.
+
+<!--
+############
+G2_g = {
+        '<S`>' : [['<S>', '$']],
+        '<S>' :  [['a', '<B>', 'c'],
+                  ['a', '<D>', 'd']],
+        '<B>' :  [[ 'b']],
+        '<D>' :  [['b']]
+        }
+G2_s = '<S`>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+G2_g = {
+        &#x27;&lt;S`&gt;&#x27; : [[&#x27;&lt;S&gt;&#x27;, &#x27;$&#x27;]],
+        &#x27;&lt;S&gt;&#x27; :  [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;c&#x27;],
+                  [&#x27;a&#x27;, &#x27;&lt;D&gt;&#x27;, &#x27;d&#x27;]],
+        &#x27;&lt;B&gt;&#x27; :  [[ &#x27;b&#x27;]],
+        &#x27;&lt;D&gt;&#x27; :  [[&#x27;b&#x27;]]
+        }
+G2_s = &#x27;&lt;S`&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Parsing
+
+<!--
+############
+my_dfa = SLR1DFA(G2_g, G2_s)
+parser = SLR1Parser(my_dfa)
+# Test the parser with some input strings
+test_strings = ["abc", "abd", "aabc"]
+for test_string in test_strings:
+    print(f"Parsing: {test_string}")
+    success, message, tree = parser.parse(test_string, S_s)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f"Result: {'Accepted' if success else 'Rejected'}")
+    print(f"Message: {message}")
+    print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_dfa = SLR1DFA(G2_g, G2_s)
+parser = SLR1Parser(my_dfa)
+# Test the parser with some input strings
+test_strings = [&quot;abc&quot;, &quot;abd&quot;, &quot;aabc&quot;]
+for test_string in test_strings:
+    print(f&quot;Parsing: {test_string}&quot;)
+    success, message, tree = parser.parse(test_string, S_s)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
+    print(f&quot;Message: {message}&quot;)
+    print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, consider this grammar
+
+<!--
+############
+LR_g = {
+        "<S`>": [["<S>", "$"]],
+        "<S>": [
+            ["a", "<B>", "c"],
+            ["a", "<D>", "d"],
+            ["<B>", "d"]
+            ],
+        "<B>": [["b"]],
+        "<D>": [["b"]]
+        }
+LR_s = '<S`>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+LR_g = {
+        &quot;&lt;S`&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
+        &quot;&lt;S&gt;&quot;: [
+            [&quot;a&quot;, &quot;&lt;B&gt;&quot;, &quot;c&quot;],
+            [&quot;a&quot;, &quot;&lt;D&gt;&quot;, &quot;d&quot;],
+            [&quot;&lt;B&gt;&quot;, &quot;d&quot;]
+            ],
+        &quot;&lt;B&gt;&quot;: [[&quot;b&quot;]],
+        &quot;&lt;D&gt;&quot;: [[&quot;b&quot;]]
+        }
+LR_s = &#x27;&lt;S`&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us see if it works.
+
+<!--
+############
+my_dfa = SLR1DFA(LR_g, LR_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print('', v)
+
+rowh = table[0]
+print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
+print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_dfa = SLR1DFA(LR_g, LR_s)
+table = my_dfa.build_dfa()
+
+for k in my_dfa.states:
+  print(k)
+  for v in my_dfa.states[k].items:
+    print(&#x27;&#x27;, v)
+
+rowh = table[0]
+print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
+for i,row in enumerate(table):
+    print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
+print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+You will notice a conflict in State 5. To resolve this, we need the full
+LR(1) parser.
+
+<!--
+############
+class LR1Item(State):
+    def __init__(self, name, expr, dot, sid, lookahead):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.sid = sid
+        self.lookahead = lookahead
+
+    def __repr__(self):
+        return "(%s, %s : %d)" % (str(self), self.lookahead, self.sid)
+
+    def __str__(self):
+        return self.show_dot(self.name, self.expr, self.dot)
+
+class LR1DFA(SLR1DFA):
+    def get_first(self, lst):
+        if fuzzer.is_nonterminal(lst[0]):
+            return self.first[lst[0]]
+        else: return lst[0]
+
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        new_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            new_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None: continue
+            if not fuzzer.is_nonterminal(key): continue
+            rest_of_item = item_.expr[item_.dot+1:] + (item_.lookahead,)
+            for rule in self.g[key]:
+                for lookahead in self.get_first(rest_of_item):
+                    new_item = self.create_item(key, rule, 0, lookahead)
+                    to_process.append(new_item)
+        return list(new_items.values())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LR1Item(State):
+    def __init__(self, name, expr, dot, sid, lookahead):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.sid = sid
+        self.lookahead = lookahead
+
+    def __repr__(self):
+        return &quot;(%s, %s : %d)&quot; % (str(self), self.lookahead, self.sid)
+
+    def __str__(self):
+        return self.show_dot(self.name, self.expr, self.dot)
+
+class LR1DFA(SLR1DFA):
+    def get_first(self, lst):
+        if fuzzer.is_nonterminal(lst[0]):
+            return self.first[lst[0]]
+        else: return lst[0]
+
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        new_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            new_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None: continue
+            if not fuzzer.is_nonterminal(key): continue
+            rest_of_item = item_.expr[item_.dot+1:] + (item_.lookahead,)
+            for rule in self.g[key]:
+                for lookahead in self.get_first(rest_of_item):
+                    new_item = self.create_item(key, rule, 0, lookahead)
+                    to_process.append(new_item)
+        return list(new_items.values())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also need update on create_item
+
+<!--
+############
+class LR1DFA(LR1DFA):
+    def advance_item(self, item):
+        return self.create_item(item.name, item.expr, item.dot+1, item.lookahead)
+
+    def new_item(self, name, texpr, pos, lookahead):
+        item =  LR1Item(name, texpr, pos, self.sid_counter, lookahead)
+        self.sid_counter += 1
+        return item
+
+    def create_item(self, name, expr, pos, lookahead):
+        texpr = tuple(expr)
+        if (name, texpr, pos, lookahead) not in self.my_items:
+            item = self.new_item(name, texpr, pos, lookahead)
+            self.my_items[(name, texpr, pos, lookahead)] = item
+            self.items[item.sid] = item
+        return self.my_items[(name, texpr, pos, lookahead)]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LR1DFA(LR1DFA):
+    def advance_item(self, item):
+        return self.create_item(item.name, item.expr, item.dot+1, item.lookahead)
+
+    def new_item(self, name, texpr, pos, lookahead):
+        item =  LR1Item(name, texpr, pos, self.sid_counter, lookahead)
+        self.sid_counter += 1
+        return item
+
+    def create_item(self, name, expr, pos, lookahead):
+        texpr = tuple(expr)
+        if (name, texpr, pos, lookahead) not in self.my_items:
+            item = self.new_item(name, texpr, pos, lookahead)
+            self.my_items[(name, texpr, pos, lookahead)] = item
+            self.items[item.sid] = item
+        return self.my_items[(name, texpr, pos, lookahead)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The build_dfa
+
+<!--
+############
+class LR1DFA(LR1DFA):
+    def create_start(self, s):
+        assert fuzzer.is_nonterminal(s)
+        items = [self.create_start_item(s, rule, '$') for rule in self.g[s]]
+        return self.create_state(items)
+
+    def create_start_item(self, s, rule, lookahead):
+        return self.new_item(s, tuple(rule), 0, lookahead)
+
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [('$', start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+
+            for key, s in new_dfastates:
+                if fuzzer.is_nonterminal(key):
+                    self.add_child(dfastate, key, s, 'goto')
+                else:
+                    self.add_child(dfastate, key, s, 'shift')
+
+            for item in dfastate.items:
+                if item.finished():
+                    N = self.productions[self.get_key((item.name, list(item.expr)))]
+                    self.add_reduction(dfastate, item.lookahead, N, 'reduce')
+
+            queue.extend(new_dfastates)
+        # now build the dfa table.
+        state_count = len(self.states.keys())
+        dfa_table = [[] for _ in range(state_count)]
+        t_symbols, nt_symbols = symbols(self.g)
+        for i in range(0, state_count):
+            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
+        # column is the transition.
+        # row is the state id.
+        for parent, key, child, notes in self.children:
+            if notes == 'reduce': prefix = 'r:' # N not a state.
+            elif notes == 'shift': prefix = 's'
+            elif notes == 'goto': prefix = 'g'
+            elif notes == 'to': prefix = 't'
+            if key not in dfa_table[parent]: dfa_table[parent][key] = []
+            v = prefix+str(child)
+            if v not in dfa_table[parent][key]:
+                dfa_table[parent][key].append(v)
+
+        return dfa_table
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LR1DFA(LR1DFA):
+    def create_start(self, s):
+        assert fuzzer.is_nonterminal(s)
+        items = [self.create_start_item(s, rule, &#x27;$&#x27;) for rule in self.g[s]]
+        return self.create_state(items)
+
+    def create_start_item(self, s, rule, lookahead):
+        return self.new_item(s, tuple(rule), 0, lookahead)
+
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [(&#x27;$&#x27;, start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+
+            for key, s in new_dfastates:
+                if fuzzer.is_nonterminal(key):
+                    self.add_child(dfastate, key, s, &#x27;goto&#x27;)
+                else:
+                    self.add_child(dfastate, key, s, &#x27;shift&#x27;)
+
+            for item in dfastate.items:
+                if item.finished():
+                    N = self.productions[self.get_key((item.name, list(item.expr)))]
+                    self.add_reduction(dfastate, item.lookahead, N, &#x27;reduce&#x27;)
+
+            queue.extend(new_dfastates)
+        # now build the dfa table.
+        state_count = len(self.states.keys())
+        dfa_table = [[] for _ in range(state_count)]
+        t_symbols, nt_symbols = symbols(self.g)
+        for i in range(0, state_count):
+            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [&#x27;&#x27;])}
+        # column is the transition.
+        # row is the state id.
+        for parent, key, child, notes in self.children:
+            if notes == &#x27;reduce&#x27;: prefix = &#x27;r:&#x27; # N not a state.
+            elif notes == &#x27;shift&#x27;: prefix = &#x27;s&#x27;
+            elif notes == &#x27;goto&#x27;: prefix = &#x27;g&#x27;
+            elif notes == &#x27;to&#x27;: prefix = &#x27;t&#x27;
+            if key not in dfa_table[parent]: dfa_table[parent][key] = []
+            v = prefix+str(child)
+            if v not in dfa_table[parent][key]:
+                dfa_table[parent][key].append(v)
+
+        return dfa_table
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+the parse class does not change.
+
+<!--
+############
+class LR1Parser(SLR1Parser): pass
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LR1Parser(SLR1Parser): pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+grammar
+
+<!--
+############
+LR_g = {
+        "<S`>": [["<S>", "$"]],
+        "<S>": [
+            ["a", "<B>", "c"],
+            ["a", "<D>", "d"],
+            ["<B>", "d"]
+            ],
+        "<B>": [["b"]],
+        "<D>": [["b"]]
+        }
+LR_s = '<S`>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+LR_g = {
+        &quot;&lt;S`&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
+        &quot;&lt;S&gt;&quot;: [
+            [&quot;a&quot;, &quot;&lt;B&gt;&quot;, &quot;c&quot;],
+            [&quot;a&quot;, &quot;&lt;D&gt;&quot;, &quot;d&quot;],
+            [&quot;&lt;B&gt;&quot;, &quot;d&quot;]
+            ],
+        &quot;&lt;B&gt;&quot;: [[&quot;b&quot;]],
+        &quot;&lt;D&gt;&quot;: [[&quot;b&quot;]]
+        }
+LR_s = &#x27;&lt;S`&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Parsing
+
+<!--
+############
+my_dfa = LR1DFA(LR_g, LR_s)
+parser = LR1Parser(my_dfa)
+# Test the parser with some input strings
+test_strings = ["abc", "abd", "bd"]
+for test_string in test_strings:
+    print(f"Parsing: {test_string}")
+    success, message, tree = parser.parse(test_string, S_s)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f"Result: {'Accepted' if success else 'Rejected'}")
+    print(f"Message: {message}")
+    print()
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_dfa = LR1DFA(LR_g, LR_s)
+parser = LR1Parser(my_dfa)
+# Test the parser with some input strings
+test_strings = [&quot;abc&quot;, &quot;abd&quot;, &quot;bd&quot;]
+for test_string in test_strings:
+    print(f&quot;Parsing: {test_string}&quot;)
+    success, message, tree = parser.parse(test_string, S_s)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
+    print(f&quot;Message: {message}&quot;)
+    print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
 [^bouckaert1975efficient]: M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
 
