@@ -1166,7 +1166,8 @@ if __name__ == '__main__':
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
         success, message, tree = parser.parse(test_string, S_s)
-        print(tree)
+        if tree is not None:
+            ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()

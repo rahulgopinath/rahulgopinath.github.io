@@ -2594,7 +2594,8 @@ test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
     success, message, tree = parser.parse(test_string, S_s)
-    print(tree)
+    if tree is not None:
+        ep.display_tree(tree)
     print(f"Result: {'Accepted' if success else 'Rejected'}")
     print(f"Message: {message}")
     print()
@@ -2612,7 +2613,8 @@ test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
     success, message, tree = parser.parse(test_string, S_s)
-    print(tree)
+    if tree is not None:
+        ep.display_tree(tree)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
     print(f&quot;Message: {message}&quot;)
     print()
