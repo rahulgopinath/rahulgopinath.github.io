@@ -2382,7 +2382,7 @@ We can now provide the complete parser that relies on this automata.
 
 <!--
 ############
-class LR0Parser:
+class LR0Recognizer:
     def __init__(self, my_dfa):
         self.dfa = my_dfa
         self.parse_table = self.dfa.build_dfa()
@@ -2438,7 +2438,7 @@ class LR0Parser:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class LR0Parser:
+class LR0Recognizer:
     def __init__(self, my_dfa):
         self.dfa = my_dfa
         self.parse_table = self.dfa.build_dfa()
@@ -2498,7 +2498,7 @@ Testing it.
 <!--
 ############
 my_dfa = DFA(S_g, S_s)
-parser = LR0Parser(my_dfa)
+parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
 for test_string in test_strings:
@@ -2513,7 +2513,7 @@ for test_string in test_strings:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_dfa = DFA(S_g, S_s)
-parser = LR0Parser(my_dfa)
+parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
 for test_string in test_strings:
@@ -2530,7 +2530,7 @@ Attaching parse tree extraction.
 
 <!--
 ############
-class LR0Parser(LR0Parser):
+class LR0Parser(LR0Recognizer):
     def parse(self, input_string, start):
         tokens = list(input_string) + ['$']
         stack = [(None, 's0')]
@@ -2587,7 +2587,7 @@ class LR0Parser(LR0Parser):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class LR0Parser(LR0Parser):
+class LR0Parser(LR0Recognizer):
     def parse(self, input_string, start):
         tokens = list(input_string) + [&#x27;$&#x27;]
         stack = [(None, &#x27;s0&#x27;)]

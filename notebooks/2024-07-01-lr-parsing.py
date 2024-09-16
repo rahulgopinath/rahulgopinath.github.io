@@ -1061,7 +1061,7 @@ if __name__ == '__main__':
 
 # We can now provide the complete parser that relies on this automata.
 
-class LR0Parser:
+class LR0Recognizer:
     def __init__(self, my_dfa):
         self.dfa = my_dfa
         self.parse_table = self.dfa.build_dfa()
@@ -1116,7 +1116,7 @@ class LR0Parser:
 # Testing it.
 if __name__ == '__main__':
     my_dfa = DFA(S_g, S_s)
-    parser = LR0Parser(my_dfa)
+    parser = LR0Recognizer(my_dfa)
     # Test the parser with some input strings
     test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
     for test_string in test_strings:
@@ -1127,7 +1127,7 @@ if __name__ == '__main__':
         print()
 
 # Attaching parse tree extraction.
-class LR0Parser(LR0Parser):
+class LR0Parser(LR0Recognizer):
     def parse(self, input_string, start):
         tokens = list(input_string) + ['$']
         stack = [(None, 's0')]
