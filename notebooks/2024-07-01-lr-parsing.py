@@ -1086,14 +1086,11 @@ class LR0Parser:
             self.log(stack, tokens)
 
 # Testing it.
-
 if __name__ == '__main__':
     my_dfa = DFA(S_g, S_s)
-
     parser = LR0Parser(my_dfa)
     # Test the parser with some input strings
     test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
-
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
         success, message = parser.parse(test_string, S_s)
@@ -1101,6 +1098,7 @@ if __name__ == '__main__':
         print(f"Message: {message}")
         print()
 
+# Attaching parse tree extraction.
 class LR0Parser(LR0Parser):
     def parse(self, input_string, start):
         tokens = list(input_string) + ['$']
@@ -1154,15 +1152,12 @@ class LR0Parser(LR0Parser):
 
             self.log(stack, tokens)
 
-
 # Now, let us build parse trees
 if __name__ == '__main__':
     my_dfa = DFA(S_g, S_s)
-
     parser = LR0Parser(my_dfa)
     # Test the parser with some input strings
     test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
-
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
         success, message, tree = parser.parse(test_string, S_s)

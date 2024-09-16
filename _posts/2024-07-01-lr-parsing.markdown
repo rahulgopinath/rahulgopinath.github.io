@@ -2442,11 +2442,9 @@ Testing it.
 <!--
 ############
 my_dfa = DFA(S_g, S_s)
-
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
-
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
     success, message = parser.parse(test_string, S_s)
@@ -2454,129 +2452,137 @@ for test_string in test_strings:
     print(f"Message: {message}")
     print()
 
-s LR0Parser(LR0Parser):
-def parse(self, input_string, start):
-    tokens = list(input_string) + ['$']
-    stack = [(None, 's0')]
-    self.node_stack = []
-
-    while True:
-        (_,state_), symbol = stack[-1], tokens[0]
-        state = int(state_[1:])
-
-        actions = self.parse_table[state][symbol]
-        if not actions:
-            return False, f"Parsing Error: No actions state{state}:{symbol}", None
-
-        if symbol == '$':
-            i = self.dfa.states[state].main_item()
-            if i.name == start and i.at_dot() == '$':
-                return True, "Input Accepted", self.node_stack[0]
-
-        assert len(actions) == 1
-        action = actions[0]
-
-        if action.startswith('s'):
-            tokens.pop(0)
-            stack.append((symbol, action))
-            self.node_stack.append((symbol, []))
-
-        elif action.startswith('r'):
-            lhs, rhs = self.production_rules[action]
-            children = []
-            for _ in rhs:
-                stack.pop()  # Pop state, symbol
-                children.insert(0, self.node_stack.pop())
-
-            new_node = (lhs, children)
-            self.node_stack.append(new_node)
-
-            _,prev_state_ = stack[-1]
-            prev_state = int(prev_state_[1:])
-
-            if not self.parse_table[prev_state][lhs]:
-                return False, f"Parsing Error: No transition {prev_state}:{lhs}", None
-
-            next_state = self.parse_table[prev_state][lhs][0]
-            stack.append((lhs, next_state))
-
-        elif action.startswith('g'):
-            stack.append((lhs, next_state))
-
-        else: assert False
-
-        self.log(stack, tokens)
-
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_dfa = DFA(S_g, S_s)
-
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
-
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
     success, message = parser.parse(test_string, S_s)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
     print(f&quot;Message: {message}&quot;)
     print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Attaching parse tree extraction.
 
-s LR0Parser(LR0Parser):
-def parse(self, input_string, start):
-    tokens = list(input_string) + [&#x27;$&#x27;]
-    stack = [(None, &#x27;s0&#x27;)]
-    self.node_stack = []
+<!--
+############
+class LR0Parser(LR0Parser):
+    def parse(self, input_string, start):
+        tokens = list(input_string) + ['$']
+        stack = [(None, 's0')]
+        self.node_stack = []
 
-    while True:
-        (_,state_), symbol = stack[-1], tokens[0]
-        state = int(state_[1:])
+        while True:
+            (_,state_), symbol = stack[-1], tokens[0]
+            state = int(state_[1:])
 
-        actions = self.parse_table[state][symbol]
-        if not actions:
-            return False, f&quot;Parsing Error: No actions state{state}:{symbol}&quot;, None
+            actions = self.parse_table[state][symbol]
+            if not actions:
+                return False, f"Parsing Error: No actions state{state}:{symbol}", None
 
-        if symbol == &#x27;$&#x27;:
-            i = self.dfa.states[state].main_item()
-            if i.name == start and i.at_dot() == &#x27;$&#x27;:
-                return True, &quot;Input Accepted&quot;, self.node_stack[0]
+            if symbol == '$':
+                i = self.dfa.states[state].main_item()
+                if i.name == start and i.at_dot() == '$':
+                    return True, "Input Accepted", self.node_stack[0]
 
-        assert len(actions) == 1
-        action = actions[0]
+            assert len(actions) == 1
+            action = actions[0]
 
-        if action.startswith(&#x27;s&#x27;):
-            tokens.pop(0)
-            stack.append((symbol, action))
-            self.node_stack.append((symbol, []))
+            if action.startswith('s'):
+                tokens.pop(0)
+                stack.append((symbol, action))
+                self.node_stack.append((symbol, []))
 
-        elif action.startswith(&#x27;r&#x27;):
-            lhs, rhs = self.production_rules[action]
-            children = []
-            for _ in rhs:
-                stack.pop()  # Pop state, symbol
-                children.insert(0, self.node_stack.pop())
+            elif action.startswith('r'):
+                lhs, rhs = self.production_rules[action]
+                children = []
+                for _ in rhs:
+                    stack.pop()  # Pop state, symbol
+                    children.insert(0, self.node_stack.pop())
 
-            new_node = (lhs, children)
-            self.node_stack.append(new_node)
+                new_node = (lhs, children)
+                self.node_stack.append(new_node)
 
-            _,prev_state_ = stack[-1]
-            prev_state = int(prev_state_[1:])
+                _,prev_state_ = stack[-1]
+                prev_state = int(prev_state_[1:])
 
-            if not self.parse_table[prev_state][lhs]:
-                return False, f&quot;Parsing Error: No transition {prev_state}:{lhs}&quot;, None
+                if not self.parse_table[prev_state][lhs]:
+                    return False, f"Parsing Error: No transition {prev_state}:{lhs}", None
 
-            next_state = self.parse_table[prev_state][lhs][0]
-            stack.append((lhs, next_state))
+                next_state = self.parse_table[prev_state][lhs][0]
+                stack.append((lhs, next_state))
 
-        elif action.startswith(&#x27;g&#x27;):
-            stack.append((lhs, next_state))
+            elif action.startswith('g'):
+                stack.append((lhs, next_state))
 
-        else: assert False
+            else: assert False
 
-        self.log(stack, tokens)
+            self.log(stack, tokens)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LR0Parser(LR0Parser):
+    def parse(self, input_string, start):
+        tokens = list(input_string) + [&#x27;$&#x27;]
+        stack = [(None, &#x27;s0&#x27;)]
+        self.node_stack = []
+
+        while True:
+            (_,state_), symbol = stack[-1], tokens[0]
+            state = int(state_[1:])
+
+            actions = self.parse_table[state][symbol]
+            if not actions:
+                return False, f&quot;Parsing Error: No actions state{state}:{symbol}&quot;, None
+
+            if symbol == &#x27;$&#x27;:
+                i = self.dfa.states[state].main_item()
+                if i.name == start and i.at_dot() == &#x27;$&#x27;:
+                    return True, &quot;Input Accepted&quot;, self.node_stack[0]
+
+            assert len(actions) == 1
+            action = actions[0]
+
+            if action.startswith(&#x27;s&#x27;):
+                tokens.pop(0)
+                stack.append((symbol, action))
+                self.node_stack.append((symbol, []))
+
+            elif action.startswith(&#x27;r&#x27;):
+                lhs, rhs = self.production_rules[action]
+                children = []
+                for _ in rhs:
+                    stack.pop()  # Pop state, symbol
+                    children.insert(0, self.node_stack.pop())
+
+                new_node = (lhs, children)
+                self.node_stack.append(new_node)
+
+                _,prev_state_ = stack[-1]
+                prev_state = int(prev_state_[1:])
+
+                if not self.parse_table[prev_state][lhs]:
+                    return False, f&quot;Parsing Error: No transition {prev_state}:{lhs}&quot;, None
+
+                next_state = self.parse_table[prev_state][lhs][0]
+                stack.append((lhs, next_state))
+
+            elif action.startswith(&#x27;g&#x27;):
+                stack.append((lhs, next_state))
+
+            else: assert False
+
+            self.log(stack, tokens)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2586,11 +2592,9 @@ Now, let us build parse trees
 <!--
 ############
 my_dfa = DFA(S_g, S_s)
-
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
-
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
     success, message, tree = parser.parse(test_string, S_s)
@@ -2605,11 +2609,9 @@ for test_string in test_strings:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 my_dfa = DFA(S_g, S_s)
-
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
-
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
     success, message, tree = parser.parse(test_string, S_s)
