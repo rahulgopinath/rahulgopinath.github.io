@@ -7,8 +7,10 @@
 # categories: post
 # ---
 #
-# TLDR; This tutorial is a complete implementation of a simple shift-reduce
-# LR(0) Parser in Python. The Python interpreter is embedded so that you can
+# TLDR; This tutorial is a complete implementation of shift-reduce
+# Parsers in Python. We build LR(0) parser, SLR(1) Parser and the
+# canonical LR(1) parser, and show how to extract the parse trees.
+# The Python interpreter is embedded so that you can
 # work through the implementation steps.
 #
 # An LR parser is a bottom-up parser. The *L* stands for scanning the input
@@ -16,10 +18,6 @@
 # This contrasts with LL parsers which are again left-to-right but construct
 # the leftmost derivation.
 # 
-# We are implementing LR(0) which means that the decisions on which state to
-# transition to are determined exclusively on the current parsed prefix. There
-# is no lookahead.
-
 # 
 # #### Prerequisites
 #  
