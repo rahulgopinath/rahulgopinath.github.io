@@ -3245,6 +3245,7 @@ print()
 </form>
 You will notice a conflict in State 5. To resolve this, we need the full
 LR(1) parser.
+## LR1 Automata
 
 <!--
 ############
