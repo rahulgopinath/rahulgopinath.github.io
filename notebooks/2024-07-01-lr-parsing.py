@@ -675,31 +675,34 @@ class NFA(NFA):
             seen.add(str(state))
 
             new_states = self.find_transitions(state)
-            if not new_states:
-                # this happens when the dot has reached the end of the rule.
-                # in this case, find the main_def (for NFA, there is only one),
-                # and add its number as the rN
-                N = self.productions[self.get_key(state.main_item())]
+            for key, s in new_states:
+                # if the key is a nonterminal then it is a goto
+                if key == '':
+                    self.add_child(state, key, s, 'shift')
+                elif fuzzer.is_nonterminal(key):
+                    self.add_child(state, key, s, 'goto')
+                else:
+                    self.add_child(state, key, s, 'shift')
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, find the main_def (for NFA, there is only one),
+            # and add its number as the rN
+            if state.finished():
+                N = self.productions[self.get_key((state.name, list(state.expr)))]
+                # follow_set = follow(item.name, self.g)  # Compute FOLLOW set
                 for k in self.terminals:
                     self.add_reduction(state, k, N, 'reduce')
 
-                # Also, (only) for the graph, collect epsilon transmition to all
-                # rules that are after the given nonterminal at the head.
-                key = state.def_key()
-                list_of_return_states = self.get_all_rules_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(state, '', s, 'to') # reduce to
-                    # these are already processed. So we do not add to queue
-            else:
-                for key, s in new_states:
-                    # if the key is a nonterminal then it is a goto
-                    if key == '':
-                        self.add_child(state, key, s, 'shift')
-                    elif fuzzer.is_nonterminal(key):
-                        self.add_child(state, key, s, 'goto')
-                    else:
-                        self.add_child(state, key, s, 'shift')
-                queue.extend(new_states)
+            # Also, (only) for the graph, collect epsilon transmition to all
+            # rules that are after the given nonterminal at the head.
+            key = state.def_key()
+            list_of_return_states = self.get_all_rules_with_dot_after_key(key)
+            for s in list_of_return_states:
+                self.add_child(state, '', s, 'to') # reduce to
+                # these are already processed. So we do not add to queue
+
+            queue.extend(new_states)
         # now build the nfa table.
         state_count = len(self.states.keys())
         nfa_table = [[] for _ in range(state_count)]
@@ -805,9 +808,9 @@ class DFAState:
         # now compute the closure.
         self.items = items
 
-    def def_key(self):
-        assert len(self.items) == 1 # completion
-        return self.main_item().def_key()
+    def def_keys(self):
+        #assert len(self.items) == 1 # completion
+        return [i.def_key() for i in self.items]
 
     # there will be only one item that has an at_dot != None
     def main_item(self):
@@ -977,29 +980,35 @@ class DFA(DFA):
             seen.add(str(dfastate))
 
             new_dfastates = self.find_transitions(dfastate)
-            if not new_dfastates:
-                # This happens when the dot has reached the end of the rule.
-                # in this case, find the main_def, and add its number as the rN
-                # Note: The assumption here is that we are working on LR(0)
-                # tables. So there is at most one such (no conflict).
-                itm = dfastate.main_item()
-                N = self.productions[self.get_key((itm.name, list(itm.expr)))]
-                for k in self.terminals:
+            for key, s in new_dfastates:
+                # if the key is a nonterminal then it is a goto
+                if key == '':
+                    self.add_child(dfastate, key, s, 'shift')
+                elif fuzzer.is_nonterminal(key):
+                    self.add_child(dfastate, key, s, 'goto')
+                else:
+                    self.add_child(dfastate, key, s, 'shift')
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, find the main_def (for NFA, there is only one),
+            # and add its number as the rN
+            for item in dfastate.items:
+                if not item.finished(): continue
+                N = self.productions[self.get_key((item.name, list(item.expr)))]
+                terminal_set = self.terminals
+                # terminal_set = follow(item.name, self.g)
+                for k in terminal_set:
                     self.add_reduction(dfastate, k, N, 'reduce')
 
-                # Also, (only) for the graph, collect epsilon transmition to all
-                # rules that are after the given nonterminal at the head.
-                key = dfastate.def_key()
+            # Also, (only) for the graph, collect epsilon transmission to all
+            # rules that are after the given nonterminal at the head.
+            keys = dfastate.def_keys()
+            for key in keys:
                 list_of_return_states = self.get_all_states_with_dot_after_key(key)
                 for s in list_of_return_states:
                     self.add_child(dfastate, '', s, 'to') # reduce
                     # these are already processed. So we do not add to queue
-            else:
-                for key, s in new_dfastates:
-                    if fuzzer.is_nonterminal(key):
-                        self.add_child(dfastate, key, s, 'goto')
-                    else:
-                        self.add_child(dfastate, key, s, 'shift')
 
             queue.extend(new_dfastates)
 
@@ -1025,18 +1034,8 @@ class DFA(DFA):
 
 
 # Let us test building the DFA.
-E_g = {
-        '<E`>': [['<E>']],
-    '<E>': [['<E>', '+', '<T>'],
-            ['<T>']],
-    '<T>': [['id'],
-            ['(', '<E>', ')']]
-}
-
-E_s = '<E`>'
-
 if __name__ == '__main__':
-    my_dfa = DFA(E_g, E_s)
+    my_dfa = DFA(S_g, S_s)
     table = my_dfa.build_dfa()
 
     for k in my_dfa.states:
