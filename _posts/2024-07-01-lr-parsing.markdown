@@ -1523,13 +1523,13 @@ class NFA(NFA):
                 for k in self.terminals:
                     self.add_reduction(state, k, N, 'reduce')
 
-            # Also, (only) for the graph, collect epsilon transmition to all
-            # rules that are after the given nonterminal at the head.
-            key = state.def_key()
-            list_of_return_states = self.get_all_rules_with_dot_after_key(key)
-            for s in list_of_return_states:
-                self.add_child(state, '', s, 'to') # reduce to
-                # these are already processed. So we do not add to queue
+                # Also, (only) for the graph, collect epsilon transmition to all
+                # rules that are after the given nonterminal at the head.
+                key = state.def_key()
+                list_of_return_states = self.get_all_rules_with_dot_after_key(key)
+                for s in list_of_return_states:
+                    self.add_child(state, '', s, 'to') # reduce to
+                    # these are already processed. So we do not add to queue
 
             queue.extend(new_states)
         # now build the nfa table.
@@ -1594,13 +1594,13 @@ class NFA(NFA):
                 for k in self.terminals:
                     self.add_reduction(state, k, N, &#x27;reduce&#x27;)
 
-            # Also, (only) for the graph, collect epsilon transmition to all
-            # rules that are after the given nonterminal at the head.
-            key = state.def_key()
-            list_of_return_states = self.get_all_rules_with_dot_after_key(key)
-            for s in list_of_return_states:
-                self.add_child(state, &#x27;&#x27;, s, &#x27;to&#x27;) # reduce to
-                # these are already processed. So we do not add to queue
+                # Also, (only) for the graph, collect epsilon transmition to all
+                # rules that are after the given nonterminal at the head.
+                key = state.def_key()
+                list_of_return_states = self.get_all_rules_with_dot_after_key(key)
+                for s in list_of_return_states:
+                    self.add_child(state, &#x27;&#x27;, s, &#x27;to&#x27;) # reduce to
+                    # these are already processed. So we do not add to queue
 
             queue.extend(new_states)
         # now build the nfa table.
@@ -2200,14 +2200,14 @@ class DFA(DFA):
                 for k in terminal_set:
                     self.add_reduction(dfastate, k, N, 'reduce')
 
-            # Also, (only) for the graph, collect epsilon transmission to all
-            # rules that are after the given nonterminal at the head.
-            keys = dfastate.def_keys()
-            for key in keys:
-                list_of_return_states = self.get_all_states_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(dfastate, '', s, 'to') # reduce
-                    # these are already processed. So we do not add to queue
+                # Also, (only) for the graph, collect epsilon transmission to all
+                # rules that are after the given nonterminal at the head.
+                keys = dfastate.def_keys()
+                for key in keys:
+                    list_of_return_states = self.get_all_states_with_dot_after_key(key)
+                    for s in list_of_return_states:
+                        self.add_child(dfastate, '', s, 'to') # reduce
+                        # these are already processed. So we do not add to queue
 
             queue.extend(new_dfastates)
 
@@ -2276,14 +2276,14 @@ class DFA(DFA):
                 for k in terminal_set:
                     self.add_reduction(dfastate, k, N, &#x27;reduce&#x27;)
 
-            # Also, (only) for the graph, collect epsilon transmission to all
-            # rules that are after the given nonterminal at the head.
-            keys = dfastate.def_keys()
-            for key in keys:
-                list_of_return_states = self.get_all_states_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(dfastate, &#x27;&#x27;, s, &#x27;to&#x27;) # reduce
-                    # these are already processed. So we do not add to queue
+                # Also, (only) for the graph, collect epsilon transmission to all
+                # rules that are after the given nonterminal at the head.
+                keys = dfastate.def_keys()
+                for key in keys:
+                    list_of_return_states = self.get_all_states_with_dot_after_key(key)
+                    for s in list_of_return_states:
+                        self.add_child(dfastate, &#x27;&#x27;, s, &#x27;to&#x27;) # reduce
+                        # these are already processed. So we do not add to queue
 
             queue.extend(new_dfastates)
 
