@@ -2064,7 +2064,6 @@ class DFA(DFA):
         for k in (self.terminals + self.non_terminals):
             new_dfastate = self.symbol_transition(dfastate, k)
             if new_dfastate is None: continue
-            # self.add_child(dfastate, k, new_dfastate, 'shift') # shift
             # add it to the states returned
             new_dfastates.append((k, new_dfastate))
         return new_dfastates
@@ -2114,7 +2113,6 @@ class DFA(DFA):
         for k in (self.terminals + self.non_terminals):
             new_dfastate = self.symbol_transition(dfastate, k)
             if new_dfastate is None: continue
-            # self.add_child(dfastate, k, new_dfastate, &#x27;shift&#x27;) # shift
             # add it to the states returned
             new_dfastates.append((k, new_dfastate))
         return new_dfastates
