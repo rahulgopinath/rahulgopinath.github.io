@@ -473,8 +473,6 @@ if __name__ == '__main__':
 # recursively identify the transitions. First, we define the state
 # data structure. We define a unique id.
 
-SID = 0
-
 # We also need the symbols in a given grammar.
 
 def symbols(g):
@@ -490,11 +488,9 @@ def symbols(g):
 # We first define our state data structure.
 # A state for an NFA is simply a production rule and a parse position.
 class State:
-    def __init__(self, name, expr, dot):
-        global SID
+    def __init__(self, name, expr, dot, sid):
         self.name, self.expr, self.dot = name, expr, dot
-        self.sid = SID
-        SID += 1
+        self.sid = sid
 
     def finished(self):
         return self.dot >= len(self.expr)
@@ -514,18 +510,6 @@ class State:
     def __str__(self):
         return self.show_dot(self.name, self.expr, self.dot)
 
-    def copy(self):
-        assert False
-
-    def _t(self):
-        return (self.name, self.expr, self.dot)
-
-    def __hash__(self):
-        return hash(self._t())
-
-    def __eq__(self, other):
-        return self._t() == other._t()
-
     def def_key(self):
         return self.name
 
@@ -534,8 +518,7 @@ class State:
 
 # It can be tested this way
 if __name__ == '__main__':
-    SID = 0
-    s = State('<S`>', ('<S>'), 0)
+    s = State('<S`>', ('<S>'), 0, 0)
     print(s.at_dot())
     print(str(s))
     print(s.finished())
@@ -554,6 +537,7 @@ class NFA:
         self.children = []
         self.my_states = {}
         self.terminals, self.non_terminals = symbols(g)
+        self.sid_counter = 0
 
     def get_key(self, kr):
         return "%s -> %s" %kr
@@ -577,14 +561,14 @@ class NFA:
     def create_state(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_states:
-            state = State(name, texpr, pos)
+            state = State(name, texpr, pos, self.sid_counter)
+            self.sid_counter += 1
             self.my_states[(name, texpr, pos)] = state
             self.states[state.sid] = state
         return self.my_states[(name, texpr, pos)]
 
 # Let us test this.
 if __name__ == '__main__':
-    SID = 0
     my_nfa = NFA(S_g, S_s)
     st = my_nfa.create_start(S_s)
     assert str(st[0]) == '<S`>::= | <S> $'
@@ -650,7 +634,6 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    SID = 0
     my_nfa = NFA(S_g, S_s)
     st = my_nfa.create_start(S_s)
     new_st = my_nfa.find_transitions(st[0])
@@ -675,7 +658,6 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    SID = 0
     my_nfa = NFA(S_g, S_s)
     lst = my_nfa.get_all_rules_with_dot_after_key('<A>')
     assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
@@ -743,7 +725,6 @@ class NFA(NFA):
 # Let us test the build_nfa
 
 if __name__ == '__main__':
-    SID = 0
     my_nfa = NFA(S_g, S_s)
     table = my_nfa.build_nfa()
     rowh = table[0]
@@ -798,7 +779,6 @@ def to_graph(nfa_tbl):
     return G
 # Let us test our NFA.
 if __name__ == '__main__':
-    SID = 0
     my_nfa = NFA(S_g, S_s)
     table = my_nfa.build_nfa()
     for k in my_nfa.states:
@@ -814,13 +794,9 @@ if __name__ == '__main__':
 class Item(State): pass
 
 # A DFAState contains many items.
-DSID = 0
-
 class DFAState:
-    def __init__(self, items):
-        global DSID
-        self.sid = DSID
-        DSID += 1
+    def __init__(self, items, dsid):
+        self.sid = dsid
         # now compute the closure.
         self.items = items
 
@@ -851,6 +827,8 @@ class DFA(NFA):
         self.children = []
         self.my_items = {}
         self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
         self.terminals, self.non_terminals = symbols(g)
         self.productions, self.production_rules = self.get_production_rules(g)
 
@@ -859,7 +837,8 @@ class DFA(NFA):
 # multiple items.
 class DFA(DFA):
     def create_start_item(self, s, rule):
-        return Item(s, tuple(rule), 0)
+        self.sid_counter += 1
+        return Item(s, tuple(rule), 0, self.sid_counter-1)
 
     # the start in DFA is simply a closure of all rules from that key.
     def create_start(self, s):
@@ -890,15 +869,14 @@ class DFA(DFA):
     def create_state(self, items):
         texpr = tuple(sorted([str(i) for i in items]))
         if (texpr) not in self.my_states:
-            state = DFAState(self.compute_closure(items))
+            state = DFAState(self.compute_closure(items), self.dsid_counter)
+            self.dsid_counter += 1
             self.my_states[texpr] = state
             self.states[state.sid] = state
         return self.my_states[texpr]
 
 # Let us test this.
 if __name__ == '__main__':
-    DSID = 0
-    SID = 0
     my_dfa = DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
@@ -934,7 +912,8 @@ class DFA(DFA):
     def create_item(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_items:
-            item = Item(name, texpr, pos)
+            self.sid_counter += 1
+            item = Item(name, texpr, pos, self.sid_counter-1)
             self.my_items[(name, texpr, pos)] = item
             self.items[item.sid] = item
         return self.my_items[(name, texpr, pos)]
@@ -956,8 +935,6 @@ class DFA(DFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    DSID = 0
-    SID = 0
     my_dfa = DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
@@ -1035,8 +1012,6 @@ class DFA(DFA):
 
 # Let us test building the DFA.
 if __name__ == '__main__':
-    DSID = 0
-    SID = 0
     my_dfa = DFA(S_g, S_s)
     table = my_dfa.build_dfa()
 
@@ -1064,15 +1039,21 @@ class LR0Parser:
         self.parse_table = self.dfa.build_dfa()
         self.production_rules = self.dfa.production_rules
 
-    def parse(self, input_string):
+    def log(self, stack, tokens):
+        print('Stack', stack)
+        print('Tokens', tokens)
+
+    def parse(self, input_string, start):
         tokens = list(input_string + '$')
         stack = [(None, 's0')]
 
         while True:
             (_,state_), symbol = stack[-1], tokens[0]
             state = int(state_[1:])
-            if symbol == '$' and self.dfa.states[state].main_item().finished():
-                return True, "Input Accepted"
+            if symbol == '$':
+                i = self.dfa.states[state].main_item()
+                if i.name == start and i.at_dot() == '$':
+                    return True, "Input Accepted"
 
             actions = self.parse_table[state][symbol]
             if not actions:
@@ -1102,13 +1083,11 @@ class LR0Parser:
                 self.stack.append((lhs, action))
             else: assert False
 
-            print("Stack:", stack)
-            print("Input:", ''.join(tokens))
-            print()
+            self.log(stack, tokens)
 
 # Testing it.
+
 if __name__ == '__main__':
-    SID, DSID = 0, 0
     my_dfa = DFA(S_g, S_s)
 
     parser = LR0Parser(my_dfa)
@@ -1117,13 +1096,80 @@ if __name__ == '__main__':
 
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message = parser.parse(test_string)
+        success, message = parser.parse(test_string, S_s)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()
 
+class LR0Parser(LR0Parser):
+    def parse(self, input_string, start):
+        tokens = list(input_string) + ['$']
+        stack = [(None, 's0')]
+        self.node_stack = []
 
-# Now, let us recursively build the NFA.
+        while True:
+            (_,state_), symbol = stack[-1], tokens[0]
+            state = int(state_[1:])
+
+            actions = self.parse_table[state][symbol]
+            if not actions:
+                return False, f"Parsing Error: No actions state{state}:{symbol}", None
+
+            if symbol == '$':
+                i = self.dfa.states[state].main_item()
+                if i.name == start and i.at_dot() == '$':
+                    return True, "Input Accepted", self.node_stack[0]
+
+            assert len(actions) == 1
+            action = actions[0]
+
+            if action.startswith('s'):
+                tokens.pop(0)
+                stack.append((symbol, action))
+                self.node_stack.append((symbol, []))
+
+            elif action.startswith('r'):
+                lhs, rhs = self.production_rules[action]
+                children = []
+                for _ in rhs:
+                    stack.pop()  # Pop state, symbol
+                    children.insert(0, self.node_stack.pop())
+
+                new_node = (lhs, children)
+                self.node_stack.append(new_node)
+
+                _,prev_state_ = stack[-1]
+                prev_state = int(prev_state_[1:])
+
+                if not self.parse_table[prev_state][lhs]:
+                    return False, f"Parsing Error: No transition {prev_state}:{lhs}", None
+
+                next_state = self.parse_table[prev_state][lhs][0]
+                stack.append((lhs, next_state))
+
+            elif action.startswith('g'):
+                stack.append((lhs, next_state))
+
+            else: assert False
+
+            self.log(stack, tokens)
+
+
+# Now, let us build parse trees
+if __name__ == '__main__':
+    my_dfa = DFA(S_g, S_s)
+
+    parser = LR0Parser(my_dfa)
+    # Test the parser with some input strings
+    test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
+
+    for test_string in test_strings:
+        print(f"Parsing: {test_string}")
+        success, message, tree = parser.parse(test_string, S_s)
+        print(tree)
+        print(f"Result: {'Accepted' if success else 'Rejected'}")
+        print(f"Message: {message}")
+        print()
 
 # 
 # [^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
