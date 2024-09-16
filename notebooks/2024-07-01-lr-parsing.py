@@ -1,9 +1,9 @@
 # ---
 # published: true
-# title: A Shift-Reduce LR(0) Parser
+# title: A Shift-Reduce LR0 Parser
 # layout: post
 # comments: true
-# tags: parsing, gll
+# tags: parsing gll
 # categories: post
 # ---
 #
