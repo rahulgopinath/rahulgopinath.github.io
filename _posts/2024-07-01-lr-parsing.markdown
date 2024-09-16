@@ -1898,9 +1898,9 @@ class DFA(DFA):
         new_items = {}
         while to_process:
             item_, *to_process = to_process
-            if item_.sid in seen: continue
+            if str(item_) in seen: continue
             new_items[str(item_)] = item_
-            seen.add(item_.sid)
+            seen.add(str(item_))
             key = item_.at_dot()
             if key is None:
                 continue
@@ -1942,9 +1942,9 @@ class DFA(DFA):
         new_items = {}
         while to_process:
             item_, *to_process = to_process
-            if item_.sid in seen: continue
+            if str(item_) in seen: continue
             new_items[str(item_)] = item_
-            seen.add(item_.sid)
+            seen.add(str(item_))
             key = item_.at_dot()
             if key is None:
                 continue
