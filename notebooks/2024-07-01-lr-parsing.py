@@ -6,22 +6,22 @@
 # tags: parsing gll
 # categories: post
 # ---
-#
+
 # TLDR; This tutorial is a complete implementation of shift-reduce
 # parsers in Python. We build LR(0) parser, SLR(1) Parser and the
 # canonical LR(1) parser, and show how to extract the parse trees.
-# The Python interpreter is embedded so that you can
+# Python code snippets are provided throughout so that you can
 # work through the implementation steps.
-#
+
 # An LR parser is a bottom-up parser. The *L* stands for scanning the input
 # left-to-right, and the *R* stands for constructing a rightmost derivation.
 # This contrasts with LL parsers which are again left-to-right but construct
 # the leftmost derivation.
 
 
-#### Prerequisites
- 
+# ### Prerequisites
 # As before, we start with the prerequisite imports.
+# Note: The following libraries may need to be installed separately.
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
@@ -400,7 +400,7 @@ if __name__ == '__main__':
 # ```
 # '<S>::= <A> | <B>'
 # ```
-# 
+#
 # is connected to the below by the key `<A>`.
 #
 # ```
@@ -733,11 +733,12 @@ if __name__ == '__main__':
 # note that the complete parse nodes seem to have red outgoing arrows, and
 # at least in one, multiple red outgoing arrows. That is, it is not a true
 # DFA. The next state to transition to is actually chosen based on the path
+# to is actually chosen based on the path
 # the input string took through the DFA with the help of a stack.
 # Let us now represent these states step by step.
 
 # ### Compiled DFA States
-# 
+#
 # #### State 0
 # This is the initial state. It transitions into State 2 or State 3 based
 # on the input symbol. Note that we save the current state in the stack
@@ -1029,7 +1030,7 @@ if __name__ == '__main__':
              ('<A>', ['<S>::= <A> | <B>', '<B>::= | b']),
              ('<C>', ['<S>::= <C> |']),
              ('<S>', ['<>::= <S> | $'])]
-    
+
 
 # #### add_reduce
 # This is different from NFA because we are iterating over items, but we need

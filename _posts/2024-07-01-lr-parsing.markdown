@@ -6,20 +6,6 @@ comments: true
 tags: parsing gll
 categories: post
 ---
-TLDR; This tutorial is a complete implementation of shift-reduce
-Parsers in Python. We build LR(0) parser, SLR(1) Parser and the
-canonical LR(1) parser, and show how to extract the parse trees.
-The Python interpreter is embedded so that you can
-work through the implementation steps.
-An LR parser is a bottom-up parser. The *L* stands for scanning the input
-left-to-right, and the *R* stands for constructing a rightmost derivation.
-This contrasts with LL parsers which are again left-to-right but construct
-the leftmost derivation.
-
-
-#### Prerequisites
- 
-As before, we start with the prerequisite imports.
 
 ## Contents
 {:.no_toc}
@@ -55,6 +41,18 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
+TLDR; This tutorial is a complete implementation of shift-reduce
+parsers in Python. We build LR(0) parser, SLR(1) Parser and the
+canonical LR(1) parser, and show how to extract the parse trees.
+Python code snippets are provided throughout so that you can
+work through the implementation steps.
+An LR parser is a bottom-up parser. The *L* stands for scanning the input
+left-to-right, and the *R* stands for constructing a rightmost derivation.
+This contrasts with LL parsers which are again left-to-right but construct
+the leftmost derivation.
+### Prerequisites
+As before, we start with the prerequisite imports.
+Note: The following libraries may need to be installed separately.
 
 <details>
 <summary>Available Packages </summary>
@@ -146,7 +144,7 @@ import pydot
 <div name='python_canvas'></div>
 </form>
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar
-style. For example, given below is a simple grammar for nested parenthesis.
+style. For example, given below is a simple grammar for nested parentheses.
 
 <!--
 ############
@@ -182,8 +180,9 @@ parser uses the current nonterminal and the next symbol to determine the
 production rule to apply. In contrast, the LR parser uses the current
 viable prefix and the next symbol to determine the next action to take.
 
-The viable-prefix is the string prefix that has been currently recognized.
-This recognition is accomplished by the LR automata, which we describe next.
+The viable prefix is the portion of the input string that has been
+recognized so far. This recognition is accomplished by the LR automaton,
+which we describe next.
 
 But before that, let us start slow. If we are going for a naive translation
 of the grammar into an automata, this is what we could do. That is, we start
@@ -838,7 +837,7 @@ assert str(st[1]) == &#x27;&lt;S&gt;::= | &lt;C&gt;&#x27;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Advance the state of parse by one token 
+#### Advance the state of parse by one token
 
 <!--
 ############
@@ -895,7 +894,6 @@ when moving the parsing point one location. For example,
 ```
 '<S>::= <A> | <B>'
 ```
-
 is connected to the below by the key `<A>`.
 ```
 '<S>::= <A> <B> |'
@@ -926,17 +924,14 @@ Note that we are building an NFA. Hence, epsilon
 transitions are allowed. This is what we use when we are
 starting to parse nonterminal symbols. For example, when
 we have a state with the parsing just before `<B>`, for e.g.
-
 ```
 '<S>::= <A> | <B>'
 ```
-
 Then, we add a new state
-
 ```
 '<A>::= | a',
 ```
-and connect this new state to the previous one with an $$\epsilon$$ 
+and connect this new state to the previous one with an $$\epsilon$$
 transition.
 
 <!--
@@ -1404,45 +1399,31 @@ __canvas__(str(g))
 <div name='python_canvas'></div>
 </form>
 # LR0 Automata
-
-An NFA is not very useful for parsing. For one, it is an NFA,
-over-approximating the grammar, and secondly, there can be multiple possible
-paths for a given prefix. To use it for parsing, one would need to use a
-backtracking algorithm, and this is not very optimal.
-Next we see how to generate a DFA (i.e. the LR automata) instead.
- 
-An LR automata is composed of multiple states, and each state represents a set
+An LR(0) automaton is composed of multiple states, and each state represents a set
 of items that indicate the parsing progress. The states are connected together
 using transitions which are composed of the terminal and nonterminal symbols
 in the grammar.
-
-To construct the LR automata, one starts with the initial state containing the
+To construct the LR(0) automaton, we start with the initial state containing the
 augmented start symbol (if necessary), and we apply closure to expand the
-context. For the closure, we simply merge all epsilon transitions to current
+context. For the closure, we simply merge all epsilon transitions to the current
 item.
-
 ## Closure
 A closure to represents all possible parse paths at a given
 point. The idea is to look at the current parse progress; Identify any
 nonterminals that need to be expanded next, and add the production rules of that
 nonterminal to the current item, with parse point (dot) at the beginning.
-
 For example, given the first state, where `*` represent the parse progress
- 
 ```
 <S`> := * <S>
 ```
 Applying closure, we expand `<S>` further.
- 
 ```
 <S`> := * <S>
 <S>  := * a <A> c
 <S>  := * b <A> d d
 ```
 No more nonterminals to expand. Hence, this is the closure of the first state.
-
 Consider what happens when we apply a transition of `a` to this state.
-
 ```
 <S> := a * A c
 ```
@@ -1451,7 +1432,6 @@ Now, we apply closure
 <S> := a * A c
 <A> := * b
 ```
-
 This gives us the following graph with each closure, and the transitions indicated. Note that
 the nonterminal transitions are dashed.
 
@@ -1559,10 +1539,10 @@ represents a complete parse of a rule with the dot at the end. You will also
 note that the complete parse nodes seem to have red outgoing arrows, and
 at least in one, multiple red outgoing arrows. That is, it is not a true
 DFA. The next state to transition to is actually chosen based on the path
+to is actually chosen based on the path
 the input string took through the DFA with the help of a stack.
 Let us now represent these states step by step.
 ### Compiled DFA States
-
 #### State 0
 This is the initial state. It transitions into State 2 or State 3 based
 on the input symbol. Note that we save the current state in the stack
@@ -1887,7 +1867,6 @@ class Item(State): pass
 <div name='python_canvas'></div>
 </form>
 ### DFAState
-
 A DFAState contains many items.
 
 <!--
@@ -2118,7 +2097,7 @@ assert [str(s) for s in st.items] == \
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-#### Advance the state of parse by the given token 
+#### Advance the state of parse by the given token
 Unlike in NFA, where we had only one item, and hence, there
 was only one advancing possible, here we have multiple items.
 Hence, we are given a token by which to advance, and return
@@ -2201,7 +2180,6 @@ assert [str(s) for s in st] == [ &#x27;&lt;A&gt;::= a |&#x27;]
 <div name='python_canvas'></div>
 </form>
 #### DFA find_transitions
-
 Next, we define the transitions. Unlike in the case of NFA where we had only a
 single item, we have multiple items. So, we look through each possible
 token (terminals and nonterminals)
@@ -2635,7 +2613,9 @@ for test_string in test_strings:
 <div name='python_canvas'></div>
 </form>
 # LR0Parser
-Attaching parse tree extraction.
+Now we'll implement the LR(0) parser, which includes parse tree extraction.
+Parse tree extraction involves building a tree structure that represents the
+syntactic structure of the input string according to the grammar rules.
 
 <!--
 ############
@@ -2868,9 +2848,12 @@ We have two possible choices of reduction. We can either reduce to `<B>` or
 to `<D>`. To determine which one to reduce to, we need a lookahead. If the
 next token is `c`, then we should reduce to `<B>`. If the next one is `d`,
 we should reduce to `<D>`. This is what SLR parsers do.
-
 # SLR1 Automata
-
+SLR(1) parsers, or Simple LR(1) parsers, are an improvement over LR(0) parsers.
+They use lookahead to resolve some conflicts that occur in LR(0) parsers.
+A lookahead is the next token in the input that hasn't been processed yet.
+By considering this lookahead token, SLR(1) parsers can make more informed
+decisions about which production to use when reducing.
 For using SLR1 automation, we require first and follow sets. This has been
 discussed previously. Hence, providing the code here directly.
 ### First and follow
@@ -3286,6 +3269,12 @@ print()
 You will notice a conflict in State 5. To resolve this, we need the full
 LR(1) parser.
 # LR1 Automata
+
+LR(1) parsers, or Canonical LR(1) parsers, are the most powerful in the LR parser family.
+They are needed when SLR(1) parsers are not sufficient to handle certain complex grammars.
+LR(1) parsers differ from SLR(1) parsers in that they incorporate lookahead information
+directly into the parser states, allowing for even more precise parsing decisions.
+
 ## Building the DFA
 ### LR1Item
 The LR1 item is similar to the Item, except that it contains a lookahead.
@@ -3387,6 +3376,7 @@ but also what may follow `<Beta>` if `<Beta>` is nullable. This would be the
 lookahead of the item `A -> Alpha . <B> <Beta>` which we already have, let us
 say this is `l`. So, # we compute `first(<Beta> l)` for lookahead.
 
+
 <!--
 ############
 class LR1DFA(LR1DFA):
@@ -3472,6 +3462,19 @@ class LR1DFA(LR1DFA):
 </form>
 Another major change, we no longer add a reduction to all follows of item.name
 instead, we restrict it to just item.lookahead.
+
+**Note.** A possible confusion here is about the treatment of lookaheads,
+in `add_reduction`. In LR0DFA.add_reduction, we add a reduction link for
+all terminal symbols to each item. In SLR1DFA.add_reduction, we add a
+reduction link for all terminal symbols that are in the `follow(item.name)`
+Here, we may hence expect the lookaheads to be a subset of `follow(item.name)`
+and to add the reduction for each lookahead of a given item.
+
+The difference is in the LR1Item compared to Item, where LR1Item contains one
+lookahead token per item. That is, there could be multiple items with same
+parse points, corresponding to each possible lookahead. Since there is one
+lookahead per LR1Item rather than multiple lookaheads per Item, we only need
+to add one reduction per item.
 
 <!--
 ############
