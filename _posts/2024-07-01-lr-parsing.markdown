@@ -1180,14 +1180,14 @@ different states connected together by transitions.
 ############
 class NFA:
     def __init__(self, g, start):
-        self.states = {}
-        self.g = g
+        self.grammar = g
         self.productions, self.production_rules = self._get_production_rules(g)
         self.start = start
         self.nfa_table = None
         self.children = []
         self.my_states = {}
         self.terminals, self.non_terminals = symbols(g)
+        self.state_sids = {} # Convenience for debugging only
         self.sid_counter = 0
 
     def get_key(self, kr):
@@ -1197,8 +1197,8 @@ class NFA:
         productions = {}
         count = 0
         production_rules = {}
-        for k in self.g:
-            for r in self.g[k]:
+        for k in self.grammar:
+            for r in self.grammar[k]:
                 production_rules["r:%d" % count] = (k, r)
                 productions[self.get_key((k, r))] = count
                 count += 1
@@ -1210,14 +1210,14 @@ class NFA:
 <textarea cols="40" rows="4" name='python_edit'>
 class NFA:
     def __init__(self, g, start):
-        self.states = {}
-        self.g = g
+        self.grammar = g
         self.productions, self.production_rules = self._get_production_rules(g)
         self.start = start
         self.nfa_table = None
         self.children = []
         self.my_states = {}
         self.terminals, self.non_terminals = symbols(g)
+        self.state_sids = {} # Convenience for debugging only
         self.sid_counter = 0
 
     def get_key(self, kr):
@@ -1227,8 +1227,8 @@ class NFA:
         productions = {}
         count = 0
         production_rules = {}
-        for k in self.g:
-            for r in self.g[k]:
+        for k in self.grammar:
+            for r in self.grammar[k]:
                 production_rules[&quot;r:%d&quot; % count] = (k, r)
                 productions[self.get_key((k, r))] = count
                 count += 1
@@ -1249,15 +1249,15 @@ class NFA(NFA):
 
     # create starting states for the given key
     def create_start(self, s):
-        rules = self.g[s]
-        return [self.create_state(s, tuple(rule), 0) for rule in self.g[s]]
+        rules = self.grammar[s]
+        return [self.create_state(s, tuple(rule), 0) for rule in self.grammar[s]]
 
     def create_state(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_states:
             state = self.new_state(name, texpr, pos)
             self.my_states[(name, texpr, pos)] = state
-            self.states[state.sid] = state
+            self.state_sids[state.sid] = state
         return self.my_states[(name, texpr, pos)]
 
 ############
@@ -1272,15 +1272,15 @@ class NFA(NFA):
 
     # create starting states for the given key
     def create_start(self, s):
-        rules = self.g[s]
-        return [self.create_state(s, tuple(rule), 0) for rule in self.g[s]]
+        rules = self.grammar[s]
+        return [self.create_state(s, tuple(rule), 0) for rule in self.grammar[s]]
 
     def create_state(self, name, expr, pos):
         texpr = tuple(expr)
         if (name, texpr, pos) not in self.my_states:
             state = self.new_state(name, texpr, pos)
             self.my_states[(name, texpr, pos)] = state
-            self.states[state.sid] = state
+            self.state_sids[state.sid] = state
         return self.my_states[(name, texpr, pos)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1421,7 +1421,7 @@ class NFA(NFA):
         # key should not be none at this point.
         assert key is not None
         new_states = []
-        for rule in self.g[key]:
+        for rule in self.grammar[key]:
             new_state = self.create_state(key, rule, 0)
             new_states.append(new_state)
         return new_states
@@ -1436,7 +1436,7 @@ class NFA(NFA):
         # key should not be none at this point.
         assert key is not None
         new_states = []
-        for rule in self.g[key]:
+        for rule in self.grammar[key]:
             new_state = self.create_state(key, rule, 0)
             new_states.append(new_state)
         return new_states
@@ -1539,8 +1539,8 @@ Given a key, we want to get all items that contains the parsing of this key.
 class NFA(NFA):
     def get_all_rules_with_dot_after_key(self, key):
         states = []
-        for k in self.g:
-            for rule in self.g[k]:
+        for k in self.grammar:
+            for rule in self.grammar[k]:
                 l_rule = len(rule)
                 for i,t in enumerate(rule):
                     if i >= l_rule: continue
@@ -1555,8 +1555,8 @@ class NFA(NFA):
 class NFA(NFA):
     def get_all_rules_with_dot_after_key(self, key):
         states = []
-        for k in self.g:
-            for rule in self.g[k]:
+        for k in self.grammar:
+            for rule in self.grammar[k]:
                 l_rule = len(rule)
                 for i,t in enumerate(rule):
                     if i &gt;= l_rule: continue
@@ -1594,7 +1594,7 @@ Now, we can build the NFA.
 class NFA(NFA):
     def build_table(self):
         nfa_table = []
-        for _ in self.states.keys():
+        for _ in self.my_states.keys():
             row = {k:[] for k in (self.terminals + self.non_terminals + [''])}
             nfa_table.append(row)
 
@@ -1672,7 +1672,7 @@ class NFA(NFA):
 class NFA(NFA):
     def build_table(self):
         nfa_table = []
-        for _ in self.states.keys():
+        for _ in self.my_states.keys():
             row = {k:[] for k in (self.terminals + self.non_terminals + [&#x27;&#x27;])}
             nfa_table.append(row)
 
@@ -1875,8 +1875,8 @@ Let us test our NFA.
 ############
 my_nfa = NFA(S_g, S_s)
 table = my_nfa.build_nfa()
-for k in my_nfa.states:
-  print(k, my_nfa.states[k])
+for k in my_nfa.state_sids:
+  print(k, my_nfa.state_sids[k])
 g = to_graph(table)
 __canvas__(str(g))
 
@@ -1886,8 +1886,8 @@ __canvas__(str(g))
 <textarea cols="40" rows="4" name='python_edit'>
 my_nfa = NFA(S_g, S_s)
 table = my_nfa.build_nfa()
-for k in my_nfa.states:
-  print(k, my_nfa.states[k])
+for k in my_nfa.state_sids:
+  print(k, my_nfa.state_sids[k])
 g = to_graph(table)
 __canvas__(str(g))
 </textarea><br />
@@ -1961,9 +1961,9 @@ creating new items and DFA states.
 ############
 class LR0DFA(NFA):
     def __init__(self, g, start):
-        self.items = {}
+        self.item_sids = {}
         self.states = {}
-        self.g = g
+        self.grammar = g
         self.start = start
         self.nfa_table = None
         self.children = []
@@ -1990,9 +1990,9 @@ class LR0DFA(NFA):
 <textarea cols="40" rows="4" name='python_edit'>
 class LR0DFA(NFA):
     def __init__(self, g, start):
-        self.items = {}
+        self.item_sids = {}
         self.states = {}
-        self.g = g
+        self.grammar = g
         self.start = start
         self.nfa_table = None
         self.children = []
@@ -2036,7 +2036,7 @@ class LR0DFA(LR0DFA):
             key = item_.at_dot()
             if key is None: continue
             if not fuzzer.is_nonterminal(key): continue
-            for rule in self.g[key]:
+            for rule in self.grammar[key]:
                 new_item = self.create_start_item(key, rule)
                 to_process.append(new_item)
         return list(new_items.values())
@@ -2061,7 +2061,7 @@ class LR0DFA(LR0DFA):
             key = item_.at_dot()
             if key is None: continue
             if not fuzzer.is_nonterminal(key): continue
-            for rule in self.g[key]:
+            for rule in self.grammar[key]:
                 new_item = self.create_start_item(key, rule)
                 to_process.append(new_item)
         return list(new_items.values())
@@ -2090,7 +2090,7 @@ class LR0DFA(LR0DFA):
 
     # the start in DFA is simply a closure of all rules from that key.
     def create_start(self, s):
-        items = [self.create_start_item(s, rule) for rule in self.g[s] ]
+        items = [self.create_start_item(s, rule) for rule in self.grammar[s] ]
         return self.create_state(items) # create state does closure
 
 ############
@@ -2108,7 +2108,7 @@ class LR0DFA(LR0DFA):
 
     # the start in DFA is simply a closure of all rules from that key.
     def create_start(self, s):
-        items = [self.create_start_item(s, rule) for rule in self.g[s] ]
+        items = [self.create_start_item(s, rule) for rule in self.grammar[s] ]
         return self.create_state(items) # create state does closure
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2169,7 +2169,7 @@ class LR0DFA(LR0DFA):
         if (name, texpr, pos) not in self.my_items:
             item = self.new_item(name, texpr, pos)
             self.my_items[(name, texpr, pos)] = item
-            self.items[item.sid] = item
+            self.item_sids[item.sid] = item
         return self.my_items[(name, texpr, pos)]
 
 ############
@@ -2193,7 +2193,7 @@ class LR0DFA(LR0DFA):
         if (name, texpr, pos) not in self.my_items:
             item = self.new_item(name, texpr, pos)
             self.my_items[(name, texpr, pos)] = item
-            self.items[item.sid] = item
+            self.item_sids[item.sid] = item
         return self.my_items[(name, texpr, pos)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -3052,9 +3052,9 @@ print(&quot;nullable&quot;, nullable)
 ############
 class SLR1DFA(LR0DFA):
     def __init__(self, g, start):
-        self.items = {}
+        self.item_sids = {} # debugging convenience only
         self.states = {}
-        self.g = g
+        self.grammar = g
         self.start = start
         self.children = []
         self.my_items = {}
@@ -3071,9 +3071,9 @@ class SLR1DFA(LR0DFA):
 <textarea cols="40" rows="4" name='python_edit'>
 class SLR1DFA(LR0DFA):
     def __init__(self, g, start):
-        self.items = {}
+        self.item_sids = {} # debugging convenience only
         self.states = {}
-        self.g = g
+        self.grammar = g
         self.start = start
         self.children = []
         self.my_items = {}
@@ -3367,7 +3367,7 @@ class LR1DFA(SLR1DFA):
         if (name, texpr, pos, lookahead) not in self.my_items:
             item = self.new_item(name, texpr, pos, lookahead)
             self.my_items[(name, texpr, pos, lookahead)] = item
-            self.items[item.sid] = item
+            self.item_sids[item.sid] = item
         return self.my_items[(name, texpr, pos, lookahead)]
 
 ############
@@ -3388,7 +3388,7 @@ class LR1DFA(SLR1DFA):
         if (name, texpr, pos, lookahead) not in self.my_items:
             item = self.new_item(name, texpr, pos, lookahead)
             self.my_items[(name, texpr, pos, lookahead)] = item
-            self.items[item.sid] = item
+            self.item_sids[item.sid] = item
         return self.my_items[(name, texpr, pos, lookahead)]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -3427,7 +3427,7 @@ class LR1DFA(LR1DFA):
             if not fuzzer.is_nonterminal(key): continue
             remaining = list(item_.remaining()) + [item_.lookahead] # ADDED
             lookaheads = first_of_rule(remaining, self.first, self.nullable) # ADDED
-            for rule in self.g[key]:
+            for rule in self.grammar[key]:
                 for lookahead in lookaheads: # ADDED
                     new_item = self.create_start_item(key, rule, lookahead) # lookahead
                     to_process.append(new_item)
@@ -3456,7 +3456,7 @@ class LR1DFA(LR1DFA):
             if not fuzzer.is_nonterminal(key): continue
             remaining = list(item_.remaining()) + [item_.lookahead] # ADDED
             lookaheads = first_of_rule(remaining, self.first, self.nullable) # ADDED
-            for rule in self.g[key]:
+            for rule in self.grammar[key]:
                 for lookahead in lookaheads: # ADDED
                     new_item = self.create_start_item(key, rule, lookahead) # lookahead
                     to_process.append(new_item)
@@ -3476,7 +3476,7 @@ This method create_start changes to include the '$' as lookahead.
 class LR1DFA(LR1DFA):
     def create_start(self, s):
         assert fuzzer.is_nonterminal(s)
-        items = [self.create_start_item(s, rule, '$') for rule in self.g[s]]
+        items = [self.create_start_item(s, rule, '$') for rule in self.grammar[s]]
         return self.create_state(items)
 
 ############
@@ -3486,7 +3486,7 @@ class LR1DFA(LR1DFA):
 class LR1DFA(LR1DFA):
     def create_start(self, s):
         assert fuzzer.is_nonterminal(s)
-        items = [self.create_start_item(s, rule, &#x27;$&#x27;) for rule in self.g[s]]
+        items = [self.create_start_item(s, rule, &#x27;$&#x27;) for rule in self.grammar[s]]
         return self.create_state(items)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
