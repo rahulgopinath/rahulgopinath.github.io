@@ -188,226 +188,6 @@ if __name__ == '__main__':
 # The right reduction needs to chosen based on the prefix so far, and we
 # will see how to do this later.
 # 
-# While this is reasonable, it is not very useful. For one, it is an NFA,
-# over-approximating the grammar, and secondly, there can be multiple possible
-# paths for a given prefix.  Hence, it is not very optimal.
-# Let us next see how to generate a DFA instead.
-# 
-# # LR0 Automata
-#  An LR automata is composed of multiple states, and each state represents a set
-# of items that indicate the parsing progress. The states are connected together
-# using transitions which are composed of the terminal and nonterminal symbols
-# in the grammar.
-# 
-# To construct the LR automata, one starts with the initial state containing the
-# augmented start symbol (if necessary), and we apply closure to expand the
-# context. For the closure, we simply merge all epsilon transitions to current
-# item.
-# 
-# ## Closure
-# A closure to represents all possible parse paths at a given
-# point. The idea is to look at the current parse progress; Identify any
-# nonterminals that need to be expanded next, and add the production rules of that
-# nonterminal to the current item, with parse point (dot) at the beginning.
-# 
-# For example, given the first state, where `*` represent the parse progress
-#  
-# ```
-# <S`> := * <S>
-# ```
-# Applying closure, we expand `<S>` further.
-#  
-# ```
-# <S`> := * <S>
-# <S>  := * a <A> c
-# <S>  := * b <A> d d
-# ```
-# No more nonterminals to expand. Hence, this is the closure of the first state.
-# 
-# Consider what happens when we apply a transition of `a` to this state.
-# 
-# ```
-# <S> := a * A c
-# ```
-# Now, we apply closure
-# ```
-# <S> := a * A c
-# <A> := * b
-# ```
-# 
-# This gives us the following graph with each closure, and the transitions indicated. Note that
-# the nonterminal transitions are dashed.
-
-if __name__ == '__main__':
-    __canvas__('''
-    digraph ParsingAutomaton {
-    rankdir=TB;
-
-    // Node definitions with labels
-    node [shape=rectangle];
-
-    // State definitions with reduction instructions
-    0 [label="I0:\nS' → • S\nS → • a A c\nS → • b A d d"];
-    1 [label="I1:\nS' → S •\n[Accept]"];
-    2 [label="I2:\nS → a • A c\nA → • b"];
-    3 [label="I3:\nS → b • A d d\nA → • b"];
-    4 [label="I4:\nS → a A • c"];
-    5 [label="I5:\nA → b •"];
-    6 [label="I6:\nS → b A • d d"];
-    7 [label="I7:\nS → a A c •"];
-    8 [label="I8:\nS → b A d • d"];
-    9 [label="I9:\nS → b A d d •"];
-
-    // Edge definitions with labels
-    0 -> 2 [label="a"];
-    0 -> 3 [label="b"];
-    0 -> 1 [label="S", style=dashed];
-
-    2 -> 5 [label="b"];
-    2 -> 4 [label="A", style=dashed];
-
-    3 -> 5 [label="b"];
-    3 -> 6 [label="A", style=dashed];
-
-    4 -> 7 [label="c"];
-
-    5 -> 4 [label="A", color=red]; // GOTO after reduction in state 5
-    5 -> 6 [label="A", color=red]; // GOTO after reduction in state 5
-
-    6 -> 8 [label="d"];
-
-    7 -> 1 [label="S", color=red]; // GOTO after reduction in state 7
-
-    8 -> 9 [label="d"];
-
-    9 -> 1 [label="S", color=red]; // GOTO after reduction in state 9
-    }''')
-
-# This is the basic automaton. However, you may notice that there are two types
-# of nodes in this diagram. The first one represents partial parses which
-# contain the dot at a position other than the end, and the second one
-# represents a complete parse of a rule with the dot at the end. You will also
-# note that the complete parse nodes seem to have red outgoing arrows, and
-# at least in one, multiple red outgoing arrows. That is, it is not a true
-# DFA. The next state to transition to is actually chosen based on the path
-# the input string took through the DFA with the help of a stack.
-# Let us now represent these states step by step.
-
-# ### Compiled DFA States
-# 
-# #### State 0
-# This is the initial state. It transitions into State 2 or State 3 based
-# on the input symbol. Note that we save the current state in the stack
-# before transitioning to the next state after consuming one token.
-
-def state_0(stack, input_string):
-    rule = ['S`', ['S'], 0]
-    stack.append(0)
-    symbol = input_string[0]
-    if symbol == 'a': return state_2(stack, input_string[1:])
-    elif symbol == 'b': return state_3(stack, input_string[1:])
-    else: raise Exception("Expected 'a' or 'b'")
-
-# #### State 1
-# This is the acceptor state.
-def state_1(stack, input_string):
-    rule = ['S`', ['S'], 1]
-    stack.append(1)
-    symbol = input_string[0]
-    if symbol == '$': print("Input accepted.")
-    else: raise Exception("Expected end of input")
-
-# #### State 2
-# State 2 which is the production rule `S -> a . A c` just after consuming `a`.
-# We need `b` to transition to State 5 which represents a production rule of A.
-def state_2(stack, input_string):
-    rule = ['S', ['a', 'A', 'c'], 1]
-    stack.append(2)
-    symbol = input_string[0]
-    if symbol == 'b': return state_5(stack, input_string[1:])
-    else: raise Exception("Expected 'b'")
-
-# #### State 3
-# State 3 which is the production rule `S -> b . A d d` just after consuming `b`.
-def state_3(stack, input_string):
-    rule = ['S', ['b', 'A', 'd', 'd'], 1]
-    stack.append(3)
-    symbol = input_string[0]
-    if symbol == 'b': return state_5(stack, input_string[1:])
-    else: raise Exception("Expected 'b'")
-
-# #### State 4
-# State 4 which is the production rule `S -> a A.  c` just after consuming `a`.
-def state_4(stack, input_string):
-    rule = ['S', ['a', 'A', 'c'], 2]
-    stack.append(4)
-    symbol = input_string[0]
-    if symbol == 'c': return state_7(stack, input_string[1:])
-    else: raise Exception("Expected 'c'")
-
-# #### State 5
-# State 5 which is the production rule `A -> b .`. That is, it has completed
-# parsing A, and now need to decide which state to transition to. This is
-# decided by what was in the stack before. We simply pop off as many symbols
-# as there are tokens in the RHS of the production rule, and check the
-# remaining top symbol.
-def state_5(stack, input_string):
-    stack.append(5)
-    rule = ['A', ['b']]
-    for _ in range(len(rule[1])): stack.pop()  # Pop state 'b', 5
-    if stack[-1] == 2: return state_4(stack, input_string)
-    elif stack[-1] == 3: return state_6(stack, input_string)
-    else: raise Exception(position, "Invalid state during reduction by A → b")
-
-# #### State 6
-# State 6 `S -> b A . d d`
-def state_6(stack, input_string):
-    stack.append(6)
-    rule = ['S', ['b', 'A', 'd', 'd'], 2]
-    symbol = input_string[0]
-    if symbol == 'd': return state_8(stack, input_string[1:])
-    else: raise Exception("Expected 'd'")
-
-# #### State 7
-# State 7 is a reduction rule `S -> a A c .`
-def state_7(stack, input_string):
-    stack.append(7)
-    rule = ['S', ['a', 'A', 'c'], 3]
-    for _ in range(len(rule[1])): stack.pop() # Pop 'c', 7; 'A', 4; 'a', 2
-
-    if stack[-1] == 0: return state_1(stack, input_string)
-    else: raise Exception("Invalid state during reduction by S → a A c")
-
-# #### State 8
-# State 8 `S -> b A d . d`
-def state_8(stack, input_string):
-    rule = ['S', ['b', 'A', 'd', 'd'], 3]
-    stack.append(8)
-    symbol = input_string[0]
-    if symbol == 'd': return state_9(stack, input_string[1:])
-    else: raise Exception("Expected 'd'")
-
-# #### State 9
-# State 9 is a reduction rule `S -> b A d d .`
-def state_9(stack, input_string):
-    stack.append(9)
-    rule = ['S', ['b', 'A', 'd', 'd']]
-    for _ in range(len(rule[1])): stack.pop() # Pop 'd', 9; 'd', 8; 'A', 6; 'b', 3
-    if stack[-1] == 0: return state_1(stack, input_string)
-    else: return Exception("Invalid state during reduction by S → b A d d")
-
-# Let us now verify if our parser works.
-if __name__ == '__main__':
-    test_strings = [("abc", True), ("bbdd", True), ("bdd", False), ("baddd", False)]
-
-    for test_string, res in test_strings:
-        print(f"Parsing: {test_string}")
-        input_string = list(test_string) + ['$']
-        try:
-            val = state_0([], input_string)
-        except Exception as e:
-            if res: print(e)
-
 # ## Building the NFA
 # Let us try and build these dynamically.
 # We first build an NFA of the grammar. For that, we begin by adding a new
@@ -857,6 +637,228 @@ if __name__ == '__main__':
       print(k, my_nfa.state_sids[k])
     g = to_graph(table)
     __canvas__(str(g))
+
+# # LR0 Automata
+# 
+# An NFA is not very practical for parsing. For one, it is an NFA,
+# over-approximating the grammar, and secondly, there can be multiple possible
+# paths for a given prefix.  Hence, it is not very optimal.
+# Let us next see how to generate a DFA instead.
+# 
+#  An LR automata is composed of multiple states, and each state represents a set
+# of items that indicate the parsing progress. The states are connected together
+# using transitions which are composed of the terminal and nonterminal symbols
+# in the grammar.
+# 
+# To construct the LR automata, one starts with the initial state containing the
+# augmented start symbol (if necessary), and we apply closure to expand the
+# context. For the closure, we simply merge all epsilon transitions to current
+# item.
+# 
+# ## Closure
+# A closure to represents all possible parse paths at a given
+# point. The idea is to look at the current parse progress; Identify any
+# nonterminals that need to be expanded next, and add the production rules of that
+# nonterminal to the current item, with parse point (dot) at the beginning.
+# 
+# For example, given the first state, where `*` represent the parse progress
+#  
+# ```
+# <S`> := * <S>
+# ```
+# Applying closure, we expand `<S>` further.
+#  
+# ```
+# <S`> := * <S>
+# <S>  := * a <A> c
+# <S>  := * b <A> d d
+# ```
+# No more nonterminals to expand. Hence, this is the closure of the first state.
+# 
+# Consider what happens when we apply a transition of `a` to this state.
+# 
+# ```
+# <S> := a * A c
+# ```
+# Now, we apply closure
+# ```
+# <S> := a * A c
+# <A> := * b
+# ```
+# 
+# This gives us the following graph with each closure, and the transitions indicated. Note that
+# the nonterminal transitions are dashed.
+
+if __name__ == '__main__':
+    __canvas__('''
+    digraph ParsingAutomaton {
+    rankdir=TB;
+
+    // Node definitions with labels
+    node [shape=rectangle];
+
+    // State definitions with reduction instructions
+    0 [label="I0:\nS' → • S\nS → • a A c\nS → • b A d d"];
+    1 [label="I1:\nS' → S •\n[Accept]"];
+    2 [label="I2:\nS → a • A c\nA → • b"];
+    3 [label="I3:\nS → b • A d d\nA → • b"];
+    4 [label="I4:\nS → a A • c"];
+    5 [label="I5:\nA → b •"];
+    6 [label="I6:\nS → b A • d d"];
+    7 [label="I7:\nS → a A c •"];
+    8 [label="I8:\nS → b A d • d"];
+    9 [label="I9:\nS → b A d d •"];
+
+    // Edge definitions with labels
+    0 -> 2 [label="a"];
+    0 -> 3 [label="b"];
+    0 -> 1 [label="S", style=dashed];
+
+    2 -> 5 [label="b"];
+    2 -> 4 [label="A", style=dashed];
+
+    3 -> 5 [label="b"];
+    3 -> 6 [label="A", style=dashed];
+
+    4 -> 7 [label="c"];
+
+    5 -> 4 [label="A", color=red]; // GOTO after reduction in state 5
+    5 -> 6 [label="A", color=red]; // GOTO after reduction in state 5
+
+    6 -> 8 [label="d"];
+
+    7 -> 1 [label="S", color=red]; // GOTO after reduction in state 7
+
+    8 -> 9 [label="d"];
+
+    9 -> 1 [label="S", color=red]; // GOTO after reduction in state 9
+    }''')
+
+# This is the basic automaton. However, you may notice that there are two types
+# of nodes in this diagram. The first one represents partial parses which
+# contain the dot at a position other than the end, and the second one
+# represents a complete parse of a rule with the dot at the end. You will also
+# note that the complete parse nodes seem to have red outgoing arrows, and
+# at least in one, multiple red outgoing arrows. That is, it is not a true
+# DFA. The next state to transition to is actually chosen based on the path
+# the input string took through the DFA with the help of a stack.
+# Let us now represent these states step by step.
+
+# ### Compiled DFA States
+# 
+# #### State 0
+# This is the initial state. It transitions into State 2 or State 3 based
+# on the input symbol. Note that we save the current state in the stack
+# before transitioning to the next state after consuming one token.
+
+def state_0(stack, input_string):
+    rule = ['S`', ['S'], 0]
+    stack.append(0)
+    symbol = input_string[0]
+    if symbol == 'a': return state_2(stack, input_string[1:])
+    elif symbol == 'b': return state_3(stack, input_string[1:])
+    else: raise Exception("Expected 'a' or 'b'")
+
+# #### State 1
+# This is the acceptor state.
+def state_1(stack, input_string):
+    rule = ['S`', ['S'], 1]
+    stack.append(1)
+    symbol = input_string[0]
+    if symbol == '$': print("Input accepted.")
+    else: raise Exception("Expected end of input")
+
+# #### State 2
+# State 2 which is the production rule `S -> a . A c` just after consuming `a`.
+# We need `b` to transition to State 5 which represents a production rule of A.
+def state_2(stack, input_string):
+    rule = ['S', ['a', 'A', 'c'], 1]
+    stack.append(2)
+    symbol = input_string[0]
+    if symbol == 'b': return state_5(stack, input_string[1:])
+    else: raise Exception("Expected 'b'")
+
+# #### State 3
+# State 3 which is the production rule `S -> b . A d d` just after consuming `b`.
+def state_3(stack, input_string):
+    rule = ['S', ['b', 'A', 'd', 'd'], 1]
+    stack.append(3)
+    symbol = input_string[0]
+    if symbol == 'b': return state_5(stack, input_string[1:])
+    else: raise Exception("Expected 'b'")
+
+# #### State 4
+# State 4 which is the production rule `S -> a A.  c` just after consuming `a`.
+def state_4(stack, input_string):
+    rule = ['S', ['a', 'A', 'c'], 2]
+    stack.append(4)
+    symbol = input_string[0]
+    if symbol == 'c': return state_7(stack, input_string[1:])
+    else: raise Exception("Expected 'c'")
+
+# #### State 5
+# State 5 which is the production rule `A -> b .`. That is, it has completed
+# parsing A, and now need to decide which state to transition to. This is
+# decided by what was in the stack before. We simply pop off as many symbols
+# as there are tokens in the RHS of the production rule, and check the
+# remaining top symbol.
+def state_5(stack, input_string):
+    stack.append(5)
+    rule = ['A', ['b']]
+    for _ in range(len(rule[1])): stack.pop()  # Pop state 'b', 5
+    if stack[-1] == 2: return state_4(stack, input_string)
+    elif stack[-1] == 3: return state_6(stack, input_string)
+    else: raise Exception(position, "Invalid state during reduction by A → b")
+
+# #### State 6
+# State 6 `S -> b A . d d`
+def state_6(stack, input_string):
+    stack.append(6)
+    rule = ['S', ['b', 'A', 'd', 'd'], 2]
+    symbol = input_string[0]
+    if symbol == 'd': return state_8(stack, input_string[1:])
+    else: raise Exception("Expected 'd'")
+
+# #### State 7
+# State 7 is a reduction rule `S -> a A c .`
+def state_7(stack, input_string):
+    stack.append(7)
+    rule = ['S', ['a', 'A', 'c'], 3]
+    for _ in range(len(rule[1])): stack.pop() # Pop 'c', 7; 'A', 4; 'a', 2
+
+    if stack[-1] == 0: return state_1(stack, input_string)
+    else: raise Exception("Invalid state during reduction by S → a A c")
+
+# #### State 8
+# State 8 `S -> b A d . d`
+def state_8(stack, input_string):
+    rule = ['S', ['b', 'A', 'd', 'd'], 3]
+    stack.append(8)
+    symbol = input_string[0]
+    if symbol == 'd': return state_9(stack, input_string[1:])
+    else: raise Exception("Expected 'd'")
+
+# #### State 9
+# State 9 is a reduction rule `S -> b A d d .`
+def state_9(stack, input_string):
+    stack.append(9)
+    rule = ['S', ['b', 'A', 'd', 'd']]
+    for _ in range(len(rule[1])): stack.pop() # Pop 'd', 9; 'd', 8; 'A', 6; 'b', 3
+    if stack[-1] == 0: return state_1(stack, input_string)
+    else: return Exception("Invalid state during reduction by S → b A d d")
+
+# Let us now verify if our parser works.
+if __name__ == '__main__':
+    test_strings = [("abc", True), ("bbdd", True), ("bdd", False), ("baddd", False)]
+
+    for test_string, res in test_strings:
+        print(f"Parsing: {test_string}")
+        input_string = list(test_string) + ['$']
+        try:
+            val = state_0([], input_string)
+        except Exception as e:
+            if res: print(e)
+
 
 # ## Building the DFA
 # Next, we need to build a DFA.
