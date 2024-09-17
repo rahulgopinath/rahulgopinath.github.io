@@ -412,21 +412,22 @@ class NFA(NFA):
         assert key is not None
         return self.advance(state)
 
-# Next, note that this is an NFA. So, we also connect all
-# production rules of the next nonterminal with epsilon.
-# That is, given a state K -> t.V a
-# we get all rules of nonterminal V, and add with
-# starting 0
+# Note that we are building an NFA. Hence, epsilon
+# transitions are allowed. This is what we use when we are
+# starting to parse nonterminal symbols. For example, when
+# we have a state with the parsing just before `<B>`, for e.g.
 # 
 # ```
 # '<S>::= <A> | <B>'
 # ```
 # 
-# is connected to below by $$\epsilon$$ 
+# Then, we add a new state
 # 
 # ```
 # '<A>::= | a',
 # ```
+# and connect this new state to the previous one with an $$\epsilon$$ 
+# transition.
 
 class NFA(NFA):
     def epsilon_transitions(self, state):
@@ -439,9 +440,9 @@ class NFA(NFA):
             new_states.append(new_state)
         return new_states
 
-# Combining both and processing the state itself for its transitions.
-# First, if the dot is before a symbol, then we add the transition to the
-# advanced state with that symbol as the transition. Next, if the key at
+# Combining both procedures and processing the state itself for its transitions.
+# If the dot is before a symbol, then we add the transition to the
+# advanced state with that symbol as the transition. If the key at
 # the dot is a nonterminal, then add all expansions of that nonterminal
 # as epsilon transfers.
 
@@ -450,25 +451,17 @@ class NFA(NFA):
         key = state.at_dot()
         if key is None: return [] # dot after last.
         new_states = []
-
-        # first add the symbol transition, for both
-        # terminal and nonterminal symbols
         new_state = self.symbol_transition(state)
-        # add it to the states returned
         new_states.append((key, new_state))
 
         if fuzzer.is_nonterminal(key):
-            # each rule of the nonterminal forms an epsilon transition
-            # with the dot at the `0` position
             ns = self.epsilon_transitions(state)
-            for s in ns:
-                new_states.append(('', s))
-        else:
-            # no definition for terminal symbols
-            pass
+            for s in ns: new_states.append(('', s))
+        else: pass
         return new_states
 
 # Let us test this.
+
 if __name__ == '__main__':
     my_nfa = NFA(S_g1, S_s1)
     st = my_nfa.create_start(S_s1)
@@ -478,8 +471,10 @@ if __name__ == '__main__':
     assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
 
 
-# Next, a utility method. This is only used to display the graph.
-# Given a key, we want to get all items that contains the parsing of this key.
+# Defining a utility method. This is only used to display the graph.
+# Given a key, we want to get all states where this key has just been parsed.
+# We use this method to identify where to go back to, after parsing a specific
+# key.
 class NFA(NFA):
     def get_all_rules_with_dot_after_key(self, key):
         states = []
@@ -499,26 +494,22 @@ if __name__ == '__main__':
     assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
 
 # #### NFA build_nfa
-# Now, we can build the NFA.
+# We can now build the complete NFA.
 class NFA(NFA):
-    def build_table(self):
-        nfa_table = []
-        for _ in self.my_states.keys():
-            row = {k:[] for k in (self.terminals + self.non_terminals + [''])}
-            nfa_table.append(row)
-
+    def build_table(self, num_states, columns, children):
+        table = [{k:[] for k in columns} for _ in range(num_states)]
         # column is the transition.
         # row is the state id.
-        for parent, key, child, notes in self.children:
+        for parent, key, child, notes in children:
             if notes == 'reduce': prefix = 'r:' # N not a state.
             elif notes == 'shift': prefix = 's'
             elif notes == 'goto': prefix = 'g'
             elif notes == 'to': prefix = 't'
-            if key not in nfa_table[parent]: nfa_table[parent][key] = []
+            if key not in table[parent]: table[parent][key] = []
             v = prefix+str(child)
-            if v not in nfa_table[parent][key]:
-                nfa_table[parent][key].append(v)
-        return nfa_table
+            if v not in table[parent][key]:
+                table[parent][key].append(v)
+        return table
 
     def add_reduction(self, p, key, c, notes):
         self.children.append((p.sid, key, c, notes))
@@ -572,9 +563,11 @@ class NFA(NFA):
                 self.add_actual_reductions(state)
 
             queue.extend(new_states)
-        return self.build_table()
+        return self.build_table(len(self.my_states), 
+                                (self.terminals + self.non_terminals + ['']),
+                                self.children)
 
-# Let us test the build_nfa
+# Testing the build_nfa
 
 if __name__ == '__main__':
     my_nfa = NFA(S_g, S_s)
@@ -585,11 +578,13 @@ if __name__ == '__main__':
         print(i, '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# ## Show graph
+# ## Constructing a graph
+# To display the NFA (and DFAs) we need a graph. We construct this out of the
+# table we built previously.
 
-def to_graph(nfa_tbl):
+def to_graph(table):
     G = pydot.Dot("my_graph", graph_type="digraph")
-    for i, state in enumerate(nfa_tbl):
+    for i, state in enumerate(table):
         # 0: a:s2 means on s0, on transition with a, it goes to state s2
         shape = 'rectangle'# rectangle, oval, diamond
         label = str(i)
@@ -629,7 +624,8 @@ def to_graph(nfa_tbl):
                           style=style,
                           label=transition_prefix + transition))
     return G
-# Let us test our NFA.
+
+# Viewing the NFA
 if __name__ == '__main__':
     my_nfa = NFA(S_g, S_s)
     table = my_nfa.build_nfa()
@@ -640,12 +636,13 @@ if __name__ == '__main__':
 
 # # LR0 Automata
 # 
-# An NFA is not very practical for parsing. For one, it is an NFA,
+# An NFA is not very useful for parsing. For one, it is an NFA,
 # over-approximating the grammar, and secondly, there can be multiple possible
-# paths for a given prefix.  Hence, it is not very optimal.
-# Let us next see how to generate a DFA instead.
-# 
-#  An LR automata is composed of multiple states, and each state represents a set
+# paths for a given prefix. To use it for parsing, one would need to use a
+# backtracking algorithm, and this is not very optimal.
+# Next we see how to generate a DFA (i.e. the LR automata) instead.
+#  
+# An LR automata is composed of multiple states, and each state represents a set
 # of items that indicate the parsing progress. The states are connected together
 # using transitions which are composed of the terminal and nonterminal symbols
 # in the grammar.
@@ -1098,8 +1095,9 @@ class LR0DFA(LR0DFA):
 
             queue.extend(new_dfastates)
 
-        return self.build_table()
-
+        return self.build_table(len(self.my_states), 
+                                (self.terminals + self.non_terminals + ['']),
+                                self.children)
 
 # Let us test building the DFA.
 if __name__ == '__main__':
