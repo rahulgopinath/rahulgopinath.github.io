@@ -282,7 +282,7 @@ class State:
 
 # It can be tested this way
 if __name__ == '__main__':
-    s = State('<S`>', ('<S>'), 0, 0)
+    s = State('<S`>', ('<S>',), 0, 0)
     print(s.at_dot())
     print(str(s))
     print(s.finished())

@@ -624,7 +624,7 @@ It can be tested this way
 
 <!--
 ############
-s = State('<S`>', ('<S>'), 0, 0)
+s = State('<S`>', ('<S>',), 0, 0)
 print(s.at_dot())
 print(str(s))
 print(s.finished())
@@ -633,7 +633,7 @@ print(s.finished())
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-s = State(&#x27;&lt;S`&gt;&#x27;, (&#x27;&lt;S&gt;&#x27;), 0, 0)
+s = State(&#x27;&lt;S`&gt;&#x27;, (&#x27;&lt;S&gt;&#x27;,), 0, 0)
 print(s.at_dot())
 print(str(s))
 print(s.finished())
