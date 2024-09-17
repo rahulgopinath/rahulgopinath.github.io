@@ -129,7 +129,7 @@ if __name__ == '__main__':
     }''')
 
 # Notice that this NFA is not complete. For example, what happens when `A := b .`
-# is complete? Then, the parse need to transition to a state that has just
+# is complete? Then, the parse needs to transition to a state that has just
 # completed `A`. For example, `S := a A . c` or `S := b A . d d`. Here is how
 # it looks like.
 
@@ -186,7 +186,7 @@ if __name__ == '__main__':
 # actually completed through other paths. The red arrows represent reductions.
 # You will notice that there can be multiple reductions from the same
 # item. At this point, this NFA over-approximates our grammar.
-# The right reduction needs to chosen based on the prefix so far, and we
+# The right reduction needs to be chosen based on the prefix so far, and we
 # will see how to do this later.
 # 
 # ## Building the NFA
@@ -648,7 +648,7 @@ if __name__ == '__main__':
 # item.
 #
 # ## Closure
-# A closure to represents all possible parse paths at a given
+# A closure represents all possible parse paths at a given
 # point. The idea is to look at the current parse progress; Identify any
 # nonterminals that need to be expanded next, and add the production rules of that
 # nonterminal to the current item, with parse point (dot) at the beginning.
@@ -733,7 +733,6 @@ if __name__ == '__main__':
 # note that the complete parse nodes seem to have red outgoing arrows, and
 # at least in one, multiple red outgoing arrows. That is, it is not a true
 # DFA. The next state to transition to is actually chosen based on the path
-# to is actually chosen based on the path
 # the input string took through the DFA with the help of a stack.
 # Let us now represent these states step by step.
 
@@ -781,7 +780,7 @@ def state_3(stack, input_string):
     else: raise Exception("Expected 'b'")
 
 # #### State 4
-# State 4 which is the production rule `S -> a A.  c` just after consuming `a`.
+# State 4 which is the production rule `S -> a A . c` just after consuming `a`.
 def state_4(stack, input_string):
     rule = ['S', ['a', 'A', 'c'], 2]
     stack.append(4)
@@ -791,7 +790,7 @@ def state_4(stack, input_string):
 
 # #### State 5
 # State 5 which is the production rule `A -> b .`. That is, it has completed
-# parsing A, and now need to decide which state to transition to. This is
+# parsing A, and now needs to decide which state to transition to. This is
 # decided by what was in the stack before. We simply pop off as many symbols
 # as there are tokens in the RHS of the production rule, and check the
 # remaining top symbol.
@@ -838,7 +837,7 @@ def state_9(stack, input_string):
     rule = ['S', ['b', 'A', 'd', 'd']]
     for _ in range(len(rule[1])): stack.pop() # Pop 'd', 9; 'd', 8; 'A', 6; 'b', 3
     if stack[-1] == 0: return state_1(stack, input_string)
-    else: return Exception("Invalid state during reduction by S → b A d d")
+    else: raise Exception("Invalid state during reduction by S → b A d d")
 
 # Let us now verify if our parser works.
 if __name__ == '__main__':
@@ -1282,7 +1281,7 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# As you can see, on State 3, we have a two possible reductions -- r3 and r4.
+# As you can see, on State 3, we have two possible reductions -- r3 and r4.
 # This is called a reduce/reduce conflict. The issue is that when we come to
 # state 3, that is.
 
@@ -1519,8 +1518,8 @@ class LR1DFA(SLR1DFA):
 
 # The compute_closure now contains the lookahead.
 # This is the biggest procedure change from LR0DFA. 
-# The main difference in computing the lookahead. 
-# The lines added and modified from LR0DFA indicated in the procedure.
+# The main difference is in computing the lookahead. 
+# The lines added and modified from LR0DFA are indicated in the procedure.
 # 
 # Here, say we are computing the closure of `A -> Alpha . <B> <Beta>`.
 # Remember that when we create new items for closure, we have to provide it with
@@ -1530,7 +1529,7 @@ class LR1DFA(SLR1DFA):
 # characters that can follow `<B>`. This need not be just the `first(<Beta>)`
 # but also what may follow `<Beta>` if `<Beta>` is nullable. This would be the
 # lookahead of the item `A -> Alpha . <B> <Beta>` which we already have, let us
-# say this is `l`. So, # we compute `first(<Beta> l)` for lookahead.
+# say this is `l`. So, we compute `first(<Beta> l)` for lookahead.
 # 
 class LR1DFA(LR1DFA):
 
@@ -1550,7 +1549,7 @@ class LR1DFA(LR1DFA):
             lookaheads = first_of_rule(remaining, self.first, self.nullable) # ADDED
             for rule in self.grammar[key]:
                 for lookahead in lookaheads: # ADDED
-                    new_item = self.create_start_item(key, rule, lookahead) #
+                    new_item = self.create_start_item(key, rule, lookahead) # MODIFIED
                     to_process.append(new_item)
         return list(new_items.values())
 
