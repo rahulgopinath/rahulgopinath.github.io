@@ -42,51 +42,26 @@ import simplefuzzer as fuzzer
 # We use the `display_tree()` method in earley parser for displaying trees.
 import earleyparser as ep
 
-# We use the random choice to extract derivation trees from the parse forest.
-import random
-
 # Pydot is needed for drawing
 import pydot
 
 # As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar
-# style. That is, given below is a simple grammar for nested parenthesis.
-# 
-# ```
-# <P> := '(' <P> ')'
-#      | '(' <D> ')'
-# <D> := 0 | 1
-# ```
-# Equivalently,
+# style. For example, given below is a simple grammar for nested parenthesis.
 
 paren_g = {
         '<P>' : [['(', '<P>', ')'],
                  ['(', '<D>', ')']],
         '<D>' : [['0'],['1']]
 }
-# Here is another gramamr. Here, we extend the grammar with the augmented
-# stard sybmol `S``
+
+# Equivalently,
 # 
 # ```
-#  <S`> := <S>
-#  <S>  := 'a' <A> 'c'
-#        | 'b' '<A>' 'd' 'd'
-#  <A>  := 'b'
+# <P> := '(' <P> ')'
+#      | '(' <D> ')'
+# <D> := 0 | 1
 # ```
-# Again, equivalently, we have
-
-S_g = {'<S`>': [['<S>', '$']],
-        '<S>': [ ['a', '<A>', 'c'],
-                 ['b', '<A>', 'd', 'd']],
-        '<A>': [ ['b']]}
-S_s = '<S`>'
-# We can list the grammar production rules as follows:
-
-if __name__ == '__main__':
-    i = 1
-    for k in S_g:
-        for r in S_g[k]:
-            print(i, k, r)
-            i+=1
+# 
 
 # The main difference between an LR parser and an LL parser is that an LL
 # parser uses the current nonterminal and the next symbol to determine the
@@ -437,13 +412,12 @@ if __name__ == '__main__':
 # Let us try and build these dynamically.
 # We first build an NFA of the grammar. For that, we begin by adding a new
 # state `<>` to grammar.
-# First, we add a start extension to the grammar.
 # 
 # ### Augment Grammar with Start
 
 def add_start_state(g, start, new_start='<>'):
     new_g = dict(g)
-    new_g[new_start] = [[start]]
+    new_g[new_start] = [[start, '$']]
     return new_g, new_start
 
 # Two sample grammars.
@@ -586,10 +560,35 @@ class NFA(NFA):
         return self.my_states[(name, texpr, pos)]
 
 # Let us test this.
+# Here is a  grammar.
+#  
+# ```
+#  <S`> := <S>
+#  <S>  := 'a' <A> 'c'
+#        | 'b' '<A>' 'd' 'd'
+#  <A>  := 'b'
+# ```
+# Equivalently, we have
+
+S_g = {'<S>': [ ['a', '<A>', 'c'],
+                 ['b', '<A>', 'd', 'd']],
+        '<A>': [ ['b']]}
+S_s = '<S>'
+
+# We can list the grammar production rules as follows:
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
-    st = my_nfa.create_start(S_s)
-    assert str(st[0]) == '<S`>::= | <S> $'
+    S_g1, S_s1 = add_start_state(S_g, S_s)
+    i = 1
+    for k in S_g:
+        for r in S_g[k]:
+            print(i, k, r)
+            i+=1
+
+# Let us use the grammar.
+if __name__ == '__main__':
+    my_nfa = NFA(S_g1, S_s1)
+    st = my_nfa.create_start(S_s1)
+    assert str(st[0]) == '<>::= | <S> $'
     my_nfa = NFA(g1, g1_start)
     st = my_nfa.create_start(g1_start)
     assert str(st[0]) == '<S>::= | <A> <B>'
@@ -602,10 +601,10 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
-    st_ = my_nfa.create_start(S_s)
+    my_nfa = NFA(S_g1, S_s1)
+    st_ = my_nfa.create_start(S_s1)
     st = my_nfa.advance(st_[0])
-    assert str(st) == '<S`>::= <S> | $'
+    assert str(st) == '<>::= <S> | $'
     my_nfa = NFA(g1, g1_start)
     st_ = my_nfa.create_start(g1_start)
     st = [my_nfa.advance(s) for s in st_]
@@ -691,10 +690,10 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
-    st = my_nfa.create_start(S_s)
+    my_nfa = NFA(S_g1, S_s1)
+    st = my_nfa.create_start(S_s1)
     new_st = my_nfa.find_transitions(st[0])
-    assert str(new_st[0]) == "('<S>', (<S`>::= <S> | $ : 1))"
+    assert str(new_st[0]) == "('<S>', (<>::= <S> | $ : 1))"
     assert str(new_st[1]) == "('', (<S>::= | a <A> c : 2))"
     assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
 
@@ -961,7 +960,7 @@ if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
-            ['<>::= | <S>',
+            ['<>::= | <S> $',
              '<S>::= | <A> <B>',
              '<S>::= | <C>',
              '<A>::= | a',
@@ -999,7 +998,7 @@ if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     start = my_dfa.create_start(g1a_start)
     st = my_dfa.advance(start, '<S>')
-    assert [str(s) for s in st] == ['<>::= <S> |']
+    assert [str(s) for s in st] == ['<>::= <S> | $']
 
     st = my_dfa.advance(start, 'a')
     assert [str(s) for s in st] == [ '<A>::= a |']
@@ -1028,14 +1027,14 @@ if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
-            ['<>::= | <S>', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
+            ['<>::= | <S> $', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
     sts = my_dfa.find_transitions(st)
     assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
             [('a', ['<A>::= a |']),
              ('c', ['<C>::= c |']),
              ('<A>', ['<S>::= <A> | <B>', '<B>::= | b']),
              ('<C>', ['<S>::= <C> |']),
-             ('<S>', ['<>::= <S> |'])]
+             ('<S>', ['<>::= <S> | $'])]
     
 
 # #### add_reduce
@@ -1178,13 +1177,13 @@ class LR0Recognizer:
 
 # Testing it.
 if __name__ == '__main__':
-    my_dfa = LR0DFA(S_g, S_s)
+    my_dfa = LR0DFA(S_g1, S_s1)
     parser = LR0Recognizer(my_dfa)
     # Test the parser with some input strings
     test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message = parser.parse(test_string, S_s)
+        success, message = parser.parse(test_string, S_s1)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()
@@ -1246,13 +1245,13 @@ class LR0Parser(LR0Recognizer):
 
 # Now, let us build parse trees
 if __name__ == '__main__':
-    my_dfa = LR0DFA(S_g, S_s)
+    my_dfa = LR0DFA(S_g1, S_s1)
     parser = LR0Parser(my_dfa)
     # Test the parser with some input strings
     test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, S_s)
+        success, message, tree = parser.parse(test_string, S_s1)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
@@ -1415,13 +1414,13 @@ class SLR1Parser(LR0Parser): pass
 
 # Let us try parsing with it.
 G2_g = {
-        '<S`>' : [['<S>', '$']],
+        '<>' : [['<S>', '$']],
         '<S>' :  [['a', '<B>', 'c'],
                   ['a', '<D>', 'd']],
         '<B>' :  [[ 'b']],
         '<D>' :  [['b']]
         }
-G2_s = '<S`>'
+G2_s = '<>'
 
 # Parsing
 if __name__ == '__main__':
@@ -1431,7 +1430,7 @@ if __name__ == '__main__':
     test_strings = ["abc", "abd", "aabc"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, S_s)
+        success, message, tree = parser.parse(test_string, G2_s)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
@@ -1440,7 +1439,7 @@ if __name__ == '__main__':
 
 # Now, consider this grammar
 LR_g = {
-        "<S`>": [["<S>", "$"]],
+        "<>": [["<S>", "$"]],
         "<S>": [
             ["a", "<B>", "c"],
             ["a", "<D>", "d"],
@@ -1449,7 +1448,7 @@ LR_g = {
         "<B>": [["b"]],
         "<D>": [["b"]]
         }
-LR_s = '<S`>'
+LR_s = '<>'
 
 # Let us see if it works.
 if __name__ == '__main__':
@@ -1570,7 +1569,7 @@ class LR1Parser(SLR1Parser): pass
 
 # grammar
 LR_g = {
-        "<S`>": [["<S>", "$"]],
+        "<>": [["<S>", "$"]],
         "<S>": [
             ["a", "<B>", "c"],
             ["a", "<D>", "d"],
@@ -1579,7 +1578,7 @@ LR_g = {
         "<B>": [["b"]],
         "<D>": [["b"]]
         }
-LR_s = '<S`>'
+LR_s = '<>'
 
 # Parsing
 if __name__ == '__main__':
@@ -1602,7 +1601,7 @@ if __name__ == '__main__':
     test_strings = ["abc", "abd", "bd"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, S_s)
+        success, message, tree = parser.parse(test_string, LR_s)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")

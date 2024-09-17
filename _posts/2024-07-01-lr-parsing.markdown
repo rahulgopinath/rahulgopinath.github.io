@@ -130,21 +130,6 @@ import earleyparser as ep
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We use the random choice to extract derivation trees from the parse forest.
-
-<!--
-############
-import random
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import random
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 Pydot is needed for drawing
 
 <!--
@@ -161,14 +146,7 @@ import pydot
 <div name='python_canvas'></div>
 </form>
 As before, we use the [fuzzingbook](https://www.fuzzingbook.org) grammar
-style. That is, given below is a simple grammar for nested parenthesis.
-
-```
-<P> := '(' <P> ')'
-     | '(' <D> ')'
-<D> := 0 | 1
-```
-Equivalently,
+style. For example, given below is a simple grammar for nested parenthesis.
 
 <!--
 ############
@@ -177,6 +155,7 @@ paren_g = {
                  ['(', '<D>', ')']],
         '<D>' : [['0'],['1']]
 }
+
 ############
 -->
 <form name='python_run_form'>
@@ -190,60 +169,14 @@ paren_g = {
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Here is another gramamr. Here, we extend the grammar with the augmented
-stard sybmol `S``
+Equivalently,
 
 ```
- <S`> := <S>
- <S>  := 'a' <A> 'c'
-       | 'b' '<A>' 'd' 'd'
- <A>  := 'b'
+<P> := '(' <P> ')'
+     | '(' <D> ')'
+<D> := 0 | 1
 ```
-Again, equivalently, we have
 
-<!--
-############
-S_g = {'<S`>': [['<S>', '$']],
-        '<S>': [ ['a', '<A>', 'c'],
-                 ['b', '<A>', 'd', 'd']],
-        '<A>': [ ['b']]}
-S_s = '<S`>'
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-S_g = {&#x27;&lt;S`&gt;&#x27;: [[&#x27;&lt;S&gt;&#x27;, &#x27;$&#x27;]],
-        &#x27;&lt;S&gt;&#x27;: [ [&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;, &#x27;c&#x27;],
-                 [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;, &#x27;d&#x27;, &#x27;d&#x27;]],
-        &#x27;&lt;A&gt;&#x27;: [ [&#x27;b&#x27;]]}
-S_s = &#x27;&lt;S`&gt;&#x27;
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We can list the grammar production rules as follows:
-
-<!--
-############
-i = 1
-for k in S_g:
-    for r in S_g[k]:
-        print(i, k, r)
-        i+=1
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-i = 1
-for k in S_g:
-    for r in S_g[k]:
-        print(i, k, r)
-        i+=1
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 The main difference between an LR parser and an LL parser is that an LL
 parser uses the current nonterminal and the next symbol to determine the
 production rule to apply. In contrast, the LR parser uses the current
@@ -940,7 +873,6 @@ for test_string, res in test_strings:
 Let us try and build these dynamically.
 We first build an NFA of the grammar. For that, we begin by adding a new
 state `<>` to grammar.
-First, we add a start extension to the grammar.
 
 ### Augment Grammar with Start
 
@@ -948,7 +880,7 @@ First, we add a start extension to the grammar.
 ############
 def add_start_state(g, start, new_start='<>'):
     new_g = dict(g)
-    new_g[new_start] = [[start]]
+    new_g[new_start] = [[start, '$']]
     return new_g, new_start
 
 ############
@@ -957,7 +889,7 @@ def add_start_state(g, start, new_start='<>'):
 <textarea cols="40" rows="4" name='python_edit'>
 def add_start_state(g, start, new_start=&#x27;&lt;&gt;&#x27;):
     new_g = dict(g)
-    new_g[new_start] = [[start]]
+    new_g[new_start] = [[start, &#x27;$&#x27;]]
     return new_g, new_start
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1287,12 +1219,67 @@ class NFA(NFA):
 <div name='python_canvas'></div>
 </form>
 Let us test this.
+Here is a  grammar.
+ 
+```
+ <S`> := <S>
+ <S>  := 'a' <A> 'c'
+       | 'b' '<A>' 'd' 'd'
+ <A>  := 'b'
+```
+Equivalently, we have
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
-st = my_nfa.create_start(S_s)
-assert str(st[0]) == '<S`>::= | <S> $'
+S_g = {'<S>': [ ['a', '<A>', 'c'],
+                 ['b', '<A>', 'd', 'd']],
+        '<A>': [ ['b']]}
+S_s = '<S>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+S_g = {&#x27;&lt;S&gt;&#x27;: [ [&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;, &#x27;c&#x27;],
+                 [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;, &#x27;d&#x27;, &#x27;d&#x27;]],
+        &#x27;&lt;A&gt;&#x27;: [ [&#x27;b&#x27;]]}
+S_s = &#x27;&lt;S&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can list the grammar production rules as follows:
+
+<!--
+############
+S_g1, S_s1 = add_start_state(S_g, S_s)
+i = 1
+for k in S_g:
+    for r in S_g[k]:
+        print(i, k, r)
+        i+=1
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+S_g1, S_s1 = add_start_state(S_g, S_s)
+i = 1
+for k in S_g:
+    for r in S_g[k]:
+        print(i, k, r)
+        i+=1
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us use the grammar.
+
+<!--
+############
+my_nfa = NFA(S_g1, S_s1)
+st = my_nfa.create_start(S_s1)
+assert str(st[0]) == '<>::= | <S> $'
 my_nfa = NFA(g1, g1_start)
 st = my_nfa.create_start(g1_start)
 assert str(st[0]) == '<S>::= | <A> <B>'
@@ -1302,9 +1289,9 @@ assert str(st[1]) == '<S>::= | <C>'
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
-st = my_nfa.create_start(S_s)
-assert str(st[0]) == &#x27;&lt;S`&gt;::= | &lt;S&gt; $&#x27;
+my_nfa = NFA(S_g1, S_s1)
+st = my_nfa.create_start(S_s1)
+assert str(st[0]) == &#x27;&lt;&gt;::= | &lt;S&gt; $&#x27;
 my_nfa = NFA(g1, g1_start)
 st = my_nfa.create_start(g1_start)
 assert str(st[0]) == &#x27;&lt;S&gt;::= | &lt;A&gt; &lt;B&gt;&#x27;
@@ -1336,10 +1323,10 @@ Let us test this.
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
-st_ = my_nfa.create_start(S_s)
+my_nfa = NFA(S_g1, S_s1)
+st_ = my_nfa.create_start(S_s1)
 st = my_nfa.advance(st_[0])
-assert str(st) == '<S`>::= <S> | $'
+assert str(st) == '<>::= <S> | $'
 my_nfa = NFA(g1, g1_start)
 st_ = my_nfa.create_start(g1_start)
 st = [my_nfa.advance(s) for s in st_]
@@ -1350,10 +1337,10 @@ assert str(st[1]) == '<S>::= <C> |'
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
-st_ = my_nfa.create_start(S_s)
+my_nfa = NFA(S_g1, S_s1)
+st_ = my_nfa.create_start(S_s1)
 st = my_nfa.advance(st_[0])
-assert str(st) == &#x27;&lt;S`&gt;::= &lt;S&gt; | $&#x27;
+assert str(st) == &#x27;&lt;&gt;::= &lt;S&gt; | $&#x27;
 my_nfa = NFA(g1, g1_start)
 st_ = my_nfa.create_start(g1_start)
 st = [my_nfa.advance(s) for s in st_]
@@ -1509,10 +1496,10 @@ Let us test this.
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
-st = my_nfa.create_start(S_s)
+my_nfa = NFA(S_g1, S_s1)
+st = my_nfa.create_start(S_s1)
 new_st = my_nfa.find_transitions(st[0])
-assert str(new_st[0]) == "('<S>', (<S`>::= <S> | $ : 1))"
+assert str(new_st[0]) == "('<S>', (<>::= <S> | $ : 1))"
 assert str(new_st[1]) == "('', (<S>::= | a <A> c : 2))"
 assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
 
@@ -1521,10 +1508,10 @@ assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
-st = my_nfa.create_start(S_s)
+my_nfa = NFA(S_g1, S_s1)
+st = my_nfa.create_start(S_s1)
 new_st = my_nfa.find_transitions(st[0])
-assert str(new_st[0]) == &quot;(&#x27;&lt;S&gt;&#x27;, (&lt;S`&gt;::= &lt;S&gt; | $ : 1))&quot;
+assert str(new_st[0]) == &quot;(&#x27;&lt;S&gt;&#x27;, (&lt;&gt;::= &lt;S&gt; | $ : 1))&quot;
 assert str(new_st[1]) == &quot;(&#x27;&#x27;, (&lt;S&gt;::= | a &lt;A&gt; c : 2))&quot;
 assert str(new_st[2]) == &quot;(&#x27;&#x27;, (&lt;S&gt;::= | b &lt;A&gt; d d : 3))&quot;
 </textarea><br />
@@ -2121,7 +2108,7 @@ Let us test this.
 my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
-        ['<>::= | <S>',
+        ['<>::= | <S> $',
          '<S>::= | <A> <B>',
          '<S>::= | <C>',
          '<A>::= | a',
@@ -2135,7 +2122,7 @@ assert [str(s) for s in st.items] == \
 my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
-        [&#x27;&lt;&gt;::= | &lt;S&gt;&#x27;,
+        [&#x27;&lt;&gt;::= | &lt;S&gt; $&#x27;,
          &#x27;&lt;S&gt;::= | &lt;A&gt; &lt;B&gt;&#x27;,
          &#x27;&lt;S&gt;::= | &lt;C&gt;&#x27;,
          &#x27;&lt;A&gt;::= | a&#x27;,
@@ -2206,7 +2193,7 @@ Let us test this.
 my_dfa = LR0DFA(g1a, g1a_start)
 start = my_dfa.create_start(g1a_start)
 st = my_dfa.advance(start, '<S>')
-assert [str(s) for s in st] == ['<>::= <S> |']
+assert [str(s) for s in st] == ['<>::= <S> | $']
 
 st = my_dfa.advance(start, 'a')
 assert [str(s) for s in st] == [ '<A>::= a |']
@@ -2218,7 +2205,7 @@ assert [str(s) for s in st] == [ '<A>::= a |']
 my_dfa = LR0DFA(g1a, g1a_start)
 start = my_dfa.create_start(g1a_start)
 st = my_dfa.advance(start, &#x27;&lt;S&gt;&#x27;)
-assert [str(s) for s in st] == [&#x27;&lt;&gt;::= &lt;S&gt; |&#x27;]
+assert [str(s) for s in st] == [&#x27;&lt;&gt;::= &lt;S&gt; | $&#x27;]
 
 st = my_dfa.advance(start, &#x27;a&#x27;)
 assert [str(s) for s in st] == [ &#x27;&lt;A&gt;::= a |&#x27;]
@@ -2276,14 +2263,14 @@ Let us test this.
 my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
-        ['<>::= | <S>', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
+        ['<>::= | <S> $', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
 sts = my_dfa.find_transitions(st)
 assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
         [('a', ['<A>::= a |']),
          ('c', ['<C>::= c |']),
          ('<A>', ['<S>::= <A> | <B>', '<B>::= | b']),
          ('<C>', ['<S>::= <C> |']),
-         ('<S>', ['<>::= <S> |'])]
+         ('<S>', ['<>::= <S> | $'])]
 
 
 ############
@@ -2293,14 +2280,14 @@ assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
 my_dfa = LR0DFA(g1a, g1a_start)
 st = my_dfa.create_start(g1a_start)
 assert [str(s) for s in st.items] == \
-        [&#x27;&lt;&gt;::= | &lt;S&gt;&#x27;, &#x27;&lt;S&gt;::= | &lt;A&gt; &lt;B&gt;&#x27;, &#x27;&lt;S&gt;::= | &lt;C&gt;&#x27;, &#x27;&lt;A&gt;::= | a&#x27;, &#x27;&lt;C&gt;::= | c&#x27;]
+        [&#x27;&lt;&gt;::= | &lt;S&gt; $&#x27;, &#x27;&lt;S&gt;::= | &lt;A&gt; &lt;B&gt;&#x27;, &#x27;&lt;S&gt;::= | &lt;C&gt;&#x27;, &#x27;&lt;A&gt;::= | a&#x27;, &#x27;&lt;C&gt;::= | c&#x27;]
 sts = my_dfa.find_transitions(st)
 assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
         [(&#x27;a&#x27;, [&#x27;&lt;A&gt;::= a |&#x27;]),
          (&#x27;c&#x27;, [&#x27;&lt;C&gt;::= c |&#x27;]),
          (&#x27;&lt;A&gt;&#x27;, [&#x27;&lt;S&gt;::= &lt;A&gt; | &lt;B&gt;&#x27;, &#x27;&lt;B&gt;::= | b&#x27;]),
          (&#x27;&lt;C&gt;&#x27;, [&#x27;&lt;S&gt;::= &lt;C&gt; |&#x27;]),
-         (&#x27;&lt;S&gt;&#x27;, [&#x27;&lt;&gt;::= &lt;S&gt; |&#x27;])]
+         (&#x27;&lt;S&gt;&#x27;, [&#x27;&lt;&gt;::= &lt;S&gt; | $&#x27;])]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2628,13 +2615,13 @@ Testing it.
 
 <!--
 ############
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
-    success, message = parser.parse(test_string, S_s)
+    success, message = parser.parse(test_string, S_s1)
     print(f"Result: {'Accepted' if success else 'Rejected'}")
     print(f"Message: {message}")
     print()
@@ -2643,13 +2630,13 @@ for test_string in test_strings:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 parser = LR0Recognizer(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
-    success, message = parser.parse(test_string, S_s)
+    success, message = parser.parse(test_string, S_s1)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
     print(f&quot;Message: {message}&quot;)
     print()
@@ -2779,13 +2766,13 @@ Now, let us build parse trees
 
 <!--
 ############
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, S_s1)
     if tree is not None:
         ep.display_tree(tree)
     print(f"Result: {'Accepted' if success else 'Rejected'}")
@@ -2796,13 +2783,13 @@ for test_string in test_strings:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 parser = LR0Parser(my_dfa)
 # Test the parser with some input strings
 test_strings = [&quot;abc&quot;, &quot;bbdd&quot;, &quot;baddd&quot;, &quot;aac&quot;, &quot;bdd&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, S_s1)
     if tree is not None:
         ep.display_tree(tree)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
@@ -3171,26 +3158,26 @@ Let us try parsing with it.
 <!--
 ############
 G2_g = {
-        '<S`>' : [['<S>', '$']],
+        '<>' : [['<S>', '$']],
         '<S>' :  [['a', '<B>', 'c'],
                   ['a', '<D>', 'd']],
         '<B>' :  [[ 'b']],
         '<D>' :  [['b']]
         }
-G2_s = '<S`>'
+G2_s = '<>'
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 G2_g = {
-        &#x27;&lt;S`&gt;&#x27; : [[&#x27;&lt;S&gt;&#x27;, &#x27;$&#x27;]],
+        &#x27;&lt;&gt;&#x27; : [[&#x27;&lt;S&gt;&#x27;, &#x27;$&#x27;]],
         &#x27;&lt;S&gt;&#x27; :  [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;, &#x27;c&#x27;],
                   [&#x27;a&#x27;, &#x27;&lt;D&gt;&#x27;, &#x27;d&#x27;]],
         &#x27;&lt;B&gt;&#x27; :  [[ &#x27;b&#x27;]],
         &#x27;&lt;D&gt;&#x27; :  [[&#x27;b&#x27;]]
         }
-G2_s = &#x27;&lt;S`&gt;&#x27;
+G2_s = &#x27;&lt;&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3205,7 +3192,7 @@ parser = SLR1Parser(my_dfa)
 test_strings = ["abc", "abd", "aabc"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, G2_s)
     if tree is not None:
         ep.display_tree(tree)
     print(f"Result: {'Accepted' if success else 'Rejected'}")
@@ -3222,7 +3209,7 @@ parser = SLR1Parser(my_dfa)
 test_strings = [&quot;abc&quot;, &quot;abd&quot;, &quot;aabc&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, G2_s)
     if tree is not None:
         ep.display_tree(tree)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
@@ -3237,7 +3224,7 @@ Now, consider this grammar
 <!--
 ############
 LR_g = {
-        "<S`>": [["<S>", "$"]],
+        "<>": [["<S>", "$"]],
         "<S>": [
             ["a", "<B>", "c"],
             ["a", "<D>", "d"],
@@ -3246,14 +3233,14 @@ LR_g = {
         "<B>": [["b"]],
         "<D>": [["b"]]
         }
-LR_s = '<S`>'
+LR_s = '<>'
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 LR_g = {
-        &quot;&lt;S`&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
+        &quot;&lt;&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
         &quot;&lt;S&gt;&quot;: [
             [&quot;a&quot;, &quot;&lt;B&gt;&quot;, &quot;c&quot;],
             [&quot;a&quot;, &quot;&lt;D&gt;&quot;, &quot;d&quot;],
@@ -3262,7 +3249,7 @@ LR_g = {
         &quot;&lt;B&gt;&quot;: [[&quot;b&quot;]],
         &quot;&lt;D&gt;&quot;: [[&quot;b&quot;]]
         }
-LR_s = &#x27;&lt;S`&gt;&#x27;
+LR_s = &#x27;&lt;&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3537,7 +3524,7 @@ grammar
 <!--
 ############
 LR_g = {
-        "<S`>": [["<S>", "$"]],
+        "<>": [["<S>", "$"]],
         "<S>": [
             ["a", "<B>", "c"],
             ["a", "<D>", "d"],
@@ -3546,14 +3533,14 @@ LR_g = {
         "<B>": [["b"]],
         "<D>": [["b"]]
         }
-LR_s = '<S`>'
+LR_s = '<>'
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 LR_g = {
-        &quot;&lt;S`&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
+        &quot;&lt;&gt;&quot;: [[&quot;&lt;S&gt;&quot;, &quot;$&quot;]],
         &quot;&lt;S&gt;&quot;: [
             [&quot;a&quot;, &quot;&lt;B&gt;&quot;, &quot;c&quot;],
             [&quot;a&quot;, &quot;&lt;D&gt;&quot;, &quot;d&quot;],
@@ -3562,7 +3549,7 @@ LR_g = {
         &quot;&lt;B&gt;&quot;: [[&quot;b&quot;]],
         &quot;&lt;D&gt;&quot;: [[&quot;b&quot;]]
         }
-LR_s = &#x27;&lt;S`&gt;&#x27;
+LR_s = &#x27;&lt;&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3590,7 +3577,7 @@ print()
 test_strings = ["abc", "abd", "bd"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, LR_s)
     if tree is not None:
         ep.display_tree(tree)
     print(f"Result: {'Accepted' if success else 'Rejected'}")
@@ -3622,7 +3609,7 @@ print()
 test_strings = [&quot;abc&quot;, &quot;abd&quot;, &quot;bd&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
-    success, message, tree = parser.parse(test_string, S_s)
+    success, message, tree = parser.parse(test_string, LR_s)
     if tree is not None:
         ep.display_tree(tree)
     print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
