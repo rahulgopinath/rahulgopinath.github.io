@@ -1468,7 +1468,8 @@ if __name__ == '__main__':
 
 # You will notice a conflict in State 5. To resolve this, we need the full
 # LR(1) parser.
-# ## LR1 Automata
+# # LR1 Automata
+# ## Building the DFA
 # ### LR1Item
 # The LR1 item is similar to the Item, except that it contains a lookahead.
 
