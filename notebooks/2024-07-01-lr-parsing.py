@@ -490,7 +490,7 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
+    my_nfa = NFA(S_g1, S_s1)
     lst = my_nfa.get_all_rules_with_dot_after_key('<A>')
     assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
 
@@ -571,7 +571,7 @@ class NFA(NFA):
 # Testing the build_nfa
 
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
+    my_nfa = NFA(S_g1, S_s1)
     table = my_nfa.build_nfa()
     rowh = table[0]
     print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -628,7 +628,7 @@ def to_graph(table):
 
 # Viewing the NFA
 if __name__ == '__main__':
-    my_nfa = NFA(S_g, S_s)
+    my_nfa = NFA(S_g1, S_s1)
     table = my_nfa.build_nfa()
     for k in my_nfa.state_sids:
       print(k, my_nfa.state_sids[k])

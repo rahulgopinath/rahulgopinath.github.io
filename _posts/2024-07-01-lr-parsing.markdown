@@ -1076,7 +1076,7 @@ Let us test this.
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 lst = my_nfa.get_all_rules_with_dot_after_key('<A>')
 assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
 
@@ -1084,7 +1084,7 @@ assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 lst = my_nfa.get_all_rules_with_dot_after_key(&#x27;&lt;A&gt;&#x27;)
 assert str(lst) == &#x27;[(&lt;S&gt;::= a &lt;A&gt; | c : 0), (&lt;S&gt;::= b &lt;A&gt; | d d : 1)]&#x27;
 </textarea><br />
@@ -1251,7 +1251,7 @@ Testing the build_nfa
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 table = my_nfa.build_nfa()
 rowh = table[0]
 print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -1263,7 +1263,7 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 table = my_nfa.build_nfa()
 rowh = table[0]
 print(&#x27;&gt;&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
@@ -1377,7 +1377,7 @@ Viewing the NFA
 
 <!--
 ############
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 table = my_nfa.build_nfa()
 for k in my_nfa.state_sids:
   print(k, my_nfa.state_sids[k])
@@ -1388,7 +1388,7 @@ __canvas__(str(g))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_nfa = NFA(S_g, S_s)
+my_nfa = NFA(S_g1, S_s1)
 table = my_nfa.build_nfa()
 for k in my_nfa.state_sids:
   print(k, my_nfa.state_sids[k])
