@@ -218,7 +218,7 @@ if __name__ == '__main__':
 # paths for a given prefix.  Hence, it is not very optimal.
 # Let us next see how to generate a DFA instead.
 # 
-# ## LR0 Automata
+# # LR0 Automata
 #  An LR automata is composed of multiple states, and each state represents a set
 # of items that indicate the parsing progress. The states are connected together
 # using transitions which are composed of the terminal and nonterminal symbols
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 # context. For the closure, we simply merge all epsilon transitions to current
 # item.
 # 
-# ### Closure
+# ## Closure
 # A closure to represents all possible parse paths at a given
 # point. The idea is to look at the current parse progress; Identify any
 # nonterminals that need to be expanded next, and add the production rules of that
@@ -318,7 +318,9 @@ if __name__ == '__main__':
 # the input string took through the DFA with the help of a stack.
 # Let us now represent these states step by step.
 
-# State 0
+# ### Compiled DFA States
+# 
+# #### State 0
 # This is the initial state. It transitions into State 2 or State 3 based
 # on the input symbol. Note that we save the current state in the stack
 # before transitioning to the next state after consuming one token.
@@ -331,7 +333,7 @@ def state_0(stack, input_string):
     elif symbol == 'b': return state_3(stack, input_string[1:])
     else: raise Exception("Expected 'a' or 'b'")
 
-# State 1
+# #### State 1
 # This is the acceptor state.
 def state_1(stack, input_string):
     rule = ['S`', ['S'], 1]
@@ -340,6 +342,7 @@ def state_1(stack, input_string):
     if symbol == '$': print("Input accepted.")
     else: raise Exception("Expected end of input")
 
+# #### State 2
 # State 2 which is the production rule `S -> a . A c` just after consuming `a`.
 # We need `b` to transition to State 5 which represents a production rule of A.
 def state_2(stack, input_string):
@@ -349,6 +352,7 @@ def state_2(stack, input_string):
     if symbol == 'b': return state_5(stack, input_string[1:])
     else: raise Exception("Expected 'b'")
 
+# #### State 3
 # State 3 which is the production rule `S -> b . A d d` just after consuming `b`.
 def state_3(stack, input_string):
     rule = ['S', ['b', 'A', 'd', 'd'], 1]
@@ -357,6 +361,7 @@ def state_3(stack, input_string):
     if symbol == 'b': return state_5(stack, input_string[1:])
     else: raise Exception("Expected 'b'")
 
+# #### State 4
 # State 4 which is the production rule `S -> a A.  c` just after consuming `a`.
 def state_4(stack, input_string):
     rule = ['S', ['a', 'A', 'c'], 2]
@@ -365,6 +370,7 @@ def state_4(stack, input_string):
     if symbol == 'c': return state_7(stack, input_string[1:])
     else: raise Exception("Expected 'c'")
 
+# #### State 5
 # State 5 which is the production rule `A -> b .`. That is, it has completed
 # parsing A, and now need to decide which state to transition to. This is
 # decided by what was in the stack before. We simply pop off as many symbols
@@ -378,6 +384,7 @@ def state_5(stack, input_string):
     elif stack[-1] == 3: return state_6(stack, input_string)
     else: raise Exception(position, "Invalid state during reduction by A → b")
 
+# #### State 6
 # State 6 `S -> b A . d d`
 def state_6(stack, input_string):
     stack.append(6)
@@ -386,6 +393,7 @@ def state_6(stack, input_string):
     if symbol == 'd': return state_8(stack, input_string[1:])
     else: raise Exception("Expected 'd'")
 
+# #### State 7
 # State 7 is a reduction rule `S -> a A c .`
 def state_7(stack, input_string):
     stack.append(7)
@@ -395,6 +403,7 @@ def state_7(stack, input_string):
     if stack[-1] == 0: return state_1(stack, input_string)
     else: raise Exception("Invalid state during reduction by S → a A c")
 
+# #### State 8
 # State 8 `S -> b A d . d`
 def state_8(stack, input_string):
     rule = ['S', ['b', 'A', 'd', 'd'], 3]
@@ -403,6 +412,7 @@ def state_8(stack, input_string):
     if symbol == 'd': return state_9(stack, input_string[1:])
     else: raise Exception("Expected 'd'")
 
+# #### State 9
 # State 9 is a reduction rule `S -> b A d d .`
 def state_9(stack, input_string):
     stack.append(9)
@@ -423,11 +433,13 @@ if __name__ == '__main__':
         except Exception as e:
             if res: print(e)
 
-# # Building the NFA
-# Now, let us try and build these dynamically.
+# ## Building the NFA
+# Let us try and build these dynamically.
 # We first build an NFA of the grammar. For that, we begin by adding a new
 # state `<>` to grammar.
 # First, we add a start extension to the grammar.
+# 
+# ### Augment Grammar with Start
 
 def add_start_state(g, start, new_start='<>'):
     new_g = dict(g)
@@ -467,11 +479,7 @@ if __name__ == '__main__':
     assert g1a_start in g1a
     assert g1a[g1a_start][0][0] in g1
 
-# For building an NFA, all we need is to start with start item, and then
-# recursively identify the transitions. First, we define the state
-# data structure. We define a unique id.
-
-# We also need the symbols in a given grammar.
+# A utility procedure to extract all symbols in a grammar.
 
 def symbols(g):
     terminals = {}
@@ -482,8 +490,11 @@ def symbols(g):
                 terminals[t] = True
     return list(sorted(terminals.keys())), list(sorted(g.keys()))
 
-# ## State
-# We first define our state data structure.
+
+# ### The State Data-structure
+# For building an NFA, all we need is to start with start item, and then
+# recursively identify the transitions. First, we define the state
+# data structure.
 # A state for an NFA is simply a production rule and a parse position.
 class State:
     def __init__(self, name, expr, dot, sid):
@@ -495,6 +506,10 @@ class State:
 
     def at_dot(self):
         return self.expr[self.dot] if self.dot < len(self.expr) else None
+
+    def remaining(self):
+        # x[0] is current, then x[1:] is remaining
+        return self.expr[self.dot+1:]
 
     def __repr__(self):
         return "(%s : %d)" % (str(self), self.sid)
@@ -511,9 +526,6 @@ class State:
     def def_key(self):
         return self.name
 
-    def main_item(self):
-        return (self.name, list(self.expr))
-
 # It can be tested this way
 if __name__ == '__main__':
     s = State('<S`>', ('<S>'), 0, 0)
@@ -521,15 +533,16 @@ if __name__ == '__main__':
     print(str(s))
     print(s.finished())
 
-
+# ### The NFA class
 # Next, we build an NFA out of a given grammar. An NFA is composed of
 # different states connected together by transitions.
 
+# #### NFA Initialization routines
 class NFA:
     def __init__(self, g, start):
         self.states = {}
         self.g = g
-        self.productions, self.production_rules = self.get_production_rules(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
         self.start = start
         self.nfa_table = None
         self.children = []
@@ -540,12 +553,7 @@ class NFA:
     def get_key(self, kr):
         return "%s -> %s" %kr
 
-    def new_state(self, name, texpr, pos):
-        state = State(name, texpr, pos, self.sid_counter)
-        self.sid_counter += 1
-        return state
-
-    def get_production_rules(self, g):
+    def _get_production_rules(self, g):
         productions = {}
         count = 0
         production_rules = {}
@@ -555,6 +563,14 @@ class NFA:
                 productions[self.get_key((k, r))] = count
                 count += 1
         return productions, production_rules
+
+# #### NFA Start State (create_start)
+
+class NFA(NFA):
+    def new_state(self, name, texpr, pos):
+        state = State(name, texpr, pos, self.sid_counter)
+        self.sid_counter += 1
+        return state
 
     # create starting states for the given key
     def create_start(self, s):
@@ -579,22 +595,60 @@ if __name__ == '__main__':
     assert str(st[0]) == '<S>::= | <A> <B>'
     assert str(st[1]) == '<S>::= | <C>'
 
-# ## find_transitions
-# Next, for processing a state, we need a few more tools. First,we need
-# to be able to advance a state.
+# #### Advance the state of parse by one token 
+class NFA(NFA):
+    def advance(self, state):
+        return self.create_state(state.name, state.expr, state.dot+1)
+
+# Let us test this.
+if __name__ == '__main__':
+    my_nfa = NFA(S_g, S_s)
+    st_ = my_nfa.create_start(S_s)
+    st = my_nfa.advance(st_[0])
+    assert str(st) == '<S`>::= <S> | $'
+    my_nfa = NFA(g1, g1_start)
+    st_ = my_nfa.create_start(g1_start)
+    st = [my_nfa.advance(s) for s in st_]
+    assert str(st[0]) == '<S>::= <A> | <B>'
+    assert str(st[1]) == '<S>::= <C> |'
+
+# #### NFA find_transitions
+# Next, given a state, we need to find all other states reachable from it.
+# The first one is simply a transition from the current to the next state
+# when moving the parsing point one location. For example,
+#
+# ```
+# '<S>::= <A> | <B>'
+# ```
+# 
+# is connected to the below by the key `<A>`.
+#
+# ```
+# '<S>::= <A> <B> |'
+# ```
+
 class NFA(NFA):
     def symbol_transition(self, state):
         key = state.at_dot()
         assert key is not None
-        new_state = self.advance(state)
-        return new_state
+        return self.advance(state)
 
-    def advance(self, state):
-        return self.create_state(state.name, state.expr, state.dot+1)
-
-# Epsilon transitions. Given a state K -> t.V a
+# Next, note that this is an NFA. So, we also connect all
+# production rules of the next nonterminal with epsilon.
+# That is, given a state K -> t.V a
 # we get all rules of nonterminal V, and add with
 # starting 0
+# 
+# ```
+# '<S>::= <A> | <B>'
+# ```
+# 
+# is connected to below by $$\epsilon$$ 
+# 
+# ```
+# '<A>::= | a',
+# ```
+
 class NFA(NFA):
     def epsilon_transitions(self, state):
         key = state.at_dot()
@@ -606,11 +660,12 @@ class NFA(NFA):
             new_states.append(new_state)
         return new_states
 
-# processing the state itself for its transitions. First, if the
-# dot is before a symbol, then we add the transition to the advanced
-# state with that symbol as the transition. Next, if the key at
+# Combining both and processing the state itself for its transitions.
+# First, if the dot is before a symbol, then we add the transition to the
+# advanced state with that symbol as the transition. Next, if the key at
 # the dot is a nonterminal, then add all expansions of that nonterminal
 # as epsilon transfers.
+
 class NFA(NFA):
     def find_transitions(self, state):
         key = state.at_dot()
@@ -644,8 +699,8 @@ if __name__ == '__main__':
     assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
 
 
-# Next, a utility method. Given a key, we want to get all items
-# that contains the parsing of this key.
+# Next, a utility method. This is only used to display the graph.
+# Given a key, we want to get all items that contains the parsing of this key.
 class NFA(NFA):
     def get_all_rules_with_dot_after_key(self, key):
         states = []
@@ -664,52 +719,15 @@ if __name__ == '__main__':
     lst = my_nfa.get_all_rules_with_dot_after_key('<A>')
     assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
 
+# #### NFA build_nfa
 # Now, we can build the NFA.
 class NFA(NFA):
-    def build_nfa(self):
-        t_symbols, nt_symbols = symbols(self.g)
-        start_item = self.create_start(self.start)[0]
-        queue = [('$', start_item)]
-        seen = set()
-        while queue:
-            (pkey, state), *queue = queue
-            if str(state) in seen: continue
-            seen.add(str(state))
+    def build_table(self):
+        nfa_table = []
+        for _ in self.states.keys():
+            row = {k:[] for k in (self.terminals + self.non_terminals + [''])}
+            nfa_table.append(row)
 
-            new_states = self.find_transitions(state)
-            for key, s in new_states:
-                # if the key is a nonterminal then it is a goto
-                if key == '':
-                    self.add_child(state, key, s, 'shift')
-                elif fuzzer.is_nonterminal(key):
-                    self.add_child(state, key, s, 'goto')
-                else:
-                    self.add_child(state, key, s, 'shift')
-
-            # Add reductions for all finished items
-            # this happens when the dot has reached the end of the rule.
-            # in this case, find the main_def (for NFA, there is only one),
-            # and add its number as the rN
-            if state.finished():
-                N = self.productions[self.get_key((state.name, list(state.expr)))]
-                # follow_set = follow(item.name, self.g)  # Compute FOLLOW set
-                for k in self.terminals:
-                    self.add_reduction(state, k, N, 'reduce')
-
-                # Also, (only) for the graph, collect epsilon transmition to all
-                # rules that are after the given nonterminal at the head.
-                key = state.def_key()
-                list_of_return_states = self.get_all_rules_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(state, '', s, 'to') # reduce to
-                    # these are already processed. So we do not add to queue
-
-            queue.extend(new_states)
-        # now build the nfa table.
-        state_count = len(self.states.keys())
-        nfa_table = [[] for _ in range(state_count)]
-        for i in range(0, state_count):
-            nfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
         # column is the transition.
         # row is the state id.
         for parent, key, child, notes in self.children:
@@ -721,7 +739,6 @@ class NFA(NFA):
             v = prefix+str(child)
             if v not in nfa_table[parent][key]:
                 nfa_table[parent][key].append(v)
-
         return nfa_table
 
     def add_reduction(self, p, key, c, notes):
@@ -730,7 +747,53 @@ class NFA(NFA):
     def add_child(self, p, key, c, notes):
         self.children.append((p.sid, key, c.sid, notes))
 
+    def add_shift(self, state, key, s):
+        # if the key is a nonterminal then it is a goto
+        if key == '':
+            self.add_child(state, key, s, 'shift')
+        elif fuzzer.is_nonterminal(key):
+            self.add_child(state, key, s, 'goto')
+        else:
+            self.add_child(state, key, s, 'shift')
 
+    def add_reduce(self, state):
+        N = self.productions[self.get_key((state.name, list(state.expr)))]
+        for k in self.terminals:
+            self.add_reduction(state, k, N, 'reduce')
+
+    def add_actual_reductions(self, state):
+        # Also, (only) for the graph, collect epsilon transmition to all
+        # rules that are after the given nonterminal at the head.
+        key = state.def_key()
+        list_of_return_states = self.get_all_rules_with_dot_after_key(key)
+        for s in list_of_return_states:
+            self.add_child(state, '', s, 'to') # reduce to
+
+    def build_nfa(self):
+        start_item = self.create_start(self.start)[0]
+        queue = [('$', start_item)]
+        seen = set()
+        while queue:
+            (pkey, state), *queue = queue
+            if str(state) in seen: continue
+            seen.add(str(state))
+
+            new_states = self.find_transitions(state)
+            for key, s in new_states:
+                self.add_shift(state, key, s)
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, find the main_def (for NFA, there is only one),
+            # and add its number as the rN
+            if state.finished():
+                self.add_reduce(state)
+
+                # only for the graph, not for traditional algorithm
+                self.add_actual_reductions(state)
+
+            queue.extend(new_states)
+        return self.build_table()
 
 # Let us test the build_nfa
 
@@ -743,7 +806,7 @@ if __name__ == '__main__':
         print(i, '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# Show graph
+# ## Show graph
 
 def to_graph(nfa_tbl):
     G = pydot.Dot("my_graph", graph_type="digraph")
@@ -796,31 +859,23 @@ if __name__ == '__main__':
     g = to_graph(table)
     __canvas__(str(g))
 
+# ## Building the DFA
 # Next, we need to build a DFA.
-# 
-# # Building the DFA
 # For DFA, a state is no longer a single item. So, let us define item separately.
 
+# ### Item
 class Item(State): pass
 
+# ### DFAState
+# 
 # A DFAState contains many items.
 class DFAState:
     def __init__(self, items, dsid):
         self.sid = dsid
-        # now compute the closure.
         self.items = items
 
     def def_keys(self):
-        #assert len(self.items) == 1 # completion
         return [i.def_key() for i in self.items]
-
-    # there will be only one item that has an at_dot != None
-    def main_item(self):
-        for i in self.items:
-            if i.at_dot() is not None:
-                return i
-        # assert False the <> will be None
-        return self.items[0]
 
     def __repr__(self):
         return '(%s)' % self.sid
@@ -828,8 +883,9 @@ class DFAState:
     def __str__(self):
         return str(sorted([str(i) for i in self.items]))
 
-# We define our DFA initialization.
-
+# ### LR(0) DFA
+# We define our DFA initialization. We also define two utilities for
+# creating new items and DFA states.
 class LR0DFA(NFA):
     def __init__(self, g, start):
         self.items = {}
@@ -843,26 +899,24 @@ class LR0DFA(NFA):
         self.sid_counter = 0
         self.dsid_counter = 0
         self.terminals, self.non_terminals = symbols(g)
-        self.productions, self.production_rules = self.get_production_rules(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
 
-# The start item is similar to before. The main difference is that
-# rather than returning multiple states, we return a single state containing
-# multiple items.
-class LR0DFA(LR0DFA):
+    def new_state(self, items):
+        s = DFAState(items, self.dsid_counter)
+        self.dsid_counter += 1
+        return s
+
     def new_item(self, name, texpr, pos):
         item =  Item(name, texpr, pos, self.sid_counter)
         self.sid_counter += 1
         return item
 
-    def create_start_item(self, s, rule):
-        return self.new_item(s, tuple(rule), 0)
+# #### DFA Compute the closure
+# We have discussed computing the closure before. The idea is to identify any
+# nonterminals that are next to be parsed, and recursively expand them, adding
+# to the items.
 
-    # the start in DFA is simply a closure of all rules from that key.
-    def create_start(self, s):
-        assert fuzzer.is_nonterminal(s)
-        items = [self.create_start_item(s, rule) for rule in self.g[s] ]
-        return self.create_state(items) # create state does closure
-
+class LR0DFA(LR0DFA):
     def compute_closure(self, items):
         to_process = list(items)
         seen = set()
@@ -874,21 +928,33 @@ class LR0DFA(LR0DFA):
             new_items[str(item_)] = item_
             key = item_.at_dot()
             if key is None: continue
-            # no closure for terminals
             if not fuzzer.is_nonterminal(key): continue
             for rule in self.g[key]:
                 new_item = self.create_start_item(key, rule)
                 to_process.append(new_item)
         return list(new_items.values())
 
+    def create_start_item(self, s, rule):
+        return self.new_item(s, tuple(rule), 0)
+
+# #### DFA Start State (create_start)
+# The start item is similar to before. The main difference is that
+# rather than returning multiple states, we return a single state containing
+# multiple items.
+
+class LR0DFA(LR0DFA):
     def create_state(self, items):
         texpr = tuple(sorted([str(i) for i in items]))
         if (texpr) not in self.my_states:
-            state = DFAState(self.compute_closure(items), self.dsid_counter)
-            self.dsid_counter += 1
+            state = self.new_state(self.compute_closure(items))
             self.my_states[texpr] = state
             self.states[state.sid] = state
         return self.my_states[texpr]
+
+    # the start in DFA is simply a closure of all rules from that key.
+    def create_start(self, s):
+        items = [self.create_start_item(s, rule) for rule in self.g[s] ]
+        return self.create_state(items) # create state does closure
 
 # Let us test this.
 if __name__ == '__main__':
@@ -901,28 +967,24 @@ if __name__ == '__main__':
              '<A>::= | a',
              '<C>::= | c']
 
-# Next, we define the transitions.
-class LR0DFA(LR0DFA):
-    def add_child(self, p, key, c, notes):
-        self.children.append((p.sid, key, c.sid, notes))
 
+# #### Advance the state of parse by the given token 
+# Unlike in NFA, where we had only one item, and hence, there
+# was only one advancing possible, here we have multiple items.
+# Hence, we are given a token by which to advance, and return
+# all items that advance by that token, advanced.
+
+class LR0DFA(LR0DFA):
     def advance(self, dfastate, key):
         advanced = []
         for item in dfastate.items:
-            if item.at_dot() == key:
-                item_ = self.advance_item(item)
-                advanced.append(item_)
-            else:
-                pass
-                # ignore
+            if item.at_dot() != key: continue
+            item_ = self.advance_item(item)
+            advanced.append(item_)
         return advanced
 
-    def symbol_transition(self, dfastate, key):
-        assert key is not None
-        items = self.advance(dfastate, key)
-        if not items: return None
-        new_dfastate = self.create_state(items) # create state does closure
-        return new_dfastate
+    def advance_item(self, state):
+        return self.create_item(state.name, state.expr, state.dot+1)
 
     def create_item(self, name, expr, pos):
         texpr = tuple(expr)
@@ -932,17 +994,32 @@ class LR0DFA(LR0DFA):
             self.items[item.sid] = item
         return self.my_items[(name, texpr, pos)]
 
-    def advance_item(self, state):
-        return self.create_item(state.name, state.expr, state.dot+1)
+# Let us test this.
+if __name__ == '__main__':
+    my_dfa = LR0DFA(g1a, g1a_start)
+    start = my_dfa.create_start(g1a_start)
+    st = my_dfa.advance(start, '<S>')
+    assert [str(s) for s in st] == ['<>::= <S> |']
+
+    st = my_dfa.advance(start, 'a')
+    assert [str(s) for s in st] == [ '<A>::= a |']
+
+# #### DFA find_transitions
+# 
+# Next, we define the transitions. Unlike in the case of NFA where we had only a
+# single item, we have multiple items. So, we look through each possible
+# token (terminals and nonterminals)
+class LR0DFA(LR0DFA):
+    def symbol_transition(self, dfastate, key):
+        items = self.advance(dfastate, key)
+        if not items: return None
+        return self.create_state(items) # create state does closure
 
     def find_transitions(self, dfastate):
         new_dfastates = []
-        # first add the symbol transition, for both
-        # terminal and nonterminal symbols
         for k in (self.terminals + self.non_terminals):
             new_dfastate = self.symbol_transition(dfastate, k)
             if new_dfastate is None: continue
-            # add it to the states returned
             new_dfastates.append((k, new_dfastate))
         return new_dfastates
 
@@ -961,17 +1038,37 @@ if __name__ == '__main__':
              ('<S>', ['<>::= <S> |'])]
     
 
-# Bringing all these together, let us build the DFA.
+# #### add_reduce
+# This is different from NFA because we are iterating over items, but we need
+# to add reduction to the dfastate
+class LR0DFA(LR0DFA):
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        for k in  self.terminals:
+            self.add_reduction(dfastate, k, N, 'reduce')
 
+# Similarly the graph related utilities also change a bit.
 class LR0DFA(LR0DFA):
     def get_all_states_with_dot_after_key(self, key):
         states = []
         for s in self.states:
-            i =  self.states[s].main_item()
-            if i.expr[i.dot-1] == key:
-                states.append(self.states[s])
+            for item in self.states[s].items:
+                if item.dot == 0: continue # no token parsed.
+                if item.expr[item.dot-1] == key:
+                    states.append(self.states[s])
         return states
 
+    def add_actual_reductions(self, item, dfastate):
+        # Also, (only) for the graph, collect epsilon transmition to all
+        # rules that are after the given nonterminal at the head.
+        key = item.def_key()
+        list_of_return_states = self.get_all_states_with_dot_after_key(key)
+        for s in list_of_return_states:
+            self.add_child(dfastate, '', s, 'to') # reduce
+
+# #### LR0DFA build_dfa
+# Bringing all these together, let us build the DFA. (Compare to build_nfa).
+class LR0DFA(LR0DFA):
     def build_dfa(self):
         start_dfastate = self.create_start(self.start)
         queue = [('$', start_dfastate)]
@@ -983,53 +1080,24 @@ class LR0DFA(LR0DFA):
 
             new_dfastates = self.find_transitions(dfastate)
             for key, s in new_dfastates:
-                # if the key is a nonterminal then it is a goto
-                if fuzzer.is_nonterminal(key):
-                    self.add_child(dfastate, key, s, 'goto')
-                else:
-                    self.add_child(dfastate, key, s, 'shift')
+                assert key != ''
+                self.add_shift(dfastate, key, s)
 
             # Add reductions for all finished items
             # this happens when the dot has reached the end of the rule.
             # in this case, (LR(0)) there should be only one.
             # and add its number as the rN
             for item in dfastate.items:
-                if not item.finished(): continue
-                N = self.productions[self.get_key((item.name, list(item.expr)))]
-                terminal_set = self.terminals
-                # terminal_set = follow(item.name, self.g)
-                for k in terminal_set:
-                    self.add_reduction(dfastate, k, N, 'reduce')
+                if item.finished():
+                    self.add_reduce(item, dfastate)
 
-                # Also, (only) for the graph, collect epsilon transmission to all
-                # rules that are after the given nonterminal at the head.
-                key = item.def_key()
-                list_of_return_states = self.get_all_states_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(dfastate, '', s, 'to') # reduce
-                    # these are already processed. So we do not add to queue
+                    # Also, (only) for the graph, collect epsilon transmission to all
+                    # rules that are after the given nonterminal at the head.
+                    self.add_actual_reductions(item, dfastate)
 
             queue.extend(new_dfastates)
 
-        # now build the dfa table.
-        state_count = len(self.states.keys())
-        dfa_table = [[] for _ in range(state_count)]
-        t_symbols, nt_symbols = symbols(self.g)
-        for i in range(0, state_count):
-            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
-        # column is the transition.
-        # row is the state id.
-        for parent, key, child, notes in self.children:
-            if notes == 'reduce': prefix = 'r:' # N not a state.
-            elif notes == 'shift': prefix = 's'
-            elif notes == 'goto': prefix = 'g'
-            elif notes == 'to': prefix = 't'
-            if key not in dfa_table[parent]: dfa_table[parent][key] = []
-            v = prefix+str(child)
-            if v not in dfa_table[parent][key]:
-                dfa_table[parent][key].append(v)
-
-        return dfa_table
+        return self.build_table()
 
 
 # Let us test building the DFA.
@@ -1053,6 +1121,7 @@ if __name__ == '__main__':
     g = to_graph(table)
     __canvas__(str(g))
 
+# # LR0Recognizer
 # We can now provide the complete parser that relies on this automata.
 
 class LR0Recognizer:
@@ -1073,9 +1142,9 @@ class LR0Recognizer:
             (_,state_), symbol = stack[-1], tokens[0]
             state = int(state_[1:])
             if symbol == '$':
-                i = self.dfa.states[state].main_item()
-                if i.name == start and i.at_dot() == '$':
-                    return True, "Input Accepted"
+                for i in self.dfa.states[state].items:
+                    if i.name == start and i.at_dot() == '$':
+                        return True, "Input Accepted"
 
             actions = self.parse_table[state][symbol]
             if not actions:
@@ -1120,6 +1189,7 @@ if __name__ == '__main__':
         print(f"Message: {message}")
         print()
 
+# # LR0Parser
 # Attaching parse tree extraction.
 class LR0Parser(LR0Recognizer):
     def parse(self, input_string, start):
@@ -1136,9 +1206,9 @@ class LR0Parser(LR0Recognizer):
                 return False, f"Parsing Error: No actions state{state}:{symbol}", None
 
             if symbol == '$':
-                i = self.dfa.states[state].main_item()
-                if i.name == start and i.at_dot() == '$':
-                    return True, "Input Accepted", self.node_stack[0]
+                for i in self.dfa.states[state].items:
+                    if i.name == start and i.at_dot() == '$':
+                        return True, "Input Accepted", self.node_stack[0]
 
             assert len(actions) == 1
             action = actions[0]
@@ -1228,7 +1298,7 @@ if __name__ == '__main__':
 # next token is `c`, then we should reduce to `<B>`. If the next one is `d`,
 # we should reduce to `<D>`. This is what SLR parsers do.
 # 
-# ## SLR1 Automata
+# # SLR1 Automata
 # 
 # For using SLR1 automation, we require first and follow sets. This has been
 # discussed previously. Hence, providing the code here directly.
@@ -1278,6 +1348,17 @@ def get_first_and_follow(grammar):
         if not added:
             return first, follow, nullable
 
+def first_of_rule(rule, first_sets, nullable_set):
+    first_set = set()
+    for token in rule:
+        if fuzzer.is_nonterminal(token):
+            first_set |= first_sets[token]
+            if token not in nullable_set: break
+        else:
+            first_set.add(token)
+            break
+    return first_set
+
 # Testing it.
 if __name__ == '__main__':
     first, follow, nullable = get_first_and_follow(nullable_grammar)
@@ -1285,80 +1366,31 @@ if __name__ == '__main__':
     print("follow:", follow)
     print("nullable", nullable)
 
-# At this point, we can update our parsing algorithm.
+# ## Building the DFA
+# #### DFA Initialization routines
+
 class SLR1DFA(LR0DFA):
     def __init__(self, g, start):
         self.items = {}
         self.states = {}
         self.g = g
         self.start = start
-        self.nfa_table = None
         self.children = []
         self.my_items = {}
         self.my_states = {}
         self.sid_counter = 0
         self.dsid_counter = 0
         self.terminals, self.non_terminals = symbols(g)
-        self.productions, self.production_rules = self.get_production_rules(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
         self.first, self.follow, self.nullable = get_first_and_follow(g)
 
-# Next, we build the dfa. There is only one change. (See CHANGED) When reducing,
-# we only reduce if the token lookahead is in the follow set.
+# Next, we build the dfa. There is only one change. (See CHANGED)
+# When reducing, we only reduce if the token lookahead is in the follow set.
 class SLR1DFA(SLR1DFA):
-    def build_dfa(self):
-        start_dfastate = self.create_start(self.start)
-        queue = [('$', start_dfastate)]
-        seen = set()
-        while queue:
-            (pkey, dfastate), *queue = queue
-            if str(dfastate) in seen: continue
-            seen.add(str(dfastate))
-
-            new_dfastates = self.find_transitions(dfastate)
-            
-            # Add shifts and gotos
-            for key, s in new_dfastates:
-                if fuzzer.is_nonterminal(key):
-                    self.add_child(dfastate, key, s, 'goto')
-                else:
-                    self.add_child(dfastate, key, s, 'shift')
-
-            # Add reductions for all finished items
-            for item in dfastate.items:
-                if not item.finished(): continue
-                N = self.productions[self.get_key((item.name, list(item.expr)))]
-                terminal_set = self.follow[item.name]  # <-- CHANGED HERE
-                for k in terminal_set:
-                    self.add_reduction(dfastate, k, N, 'reduce')
-
-                # Add "to" transitions for the graph
-                key = item.def_key()
-                list_of_return_states = self.get_all_states_with_dot_after_key(key)
-                for s in list_of_return_states:
-                    self.add_child(dfastate, '', s, 'to')
-
-            queue.extend(new_dfastates)
-
-        # Build the DFA table
-        state_count = len(self.states.keys())
-        dfa_table = [[] for _ in range(state_count)]
-        t_symbols, nt_symbols = symbols(self.g)
-        for i in range(0, state_count):
-            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
-        
-        # Resolve conflicts and build the table
-        for parent, key, child, notes in self.children:
-            if notes == 'reduce': prefix = 'r:'
-            elif notes == 'shift': prefix = 's'
-            elif notes == 'goto': prefix = 'g'
-            elif notes == 'to': prefix = 't'
-            else: continue
-            if key not in dfa_table[parent]: dfa_table[parent][key] = []
-            v = prefix+str(child)
-            if v not in dfa_table[parent][key]:
-                dfa_table[parent][key].append(v)
-
-        return dfa_table
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        for k in self.follow[item.name]: # CHANGED
+            self.add_reduction(dfastate, k, N, 'reduce')
 
 # Let us see if it works.
 if __name__ == '__main__':
@@ -1376,6 +1408,7 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
+# ### SLR1Parser
 # There is no difference in the parser.
 
 class SLR1Parser(LR0Parser): pass
@@ -1437,7 +1470,10 @@ if __name__ == '__main__':
 # You will notice a conflict in State 5. To resolve this, we need the full
 # LR(1) parser.
 # ## LR1 Automata
-class LR1Item(State):
+# ### LR1Item
+# The LR1 item is similar to the Item, except that it contains a lookahead.
+
+class LR1Item(Item):
     def __init__(self, name, expr, dot, sid, lookahead):
         self.name, self.expr, self.dot = name, expr, dot
         self.sid = sid
@@ -1449,33 +1485,12 @@ class LR1Item(State):
     def __str__(self):
         return self.show_dot(self.name, self.expr, self.dot)
 
+# ### LR1DFA class
+# 
+# We also need update on create_item etc to handle the lookahead.
+# The advance_item is called from `advance(item)` which does not require
+# changes.
 class LR1DFA(SLR1DFA):
-    def get_first(self, lst):
-        if fuzzer.is_nonterminal(lst[0]):
-            return self.first[lst[0]]
-        else: return lst[0]
-
-    def compute_closure(self, items):
-        to_process = list(items)
-        seen = set()
-        new_items = {}
-        while to_process:
-            item_, *to_process = to_process
-            if str(item_) in seen: continue
-            seen.add(str(item_))
-            new_items[str(item_)] = item_
-            key = item_.at_dot()
-            if key is None: continue
-            if not fuzzer.is_nonterminal(key): continue
-            rest_of_item = item_.expr[item_.dot+1:] + (item_.lookahead,)
-            for rule in self.g[key]:
-                for lookahead in self.get_first(rest_of_item):
-                    new_item = self.create_item(key, rule, 0, lookahead)
-                    to_process.append(new_item)
-        return list(new_items.values())
-
-# We also need update on create_item
-class LR1DFA(LR1DFA):
     def advance_item(self, item):
         return self.create_item(item.name, item.expr, item.dot+1, item.lookahead)
 
@@ -1492,60 +1507,64 @@ class LR1DFA(LR1DFA):
             self.items[item.sid] = item
         return self.my_items[(name, texpr, pos, lookahead)]
 
-# The build_dfa
+# The compute_closure now contains the lookahead.
+# This is the biggest procedure change from LR0DFA. 
+# The main difference in computing the lookahead. 
+# The lines added and modified from LR0DFA indicated in the procedure.
+# 
+# Here, say we are computing the closure of `A -> Alpha . <B> <Beta>`.
+# Remember that when we create new items for closure, we have to provide it with
+# a lookahead.
+# 
+# So, To compute the closure at `<B>`, we create items with lookahead which are
+# characters that can follow `<B>`. This need not be just the `first(<Beta>)`
+# but also what may follow `<Beta>` if `<Beta>` is nullable. This would be the
+# lookahead of the item `A -> Alpha . <B> <Beta>` which we already have, let us
+# say this is `l`. So, # we compute `first(<Beta> l)` for lookahead.
+
+class LR1DFA(LR1DFA):
+
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        new_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            new_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None: continue
+            if not fuzzer.is_nonterminal(key): continue
+            remaining = list(item_.remaining()) + [item_.lookahead] # ADDED
+            lookaheads = first_of_rule(remaining, self.first, self.nullable) # ADDED
+            for rule in self.g[key]:
+                for lookahead in lookaheads: # ADDED
+                    new_item = self.create_start_item(key, rule, lookahead) # lookahead
+                    to_process.append(new_item)
+        return list(new_items.values())
+
+    def create_start_item(self, s, rule, lookahead):
+        return self.new_item(s, tuple(rule), 0, lookahead)
+
+# #### LR1DFA building DFA
+# This method create_start changes to include the '$' as lookahead.
 class LR1DFA(LR1DFA):
     def create_start(self, s):
         assert fuzzer.is_nonterminal(s)
         items = [self.create_start_item(s, rule, '$') for rule in self.g[s]]
         return self.create_state(items)
 
-    def create_start_item(self, s, rule, lookahead):
-        return self.new_item(s, tuple(rule), 0, lookahead)
+# Another major change, we no longer add a reduction to all follows of item.name
+# instead, we restrict it to just item.lookahead.
 
-    def build_dfa(self):
-        start_dfastate = self.create_start(self.start)
-        queue = [('$', start_dfastate)]
-        seen = set()
-        while queue:
-            (pkey, dfastate), *queue = queue
-            if str(dfastate) in seen: continue
-            seen.add(str(dfastate))
+class LR1DFA(LR1DFA):
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        # k is changed to item.lookahead
+        self.add_reduction(dfastate, item.lookahead, N, 'reduce') # DEL/CHANGED
 
-            new_dfastates = self.find_transitions(dfastate)
-            
-            for key, s in new_dfastates:
-                if fuzzer.is_nonterminal(key):
-                    self.add_child(dfastate, key, s, 'goto')
-                else:
-                    self.add_child(dfastate, key, s, 'shift')
-
-            for item in dfastate.items:
-                if item.finished():
-                    N = self.productions[self.get_key((item.name, list(item.expr)))]
-                    self.add_reduction(dfastate, item.lookahead, N, 'reduce')
-
-            queue.extend(new_dfastates)
-        # now build the dfa table.
-        state_count = len(self.states.keys())
-        dfa_table = [[] for _ in range(state_count)]
-        t_symbols, nt_symbols = symbols(self.g)
-        for i in range(0, state_count):
-            dfa_table[i] = {k:[] for k in (t_symbols + nt_symbols + [''])}
-        # column is the transition.
-        # row is the state id.
-        for parent, key, child, notes in self.children:
-            if notes == 'reduce': prefix = 'r:' # N not a state.
-            elif notes == 'shift': prefix = 's'
-            elif notes == 'goto': prefix = 'g'
-            elif notes == 'to': prefix = 't'
-            if key not in dfa_table[parent]: dfa_table[parent][key] = []
-            v = prefix+str(child)
-            if v not in dfa_table[parent][key]:
-                dfa_table[parent][key].append(v)
-
-        return dfa_table
-
-
+# ### LR1Parser
 # the parse class does not change.
 class LR1Parser(SLR1Parser): pass
 
