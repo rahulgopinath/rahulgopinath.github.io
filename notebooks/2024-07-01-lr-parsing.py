@@ -1539,7 +1539,7 @@ class LR1DFA(LR1DFA):
             lookaheads = first_of_rule(remaining, self.first, self.nullable) # ADDED
             for rule in self.grammar[key]:
                 for lookahead in lookaheads: # ADDED
-                    new_item = self.create_start_item(key, rule, lookahead) # lookahead
+                    new_item = self.create_start_item(key, rule, lookahead) #
                     to_process.append(new_item)
         return list(new_items.values())
 
