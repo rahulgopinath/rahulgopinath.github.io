@@ -2410,7 +2410,7 @@ Let us test building the DFA.
 
 <!--
 ############
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 table = my_dfa.build_dfa()
 
 for k in my_dfa.states:
@@ -2428,7 +2428,7 @@ print()
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-my_dfa = LR0DFA(S_g, S_s)
+my_dfa = LR0DFA(S_g1, S_s1)
 table = my_dfa.build_dfa()
 
 for k in my_dfa.states:
@@ -3612,18 +3612,7 @@ for test_string in test_strings:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-[^lang1974deterministic]: Bernard Lang. "Deterministic techniques for efficient non-deterministic parsers." International Colloquium on Automata, Languages, and Programming. Springer, Berlin, Heidelberg, 1974.
-[^bouckaert1975efficient]: M. Bouckaert, Alain Pirotte, M. Snelling. "Efficient parsing algorithms for general context-free parsers." Information Sciences 8.1 (1975): 1-26.
-
-[^scott2013gll]: Elizabeth Scott, Adrian Johnstone. "GLL parse-tree generation." Science of Computer Programming 78.10 (2013): 1828-1844.
-
-[^scott2010gll]: Elizabeth Scott, Adrian Johnstone. "GLL parsing." Electronic Notes in Theoretical Computer Science 253.7 (2010): 177-189.
-
 [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
-
-[^tomita1984lr]: Masaru Tomita. LR parsers for natural languages. In 22nd conference on Association for Computational Linguistics, pages 354–357, Stanford, California, 1984. Association for Computational Linguistics.
-
-[^tomita1986efficient]: Masaru Tomita. Efficient parsing for natural language: a fast algorithm for practical systems. Kluwer Academic Publishers, Boston, 1986.
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
