@@ -3277,6 +3277,12 @@ directly into the parser states, allowing for even more precise parsing decision
 ## Building the DFA
 ### LR1Item
 The LR1 item is similar to the Item, except that it contains a lookahead.
+This also is the most important difference between LR(0) and SLR(1) on one
+hand and LR(1) on the other. SLR uses LR(0) items which mean exactly one item
+per production rule + parse dot. However, in the case of LR(1) you can have
+multiple items with the same LR(0) core--that is, production rule and parse
+point--but with different lookahead. One may ask, what if use the LR(0) items
+but add possible lookaheads as extra information to it? This gets you LALR(1).
 
 <!--
 ############
