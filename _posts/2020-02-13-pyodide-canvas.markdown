@@ -71,6 +71,8 @@ others
 These are packages that refer either to my previous posts or to pure python
 packages that I have compiled, and is available in the below locations. As
 before, install them if you need to run the program directly on the machine.
+To install, simply download the wheel file (`pkg.whl`) and install using
+`pip install pkg.whl`.
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/pyparsing-2.4.7-py2.py3-none-any.whl">pyparsing-2.4.7-py2.py3-none-any.whl</a></li>
@@ -174,6 +176,77 @@ __canvas__(dotFormat)
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 __canvas__(dotFormat)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Shapes
+
+<!--
+############
+"""
+digraph MyGraph {
+  a [shape=box,style=filled,color=red]
+  b [shape=polygon,sides=6]
+  c [shape=triangle]
+  d [shape=invtriangle]
+  e [shape=polygon,sides=4,skew=.5]
+  f [shape=polygon,sides=4,distortion=.5]
+  g [shape=diamond, ,style=striped,fillcolor="red:green:blue"]
+  h [shape=Mdiamond]
+  i [shape=Msquare,style=dashed]
+  j [peripheries=2,fontcolor=red]
+  k [style=doted,penwidth=3]
+  l [style=wedged]
+  m [style=diagonals, label="Vertex"]
+  a -- b [label="Arrow", fontcolor=green,fontsize=10]
+  b -> c
+  c -> d [dir=both]
+  a -> e [dir=both,arrowhead=open,arrowtail=inv]
+  e -> f [dir=both,arrowhead=dot,arrowtail=invdot]
+  f -> g [dir=both,arrowhead=odot,arrowtail=invodot]
+  g -> h [dir=both,arrowhead=tee,arrowtail=empty]
+  h -> i [dir=both,arrowhead=halfopen,arrowtail=crow]
+  i -> j [dir=both,arrowhead=diamond,arrowtail=box]
+  j -> k [color="black:red:blue", style=dotted]
+  k -> l [color="black:red;0.5:blue"]
+  l -> m [arrowsize=2, style=dashed]
+}
+"""
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+&quot;&quot;&quot;
+digraph MyGraph {
+  a [shape=box,style=filled,color=red]
+  b [shape=polygon,sides=6]
+  c [shape=triangle]
+  d [shape=invtriangle]
+  e [shape=polygon,sides=4,skew=.5]
+  f [shape=polygon,sides=4,distortion=.5]
+  g [shape=diamond, ,style=striped,fillcolor=&quot;red:green:blue&quot;]
+  h [shape=Mdiamond]
+  i [shape=Msquare,style=dashed]
+  j [peripheries=2,fontcolor=red]
+  k [style=doted,penwidth=3]
+  l [style=wedged]
+  m [style=diagonals, label=&quot;Vertex&quot;]
+  a -- b [label=&quot;Arrow&quot;, fontcolor=green,fontsize=10]
+  b -&gt; c
+  c -&gt; d [dir=both]
+  a -&gt; e [dir=both,arrowhead=open,arrowtail=inv]
+  e -&gt; f [dir=both,arrowhead=dot,arrowtail=invdot]
+  f -&gt; g [dir=both,arrowhead=odot,arrowtail=invodot]
+  g -&gt; h [dir=both,arrowhead=tee,arrowtail=empty]
+  h -&gt; i [dir=both,arrowhead=halfopen,arrowtail=crow]
+  i -&gt; j [dir=both,arrowhead=diamond,arrowtail=box]
+  j -&gt; k [color=&quot;black:red:blue&quot;, style=dotted]
+  k -&gt; l [color=&quot;black:red;0.5:blue&quot;]
+  l -&gt; m [arrowsize=2, style=dashed]
+}
+&quot;&quot;&quot;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

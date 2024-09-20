@@ -56,6 +56,38 @@ digraph G {
 
 __canvas__(dotFormat)
 
+# Shapes
+
+"""
+digraph MyGraph {
+  a [shape=box,style=filled,color=red]
+  b [shape=polygon,sides=6]
+  c [shape=triangle]
+  d [shape=invtriangle]
+  e [shape=polygon,sides=4,skew=.5]
+  f [shape=polygon,sides=4,distortion=.5]
+  g [shape=diamond, ,style=striped,fillcolor="red:green:blue"]
+  h [shape=Mdiamond]
+  i [shape=Msquare,style=dashed]
+  j [peripheries=2,fontcolor=red]
+  k [style=doted,penwidth=3]
+  l [style=wedged]
+  m [style=diagonals, label="Vertex"]
+  a -- b [label="Arrow", fontcolor=green,fontsize=10]
+  b -> c
+  c -> d [dir=both]
+  a -> e [dir=both,arrowhead=open,arrowtail=inv]
+  e -> f [dir=both,arrowhead=dot,arrowtail=invdot]
+  f -> g [dir=both,arrowhead=odot,arrowtail=invodot]
+  g -> h [dir=both,arrowhead=tee,arrowtail=empty]
+  h -> i [dir=both,arrowhead=halfopen,arrowtail=crow]
+  i -> j [dir=both,arrowhead=diamond,arrowtail=box]
+  j -> k [color="black:red:blue", style=dotted]
+  k -> l [color="black:red;0.5:blue"]
+  l -> m [arrowsize=2, style=dashed]
+}
+"""
+
 # derivation tree
 
 derivation_tree = ("<start>",
