@@ -199,7 +199,7 @@ digraph MyGraph {
   k [style=doted,penwidth=3]
   l [style=wedged]
   m [style=diagonals, label="Vertex"]
-  a -- b [label="Arrow", fontcolor=green,fontsize=10]
+  a -> b [label="Arrow", fontcolor=green,fontsize=10]
   b -> c
   c -> d [dir=both]
   a -> e [dir=both,arrowhead=open,arrowtail=inv]
@@ -232,7 +232,7 @@ digraph MyGraph {
   k [style=doted,penwidth=3]
   l [style=wedged]
   m [style=diagonals, label=&quot;Vertex&quot;]
-  a -- b [label=&quot;Arrow&quot;, fontcolor=green,fontsize=10]
+  a -&gt; b [label=&quot;Arrow&quot;, fontcolor=green,fontsize=10]
   b -&gt; c
   c -&gt; d [dir=both]
   a -&gt; e [dir=both,arrowhead=open,arrowtail=inv]
