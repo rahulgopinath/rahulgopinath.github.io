@@ -66,7 +66,7 @@ digraph MyGraph {
   d [shape=invtriangle]
   e [shape=polygon,sides=4,skew=.5]
   f [shape=polygon,sides=4,distortion=.5]
-  g [shape=diamond, ,style=striped,fillcolor="red:green:blue"]
+  g [shape=diamond,style=striped,fillcolor="red:green:blue"]
   h [shape=Mdiamond]
   i [shape=Msquare,style=dashed]
   j [peripheries=2,fontcolor=red]
@@ -87,7 +87,6 @@ digraph MyGraph {
   l -> m [arrowsize=2, style=dashed]
 }
 """
-# draw
 __canvas__(dotFormat)
 
 # Another

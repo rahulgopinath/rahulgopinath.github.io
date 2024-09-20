@@ -192,7 +192,7 @@ digraph MyGraph {
   d [shape=invtriangle]
   e [shape=polygon,sides=4,skew=.5]
   f [shape=polygon,sides=4,distortion=.5]
-  g [shape=diamond, ,style=striped,fillcolor="red:green:blue"]
+  g [shape=diamond,style=striped,fillcolor="red:green:blue"]
   h [shape=Mdiamond]
   i [shape=Msquare,style=dashed]
   j [peripheries=2,fontcolor=red]
@@ -213,6 +213,8 @@ digraph MyGraph {
   l -> m [arrowsize=2, style=dashed]
 }
 """
+__canvas__(dotFormat)
+
 ############
 -->
 <form name='python_run_form'>
@@ -225,7 +227,7 @@ digraph MyGraph {
   d [shape=invtriangle]
   e [shape=polygon,sides=4,skew=.5]
   f [shape=polygon,sides=4,distortion=.5]
-  g [shape=diamond, ,style=striped,fillcolor=&quot;red:green:blue&quot;]
+  g [shape=diamond,style=striped,fillcolor=&quot;red:green:blue&quot;]
   h [shape=Mdiamond]
   i [shape=Msquare,style=dashed]
   j [peripheries=2,fontcolor=red]
@@ -246,20 +248,6 @@ digraph MyGraph {
   l -&gt; m [arrowsize=2, style=dashed]
 }
 &quot;&quot;&quot;
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-draw
-
-<!--
-############
-__canvas__(dotFormat)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
 __canvas__(dotFormat)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
