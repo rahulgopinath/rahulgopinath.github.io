@@ -74,7 +74,7 @@ digraph MyGraph {
   l [style=wedged]
   m [style=diagonals, label="Vertex"]
   a -> b [label="Arrow", fontcolor=green,fontsize=10]
-  b -> c
+  b -> c [dir=none]
   c -> d [dir=both]
   a -> e [dir=both,arrowhead=open,arrowtail=inv]
   e -> f [dir=both,arrowhead=dot,arrowtail=invdot]
