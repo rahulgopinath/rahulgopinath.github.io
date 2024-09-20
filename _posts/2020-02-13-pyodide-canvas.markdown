@@ -184,7 +184,7 @@ Shapes
 
 <!--
 ############
-"""
+dotFormat = """
 digraph MyGraph {
   a [shape=box,style=filled,color=red]
   b [shape=polygon,sides=6]
@@ -213,12 +213,11 @@ digraph MyGraph {
   l -> m [arrowsize=2, style=dashed]
 }
 """
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-&quot;&quot;&quot;
+dotFormat = &quot;&quot;&quot;
 digraph MyGraph {
   a [shape=box,style=filled,color=red]
   b [shape=polygon,sides=6]
@@ -247,6 +246,85 @@ digraph MyGraph {
   l -&gt; m [arrowsize=2, style=dashed]
 }
 &quot;&quot;&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+draw
+
+<!--
+############
+__canvas__(dotFormat)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+__canvas__(dotFormat)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another
+
+<!--
+############
+dotFormat = """
+digraph MyGraph {
+  subgraph cluster_A {
+    a1
+    a2
+    a3
+    {rank=same;a1;a2;a3}
+  }
+
+  subgraph cluster_B {
+    b1
+    b2
+    b3
+
+    {rank=same;b1;b2;b3}
+  }
+
+  begin -> a1
+  a1 -> a2 [constraint=false]
+  a2 -> a3 [constraint=false]
+  a3 -> b1
+  b1 -> b2
+  b2 -> b3
+}
+"""
+__canvas__(dotFormat)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dotFormat = &quot;&quot;&quot;
+digraph MyGraph {
+  subgraph cluster_A {
+    a1
+    a2
+    a3
+    {rank=same;a1;a2;a3}
+  }
+
+  subgraph cluster_B {
+    b1
+    b2
+    b3
+
+    {rank=same;b1;b2;b3}
+  }
+
+  begin -&gt; a1
+  a1 -&gt; a2 [constraint=false]
+  a2 -&gt; a3 [constraint=false]
+  a3 -&gt; b1
+  b1 -&gt; b2
+  b2 -&gt; b3
+}
+&quot;&quot;&quot;
+__canvas__(dotFormat)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

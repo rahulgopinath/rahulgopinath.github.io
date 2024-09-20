@@ -58,7 +58,7 @@ __canvas__(dotFormat)
 
 # Shapes
 
-"""
+dotFormat = """
 digraph MyGraph {
   a [shape=box,style=filled,color=red]
   b [shape=polygon,sides=6]
@@ -87,7 +87,36 @@ digraph MyGraph {
   l -> m [arrowsize=2, style=dashed]
 }
 """
+# draw
+__canvas__(dotFormat)
 
+# Another
+dotFormat = """
+digraph MyGraph {
+  subgraph cluster_A {
+    a1
+    a2
+    a3
+    {rank=same;a1;a2;a3}
+  }
+
+  subgraph cluster_B {
+    b1
+    b2
+    b3
+
+    {rank=same;b1;b2;b3}
+  }
+
+  begin -> a1
+  a1 -> a2 [constraint=false]
+  a2 -> a3 [constraint=false]
+  a3 -> b1
+  b1 -> b2
+  b2 -> b3
+}
+"""
+__canvas__(dotFormat)
 # derivation tree
 
 derivation_tree = ("<start>",
