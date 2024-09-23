@@ -16,7 +16,11 @@
 # An LR parser is a bottom-up parser. The *L* stands for scanning the input
 # left-to-right, and the *R* stands for constructing a rightmost derivation.
 # This contrasts with LL parsers which are again left-to-right but construct
-# the leftmost derivation.
+# the leftmost derivation. It is a shift reduce parser because the operation
+# of the parser is to repeatedly shift an input symbol (left-to-right) into
+# the stack, and to match the current stack with some production rule based
+# on the length of the production rule, and if it matches, reduce the symbols on
+# the top of the stack to the head of the production rule.
 
 
 # ### Prerequisites
@@ -72,115 +76,134 @@ paren_g = {
 # recognized so far. This recognition is accomplished by the LR automaton,
 # which we describe next.
 # 
-# But before that, let us start slow. If we are going for a naive translation
+# But before that, let us start slow. Let us consider the following grammar
+# 
+# ```
+# E -> ( D + E )
+# E -> D
+# D -> 1
+# ```
+
+# Let us also introduce an augmented rule
+# 
+# ```
+# S` -> E
+# ```
+#  
+# If we are going for a naive translation
 # of the grammar into an automata, this is what we could do. That is, we start
 # with the starting production rule
-# `S' -> S`. Since we are starting to parse, let us indicate the parse point
-# also, which would be before `S` is parsed. That is, `S' -> .S`. The period
-# represents the current parse point. If we somehow parsed `S` now, then we
-# would transition to an accept state. This is represented by `S' -> S.`.
+# `S' -> E`. Since we are starting to parse, let us indicate the parse point
+# also, which would be before `E` is parsed. That is, `S' -> .E`. The period
+# represents the current parse point. If we somehow parsed `E` now, then we
+# would transition to an accept state. This is represented by `S' -> E.`.
 # However, since the transition is a nonterminal, it can't happen by reading
-# the corresponding symbol `S` from the input stream. It has to happen through
+# the corresponding symbol `E` from the input stream. It has to happen through
 # another path. Hence, we indicate this by a dashed line. Next, when the parse
-# is at `S' -> .S`, any of the expansions of `S` can now be parsed. So, we add
-# each expansion of `S` as $$\epsilon$$ transition away. These are
-# `S := . a A c` and `S := . b A d d`. Continuing in this fashion, we have: 
+# is at `S' -> .E`, any of the expansions of `E` can now be parsed. So, we add
+# each expansion of `E` as $$\epsilon$$ transition away. These are
+# `E := . ( D + E )` and `E := . D`. Continuing in this fashion, we have: 
 
 if __name__ == '__main__':
     __canvas__('''
-    digraph NFA {
+    digraph LR0_Automaton {
      rankdir=TB;
      node [shape = rectangle];
      start [shape = point];
-     
      // States
-     S0 [label = "S' := . S"];
-     SF [label = "S' := S .", shape = doublecircle];
-     S1 [label = "S := . a A c"];
-     S2 [label = "S := . b A d d"];
-     S3 [label = "S := a . A c"];
-     S4 [label = "S := a A . c"];
-     S5 [label = "S := a A c ."];
-     S6 [label = "S := b . A d d"];
-     S7 [label = "S := b A . d d"];
-     S8 [label = "S := b A d . d"];
-     S9 [label = "S := b A d d ."];
-     A1 [label = "A := . b"];
-     A2 [label = "A := b ."];
-     
+     0 [label = "0: S' -> . E $"];
+     1 [label = "1: E -> . ( D + E )"];
+     2 [label = "2: E -> . D"];
+     3 [label = "3: D -> . 1"];
+     4 [label = "4: S' -> E . $"];
+     5 [label = "5: E -> ( . D + E )"];
+     6 [label = "6: D -> 1 ."];
+     7 [label = "7: E -> D ."];
+     8 [label = "8: E -> ( D . + E )"];
+     9 [label = "9: E -> ( D + . E )"];
+     10 [label = "10: E -> ( D + E . )"];
+     11 [label = "11: E -> ( D + E ) ."];
+     12 [label = "12: S' -> E $ ."];
      // Regular transitions
-     start -> S0;
-     S0 -> S1 [label = "ε"];
-     S0 -> S2 [label = "ε"];
-     S1 -> S3 [label = "a"];
-     S3 -> A1 [label = "ε"];
-     S4 -> S5 [label = "c"];
-     S2 -> S6 [label = "b"];
-     S6 -> A1 [label = "ε"];
-     S7 -> S8 [label = "d"];
-     S8 -> S9 [label = "d"];
-     A1 -> A2 [label = "b"];
-     
+     start -> 0;
+     0 -> 1 [label = "ε"];
+     0 -> 2 [label = "ε"];
+     0 -> 3 [label = "ε"];
+     1 -> 5 [label = "("];
+     2 -> 3 [label = "ε"];
+     3 -> 6 [label = "1"];
+     5 -> 3 [label = "ε"];
+     8 -> 9 [label = "+"];
+     9 -> 1 [label = "ε"];
+     9 -> 2 [label = "ε"];
+     9 -> 3 [label = "ε"];
+     10 -> 11 [label = ")"];
+     4 -> 12 [label = "$"];
      // Nonterminal transitions (dashed)
      edge [style = dashed];
-     S0 -> SF [label = "S"];
-     S3 -> S4 [label = "A"];
-     S6 -> S7 [label = "A"];
-    }''')
+     0 -> 4 [label = "E"];
+     2 -> 7 [label = "D"];
+     5 -> 8 [label = "D"];
+     9 -> 10 [label = "E"];
+    }
+    ''')
 
-# Notice that this NFA is not complete. For example, what happens when `A := b .`
+# Notice that this NFA is not complete. For example, what happens when `D := 1 .`
 # is complete? Then, the parse needs to transition to a state that has just
-# completed `A`. For example, `S := a A . c` or `S := b A . d d`. Here is how
+# completed `D`. For example, `E := ( D . + E )` or `E := D .`. Here is how
 # it looks like.
 
 if __name__ == '__main__':
    __canvas__('''
-   digraph NFA {
+    digraph LR0_Automaton {
      rankdir=TB;
      node [shape = rectangle];
      start [shape = point];
-     
      // States
-     S0 [label = "S' := . S"];
-     SF [label = "S' := S .", shape = doublecircle];
-     S1 [label = "S := . a A c"];
-     S2 [label = "S := . b A d d"];
-     S3 [label = "S := a . A c"];
-     S4 [label = "S := a A . c"];
-     S5 [label = "S := a A c ."];
-     S6 [label = "S := b . A d d"];
-     S7 [label = "S := b A . d d"];
-     S8 [label = "S := b A d . d"];
-     S9 [label = "S := b A d d ."];
-     A1 [label = "A := . b"];
-     A2 [label = "A := b ."];
-     
+     0 [label = "0: S' -> . E"];
+     1 [label = "1: E -> . ( D + E )"];
+     2 [label = "2: E -> . D"];
+     3 [label = "3: D -> . 1"];
+     4 [label = "4: S' -> E . $"];
+     5 [label = "5: E -> ( . D + E )"];
+     6 [label = "6: D -> 1 ."];
+     7 [label = "7: E -> D ."];
+     8 [label = "8: E -> ( D . + E )"];
+     9 [label = "9: E -> ( D + . E )"];
+     10 [label = "10: E -> ( D + E . )"];
+     11 [label = "11: E -> ( D + E ) ."];
+     12 [label = "12: S' -> E $ ."];
      // Regular transitions
-     start -> S0;
-     S0 -> S1 [label = "ε"];
-     S0 -> S2 [label = "ε"];
-     S1 -> S3 [label = "a"];
-     S3 -> A1 [label = "ε"];
-     S4 -> S5 [label = "c"];
-     S2 -> S6 [label = "b"];
-     S6 -> A1 [label = "ε"];
-     S7 -> S8 [label = "d"];
-     S8 -> S9 [label = "d"];
-     A1 -> A2 [label = "b"];
-     
+     start -> 0;
+     0 -> 1 [label = "ε"];
+     0 -> 2 [label = "ε"];
+     0 -> 3 [label = "ε"];
+     1 -> 5 [label = "("];
+     2 -> 3 [label = "ε"];
+     3 -> 6 [label = "1"];
+     5 -> 3 [label = "ε"];
+     8 -> 9 [label = "+"];
+     9 -> 1 [label = "ε"];
+     9 -> 2 [label = "ε"];
+     9 -> 3 [label = "ε"];
+     10 -> 11 [label = ")"];
+     4 -> 12 [label = "$"];
      // Nonterminal transitions (dashed)
      edge [style = dashed];
-     S0 -> SF [label = "S"];
-     S3 -> S4 [label = "A"];
-     S6 -> S7 [label = "A"];
-     
+     0 -> 4 [label = "E"];
+     2 -> 7 [label = "D"];
+     5 -> 8 [label = "D"];
+     9 -> 10 [label = "E"];
      // Red arrows for completed rules
-     edge [color = red, constraint = false, style = solid];
-     A2 -> S4 [label = "completion"];
-     A2 -> S7 [label = "completion"];
-     S5 -> SF [label = "completion"];
-     S9 -> SF [label = "completion"];
-    }''')
+     edge [color = red, style = solid, constraint=false];
+     6 -> 7 [label = "completion"];
+     6 -> 8 [label = "completion"];  // Added this line
+     11 -> 4 [label = "completion"];
+     11 -> 10 [label = "completion"];
+     7 -> 10 [label = "completion"];
+     7 -> 4 [label = "completion"];
+    }
+    ''')
 
 # As before, the dashed arrows represent non-terminal transitions that are
 # actually completed through other paths. The red arrows represent reductions.
@@ -201,29 +224,15 @@ def add_start_state(g, start, new_start='<>'):
     new_g[new_start] = [[start, '$']]
     return new_g, new_start
 
-# Two sample grammars.
+# A sample grammar.
 g1 = {
-    '<S>': [
-          ['<A>', '<B>'],
-          ['<C>']],
-   '<A>': [
-        ['a']],
-   '<B>': [
-        ['b']],
-   '<C>': [
-        ['c']],
+   '<E>': [
+        ['(', '<D>', '+', '<E>', ')'],
+        ['<D>']],
+   '<D>': [
+        ['1']]
 }
-g1_start = '<S>'
-
-sample_grammar = {
-    '<start>': [['<A>','<B>']],
-    '<A>': [['a', '<B>', 'c'], ['a', '<A>']],
-    '<B>': [['b', '<C>'], ['<D>']],
-    '<C>': [['c']],
-    '<D>': [['d']]
-}
-
-sample_start = '<S>'
+g1_start = '<E>'
 
 # Test
 if __name__ == '__main__':
@@ -283,7 +292,7 @@ class State:
 
 # It can be tested this way
 if __name__ == '__main__':
-    s = State('<S`>', ('<S>',), 0, 0)
+    s = State(g1a_start, ('<E>',), 0, 0)
     print(s.at_dot())
     print(str(s))
     print(s.finished())
@@ -341,39 +350,22 @@ class NFA(NFA):
         return self.my_states[(name, texpr, pos)]
 
 # Let us test this.
-# Here is a  grammar.
-#  
-# ```
-#  <S`> := <S>
-#  <S>  := 'a' <A> 'c'
-#        | 'b' '<A>' 'd' 'd'
-#  <A>  := 'b'
-# ```
-# Equivalently, we have
-
-S_g = {'<S>': [ ['a', '<A>', 'c'],
-                 ['b', '<A>', 'd', 'd']],
-        '<A>': [ ['b']]}
-S_s = '<S>'
-
 # We can list the grammar production rules as follows:
 if __name__ == '__main__':
-    S_g1, S_s1 = add_start_state(S_g, S_s)
     i = 1
-    for k in S_g:
-        for r in S_g[k]:
+    for k in g1a:
+        for r in g1a[k]:
             print(i, k, r)
             i+=1
 
 # Let us use the grammar.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
-    st = my_nfa.create_start(S_s1)
-    assert str(st[0]) == '<>::= | <S> $'
+    my_nfa = NFA(g1a, g1a_start)
+    st = my_nfa.create_start(g1a_start)
+    assert str(st[0]) == '<>::= | <E> $'
     my_nfa = NFA(g1, g1_start)
     st = my_nfa.create_start(g1_start)
-    assert str(st[0]) == '<S>::= | <A> <B>'
-    assert str(st[1]) == '<S>::= | <C>'
+    assert str(st[0]) == '<E>::= | ( <D> + <E> )'
 
 # #### Advance the state of parse by one token
 class NFA(NFA):
@@ -382,15 +374,14 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
-    st_ = my_nfa.create_start(S_s1)
+    my_nfa = NFA(g1a, g1a_start)
+    st_ = my_nfa.create_start(g1a_start)
     st = my_nfa.advance(st_[0])
-    assert str(st) == '<>::= <S> | $'
+    assert str(st) == '<>::= <E> | $'
     my_nfa = NFA(g1, g1_start)
     st_ = my_nfa.create_start(g1_start)
     st = [my_nfa.advance(s) for s in st_]
-    assert str(st[0]) == '<S>::= <A> | <B>'
-    assert str(st[1]) == '<S>::= <C> |'
+    assert str(st[0]) == '<E>::= ( | <D> + <E> )'
 
 # #### NFA find_transitions
 # Next, given a state, we need to find all other states reachable from it.
@@ -464,12 +455,11 @@ class NFA(NFA):
 # Let us test this.
 
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
-    st = my_nfa.create_start(S_s1)
+    my_nfa = NFA(g1a, g1a_start)
+    st = my_nfa.create_start(g1a_start)
     new_st = my_nfa.find_transitions(st[0])
-    assert str(new_st[0]) == "('<S>', (<>::= <S> | $ : 1))"
-    assert str(new_st[1]) == "('', (<S>::= | a <A> c : 2))"
-    assert str(new_st[2]) == "('', (<S>::= | b <A> d d : 3))"
+    assert str(new_st[0]) == "('<E>', (<>::= <E> | $ : 1))"
+    assert str(new_st[1]) == "('', (<E>::= | ( <D> + <E> ) : 2))"
 
 
 # Defining a utility method. This is only used to display the graph.
@@ -490,9 +480,9 @@ class NFA(NFA):
 
 # Let us test this.
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
-    lst = my_nfa.get_all_rules_with_dot_after_key('<A>')
-    assert str(lst) == '[(<S>::= a <A> | c : 0), (<S>::= b <A> | d d : 1)]'
+    my_nfa = NFA(g1a, g1a_start)
+    lst = my_nfa.get_all_rules_with_dot_after_key('<D>')
+    assert str(lst) == '[(<E>::= ( <D> | + <E> ) : 0), (<E>::= <D> | : 1)]'
 
 # #### NFA build_nfa
 # We can now build the complete NFA.
@@ -571,7 +561,7 @@ class NFA(NFA):
 # Testing the build_nfa
 
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
+    my_nfa = NFA(g1a, g1a_start)
     table = my_nfa.build_nfa()
     rowh = table[0]
     print('>', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -583,22 +573,27 @@ if __name__ == '__main__':
 # To display the NFA (and DFAs) we need a graph. We construct this out of the
 # table we built previously.
 
-def to_graph(table):
+def to_graph(table, lookup=lambda y: str(y)):
     G = pydot.Dot("my_graph", graph_type="digraph")
     for i, state in enumerate(table):
         # 0: a:s2 means on s0, on transition with a, it goes to state s2
         shape = 'rectangle'# rectangle, oval, diamond
-        label = str(i)
+        peripheries = '1'# rectangle, oval, diamond
+        nodename = str(i)
+        label = lookup(i)
         # if the state contains 'accept', then it is an accept state.
         for k in state:
-            if  'accept' in state[k]: shape='doublecircle'
-        G.add_node(pydot.Node(label, label=label, shape=shape, peripheries='1'))
-            #peripheries= '2' if i == root else '1')
+            if  'accept' in state[k]: peripheries='2'
+        G.add_node(pydot.Node(nodename,
+                              label=label,
+                              shape=shape,
+                              peripheries=peripheries))
         for transition in state:
             cell = state[transition]
             if not cell: continue
             color = 'black'
             style='solid'
+            if not transition: transition = "ε"
             for state_name in cell:
                 # state_name = cell[0]
                 transition_prefix = ''
@@ -606,7 +601,7 @@ def to_graph(table):
                     continue
                 elif state_name[0] == 'g':
                     color='blue'
-                    transition_prefix = '(g) '
+                    transition_prefix = '' # '(g) '
                     style='dashed'
                 elif state_name[0] == 'r':
                     # reduction is not a state transition.
@@ -614,12 +609,13 @@ def to_graph(table):
                     # transition_prefix = '(r) '
                     continue
                 elif state_name[0] == 't':
-                    color='green'
-                    transition_prefix = '(t) '
+                    color='red'
+                    transition = ''
+                    transition_prefix = '' # '(t) '
                 else:
                     assert state_name[0] == 's'
-                    transition_prefix = '(s) '
-                G.add_edge(pydot.Edge(label,
+                    transition_prefix = '' #'(s) '
+                G.add_edge(pydot.Edge(nodename,
                           state_name[1:],
                           color=color,
                           style=style,
@@ -628,11 +624,13 @@ def to_graph(table):
 
 # Viewing the NFA
 if __name__ == '__main__':
-    my_nfa = NFA(S_g1, S_s1)
+    my_nfa = NFA(g1a, g1a_start)
     table = my_nfa.build_nfa()
     for k in my_nfa.state_sids:
       print(k, my_nfa.state_sids[k])
-    g = to_graph(table)
+    def lookup(i):
+        return str(i) + ": "+ str(my_nfa.state_sids[i])
+    g = to_graph(table, lookup)
     __canvas__(str(g))
 
 # # LR0 Automata
@@ -656,26 +654,22 @@ if __name__ == '__main__':
 # For example, given the first state, where `*` represent the parse progress
 #
 # ```
-# <S`> := * <S>
+# <S`> := * <E>
 # ```
-# Applying closure, we expand `<S>` further.
+# Applying closure, we expand `<E>` further.
 #
 # ```
-# <S`> := * <S>
-# <S>  := * a <A> c
-# <S>  := * b <A> d d
+# <S`> := * <E>
+# <E>  := * ( <D> + <E> )
+# <D>  := * 1
 # ```
 # No more nonterminals to expand. Hence, this is the closure of the first state.
 #
-# Consider what happens when we apply a transition of `a` to this state.
+# Consider what happens when we apply a transition of `(` to this state.
 #
 # ```
-# <S> := a * A c
-# ```
-# Now, we apply closure
-# ```
-# <S> := a * A c
-# <A> := * b
+# <E> := ( * <D> + <E> )
+# <D> := * 1
 # ```
 #
 # This gives us the following graph with each closure, and the transitions indicated. Note that
@@ -683,48 +677,40 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     __canvas__('''
-    digraph ParsingAutomaton {
-    rankdir=TB;
+    digraph my_graph {
+    0 [label="0\n<>::= . <E> $\n<E>::= . ( <D> + <E> )\n<E>::= . <D>\n<D>::= . 1", peripheries=1, shape=rectangle];
+    1 [label="1\n<E>::= ( . <D> + <E> )\n<D>::= . 1", peripheries=1, shape=rectangle];
+    2 [label="2\n<D>::= 1 .", peripheries=1, shape=rectangle];
+    3 [label="3\n<E>::= <D> .", peripheries=1, shape=rectangle];
+    4 [label="4\n<>::= <E> . $", peripheries=1, shape=rectangle];
+    5 [label="5\n<E>::= ( <D> . + <E> )", peripheries=1, shape=rectangle];
+    6 [label="6\n<>::= <E> $ .", peripheries=1, shape=rectangle];
+    7 [label="7\n<E>::= ( <D> + . <E> )\n<E>::= . ( <D> + <E> )\n<E>::= . <D>\n<D>::= . 1", peripheries=1, shape=rectangle];
+    8 [label="8\n<E>::= ( <D> + <E> . )", peripheries=1, shape=rectangle];
+    9 [label="9\n<E>::= ( <D> + <E> ) .", peripheries=1, shape=rectangle];
 
-    // Node definitions with labels
-    node [shape=rectangle];
+    0 -> 1  [color=black, label="(s) (", style=solid];
+    0 -> 2  [color=black, label="(s) 1", style=solid];
+    0 -> 3  [color=blue, label="(g) <D>", style=dashed];
+    0 -> 4  [color=blue, label="(g) <E>", style=dashed];
+    1 -> 2  [color=black, label="(s) 1", style=solid];
+    1 -> 5  [color=blue, label="(g) <D>", style=dashed];
+    2 -> 3  [color=red, label="(t) ", style=solid];
+    2 -> 5  [color=red, label="(t) ", style=solid];
+    3 -> 4  [color=red, label="(t) ", style=solid];
+    4 -> 6  [color=black, label="(s) $", style=solid];
+    5 -> 7  [color=black, label="(s) +", style=solid];
 
-    // State definitions with reduction instructions
-    0 [label="I0:\nS' → • S\nS → • a A c\nS → • b A d d"];
-    1 [label="I1:\nS' → S •\n[Accept]"];
-    2 [label="I2:\nS → a • A c\nA → • b"];
-    3 [label="I3:\nS → b • A d d\nA → • b"];
-    4 [label="I4:\nS → a A • c"];
-    5 [label="I5:\nA → b •"];
-    6 [label="I6:\nS → b A • d d"];
-    7 [label="I7:\nS → a A c •"];
-    8 [label="I8:\nS → b A d • d"];
-    9 [label="I9:\nS → b A d d •"];
+    7 -> 1  [color=black, label="(s) (", style=solid];
+    7 -> 2  [color=black, label="(s) 1", style=solid];
+    7 -> 3  [color=blue, label="(g) <D>", style=dashed];
+    7 -> 8  [color=blue, label="(g) <E>", style=dashed];
+    8 -> 9  [color=black, label="(s) )", style=solid];
+    9 -> 4  [color=red, label="(t) ", style=solid];
+    9 -> 8  [color=red, label="(t) ", style=solid];
+    }
 
-    // Edge definitions with labels
-    0 -> 2 [label="a"];
-    0 -> 3 [label="b"];
-    0 -> 1 [label="S", style=dashed];
-
-    2 -> 5 [label="b"];
-    2 -> 4 [label="A", style=dashed];
-
-    3 -> 5 [label="b"];
-    3 -> 6 [label="A", style=dashed];
-
-    4 -> 7 [label="c"];
-
-    5 -> 4 [label="A", color=red]; // GOTO after reduction in state 5
-    5 -> 6 [label="A", color=red]; // GOTO after reduction in state 5
-
-    6 -> 8 [label="d"];
-
-    7 -> 1 [label="S", color=red]; // GOTO after reduction in state 7
-
-    8 -> 9 [label="d"];
-
-    9 -> 1 [label="S", color=red]; // GOTO after reduction in state 9
-    }''')
+               ''')
 
 # This is the basic automaton. However, you may notice that there are two types
 # of nodes in this diagram. The first one represents partial parses which
@@ -734,114 +720,138 @@ if __name__ == '__main__':
 # at least in one, multiple red outgoing arrows. That is, it is not a true
 # DFA. The next state to transition to is actually chosen based on the path
 # the input string took through the DFA with the help of a stack.
-# Let us now represent these states step by step.
 
-# ### Compiled DFA States
-#
-# #### State 0
-# This is the initial state. It transitions into State 2 or State 3 based
-# on the input symbol. Note that we save the current state in the stack
-# before transitioning to the next state after consuming one token.
+# ### Compiling DFA States
+# So, how should we represent these states? If you look at state 0, it would
+# be possible to represent it as a procedure as below. We first save in to the
+# stack the current state, then extract the current symbol, and depending on
+# whether the symbol is one of the expected, we shift to the next state.
+# Note that we ignore the blue dashed arrows (nonterminal symbols) because
+# they were included just to indicate that the transition happens by another
+# path. Another note is that each state represents one row of the automation
+# table.
 
+# ```
+# <>::= . <E> $
+# <E>::= . ( <D> + <E> ) 
+# <E>::= . <D> 
+# <D>::= . 1
+# ```
 def state_0(stack, input_string):
-    rule = ['S`', ['S'], 0]
     stack.append(0)
     symbol = input_string[0]
-    if symbol == 'a': return state_2(stack, input_string[1:])
-    elif symbol == 'b': return state_3(stack, input_string[1:])
-    else: raise Exception("Expected 'a' or 'b'")
+    if symbol == '(': return state_1(stack, input_string[1:])
+    elif symbol == '1': return state_2(stack, input_string[1:])
+    else: raise Exception("Expected '(' or '1'")
 
-# #### State 1
-# This is the acceptor state.
+# ```
+# <E>::= ( . <D> + <E> )
+# <D>::= . 1
+# ```
+
 def state_1(stack, input_string):
-    rule = ['S`', ['S'], 1]
     stack.append(1)
     symbol = input_string[0]
-    if symbol == '$': print("Input accepted.")
-    else: raise Exception("Expected end of input")
+    if symbol == '1': return state_2(stack, input_string[1:])
+    else: raise Exception("Expected '1'")
 
-# #### State 2
-# State 2 which is the production rule `S -> a . A c` just after consuming `a`.
-# We need `b` to transition to State 5 which represents a production rule of A.
+# ```
+# <D>::= 1 .
+# ```
+# This is the first reduction state. In a reduction state, what we do is to
+# look at the stack if the corresponding rule was popped off the stack.
+# From a reduction state, we can transition to any state that has just
+# parsed the RHS (head) of the reduction.
 def state_2(stack, input_string):
-    rule = ['S', ['a', 'A', 'c'], 1]
     stack.append(2)
-    symbol = input_string[0]
-    if symbol == 'b': return state_5(stack, input_string[1:])
-    else: raise Exception("Expected 'b'")
+    len_rule_rhs = 1 # D ::= 1
+    for _ in range(len_rule_rhs): stack.pop()
+    if stack[-1] == 0: return state_3(stack, input_string) # state0-<D>->state3
+    if stack[-1] == 1: return state_5(stack, input_string) # state1-<D>->state5
+    if stack[-1] == 7: return state_3(stack, input_string) # state7-<D>->state3
+    else: raise Exception("Invalid state during reduction by D → 1")
 
-# #### State 3
-# State 3 which is the production rule `S -> b . A d d` just after consuming `b`.
+# ```
+# <E>::= <D> .
+# ```
 def state_3(stack, input_string):
-    rule = ['S', ['b', 'A', 'd', 'd'], 1]
     stack.append(3)
-    symbol = input_string[0]
-    if symbol == 'b': return state_5(stack, input_string[1:])
-    else: raise Exception("Expected 'b'")
+    len_rule_rhs = 1 # E ::= D
+    for _ in range(len_rule_rhs): stack.pop()
+    if stack[-1] == 0: return state_4(stack, input_string) # state0-<E>->state4
+    if stack[-1] == 7: return state_8(stack, input_string) # state7-<E>->state8
+    else: raise Exception("Invalid state during reduction by E → D")
 
-# #### State 4
-# State 4 which is the production rule `S -> a A . c` just after consuming `a`.
+# ```
+# <>::= <E> . $
+# ```
+
 def state_4(stack, input_string):
-    rule = ['S', ['a', 'A', 'c'], 2]
     stack.append(4)
     symbol = input_string[0]
-    if symbol == 'c': return state_7(stack, input_string[1:])
-    else: raise Exception("Expected 'c'")
+    if symbol == '$': return state_6(stack, input_string[1:])
+    else: raise Exception("Expected '$'")
 
-# #### State 5
-# State 5 which is the production rule `A -> b .`. That is, it has completed
-# parsing A, and now needs to decide which state to transition to. This is
-# decided by what was in the stack before. We simply pop off as many symbols
-# as there are tokens in the RHS of the production rule, and check the
-# remaining top symbol.
+# ```
+# <E>::= ( <D> . + <E> )
+# ```
+
 def state_5(stack, input_string):
     stack.append(5)
-    rule = ['A', ['b']]
-    for _ in range(len(rule[1])): stack.pop()  # Pop state 'b', 5
-    if stack[-1] == 2: return state_4(stack, input_string)
-    elif stack[-1] == 3: return state_6(stack, input_string)
-    else: raise Exception(position, "Invalid state during reduction by A → b")
+    symbol = input_string[0]
+    if symbol == '+': return state_7(stack, input_string[1:])
+    else: raise Exception("Expected '+'")
 
-# #### State 6
-# State 6 `S -> b A . d d`
+# ```
+# <>::= <E> $ .
+# ```
 def state_6(stack, input_string):
     stack.append(6)
-    rule = ['S', ['b', 'A', 'd', 'd'], 2]
-    symbol = input_string[0]
-    if symbol == 'd': return state_8(stack, input_string[1:])
-    else: raise Exception("Expected 'd'")
+    len_rule_rhs = 2 # <> ::= E $
+    for _ in range(len_rule_rhs): stack.pop()
+    if stack[-1] == 0:
+        if input_string: raise Exception('Expected end of input')
+        return True # Accept
+    else: raise Exception("Invalid state during reduction by <> → E $")
 
-# #### State 7
-# State 7 is a reduction rule `S -> a A c .`
+# ```
+# <E>::= ( <D> + . <E> ) 
+# <E>::= . ( <D> + <E> ) 
+# <E>::= . <D>
+# <D>::= . 1
+# ```
+
 def state_7(stack, input_string):
     stack.append(7)
-    rule = ['S', ['a', 'A', 'c'], 3]
-    for _ in range(len(rule[1])): stack.pop() # Pop 'c', 7; 'A', 4; 'a', 2
+    symbol = input_string[0]
+    if symbol == '(': return state_1(stack, input_string[1:])
+    if symbol == '1': return state_2(stack, input_string[1:])
+    else: raise Exception("Expected '(' or '1'")
 
-    if stack[-1] == 0: return state_1(stack, input_string)
-    else: raise Exception("Invalid state during reduction by S → a A c")
+# ```
+# <E>::= ( <D> + <E> . )
+# ```
 
-# #### State 8
-# State 8 `S -> b A d . d`
 def state_8(stack, input_string):
-    rule = ['S', ['b', 'A', 'd', 'd'], 3]
     stack.append(8)
     symbol = input_string[0]
-    if symbol == 'd': return state_9(stack, input_string[1:])
-    else: raise Exception("Expected 'd'")
+    if symbol == ')': return state_9(stack, input_string[1:])
+    else: raise Exception("Expected ')'")
 
-# #### State 9
-# State 9 is a reduction rule `S -> b A d d .`
+# ```
+# <E>::= ( <D> + <E> ) .
+# ```
+
 def state_9(stack, input_string):
     stack.append(9)
-    rule = ['S', ['b', 'A', 'd', 'd']]
-    for _ in range(len(rule[1])): stack.pop() # Pop 'd', 9; 'd', 8; 'A', 6; 'b', 3
-    if stack[-1] == 0: return state_1(stack, input_string)
-    else: raise Exception("Invalid state during reduction by S → b A d d")
+    len_rule_rhs = 5 # E ::= ( D + E )
+    for _ in range(len_rule_rhs): stack.pop()
+    if stack[-1] == 0: return state_4(stack, input_string) # state0-<E>->state4
+    else: raise Exception("Invalid state during reduction by E → ( D + E )")
 
 # Let us now verify if our parser works.
 if __name__ == '__main__':
-    test_strings = [("abc", True), ("bbdd", True), ("bdd", False), ("baddd", False)]
+    test_strings = [("1", True), ("(1+1)", True), ("1+1", False), ("1+", False)]
 
     for test_string, res in test_strings:
         print(f"Parsing: {test_string}")
@@ -851,10 +861,14 @@ if __name__ == '__main__':
         except Exception as e:
             if res: print(e)
 
-
+# Note that while the above does not contain multiple reductions, it is possible
+# that a state can contain multiple reductions on more complex (e.g. LR(1))
+# grammars. But otherwise, the general parsing is as above.
+# 
 # ## Building the DFA
-# Next, we need to build a DFA.
-# For DFA, a state is no longer a single item. So, let us define item separately.
+# Given a grammar, we will next consider how to build such a DFA.
+# For DFA, unlike an NFA, a state is no longer a single item. So, let us define
+# item separately.
 
 # ### Item
 class Item(State): pass
@@ -885,7 +899,6 @@ class LR0DFA(NFA):
         self.states = {}
         self.grammar = g
         self.start = start
-        self.nfa_table = None
         self.children = []
         self.my_items = {}
         self.my_states = {}
@@ -954,12 +967,8 @@ if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
-            ['<>::= | <S> $',
-             '<S>::= | <A> <B>',
-             '<S>::= | <C>',
-             '<A>::= | a',
-             '<C>::= | c']
-
+            ['<>::= | <E> $',
+             '<E>::= | ( <D> + <E> )', '<E>::= | <D>', '<D>::= | 1']
 
 # #### Advance the state of parse by the given token
 # Unlike in NFA, where we had only one item, and hence, there
@@ -991,11 +1000,11 @@ class LR0DFA(LR0DFA):
 if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     start = my_dfa.create_start(g1a_start)
-    st = my_dfa.advance(start, '<S>')
-    assert [str(s) for s in st] == ['<>::= <S> | $']
+    st = my_dfa.advance(start, '<D>')
+    assert [str(s) for s in st] == ['<E>::= <D> |'] 
 
-    st = my_dfa.advance(start, 'a')
-    assert [str(s) for s in st] == [ '<A>::= a |']
+    st = my_dfa.advance(start, '1')
+    assert [str(s) for s in st] == ['<D>::= 1 |']
 
 # #### DFA find_transitions
 #
@@ -1021,14 +1030,14 @@ if __name__ == '__main__':
     my_dfa = LR0DFA(g1a, g1a_start)
     st = my_dfa.create_start(g1a_start)
     assert [str(s) for s in st.items] == \
-            ['<>::= | <S> $', '<S>::= | <A> <B>', '<S>::= | <C>', '<A>::= | a', '<C>::= | c']
+           ['<>::= | <E> $',
+            '<E>::= | ( <D> + <E> )', '<E>::= | <D>', '<D>::= | 1']
     sts = my_dfa.find_transitions(st)
     assert [(s[0],[str(v) for v in s[1].items]) for s in sts] == \
-            [('a', ['<A>::= a |']),
-             ('c', ['<C>::= c |']),
-             ('<A>', ['<S>::= <A> | <B>', '<B>::= | b']),
-             ('<C>', ['<S>::= <C> |']),
-             ('<S>', ['<>::= <S> | $'])]
+            [('(', ['<E>::= ( | <D> + <E> )', '<D>::= | 1']),
+             ('1', ['<D>::= 1 |']),
+             ('<D>', ['<E>::= <D> |']),
+             ('<E>', ['<>::= <E> | $'])]
 
 
 # #### add_reduce
@@ -1096,7 +1105,7 @@ class LR0DFA(LR0DFA):
 
 # Let us test building the DFA.
 if __name__ == '__main__':
-    my_dfa = LR0DFA(S_g1, S_s1)
+    my_dfa = LR0DFA(g1a, g1a_start)
     table = my_dfa.build_dfa()
 
     for k in my_dfa.states:
@@ -1112,7 +1121,9 @@ if __name__ == '__main__':
 
 # Let us try graphing
 if __name__ == '__main__':
-    g = to_graph(table)
+    def lookup(i):
+        return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+    g = to_graph(table, lookup)
     __canvas__(str(g))
 
 # # LR0Recognizer
@@ -1172,19 +1183,19 @@ class LR0Recognizer:
 
 # Testing it.
 if __name__ == '__main__':
-    my_dfa = LR0DFA(S_g1, S_s1)
+    my_dfa = LR0DFA(g1a, g1a_start)
     parser = LR0Recognizer(my_dfa)
     # Test the parser with some input strings
-    test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
+    test_strings = ["(1+1)", "(1+(1+1))", "1", "1+", "+1+1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message = parser.parse(test_string, S_s1)
+        success, message = parser.parse(test_string, g1a_start)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()
 
 # # LR0Parser
-# Now we'll implement the LR(0) parser, which includes parse tree extraction.
+# We'll next implement the LR(0) parser, which includes parse tree extraction.
 # Parse tree extraction involves building a tree structure that represents the
 # syntactic structure of the input string according to the grammar rules.
 class LR0Parser(LR0Recognizer):
@@ -1242,32 +1253,56 @@ class LR0Parser(LR0Recognizer):
 
 # Now, let us build parse trees
 if __name__ == '__main__':
-    my_dfa = LR0DFA(S_g1, S_s1)
+    my_dfa = LR0DFA(g1a, g1a_start)
     parser = LR0Parser(my_dfa)
     # Test the parser with some input strings
-    test_strings = ["abc", "bbdd", "baddd", "aac", "bdd"]
+    test_strings = ["(1+1)", "1", "(1+(1+1))", "+", "1+"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, S_s1)
+        success, message, tree = parser.parse(test_string, g1a_start)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()
 
-# Next, let us consider the following grammar.
-G2_g = {
-        '<S`>' : [['<S>', '$']],
-        '<S>' :  [['a', '<B>', 'c'],
-                  ['a', '<D>', 'd']],
-        '<B>' :  [[ 'b']],
-        '<D>' :  [['b']]
+# Notice that we have used a quite simple grammar. For reference, this
+# was our `g1` grammar. 
+# 
+# ```
+# E -> ( D + E )
+# E -> D
+# D -> 1
+# ```
+# 
+# The interesting fact about this grammar was that
+# you could look at the current symbol, and decide which of these rules
+# to apply. That is, if the current symbol was `(` then rule 0 applies,
+# and if the symbol was `1`, then rule 1 applies.
+# What if you have a grammar where that is impossible?
+# Here is one such grammar
+# 
+# ```
+# E -> D + E
+# E -> D
+# D -> 1
+# ```
+# 
+# As you can see, it is no longer clear which rule of `<E>` to apply when we
+# have a `<D>` parsed. To decide on such cases, we need to go up one level
+# complexity.
+
+g2 = {
+        '<E>' :  [['<D>', '+', '<E>'],
+                  ['<D>']],
+        '<D>' :  [['1']]
         }
-G2_s = '<S`>'
+g2_start = '<E>'
 
 # Let us build the parse table.
 if __name__ == '__main__':
-    my_dfa = LR0DFA(G2_g, G2_s)
+    g2a, g2a_start = add_start_state(g2, g2_start)
+    my_dfa = LR0DFA(g2a, g2a_start)
     table = my_dfa.build_dfa()
 
     for k in my_dfa.states:
@@ -1281,18 +1316,18 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# As you can see, on State 3, we have two possible reductions -- r3 and r4.
-# This is called a reduce/reduce conflict. The issue is that when we come to
-# state 3, that is.
+# As you can see, on State 2, we have two possible choices -- s4 and r:1.
+# This is called a shift/reduce conflict. The issue is that when we come to
+# state 2, that is.
 
 # ```
-# <B>::= b |
-# <D>::= b |
+#  <E>::= <D> | + <E>
+#  <E>::= <D> |
 # ```
-# We have two possible choices of reduction. We can either reduce to `<B>` or
-# to `<D>`. To determine which one to reduce to, we need a lookahead. If the
-# next token is `c`, then we should reduce to `<B>`. If the next one is `d`,
-# we should reduce to `<D>`. This is what SLR parsers do.
+# We have two possible choices. We can either reduce to `<E>` or shift `+`.
+# To determine which one to act upon, we need a lookahead. If the
+# next token is `+`, then we should shift it to stack. If not,
+# we should reduce to `<E>`. This is what SLR parsers do.
 #
 # # SLR1 Automata
 #
@@ -1326,9 +1361,11 @@ def get_first_and_follow(grammar):
     first.update((i, {i}) for i in terminals)
     follow = {i: set() for i in nonterminals}
     nullable = set()
+
     while True:
         added = 0
         productions = [(k,rule) for k in nonterminals for rule in grammar[k]]
+
         for k, rule in productions:
             can_be_empty = True
             for t in rule:
@@ -1343,10 +1380,12 @@ def get_first_and_follow(grammar):
             for t in reversed(rule):
                 if t in follow:
                     added += union(follow[t], follow_)
+
                 if t in nullable:
                     follow_ = follow_.union(first[t])
                 else:
                     follow_ = first[t]
+
         if not added:
             return first, follow, nullable
 
@@ -1396,7 +1435,7 @@ class SLR1DFA(SLR1DFA):
 
 # Let us see if it works.
 if __name__ == '__main__':
-    my_dfa = SLR1DFA(G2_g, G2_s)
+    my_dfa = SLR1DFA(g2a, g2a_start)
     table = my_dfa.build_dfa()
 
     for k in my_dfa.states:
@@ -1416,47 +1455,46 @@ if __name__ == '__main__':
 class SLR1Parser(LR0Parser): pass
 
 # Let us try parsing with it.
-G2_g = {
-        '<>' : [['<S>', '$']],
-        '<S>' :  [['a', '<B>', 'c'],
-                  ['a', '<D>', 'd']],
-        '<B>' :  [[ 'b']],
-        '<D>' :  [['b']]
-        }
-G2_s = '<>'
-
-# Parsing
 if __name__ == '__main__':
-    my_dfa = SLR1DFA(G2_g, G2_s)
+    my_dfa = SLR1DFA(g2a, g2a_start)
     parser = SLR1Parser(my_dfa)
     # Test the parser with some input strings
-    test_strings = ["abc", "abd", "aabc"]
+    test_strings = ["1+1", "1", "1+1+1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, G2_s)
+        success, message, tree = parser.parse(test_string, g2a_start)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
         print(f"Message: {message}")
         print()
 
-# Now, consider this grammar
-LR_g = {
-        "<>": [["<S>", "$"]],
-        "<S>": [
-            ["a", "<B>", "c"],
-            ["a", "<D>", "d"],
-            ["<B>", "d"]
-            ],
-        "<B>": [["b"]],
-        "<D>": [["b"]]
+# But is this enough? Can we parse all useful grammars this way?
+# Consider this grammar, which has a single rule addition from before.
+# 
+# ```
+# E -> D + E
+# E -> E * D
+# E -> D
+# D -> 1
+# ```
+g3 = {
+        '<E>' :  [
+            ['<D>', '+', '<E>'],
+            ['<E>', '*', '<D>'],
+            ['<D>']],
+        '<D>' :  [['1']]
         }
-LR_s = '<>'
+g3_start = '<E>'
 
 # Let us see if it works.
 if __name__ == '__main__':
-    my_dfa = SLR1DFA(LR_g, LR_s)
+    g3a, g3a_start = add_start_state(g3, g3_start)
+    my_dfa = SLR1DFA(g3a, g3a_start)
     table = my_dfa.build_dfa()
+
+    for k in my_dfa.production_rules:
+        print(k, my_dfa.production_rules[k])
 
     for k in my_dfa.states:
       print(k)
@@ -1469,8 +1507,9 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# You will notice a conflict in State 5. To resolve this, we need the full
-# LR(1) parser.
+# You will notice a conflict in State 7. The question is whether to shift `*`
+# and go to State 6, or to reduce with rule r:0.
+# To resolve this, we need the full LR(1) parser.
 # # LR1 Automata
 # 
 # LR(1) parsers, or Canonical LR(1) parsers, are the most powerful in the LR parser family.
@@ -1498,7 +1537,7 @@ class LR1Item(Item):
         return "(%s, %s : %d)" % (str(self), self.lookahead, self.sid)
 
     def __str__(self):
-        return self.show_dot(self.name, self.expr, self.dot)
+        return self.show_dot(self.name, self.expr, self.dot) + ':' + self.lookahead
 
 # ### LR1DFA class
 # 
@@ -1597,28 +1636,20 @@ class LR1DFA(LR1DFA):
 # the parse class does not change.
 class LR1Parser(SLR1Parser): pass
 
-# grammar
-LR_g = {
-        "<>": [["<S>", "$"]],
-        "<S>": [
-            ["a", "<B>", "c"],
-            ["a", "<D>", "d"],
-            ["<B>", "d"]
-            ],
-        "<B>": [["b"]],
-        "<D>": [["b"]]
-        }
-LR_s = '<>'
-
 # Parsing
 if __name__ == '__main__':
-    my_dfa = LR1DFA(LR_g, LR_s)
+    my_dfa = LR1DFA(g3a, g3a_start)
+
+    for k in my_dfa.production_rules:
+        print(k, my_dfa.production_rules[k])
+
+    print()
     parser = LR1Parser(my_dfa)
 
     for k in my_dfa.states:
       print(k)
       for v in my_dfa.states[k].items:
-        print('', v)
+          print('', v, 'lookahead:', v.lookahead)
 
     rowh = parser.parse_table[0]
     print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -1628,10 +1659,10 @@ if __name__ == '__main__':
 
 
     # Test the parser with some input strings
-    test_strings = ["abc", "abd", "bd"]
+    test_strings = ["1", "1+1", "1*1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
-        success, message, tree = parser.parse(test_string, LR_s)
+        success, message, tree = parser.parse(test_string, g3a_start)
         if tree is not None:
             ep.display_tree(tree)
         print(f"Result: {'Accepted' if success else 'Rejected'}")
