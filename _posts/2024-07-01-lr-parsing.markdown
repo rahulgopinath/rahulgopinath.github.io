@@ -3170,19 +3170,19 @@ But is this enough? Can we parse all useful grammars this way?
 Consider this grammar.
 
 ```
-S -> L = R
-S -> R
-L -> * R
-L -> 1
-R -> L
+S -> E + T
+S -> T
+E -> + T
+E -> 1
+T -> E
 ```
 
 <!--
 ############
 g3 = {
-    '<S>': [['<L>', '=', '<R>'], ['<R>']],
-    '<L>': [['*', '<R>'], ['1']],
-    '<R>': [['<L>']]
+    '<S>': [['<E>', '+', '<T>'], ['<T>']],
+    '<E>': [['+', '<T>'], ['1']],
+    '<T>': [['<E>']]
 }
 
 g3_start = '<S>'
@@ -3193,9 +3193,9 @@ g3_start = '<S>'
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g3 = {
-    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;L&gt;&#x27;, &#x27;=&#x27;, &#x27;&lt;R&gt;&#x27;], [&#x27;&lt;R&gt;&#x27;]],
-    &#x27;&lt;L&gt;&#x27;: [[&#x27;*&#x27;, &#x27;&lt;R&gt;&#x27;], [&#x27;1&#x27;]],
-    &#x27;&lt;R&gt;&#x27;: [[&#x27;&lt;L&gt;&#x27;]]
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;E&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;T&gt;&#x27;], [&#x27;&lt;T&gt;&#x27;]],
+    &#x27;&lt;E&gt;&#x27;: [[&#x27;+&#x27;, &#x27;&lt;T&gt;&#x27;], [&#x27;1&#x27;]],
+    &#x27;&lt;T&gt;&#x27;: [[&#x27;&lt;E&gt;&#x27;]]
 }
 
 g3_start = &#x27;&lt;S&gt;&#x27;
@@ -3530,7 +3530,7 @@ print()
 
 
 # Test the parser with some input strings
-test_strings = ["1", "1=1", "*1=1"]
+test_strings = ["1", "1+1", "+1+1"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
     success, message, tree = parser.parse(test_string, g3a_start)
@@ -3566,7 +3566,7 @@ print()
 
 
 # Test the parser with some input strings
-test_strings = [&quot;1&quot;, &quot;1=1&quot;, &quot;*1=1&quot;]
+test_strings = [&quot;1&quot;, &quot;1+1&quot;, &quot;+1+1&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
     success, message, tree = parser.parse(test_string, g3a_start)

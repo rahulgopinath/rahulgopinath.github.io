@@ -1473,17 +1473,17 @@ if __name__ == '__main__':
 # Consider this grammar.
 # 
 # ```
-# S -> L = R
-# S -> R
-# L -> * R
-# L -> 1
-# R -> L
+# S -> E + T
+# S -> T
+# E -> + T
+# E -> 1
+# T -> E
 # ```
 
 g3 = {
-    '<S>': [['<L>', '=', '<R>'], ['<R>']],
-    '<L>': [['*', '<R>'], ['1']],
-    '<R>': [['<L>']]
+    '<S>': [['<E>', '+', '<T>'], ['<T>']],
+    '<E>': [['+', '<T>'], ['1']],
+    '<T>': [['<E>']]
 }
 
 g3_start = '<S>'
@@ -1662,7 +1662,7 @@ if __name__ == '__main__':
 
 
     # Test the parser with some input strings
-    test_strings = ["1", "1=1", "*1=1"]
+    test_strings = ["1", "1+1", "+1+1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
         success, message, tree = parser.parse(test_string, g3a_start)
