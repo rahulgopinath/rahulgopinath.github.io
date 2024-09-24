@@ -3167,38 +3167,38 @@ for test_string in test_strings:
 <div name='python_canvas'></div>
 </form>
 But is this enough? Can we parse all useful grammars this way?
-Consider this grammar, which has a single rule addition from before.
+Consider this grammar.
 
 ```
-E -> D + E
-E -> E * D
-E -> D
-D -> 1
+S -> L = R
+S -> R
+L -> * R
+L -> 1
+R -> L
 ```
 
 <!--
 ############
 g3 = {
-        '<E>' :  [
-            ['<D>', '+', '<E>'],
-            ['<E>', '*', '<D>'],
-            ['<D>']],
-        '<D>' :  [['1']]
-        }
-g3_start = '<E>'
+    '<S>': [['<L>', '=', '<R>'], ['<R>']],
+    '<L>': [['*', '<R>'], ['1']],
+    '<R>': [['<L>']]
+}
+
+g3_start = '<S>'
+
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 g3 = {
-        &#x27;&lt;E&gt;&#x27; :  [
-            [&#x27;&lt;D&gt;&#x27;, &#x27;+&#x27;, &#x27;&lt;E&gt;&#x27;],
-            [&#x27;&lt;E&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;D&gt;&#x27;],
-            [&#x27;&lt;D&gt;&#x27;]],
-        &#x27;&lt;D&gt;&#x27; :  [[&#x27;1&#x27;]]
-        }
-g3_start = &#x27;&lt;E&gt;&#x27;
+    &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;L&gt;&#x27;, &#x27;=&#x27;, &#x27;&lt;R&gt;&#x27;], [&#x27;&lt;R&gt;&#x27;]],
+    &#x27;&lt;L&gt;&#x27;: [[&#x27;*&#x27;, &#x27;&lt;R&gt;&#x27;], [&#x27;1&#x27;]],
+    &#x27;&lt;R&gt;&#x27;: [[&#x27;&lt;L&gt;&#x27;]]
+}
+
+g3_start = &#x27;&lt;S&gt;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3250,8 +3250,9 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-You will notice a conflict in State 7. The question is whether to shift `*`
-and go to State 6, or to reduce with rule r:0.
+You will notice a conflict in State 3.  ['s8', 'r:4']
+The question is whether to shift `=`
+and go to State 8, or to reduce with rule r:4.
 To resolve this, we need the full LR(1) parser.
 # LR1 Automata
 
@@ -3519,7 +3520,7 @@ parser = LR1Parser(my_dfa)
 for k in my_dfa.states:
   print(k)
   for v in my_dfa.states[k].items:
-      print('', v, 'lookahead:', v.lookahead)
+      print('', v)
 
 rowh = parser.parse_table[0]
 print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -3529,7 +3530,7 @@ print()
 
 
 # Test the parser with some input strings
-test_strings = ["1", "1+1", "1*1"]
+test_strings = ["1", "1=1", "*1=1"]
 for test_string in test_strings:
     print(f"Parsing: {test_string}")
     success, message, tree = parser.parse(test_string, g3a_start)
@@ -3556,7 +3557,7 @@ parser = LR1Parser(my_dfa)
 for k in my_dfa.states:
   print(k)
   for v in my_dfa.states[k].items:
-      print(&#x27;&#x27;, v, &#x27;lookahead:&#x27;, v.lookahead)
+      print(&#x27;&#x27;, v)
 
 rowh = parser.parse_table[0]
 print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
@@ -3566,7 +3567,7 @@ print()
 
 
 # Test the parser with some input strings
-test_strings = [&quot;1&quot;, &quot;1+1&quot;, &quot;1*1&quot;]
+test_strings = [&quot;1&quot;, &quot;1=1&quot;, &quot;*1=1&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)
     success, message, tree = parser.parse(test_string, g3a_start)

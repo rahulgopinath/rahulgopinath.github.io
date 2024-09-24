@@ -1470,22 +1470,24 @@ if __name__ == '__main__':
         print()
 
 # But is this enough? Can we parse all useful grammars this way?
-# Consider this grammar, which has a single rule addition from before.
+# Consider this grammar.
 # 
 # ```
-# E -> D + E
-# E -> E * D
-# E -> D
-# D -> 1
+# S -> L = R
+# S -> R
+# L -> * R
+# L -> 1
+# R -> L
 # ```
+
 g3 = {
-        '<E>' :  [
-            ['<D>', '+', '<E>'],
-            ['<E>', '*', '<D>'],
-            ['<D>']],
-        '<D>' :  [['1']]
-        }
-g3_start = '<E>'
+    '<S>': [['<L>', '=', '<R>'], ['<R>']],
+    '<L>': [['*', '<R>'], ['1']],
+    '<R>': [['<L>']]
+}
+
+g3_start = '<S>'
+
 
 # Let us see if it works.
 if __name__ == '__main__':
@@ -1507,8 +1509,9 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
-# You will notice a conflict in State 7. The question is whether to shift `*`
-# and go to State 6, or to reduce with rule r:0.
+# You will notice a conflict in State 3.  ['s8', 'r:4']
+# The question is whether to shift `=`
+# and go to State 8, or to reduce with rule r:4.
 # To resolve this, we need the full LR(1) parser.
 # # LR1 Automata
 # 
@@ -1649,7 +1652,7 @@ if __name__ == '__main__':
     for k in my_dfa.states:
       print(k)
       for v in my_dfa.states[k].items:
-          print('', v, 'lookahead:', v.lookahead)
+          print('', v)
 
     rowh = parser.parse_table[0]
     print('State\t', '\t','\t'.join([repr(c) for c in rowh.keys()]))
@@ -1659,7 +1662,7 @@ if __name__ == '__main__':
 
 
     # Test the parser with some input strings
-    test_strings = ["1", "1+1", "1*1"]
+    test_strings = ["1", "1=1", "*1=1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
         success, message, tree = parser.parse(test_string, g3a_start)
