@@ -13,7 +13,7 @@
 # Python code snippets are provided throughout so that you can
 # work through the implementation steps.
 
-# An LR parser is a bottom-up parser. The *L* stands for scanning the input
+# An LR parser is a bottom-up parser[^grune2008parsing]. The *L* stands for scanning the input
 # left-to-right, and the *R* stands for constructing a rightmost derivation.
 # This contrasts with LL parsers which are again left-to-right but construct
 # the leftmost derivation. It is a shift reduce parser because the operation
@@ -1691,4 +1691,6 @@ if __name__ == '__main__':
 
 
 # **Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html)
+# 
+# ## References
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
