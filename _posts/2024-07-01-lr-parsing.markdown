@@ -3113,6 +3113,28 @@ print()
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+We can also view it as before.
+
+<!--
+############
+def lookup(i):
+    return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+g = to_graph(table, lookup)
+__canvas__(str(g))
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def lookup(i):
+    return str(i) + &#x27;\n&#x27; + &#x27;\n&#x27;.join([str(k) for k in my_dfa.states[i].items])
+g = to_graph(table, lookup)
+__canvas__(str(g))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### SLR1Parser
 There is no difference in the parser.
 
@@ -3528,19 +3550,6 @@ for i,row in enumerate(parser.parse_table):
     print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
 print()
 
-
-# Test the parser with some input strings
-test_strings = ["1", "1+1", "+1+1"]
-for test_string in test_strings:
-    print(f"Parsing: {test_string}")
-    success, message, tree = parser.parse(test_string, g3a_start)
-    if tree is not None:
-        ep.display_tree(tree)
-    print(f"Result: {'Accepted' if success else 'Rejected'}")
-    print(f"Message: {message}")
-    print()
-
-
 ############
 -->
 <form name='python_run_form'>
@@ -3563,9 +3572,53 @@ print(&#x27;State\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([repr(c) for c in 
 for i,row in enumerate(parser.parse_table):
     print(str(i) + &#x27;\t&#x27;, &#x27;\t&#x27;,&#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
 print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We can also view it as before.
+
+<!--
+############
+def lookup(i):
+    return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+table = parser.parse_table
+g = to_graph(table, lookup)
+__canvas__(str(g))
 
 
-# Test the parser with some input strings
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def lookup(i):
+    return str(i) + &#x27;\n&#x27; + &#x27;\n&#x27;.join([str(k) for k in my_dfa.states[i].items])
+table = parser.parse_table
+g = to_graph(table, lookup)
+__canvas__(str(g))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test the parser with some input strings
+
+<!--
+############
+test_strings = ["1", "1+1", "+1+1"]
+for test_string in test_strings:
+    print(f"Parsing: {test_string}")
+    success, message, tree = parser.parse(test_string, g3a_start)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f"Result: {'Accepted' if success else 'Rejected'}")
+    print(f"Message: {message}")
+    print()
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 test_strings = [&quot;1&quot;, &quot;1+1&quot;, &quot;+1+1&quot;]
 for test_string in test_strings:
     print(f&quot;Parsing: {test_string}&quot;)

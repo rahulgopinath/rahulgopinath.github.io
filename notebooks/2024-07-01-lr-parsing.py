@@ -1449,6 +1449,14 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
+# We can also view it as before.
+if __name__ == '__main__':
+    def lookup(i):
+        return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+    g = to_graph(table, lookup)
+    __canvas__(str(g))
+
+
 # ### SLR1Parser
 # There is no difference in the parser.
 
@@ -1660,8 +1668,17 @@ if __name__ == '__main__':
         print(str(i) + '\t', '\t','\t'.join([str(row[c]) for c in row.keys()]))
     print()
 
+# We can also view it as before.
+if __name__ == '__main__':
+    def lookup(i):
+        return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+    table = parser.parse_table
+    g = to_graph(table, lookup)
+    __canvas__(str(g))
 
-    # Test the parser with some input strings
+
+# Test the parser with some input strings
+if __name__ == '__main__':
     test_strings = ["1", "1+1", "+1+1"]
     for test_string in test_strings:
         print(f"Parsing: {test_string}")
