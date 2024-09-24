@@ -3541,7 +3541,6 @@ for test_string in test_strings:
     print()
 
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -3580,6 +3579,7 @@ for test_string in test_strings:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+**Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html)
 [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
 <form name='python_run_form'>
