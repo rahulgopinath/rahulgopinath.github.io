@@ -1510,7 +1510,7 @@ if __name__ == '__main__':
     print()
 
 # You will notice a conflict in State 3.  ['s8', 'r:4']
-# The question is whether to shift `=`
+# The question is whether to shift `+`
 # and go to State 8, or to reduce with rule r:4.
 # To resolve this, we need the full LR(1) parser.
 # # LR1 Automata
