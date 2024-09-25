@@ -562,6 +562,15 @@ class LimitFuzzer:
         self.grammar = grammar
         self.key_cost = {}
         self.cost = compute_cost(grammar)
+        self.cheap_grammar = {}
+        for k in self.cost:
+            # should we minimize it here? We simply avoid infinities
+            rules = self.grammar[k]
+            min_cost = min([self.cost[k][str(r)] for r in rules])
+            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float(&#x27;inf&#x27;)]
+            self.cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
+
+
 
 ############
 -->
@@ -589,6 +598,13 @@ class LimitFuzzer:
         self.grammar = grammar
         self.key_cost = {}
         self.cost = compute_cost(grammar)
+        self.cheap_grammar = {}
+        for k in self.cost:
+            # should we minimize it here? We simply avoid infinities
+            rules = self.grammar[k]
+            min_cost = min([self.cost[k][str(r)] for r in rules])
+            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float(&#x27;inf&#x27;)]
+            self.cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -697,14 +713,6 @@ class LimitFuzzer(LimitFuzzer):
             else:
                 return [t, []]
 
-        cheap_grammar = {}
-        for k in self.cost:
-            # should we minimize it here? We simply avoid infinities
-            rules = self.grammar[k]
-            min_cost = min([self.cost[k][str(r)] for r in rules])
-            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float('inf')]
-            cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
-
         root = [key, None]
         queue = [(0, root)]
         while queue:
@@ -712,7 +720,7 @@ class LimitFuzzer(LimitFuzzer):
             (depth, item), *queue = queue
             key = item[0]
             if item[1] is not None: continue
-            grammar = self.grammar if depth < max_depth else cheap_grammar
+            grammar = self.grammar if depth < max_depth else self.cheap_grammar
             chosen_rule = random.choice(grammar[key])
             expansion = [get_def(t) for t in chosen_rule]
             item[1] = expansion
@@ -731,14 +739,6 @@ class LimitFuzzer(LimitFuzzer):
             else:
                 return [t, []]
 
-        cheap_grammar = {}
-        for k in self.cost:
-            # should we minimize it here? We simply avoid infinities
-            rules = self.grammar[k]
-            min_cost = min([self.cost[k][str(r)] for r in rules])
-            #grammar[k] = [r for r in grammar[k] if self.cost[k][str(r)] == float(&#x27;inf&#x27;)]
-            cheap_grammar[k] = [r for r in self.grammar[k] if self.cost[k][str(r)] == min_cost]
-
         root = [key, None]
         queue = [(0, root)]
         while queue:
@@ -746,7 +746,7 @@ class LimitFuzzer(LimitFuzzer):
             (depth, item), *queue = queue
             key = item[0]
             if item[1] is not None: continue
-            grammar = self.grammar if depth &lt; max_depth else cheap_grammar
+            grammar = self.grammar if depth &lt; max_depth else self.cheap_grammar
             chosen_rule = random.choice(grammar[key])
             expansion = [get_def(t) for t in chosen_rule]
             item[1] = expansion
