@@ -1,6 +1,6 @@
 # ---
 # published: true
-# title: Search Based Fuzzing Computing Approach Level
+# title: Search Based Fuzzing -- Computing Approach Level
 # layout: post
 # comments: true
 # tags: search fuzzing
