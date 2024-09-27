@@ -526,7 +526,6 @@ def symbols(g):
                 terminals[t] = True
     return list(sorted(terminals.keys())), list(sorted(g.keys()))
 
-
 ############
 -->
 <form name='python_run_form'>
@@ -539,6 +538,25 @@ def symbols(g):
                 if fuzzer.is_nonterminal(t): continue
                 terminals[t] = True
     return list(sorted(terminals.keys())), list(sorted(g.keys()))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test
+
+<!--
+############
+t, nt = symbols(g1)
+print(t)
+print(nt)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+t, nt = symbols(g1)
+print(t)
+print(nt)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

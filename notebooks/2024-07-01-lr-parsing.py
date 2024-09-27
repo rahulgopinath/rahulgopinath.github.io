@@ -254,6 +254,11 @@ def symbols(g):
                 terminals[t] = True
     return list(sorted(terminals.keys())), list(sorted(g.keys()))
 
+# Test
+if __name__ == '__main__':
+    t, nt = symbols(g1)
+    print(t)
+    print(nt)
 
 # ### The State Data-structure
 # For building an NFA, all we need is to start with start item, and then
