@@ -671,7 +671,35 @@ if __name__ == '__main__':
 # <E> := ( * <D> + <E> )
 # <D> := * 1
 # ```
-#
+# 
+# Here is how we can compute a closure
+
+def compute_closure(grammar, items,
+            create_start_item=lambda s, rule: State(s, tuple(rule), 0, 0)):
+    to_process = list(items)
+    seen = set()
+    new_items = {}
+    while to_process:
+        item_, *to_process = to_process
+        if str(item_) in seen: continue
+        seen.add(str(item_))
+        new_items[str(item_)] = item_
+        key = item_.at_dot()
+        if key is None: continue
+        if not fuzzer.is_nonterminal(key): continue
+        for rule in grammar[key]:
+            new_item = create_start_item(key, rule)
+            to_process.append(new_item)
+    return list(new_items.values())
+
+# Test it.
+if __name__ == '__main__':
+    s = State(g1a_start, ('<E>',), 0, 0)
+    closure = compute_closure(g1, [s])
+    for item in closure:
+        print(item)
+
+
 # This gives us the following graph with each closure, and the transitions indicated. Note that
 # the nonterminal transitions are dashed.
 
@@ -924,22 +952,9 @@ class LR0DFA(NFA):
 
 class LR0DFA(LR0DFA):
     def compute_closure(self, items):
-        to_process = list(items)
-        seen = set()
-        new_items = {}
-        while to_process:
-            item_, *to_process = to_process
-            if str(item_) in seen: continue
-            seen.add(str(item_))
-            new_items[str(item_)] = item_
-            key = item_.at_dot()
-            if key is None: continue
-            if not fuzzer.is_nonterminal(key): continue
-            for rule in self.grammar[key]:
-                new_item = self.create_start_item(key, rule)
-                to_process.append(new_item)
-        return list(new_items.values())
-
+        return compute_closure(self.grammar, items,
+                               create_start_item=lambda s, rule:
+                               self.create_start_item(s, rule))
     def create_start_item(self, s, rule):
         return self.new_item(s, tuple(rule), 0)
 

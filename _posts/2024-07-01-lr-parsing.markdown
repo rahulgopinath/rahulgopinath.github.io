@@ -1406,6 +1406,76 @@ Consider what happens when we apply a transition of `(` to this state.
 <E> := ( * <D> + <E> )
 <D> := * 1
 ```
+
+Here is how we can compute a closure
+
+<!--
+############
+def compute_closure(grammar, items,
+            create_start_item=lambda s, rule: State(s, tuple(rule), 0, 0)):
+    to_process = list(items)
+    seen = set()
+    new_items = {}
+    while to_process:
+        item_, *to_process = to_process
+        if str(item_) in seen: continue
+        seen.add(str(item_))
+        new_items[str(item_)] = item_
+        key = item_.at_dot()
+        if key is None: continue
+        if not fuzzer.is_nonterminal(key): continue
+        for rule in grammar[key]:
+            new_item = create_start_item(key, rule)
+            to_process.append(new_item)
+    return list(new_items.values())
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compute_closure(grammar, items,
+            create_start_item=lambda s, rule: State(s, tuple(rule), 0, 0)):
+    to_process = list(items)
+    seen = set()
+    new_items = {}
+    while to_process:
+        item_, *to_process = to_process
+        if str(item_) in seen: continue
+        seen.add(str(item_))
+        new_items[str(item_)] = item_
+        key = item_.at_dot()
+        if key is None: continue
+        if not fuzzer.is_nonterminal(key): continue
+        for rule in grammar[key]:
+            new_item = create_start_item(key, rule)
+            to_process.append(new_item)
+    return list(new_items.values())
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test it.
+
+<!--
+############
+s = State(g1a_start, ('<E>',), 0, 0)
+closure = compute_closure(g1, [s])
+for item in closure:
+    print(item)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+s = State(g1a_start, (&#x27;&lt;E&gt;&#x27;,), 0, 0)
+closure = compute_closure(g1, [s])
+for item in closure:
+    print(item)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 This gives us the following graph with each closure, and the transitions indicated. Note that
 the nonterminal transitions are dashed.
 
@@ -1954,22 +2024,9 @@ to the items.
 ############
 class LR0DFA(LR0DFA):
     def compute_closure(self, items):
-        to_process = list(items)
-        seen = set()
-        new_items = {}
-        while to_process:
-            item_, *to_process = to_process
-            if str(item_) in seen: continue
-            seen.add(str(item_))
-            new_items[str(item_)] = item_
-            key = item_.at_dot()
-            if key is None: continue
-            if not fuzzer.is_nonterminal(key): continue
-            for rule in self.grammar[key]:
-                new_item = self.create_start_item(key, rule)
-                to_process.append(new_item)
-        return list(new_items.values())
-
+        return compute_closure(self.grammar, items,
+                               create_start_item=lambda s, rule:
+                               self.create_start_item(s, rule))
     def create_start_item(self, s, rule):
         return self.new_item(s, tuple(rule), 0)
 
@@ -1979,22 +2036,9 @@ class LR0DFA(LR0DFA):
 <textarea cols="40" rows="4" name='python_edit'>
 class LR0DFA(LR0DFA):
     def compute_closure(self, items):
-        to_process = list(items)
-        seen = set()
-        new_items = {}
-        while to_process:
-            item_, *to_process = to_process
-            if str(item_) in seen: continue
-            seen.add(str(item_))
-            new_items[str(item_)] = item_
-            key = item_.at_dot()
-            if key is None: continue
-            if not fuzzer.is_nonterminal(key): continue
-            for rule in self.grammar[key]:
-                new_item = self.create_start_item(key, rule)
-                to_process.append(new_item)
-        return list(new_items.values())
-
+        return compute_closure(self.grammar, items,
+                               create_start_item=lambda s, rule:
+                               self.create_start_item(s, rule))
     def create_start_item(self, s, rule):
         return self.new_item(s, tuple(rule), 0)
 </textarea><br />
