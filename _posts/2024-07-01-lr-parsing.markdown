@@ -41,19 +41,94 @@ Initialization completion is indicated by a red border around *Run all* button.
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
 </form>
-TLDR; This tutorial is a complete implementation of shift-reduce
-parsers in Python. We build LR(0) parser, SLR(1) Parser and the
+TLDR; This tutorial is a complete implementation of some of the
+shift-reduce parsers in Python. We build LR(0) parser, SLR(1) Parser and the
 canonical LR(1) parser, and show how to extract the parse trees.
 Python code snippets are provided throughout so that you can
 work through the implementation steps.
-An LR parser is a bottom-up parser[^grune2008parsing]. The *L* stands for scanning the input
-left-to-right, and the *R* stands for constructing a rightmost derivation.
-This contrasts with LL parsers which are again left-to-right but construct
-the leftmost derivation. It is a shift reduce parser because the operation
-of the parser is to repeatedly shift an input symbol (left-to-right) into
-the stack, and to match the current stack with some production rule based
-on the length of the production rule, and if it matches, reduce the symbols on
-the top of the stack to the head of the production rule.
+
+A **shift-reduce** parser is a *bottom-up* parser that works by shifting input
+symbols on to a stack, run matching procedures to identify what is on the
+stack, and attempts to reduce the symbols on the top of the stack to
+other symbols based on the matched production rules.
+
+LR parsers are a class of bottom-up shift-reduce parsers[^grune2008parsing]
+that rely on constructing an automaton called LR-Automata (typically a parsing
+table) for their operation.  # The *L* in the *LR* parsing stands for scanning
+the input left-to-right, and the *R* stands for constructing a rightmost
+derivation. This contrasts with [LL parsers](/post/2022/07/02/generalized-ll-parser/)
+which are again left-to-right but construct the leftmost derivation.
+
+Such parsers are shift-reduce parsers because the operation of the LR parser
+is to repeatedly shift an input symbol (left-to-right) into the stack,
+and based on the parsing-table, decide to either reduce the stack or shift
+more input symbols on to the stack. The parsing table, in this case, is
+constructed based on the production rules of the grammar.
+## Definitions
+For this post, we use the following terms:
+ 
+* The _alphabet_ is the set all of symbols in the input language. For example,
+  in this post, we use all ASCII characters as alphabet.
+
+* A _terminal_ is a single alphabet symbol. Note that this is slightly different
+  from usual definitions (done here for ease of parsing). (Usually a terminal is
+  a contiguous sequence of symbols from the alphabet. However, both kinds of
+  grammars have a one to one correspondence, and can be converted easily.)
+
+  For example, `x` is a terminal symbol.
+
+* A _nonterminal_ is a symbol outside the alphabet whose expansion is _defined_
+  in the grammar using _rules_ for expansion.
+
+  For example, `<term>` is a nonterminal in the below grammar.
+
+* A _rule_ (also production rule) is a finite sequence of _terms_ (two types
+  of terms: terminals and nonterminals) that describe an expansion of a given
+  terminal. A rule is also called an _alternative_ expansion.
+
+  For example, `[<term>+<expr>]` is one of the expansion rules of the nonterminal `<expr>`.
+
+* A _definition_ is a set of _rules_ that describe the expansion of a given nonterminal.
+
+  For example, `[[<digit>,<digits>],[<digit>]]` is the definition of the nonterminal `<digits>`
+
+* A _context-free grammar_ is  composed of a set of nonterminals and 
+  corresponding definitions that define the structure of the nonterminal.
+
+* A *terminal* _derives_ a string if the string contains only the symbols in the
+  terminal. A *nonterminal* derives a string if the corresponding definition
+  derives the string. A definition derives the  string if one of the rules in
+  the definition derives the string. A rule derives a string if the sequence
+  of terms that make up the rule can derive the string, deriving one substring
+  after another contiguously (also called parsing).
+
+* A *derivation tree* is an ordered tree that describes how an input string is
+  derived by the given start symbol. Also called a *parse tree*.
+* A derivation tree can be collapsed into its string equivalent. Such a string
+  can be parsed again by the nonterminal at the root node of the derivation
+  tree such that at least one of the resulting derivation trees would be the
+  same as the one we started with.
+
+* An *epsilon* rule matches an empty string, and an epsilon transition is a
+  transition that does not consume any tokens.
+
+* A *recognizer* checks whether the input string can be matched by a given
+  grammar. That is, given the starting nonterminal symbol, can any set of
+  expansions result in the given input string?
+
+* A *parser* is a recognizer that additionally returns corresponding
+  parser trees for the given input string and grammar.
+
+* A *parse table* is a representation of the LR automation that is derived
+  from the production rules of the grammar.
+
+* A *DFA* ([deterministic-finite-automaton[(https://en.wikipedia.org/wiki/Deterministic_finite_automaton)) is a state machine of the
+  representation of a state machine that consumes input symbols to decide
+  which state to shift to.
+
+* A *NFA* ([nondeterministic-finite-automaton](https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton)) is a state machine that allows
+  both epsilon transitions as well as transitions to multiple states for the
+  same symbol.
 ### Prerequisites
 As before, we start with the prerequisite imports.
 Note: The following libraries may need to be installed separately.
