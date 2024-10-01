@@ -3,7 +3,7 @@
 # title: Shift-Reduce Parsers LR(0) SLR(1) and LR(1)
 # layout: post
 # comments: true
-# tags: parsing gll
+# tags: parsing glr
 # categories: post
 # ---
 
@@ -141,38 +141,47 @@ paren_g = {
 # <D> := 0 | 1
 # ```
 # 
-
+# We have seen [LL parsers](/post/2020/03/17/recursive-descent-contextfree-parsing-with-left-recursion/)
+# in the previous posts, culminating with the
+# [GLL parser](/post/2022/07/02/generalized-ll-parser/).
 # The main difference between an LR parser and an LL parser is that an LL
 # parser uses the current nonterminal and the next symbol to determine the
-# production rule to apply. In contrast, the LR parser uses the current
-# viable prefix and the next symbol to determine the next action to take.
+# production rule to apply. That is, starting from the top-most, that is the
+# start symbol, it recursively expands the rules until it finds a rule that
+# starts with the token that was currently read in from the stream.
+# In contrast, the LR parser acts bottom up. It starts by trying to recognize
+# bottom most tokens, and push the recognized tokens into the stack, recursively
+# building more higher level tokens.
 # 
-# The viable prefix is the portion of the input string that has been
+# We say that the LR parser uses the
+# viable-prefix and the next symbol to determine the next action to
+# take. The *viable prefix* is the portion of the input string that has been
 # recognized so far. This recognition is accomplished by the LR automaton,
 # which we describe next.
 # 
-# But before that, let us start slow. Let us consider the following grammar
+# Let us consider the following grammar
 # 
 # ```
 # E -> ( D + E )
 # E -> D
 # D -> 1
 # ```
-
-# Let us also introduce an augmented rule
+# To apply LR parsing to it, we need a starting definition such that the
+# start symbol has only one production rule as its definition. So, we add
+# a production rule (called augmentation) to conform.
 # 
 # ```
 # S` -> E
 # ```
 #  
-# If we are going for a naive translation
-# of the grammar into an automata, this is what we could do. That is, we start
-# with the starting production rule
+# For a naive translation of the grammar into the automata,
+# we start with the starting production rule
 # `S' -> E`. Since we are starting to parse, let us indicate the parse point
-# also, which would be before `E` is parsed. That is, `S' -> .E`. The period
-# represents the current parse point. If we somehow parsed `E` now, then we
-# would transition to an accept state. This is represented by `S' -> E.`.
-# However, since the transition is a nonterminal, it can't happen by reading
+# also with `.'. This would be before `E` is parsed. That is, `S' -> .E`.
+# That is, the period (`.') represents the current parse point.
+# If we somehow parsed `E` now, then we would transition to an accept state.
+# This is represented by `S' -> E.`. However, since the transition is a
+# nonterminal, it can't happen by reading
 # the corresponding symbol `E` from the input stream. It has to happen through
 # another path. Hence, we indicate this by a dashed line. Next, when the parse
 # is at `S' -> .E`, any of the expansions of `E` can now be parsed. So, we add
@@ -223,9 +232,11 @@ if __name__ == '__main__':
     }
     ''')
 
-# Notice that this NFA is not complete. For example, what happens when `D := 1 .`
+# Notice that this state machine is a nondeterministic finite automaton (NFA).
+# That is, we have epsilon transitions. Furthermore the
+# NFA is not complete. For example, what happens when `6. D := 1 .`
 # is complete? Then, the parse needs to transition to a state that has just
-# completed `D`. For example, `E := ( D . + E )` or `E := D .`. Here is how
+# completed `D`. For example, `8. E := ( D . + E )` or `7. E := D .`. Here is how
 # it looks like.
 
 if __name__ == '__main__':
@@ -279,6 +290,7 @@ if __name__ == '__main__':
      7 -> 4 [label = "completion"];
     }
     ''')
+   # Note: change constraint=true for a different view.
 
 # As before, the dashed arrows represent non-terminal transitions that are
 # actually completed through other paths. The red arrows represent reductions.
