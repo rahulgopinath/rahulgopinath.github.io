@@ -51,10 +51,13 @@
 # In the case of leftmost derivation, the sentence `0 + 1 * 1` would be parsed
 # as follows, starting from `<E>`. The period (`.`) shows the current parse
 # point in the rule, and the pipe (`|`) indicates the input stream. We show the
-# top down parsing.
+# top down parsing. We assume here that the parser simply uses the first rule
+# to parse, and uses a lookahead when necessary. See my LL(1) post for more
+# advanced techniques.
 # 
 # ```
 # <E> := . <T> + <E>  | 0 + 1 * 1
+#        . <F> + <E>  | 0 + 1 * 1
 #        . <D> + <E>  | 0 + 1 * 1
 #        . 0          | 0 + 1 * 1
 #        0  . + <E>   | + 1 * 1
@@ -76,35 +79,26 @@
 # symbol) to match with the next input symbol from the stream.
 # That is, the leftmost nonterminal is always rewritten first.
 # 
+# Below is the bottom-up right most parsing. We will be discussing how the
+# rules are chosen later in this post.
 # 
-# To better demonstrate rightmost derivation, we need a different grammar,
-# and input. Furthermore, it is also bottom up parsing.
 # ```
-# <E> := <E> + <T>
-#      | <T>
-# <T> := <T> * <F>
-#      | <F>
-# <F> := <D>
-# <D> := 1 | 0
-# ```
-# The parsing of `0 * 1 + 1` proceeds as follows
-# ```
-#   | 0 * 1 + 1
-#   0 | * 1 + 1
-#   <D> | * 1 + 1
-#   <F> | * 1 + 1
-#   <T> | * 1 + 1
-#   <T> * | 1 + 1
-#   <T> * 1 | + 1
-#   <T> * <D> | + 1
-#   <T> * <F> | + 1
-#   <T> | + 1
-#   <E> | + 1
-#   <E> + | 1
-#   <E> + 1 |
-#   <E> + <D> |
-#   <E> + <F> |
-#   <E> + <T> |
+#   | 0 + 1 * 1
+#   0 | + 1 * 1
+#   <D> | + 1 * 1
+#   <F> | + 1 * 1
+#   <T> | + 1 * 1
+#   <T> + | 1 * 1
+#   <T> + 1 | * 1
+#   <T> + <D> | * 1
+#   <T> + <F> | * 1
+#   <T> + <F> * | 1
+#   <T> + <F> * 1 |
+#   <T> + <F> * <D> |
+#   <T> + <F> * <F> |
+#   <T> + <F> * <T> |
+#   <T> + <T> |
+#   <T> + <E> |
 #   <E> |
 # ```
 # As you can see, we construct nonterminals from the symbols on the stack.
