@@ -54,16 +54,99 @@ other symbols based on the matched production rules.
 
 LR parsers are a class of bottom-up shift-reduce parsers[^grune2008parsing]
 that rely on constructing an automaton called LR-Automata (typically a parsing
-table) for their operation.  # The *L* in the *LR* parsing stands for scanning
+table) for their operation.
+The *L* in the *LR* parsing stands for scanning
 the input left-to-right, and the *R* stands for constructing a rightmost
 derivation. This contrasts with [LL parsers](/post/2022/07/02/generalized-ll-parser/)
 which are again left-to-right but construct the leftmost derivation.
+(Intuitively, LL parsers process and output the parse tree with pre-order
+traversal (root, left, right) where as LR
+outputs post order traversal, (left, right, root).)
 
 Such parsers are shift-reduce parsers because the operation of the LR parser
 is to repeatedly shift an input symbol (left-to-right) into the stack,
 and based on the parsing-table, decide to either reduce the stack or shift
 more input symbols on to the stack. The parsing table, in this case, is
 constructed based on the production rules of the grammar.
+The **Right-most** in this case refers to the nonterminal that the parsing
+strategy decides to rewrite next. That is, in right-most strategy, the symbols
+on the top of the stack are reduced first.
+
+To illustrate this, consider the following grammar:
+```
+<E> := <T> + <E>
+     | <T>
+<T> := <F> * <T>
+     | <F>
+<F> := <D>
+<D> := 1 | 0
+```
+
+In the case of leftmost derivation, the sentence `0 + 1 * 1` would be parsed
+as follows, starting from `<E>`. The period (`.`) shows the current parse
+point in the rule, and the pipe (`|`) indicates the input stream. We show the
+top down parsing.
+
+```
+<E> := . <T> + <E>  | 0 + 1 * 1
+       . <D> + <E>  | 0 + 1 * 1
+       . 0          | 0 + 1 * 1
+       0  . + <E>   | + 1 * 1
+       0  + . <E>   | 1 * 1
+       0  + . <T>   | 1 * 1
+       0  + . <F> * <T>  | 1 * 1
+       0  + . <D> * <T>  | 1 * 1
+       0  + . 1 * <T>  | 1 * 1
+       0  + 1 . * <T>  | * 1
+       0  + 1 * . <T>  | 1
+       0  + 1 * . <D>  | 1
+       0  + 1 * . 1  | 1
+       0  + 1 * 1 .  |
+```
+As you can see, for top-down parsing, we needed to sort of unwrap the
+nonterminals from the start symbol before starting to match. Hence, we
+are forced to unwrap the leftmost nonterminal (if the next symbol in the
+production is a nonterminal, otherwise, simply match with the next input
+symbol) to match with the next input symbol from the stream.
+That is, the leftmost nonterminal is always rewritten first.
+
+
+To better demonstrate rightmost derivation, we need a different grammar,
+and input. Furthermore, it is also bottom up parsing.
+```
+<E> := <E> + <T>
+     | <T>
+<T> := <T> * <F>
+     | <F>
+<F> := <D>
+<D> := 1 | 0
+```
+The parsing of `0 * 1 + 1` proceeds as follows
+```
+  | 0 * 1 + 1
+  0 | * 1 + 1
+  <D> | * 1 + 1
+  <F> | * 1 + 1
+  <T> | * 1 + 1
+  <T> * | 1 + 1
+  <T> * 1 | + 1
+  <T> * <D> | + 1
+  <T> * <F> | + 1
+  <T> | + 1
+  <E> | + 1
+  <E> + | 1
+  <E> + 1 |
+  <E> + <D> |
+  <E> + <F> |
+  <E> + <T> |
+  <E> |
+```
+As you can see, we construct nonterminals from the symbols on the stack.
+If the current token that was just shifted matches a nonterminal, then we
+rewrite the stack top with that nonterminal. So, the stack top is always
+considered for next action. Since we consider the stack to be the
+representation of a partially parsed rule, and the top of the stack is the
+right most part of the parsed rule, we say it is rightmost first.
 ## Definitions
 For this post, we use the following terms:
  
