@@ -1618,6 +1618,38 @@ class SLR1DFA(SLR1DFA):
         for k in self.follow[item.name]: # CHANGED
             self.add_reduction(dfastate, k, N, 'reduce')
 
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [('$', start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+            for key, s in new_dfastates:
+                assert key != ''
+                self.add_shift(dfastate, key, s)
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, (LR(0)) there should be only one.
+            # and add its number as the rN
+            for item in dfastate.items:
+                if item.finished():
+                    self.add_reduce(item, dfastate)
+
+                    # Also, (only) for the graph, collect epsilon transmission to all
+                    # rules that are after the given nonterminal at the head.
+                    self.add_actual_reductions(item, dfastate)
+
+            queue.extend(new_dfastates)
+
+        return self.build_table(len(self.my_states),
+                                (self.terminals + self.non_terminals + ['']),
+                                self.children)
+
 # Let us see if it works.
 if __name__ == '__main__':
     my_dfa = SLR1DFA(g2a, g2a_start)
@@ -1773,7 +1805,6 @@ class LR1DFA(SLR1DFA):
 # say this is `l`. So, we compute `first(<Beta> l)` for lookahead.
 # 
 class LR1DFA(LR1DFA):
-
     def compute_closure(self, items):
         to_process = list(items)
         seen = set()
@@ -1874,6 +1905,176 @@ if __name__ == '__main__':
         print(f"Message: {message}")
         print()
 
+
+# ## LALR(1)
+# 
+# LALR1 Item
+
+class LALR1Item(LR1Item):
+    def __init__(self, name, expr, dot, sid, lookaheads):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.sid = sid
+        self.lookaheads = lookaheads
+
+    def core(self):
+        return tuple((self.name, self.expr, self.dot))
+
+    def __repr__(self):
+        return f"({self.show_dot(self.name, self.expr, self.dot)}, {self.lookaheads} : {self.sid})"
+
+    def __str__(self):
+        return f"{self.show_dot(self.name, self.expr, self.dot)}:{{{','.join(sorted(self.lookaheads))}}}"
+
+# LALR1 DFA
+
+class LALR1DFA(LR1DFA):
+    def __init__(self, g, start):
+        self.item_sids = {} # debugging convenience only
+        self.states = {}
+        self.grammar = g
+        self.start = start
+        self.children = []
+        self.my_items = {}
+        self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
+        self.terminals, self.non_terminals = symbols(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
+        self.lr0_cores = {} # ADDED
+
+# LALR1DFA
+class LALR1DFA(LALR1DFA):
+    def new_item(self, name, texpr, pos, lookaheads):
+        lr0_core = (name, texpr, pos, tuple(sorted(lookaheads)))
+        if lr0_core not in self.lr0_cores:
+            item = LALR1Item(name, texpr, pos, self.sid_counter, lookaheads)
+            self.lr0_cores[lr0_core] = item
+            self.sid_counter += 1
+        else:
+            item = self.lr0_cores[lr0_core]
+            # item.lookaheads.update(lookaheads)
+        return item
+
+    def create_item(self, name, expr, pos, lookaheads):
+        return self.new_item(name, tuple(expr), pos, set(lookaheads))
+
+    def create_state(self, items):
+        lr0_core = str([str(item) for item in items])
+        if lr0_core not in self.my_states:
+            state = self.new_state(self.compute_closure(items))
+            self.states[state.sid] = state
+            self.my_states[lr0_core] = state
+        else:
+            state = self.my_states[lr0_core]
+            for new_item in items:
+                for saved_item in state.items:
+                    if new_item.core() == saved_item.core():
+                        saved_item.lookaheads.update(new_item.lookaheads)
+        return state
+
+# Compute closure
+class LALR1DFA(LALR1DFA):
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        new_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            new_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None or not fuzzer.is_nonterminal(key): continue
+
+            remaining = list(item_.remaining())
+            lookaheads = set()
+            for lookahead in item_.lookaheads:
+                l = first_of_rule(remaining + [lookahead], self.first, self.nullable)
+                lookaheads.update(l)
+
+            for rule in self.grammar[key]:
+                new_item = self.create_start_item(key, rule, lookaheads)
+                if str(new_item) not in new_items:
+                    to_process.append(new_item)
+                else:
+                    saved_item = new_items[str(new_item)]
+                    if saved_item.lookaheads == new_item.lookaheads: continue
+                    saved_item.lookaheads.update(new_item.lookaheads)
+                    to_process.append(saved_item)
+
+        return list(new_items.values())
+
+    def create_start_item(self, s, rule, lookaheads):
+        return self.new_item(s, tuple(rule), 0, lookaheads)
+
+    def create_start(self, s):
+        assert fuzzer.is_nonterminal(s)
+        items = [self.create_start_item(s, rule, {'$'}) for rule in self.grammar[s]]
+        return self.create_state(items)
+
+    def advance_item(self, item):
+        return self.create_item(item.name, item.expr, item.dot+1, item.lookaheads)
+
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        for lookahead in item.lookaheads:
+            self.add_reduction(dfastate, lookahead, N, 'reduce')
+
+class LALR1Parser(LR1Parser):
+    pass
+
+# Grammar
+g4 = {
+        '<S>': [['<A>', 'a'],
+                ['b', '<A>', 'c'],
+                ['d', 'c'],
+                ['b', 'd', 'a']],
+        '<A>' : [['d']]
+}
+
+# g4 = {
+#         '<S>': [['<C>', '<C>']],
+#         '<C>' : [['c', '<C>'], ['d']]
+# }
+
+
+g4_start = '<S>'
+
+# Usage example:
+if __name__ == '__main__':
+
+    g4a, g4a_start = add_start_state(g4, g4_start)
+    my_dfa = LALR1DFA(g4a, g4a_start)
+    table = my_dfa.build_dfa()
+    parser = LALR1Parser(my_dfa)
+
+    print("LALR(1) Production Rules:")
+    for k in my_dfa.production_rules:
+        print(k, my_dfa.production_rules[k])
+
+    print("\nLALR(1) States:")
+    for k in my_dfa.states:
+        print(k)
+        for v in my_dfa.states[k].items:
+            print('', v)
+
+    print("\nLALR(1) Parse Table:")
+    rowh = parser.parse_table[0]
+    print('State\t', '\t'.join([repr(c) for c in rowh.keys()]))
+    for i, row in enumerate(parser.parse_table):
+        print(f"{i}\t", '\t'.join([str(row[c]) for c in row.keys()]))
+
+    print("\nTesting LALR(1) Parser:")
+    test_strings = ["da", "bdc", "dc", "bda"]
+    for test_string in test_strings:
+        print(f"Parsing: {test_string}")
+        success, message, tree = parser.parse(test_string, g4a_start)
+        if tree is not None:
+            ep.display_tree(tree)
+        print(f"Result: {'Accepted' if success else 'Rejected'}")
+        print(f"Message: {message}")
+        print()
 
 # **Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html)
 # 
