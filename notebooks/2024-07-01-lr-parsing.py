@@ -2075,7 +2075,7 @@ if __name__ == '__main__':
         print()
 
 # **Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html)
-# [checker](http://smlweb.cpsc.ucalgary.ca).
+# [checker](http://smlweb.cpsc.ucalgary.ca), [new checker](https://mdaines.github.io/grammophone/).
 # 
 # ## References
 # [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
