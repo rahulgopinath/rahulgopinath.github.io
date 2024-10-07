@@ -2092,6 +2092,17 @@ if __name__ == '__main__':
     for i, row in enumerate(parser.parse_table):
         print(f"{i}\t", '\t'.join([str(row[c]) for c in row.keys()]))
 
+# Let us view it
+if __name__ == '__main__':
+    def lookup(i):
+        return str(i) + '\n' + '\n'.join([str(k) for k in my_dfa.states[i].items])
+    table = parser.parse_table
+    g = to_graph(table, lookup)
+    __canvas__(str(g))
+
+
+# Testing
+if __name__ == '__main__':
     print("\nTesting LALR(1) Parser:")
     test_strings = ["1", "11*1", "1*0"]
     for test_string in test_strings:
