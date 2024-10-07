@@ -3290,6 +3290,38 @@ class SLR1DFA(SLR1DFA):
         for k in self.follow[item.name]: # CHANGED
             self.add_reduction(dfastate, k, N, 'reduce')
 
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [('$', start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+            for key, s in new_dfastates:
+                assert key != ''
+                self.add_shift(dfastate, key, s)
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, (LR(0)) there should be only one.
+            # and add its number as the rN
+            for item in dfastate.items:
+                if item.finished():
+                    self.add_reduce(item, dfastate)
+
+                    # Also, (only) for the graph, collect epsilon transmission to all
+                    # rules that are after the given nonterminal at the head.
+                    self.add_actual_reductions(item, dfastate)
+
+            queue.extend(new_dfastates)
+
+        return self.build_table(len(self.my_states),
+                                (self.terminals + self.non_terminals + ['']),
+                                self.children)
+
 ############
 -->
 <form name='python_run_form'>
@@ -3299,6 +3331,38 @@ class SLR1DFA(SLR1DFA):
         N = self.productions[self.get_key((item.name, list(item.expr)))]
         for k in self.follow[item.name]: # CHANGED
             self.add_reduction(dfastate, k, N, &#x27;reduce&#x27;)
+
+    def build_dfa(self):
+        start_dfastate = self.create_start(self.start)
+        queue = [(&#x27;$&#x27;, start_dfastate)]
+        seen = set()
+        while queue:
+            (pkey, dfastate), *queue = queue
+            if str(dfastate) in seen: continue
+            seen.add(str(dfastate))
+
+            new_dfastates = self.find_transitions(dfastate)
+            for key, s in new_dfastates:
+                assert key != &#x27;&#x27;
+                self.add_shift(dfastate, key, s)
+
+            # Add reductions for all finished items
+            # this happens when the dot has reached the end of the rule.
+            # in this case, (LR(0)) there should be only one.
+            # and add its number as the rN
+            for item in dfastate.items:
+                if item.finished():
+                    self.add_reduce(item, dfastate)
+
+                    # Also, (only) for the graph, collect epsilon transmission to all
+                    # rules that are after the given nonterminal at the head.
+                    self.add_actual_reductions(item, dfastate)
+
+            queue.extend(new_dfastates)
+
+        return self.build_table(len(self.my_states),
+                                (self.terminals + self.non_terminals + [&#x27;&#x27;]),
+                                self.children)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3623,7 +3687,6 @@ say this is `l`. So, we compute `first(<Beta> l)` for lookahead.
 <!--
 ############
 class LR1DFA(LR1DFA):
-
     def compute_closure(self, items):
         to_process = list(items)
         seen = set()
@@ -3652,7 +3715,6 @@ class LR1DFA(LR1DFA):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class LR1DFA(LR1DFA):
-
     def compute_closure(self, items):
         to_process = list(items)
         seen = set()
@@ -3745,13 +3807,13 @@ the parse class does not change.
 
 <!--
 ############
-class LR1Parser(SLR1Parser): pass
+class LR1Parser(LR0Parser): pass
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class LR1Parser(SLR1Parser): pass
+class LR1Parser(LR0Parser): pass
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -3861,9 +3923,439 @@ for test_string in test_strings:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-**Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html)
+# LALR1 Automata
+One of the problems with LR(1) parsing is that while powerful, (all
+deterministic context-free languages can be expressed as an LR(1) grammar)
+the number of states required is very large because we incorporate lookahead
+information into items. That is, each lookahead symbol in combination with the
+LR(0) core becomes an LR1 item. Hence, the number of such LR(1) items can be
+as large as the number of LR(0) items multiplied by the number of terminal
+symbols in the grammar. Hence, even for a simple language such as C, an LR(1)
+grammar may result in a table that occupies 1 MB of RAM. While this is not
+too onerous for modern computers, one may ask if there is some trade off that 
+we can make such that we can parse with a more larger set of DCFG grammars
+while still keeping the memory requirements similar to the SLR(1) table.
 
-## References
+The LALR is one such technique. The idea is that similar to SLR(1) and LR(1)
+we maintain the lookahead. But unlike SLR(1) (and like LR(1)) we lookahead
+per production rule rather than per nonterminal. However, for any given state
+in the, automata, we merge those items in the state that has the same LR(0)
+core (but with different lookahead) into one item with a set of lookahead
+symbols.
+## LALR1 Item
+As we stated above, we keep a set of lookahead symbols instead of one.
+
+<!--
+############
+class LALR1Item(Item):
+    def __init__(self, name, expr, dot, sid, lookaheads):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.sid = sid
+        self.lookaheads = lookaheads
+
+    def core(self):
+        return tuple((self.name, self.expr, self.dot))
+
+    def __repr__(self):
+        return f"({self.show_dot(self.name, self.expr, self.dot)}, {self.lookaheads} : {self.sid})"
+
+    def __str__(self):
+        return f"{self.show_dot(self.name, self.expr, self.dot)}:{','.join(sorted(self.lookaheads))}"
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LALR1Item(Item):
+    def __init__(self, name, expr, dot, sid, lookaheads):
+        self.name, self.expr, self.dot = name, expr, dot
+        self.sid = sid
+        self.lookaheads = lookaheads
+
+    def core(self):
+        return tuple((self.name, self.expr, self.dot))
+
+    def __repr__(self):
+        return f&quot;({self.show_dot(self.name, self.expr, self.dot)}, {self.lookaheads} : {self.sid})&quot;
+
+    def __str__(self):
+        return f&quot;{self.show_dot(self.name, self.expr, self.dot)}:{&#x27;,&#x27;.join(sorted(self.lookaheads))}&quot;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## LALR1 DFA
+
+<!--
+############
+class LALR1DFA(LR1DFA):
+    def __init__(self, g, start):
+        self.item_sids = {} # debugging convenience only
+        self.states = {}
+        self.grammar = g
+        self.start = start
+        self.children = []
+        self.my_items = {}
+        self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
+        self.terminals, self.non_terminals = symbols(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LALR1DFA(LR1DFA):
+    def __init__(self, g, start):
+        self.item_sids = {} # debugging convenience only
+        self.states = {}
+        self.grammar = g
+        self.start = start
+        self.children = []
+        self.my_items = {}
+        self.my_states = {}
+        self.sid_counter = 0
+        self.dsid_counter = 0
+        self.terminals, self.non_terminals = symbols(g)
+        self.productions, self.production_rules = self._get_production_rules(g)
+        self.first, self.follow, self.nullable = get_first_and_follow(g)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+LALR1DFA creating a new state is similar to before, but with an additional
+wrinkle. We update the lookahead symbols when creating a new state if the
+LR(0) core is the same. Furthermore, we merge those states that *differ only
+on the lookahead symbols of their items*.
+
+<!--
+############
+class LALR1DFA(LALR1DFA):
+    def new_item(self, name, texpr, pos, lookaheads):
+        item = LALR1Item(name, texpr, pos, self.sid_counter, lookaheads)
+        self.sid_counter += 1
+        return item
+
+    def create_item(self, name, expr, pos, lookaheads):
+        assert isinstance(lookaheads, set)
+        texpr = tuple(expr)
+        key = (name, expr, pos, tuple(sorted(lookaheads)))
+        if key not in self.my_items:
+            self.my_items[key] = self.new_item(name, expr, pos, lookaheads)
+        return self.my_items[key]
+
+    def merge_items_by_core(self, core_items, items):
+        # core_items == items in terms of core for state merge.
+        # but we could also get a single item from compute_closure
+        modified = False
+        for item in items:
+            core_item  = core_items[item.core()]
+            if core_item.lookaheads != item.lookaheads:
+                modified = True
+                core_item.lookaheads.update(item.lookaheads)
+        return modified
+
+    # called by advance() and create_start()
+    def create_state(self, items_):
+        items = self.compute_closure(items_)
+        key = str([str(item) for item in items])
+        if key not in self.my_states:
+            state = self.new_state(items)
+            self.states[state.sid] = state
+            self.my_states[key] = state
+        else:
+            # if the state was already created, we merge the
+            # current one to it, and update the lookahead.
+            state = self.my_states[key]
+            core_items = {item.core():item for item in state.items}
+            self.merge_items_by_core(core_items, items)
+        return state
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LALR1DFA(LALR1DFA):
+    def new_item(self, name, texpr, pos, lookaheads):
+        item = LALR1Item(name, texpr, pos, self.sid_counter, lookaheads)
+        self.sid_counter += 1
+        return item
+
+    def create_item(self, name, expr, pos, lookaheads):
+        assert isinstance(lookaheads, set)
+        texpr = tuple(expr)
+        key = (name, expr, pos, tuple(sorted(lookaheads)))
+        if key not in self.my_items:
+            self.my_items[key] = self.new_item(name, expr, pos, lookaheads)
+        return self.my_items[key]
+
+    def merge_items_by_core(self, core_items, items):
+        # core_items == items in terms of core for state merge.
+        # but we could also get a single item from compute_closure
+        modified = False
+        for item in items:
+            core_item  = core_items[item.core()]
+            if core_item.lookaheads != item.lookaheads:
+                modified = True
+                core_item.lookaheads.update(item.lookaheads)
+        return modified
+
+    # called by advance() and create_start()
+    def create_state(self, items_):
+        items = self.compute_closure(items_)
+        key = str([str(item) for item in items])
+        if key not in self.my_states:
+            state = self.new_state(items)
+            self.states[state.sid] = state
+            self.my_states[key] = state
+        else:
+            # if the state was already created, we merge the
+            # current one to it, and update the lookahead.
+            state = self.my_states[key]
+            core_items = {item.core():item for item in state.items}
+            self.merge_items_by_core(core_items, items)
+        return state
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## LALR1 Closure
+Note how we have to keep reprocessing the items until the lookahead symbols
+are completely processed. This is because the `first_of_rule()` return can
+change with new lookahead symbols on current item.
+
+<!--
+############
+class LALR1DFA(LALR1DFA):
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        core_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            core_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None or not fuzzer.is_nonterminal(key): continue
+
+            remaining = list(item_.remaining())
+            lookaheads = set()
+            for lookahead in item_.lookaheads:
+                l = first_of_rule(remaining + [lookahead], self.first, self.nullable)
+                lookaheads.update(l)
+
+            for rule in self.grammar[key]:
+                new_item = self.create_start_item(key, rule, lookaheads)
+                if str(new_item) not in core_items:
+                    to_process.append(new_item)
+                else:
+                    modified = self.merge_items_by_core(core_items, [new_item])
+                    if modified:
+                        to_process.append(saved_item)
+
+        return list(core_items.values())
+
+    def create_start_item(self, s, rule, lookaheads):
+        return self.new_item(s, tuple(rule), 0, lookaheads)
+
+    def create_start(self, s):
+        assert fuzzer.is_nonterminal(s)
+        items = [self.create_start_item(s, rule, {'$'}) for rule in self.grammar[s]]
+        return self.create_state(items)
+
+    def advance_item(self, item):
+        return self.create_item(item.name, item.expr, item.dot+1, item.lookaheads)
+
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        for lookahead in item.lookaheads:
+            self.add_reduction(dfastate, lookahead, N, 'reduce')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LALR1DFA(LALR1DFA):
+    def compute_closure(self, items):
+        to_process = list(items)
+        seen = set()
+        core_items = {}
+        while to_process:
+            item_, *to_process = to_process
+            if str(item_) in seen: continue
+            seen.add(str(item_))
+            core_items[str(item_)] = item_
+            key = item_.at_dot()
+            if key is None or not fuzzer.is_nonterminal(key): continue
+
+            remaining = list(item_.remaining())
+            lookaheads = set()
+            for lookahead in item_.lookaheads:
+                l = first_of_rule(remaining + [lookahead], self.first, self.nullable)
+                lookaheads.update(l)
+
+            for rule in self.grammar[key]:
+                new_item = self.create_start_item(key, rule, lookaheads)
+                if str(new_item) not in core_items:
+                    to_process.append(new_item)
+                else:
+                    modified = self.merge_items_by_core(core_items, [new_item])
+                    if modified:
+                        to_process.append(saved_item)
+
+        return list(core_items.values())
+
+    def create_start_item(self, s, rule, lookaheads):
+        return self.new_item(s, tuple(rule), 0, lookaheads)
+
+    def create_start(self, s):
+        assert fuzzer.is_nonterminal(s)
+        items = [self.create_start_item(s, rule, {&#x27;$&#x27;}) for rule in self.grammar[s]]
+        return self.create_state(items)
+
+    def advance_item(self, item):
+        return self.create_item(item.name, item.expr, item.dot+1, item.lookaheads)
+
+    def add_reduce(self, item, dfastate):
+        N = self.productions[self.get_key((item.name, list(item.expr)))]
+        for lookahead in item.lookaheads:
+            self.add_reduction(dfastate, lookahead, N, &#x27;reduce&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The parser itself is no different from other parsers.
+
+<!--
+############
+class LALR1Parser(LR0Parser):
+    pass
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class LALR1Parser(LR0Parser):
+    pass
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Grammars
+
+<!--
+############
+g4 = {
+        '<S>': [['<I>', '*', '<E>'],
+                ['1']],
+        '<I>': [['1']],
+        '<E>' : [['<I>'], ['0']]
+}
+
+g4_start = '<S>'
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g4 = {
+        &#x27;&lt;S&gt;&#x27;: [[&#x27;&lt;I&gt;&#x27;, &#x27;*&#x27;, &#x27;&lt;E&gt;&#x27;],
+                [&#x27;1&#x27;]],
+        &#x27;&lt;I&gt;&#x27;: [[&#x27;1&#x27;]],
+        &#x27;&lt;E&gt;&#x27; : [[&#x27;&lt;I&gt;&#x27;], [&#x27;0&#x27;]]
+}
+
+g4_start = &#x27;&lt;S&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Usage example:
+
+<!--
+############
+g4a, g4a_start = add_start_state(g4, g4_start)
+my_dfa = LALR1DFA(g4a, g4a_start)
+table = my_dfa.build_dfa()
+parser = LALR1Parser(my_dfa)
+
+print("LALR(1) Production Rules:")
+for k in my_dfa.production_rules:
+    print(k, my_dfa.production_rules[k])
+
+print("\nLALR(1) States:")
+for k in my_dfa.states:
+    print(k)
+    for v in my_dfa.states[k].items:
+        print('', v)
+
+print("\nLALR(1) Parse Table:")
+rowh = parser.parse_table[0]
+print('State\t', '\t'.join([repr(c) for c in rowh.keys()]))
+for i, row in enumerate(parser.parse_table):
+    print(f"{i}\t", '\t'.join([str(row[c]) for c in row.keys()]))
+
+print("\nTesting LALR(1) Parser:")
+test_strings = ["1", "11*1", "1*0"]
+for test_string in test_strings:
+    print(f"Parsing: {test_string}")
+    success, message, tree = parser.parse(test_string, g4a_start)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f"Result: {'Accepted' if success else 'Rejected'}")
+    print(f"Message: {message}")
+    print()
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g4a, g4a_start = add_start_state(g4, g4_start)
+my_dfa = LALR1DFA(g4a, g4a_start)
+table = my_dfa.build_dfa()
+parser = LALR1Parser(my_dfa)
+
+print(&quot;LALR(1) Production Rules:&quot;)
+for k in my_dfa.production_rules:
+    print(k, my_dfa.production_rules[k])
+
+print(&quot;\nLALR(1) States:&quot;)
+for k in my_dfa.states:
+    print(k)
+    for v in my_dfa.states[k].items:
+        print(&#x27;&#x27;, v)
+
+print(&quot;\nLALR(1) Parse Table:&quot;)
+rowh = parser.parse_table[0]
+print(&#x27;State\t&#x27;, &#x27;\t&#x27;.join([repr(c) for c in rowh.keys()]))
+for i, row in enumerate(parser.parse_table):
+    print(f&quot;{i}\t&quot;, &#x27;\t&#x27;.join([str(row[c]) for c in row.keys()]))
+
+print(&quot;\nTesting LALR(1) Parser:&quot;)
+test_strings = [&quot;1&quot;, &quot;11*1&quot;, &quot;1*0&quot;]
+for test_string in test_strings:
+    print(f&quot;Parsing: {test_string}&quot;)
+    success, message, tree = parser.parse(test_string, g4a_start)
+    if tree is not None:
+        ep.display_tree(tree)
+    print(f&quot;Result: {&#x27;Accepted&#x27; if success else &#x27;Rejected&#x27;}&quot;)
+    print(f&quot;Message: {message}&quot;)
+    print()
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+**Note:** The following resources helped me quite a bit in debugging. [SLR](https://jsmachines.sourceforge.net/machines/slr.html) and [LR](https://jsmachines.sourceforge.net/machines/lr1.html),
+[grammar checker](http://smlweb.cpsc.ucalgary.ca), [new checker](https://mdaines.github.io/grammophone/).
+
+For LALR(1), it took me some time to understand that we do not merge items
+with same LR(0) cores globally. For example see [this grammar](https://smlweb.cpsc.ucalgary.ca/lalr1.php?grammar=S%27+-%3E+S.%0AS+-%3E+A+a%0A++%7C+b+A+c%0A++%7C+d+c%0A++%7C+b+d+a.%0AA+-%3E+d.&substs=)
+State 5 and State 8. The item `A -> d.` has different lookahead symbols (a and c) in these states.
+
+# References
 [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs "Parsing Techniques A Practical Guide" 2008
 
 <form name='python_run_form'>
