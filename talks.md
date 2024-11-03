@@ -164,6 +164,8 @@ generators such as fuzzers more and more. However, evaluating fuzzers has its
 own challenges. In this talk, I will discuss the challenges and opportunities
 in applying mutation analysis to fuzzing.
 
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/mutation-analysis-answering-the-fuzzing-challenge "presentation")
+
 #### <a id='gopinath2022building'></a> [Gopinath: _Building Blocks for Fuzzing_ IIT Gandhinagar 2022]()
 
 Fuzzing is a key technique for evaluating the robustness of programs
