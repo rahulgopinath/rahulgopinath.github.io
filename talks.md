@@ -8,7 +8,7 @@ menu: Talks
 ---
 ##### 2024
 * [_Look Ma, No Hands! Testing Software Without Specifications_](#gopinath2024look)<br/>
-  *Gopinath* - Australian National University, Canberra, Australia, June 10, 2024
+  *Gopinath* - [Australian National University](https://comp.anu.edu.au/events/2024/06/14/look-ma-no-hands-testing-software-without-specifications/), Canberra, Australia, June 10, 2024
 
 
 * [_How to Talk to Strange Programs and Find Bugs_](#gopinath2024how)<br/>
