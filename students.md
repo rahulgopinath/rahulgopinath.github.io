@@ -13,27 +13,32 @@ For all students, please work through, and make yourself familiar with [fuzzingb
 
 # <a id='undergrad' href='#undergrad'>Undergrad Summer Internship Applicants</a>
 
-Please check the
+<!-- Please check the
 [arch-india](https://arch-india.org/australia-india-research-students-fellowship-program?mc_cid=b1c3b6fef9&mc_eid=17e9b2f0e6) scholarship.
-Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students.
+Applications typically open in October, and closes in November. University of Sydney also has a competitive summer reserch program for very talented undergraduate students. -->
 
 If you are in one of the Indian Institutions, looking for summer internship,
 please note that VRI does not include funding for students without either a PR
 or citizenship of Australia. Unfortunately, this means that I am unable to fund
-your research at this point. However, I am happy to work with you if you would
+your research at this point.
+
+<!-- However, I am happy to work with you if you would
 like to work in areas of common interest, and I will be happy to provide
 a reference and documentation. If this is the case, please indicate this in
-your email. (Update: The School of Computer Science at University of Sydney is
+your email.  -->
+
+<!-- (Update: The School of Computer Science at University of Sydney is
 looking into funding competitive Indian students. I will update this when
 I have more information. Please watch this space. Latest (2024-03-04): The School of
 Computer Science has decided not to support VRI for Indian students this year.)
+-->
 <!-- While the [website](https://www.sydney.edu.au/engineering/study/scholarships/engineering-vacation-research-internship-program.html) says that it is specific to Australia, I am happy to consider you if you are from outside Australia too, and have excellent credentials. -->
 
-Before you apply, make yourself familiar with at least the basics of *regular expressions*,
+<!-- Before you apply, make yourself familiar with at least the basics of *regular expressions*,
 *context-free grammars*, *parsing*, and *grammar based fuzzing*. You will get
 sufficient information if you read the *fuzzingbook* and my posts.
 
-Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Internship%20Application:%20(Full%20Name%20here)).
+Please use [this format to apply](mailto:rahul.gopinath@sydney.edu.au?subject=Internship%20Application:%20(Full%20Name%20here)). -->
 
 # <a id='honours' href='#honours'>Honours Applicants</a>
 
