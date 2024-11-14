@@ -32,6 +32,11 @@ Office 445, School of Computer Science, Building J12,
 1 Cleveland Street,
 Darlington NSW 2008
 
+#### Calendar
+
+Published
+[here](https://outlook.office365.com/calendar/published/fc67aa5d51784de69e3b998875dfa71a@sydney.edu.au/f628c9a3c6284a46bc91035555cc330417936987815253932396/calendar.html)
+
 [^note]: Email is my preferred form of receiving a communication, followed by SMS. I prefer phone calls only when it is prearranged.
 [^personal]: Personal.
 [^unisydney]: The University of Sydney related.
