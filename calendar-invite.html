@@ -290,8 +290,8 @@ window.onload = function() {
 
 function generateICS() {
     const event_name = document.getElementById("eventName").value;
-    const start_datetime = new Date(document.getElementById("startDatetime").value);
-    const end_datetime = new Date(document.getElementById("endDatetime").value);
+    const start_datetime_local = new Date(document.getElementById("startDatetime").value);
+    const end_datetime_local = new Date(document.getElementById("endDatetime").value);
     const description = document.getElementById("description").value;
     const location = document.getElementById("location").value;
     const organizer = document.getElementById("organizer").value;
@@ -307,14 +307,21 @@ function generateICS() {
         rrule = `RRULE:FREQ=DAILY;UNTIL=${untilFormatted}`;
     }
 
-    // Convert the datetime to the ICS format
-    const formatDatetime = (date) => {
-        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-    };
+      // Parse input datetimes as being in the selected time zone
+    const start_datetime = new Date(
+        new Date(`${start_datetime_local}`).toLocaleString("en-US", { timeZone: timezone })
+    );
+    const end_datetime = new Date(
+        new Date(`${end_datetime_local}`).toLocaleString("en-US", { timeZone: timezone })
+    );
 
-    const start_datetime_ics = formatDatetime(start_datetime);
-    const end_datetime_ics = formatDatetime(end_datetime);
-    const dtstamp = formatDatetime(new Date());
+    // Convert to UTC and format for ICS
+    const formatDatetimeUTC = (date) =>
+        date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+
+    const start_datetime_utc = formatDatetimeUTC(start_datetime);
+    const end_datetime_utc = formatDatetimeUTC(end_datetime);
+    const dtstamp = formatDatetimeUTC(new Date());
     const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
 
     // Create the ICS content
@@ -326,13 +333,14 @@ function generateICS() {
     ics_content += "END:VTIMEZONE\r\n";
     ics_content += "BEGIN:VEVENT\r\n";
     ics_content += "SUMMARY:" + event_name + "\r\n";
-    ics_content += "DTSTART;TZID=" + timezone + ":" + start_datetime_ics + "\r\n";
-    ics_content += "DTEND;TZID=" + timezone + ":" + end_datetime_ics + "\r\n";
+    ics_content += "DTSTART:" + start_datetime_utc + "\r\n";
+    ics_content += "DTEND:" + end_datetime_utc + "\r\n";
     ics_content += "DTSTAMP:" + dtstamp + "\r\n";
     ics_content += "UID:" + uid + "\r\n";
     ics_content += "DESCRIPTION:" + description + "\r\n";
     ics_content += "LOCATION:" + location + "\r\n";
     ics_content += "ORGANIZER:" + organizer + "\r\n";
+
     if (isRecurring) {
         ics_content += rrule + "\r\n";
     }
