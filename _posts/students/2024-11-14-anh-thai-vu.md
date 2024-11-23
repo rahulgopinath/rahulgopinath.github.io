@@ -2,8 +2,8 @@
 layout: post
 categories : student
 tagline: "."
-tags : [student anhthaivu alistairvu 2023]
-e: Directed Fuzzing for Binary Formats
+tags : [student anhthaivu alistairvu 2024]
+e: Making Mutation Analysis Less Redundant
 ---
 
 #### Honours Thesis
