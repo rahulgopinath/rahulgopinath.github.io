@@ -6,7 +6,12 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+
+
 ##### 2024
+* [_How to Compare Fuzzers_](#gopinath2024how)<br/>
+  *Gopinath* - SAPLING'24, ANU, Canberra, Australia, December 1, 2023
+
 * [_Look Ma, No Hands! Testing Software Without Specifications_](#gopinath2024look)<br/>
   *Gopinath* - [Australian National University](https://comp.anu.edu.au/events/2024/06/14/look-ma-no-hands-testing-software-without-specifications/), Canberra, Australia, June 10, 2024
 
@@ -106,6 +111,16 @@ menu: Talks
 
 * [_Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_](#gopinath2016code)<br/>
   *Gopinath* - GTAC, 2016
+
+
+#### <a id='gopinath2024how'></a> [Gopinath: _How to Compare Fuzzers_ SAPLING, ANU, 2024]()
+
+Fuzzing is a leading technique for assessing the effectiveness of software test suites and test generators in finding bugs. However, with numerous fuzzers available, it can be unclear which one to use. Fuzzing campaigns are typically limited by available computing resources, and any compute wasted on an underperforming fuzzer can impact the final outcome. Moreover, a fuzzer’s effectiveness often depends on the domain and specific program being tested. As a result, one of the key challenges in fuzzing is determining how to evaluate their effectiveness.
+
+In this talk, I will explore various methods for evaluating test generators like fuzzers, their respective pros and cons, and strategies for addressing these challenges.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/how-to-compare-fuzzers)
+
 
 ---
 #### <a id='gopinath2024look'></a> [Gopinath: _Look Ma, No Hands! Testing Software Without Specifications_ ANU, 2024]()
