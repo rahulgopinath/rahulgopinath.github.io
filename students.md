@@ -20,7 +20,8 @@ Applications typically open in October, and closes in November. University of Sy
 If you are in one of the Indian Institutions, looking for summer internship,
 please note that VRI does not include funding for students without either a PR
 or citizenship of Australia. Unfortunately, this means that I am unable to fund
-your research at this point.
+your research at this point. Remote supervision is only considered if there is
+a co-supervisor (faculty/postdoc) at the Indian institution.
 
 <!-- However, I am happy to work with you if you would
 like to work in areas of common interest, and I will be happy to provide
