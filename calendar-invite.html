@@ -237,7 +237,8 @@ function setUserTimeZone() {
 }
 
 function adjustTimeForTimezone() {
-    const timezone = document.getElementById('timezone').value;
+    const oldTimezone = this.getAttribute('data-current-timezone');  // Get old timezone
+    const newTimezone = this.value;  // Get new timezone
     const startDatetime = document.getElementById('startDatetime');
     const endDatetime = document.getElementById('endDatetime');
 
@@ -245,6 +246,11 @@ function adjustTimeForTimezone() {
         const startDate = new Date(startDatetime.value);
         const endDate = new Date(endDatetime.value);
 
+        // First convert to UTC considering the old timezone
+        const startUTC = new Date(startDate.toLocaleString('en-US', { timeZone: oldTimezone }));
+        const endUTC = new Date(endDate.toLocaleString('en-US', { timeZone: oldTimezone }));
+
+        // Then format in the new timezone
         const formatDateForTimezone = (date, timeZone) => {
             return date.toLocaleString('en-CA', {
                 timeZone: timeZone,
@@ -257,9 +263,12 @@ function adjustTimeForTimezone() {
             }).replace(', ', 'T');
         };
 
-        startDatetime.value = formatDateForTimezone(startDate, timezone);
-        endDatetime.value = formatDateForTimezone(endDate, timezone);
+        startDatetime.value = formatDateForTimezone(startUTC, newTimezone);
+        endDatetime.value = formatDateForTimezone(endUTC, newTimezone);
     }
+
+    // Update the current timezone data attribute
+    this.setAttribute('data-current-timezone', newTimezone);
 }
 
 function setEndDateOneYearFromStart() {
