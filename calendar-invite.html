@@ -239,8 +239,10 @@ function setUserTimeZone() {
 }
 
 function adjustTimeForTimezone() {
-    const oldTimezone = this.getAttribute('data-current-timezone');  // Get old timezone
-    const newTimezone = this.value;  // Get new timezone
+    const timezoneSelect = document.getElementById('timezone');
+    const oldTimezone = timezoneSelect.getAttribute('data-current-timezone');  // Get old timezone
+    const newTimezone = timezoneSelect.value;  // Get new timezone
+
     const startDatetime = document.getElementById('startDatetime');
     const endDatetime = document.getElementById('endDatetime');
 
@@ -270,7 +272,7 @@ function adjustTimeForTimezone() {
     }
 
     // Update the current timezone data attribute
-    this.setAttribute('data-current-timezone', newTimezone);
+    timezoneSelect.setAttribute('data-current-timezone', newTimezone);
 }
 
 function setEndDateOneYearFromStart() {
