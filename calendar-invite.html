@@ -304,7 +304,8 @@ function generateICS() {
         const until = document.getElementById("until").value;
         const untilDate = new Date(until);
         const untilFormatted = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-        rrule = `RRULE:FREQ=DAILY;UNTIL=${untilFormatted}`;
+        const recFrequency = document.getElementById("frequency").value;
+        rrule = `RRULE:FREQ=${recFrequency};UNTIL=${untilFormatted}`;
     }
 
       // Parse input datetimes as being in the selected time zone
