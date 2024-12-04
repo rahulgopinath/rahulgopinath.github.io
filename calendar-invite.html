@@ -46,7 +46,7 @@
     </div>
     <div class="form-group">
         <label for="timezone">Time Zone:</label>
-        <select id="timezone" required onchange="adjustTimeForTimezone()" data-current-timezone="">
+        <select id="timezone" required data-current-timezone="">
             <option value="UTC">UTC</option>
             <option value="Australia/Sydney">(GMT+10:00) Sydney</option>
             <option value="Asia/Kolkata">(GMT+5:30) Kolkata</option>
@@ -235,24 +235,33 @@ function setUserTimeZone() {
         }
     }
     timeZoneSelect.setAttribute('data-current-timezone', timeZoneSelect.value);
-
+    console.log('data-current-timezone:', timeZoneSelect.getAttribute('data-current-timezone'))
 }
 
 function adjustTimeForTimezone() {
     const timezoneSelect = document.getElementById('timezone');
-    const oldTimezone = timezoneSelect.getAttribute('data-current-timezone');  // Get old timezone
-    const newTimezone = timezoneSelect.value;  // Get new timezone
+    const oldTimezone = timezoneSelect.getAttribute('data-current-timezone');  
+    const newTimezone = timezoneSelect.value;  
+
+    console.log('Old timezone:', oldTimezone);
+    console.log('New timezone:', newTimezone);
 
     const startDatetime = document.getElementById('startDatetime');
     const endDatetime = document.getElementById('endDatetime');
 
     if (startDatetime.value && endDatetime.value) {
-        const startDate = new Date(startDatetime.value);
-        const endDate = new Date(endDatetime.value);
+        const startDate = new Date(`${startDatetime.value}Z`);
+        const endDate =   new Date(`${endDatetime.value}Z`);
+
+        console.log('Original start date:', startDate);
+        console.log('Original end date:', endDate);
 
         // First convert to UTC considering the old timezone
-        const startUTC = new Date(startDate.toLocaleString('en-US', { timeZone: oldTimezone }));
-        const endUTC = new Date(endDate.toLocaleString('en-US', { timeZone: oldTimezone }));
+        const startUTC = new Date(startDate.toLocaleString('en-US', { timeZone: oldTimezone, hour12: false }));
+        const endUTC = new Date(endDate.toLocaleString('en-US', { timeZone: oldTimezone, hour12: false }));
+
+        console.log('UTC start date:', startUTC.toUTCString());
+        console.log('UTC end date:', endUTC.toUTCString());
 
         // Then format in the new timezone
         const formatDateForTimezone = (date, timeZone) => {
@@ -267,11 +276,16 @@ function adjustTimeForTimezone() {
             }).replace(', ', 'T');
         };
 
-        startDatetime.value = formatDateForTimezone(startUTC, newTimezone);
-        endDatetime.value = formatDateForTimezone(endUTC, newTimezone);
+        const newStartTime = formatDateForTimezone(startUTC, newTimezone);
+        const newEndTime = formatDateForTimezone(endUTC, newTimezone);
+
+        console.log('New start time:', newStartTime);
+        console.log('New end time:', newEndTime);
+
+        startDatetime.value = newStartTime;
+        endDatetime.value = newEndTime;
     }
 
-    // Update the current timezone data attribute
     timezoneSelect.setAttribute('data-current-timezone', newTimezone);
 }
 
