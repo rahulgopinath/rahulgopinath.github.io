@@ -371,7 +371,7 @@ function generateICS() {
     let ics_content = "BEGIN:VCALENDAR\r\n";
     ics_content += "VERSION:2.0\r\n";
     ics_content += "PRODID:-//University of Sydney//Software Engineering//EN\r\n";
-    ics_content += "METHOD:REQUEST";
+    ics_content += "METHOD:REQUEST" + "\r\n";
     ics_content += "BEGIN:VTIMEZONE\r\n";
     ics_content += "TZID:" + timezone + "\r\n";
     ics_content += "END:VTIMEZONE\r\n";
