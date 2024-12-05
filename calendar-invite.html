@@ -238,25 +238,29 @@ function setUserTimeZone() {
     console.log('data-current-timezone:', timeZoneSelect.getAttribute('data-current-timezone'))
 }
 
+function getTimeZoneOffset(timeZone) {
+    const date = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: timeZone, timeZoneName: 'longOffset'  });
+    let offset = formatter.format(date).split('GMT')[1]; // This will give us just the "+11:00" part
+    if (!offset) {
+        offset = '+00:00';
+    }
+    return offset;
+}
+
 function adjustTimeForTimezone() {
     const timezoneSelect = document.getElementById('timezone');
     const oldTimezone = timezoneSelect.getAttribute('data-current-timezone');  
     const newTimezone = timezoneSelect.value;  
 
-    const date = new Date();
-    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: oldTimezone, timeZoneName: 'longOffset'  });
-    let offset = formatter.format(date).split('GMT')[1]; // This will give us just the "+11:00" part
-    if (!offset) {
-        offset = '+00:00';
-    }
-    console.log('offset:', offset);
+    const offset = getTimeZoneOffset(oldTimezone);
 
     const startDatetime = document.getElementById('startDatetime')
     const endDatetime = document.getElementById('endDatetime')
 
     if (startDatetime.value && endDatetime.value) {
 
-        const startDatetimeStr = startDatetime .value + offset;
+        const startDatetimeStr = startDatetime.value + offset;
         const endDatetimeStr = endDatetime.value + offset;
 
         const startDate = new Date(startDatetimeStr)
@@ -314,14 +318,41 @@ window.onload = function() {
     });
 };
 
+// Convert to UTC and format for ICS
+function formatDateForICS(date) {
+    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); //.replace(/Z$/, '');
+}
+
+// Example:
+const date = new Date();
+console.log(formatDateForICS(date)); // "20241205T012403Z"
+
 function generateICS() {
     const event_name = document.getElementById("eventName").value;
-    const start_datetime_local = new Date(document.getElementById("startDatetime").value);
-    const end_datetime_local = new Date(document.getElementById("endDatetime").value);
+
     const description = document.getElementById("description").value;
     const location = document.getElementById("location").value;
     const organizer = document.getElementById("organizer").value;
+
+    const startDatetime = document.getElementById('startDatetime')
+    const endDatetime = document.getElementById('endDatetime')
+
     const timezone = document.getElementById("timezone").value;
+    const offset = getTimeZoneOffset(timezone);
+
+    const startDatetimeStr = startDatetime.value + offset;
+    const endDatetimeStr = endDatetime.value + offset;
+
+    const startDate = new Date(startDatetimeStr)
+    const endDate = new Date(endDatetimeStr)
+
+    console.log('UTC start date:', startDate.toUTCString());
+    console.log('UTC end date:', endDate.toUTCString());
+
+    const start_datetime_utc = formatDateForICS(startDate);
+    const end_datetime_utc = formatDateForICS(endDate);
+    const dtstamp = formatDateForICS(new Date());
+    const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
 
     // Recurring event options
     const isRecurring = document.getElementById("recurring").checked;
@@ -334,22 +365,7 @@ function generateICS() {
         rrule = `RRULE:FREQ=${recFrequency};UNTIL=${untilFormatted}`;
     }
 
-      // Parse input datetimes as being in the selected time zone
-    const start_datetime = new Date(
-        new Date(`${start_datetime_local}`).toLocaleString("en-US", { timeZone: timezone })
-    );
-    const end_datetime = new Date(
-        new Date(`${end_datetime_local}`).toLocaleString("en-US", { timeZone: timezone })
-    );
 
-    // Convert to UTC and format for ICS
-    const formatDatetimeUTC = (date) =>
-        date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
-
-    const start_datetime_utc = formatDatetimeUTC(start_datetime);
-    const end_datetime_utc = formatDatetimeUTC(end_datetime);
-    const dtstamp = formatDatetimeUTC(new Date());
-    const uid = Date.now() + "-" + event_name.replace(/[^a-zA-Z0-9]/g, '');
 
     // Create the ICS content
     let ics_content = "BEGIN:VCALENDAR\r\n";
