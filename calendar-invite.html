@@ -243,13 +243,12 @@ function adjustTimeForTimezone() {
     const oldTimezone = timezoneSelect.getAttribute('data-current-timezone');  
     const newTimezone = timezoneSelect.value;  
 
-    console.log('Old timezone:', oldTimezone);
-    console.log('New timezone:', newTimezone);
-
     const date = new Date();
     const formatter = new Intl.DateTimeFormat('en-US', { timeZone: oldTimezone, timeZoneName: 'longOffset'  });
-    // const offset = formatter.format(date).split(' ').pop();
-    const offset = formatter.format(date).split('GMT')[1]; // This will give us just the "+11:00" part
+    let offset = formatter.format(date).split('GMT')[1]; // This will give us just the "+11:00" part
+    if (!offset) {
+        offset = '+00:00';
+    }
     console.log('offset:', offset);
 
     const startDatetime = document.getElementById('startDatetime')
@@ -260,14 +259,8 @@ function adjustTimeForTimezone() {
         const startDatetimeStr = startDatetime .value + offset;
         const endDatetimeStr = endDatetime.value + offset;
 
-        console.log('Original start date str:', startDatetimeStr);
-        console.log('Original end date str:', endDatetimeStr);
-
         const startDate = new Date(startDatetimeStr)
         const endDate = new Date(endDatetimeStr)
-
-        console.log('Original start date:', startDate);
-        console.log('Original end date:', endDate);
 
         console.log('UTC start date:', startDate.toUTCString());
         console.log('UTC end date:', endDate.toUTCString());
@@ -287,9 +280,6 @@ function adjustTimeForTimezone() {
 
         const newStartTime = formatDateForTimezone(startDate, newTimezone);
         const newEndTime = formatDateForTimezone(endDate, newTimezone);
-
-        console.log('New start time:', newStartTime);
-        console.log('New end time:', newEndTime);
 
         startDatetime.value = newStartTime;
         endDatetime.value = newEndTime;
