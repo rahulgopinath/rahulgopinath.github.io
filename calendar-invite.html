@@ -246,22 +246,31 @@ function adjustTimeForTimezone() {
     console.log('Old timezone:', oldTimezone);
     console.log('New timezone:', newTimezone);
 
-    const startDatetime = document.getElementById('startDatetime');
-    const endDatetime = document.getElementById('endDatetime');
+    const date = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: oldTimezone, timeZoneName: 'longOffset'  });
+    // const offset = formatter.format(date).split(' ').pop();
+    const offset = formatter.format(date).split('GMT')[1]; // This will give us just the "+11:00" part
+    console.log('offset:', offset);
+
+    const startDatetime = document.getElementById('startDatetime')
+    const endDatetime = document.getElementById('endDatetime')
 
     if (startDatetime.value && endDatetime.value) {
-        const startDate = new Date(`${startDatetime.value}Z`);
-        const endDate =   new Date(`${endDatetime.value}Z`);
+
+        const startDatetimeStr = startDatetime .value + offset;
+        const endDatetimeStr = endDatetime.value + offset;
+
+        console.log('Original start date str:', startDatetimeStr);
+        console.log('Original end date str:', endDatetimeStr);
+
+        const startDate = new Date(startDatetimeStr)
+        const endDate = new Date(endDatetimeStr)
 
         console.log('Original start date:', startDate);
         console.log('Original end date:', endDate);
 
-        // First convert to UTC considering the old timezone
-        const startUTC = new Date(startDate.toLocaleString('en-US', { timeZone: oldTimezone, hour12: false }));
-        const endUTC = new Date(endDate.toLocaleString('en-US', { timeZone: oldTimezone, hour12: false }));
-
-        console.log('UTC start date:', startUTC.toUTCString());
-        console.log('UTC end date:', endUTC.toUTCString());
+        console.log('UTC start date:', startDate.toUTCString());
+        console.log('UTC end date:', endDate.toUTCString());
 
         // Then format in the new timezone
         const formatDateForTimezone = (date, timeZone) => {
@@ -276,8 +285,8 @@ function adjustTimeForTimezone() {
             }).replace(', ', 'T');
         };
 
-        const newStartTime = formatDateForTimezone(startUTC, newTimezone);
-        const newEndTime = formatDateForTimezone(endUTC, newTimezone);
+        const newStartTime = formatDateForTimezone(startDate, newTimezone);
+        const newEndTime = formatDateForTimezone(endDate, newTimezone);
 
         console.log('New start time:', newStartTime);
         console.log('New end time:', newEndTime);
