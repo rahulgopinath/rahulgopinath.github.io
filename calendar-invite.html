@@ -371,6 +371,7 @@ function generateICS() {
     let ics_content = "BEGIN:VCALENDAR\r\n";
     ics_content += "VERSION:2.0\r\n";
     ics_content += "PRODID:-//University of Sydney//Software Engineering//EN\r\n";
+    ics_content += "METHOD:REQUEST";
     ics_content += "BEGIN:VTIMEZONE\r\n";
     ics_content += "TZID:" + timezone + "\r\n";
     ics_content += "END:VTIMEZONE\r\n";
@@ -382,7 +383,8 @@ function generateICS() {
     ics_content += "UID:" + uid + "\r\n";
     ics_content += "DESCRIPTION:" + description + "\r\n";
     ics_content += "LOCATION:" + location + "\r\n";
-    ics_content += "ORGANIZER:" + organizer + "\r\n";
+    ics_content += "ORGANIZER:mailto:" + organizer + "\r\n";
+    ics_content += "ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:rahul.gopinath@sydney.edu.au" +  "\r\n";
 
     if (isRecurring) {
         ics_content += rrule + "\r\n";
