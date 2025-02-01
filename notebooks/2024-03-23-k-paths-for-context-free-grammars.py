@@ -144,16 +144,21 @@ import simplefuzzer as fuzzer
 
 expr_tree = ('<start>', [('<expr>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
 
+# let us visualize it
+
+if __name__ == '__main__':
+    fuzzer.display_tree(expr_tree)
 
 # First, we write a function to get all paths in a given tree from root to leaf.
 
 def root_to_leaf_paths(tree):
     key, children = tree
-    if not children: return [key]
+    if not children: return [[key]]
     paths = []
     for c in children:
-        cpath = root_to_leaf_paths(c)
-        paths.append([key] + cpath)
+        cpaths = root_to_leaf_paths(c)
+        for cpath in cpaths:
+        	paths.append([key] + cpath)
     return paths
 
 # Let us test it
@@ -164,17 +169,22 @@ if __name__ == '__main__':
 
 # Given a single path, we can compute all the k-sequences in it 
 
-def get_k_sequences(path):
-    if not path: return []
+def get_k_sequences(numbers):
+    return [numbers[i:i+length]
+            for length in range(1, len(numbers) + 1)
+            for i in range(len(numbers) - length + 1)]
 
-    sequences = []
-    n = len(path)
-
-    for length in range(1, n + 1):
-        for start in range(n - length + 1):
-            sequences.append(path[start:start + length])
-
-    return sequences
+# def get_k_sequences(path):
+#     if not path: return []
+# 
+#     sequences = []
+#     n = len(path)
+# 
+#     for length in range(1, n + 1):
+#         for start in range(n - length + 1):
+#             sequences.append(path[start:start + length])
+# 
+#     return sequences
 
 # Let us test it again.
 if __name__ == '__main__':
@@ -189,7 +199,8 @@ def compute_k_path_in_tree(tree):
     my_paths = {}
     paths = root_to_leaf_paths(tree)
     for path in paths:
-        seqs = get_k_sequences(path)
+        # remove the leaf node which is a terminal
+        seqs = get_k_sequences(path[:-1])
         for seq in seqs:
             ln = len(seq)
             if ln not in my_paths: my_paths[ln] = set()
@@ -202,8 +213,8 @@ if __name__ == '__main__':
     paths = compute_k_path_in_tree(expr_tree)
     for k in paths:
         print(k)
-        for path in paths:
-            print(' ', path)
+        for p in paths[k]:
+            print(' ', p)
 
 # ## Possible k-paths from grammar
 # 

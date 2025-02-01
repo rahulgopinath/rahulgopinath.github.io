@@ -201,12 +201,26 @@ Let us start with an input
 ############
 expr_tree = ('<start>', [('<expr>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
 
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 expr_tree = (&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;3&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+let us visualize it
+
+<!--
+############
+fuzzer.display_tree(expr_tree)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+fuzzer.display_tree(expr_tree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -265,22 +279,23 @@ Given a single path, we can compute all the k-sequences in it
 
 <!--
 ############
-def get_k_sequences(path):
-    if not path: return []
-
-    sequences = []
-    n = len(path)
-
-    for length in range(1, n + 1):
-        for start in range(n - length + 1):
-            sequences.append(path[start:start + length])
-
-    return sequences
+def get_k_sequences(numbers):
+    return [numbers[i:i+length]
+            for length in range(1, len(numbers) + 1)
+            for i in range(len(numbers) - length + 1)]
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def get_k_sequences(numbers):
+    return [numbers[i:i+length]
+            for length in range(1, len(numbers) + 1)
+            for i in range(len(numbers) - length + 1)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 def get_k_sequences(path):
     if not path: return []
 
@@ -292,10 +307,6 @@ def get_k_sequences(path):
             sequences.append(path[start:start + length])
 
     return sequences
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 Let us test it again.
 
 <!--
