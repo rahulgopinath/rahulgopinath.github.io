@@ -217,11 +217,12 @@ First, we write a function to get all paths in a given tree from root to leaf.
 ############
 def root_to_leaf_paths(tree):
     key, children = tree
-    if not children: return [key]
+    if not children: return [[key]]
     paths = []
     for c in children:
-        cpath = root_to_leaf_paths(c)
-        paths.append([key] + cpath)
+        cpaths = root_to_leaf_paths(c)
+        for cpath in cpaths:
+        	paths.append([key] + cpath)
     return paths
 
 ############
@@ -230,11 +231,12 @@ def root_to_leaf_paths(tree):
 <textarea cols="40" rows="4" name='python_edit'>
 def root_to_leaf_paths(tree):
     key, children = tree
-    if not children: return [key]
+    if not children: return [[key]]
     paths = []
     for c in children:
-        cpath = root_to_leaf_paths(c)
-        paths.append([key] + cpath)
+        cpaths = root_to_leaf_paths(c)
+        for cpath in cpaths:
+        	paths.append([key] + cpath)
     return paths
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -322,7 +324,8 @@ def compute_k_path_in_tree(tree):
     my_paths = {}
     paths = root_to_leaf_paths(tree)
     for path in paths:
-        seqs = get_k_sequences(path)
+        # remove the leaf node which is a terminal
+        seqs = get_k_sequences(path[:-1])
         for seq in seqs:
             ln = len(seq)
             if ln not in my_paths: my_paths[ln] = set()
@@ -338,7 +341,8 @@ def compute_k_path_in_tree(tree):
     my_paths = {}
     paths = root_to_leaf_paths(tree)
     for path in paths:
-        seqs = get_k_sequences(path)
+        # remove the leaf node which is a terminal
+        seqs = get_k_sequences(path[:-1])
         for seq in seqs:
             ln = len(seq)
             if ln not in my_paths: my_paths[ln] = set()
@@ -355,8 +359,8 @@ Let us test it
 paths = compute_k_path_in_tree(expr_tree)
 for k in paths:
     print(k)
-    for path in paths:
-        print(' ', path)
+    for p in paths[k]:
+        print(' ', p)
 
 ############
 -->
@@ -365,8 +369,8 @@ for k in paths:
 paths = compute_k_path_in_tree(expr_tree)
 for k in paths:
     print(k)
-    for path in paths:
-        print(&#x27; &#x27;, path)
+    for p in paths[k]:
+        print(&#x27; &#x27;, p)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
