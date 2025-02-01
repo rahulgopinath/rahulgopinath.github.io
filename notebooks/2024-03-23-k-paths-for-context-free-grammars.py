@@ -265,11 +265,25 @@ if __name__ == '__main__':
         if path[0] in ['<start>']: # limit the output
             print(path)
 
+# So, how many k-paths are in the grammar?
+
+def count_kpaths(g, k):
+    my_paths = k_paths(g, k)
+    path_cache = set()
+    for path in my_paths:
+        path_cache.add(tuple(path))
+    return path_cache
+
+# Using
+if __name__ == '__main__':
+    paths = k_paths(EXPR_GRAMMAR, 4)
+    print(len(paths))
+
 # Now that we have the k-paths, how do we obtain the test cases?
 # For that, we first define a procedure that given a a node of the tree,
 # and the parent nonterminal symbol (key), looks through the rules of the
 # parent key, and identifies one of the rule which contains the root nonterminal
-# of the # given node as a token. Given such a rule, we can embed the current
+# of the given node as a token. Given such a rule, we can embed the current
 # node, forming a partial tree.
 
 def find_rule_containing_key(g, key, root):

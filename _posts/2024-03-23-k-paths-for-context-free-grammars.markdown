@@ -506,11 +506,53 @@ for path in k_paths(EXPR_GRAMMAR, 4):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+So, how many k-paths are in the grammar?
+
+<!--
+############
+def count_kpaths(g, k):
+    my_paths = k_paths(g, k)
+    path_cache = set()
+    for path in my_paths:
+        path_cache.add(tuple(path))
+    return path_cache
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def count_kpaths(g, k):
+    my_paths = k_paths(g, k)
+    path_cache = set()
+    for path in my_paths:
+        path_cache.add(tuple(path))
+    return path_cache
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using
+
+<!--
+############
+paths = k_paths(EXPR_GRAMMAR, 4)
+print(len(paths))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+paths = k_paths(EXPR_GRAMMAR, 4)
+print(len(paths))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 Now that we have the k-paths, how do we obtain the test cases?
 For that, we first define a procedure that given a a node of the tree,
 and the parent nonterminal symbol (key), looks through the rules of the
 parent key, and identifies one of the rule which contains the root nonterminal
-of the # given node as a token. Given such a rule, we can embed the current
+of the given node as a token. Given such a rule, we can embed the current
 node, forming a partial tree.
 
 <!--
