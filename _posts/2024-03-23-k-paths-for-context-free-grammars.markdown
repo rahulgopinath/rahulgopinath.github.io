@@ -188,10 +188,131 @@ Such a tree is an instance of a *2-path*, which is `[<digits>, <digit>]`. In a t
           ])
  ```
 
-we haveone *3-path*, which is `[<digits>,<digits>, <digit>]`. We also have two
+we have one *3-path*, which is `[<digits>,<digits>, <digit>]`. We also have two
 *2-paths* `[<digits>, <digit>]`, `[<digits>,<digits>]` and `[<digits>, <digit>]`
 , but there are only two unique *2-paths*.
-So, the question is, how to compute the more complex k-paths?
+
+So, given an input, ho do we compute the k-paths in that input?
+## Computing k-paths
+Let us start with an input
+
+<!--
+############
+expr_tree = ('<start>', [('<expr>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+expr_tree = (&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;1&#x27;, [])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;2&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;3&#x27;, [])])])])])]), (&#x27;+&#x27;, []), (&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;integer&gt;&#x27;, [(&#x27;&lt;digits&gt;&#x27;, [(&#x27;&lt;digit&gt;&#x27;, [(&#x27;4&#x27;, [])])])])])])])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+To compute k-path, we start with a simple idea. Given a single path, we can
+compute all the k-sequences in it starting at the root node. That is, if we are
+given `1,2,3,4,5`, it has one 1-sequence starting at root -- (1), and one
+2-sequence, which is (1, 2) etc.
+
+<!--
+############
+def k_root_sequences(cpath, cache={}):
+    cachekey = len(cpath)
+    for i in range(cachekey+1):
+        if i not in cache: cache[i] = set()
+        cache[i].add(tuple(cpath[:i]))
+    return cache
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def k_root_sequences(cpath, cache={}):
+    cachekey = len(cpath)
+    for i in range(cachekey+1):
+        if i not in cache: cache[i] = set()
+        cache[i].add(tuple(cpath[:i]))
+    return cache
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, for the k-path itself.
+we start with the leaf nodes. If it is a terminal symbol,
+the paths is empty. If not, we compute paths from the children and add the
+current symbol to the head. Lastly, we add the current node itself.
+Next, update all k_root_sequenes.
+
+<!--
+############
+def compute_k_path_in_tree(tree, cache={}):
+    key, children = tree
+    paths = []
+
+    # terminal
+    if not (key[0], key[-1]) == ('<', '>'): return []
+
+    for c in children:
+        childpaths = compute_k_path_in_tree(c, cache)
+        for p in childpaths:
+            cpath = [key] + p
+            cache = k_root_sequences(cpath, cache)
+            paths.append(cpath)
+
+    paths.append([key])
+    return paths
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def compute_k_path_in_tree(tree, cache={}):
+    key, children = tree
+    paths = []
+
+    # terminal
+    if not (key[0], key[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return []
+
+    for c in children:
+        childpaths = compute_k_path_in_tree(c, cache)
+        for p in childpaths:
+            cpath = [key] + p
+            cache = k_root_sequences(cpath, cache)
+            paths.append(cpath)
+
+    paths.append([key])
+    return paths
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it
+
+<!--
+############
+g_cache={}
+g_paths = compute_k_path_in_tree(expr_tree, g_cache)
+for k in g_cache:
+    print(k)
+    print(g_cache[k])
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+g_cache={}
+g_paths = compute_k_path_in_tree(expr_tree, g_cache)
+for k in g_cache:
+    print(k)
+    print(g_cache[k])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Possible k-paths from grammar
+
+So, the question is, how to compute the number of k-paths from grammar?
 
 We stat by defining a function `parents()` which takes in a grammar, and
 identifies possible parent nodes for a given nonterminal symbol.
