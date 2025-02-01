@@ -139,7 +139,7 @@ import simplefuzzer as fuzzer
 # 
 # So, given an input, ho do we compute the k-paths in that input?
 
-# ## Computing k-paths
+# ### Computing k-paths
 # Let us start with an input
 
 expr_tree = ('<start>', [('<expr>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
@@ -216,7 +216,7 @@ if __name__ == '__main__':
         for p in paths[k]:
             print(' ', p)
 
-# ## Possible k-paths from grammar
+# ### Possible k-paths from grammar
 # 
 # So, the question is, how to compute the number of k-paths from grammar?
 # The basic idea is to first find the 1-paths from a grammar, which is the

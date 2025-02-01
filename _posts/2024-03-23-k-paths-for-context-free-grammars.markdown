@@ -194,7 +194,7 @@ we have one *3-path*, which is `[<digits>,<digits>, <digit>]`. We also have two
 , but there are only two unique *2-paths*.
 
 So, given an input, ho do we compute the k-paths in that input?
-## Computing k-paths
+### Computing k-paths
 Let us start with an input
 
 <!--
@@ -386,7 +386,7 @@ for k in paths:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Possible k-paths from grammar
+### Possible k-paths from grammar
 
 So, the question is, how to compute the number of k-paths from grammar?
 The basic idea is to first find the 1-paths from a grammar, which is the
