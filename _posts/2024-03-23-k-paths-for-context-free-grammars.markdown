@@ -7,11 +7,11 @@ tags: grammars peg
 categories: post
 ---
  
-TLDR; This tutorial describes how to design test cases that can effectively
-cover features of a given context-free grammar using the k-path strategy.
+TL;DR This tutorial explains how to design test cases that effectively cover
+features of a given context-free grammar using the k-path strategy.
 
-*Note*: The k-path here has nothing to do with the k-path cover from
-algorithms.
+*Note*: The k-path strategy discussed here is unrelated to the k-path cover
+from graph theory.
 
 ## Definitions
 For this post, we use the following terms as we have defiend  previously:
@@ -126,6 +126,7 @@ import simplefuzzer as fuzzer
 <div name='python_canvas'></div>
 </form>
 ## Syntax Based Testing
+
 When the abstract model of a program is a graph, to test such programs
 effectively, one uses the syntax based testing. Similarly, if the input domain
 of a program is a context-free language, to test such programs effectively,
@@ -200,6 +201,7 @@ Let us start with an input
 ############
 expr_tree = ('<start>', [('<expr>', [('<expr>', [('<expr>', [('<expr>', [('<integer>', [('<digits>', [('<digit>', [('1', [])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('2', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('3', [])])])])])]), ('+', []), ('<expr>', [('<integer>', [('<digits>', [('<digit>', [('4', [])])])])])])])
 
+
 ############
 -->
 <form name='python_run_form'>
@@ -209,78 +211,30 @@ expr_tree = (&#x27;&lt;start&gt;&#x27;, [(&#x27;&lt;expr&gt;&#x27;, [(&#x27;&lt;
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-To compute k-path, we start with a simple idea. Given a single path, we can
-compute all the k-sequences in it starting at the root node. That is, if we are
-given `1,2,3,4,5`, it has one 1-sequence starting at root -- (1), and one
-2-sequence, which is (1, 2) etc.
+First, we write a function to get all paths in a given tree from root to leaf.
 
 <!--
 ############
-def k_root_sequences(cpath, cache={}):
-    cachekey = len(cpath)
-    for i in range(cachekey+1):
-        if i not in cache: cache[i] = set()
-        cache[i].add(tuple(cpath[:i]))
-    return cache
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def k_root_sequences(cpath, cache={}):
-    cachekey = len(cpath)
-    for i in range(cachekey+1):
-        if i not in cache: cache[i] = set()
-        cache[i].add(tuple(cpath[:i]))
-    return cache
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Now, for the k-path itself.
-we start with the leaf nodes. If it is a terminal symbol,
-the paths is empty. If not, we compute paths from the children and add the
-current symbol to the head. Lastly, we add the current node itself.
-Next, update all k_root_sequenes.
-
-<!--
-############
-def compute_k_path_in_tree(tree, cache={}):
+def root_to_leaf_paths(tree):
     key, children = tree
+    if not children: return [key]
     paths = []
-
-    # terminal
-    if not (key[0], key[-1]) == ('<', '>'): return []
-
     for c in children:
-        childpaths = compute_k_path_in_tree(c, cache)
-        for p in childpaths:
-            cpath = [key] + p
-            cache = k_root_sequences(cpath, cache)
-            paths.append(cpath)
-
-    paths.append([key])
+        cpath = root_to_leaf_paths(c)
+        paths.append([key] + cpath)
     return paths
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def compute_k_path_in_tree(tree, cache={}):
+def root_to_leaf_paths(tree):
     key, children = tree
+    if not children: return [key]
     paths = []
-
-    # terminal
-    if not (key[0], key[-1]) == (&#x27;&lt;&#x27;, &#x27;&gt;&#x27;): return []
-
     for c in children:
-        childpaths = compute_k_path_in_tree(c, cache)
-        for p in childpaths:
-            cpath = [key] + p
-            cache = k_root_sequences(cpath, cache)
-            paths.append(cpath)
-
-    paths.append([key])
+        cpath = root_to_leaf_paths(c)
+        paths.append([key] + cpath)
     return paths
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -290,22 +244,129 @@ Let us test it
 
 <!--
 ############
-g_cache={}
-g_paths = compute_k_path_in_tree(expr_tree, g_cache)
-for k in g_cache:
-    print(k)
-    print(g_cache[k])
+seqs = root_to_leaf_paths(expr_tree)
+for seq in seqs:
+    print(seq)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+seqs = root_to_leaf_paths(expr_tree)
+for seq in seqs:
+    print(seq)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Given a single path, we can compute all the k-sequences in it 
+
+<!--
+############
+def get_k_sequences(path):
+    if not path: return []
+
+    sequences = []
+    n = len(path)
+
+    for length in range(1, n + 1):
+        for start in range(n - length + 1):
+            sequences.append(path[start:start + length])
+
+    return sequences
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_k_sequences(path):
+    if not path: return []
+
+    sequences = []
+    n = len(path)
+
+    for length in range(1, n + 1):
+        for start in range(n - length + 1):
+            sequences.append(path[start:start + length])
+
+    return sequences
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it again.
+
+<!--
+############
+seqs = get_k_sequences([1,2,3,4,5])
+for seq in seqs:
+    print(seq)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+seqs = get_k_sequences([1,2,3,4,5])
+for seq in seqs:
+    print(seq)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, computing k-paths is simply a matter of getting all paths,
+and generating all sequences from it.
+
+<!--
+############
+def compute_k_path_in_tree(tree):
+    my_paths = {}
+    paths = root_to_leaf_paths(tree)
+    for path in paths:
+        seqs = get_k_sequences(path)
+        for seq in seqs:
+            ln = len(seq)
+            if ln not in my_paths: my_paths[ln] = set()
+            my_paths[ln].add(tuple(seq))
+    return my_paths
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-g_cache={}
-g_paths = compute_k_path_in_tree(expr_tree, g_cache)
-for k in g_cache:
+def compute_k_path_in_tree(tree):
+    my_paths = {}
+    paths = root_to_leaf_paths(tree)
+    for path in paths:
+        seqs = get_k_sequences(path)
+        for seq in seqs:
+            ln = len(seq)
+            if ln not in my_paths: my_paths[ln] = set()
+            my_paths[ln].add(tuple(seq))
+    return my_paths
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it
+
+<!--
+############
+paths = compute_k_path_in_tree(expr_tree)
+for k in paths:
     print(k)
-    print(g_cache[k])
+    for path in paths:
+        print(' ', path)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+paths = compute_k_path_in_tree(expr_tree)
+for k in paths:
+    print(k)
+    for path in paths:
+        print(&#x27; &#x27;, path)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
