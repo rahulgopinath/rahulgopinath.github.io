@@ -374,6 +374,13 @@ for k in paths:
 ## Possible k-paths from grammar
 
 So, the question is, how to compute the number of k-paths from grammar?
+The basic idea is to first find the 1-paths from a grammar, which is the
+set of all nonterminal symbols. Then, find all possible nonterminals which
+contain a given nonterminal symbol in one of the rules in the definition.
+Let us call it the parent set of a given nonterminal
+The set of all possible parent along with the child gives us the 2-paths
+in the grammar. We can extend a n-path to n+1 path by adding the parents
+to the n-path.
 
 We stat by defining a function `parents()` which takes in a grammar, and
 identifies possible parent nodes for a given nonterminal symbol.
@@ -529,7 +536,8 @@ for path in _k_paths(EXPR_GRAMMAR, 4, parent):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We can now tie both together
+We can now tie both together, allowing us to return all
+k_paths of a particular k.
 
 <!--
 ############
@@ -552,7 +560,10 @@ Using
 
 <!--
 ############
-for path in k_paths(EXPR_GRAMMAR, 4):
+paths_4 = k_paths(EXPR_GRAMMAR, 4)
+print(len(paths_4))
+# let us see a few.
+for path in paths_4:
     if path[0] in ['<start>']: # limit the output
         print(path)
 
@@ -560,14 +571,17 @@ for path in k_paths(EXPR_GRAMMAR, 4):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-for path in k_paths(EXPR_GRAMMAR, 4):
+paths_4 = k_paths(EXPR_GRAMMAR, 4)
+print(len(paths_4))
+# let us see a few.
+for path in paths_4:
     if path[0] in [&#x27;&lt;start&gt;&#x27;]: # limit the output
         print(path)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-So, how many k-paths are in the grammar?
+So, how many k-paths are in the grammar? We now have to eliminate duplicates
 
 <!--
 ############
@@ -609,6 +623,11 @@ print(len(paths))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+At this point, we have demonstrated both how to obtain the k-paths from a given
+set of inputs, and finding the total number of k-paths from a grammar for a
+particular k.
+
+### Obtaining test cases for coverage.
 Now that we have the k-paths, how do we obtain the test cases?
 For that, we first define a procedure that given a a node of the tree,
 and the parent nonterminal symbol (key), looks through the rules of the
