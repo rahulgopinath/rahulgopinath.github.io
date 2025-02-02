@@ -357,9 +357,9 @@ def path_to_tree(path_, g):
     # take the lowest
     while path:
         leaf, *path = path
-        if not path: return root
         rule = find_rule_containing_key(g, leaf, root)
         root = [leaf, rule]
+        if not path: return root
 
 # Using it.
 

@@ -714,9 +714,9 @@ def path_to_tree(path_, g):
     # take the lowest
     while path:
         leaf, *path = path
-        if not path: return root
         rule = find_rule_containing_key(g, leaf, root)
         root = [leaf, rule]
+        if not path: return root
 
 ############
 -->
@@ -728,9 +728,9 @@ def path_to_tree(path_, g):
     # take the lowest
     while path:
         leaf, *path = path
-        if not path: return root
         rule = find_rule_containing_key(g, leaf, root)
         root = [leaf, rule]
+        if not path: return root
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
