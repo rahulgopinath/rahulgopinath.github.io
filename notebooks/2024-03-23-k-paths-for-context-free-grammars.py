@@ -370,7 +370,7 @@ if __name__ == '__main__':
 
 # Let us define a method to display such trees
 
-def display_tree(node, level=0, c='-'):
+def display_partial_tree(node, level=0, c='-'):
     key, children = node
     if children is None:
         print(' ' * 4 * level + c+'> ' + key)
@@ -380,12 +380,12 @@ def display_tree(node, level=0, c='-'):
             if isinstance(c, str):
                 print(' ' * 4 * (level+1) + c)
             else:
-                display_tree(c, level + 1, c='+')
+                display_partial_tree(c, level + 1, c='+')
 
 # Using it
 
 if __name__ == '__main__':
-    display_tree(tree)
+    display_partial_tree(tree)
 
 # Filling the partial tree
 
@@ -406,7 +406,12 @@ def tree_fill(g, pt):
 # Using it
 if __name__ == '__main__':
     t = tree_fill(EXPR_GRAMMAR, tree)
-    display_tree(t)
+    fuzzer.display_tree(t)
+    paths = compute_k_path_in_tree(t)
+    for k in paths:
+        print(k)
+        for p in paths[k]:
+            print(' ', p)
 
 # Let us make it into a test case
 def collapse(t):

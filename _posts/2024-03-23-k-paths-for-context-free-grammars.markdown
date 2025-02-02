@@ -758,7 +758,7 @@ Let us define a method to display such trees
 
 <!--
 ############
-def display_tree(node, level=0, c='-'):
+def display_partial_tree(node, level=0, c='-'):
     key, children = node
     if children is None:
         print(' ' * 4 * level + c+'> ' + key)
@@ -768,13 +768,13 @@ def display_tree(node, level=0, c='-'):
             if isinstance(c, str):
                 print(' ' * 4 * (level+1) + c)
             else:
-                display_tree(c, level + 1, c='+')
+                display_partial_tree(c, level + 1, c='+')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def display_tree(node, level=0, c=&#x27;-&#x27;):
+def display_partial_tree(node, level=0, c=&#x27;-&#x27;):
     key, children = node
     if children is None:
         print(&#x27; &#x27; * 4 * level + c+&#x27;&gt; &#x27; + key)
@@ -784,7 +784,7 @@ def display_tree(node, level=0, c=&#x27;-&#x27;):
             if isinstance(c, str):
                 print(&#x27; &#x27; * 4 * (level+1) + c)
             else:
-                display_tree(c, level + 1, c=&#x27;+&#x27;)
+                display_partial_tree(c, level + 1, c=&#x27;+&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -793,13 +793,13 @@ Using it
 
 <!--
 ############
-display_tree(tree)
+display_partial_tree(tree)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-display_tree(tree)
+display_partial_tree(tree)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -848,14 +848,24 @@ Using it
 <!--
 ############
 t = tree_fill(EXPR_GRAMMAR, tree)
-display_tree(t)
+fuzzer.display_tree(t)
+paths = compute_k_path_in_tree(t)
+for k in paths:
+    print(k)
+    for p in paths[k]:
+        print(' ', p)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 t = tree_fill(EXPR_GRAMMAR, tree)
-display_tree(t)
+fuzzer.display_tree(t)
+paths = compute_k_path_in_tree(t)
+for k in paths:
+    print(k)
+    for p in paths[k]:
+        print(&#x27; &#x27;, p)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
