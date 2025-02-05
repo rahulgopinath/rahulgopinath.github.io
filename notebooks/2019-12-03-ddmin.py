@@ -152,8 +152,36 @@ if __name__ == '__main__':
 # 
 # That was of course illuminating. However, is that the only way to implement this?
 # *delta-debug* at its heart, is a divide and conquer algorithm. Can we implement it
-# recursively?
-# 
+# recursively? This is the direct translation of ddmin from the paper's
+# formalization, which is recursive.
+
+def ddrmin(cur_str, causal_fn, n=2):
+    if len(cur_str) == 1:
+        return cur_str
+
+    chunk = len(cur_str) // n
+    split_idxs = [i for i in range(0, len(cur_str), chunk)]
+
+    # Try complements
+    for index in split_idxs:
+        complement = cur_str[:index] + cur_str[index + chunk:]  # Remove it
+        if causal_fn(complement):
+            return ddrmin(complement, causal_fn, 2)  # Reset n to 2
+
+    # Try subsets
+    for index in split_idxs:
+        s = cur_str[index:index+chunk]
+        if causal_fn(s):
+            return ddrmin(s, causal_fn, 2)  # Reset n to 2
+
+    # Increase granularity
+    if n < len(cur_str):
+        return ddrmin(cur_str, causal_fn, min(2 * n, len(cur_str)))
+
+    return cur_str
+ 
+# ## Recursive2
+# But, is all that work necessary?
 # The basic idea is that given a string, we can split it into parts, and check if either
 # part reproduces the failure. If either one does, then call `ddrmin()` on the part that
 # reproduced the failure.
