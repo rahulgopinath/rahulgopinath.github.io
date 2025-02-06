@@ -146,7 +146,8 @@ if __name__ == '__main__':
 
 # The nice thing is that, if you invoke the driver, you can see the reduction in
 # input length in action. Note that our driver is essentially a best case
-# scenario. In the worst case, the complexity is $$O(n^2)$$
+# scenario. In the worst case, the complexity is $$O(n^2)$$. The worst case is
+# when tests can result in _unresolved_ status, and the last change always fails.
 # 
 # ## Recursive
 # 
@@ -200,6 +201,7 @@ def ddrmin(cur_str, causal_fn, n=2):
 # worry about empty string. Hence, we can return it as is.
 # 
 # Here is the implementation.
+# Note: This is the algorithm(1) from the paper [^zeller1999] with minor modifications.
 # 
 # ### ddrmin()
 
@@ -226,7 +228,7 @@ if __name__ == '__main__':
 # nice thing here is that, since we split the string by half again and again, the maximum
 # stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
 # 
-# The recursive algorithm is given in *Yesterday, my program worked.Today, it does not. Why?* by Zeller in 1999.
+# [^zeller1999]: Yesterday, my program worked.Today, it does not. Why? Zeller, 1999.
 # 
 
 
