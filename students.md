@@ -22,6 +22,11 @@ please note that VRI does not include funding for students without either a PR
 or citizenship of Australia. Unfortunately, this means that I am unable to fund
 your research at this point. Remote supervision is only considered if there is
 a co-supervisor (faculty/postdoc) at the Indian institution.
+I do not at present have the bandwidth to work with *sophomore* students
+(second year) from Indian institutions. However, if you are a final year thesis
+student, I would be happy to co-advise you on your thesis, especially if you
+have an upcoming industrial internship, where you can potentially evaluate the
+effectiveness of some of your research.
 
 <!-- However, I am happy to work with you if you would
 like to work in areas of common interest, and I will be happy to provide
