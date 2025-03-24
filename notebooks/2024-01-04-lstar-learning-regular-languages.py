@@ -36,6 +36,51 @@
 # Angluin expands on this further in 1988 [^angluin1988].
 # 
 # 
+# # Definitions
+# 
+# * Input symbol: A single symbol that is consumed by the machine which can move
+#   it from one state to another. The set of such symbols is called an alphabet,
+#   and is represented by $$ A $$.
+# * Membership query: A string that is passed to the blackbox. The blackbox
+#   answers yes or no.
+# * Equivalence query: A grammar that is passed to the teacher as a hypothesis
+#   of what the target language is. The teacher answers yes or a counter
+#   example that behaves differently on the blackbox and the hypothesis grammar.
+# * Prefix closed: a set is prefix closed if all prefixes of any of its elements
+#   are also in the same set.
+# * Suffix closed: a set is suffix closed if all suffixes of any of its elements
+#   are also in the same set.
+# * Observation table: A table whose rows correspond to the *candidate states*.
+#   The rows are made up of prefix strings that can reach given states ---
+#   commonly represented as $$ S $$, but here we will denote these by $$ P $$
+#   for prefixes --- and the columns are made up of suffix strings that serves
+#   to distinguish these states --- commonly expressed as $$ E $$ for
+#   extensions, but we will use $$ S $$ to denote suffixes here. The table
+#   contains auxiliary rows that extends each item $$ p \in P $$ with each
+#   alphabet $$ a \in A $$ as we discuss later in *closedness*.
+#   This table defines the language inferred by the algorithm. The contents of
+#   the table are the answers from the oracle on a string composed of the row
+#   and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
+#   The table has two properties: *closedness* and *consistency*.
+#   If these are not met at any time, we take to resolve it.
+# * The state: A state in the DFA is represented by a prefix in the observation
+#   table, and is named by the pattern of 1s and 0s in the cell contents.
+#   We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
+# * Closedness of the observation table means that for each $$ p \in P $$ and
+#   each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
+#   (i.e., its contents) exists in $$ P $$. That is, there is some
+#   $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
+#   corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
+#   state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
+# * Consistency of the observation table means that if two prefixes represents
+#   the same state (i.e. the contents of two rows are equal), that is
+#   $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
+#   The idea is that if two prefixes reach the state, then when fed any
+#   alphabet, both prefixes should transition to the same next state
+#   (represented by the pattern produced by the suffixes).
+# * The candidate states `P` is prefix closed, while the set of suffixes `S`
+#   is suffix closed.
+# 
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
@@ -766,51 +811,6 @@ if __name__ == '__main__':
         print('F1:', 2 * precision*recall/(precision + recall))
 
 
-# # Definitions
-# 
-# * Input symbol: A single symbol that is consumed by the machine which can move
-#   it from one state to another. The set of such symbols is called an alphabet,
-#   and is represented by $$ A $$.
-# * Membership query: A string that is passed to the blackbox. The blackbox
-#   answers yes or no.
-# * Equivalence query: A grammar that is passed to the teacher as a hypothesis
-#   of what the target language is. The teacher answers yes or a counter
-#   example that behaves differently on the blackbox and the hypothesis grammar.
-# * Prefix closed: a set is prefix closed if all prefixes of any of its elements
-#   are also in the same set.
-# * Suffix closed: a set is suffix closed if all suffixes of any of its elements
-#   are also in the same set.
-# * Observation table: A table whose rows correspond to the *candidate states*.
-#   The rows are made up of prefix strings that can reach given states ---
-#   commonly represented as $$ S $$, but here we will denote these by $$ P $$
-#   for prefixes --- and the columns are made up of suffix strings that serves
-#   to distinguish these states --- commonly expressed as $$ E $$ for
-#   extensions, but we will use $$ S $$ to denote suffixes here. The table
-#   contains auxiliary rows that extends each item $$ p \in P $$ with each
-#   alphabet $$ a \in A $$ as we discuss later in *closedness*.
-#   This table defines the language inferred by the algorithm. The contents of
-#   the table are the answers from the oracle on a string composed of the row
-#   and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
-#   The table has two properties: *closedness* and *consistency*.
-#   If these are not met at any time, we take to resolve it.
-# * The state: A state in the DFA is represented by a prefix in the observation
-#   table, and is named by the pattern of 1s and 0s in the cell contents.
-#   We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
-# * Closedness of the observation table means that for each $$ p \in P $$ and
-#   each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
-#   (i.e., its contents) exists in $$ P $$. That is, there is some
-#   $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
-#   corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
-#   state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
-# * Consistency of the observation table means that if two prefixes represents
-#   the same state (i.e. the contents of two rows are equal), that is
-#   $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
-#   The idea is that if two prefixes reach the state, then when fed any
-#   alphabet, both prefixes should transition to the same next state
-#   (represented by the pattern produced by the suffixes).
-# * The candidate states `P` is prefix closed, while the set of suffixes `S`
-#   is suffix closed.
-# 
 #  
 # # Notes
 # 
@@ -829,6 +829,7 @@ if __name__ == '__main__':
 # given data. Closely related fields are grammar mining, grammar recovery,
 # and grammar extraction which are all whitebox approaches based on program
 # or related artifact analysis. Language acquisition is another related term.
+# Another is Model Learning [^vaandrager2017model].
 # 
 # ## Context Free Languages
 # Here, we discussed how to infer a regular grammar. In many cases the blackbox
@@ -843,3 +844,5 @@ if __name__ == '__main__':
 # [^angluin1987]: Learning Regular Sets from Queries and Counterexamples, 1987 
 # [^angluin1988]: Queries and Concept Learning, 1988
 # [^valiant1984]: A theory of the learnable, 1984
+# [^vaandrager2017model]: Model learning, Frits Vaandrager, 2017
+
