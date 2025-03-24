@@ -765,11 +765,23 @@ def match(p, start, text):
     except SyntaxError as e: return False
     return True
 
+# ## Evaluating the model accuracy.
+# In the PAC model, we infer a grammar with parameters $$ \epsilon $$ and $$ \delta $$.
+# Here, from a software engineering perspective, the interpretation is that if
+# we use the same input distribution for inference as the sampling distribution,
+# then we can expect an accuracy of $$ 1 - \epsilon $$ in classification. That
+# is, we can expect $$ n \times \epsilon $$ misclassified strings out of $$ n $$
+# strings, and we have a confidence level of $$ 1 - \delta $$ in this statement.
+
 # ## The F1 score.
 # 
 # There is of course an additional question here. From the perspective of
-# language learning for software engineering *how we learned* is less important
-# than *what we learned*. That is, the precision and recall of the model that
+# language learning for software engineering, the error rate is too coarse.
+# We need more detail as to the rate of false positives and false negatives.
+# This is because most of our languages are very sparse compared to the universe
+# of all strings, and it is easy to get a very small error rate when almost any
+# input generated randomly is unlikely to be in the language.
+# That is, the precision and recall of the model that
 # we learned is important. I have discussed how to compute the precision and
 # recall, and the F1 score [previously](/post/2021/01/28/grammar-inference/).
 # So, we can compute the precision and recall as follows.

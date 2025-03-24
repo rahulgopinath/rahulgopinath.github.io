@@ -36,6 +36,51 @@ also talks about how to update this algorithm to make use of the PAC
 Angluin expands on this further in 1988 [^angluin1988].
 
 
+# Definitions
+
+* Input symbol: A single symbol that is consumed by the machine which can move
+  it from one state to another. The set of such symbols is called an alphabet,
+  and is represented by $$ A $$.
+* Membership query: A string that is passed to the blackbox. The blackbox
+  answers yes or no.
+* Equivalence query: A grammar that is passed to the teacher as a hypothesis
+  of what the target language is. The teacher answers yes or a counter
+  example that behaves differently on the blackbox and the hypothesis grammar.
+* Prefix closed: a set is prefix closed if all prefixes of any of its elements
+  are also in the same set.
+* Suffix closed: a set is suffix closed if all suffixes of any of its elements
+  are also in the same set.
+* Observation table: A table whose rows correspond to the *candidate states*.
+  The rows are made up of prefix strings that can reach given states ---
+  commonly represented as $$ S $$, but here we will denote these by $$ P $$
+  for prefixes --- and the columns are made up of suffix strings that serves
+  to distinguish these states --- commonly expressed as $$ E $$ for
+  extensions, but we will use $$ S $$ to denote suffixes here. The table
+  contains auxiliary rows that extends each item $$ p \in P $$ with each
+  alphabet $$ a \in A $$ as we discuss later in *closedness*.
+  This table defines the language inferred by the algorithm. The contents of
+  the table are the answers from the oracle on a string composed of the row
+  and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
+  The table has two properties: *closedness* and *consistency*.
+  If these are not met at any time, we take to resolve it.
+* The state: A state in the DFA is represented by a prefix in the observation
+  table, and is named by the pattern of 1s and 0s in the cell contents.
+  We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
+* Closedness of the observation table means that for each $$ p \in P $$ and
+  each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
+  (i.e., its contents) exists in $$ P $$. That is, there is some
+  $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
+  corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
+  state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
+* Consistency of the observation table means that if two prefixes represents
+  the same state (i.e. the contents of two rows are equal), that is
+  $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
+  The idea is that if two prefixes reach the state, then when fed any
+  alphabet, both prefixes should transition to the same next state
+  (represented by the pattern produced by the suffixes).
+* The candidate states `P` is prefix closed, while the set of suffixes `S`
+  is suffix closed.
+
 
 ## Contents
 {:.no_toc}
@@ -1411,11 +1456,22 @@ def match(p, start, text):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## Evaluating the model accuracy.
+In the PAC model, we infer a grammar with parameters $$ \epsilon $$ and $$ \delta $$.
+Here, from a software engineering perspective, the interpretation is that if
+we use the same input distribution for inference as the sampling distribution,
+then we can expect an accuracy of $$ 1 - \epsilon $$ in classification. That
+is, we can expect $$ n \times \epsilon $$ misclassified strings out of $$ n $$
+strings, and we have a confidence level of $$ 1 - \delta $$ in this statement.
 ## The F1 score.
 
 There is of course an additional question here. From the perspective of
-language learning for software engineering *how we learned* is less important
-than *what we learned*. That is, the precision and recall of the model that
+language learning for software engineering, the error rate is too coarse.
+We need more detail as to the rate of false positives and false negatives.
+This is because most of our languages are very sparse compared to the universe
+of all strings, and it is easy to get a very small error rate when almost any
+input generated randomly is unlikely to be in the language.
+That is, the precision and recall of the model that
 we learned is important. I have discussed how to compute the precision and
 recall, and the F1 score [previously](/post/2021/01/28/grammar-inference/).
 So, we can compute the precision and recall as follows.
@@ -1501,51 +1557,6 @@ for e in exprs:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-# Definitions
-
-* Input symbol: A single symbol that is consumed by the machine which can move
-  it from one state to another. The set of such symbols is called an alphabet,
-  and is represented by $$ A $$.
-* Membership query: A string that is passed to the blackbox. The blackbox
-  answers yes or no.
-* Equivalence query: A grammar that is passed to the teacher as a hypothesis
-  of what the target language is. The teacher answers yes or a counter
-  example that behaves differently on the blackbox and the hypothesis grammar.
-* Prefix closed: a set is prefix closed if all prefixes of any of its elements
-  are also in the same set.
-* Suffix closed: a set is suffix closed if all suffixes of any of its elements
-  are also in the same set.
-* Observation table: A table whose rows correspond to the *candidate states*.
-  The rows are made up of prefix strings that can reach given states ---
-  commonly represented as $$ S $$, but here we will denote these by $$ P $$
-  for prefixes --- and the columns are made up of suffix strings that serves
-  to distinguish these states --- commonly expressed as $$ E $$ for
-  extensions, but we will use $$ S $$ to denote suffixes here. The table
-  contains auxiliary rows that extends each item $$ p \in P $$ with each
-  alphabet $$ a \in A $$ as we discuss later in *closedness*.
-  This table defines the language inferred by the algorithm. The contents of
-  the table are the answers from the oracle on a string composed of the row
-  and column labels --- prefix + suffix. That is  $$ T[s,e] = O(s.e) $$.
-  The table has two properties: *closedness* and *consistency*.
-  If these are not met at any time, we take to resolve it.
-* The state: A state in the DFA is represented by a prefix in the observation
-  table, and is named by the pattern of 1s and 0s in the cell contents.
-  We represent a state corresponding the prefix $$ p $$ as $$ [p] $$.
-* Closedness of the observation table means that for each $$ p \in P $$ and
-  each $$ a \in A $$, the state represented by the auxiliary row $$ [p.a] $$
-  (i.e., its contents) exists in $$ P $$. That is, there is some
-  $$ p' \in P $$ such that $$ [p.a] == [p'] $$. The idea is that, the state
-  corresponding to $$ [p] $$ accepts alphabet $$ a $$ and transitions to the
-  state $$ [p'] $$, and $$ p' $$ must be in the main set of rows $$ P $$.
-* Consistency of the observation table means that if two prefixes represents
-  the same state (i.e. the contents of two rows are equal), that is
-  $$ [p1] = [p2] $$ then $$ [p1 . a] = [p2 . a] $$ for all alphabets.
-  The idea is that if two prefixes reach the state, then when fed any
-  alphabet, both prefixes should transition to the same next state
-  (represented by the pattern produced by the suffixes).
-* The candidate states `P` is prefix closed, while the set of suffixes `S`
-  is suffix closed.
-
  
 # Notes
 
@@ -1564,6 +1575,7 @@ That is, it focuses on the best possible grammar for the
 given data. Closely related fields are grammar mining, grammar recovery,
 and grammar extraction which are all whitebox approaches based on program
 or related artifact analysis. Language acquisition is another related term.
+Another is Model Learning [^vaandrager2017model].
 
 ## Context Free Languages
 Here, we discussed how to infer a regular grammar. In many cases the blackbox
@@ -1578,6 +1590,7 @@ structure from such a DFA.
 [^angluin1987]: Learning Regular Sets from Queries and Counterexamples, 1987 
 [^angluin1988]: Queries and Concept Learning, 1988
 [^valiant1984]: A theory of the learnable, 1984
+[^vaandrager2017model]: Model learning, Frits Vaandrager, 2017
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
