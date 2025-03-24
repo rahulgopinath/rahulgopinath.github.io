@@ -126,8 +126,8 @@ We can now see that precision is $$ \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|} $$ and re
 is $$\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$$.
 That is, we can now sample from the particular grammars exclusively to
 approximate precision and recall using the second grammar as an acceptor.
-To accomplish $$|L(Gl) \cap L(Gb)|$$ we use $L(Gl)$ as the generator, and
-count all the successfully recognized strings by $L(Gb)$.
+To accomplish $$|L(Gl) \cap L(Gb)|$$ we use $$L(Gl)$$ as the generator, and
+count all the successfully recognized strings by $$L(Gb)$$.
 To accomplish $$|L(Gb) \cap L(Gl)|$$ we use $$L(Gb)$$ as the generator, and
 count all the successfully recognized strings by $$L(Gl)$$.
 This allows us to ignore the fact that precision and recall are generated using two
