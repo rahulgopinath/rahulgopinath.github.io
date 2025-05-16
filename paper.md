@@ -23,7 +23,12 @@
 
 ### Line breaks.
 
-* Use tildes (~) to tie numbers to text.  It’s Line~2, Rules 3~to~4, and the next 42~seconds,  
+* Use tildes (~) to tie numbers to text.  It’s Line~2, Rules 3~to~4, and the next 42~seconds,
+
+### Hyphen, double hyphen (en dash), and tripple hyphen (em dash)
+* Use hyphens `-` for word joining; but for those who are not native speakers. It is a *high-quality* product, but this product is high quality.
+* Use double hyphens to indicate ranges. `pages 5--10` and `experiments 1-10`.
+* Use tripple hyphens for parenthetical interruptions. `Use of context-free grammars---grammars that contain recursive rules---are encouraged.
 
 ### Bibliography.
 
