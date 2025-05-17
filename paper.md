@@ -41,6 +41,13 @@
 
 * Do not indent regular text.
 
+### Tables
+
+* Columns of numbers should be right justified, and text should be left justified.
+* Stick with a standard number of decimal places. I advocate for one or two decimal places
+* If in the column, at least one cell has a decimal place, all cells should have that many places in decimal. An exception is the overall statistics line.
+* Provide overall statistics when possible. If you have a column of numbers, provide mean and standard deviation/confidence intervals as a row at the end.
+
 ### References.
 
 * Use the `cleveref` package and `\Cref{<label>}` to make cross-references.
