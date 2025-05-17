@@ -1,6 +1,6 @@
 ## Writing a paper with me
 
-(Adapted from recommendations of Andreas Zeller)
+(Adapted from recommendations of [Andreas Zeller](https://andreas-zeller.info/2013/04/05/my-top-ten-presentation-issues-in.html))
 
 ### General structure.
 
