@@ -48,6 +48,19 @@
 * If in the column, at least one cell has a decimal place, all cells should have that many places in decimal. An exception is the overall statistics line.
 * Provide overall statistics when possible. If you have a column of numbers, provide mean and standard deviation/confidence intervals as a row at the end.
 
+### Threats to Validity
+
+Try to have a threats to validity section. It is an excercise that makes you think what impact circumstances beyond your control can have on your results. Be honest. It is OK to just acknowledge the threat and move on. However, I would also advocate for adding a line of mitigation where you have some mitigation in place. The standard sections in threats to validity are the following:
+
+#### Internal Validity
+Internal validity concerns the impact of systemic errors. A familiar example is the impact of bugs, in implementation, data processing, and aggregation. Another is selection bias. Does your choice of tool have an impact? What about the load on the machine your experiment is run? Think carefully about what other uncontrolled factors can have an impact.
+
+#### External Validity
+External validity is about the generality of your findings. Are your subjects constrained in any way (due to them being impelemnted in a particular language, due to the data coming from a single source etc.)
+
+#### Construct Validity
+Construct validity is about whether you are measuring the thing you are trying to measure. In software engineering, we often have to rely on proxies. For example, measuring the coverage/mutation score achieved as a proxy for the effectiveness of a fuzzer.
+
 ### References.
 
 * Use the `cleveref` package and `\Cref{<label>}` to make cross-references.
