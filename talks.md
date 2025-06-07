@@ -115,7 +115,7 @@ menu: Talks
 * [_Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_](#gopinath2016code)<br/>
   *Gopinath* - GTAC, 2016
 
-#### <a id='gopinath2025fuzzing'></a> [Gopinath: _Fuzzing Without Specifications: Learning Structure from Behaviour, NUS, 2025]()
+#### <a id='gopinath2025fuzzing'></a> [Gopinath: _Fuzzing Without Specifications: Learning Structure from Behaviour_, NUS, 2025]()
 
 When fuzzing uncovers a bug, it’s rarely caused by a single input—it’s usually a pattern of inputs that consistently triggers the same underlying issue. Validating a fix, therefore, means testing against that broader pattern, not just the one input that happened to expose the bug.
 In this lecture, I’ll show how to capture these input patterns as specialized grammars that reflect specific program behaviours—especially faulty ones. You’ll learn techniques for extracting such patterns, merging them into specialized grammars, and using them for focused fuzzing. These grammars integrate seamlessly with smart fuzzers, offering precise control over input generation and enabling consistent, reproducible testing.
