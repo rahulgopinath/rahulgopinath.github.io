@@ -128,7 +128,7 @@ Together, these techniques enable powerful, specification-free fuzzing and lay t
 
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-ii)
 
-
+---
 #### <a id='gopinath2024how'></a> [Gopinath: _How to Compare Fuzzers_ SAPLING, ANU, 2024]()
 
 Fuzzing is a leading technique for assessing the effectiveness of software test suites and test generators in finding bugs. However, with numerous fuzzers available, it can be unclear which one to use. Fuzzing campaigns are typically limited by available computing resources, and any compute wasted on an underperforming fuzzer can impact the final outcome. Moreover, a fuzzer’s effectiveness often depends on the domain and specific program being tested. As a result, one of the key challenges in fuzzing is determining how to evaluate their effectiveness.
