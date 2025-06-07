@@ -7,6 +7,9 @@ weight: 3
 menu: Talks
 ---
 
+##### 2025
+* [_Fuzzing Without Specifications: Learning Structure from Behaviour_](#gopinath2025fuzzing)<br/>
+  *Gopinath* - Fuzzing Summer School'25, NUS, Singapore, May 29, 2025
 
 ##### 2024
 * [_How to Compare Fuzzers_](#gopinath2024how)<br/>
@@ -111,6 +114,19 @@ menu: Talks
 
 * [_Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_](#gopinath2016code)<br/>
   *Gopinath* - GTAC, 2016
+
+#### <a id='gopinath2025fuzzing'></a> [Gopinath: _Fuzzing Without Specifications: Learning Structure from Behaviour, NUS, 2025]()
+
+When fuzzing uncovers a bug, it’s rarely caused by a single input—it’s usually a pattern of inputs that consistently triggers the same underlying issue. Validating a fix, therefore, means testing against that broader pattern, not just the one input that happened to expose the bug.
+In this lecture, I’ll show how to capture these input patterns as specialized grammars that reflect specific program behaviours—especially faulty ones. You’ll learn techniques for extracting such patterns, merging them into specialized grammars, and using them for focused fuzzing. These grammars integrate seamlessly with smart fuzzers, offering precise control over input generation and enabling consistent, reproducible testing.
+But where do we obtain the input specification? This is a common challenge: effective fuzzing depends on leveraging the input structure, yet accurate specifications are not always available.
+I’ll demonstrate how to automatically derive input grammars from the program itself. When source code is available, we can apply static and dynamic analysis to trace input-handling logic directly. Without source code, we can infer grammars by observing how the program reacts to inputs—refining our understanding through continuous feedback.
+
+Together, these techniques enable powerful, specification-free fuzzing and lay the groundwork for the behaviour-driven strategies we’ll explore throughout the session.
+ 
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-i)
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-ii)
 
 
 #### <a id='gopinath2024how'></a> [Gopinath: _How to Compare Fuzzers_ SAPLING, ANU, 2024]()
