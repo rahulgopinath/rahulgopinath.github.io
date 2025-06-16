@@ -1561,7 +1561,12 @@ if __name__ == '__main__':
 
 class Column(Column):
     def add_transitive(self, key, state):
-        assert key not in self.transitives
+        if key in self.transitives:
+            # Leo's optimization guarantees that if computed correctly,
+            # the same key should always lead to the same state
+            existing = self.transitives[key]
+            assert existing._t() == state._t()
+            return existing
         self.transitives[key] = self.create_tstate(state)
         return self.transitives[key]
 
