@@ -1118,8 +1118,8 @@ class Teacher(Teacher):
     def is_equivalent(self, grammar, start, max_length_limit=10):
         self.equivalence_query_counter += 1
         num_calls = math.ceil(1.0/self.epsilon *
-                  (math.log(1.0/self.delta) +
-                              self.equivalence_query_counter * math.log(2)))
+                  (math.log(1.0/self.delta +
+                              self.equivalence_query_counter * math.log(2))))
 
         for limit in range(1, max_length_limit):
             is_eq, counterex, c = self.is_equivalent_for(self.g, self.s,
@@ -1140,8 +1140,8 @@ class Teacher(Teacher):
     def is_equivalent(self, grammar, start, max_length_limit=10):
         self.equivalence_query_counter += 1
         num_calls = math.ceil(1.0/self.epsilon *
-                  (math.log(1.0/self.delta) +
-                              self.equivalence_query_counter * math.log(2)))
+                  (math.log(1.0/self.delta +
+                              self.equivalence_query_counter * math.log(2))))
 
         for limit in range(1, max_length_limit):
             is_eq, counterex, c = self.is_equivalent_for(self.g, self.s,
