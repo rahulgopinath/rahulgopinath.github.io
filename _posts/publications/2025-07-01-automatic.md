@@ -20,6 +20,6 @@ In our evaluation, ϵREPAIR achieves 2.6× higher-quality repairs than its close
 
 This work presents a practical, robust, and flexible format-free data repair alternative to DDMax. Its applications extend to domains such as data science, software development, and other human-centric systems, where handling diverse and inconsistent datasets is critical
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2025/luo2025automatic.bib "paper")
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2025/luo2025automatic.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issre2025/luo2025automatic.bib "reference")
 
