@@ -146,9 +146,9 @@ succeeds for any, then we can skip that section of the string.
 def remove_check_each_fragment(instr, part_len, causal):
     pre = ''
     for i in range(0, len(instr), part_len):
-        stitched =  pre + instr[i+part_len:]
-        if not causal(stitched):
-             pre = pre + instr[i:i+part_len]
+        removed, remaining = instr[i:i+part_len], instr[i+part_len:]
+        if not causal(pre+remaining):
+             pre = pre + removed
     return pre
 
 ############
@@ -158,9 +158,9 @@ def remove_check_each_fragment(instr, part_len, causal):
 def remove_check_each_fragment(instr, part_len, causal):
     pre = &#x27;&#x27;
     for i in range(0, len(instr), part_len):
-        stitched =  pre + instr[i+part_len:]
-        if not causal(stitched):
-             pre = pre + instr[i:i+part_len]
+        removed, remaining = instr[i:i+part_len], instr[i+part_len:]
+        if not causal(pre+remaining):
+             pre = pre + removed
     return pre
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

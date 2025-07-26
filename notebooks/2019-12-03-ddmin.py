@@ -87,9 +87,9 @@ import string
 def remove_check_each_fragment(instr, part_len, causal):
     pre = ''
     for i in range(0, len(instr), part_len):
-        stitched =  pre + instr[i+part_len:]
-        if not causal(stitched):
-             pre = pre + instr[i:i+part_len]
+        removed, remaining = instr[i:i+part_len], instr[i+part_len:]
+        if not causal(pre+remaining):
+             pre = pre + removed
     return pre
 
 # There is a reason this function is split from the main function unlike in the
