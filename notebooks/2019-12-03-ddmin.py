@@ -269,7 +269,8 @@ def ddmin_loop(cur_str, causal_fn, pre='', post=''):
     return result_stack[0]
 
  
-# Note: This Zeller provides a similar algorithm in Zeller[^zeller1999] (1) described below
+# Note: This Zeller provides a similar algorithm in Zeller[^zeller1999] (1) described below,
+# translated to Python,
 
 def dd(cur_str, causal_fn):
     return ddz(cur_str, [], causal_fn)
@@ -294,7 +295,10 @@ def ddz(cur_str, remainder, causal_fn):
 # The difference is that adding remainder does not preserve the order unlike in
 # the previous formulation I provided. However, note that Zeller [^zeller1999]
 # is talking about sets of changes, which are order independent. Secondly, see
-# the generation of s1 and s2. s1 is not used in producing s2.
+# the generation of s1 and s2. s1 is not used in producing s2. That is, there
+# could be an element each in string1 and string2, of which only one is
+# necessary, and the above would remove it because string2 would contain it
+# when testing ddz(string1) and string1 would contain itwhen testing ddz(string2)
 # 
 # [^zeller1999]: Yesterday, my program worked.Today, it does not. Why? Zeller, 1999.
 # 
