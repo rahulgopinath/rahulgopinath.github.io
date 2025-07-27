@@ -223,10 +223,52 @@ if __name__ == '__main__':
     ddmin = ddrmin
 
 # Given that it is a recursive procedure, one may worry about stack exhaustion, especially
-# in languages such as Python which allocates just the bare minimum stack by default. The
-# nice thing here is that, since we split the string by half again and again, the maximum
-# stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
-# 
+# in languages such as Python which allocates just the bare minimum stack by default. Here
+# is the direct conversion to stack.
+
+def ddmin_loop(cur_str, causal_fn, pre='', post=''):
+    stack = [('process', cur_str, pre, post)]
+    result_stack = []
+
+    while stack:
+        frame = stack.pop()
+        action = frame[0]
+        if action == 'process':
+            _, cur_str, pre, post = frame
+
+            if len(cur_str) == 1:
+                result_stack.append(cur_str)
+                continue
+
+            part_i = len(cur_str) // 2
+            string1, string2 = cur_str[:part_i], cur_str[part_i:]
+
+            if causal_fn(pre + string1 + post):
+                stack.append(('process', string1, pre, post))
+            elif causal_fn(pre + string2 + post):
+                stack.append(('process', string2, pre, post))
+            else:
+                # so, we need to process string1 first, then combine
+                # results of that to process string2
+                stack.append(('combine', string2, pre, post))
+                stack.append(('process', string1, pre, string2 + post))
+
+        elif action == 'combine':
+            _, string2, pre, post = frame
+            stack.append(('finalize',))
+            # s1 was just computed and is on result_stack
+            s1 = result_stack[-1]
+            # Now process string2 with updated pre (pre + s1)
+            stack.append(('process', string2, pre + s1, post))
+
+        elif action == 'finalize':
+            s2 = result_stack.pop()
+            s1 = result_stack.pop()
+            result_stack.append(s1 + s2)
+
+    return result_stack[0]
+
+ 
 # Note: This Zeller provides a similar algorithm in Zeller[^zeller1999] (1) described below
 
 def dd(cur_str, causal_fn):
@@ -251,7 +293,8 @@ def ddz(cur_str, remainder, causal_fn):
 
 # The difference is that adding remainder does not preserve the order unlike in
 # the previous formulation I provided. However, note that Zeller [^zeller1999]
-# is talking about sets of changes, which are order independent.
+# is talking about sets of changes, which are order independent. Secondly, see
+# the generation of s1 and s2. s1 is not used in producing s2.
 # 
 # [^zeller1999]: Yesterday, my program worked.Today, it does not. Why? Zeller, 1999.
 # 
