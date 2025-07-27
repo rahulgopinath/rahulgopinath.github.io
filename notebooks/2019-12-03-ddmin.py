@@ -201,7 +201,6 @@ def ddrmin(cur_str, causal_fn, n=2):
 # worry about empty string. Hence, we can return it as is.
 # 
 # Here is the implementation.
-# Note: This is the algorithm(1) from the paper [^zeller1999] with minor modifications.
 # 
 # ### ddrmin()
 
@@ -227,6 +226,32 @@ if __name__ == '__main__':
 # in languages such as Python which allocates just the bare minimum stack by default. The
 # nice thing here is that, since we split the string by half again and again, the maximum
 # stack size required is $$log(N)$$ of the input size. So there is no danger of exhaustion.
+# 
+# Note: This Zeller provides a similar algorithm in Zeller[^zeller1999] (1) described below
+
+def dd(cur_str, causal_fn):
+    return ddz(cur_str, [], causal_fn)
+
+def ddz(cur_str, remainder, causal_fn):
+    if len(cur_str) == 1: return cur_str
+
+    part_i = len(cur_str) // 2
+    string1 = cur_str[:part_i]
+    string2 = cur_str[part_i:]
+
+    if causal_fn(string1 + remainder):
+        return ddz(string1, remainder, causal_fn)
+
+    elif causal_fn(string2 + remainder):
+        return ddz(string2, remainder, causal_fn)
+
+    s1 = ddz(string1, string2 + remainder, causal_fn)
+    s2 = ddz(string2, string1 + remainder, causal_fn)
+    return s1 + s2
+
+# The difference is that adding remainder does not preserve the order unlike in
+# the previous formulation I provided. However, note that Zeller [^zeller1999]
+# is talking about sets of changes, which are order independent.
 # 
 # [^zeller1999]: Yesterday, my program worked.Today, it does not. Why? Zeller, 1999.
 # 
