@@ -421,7 +421,7 @@ ddmin = ddrmin
 </form>
 Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 in languages such as Python which allocates just the bare minimum stack by default. Here
-is the direct conversion to stack.
+is the direct conversion to iteration with own stack management.
 
 <!--
 ############
@@ -447,7 +447,7 @@ def ddmin_loop(cur_str, causal_fn, pre='', post=''):
             elif causal_fn(pre + string2 + post):
                 stack.append(('process', string2, pre, post))
             else:
-                # so, we need to process string1 first, then combine
+                # we need to process string1 first, then combine
                 # results of that to process string2
                 stack.append(('combine', string2, pre, post))
                 stack.append(('process', string1, pre, string2 + post))
@@ -466,7 +466,6 @@ def ddmin_loop(cur_str, causal_fn, pre='', post=''):
             result_stack.append(s1 + s2)
 
     return result_stack[0]
-
 
 ############
 -->
@@ -494,7 +493,7 @@ def ddmin_loop(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
             elif causal_fn(pre + string2 + post):
                 stack.append((&#x27;process&#x27;, string2, pre, post))
             else:
-                # so, we need to process string1 first, then combine
+                # we need to process string1 first, then combine
                 # results of that to process string2
                 stack.append((&#x27;combine&#x27;, string2, pre, post))
                 stack.append((&#x27;process&#x27;, string1, pre, string2 + post))
@@ -513,6 +512,27 @@ def ddmin_loop(cur_str, causal_fn, pre=&#x27;&#x27;, post=&#x27;&#x27;):
             result_stack.append(s1 + s2)
 
     return result_stack[0]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+
+
+<!--
+############
+assert test(inputstring)
+solution = ddmin_loop(inputstring, test)
+print(solution)
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+assert test(inputstring)
+solution = ddmin_loop(inputstring, test)
+print(solution)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

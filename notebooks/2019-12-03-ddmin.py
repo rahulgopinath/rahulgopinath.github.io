@@ -224,7 +224,7 @@ if __name__ == '__main__':
 
 # Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 # in languages such as Python which allocates just the bare minimum stack by default. Here
-# is the direct conversion to stack.
+# is the direct conversion to iteration with own stack management.
 
 def ddmin_loop(cur_str, causal_fn, pre='', post=''):
     stack = [('process', cur_str, pre, post)]
@@ -248,7 +248,7 @@ def ddmin_loop(cur_str, causal_fn, pre='', post=''):
             elif causal_fn(pre + string2 + post):
                 stack.append(('process', string2, pre, post))
             else:
-                # so, we need to process string1 first, then combine
+                # we need to process string1 first, then combine
                 # results of that to process string2
                 stack.append(('combine', string2, pre, post))
                 stack.append(('process', string1, pre, string2 + post))
@@ -267,6 +267,13 @@ def ddmin_loop(cur_str, causal_fn, pre='', post=''):
             result_stack.append(s1 + s2)
 
     return result_stack[0]
+
+# 
+if __name__ == '__main__':
+    assert test(inputstring)
+    solution = ddmin_loop(inputstring, test)
+    print(solution)
+
 
  
 # Note: This Zeller provides a similar algorithm in Zeller[^zeller1999] (1) described below,
