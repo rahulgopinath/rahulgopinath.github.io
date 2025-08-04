@@ -4,9 +4,9 @@ menu: Rahul Gopinath
 weight: 1
 ---
 
-<b>IMPORTANT: I am recruiting students for my group at Sydney University.
+<!--b>IMPORTANT: I am recruiting students for my group at Sydney University.
 If you are either an *excellent programmer*, or a strong student in *Automata and
-Theory of Computation*, [please drop me a note](/contact/). </b>
+Theory of Computation*, [please drop me a note](/contact/). </b-->
 
 
 
