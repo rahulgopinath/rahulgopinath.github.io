@@ -18,5 +18,6 @@ We present FormatFuzzer, a generator for format-specific fuzzers. FormatFuzzer t
 
 The resulting format-specific fuzzer can be used as a standalone producer or mutator in black-box settings, where no guidance from the program is available. In addition, by providing mutable decision seeds, it can be easily integrated with arbitrary format-agnostic fuzzers such as AFL to make them format-aware. In our evaluation on complex formats such as MP4 or ZIP, FormatFuzzer showed to be a highly effective producer of valid inputs that also detected previously unknown memory errors in ffmpeg and timidity.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://dl.acm.org/doi/10.1145/3628157 "paper")
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](resources/tosem2024/dutra2024.pdf)
+[<em class="fa fa-bookmark fa-lg" aria-hidden="true"></em>](resources/tosem2024/dutra2024.bib)
 
