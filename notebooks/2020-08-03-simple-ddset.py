@@ -104,7 +104,7 @@ def can_abstract(tree, path, known_paths, grammar, predicate):
         if pres == hdd.PRes.failed:
             return False
         
-        if pres == hdd.PRes.invalid:
+        if pres == hdd.PRes.invalid or pres == hdd.PRes.timeout:
             continue
 
         if pres == hdd.PRes.success:
