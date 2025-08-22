@@ -93,16 +93,17 @@ def generalize(tree, path, known_paths, grammar, predicate):
 MAX_TRIES_FOR_ABSTRACTION = 100
 
 def can_abstract(tree, path, known_paths, grammar, predicate):
-    i = 0
-    while (i < MAX_TRIES_FOR_ABSTRACTION):
+    for i in range(MAX_TRIES_FOR_ABSTRACTION):
         t = replace_all_paths_with_generated_values(tree, known_paths + [path], grammar)
         s = fuzzer.iter_tree_to_str(t)
-        if predicate(s) == hdd.PRes.failed:
+        result = predicate(s)
+
+        if result == hdd.PRes.failed:
             return False
-        elif predicate(s) == hdd.PRes.invalid:
+        elif result == hdd.PRes.invalid:
             continue
-        i += 1
-    return True
+
+    return True if result == hdd.PRes.success else False
 
 # The `can_abstract()` procedure tries to generate a valid value `MAX_TRIES_FOR_ABSTRACTION` times. For this, it relies on
 # `replace_all_paths_with_generated_values()` which is implemented as follows.
