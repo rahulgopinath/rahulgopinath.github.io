@@ -57,7 +57,7 @@
 #
 # * _Backtracking_ is the process of undoing variable bindings and trying
 #   alternative clauses when a goal cannot be satisfied.
-
+# 
 
 # # Building a Tiny Prolog in Python
 #

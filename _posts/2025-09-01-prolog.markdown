@@ -77,6 +77,7 @@ For this post, we use the following terms:
   solving subgoals.
 * _Backtracking_ is the process of undoing variable bindings and trying
   alternative clauses when a goal cannot be satisfied.
+
 # Building a Tiny Prolog in Python
 This implementation is based on an earlier implementation in Python2
 [here](http://www.okisoft.co.jp/esc/prolog/in-python.html).
