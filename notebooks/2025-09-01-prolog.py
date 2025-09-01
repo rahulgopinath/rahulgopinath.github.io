@@ -64,6 +64,7 @@
 # This implementation is based on an earlier implementation in Python2
 # [here](http://www.okisoft.co.jp/esc/prolog/in-python.html).
 # The effort here is to update it for Python3, and to serve as a reference for future.
+# The explanations are partial, and will be completed at a later point.
 # 
 # Prolog is a language designed around **first-order predicate logic** [^prolog]. Instead
 # of writing explicit algorithms, you declare **facts** and **rules**, and Prolog
@@ -96,7 +97,11 @@ class Var:
 
     def __str__(self): return '$' + self.name
 
+    def __hash__(self): return hash(self.name)
+
     def __repr__(self): return str(self)
+
+    def __eq__(self, other): return self.name == other.name
 
 # Using it
 if __name__ == '__main__':
@@ -128,13 +133,22 @@ if __name__ == '__main__':
 
 # ## Goals
 #  
-# A **goal** is a predicate applied to arguments, e.g., `man(adam)`.
+# A **goal** is a predicate applied to arguments, e.g., `man(adam)` or `parent(X,Y)`.
 # Goals can also be used to define clauses by associating them with other goals.
+# The essential idea is that given a predicate goal, the prolog interpreter tries
+# to find the subgoals that when solved, will make the current goal succeed. We
+# will see this later in `unify()`.
+# 
+# **Note:** Here, we represent clauses with `<<`. That is,
+# 
+# ```
+# man('adam') << ()
+# ```
 
 class Goal:
     def __init__(self, pred, args): self.pred, self.args = pred, args
 
-    def __lshift__(self, rhs): self.pred.defs.append([self, to_list(rhs)])
+    def __lshift__(self, rhs): self.pred.defs.append((self, to_list(rhs)))
 
     def __str__(self): return "%s%s" % (str(self.pred), str(self.args))
 
@@ -144,6 +158,7 @@ class Goal:
 if __name__ == '__main__':
     gman = Goal(Pred('man'), [])
     print(gman)
+
 
 # ## Lists
 #  
