@@ -722,13 +722,28 @@ def predicates(predicates):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Now, let us test all these out.
+Now, let us test all these out. We first define a few variables and predicates,
+which are needed to ensure that we can add clauses to predicates.
 
 <!--
 ############
 variables([chr(x) for x in range(ord('A'),ord('Z')+1)])
 predicates(['eq', 'noteq', 'gt', 'gteq', 'lt', 'lteq', 'write', 'writenl', 'nl'])
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+variables([chr(x) for x in range(ord(&#x27;A&#x27;),ord(&#x27;Z&#x27;)+1)])
+predicates([&#x27;eq&#x27;, &#x27;noteq&#x27;, &#x27;gt&#x27;, &#x27;gteq&#x27;, &#x27;lt&#x27;, &#x27;lteq&#x27;, &#x27;write&#x27;, &#x27;writenl&#x27;, &#x27;nl&#x27;])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we construct a simple library. Let us define our predicates.
+
+<!--
+############
 eq(X, Y) << [lambda env: env.unify(env[X], env[Y])]
 noteq(X, Y) << [lambda env: env[X] != env[Y]]
 gt(X, Y) << [lambda env: env[X] > env[Y]]
@@ -736,11 +751,44 @@ gteq(X, Y) << [lambda env: env[X] >= env[Y]]
 lt(X, Y) << [lambda env: env[X] < env[Y]]
 lteq(X, Y) << [lambda env: env[X] <= env[Y]]
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+eq(X, Y) &lt;&lt; [lambda env: env.unify(env[X], env[Y])]
+noteq(X, Y) &lt;&lt; [lambda env: env[X] != env[Y]]
+gt(X, Y) &lt;&lt; [lambda env: env[X] &gt; env[Y]]
+gteq(X, Y) &lt;&lt; [lambda env: env[X] &gt;= env[Y]]
+lt(X, Y) &lt;&lt; [lambda env: env[X] &lt; env[Y]]
+lteq(X, Y) &lt;&lt; [lambda env: env[X] &lt;= env[Y]]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Predicates for writing.
+
+<!--
+############
 write(X) << [lambda env: (print(env[X], end=''),)]
 writenl(X) << [lambda env: (print(env[X]),)]
 nl() << [lambda env: (print(),)]
 
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+write(X) &lt;&lt; [lambda env: (print(env[X], end=&#x27;&#x27;),)]
+writenl(X) &lt;&lt; [lambda env: (print(env[X]),)]
+nl() &lt;&lt; [lambda env: (print(),)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more predicates for list operations.
+
+<!--
+############
 predicates(['car', 'cdr', 'cons', 'member', 'append', 'reverse', 'takeout', 'perm', 'subset'])
 
 car([X**Y],X) << []
@@ -764,6 +812,40 @@ takeout(X,[F**R],[F**S]) << [takeout(X,R,S)]
 subset([X**R],S) << [member(X,S), subset(R,S)]
 subset([],X) << []
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+predicates([&#x27;car&#x27;, &#x27;cdr&#x27;, &#x27;cons&#x27;, &#x27;member&#x27;, &#x27;append&#x27;, &#x27;reverse&#x27;, &#x27;takeout&#x27;, &#x27;perm&#x27;, &#x27;subset&#x27;])
+
+car([X**Y],X) &lt;&lt; []
+cdr([X**Y],Y) &lt;&lt; []
+
+cons(X,R,[X**R]) &lt;&lt; []
+
+member(X,[X**R]) &lt;&lt; []
+member(X,[Y**R]) &lt;&lt; [member(X,R)]
+
+append([],X,X) &lt;&lt; []
+append([X**Y],Z,[X**W]) &lt;&lt; [append(Y,Z,W)]
+
+reverse([X**Y],Z,W) &lt;&lt; [reverse(Y,[X**Z],W)]
+reverse([],X,X) &lt;&lt; []
+reverse(A,R) &lt;&lt; [reverse(A,[],R)]
+
+takeout(X,[X**R],R) &lt;&lt; []
+takeout(X,[F**R],[F**S]) &lt;&lt; [takeout(X,R,S)]
+
+subset([X**R],S) &lt;&lt; [member(X,S), subset(R,S)]
+subset([],X) &lt;&lt; []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us try writing a merge sort.
+
+<!--
+############
 predicates(['mergesort', 'split', 'merge'])
 
 mergesort([],[]) << []
@@ -783,12 +865,78 @@ merge([],B,B) << []
 merge([A**X],[B**Y],[A**M]) << [lteq(A,B), merge(X,[B**Y],M)]
 merge([A**X],[B**Y],[B**M]) << [gt(A,B),  merge([A**X],Y,M)]
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+predicates([&#x27;mergesort&#x27;, &#x27;split&#x27;, &#x27;merge&#x27;])
+
+mergesort([],[]) &lt;&lt; []
+mergesort([A],[A]) &lt;&lt; []
+mergesort([A**B**R],S) &lt;&lt; [
+  split([A**B**R],P,T),
+  mergesort(P,Q),
+  mergesort(T,U),
+  merge(Q,U,S)]
+
+split([],[],[]) &lt;&lt; []
+split([A],[A],[]) &lt;&lt; []
+split([A**B**R],[A**X],[B**Y]) &lt;&lt; [split(R,X,Y)]
+
+merge(A,[],A) &lt;&lt; []
+merge([],B,B) &lt;&lt; []
+merge([A**X],[B**Y],[A**M]) &lt;&lt; [lteq(A,B), merge(X,[B**Y],M)]
+merge([A**X],[B**Y],[B**M]) &lt;&lt; [gt(A,B),  merge([A**X],Y,M)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it out.
+
+<!--
+############
+print("mergesort[")
+print(query(mergesort([4,3,6,5,9,1,7],S)))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;mergesort[&quot;)
+print(query(mergesort([4,3,6,5,9,1,7],S)))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more tests. First membership.
+
+<!--
+############
 print("membership[")
 print(query(member(1,[1,2,3])))
 print(query(member(3,[1,2,3])))
 print(query(member(10,[1,2,3])))
 print("]")
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;membership[&quot;)
+print(query(member(1,[1,2,3])))
+print(query(member(3,[1,2,3])))
+print(query(member(10,[1,2,3])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Appending to a list
+
+<!--
+############
 print("append[")
 print(query(append([],[1,2],A)))
 print(query(append([1,2,3],[4],B)))
@@ -796,10 +944,43 @@ print(query(append([1,2,3],[4,5],[1,2,3,4,5])))
 print(query(append([1,2,3],W,[1,2,3,4,5])))
 print("]")
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;append[&quot;)
+print(query(append([],[1,2],A)))
+print(query(append([1,2,3],[4],B)))
+print(query(append([1,2,3],[4,5],[1,2,3,4,5])))
+print(query(append([1,2,3],W,[1,2,3,4,5])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Reversing a list
+
+<!--
+############
 print("reverse[")
 print(query(reverse([1,2,3,4,5],X)))
 print("]")
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;reverse[&quot;)
+print(query(reverse([1,2,3,4,5],X)))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Takeout
+
+<!--
+############
 print("takeout[")
 print(query(takeout(X,[1,2,3],L)))
 print("]")
@@ -808,15 +989,46 @@ print("]")
 # perm([],[]) << []
 # print(query(perm(P,[1,2])))
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;takeout[&quot;)
+print(query(takeout(X,[1,2,3],L)))
+print(&quot;]&quot;)
+
+# perm([X**Y],Z) &lt;&lt; [perm(Y,W), takeout(X,Z,W)]
+# perm([],[]) &lt;&lt; []
+# print(query(perm(P,[1,2])))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Subset
+
+<!--
+############
 print("subset[")
 print(query(subset([4,3],[2,3,5,4])))
 print(query(subset([A],[2,3,5,4])))
 print("]")
 
-print("mergesort[")
-print(query(mergesort([4,3,6,5,9,1,7],S)))
-print("]")
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;subset[&quot;)
+print(query(subset([4,3],[2,3,5,4])))
+print(query(subset([A],[2,3,5,4])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more predicates. We also define our digits.
 
+<!--
+############
 predicates(['expr', 'num', 'number', 'digit', 'plus', 'minus'])
 digit('1') << []
 digit('2') << []
@@ -846,121 +1058,10 @@ val = query(expr(list('1+2-3'),A))
 print(query(expr(list('1+2-3'),A)))
 print("]")
 
-print("dcg[")
-predicates(['dcgexpr', 'dcgnum', 'rcons', 'dcgexprcomplete'])
-dcgexpr(L, Remain) << [dcgnum(L, Remain)]
-dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '+', L2), dcgexpr(L2, Remain)]
-dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '-', L2), dcgexpr(L2, Remain)]
-dcgnum([D**Remain], Remain) << [digit(D)]
-rcons([X**L], X, L) << []
-dcgexprcomplete(L) << [dcgexpr(L, list(''))]
-print(query(dcgnum(list('123'), A)))
-print(query(rcons(list('+123'), '+', L)))
-print(query(dcgexpr(list('1+2-3'), A)))
-print(query(dcgexprcomplete(list('1-2+3'))))
-print("]")
-
-print('>')
-for e in query(member(X, [1,2,3])):
-    print(e[0])
-
-
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-variables([chr(x) for x in range(ord(&#x27;A&#x27;),ord(&#x27;Z&#x27;)+1)])
-predicates([&#x27;eq&#x27;, &#x27;noteq&#x27;, &#x27;gt&#x27;, &#x27;gteq&#x27;, &#x27;lt&#x27;, &#x27;lteq&#x27;, &#x27;write&#x27;, &#x27;writenl&#x27;, &#x27;nl&#x27;])
-
-eq(X, Y) &lt;&lt; [lambda env: env.unify(env[X], env[Y])]
-noteq(X, Y) &lt;&lt; [lambda env: env[X] != env[Y]]
-gt(X, Y) &lt;&lt; [lambda env: env[X] &gt; env[Y]]
-gteq(X, Y) &lt;&lt; [lambda env: env[X] &gt;= env[Y]]
-lt(X, Y) &lt;&lt; [lambda env: env[X] &lt; env[Y]]
-lteq(X, Y) &lt;&lt; [lambda env: env[X] &lt;= env[Y]]
-
-write(X) &lt;&lt; [lambda env: (print(env[X], end=&#x27;&#x27;),)]
-writenl(X) &lt;&lt; [lambda env: (print(env[X]),)]
-nl() &lt;&lt; [lambda env: (print(),)]
-
-
-predicates([&#x27;car&#x27;, &#x27;cdr&#x27;, &#x27;cons&#x27;, &#x27;member&#x27;, &#x27;append&#x27;, &#x27;reverse&#x27;, &#x27;takeout&#x27;, &#x27;perm&#x27;, &#x27;subset&#x27;])
-
-car([X**Y],X) &lt;&lt; []
-cdr([X**Y],Y) &lt;&lt; []
-
-cons(X,R,[X**R]) &lt;&lt; []
-
-member(X,[X**R]) &lt;&lt; []
-member(X,[Y**R]) &lt;&lt; [member(X,R)]
-
-append([],X,X) &lt;&lt; []
-append([X**Y],Z,[X**W]) &lt;&lt; [append(Y,Z,W)]
-
-reverse([X**Y],Z,W) &lt;&lt; [reverse(Y,[X**Z],W)]
-reverse([],X,X) &lt;&lt; []
-reverse(A,R) &lt;&lt; [reverse(A,[],R)]
-
-takeout(X,[X**R],R) &lt;&lt; []
-takeout(X,[F**R],[F**S]) &lt;&lt; [takeout(X,R,S)]
-
-subset([X**R],S) &lt;&lt; [member(X,S), subset(R,S)]
-subset([],X) &lt;&lt; []
-
-predicates([&#x27;mergesort&#x27;, &#x27;split&#x27;, &#x27;merge&#x27;])
-
-mergesort([],[]) &lt;&lt; []
-mergesort([A],[A]) &lt;&lt; []
-mergesort([A**B**R],S) &lt;&lt; [
-  split([A**B**R],P,T),
-  mergesort(P,Q),
-  mergesort(T,U),
-  merge(Q,U,S)]
-
-split([],[],[]) &lt;&lt; []
-split([A],[A],[]) &lt;&lt; []
-split([A**B**R],[A**X],[B**Y]) &lt;&lt; [split(R,X,Y)]
-
-merge(A,[],A) &lt;&lt; []
-merge([],B,B) &lt;&lt; []
-merge([A**X],[B**Y],[A**M]) &lt;&lt; [lteq(A,B), merge(X,[B**Y],M)]
-merge([A**X],[B**Y],[B**M]) &lt;&lt; [gt(A,B),  merge([A**X],Y,M)]
-
-print(&quot;membership[&quot;)
-print(query(member(1,[1,2,3])))
-print(query(member(3,[1,2,3])))
-print(query(member(10,[1,2,3])))
-print(&quot;]&quot;)
-
-print(&quot;append[&quot;)
-print(query(append([],[1,2],A)))
-print(query(append([1,2,3],[4],B)))
-print(query(append([1,2,3],[4,5],[1,2,3,4,5])))
-print(query(append([1,2,3],W,[1,2,3,4,5])))
-print(&quot;]&quot;)
-
-print(&quot;reverse[&quot;)
-print(query(reverse([1,2,3,4,5],X)))
-print(&quot;]&quot;)
-
-print(&quot;takeout[&quot;)
-print(query(takeout(X,[1,2,3],L)))
-print(&quot;]&quot;)
-
-# perm([X**Y],Z) &lt;&lt; [perm(Y,W), takeout(X,Z,W)]
-# perm([],[]) &lt;&lt; []
-# print(query(perm(P,[1,2])))
-
-print(&quot;subset[&quot;)
-print(query(subset([4,3],[2,3,5,4])))
-print(query(subset([A],[2,3,5,4])))
-print(&quot;]&quot;)
-
-print(&quot;mergesort[&quot;)
-print(query(mergesort([4,3,6,5,9,1,7],S)))
-print(&quot;]&quot;)
-
 predicates([&#x27;expr&#x27;, &#x27;num&#x27;, &#x27;number&#x27;, &#x27;digit&#x27;, &#x27;plus&#x27;, &#x27;minus&#x27;])
 digit(&#x27;1&#x27;) &lt;&lt; []
 digit(&#x27;2&#x27;) &lt;&lt; []
@@ -989,7 +1090,32 @@ num(D) &lt;&lt; [number(D)]
 val = query(expr(list(&#x27;1+2-3&#x27;),A))
 print(query(expr(list(&#x27;1+2-3&#x27;),A)))
 print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using definite clause grammars.
 
+<!--
+############
+print("dcg[")
+predicates(['dcgexpr', 'dcgnum', 'rcons', 'dcgexprcomplete'])
+dcgexpr(L, Remain) << [dcgnum(L, Remain)]
+dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '+', L2), dcgexpr(L2, Remain)]
+dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '-', L2), dcgexpr(L2, Remain)]
+dcgnum([D**Remain], Remain) << [digit(D)]
+rcons([X**L], X, L) << []
+dcgexprcomplete(L) << [dcgexpr(L, list(''))]
+print(query(dcgnum(list('123'), A)))
+print(query(rcons(list('+123'), '+', L)))
+print(query(dcgexpr(list('1+2-3'), A)))
+print(query(dcgexprcomplete(list('1-2+3'))))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 print(&quot;dcg[&quot;)
 predicates([&#x27;dcgexpr&#x27;, &#x27;dcgnum&#x27;, &#x27;rcons&#x27;, &#x27;dcgexprcomplete&#x27;])
 dcgexpr(L, Remain) &lt;&lt; [dcgnum(L, Remain)]
@@ -1003,8 +1129,23 @@ print(query(rcons(list(&#x27;+123&#x27;), &#x27;+&#x27;, L)))
 print(query(dcgexpr(list(&#x27;1+2-3&#x27;), A)))
 print(query(dcgexprcomplete(list(&#x27;1-2+3&#x27;))))
 print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another way to use query.
 
-print(&#x27;&gt;&#x27;)
+<!--
+############
+for e in query(member(X, [1,2,3])):
+    print(e[0])
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 for e in query(member(X, [1,2,3])):
     print(e[0])
 </textarea><br />

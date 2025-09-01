@@ -341,11 +341,14 @@ def variables(symbols):
 def predicates(predicates):
     for s in predicates: globals()[s] = Pred(s)
 
-# Now, let us test all these out.
+# Now, let us test all these out. We first define a few variables and predicates,
+# which are needed to ensure that we can add clauses to predicates.
 if __name__ == '__main__':
     variables([chr(x) for x in range(ord('A'),ord('Z')+1)])
     predicates(['eq', 'noteq', 'gt', 'gteq', 'lt', 'lteq', 'write', 'writenl', 'nl'])
 
+# Next, we construct a simple library. Let us define our predicates.
+if __name__ == '__main__':
     eq(X, Y) << [lambda env: env.unify(env[X], env[Y])]
     noteq(X, Y) << [lambda env: env[X] != env[Y]]
     gt(X, Y) << [lambda env: env[X] > env[Y]]
@@ -353,34 +356,40 @@ if __name__ == '__main__':
     lt(X, Y) << [lambda env: env[X] < env[Y]]
     lteq(X, Y) << [lambda env: env[X] <= env[Y]]
 
+# Predicates for writing.
+if __name__ == '__main__':
     write(X) << [lambda env: (print(env[X], end=''),)]
     writenl(X) << [lambda env: (print(env[X]),)]
     nl() << [lambda env: (print(),)]
 
 
+# A few more predicates for list operations.
+if __name__ == '__main__':
     predicates(['car', 'cdr', 'cons', 'member', 'append', 'reverse', 'takeout', 'perm', 'subset'])
-
+     
     car([X**Y],X) << []
     cdr([X**Y],Y) << []
-
+     
     cons(X,R,[X**R]) << []
-
+     
     member(X,[X**R]) << []
     member(X,[Y**R]) << [member(X,R)]
-
+     
     append([],X,X) << []
     append([X**Y],Z,[X**W]) << [append(Y,Z,W)]
-
+     
     reverse([X**Y],Z,W) << [reverse(Y,[X**Z],W)]
     reverse([],X,X) << []
     reverse(A,R) << [reverse(A,[],R)]
-
+     
     takeout(X,[X**R],R) << []
     takeout(X,[F**R],[F**S]) << [takeout(X,R,S)]
 
     subset([X**R],S) << [member(X,S), subset(R,S)]
     subset([],X) << []
 
+# Let us try writing a merge sort.
+if __name__ == '__main__':
     predicates(['mergesort', 'split', 'merge'])
 
     mergesort([],[]) << []
@@ -400,12 +409,22 @@ if __name__ == '__main__':
     merge([A**X],[B**Y],[A**M]) << [lteq(A,B), merge(X,[B**Y],M)]
     merge([A**X],[B**Y],[B**M]) << [gt(A,B),  merge([A**X],Y,M)]
 
+# Let us test it out.
+if __name__ == '__main__':
+    print("mergesort[")
+    print(query(mergesort([4,3,6,5,9,1,7],S)))
+    print("]")
+
+# A few more tests. First membership.
+if __name__ == '__main__':
     print("membership[")
     print(query(member(1,[1,2,3])))
     print(query(member(3,[1,2,3])))
     print(query(member(10,[1,2,3])))
     print("]")
 
+# Appending to a list
+if __name__ == '__main__':
     print("append[")
     print(query(append([],[1,2],A)))
     print(query(append([1,2,3],[4],B)))
@@ -413,10 +432,14 @@ if __name__ == '__main__':
     print(query(append([1,2,3],W,[1,2,3,4,5])))
     print("]")
 
+# Reversing a list
+if __name__ == '__main__':
     print("reverse[")
     print(query(reverse([1,2,3,4,5],X)))
     print("]")
 
+# Takeout
+if __name__ == '__main__':
     print("takeout[")
     print(query(takeout(X,[1,2,3],L)))
     print("]")
@@ -425,15 +448,15 @@ if __name__ == '__main__':
     # perm([],[]) << []
     # print(query(perm(P,[1,2])))
 
+# Subset
+if __name__ == '__main__':
     print("subset[")
     print(query(subset([4,3],[2,3,5,4])))
     print(query(subset([A],[2,3,5,4])))
     print("]")
-    
-    print("mergesort[")
-    print(query(mergesort([4,3,6,5,9,1,7],S)))
-    print("]")
-    
+
+# A few more predicates. We also define our digits.
+if __name__ == '__main__':
     predicates(['expr', 'num', 'number', 'digit', 'plus', 'minus'])
     digit('1') << []
     digit('2') << []
@@ -463,6 +486,8 @@ if __name__ == '__main__':
     print(query(expr(list('1+2-3'),A)))
     print("]")
     
+# Using definite clause grammars.
+if __name__ == '__main__':
     print("dcg[")
     predicates(['dcgexpr', 'dcgnum', 'rcons', 'dcgexprcomplete'])
     dcgexpr(L, Remain) << [dcgnum(L, Remain)]
@@ -476,8 +501,9 @@ if __name__ == '__main__':
     print(query(dcgexpr(list('1+2-3'), A)))
     print(query(dcgexprcomplete(list('1-2+3'))))
     print("]")
-    
-    print('>')
+   
+# Another way to use query.
+if __name__ == '__main__':
     for e in query(member(X, [1,2,3])):
         print(e[0])
 
