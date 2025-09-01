@@ -1,9 +1,9 @@
 ---
 published: true
-title: Shift-Reduce Parsers LR(0) SLR(1), LALR(1) and LR(1)
+title: A Tiny Prolog in Python
 layout: post
 comments: true
-tags: parsing glr
+tags: prolog unification
 categories: post
 ---
 
