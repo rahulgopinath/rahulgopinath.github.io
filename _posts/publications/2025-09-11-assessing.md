@@ -24,3 +24,4 @@ Results: These two studies together will help answer the question of whether cur
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2507.17093 "paper")
 
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/assessing-reliability-of-statistical-maximum-coverage-estimators-in-fuzzing "presentation")
