@@ -1,0 +1,1167 @@
+---
+published: true
+title: A Tiny Prolog in Python
+layout: post
+comments: true
+tags: prolog unification
+categories: post
+---
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+TLDR; This tutorial is an implementation of a toy prolog interpreter
+in Python. It is based on an earlier implementation [here](http://www.okisoft.co.jp/esc/prolog/in-python.html)
+that has since disappeared.
+## Definitions
+For this post, we use the following terms:
+* A _fact_ is a statement that is unconditionally true. For example,
+  `man(adam).` asserts that Adam is a man.
+* A _rule_ is a conditional statement that defines when something holds.
+  For example, `father(P, C) :- man(P), parent(P, C).` states that `P` is a
+  father of `C` if `P` is a man and `P` is a parent of `C`.
+* A _query_ (or goal sequence) is a question posed to the system, asking for
+  values of variables that make a statement true. For example, `?- father(X, Y).`
+  asks for all pairs `(X, Y)` that satisfy the relation.
+* A _variable_ is a placeholder for an unknown value. During execution,
+  variables can be bound to constants or other variables.
+* A _constant_ is a literal value such as a number or string (e.g., `"adam"`, `42`).
+* A _predicate_ is a named relation, such as `man/1` or `parent/2`. Applying
+  a predicate to arguments produces a goal.
+* A _goal_ (or predicate term) is an instance of a predicate applied to
+  arguments, such as `man(adam)`. Prolog execution is the process of trying to
+  satisfy goals.
+* A _clause_ is a definition consisting of a head and a body. The head is a
+  goal, and the body is a sequence of subgoals that must hold for the head
+  to be true.
+* An _environment_ is a mapping from variables to values (or other variables)
+  that records substitutions created during unification.
+* _Unification_ is the process of making two terms equal by finding
+  consistent bindings for variables. For example, unifying `X` with `"adam"`
+  binds `X` to `"adam"`.
+* _Dereferencing_ means following variable bindings in the environment until
+  reaching either a concrete value or an unbound variable.
+* _Resolution_ is the inference mechanism of Prolog: repeatedly trying to
+  satisfy goals by unifying them with predicate definitions and recursively
+  solving subgoals.
+* _Backtracking_ is the process of undoing variable bindings and trying
+  alternative clauses when a goal cannot be satisfied.
+
+# Building a Tiny Prolog in Python
+This implementation is based on an earlier implementation in Python2
+[here](http://www.okisoft.co.jp/esc/prolog/in-python.html).
+The effort here is to update it for Python3, and to serve as a reference for future.
+The explanations are partial, and will be completed at a later point.
+
+Prolog is a language designed around **first-order predicate logic** [^prolog]. Instead
+of writing explicit algorithms, you declare **facts** and **rules**, and Prolog
+automatically searches for values that satisfy them.
+For example:
+
+```
+man(adam).
+parent(adam, cain).
+father(P, C) :- man(P), parent(P, C).
+```
+
+means that Adam is a man, Adam is the parent of Cain, and anyone who is both a
+man and a parent is a father.
+We will next build a very small Prolog engine in Python. Note that our
+implementation is very simple, and does not implement advanced concepts
+such as CUT or the WAM virtual machine. We next start with implementing
+the basic prolog concepts in Python.
+
+## Variables
+
+In Prolog, variables stand for unknown values that the system will try to
+assign during computation. For example, one may query for `man(X)`, and the
+`X` is represented by `Var`.
+
+<!--
+############
+class Var:
+    def __init__(self, name): self.name = name
+
+    def __str__(self): return '$' + self.name
+
+    def __hash__(self): return hash(self.name)
+
+    def __repr__(self): return str(self)
+
+    def __eq__(self, other): return self.name == other.name
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Var:
+    def __init__(self, name): self.name = name
+
+    def __str__(self): return &#x27;$&#x27; + self.name
+
+    def __hash__(self): return hash(self.name)
+
+    def __repr__(self): return str(self)
+
+    def __eq__(self, other): return self.name == other.name
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using it
+
+<!--
+############
+A = Var('A')
+print(A)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+A = Var(&#x27;A&#x27;)
+print(A)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Predicates
+
+A **predicate** represents a relation, such as `man(X)` or `parent(X,Y)`.
+A predicate has a name and may have definitions (facts or rules).
+We model this using the `Pred` class.
+
+<!--
+############
+class Pred:
+    def __init__(self, name): self.name, self.defs = name, []
+
+    def __str__(self): return self.name
+
+    def __repr__(self): return str(self)
+
+    def __call__(self, *args): return Goal(self, to_list(args))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Pred:
+    def __init__(self, name): self.name, self.defs = name, []
+
+    def __str__(self): return self.name
+
+    def __repr__(self): return str(self)
+
+    def __call__(self, *args): return Goal(self, to_list(args))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Due to limitations of adapting Prolog semantics to Python's semantics,
+we need to declare a predicate before we can attach any definitions to it.
+This is how we can delcare a predicate
+
+<!--
+############
+man = Pred('man')
+print(man)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+man = Pred(&#x27;man&#x27;)
+print(man)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Goals
+ 
+A **goal** is a predicate applied to arguments, e.g., `man(adam)` or `parent(X,Y)`.
+Goals can also be used to define clauses by associating them with other goals.
+The essential idea is that given a predicate goal, the prolog interpreter tries
+to find the subgoals that when solved, will make the current goal succeed. We
+will see this later in `unify()`.
+
+**Note:** Here, we represent clauses with `<<`. That is,
+
+```
+man('adam') << ()
+```
+
+<!--
+############
+class Goal:
+    def __init__(self, pred, args): self.pred, self.args = pred, args
+
+    def __lshift__(self, rhs): self.pred.defs.append((self, to_list(rhs)))
+
+    def __str__(self): return "%s%s" % (str(self.pred), str(self.args))
+
+    def __repr__(self): return str(self)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Goal:
+    def __init__(self, pred, args): self.pred, self.args = pred, args
+
+    def __lshift__(self, rhs): self.pred.defs.append((self, to_list(rhs)))
+
+    def __str__(self): return &quot;%s%s&quot; % (str(self.pred), str(self.args))
+
+    def __repr__(self): return str(self)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+This is how we define a goal. We leave the testing until we have defined `Cons`.
+
+<!--
+############
+gman = Goal(Pred('man'), [])
+print(gman)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+gman = Goal(Pred(&#x27;man&#x27;), [])
+print(gman)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Lists
+ 
+Prolog programs often use list-like structures. Here we represent them
+with a Lisp-style `Cons` cell. 
+
+<!--
+############
+class Cons:
+    def __init__(self, car, cdr): self.car, self.cdr = car, cdr
+
+    def __str__(self):
+       def lst_repr(x):
+          if x.cdr is None: return [str(x.car)]
+          elif type(x.cdr) is Cons: return [str(x.car)] + lst_repr(x.cdr)
+          else: return [str(x.car), '.', str(x.cdr)]
+       return '(' + ' '.join(lst_repr(self)) + ')'
+
+    def __repr__(self): return str(self)
+
+    def pair(self): return (self.car, self.cdr)
+
+    def __getitem__(self, i): return self.pair()[i]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Cons:
+    def __init__(self, car, cdr): self.car, self.cdr = car, cdr
+
+    def __str__(self):
+       def lst_repr(x):
+          if x.cdr is None: return [str(x.car)]
+          elif type(x.cdr) is Cons: return [str(x.car)] + lst_repr(x.cdr)
+          else: return [str(x.car), &#x27;.&#x27;, str(x.cdr)]
+       return &#x27;(&#x27; + &#x27; &#x27;.join(lst_repr(self)) + &#x27;)&#x27;
+
+    def __repr__(self): return str(self)
+
+    def pair(self): return (self.car, self.cdr)
+
+    def __getitem__(self, i): return self.pair()[i]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it out
+
+<!--
+############
+c = Cons(1, None)
+print(c)
+d = Cons(2, c)
+print(d)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+c = Cons(1, None)
+print(c)
+d = Cons(2, c)
+print(d)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We update our Var with `**` to stand in for list construction by appending
+a term to the beginning of the list That is, `cons(term, list)` same as `:` in other languages.
+
+<!--
+############
+class Var(Var):
+    def __pow__(self, other):
+        return Cons(self, other)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Var(Var):
+    def __pow__(self, other):
+        return Cons(self, other)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it out
+
+<!--
+############
+e = Var('E')
+print(e ** d)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+e = Var(&#x27;E&#x27;)
+print(e ** d)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The helper `to_list` converts Python sequences into this linked-list form.
+
+<!--
+############
+def to_list(x, y=None):
+    for e in reversed(x):
+        if type(e) is list: y = Cons(to_list(e), y)
+        elif type(e) is Cons: y = e
+        else: y = Cons(e, y)
+    return y
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def to_list(x, y=None):
+    for e in reversed(x):
+        if type(e) is list: y = Cons(to_list(e), y)
+        elif type(e) is Cons: y = e
+        else: y = Cons(e, y)
+    return y
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test the complete functionality.
+
+<!--
+############
+man = Pred('man')
+X = Var('X')
+g = man(X)
+g << []
+print(g)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+man = Pred(&#x27;man&#x27;)
+X = Var(&#x27;X&#x27;)
+g = man(X)
+g &lt;&lt; []
+print(g)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Environment
+Prolog variables don’t store values directly. Instead, an **environment**
+keeps track of bindings. Each variable may be associated with a term and
+the environment where it was bound. This allows variables to reference
+other variables until eventually grounded.
+
+<!--
+############
+class Env:
+    def __init__(self): self.table = {}
+
+    def put(self, x, pair): self.table[x] = pair
+
+    def get(self, x): return self.table.get(x)
+
+    def clear(self): self.table = {}
+
+    def __repr__(self): return "env:" + str(self.table)
+
+    def delete(self, x): del self.table[x]
+
+    def __str__(self): return "env:" + str(self.table)
+
+    def dereference(self, t):
+        env = self
+        while type(t) is Var:
+            p = env.get(t)
+            if p is None: break
+            t, env = p
+        return [t, env]
+
+    def __getitem__(self, t):
+        t, env = self.dereference(t)
+        tt = type(t)
+        if tt is Goal: return Goal(t.pred, env[t.args])
+        if tt is Cons: return Cons(env[t.car], env[t.cdr])
+        if tt is list: return [env[e] for e in t]
+        return t
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class Env:
+    def __init__(self): self.table = {}
+
+    def put(self, x, pair): self.table[x] = pair
+
+    def get(self, x): return self.table.get(x)
+
+    def clear(self): self.table = {}
+
+    def __repr__(self): return &quot;env:&quot; + str(self.table)
+
+    def delete(self, x): del self.table[x]
+
+    def __str__(self): return &quot;env:&quot; + str(self.table)
+
+    def dereference(self, t):
+        env = self
+        while type(t) is Var:
+            p = env.get(t)
+            if p is None: break
+            t, env = p
+        return [t, env]
+
+    def __getitem__(self, t):
+        t, env = self.dereference(t)
+        tt = type(t)
+        if tt is Goal: return Goal(t.pred, env[t.args])
+        if tt is Cons: return Cons(env[t.car], env[t.cdr])
+        if tt is list: return [env[e] for e in t]
+        return t
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test the complete functionality.
+
+<!--
+############
+env = Env()
+env.put('A', Cons(1, Cons(2, None)))
+env.put('B', to_list([3, 4]))
+print(env.get('A'))
+print(env.get('B'))
+print(env)
+env.clear()
+A,B,C = Var('A'), Var('B'), Var('C')
+env.put(A, Cons(B, env))
+env.put(B, Cons(C, env))
+env.put(C, Cons(1, env))
+print(env.dereference(A))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+env = Env()
+env.put(&#x27;A&#x27;, Cons(1, Cons(2, None)))
+env.put(&#x27;B&#x27;, to_list([3, 4]))
+print(env.get(&#x27;A&#x27;))
+print(env.get(&#x27;B&#x27;))
+print(env)
+env.clear()
+A,B,C = Var(&#x27;A&#x27;), Var(&#x27;B&#x27;), Var(&#x27;C&#x27;)
+env.put(A, Cons(B, env))
+env.put(B, Cons(C, env))
+env.put(C, Cons(1, env))
+print(env.dereference(A))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Unification
+The heart of Prolog is **unification**, which tries to make two terms equal
+by binding variables as necessary. The `unify` function handles different
+cases: variable-variable, variable-term, and term-term.
+
+<!--
+############
+def unify(x, x_env, y, y_env, trail, tmp_env):
+    while True:
+        if type(x) is Var:
+           xp = x_env.get(x)
+           if xp is None:
+              yp = y_env.dereference(y)
+              if (x, x_env) != yp:
+                  x_env.put(x, yp)
+                  if x_env != tmp_env: trail.append((x, x_env))
+              return True
+           else:
+              x, x_env = xp
+              x, x_env = x_env.dereference(x)
+        elif type(y) is Var: x, x_env, y, y_env = y, y_env, x, x_env
+        else: break
+    if type(x) is Goal and type(y) is Goal:
+       if x.pred != y.pred: return False
+       x, y = x.args, y.args
+    if not (type(x) is Cons and type(y) is Cons): return x == y
+    return all(unify(a, x_env, b, y_env, trail, tmp_env) for (a,b) in zip(x, y))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def unify(x, x_env, y, y_env, trail, tmp_env):
+    while True:
+        if type(x) is Var:
+           xp = x_env.get(x)
+           if xp is None:
+              yp = y_env.dereference(y)
+              if (x, x_env) != yp:
+                  x_env.put(x, yp)
+                  if x_env != tmp_env: trail.append((x, x_env))
+              return True
+           else:
+              x, x_env = xp
+              x, x_env = x_env.dereference(x)
+        elif type(y) is Var: x, x_env, y, y_env = y, y_env, x, x_env
+        else: break
+    if type(x) is Goal and type(y) is Goal:
+       if x.pred != y.pred: return False
+       x, y = x.args, y.args
+    if not (type(x) is Cons and type(y) is Cons): return x == y
+    return all(unify(a, x_env, b, y_env, trail, tmp_env) for (a,b) in zip(x, y))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Resolution
+Finally, we need to **solve queries**. Resolution works by trying to match
+goals against predicate definitions, applying unification, and recursively
+resolving subgoals. Python’s generators make it natural to model
+Prolog’s backtracking search.
+
+<!--
+############
+def resolve_body(body, env):
+    if body is None: yield None # yield whenever no more goals remain
+    else:
+       goal, rest = body.car, body.cdr
+       for d_head, d_body in goal.pred.defs:
+          d_env, trail = Env(), []
+          if unify(goal, env, d_head, d_env, trail, d_env):
+             if d_body and callable(d_body.car):
+                 if d_body.car(CallbackEnv(d_env, trail)):
+                     yield from resolve_body(rest, env)
+             else:
+                for _i in resolve_body(d_body, d_env):
+                    yield from resolve_body(rest, env)
+          for x, x_env in trail: x_env.delete(x)
+
+def resolve(goals):
+    env = Env()
+    for _ in resolve_body(to_list(goals), env): # not an error.
+        yield env
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def resolve_body(body, env):
+    if body is None: yield None # yield whenever no more goals remain
+    else:
+       goal, rest = body.car, body.cdr
+       for d_head, d_body in goal.pred.defs:
+          d_env, trail = Env(), []
+          if unify(goal, env, d_head, d_env, trail, d_env):
+             if d_body and callable(d_body.car):
+                 if d_body.car(CallbackEnv(d_env, trail)):
+                     yield from resolve_body(rest, env)
+             else:
+                for _i in resolve_body(d_body, d_env):
+                    yield from resolve_body(rest, env)
+          for x, x_env in trail: x_env.delete(x)
+
+def resolve(goals):
+    env = Env()
+    for _ in resolve_body(to_list(goals), env): # not an error.
+        yield env
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also define a `CallbackEnv` to allow us to to make simple
+function calls.
+
+<!--
+############
+class CallbackEnv:
+    def __init__(self, env, trail): self.env, self.trail = env, trail
+
+    def __getitem__(self, t): return self.env[t]
+
+    def unify(self, t, u): return unify(t, self.env, u, self.env, self.trail, self.env)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallbackEnv:
+    def __init__(self, env, trail): self.env, self.trail = env, trail
+
+    def __getitem__(self, t): return self.env[t]
+
+    def unify(self, t, u): return unify(t, self.env, u, self.env, self.trail, self.env)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We also define a convenience method `query` that resovles the goals.
+
+<!--
+############
+def query(*goals):
+   goals = list(goals)
+   return [env[goals] for env in resolve(goals)]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def query(*goals):
+   goals = list(goals)
+   return [env[goals] for env in resolve(goals)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+variables, which allow us to define Vars
+
+<!--
+############
+def variables(symbols):
+    for s in symbols: globals()[s] = Var(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def variables(symbols):
+    for s in symbols: globals()[s] = Var(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+and predicates, which allow us to define predicates
+
+<!--
+############
+def predicates(predicates):
+    for s in predicates: globals()[s] = Pred(s)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def predicates(predicates):
+    for s in predicates: globals()[s] = Pred(s)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, let us test all these out. We first define a few variables and predicates,
+which are needed to ensure that we can add clauses to predicates.
+
+<!--
+############
+variables([chr(x) for x in range(ord('A'),ord('Z')+1)])
+predicates(['eq', 'noteq', 'gt', 'gteq', 'lt', 'lteq', 'write', 'writenl', 'nl'])
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+variables([chr(x) for x in range(ord(&#x27;A&#x27;),ord(&#x27;Z&#x27;)+1)])
+predicates([&#x27;eq&#x27;, &#x27;noteq&#x27;, &#x27;gt&#x27;, &#x27;gteq&#x27;, &#x27;lt&#x27;, &#x27;lteq&#x27;, &#x27;write&#x27;, &#x27;writenl&#x27;, &#x27;nl&#x27;])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Next, we construct a simple library. Let us define our predicates.
+
+<!--
+############
+eq(X, Y) << [lambda env: env.unify(env[X], env[Y])]
+noteq(X, Y) << [lambda env: env[X] != env[Y]]
+gt(X, Y) << [lambda env: env[X] > env[Y]]
+gteq(X, Y) << [lambda env: env[X] >= env[Y]]
+lt(X, Y) << [lambda env: env[X] < env[Y]]
+lteq(X, Y) << [lambda env: env[X] <= env[Y]]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+eq(X, Y) &lt;&lt; [lambda env: env.unify(env[X], env[Y])]
+noteq(X, Y) &lt;&lt; [lambda env: env[X] != env[Y]]
+gt(X, Y) &lt;&lt; [lambda env: env[X] &gt; env[Y]]
+gteq(X, Y) &lt;&lt; [lambda env: env[X] &gt;= env[Y]]
+lt(X, Y) &lt;&lt; [lambda env: env[X] &lt; env[Y]]
+lteq(X, Y) &lt;&lt; [lambda env: env[X] &lt;= env[Y]]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Predicates for writing.
+
+<!--
+############
+write(X) << [lambda env: (print(env[X], end=''),)]
+writenl(X) << [lambda env: (print(env[X]),)]
+nl() << [lambda env: (print(),)]
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+write(X) &lt;&lt; [lambda env: (print(env[X], end=&#x27;&#x27;),)]
+writenl(X) &lt;&lt; [lambda env: (print(env[X]),)]
+nl() &lt;&lt; [lambda env: (print(),)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more predicates for list operations.
+
+<!--
+############
+predicates(['car', 'cdr', 'cons', 'member', 'append', 'reverse', 'takeout', 'perm', 'subset'])
+
+car([X**Y],X) << []
+cdr([X**Y],Y) << []
+
+cons(X,R,[X**R]) << []
+
+member(X,[X**R]) << []
+member(X,[Y**R]) << [member(X,R)]
+
+append([],X,X) << []
+append([X**Y],Z,[X**W]) << [append(Y,Z,W)]
+
+reverse([X**Y],Z,W) << [reverse(Y,[X**Z],W)]
+reverse([],X,X) << []
+reverse(A,R) << [reverse(A,[],R)]
+
+takeout(X,[X**R],R) << []
+takeout(X,[F**R],[F**S]) << [takeout(X,R,S)]
+
+subset([X**R],S) << [member(X,S), subset(R,S)]
+subset([],X) << []
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+predicates([&#x27;car&#x27;, &#x27;cdr&#x27;, &#x27;cons&#x27;, &#x27;member&#x27;, &#x27;append&#x27;, &#x27;reverse&#x27;, &#x27;takeout&#x27;, &#x27;perm&#x27;, &#x27;subset&#x27;])
+
+car([X**Y],X) &lt;&lt; []
+cdr([X**Y],Y) &lt;&lt; []
+
+cons(X,R,[X**R]) &lt;&lt; []
+
+member(X,[X**R]) &lt;&lt; []
+member(X,[Y**R]) &lt;&lt; [member(X,R)]
+
+append([],X,X) &lt;&lt; []
+append([X**Y],Z,[X**W]) &lt;&lt; [append(Y,Z,W)]
+
+reverse([X**Y],Z,W) &lt;&lt; [reverse(Y,[X**Z],W)]
+reverse([],X,X) &lt;&lt; []
+reverse(A,R) &lt;&lt; [reverse(A,[],R)]
+
+takeout(X,[X**R],R) &lt;&lt; []
+takeout(X,[F**R],[F**S]) &lt;&lt; [takeout(X,R,S)]
+
+subset([X**R],S) &lt;&lt; [member(X,S), subset(R,S)]
+subset([],X) &lt;&lt; []
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us try writing a merge sort.
+
+<!--
+############
+predicates(['mergesort', 'split', 'merge'])
+
+mergesort([],[]) << []
+mergesort([A],[A]) << []
+mergesort([A**B**R],S) << [
+  split([A**B**R],P,T),
+  mergesort(P,Q),
+  mergesort(T,U),
+  merge(Q,U,S)]
+
+split([],[],[]) << []
+split([A],[A],[]) << []
+split([A**B**R],[A**X],[B**Y]) << [split(R,X,Y)]
+
+merge(A,[],A) << []
+merge([],B,B) << []
+merge([A**X],[B**Y],[A**M]) << [lteq(A,B), merge(X,[B**Y],M)]
+merge([A**X],[B**Y],[B**M]) << [gt(A,B),  merge([A**X],Y,M)]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+predicates([&#x27;mergesort&#x27;, &#x27;split&#x27;, &#x27;merge&#x27;])
+
+mergesort([],[]) &lt;&lt; []
+mergesort([A],[A]) &lt;&lt; []
+mergesort([A**B**R],S) &lt;&lt; [
+  split([A**B**R],P,T),
+  mergesort(P,Q),
+  mergesort(T,U),
+  merge(Q,U,S)]
+
+split([],[],[]) &lt;&lt; []
+split([A],[A],[]) &lt;&lt; []
+split([A**B**R],[A**X],[B**Y]) &lt;&lt; [split(R,X,Y)]
+
+merge(A,[],A) &lt;&lt; []
+merge([],B,B) &lt;&lt; []
+merge([A**X],[B**Y],[A**M]) &lt;&lt; [lteq(A,B), merge(X,[B**Y],M)]
+merge([A**X],[B**Y],[B**M]) &lt;&lt; [gt(A,B),  merge([A**X],Y,M)]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us test it out.
+
+<!--
+############
+print("mergesort[")
+print(query(mergesort([4,3,6,5,9,1,7],S)))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;mergesort[&quot;)
+print(query(mergesort([4,3,6,5,9,1,7],S)))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more tests. First membership.
+
+<!--
+############
+print("membership[")
+print(query(member(1,[1,2,3])))
+print(query(member(3,[1,2,3])))
+print(query(member(10,[1,2,3])))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;membership[&quot;)
+print(query(member(1,[1,2,3])))
+print(query(member(3,[1,2,3])))
+print(query(member(10,[1,2,3])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Appending to a list
+
+<!--
+############
+print("append[")
+print(query(append([],[1,2],A)))
+print(query(append([1,2,3],[4],B)))
+print(query(append([1,2,3],[4,5],[1,2,3,4,5])))
+print(query(append([1,2,3],W,[1,2,3,4,5])))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;append[&quot;)
+print(query(append([],[1,2],A)))
+print(query(append([1,2,3],[4],B)))
+print(query(append([1,2,3],[4,5],[1,2,3,4,5])))
+print(query(append([1,2,3],W,[1,2,3,4,5])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Reversing a list
+
+<!--
+############
+print("reverse[")
+print(query(reverse([1,2,3,4,5],X)))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;reverse[&quot;)
+print(query(reverse([1,2,3,4,5],X)))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Takeout
+
+<!--
+############
+print("takeout[")
+print(query(takeout(X,[1,2,3],L)))
+print("]")
+
+# perm([X**Y],Z) << [perm(Y,W), takeout(X,Z,W)]
+# perm([],[]) << []
+# print(query(perm(P,[1,2])))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;takeout[&quot;)
+print(query(takeout(X,[1,2,3],L)))
+print(&quot;]&quot;)
+
+# perm([X**Y],Z) &lt;&lt; [perm(Y,W), takeout(X,Z,W)]
+# perm([],[]) &lt;&lt; []
+# print(query(perm(P,[1,2])))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Subset
+
+<!--
+############
+print("subset[")
+print(query(subset([4,3],[2,3,5,4])))
+print(query(subset([A],[2,3,5,4])))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;subset[&quot;)
+print(query(subset([4,3],[2,3,5,4])))
+print(query(subset([A],[2,3,5,4])))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+A few more predicates. We also define our digits.
+
+<!--
+############
+predicates(['expr', 'num', 'number', 'digit', 'plus', 'minus'])
+digit('1') << []
+digit('2') << []
+digit('3') << []
+digit('4') << []
+digit('5') << []
+digit('6') << []
+digit('7') << []
+digit('8') << []
+digit('9') << []
+digit('0') << []
+plus('+') << []
+minus('-') << []
+
+variables(['Rest','Remain', 'L1', 'L2'])
+number([D]) << [digit(D)]
+number([D**Rest]) << [digit(D), number(Rest)]
+print(query(number(list('12'))))
+
+print("expr[")
+expr(L, A) << [num(L), eq(L, A)]
+expr(L, A) << [append(L1, [P**L2], L), plus(P), num(L1), expr(L2,B), eq(plus(L1,B), A)]
+expr(L, A) << [append(L1, [P**L2], L), minus(P), num(L1), expr(L2,B), eq(minus(L1,B), A)]
+num(D) << [number(D)]
+
+val = query(expr(list('1+2-3'),A))
+print(query(expr(list('1+2-3'),A)))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+predicates([&#x27;expr&#x27;, &#x27;num&#x27;, &#x27;number&#x27;, &#x27;digit&#x27;, &#x27;plus&#x27;, &#x27;minus&#x27;])
+digit(&#x27;1&#x27;) &lt;&lt; []
+digit(&#x27;2&#x27;) &lt;&lt; []
+digit(&#x27;3&#x27;) &lt;&lt; []
+digit(&#x27;4&#x27;) &lt;&lt; []
+digit(&#x27;5&#x27;) &lt;&lt; []
+digit(&#x27;6&#x27;) &lt;&lt; []
+digit(&#x27;7&#x27;) &lt;&lt; []
+digit(&#x27;8&#x27;) &lt;&lt; []
+digit(&#x27;9&#x27;) &lt;&lt; []
+digit(&#x27;0&#x27;) &lt;&lt; []
+plus(&#x27;+&#x27;) &lt;&lt; []
+minus(&#x27;-&#x27;) &lt;&lt; []
+
+variables([&#x27;Rest&#x27;,&#x27;Remain&#x27;, &#x27;L1&#x27;, &#x27;L2&#x27;])
+number([D]) &lt;&lt; [digit(D)]
+number([D**Rest]) &lt;&lt; [digit(D), number(Rest)]
+print(query(number(list(&#x27;12&#x27;))))
+
+print(&quot;expr[&quot;)
+expr(L, A) &lt;&lt; [num(L), eq(L, A)]
+expr(L, A) &lt;&lt; [append(L1, [P**L2], L), plus(P), num(L1), expr(L2,B), eq(plus(L1,B), A)]
+expr(L, A) &lt;&lt; [append(L1, [P**L2], L), minus(P), num(L1), expr(L2,B), eq(minus(L1,B), A)]
+num(D) &lt;&lt; [number(D)]
+
+val = query(expr(list(&#x27;1+2-3&#x27;),A))
+print(query(expr(list(&#x27;1+2-3&#x27;),A)))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Using definite clause grammars.
+
+<!--
+############
+print("dcg[")
+predicates(['dcgexpr', 'dcgnum', 'rcons', 'dcgexprcomplete'])
+dcgexpr(L, Remain) << [dcgnum(L, Remain)]
+dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '+', L2), dcgexpr(L2, Remain)]
+dcgexpr(L, Remain) << [dcgnum(L, L1), rcons(L1, '-', L2), dcgexpr(L2, Remain)]
+dcgnum([D**Remain], Remain) << [digit(D)]
+rcons([X**L], X, L) << []
+dcgexprcomplete(L) << [dcgexpr(L, list(''))]
+print(query(dcgnum(list('123'), A)))
+print(query(rcons(list('+123'), '+', L)))
+print(query(dcgexpr(list('1+2-3'), A)))
+print(query(dcgexprcomplete(list('1-2+3'))))
+print("]")
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+print(&quot;dcg[&quot;)
+predicates([&#x27;dcgexpr&#x27;, &#x27;dcgnum&#x27;, &#x27;rcons&#x27;, &#x27;dcgexprcomplete&#x27;])
+dcgexpr(L, Remain) &lt;&lt; [dcgnum(L, Remain)]
+dcgexpr(L, Remain) &lt;&lt; [dcgnum(L, L1), rcons(L1, &#x27;+&#x27;, L2), dcgexpr(L2, Remain)]
+dcgexpr(L, Remain) &lt;&lt; [dcgnum(L, L1), rcons(L1, &#x27;-&#x27;, L2), dcgexpr(L2, Remain)]
+dcgnum([D**Remain], Remain) &lt;&lt; [digit(D)]
+rcons([X**L], X, L) &lt;&lt; []
+dcgexprcomplete(L) &lt;&lt; [dcgexpr(L, list(&#x27;&#x27;))]
+print(query(dcgnum(list(&#x27;123&#x27;), A)))
+print(query(rcons(list(&#x27;+123&#x27;), &#x27;+&#x27;, L)))
+print(query(dcgexpr(list(&#x27;1+2-3&#x27;), A)))
+print(query(dcgexprcomplete(list(&#x27;1-2+3&#x27;))))
+print(&quot;]&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Another way to use query.
+
+<!--
+############
+for e in query(member(X, [1,2,3])):
+    print(e[0])
+
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+for e in query(member(X, [1,2,3])):
+    print(e[0])
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+# References
+[^prolog]:  Colmerauer, A. and Roussel, P., 1996. The birth of Prolog. In History of programming languages
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2025-09-01-prolog.py).
+
+
