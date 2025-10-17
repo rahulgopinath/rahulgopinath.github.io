@@ -1108,7 +1108,8 @@ query. For equivalence check here, we check for strings of length 1, then
 length 2 etc, whose sum should be `num_calls`. We take the easy way out here,
 and just use `num_calls` as the number of calls for each string length.
 We have what is called a *cooperative teacher*, that tries to respond with
-a shortest possible counter example. We # also take the easy way out and only
+a shortest possible counter example. We
+also take the easy way out and only
 check for a maximum length of 10.
 (I will revisit this if there is interest on expanding this).
 
