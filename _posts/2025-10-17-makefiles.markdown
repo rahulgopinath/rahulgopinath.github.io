@@ -17,6 +17,8 @@ This is a summary of best practices when using `Makefiles`. This post is primari
 * `$@` is the name of the target. Make it a habit to `touch $@` at the end of the make rule for timestamps, or, if it is the name of a useful target, generate `.$@` or `$@~` if `$@` includes a path, and finally `mv .$@ $@` as the last step.
 * `$*` is the matched portion represented by `%` in Makefile targets. Confusingly, `$%` is used for another purpose.
 * `$<` is the name of the first prerequisite.
+* `$^` is the list of all prerequisites.
+* `$?` is the list of all prerequisites that are newer than the target.
 * Attaching parentheses and `D` and `F` respectively gives you the directory and file parts of these variables. For example, `$(@D)` is the directory part of the target, while `$(@F)` is the file part.
 
 
@@ -29,8 +31,8 @@ Essentially, if you rely on files that are produced by a process and the process
 For example, do not do this.
 
 ```
-a.exe:
-	$(CC) -o a.exe a.c
+a.exe: a.c b.c
+	$(CC) -o a.exe a.c b.c
 
 ```
 
@@ -38,17 +40,18 @@ Instead, make it a two-step process.
 
 ```
 a.exe: a.c
-	$(CC) -o _a.exe a.c
+	$(CC) -o _a.exe a.c b.c
 	@mv _a.exe a.exe
 ```
 
-**Note:**  *the use of `@` to hide command invocation here.*
+**Note:**  *the use of `@` at the beginning of the command line to hide command invocation echo here.*
 
 Or even better:
 
 ```
-a.exe: a.c
-	$(CC) -o _$@ $<
+SRC_FILES=a.c b.c
+a.exe: $(SRC_FILES)
+	$(CC) -o _$@ $^
 	@mv _$@ $@
 ```
 
@@ -177,7 +180,7 @@ should be
 -include .deps/*.d
 ```
 
-Finally, do not rely on the ordering of recipes in the Makefile to ensure that the targets are built in a particular order. For example, if you have
+Do not rely on the ordering of recipes in the Makefile to ensure that the targets are built in a particular order. For example, if you have
 
 ```
 
@@ -190,7 +193,7 @@ c:
 
 ```
 
-do not assume that the targets will be built in the order `a`, `b`, `c`. If you want that order, explicitly specify it using dependencies:
+Do not assume that the targets will be built in the order `a`, `b`, `c`. If you want that order, explicitly specify it using dependencies:
 
 ```
 
