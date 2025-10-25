@@ -359,6 +359,7 @@ def canonical_regular_grammar(grammar, start):
         # is any of the nonterminals an accept state?
         for k in eclosure:
             if k in accepts:
+                if [] in new_grammar[key]: continue
                 new_grammar[key].append([])
 
         transitions = get_alphabets(grammar, eclosure)
