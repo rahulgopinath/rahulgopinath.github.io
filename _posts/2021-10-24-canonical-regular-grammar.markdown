@@ -116,7 +116,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">iFuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl">rxregular-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/23/regular-expression-to-regular-grammar/">Regular Expression to Regular Grammar</a>".</li>
 </ol>
 
@@ -263,117 +263,6 @@ G_ANY_PLUS = {
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-
-## Remove degenerate rules
-
-A degenerate rule is a rule with a format $$ A \rightarrow B $$ where $$ A $$
-and $$ B $$ are nonterminals in the grammar. The way to eliminate such
-nonterminals is to recursively merge the rules of $$ B $$ to the rules of $$ A $$.
-
-<!--
-############
-from collections import defaultdict
-
-def is_degenerate_rule(rule):
-    return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
-
-def remove_duplicate_rules(g):
-    new_g = {}
-    for k in g:
-        my_rules = {str(r):r for r in g[k]}
-        new_g[k] = [my_rules[k] for k in my_rules]
-    return new_g
-
-def remove_degenerate_rules(g, s):
-    g = dict(g)
-    drkeys = [k for k in g if any(is_degenerate_rule(r) for r in g[k])]
-    while drkeys:
-        drk, *drkeys = drkeys
-        new_rules = []
-        for r in g[drk]:
-            if is_degenerate_rule(r):
-                new_key = r[0]
-                if new_key == drk: continue # self recursion
-                new_rs = g[new_key]
-                if any(is_degenerate_rule(new_r) for new_r in new_rs):
-                    drkeys.append(drk)
-                new_rules.extend(new_rs)
-            else:
-                new_rules.append(r)
-        g[drk] = new_rules
-
-    return remove_duplicate_rules(g), s
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-from collections import defaultdict
-
-def is_degenerate_rule(rule):
-    return len(rule) == 1 and fuzzer.is_nonterminal(rule[0])
-
-def remove_duplicate_rules(g):
-    new_g = {}
-    for k in g:
-        my_rules = {str(r):r for r in g[k]}
-        new_g[k] = [my_rules[k] for k in my_rules]
-    return new_g
-
-def remove_degenerate_rules(g, s):
-    g = dict(g)
-    drkeys = [k for k in g if any(is_degenerate_rule(r) for r in g[k])]
-    while drkeys:
-        drk, *drkeys = drkeys
-        new_rules = []
-        for r in g[drk]:
-            if is_degenerate_rule(r):
-                new_key = r[0]
-                if new_key == drk: continue # self recursion
-                new_rs = g[new_key]
-                if any(is_degenerate_rule(new_r) for new_r in new_rs):
-                    drkeys.append(drk)
-                new_rules.extend(new_rs)
-            else:
-                new_rules.append(r)
-        g[drk] = new_rules
-
-    return remove_duplicate_rules(g), s
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it
-
-<!--
-############
-g1 = {
-     '<start1>' : [['<A1>']],
-     '<A1>' : [['a1', '<B1>']],
-     '<B1>' : [['b1','<C1>'], ['<C1>']],
-     '<C1>' : [['c1'], ['<C1>']]
-}
-s1 = '<start1>'
-g, s = remove_degenerate_rules(g1, s1)
-gatleast.display_grammar(g, s)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-g1 = {
-     &#x27;&lt;start1&gt;&#x27; : [[&#x27;&lt;A1&gt;&#x27;]],
-     &#x27;&lt;A1&gt;&#x27; : [[&#x27;a1&#x27;, &#x27;&lt;B1&gt;&#x27;]],
-     &#x27;&lt;B1&gt;&#x27; : [[&#x27;b1&#x27;,&#x27;&lt;C1&gt;&#x27;], [&#x27;&lt;C1&gt;&#x27;]],
-     &#x27;&lt;C1&gt;&#x27; : [[&#x27;c1&#x27;], [&#x27;&lt;C1&gt;&#x27;]]
-}
-s1 = &#x27;&lt;start1&gt;&#x27;
-g, s = remove_degenerate_rules(g1, s1)
-gatleast.display_grammar(g, s)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 ## Removing terminal sequences
 
 A terminal sequence is a sequence of terminal symbols in a rule. For example,
@@ -391,6 +280,16 @@ We want to replace such sequences by a new nonterminal. For example,
 
 <!--
 ############
+from collections import defaultdict
+
+def remove_duplicate_rules(g):
+    new_g = {}
+    for k in g:
+        my_rules = {str(r):r for r in g[k]}
+        new_g[k] = [my_rules[k] for k in my_rules]
+    return new_g
+
+
 def get_split_key(k, terminal):
     return '<%s_%s>' % (k[1:-1], terminal)
 
@@ -427,6 +326,16 @@ def remove_multi_terminals(g, s):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+from collections import defaultdict
+
+def remove_duplicate_rules(g):
+    new_g = {}
+    for k in g:
+        my_rules = {str(r):r for r in g[k]}
+        new_g[k] = [my_rules[k] for k in my_rules]
+    return new_g
+
+
 def get_split_key(k, terminal):
     return &#x27;&lt;%s_%s&gt;&#x27; % (k[1:-1], terminal)
 
@@ -828,6 +737,7 @@ def canonical_regular_grammar(grammar, start):
         # is any of the nonterminals an accept state?
         for k in eclosure:
             if k in accepts:
+                if [] in new_grammar[key]: continue
                 new_grammar[key].append([])
 
         transitions = get_alphabets(grammar, eclosure)
@@ -881,6 +791,7 @@ def canonical_regular_grammar(grammar, start):
         # is any of the nonterminals an accept state?
         for k in eclosure:
             if k in accepts:
+                if [] in new_grammar[key]: continue
                 new_grammar[key].append([])
 
         transitions = get_alphabets(grammar, eclosure)
@@ -1149,9 +1060,8 @@ expression given.
 <!--
 ############
 def regexp_to_regular_grammar(regexp):
-    g0, s0 = rxregular.RegexToRGrammar().to_grammar(regexp)
+    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
 
-    g1, s1 = remove_degenerate_rules(g0, s0)
     g2, s2 = remove_multi_terminals(g1, s1)
     g3, s3 = fix_empty_rules(g2, s2)
     g4, s4 = canonical_regular_grammar(g3, s3)
@@ -1162,9 +1072,8 @@ def regexp_to_regular_grammar(regexp):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def regexp_to_regular_grammar(regexp):
-    g0, s0 = rxregular.RegexToRGrammar().to_grammar(regexp)
+    g1, s1 = rxregular.RegexToRGrammar().to_grammar(regexp)
 
-    g1, s1 = remove_degenerate_rules(g0, s0)
     g2, s2 = remove_multi_terminals(g1, s1)
     g3, s3 = fix_empty_rules(g2, s2)
     g4, s4 = canonical_regular_grammar(g3, s3)
@@ -1204,384 +1113,6 @@ for i in range(10):
     v = rgf.fuzz(s)
     print(repr(v))
     assert re.match(my_re, v), v
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-## Minimization of the Regular Grammar
-
-At this point, we have a DFA that is represented as a grammar, where the
-states in the DFA are nonterminal symbols in the grammar and terminals are
-the transitions. However, this DFA is not necessarily minimal.
-Interestingly, Brzozowski observed that if you reverse the arrows in the DFA,
-resulting in an NFA, and then convert the NFA to DFA, then do this again, the
-resulting DFA is minimal. However, this can have exponential worst case
-complexity.
-Hence, we look at a more common algorithm for minimization.
-The Hopcroft algorithm (1971) is based on partition refinement. We start with
-a matrix nonterminals, and iteratively refine them.
-
-<!--
-############
-class RGMinimize:
-    def __init__(self, g, start):
-        self.g = g
-        self.start = start
-        self.accept = get_first_accepts(g)
-        self.init_table()
-        self.alphabet = self.get_alphabet(g)
-        self.transitions = {}
-        for k in self.g:
-            self.transitions[k] = {r[0]:r[1] for r in self.g[k]
-                                   if r and len(r) == 2}
-
-    def get_alphabet(self, g):
-        return {t:None for k in g for r in g[k] for t in r
-                     if not fuzzer.is_nonterminal(t)}
-
-    def init_table(self):
-        self.table = {}
-        for k in self.g:
-            for l in self.g:
-                if k == l: continue
-                x = tuple(sorted([k,l]))
-                if x in self.table: continue
-                if k in self.accept:
-                    if l in self.accept:
-                        self.table[x] = None
-                    else:
-                        self.table[x] = '' # Distinguished
-                else:
-                    if l in self.accept:
-                        self.table[x] = '' # Distinguished
-                    else:
-                        self.table[x] = None
-
-    def update_matrix(self):
-        while True:
-            updated = False
-            for (ka,kb) in self.table:
-                distinguished = self.table[(ka,kb)]
-                if distinguished is not None: continue # distinguished
-                dA = self.transitions[ka]
-                dB = self.transitions[kb]
-                for alpha in self.alphabet:
-                    key = tuple(sorted([dA.get(alpha), dB.get(alpha)]))
-                    if self.table.get(key) is None: continue
-                    # distinguished
-                    self.table[(ka, kb)] = alpha
-                    updated = True
-                    break
-            if not updated: break
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class RGMinimize:
-    def __init__(self, g, start):
-        self.g = g
-        self.start = start
-        self.accept = get_first_accepts(g)
-        self.init_table()
-        self.alphabet = self.get_alphabet(g)
-        self.transitions = {}
-        for k in self.g:
-            self.transitions[k] = {r[0]:r[1] for r in self.g[k]
-                                   if r and len(r) == 2}
-
-    def get_alphabet(self, g):
-        return {t:None for k in g for r in g[k] for t in r
-                     if not fuzzer.is_nonterminal(t)}
-
-    def init_table(self):
-        self.table = {}
-        for k in self.g:
-            for l in self.g:
-                if k == l: continue
-                x = tuple(sorted([k,l]))
-                if x in self.table: continue
-                if k in self.accept:
-                    if l in self.accept:
-                        self.table[x] = None
-                    else:
-                        self.table[x] = &#x27;&#x27; # Distinguished
-                else:
-                    if l in self.accept:
-                        self.table[x] = &#x27;&#x27; # Distinguished
-                    else:
-                        self.table[x] = None
-
-    def update_matrix(self):
-        while True:
-            updated = False
-            for (ka,kb) in self.table:
-                distinguished = self.table[(ka,kb)]
-                if distinguished is not None: continue # distinguished
-                dA = self.transitions[ka]
-                dB = self.transitions[kb]
-                for alpha in self.alphabet:
-                    key = tuple(sorted([dA.get(alpha), dB.get(alpha)]))
-                    if self.table.get(key) is None: continue
-                    # distinguished
-                    self.table[(ka, kb)] = alpha
-                    updated = True
-                    break
-            if not updated: break
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it.
-
-<!--
-############
-g = {
-        '<A>' : [['a', '<B>'],
-                 ['b', '<D>']],
-        '<B>' : [['b', '<E>'],
-                 ['a', '<C>']],
-        '<C>' : [
-            ['a', '<B>'],
-            ['b', '<E>'],
-            []],
-        '<D>' : [['b', '<E>'],
-                 ['a', '<C>']],
-        '<E>' : [
-            ['a', '<E>'],
-            ['b', '<E>'],
-            []],
-        }
-s = '<A>'
-m = RGMinimize(g, s)
-m.update_matrix()
-for (a,b) in m.table:
-    print(a,b, m.table[(a,b)])
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-g = {
-        &#x27;&lt;A&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;],
-                 [&#x27;b&#x27;, &#x27;&lt;D&gt;&#x27;]],
-        &#x27;&lt;B&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-                 [&#x27;a&#x27;, &#x27;&lt;C&gt;&#x27;]],
-        &#x27;&lt;C&gt;&#x27; : [
-            [&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;],
-            [&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-            []],
-        &#x27;&lt;D&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-                 [&#x27;a&#x27;, &#x27;&lt;C&gt;&#x27;]],
-        &#x27;&lt;E&gt;&#x27; : [
-            [&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;],
-            [&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-            []],
-        }
-s = &#x27;&lt;A&gt;&#x27;
-m = RGMinimize(g, s)
-m.update_matrix()
-for (a,b) in m.table:
-    print(a,b, m.table[(a,b)])
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-At this point, all that remains to be done is to merge the nonterminals in the
-pairs which are indistinguished. That is, the value is `None`.
-
-<!--
-############
-class RGMinimize(RGMinimize):
-    def to_name(self, k, indistinguished):
-        if k not in indistinguished: return k
-        ik_ = sorted(set(indistinguished[k]))
-        return '<(%s)>' % '|'.join([a[1:-1] for a in ik_])
-
-    def minimized_grammar(self):
-        self.update_matrix()
-        indistinguished = {}
-        for (ka, kb) in self.table:
-            if self.table[(ka, kb)] is None:
-                #k = '<%s|%s>' % (ka[1:-1], kb[1:-1])
-                if ka not in indistinguished: indistinguished[ka] = []
-                indistinguished[ka].extend([ka, kb])
-                if kb not in indistinguished: indistinguished[kb] = []
-                indistinguished[kb].extend([ka, kb])
-
-        new_g = {}
-        for k in self.g:
-            ik = self.to_name(k, indistinguished)
-            if ik not in new_g:
-                new_g[ik] = []
-            new_rules = new_g[ik]
-
-            for r in self.g[k]:
-                new_r = [self.to_name(t, indistinguished)
-                         for t in r]
-                if new_r not in new_rules:
-                    new_rules.append(new_r)
-
-        new_s = self.to_name(self.start, indistinguished)
-        return new_g, new_s
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class RGMinimize(RGMinimize):
-    def to_name(self, k, indistinguished):
-        if k not in indistinguished: return k
-        ik_ = sorted(set(indistinguished[k]))
-        return &#x27;&lt;(%s)&gt;&#x27; % &#x27;|&#x27;.join([a[1:-1] for a in ik_])
-
-    def minimized_grammar(self):
-        self.update_matrix()
-        indistinguished = {}
-        for (ka, kb) in self.table:
-            if self.table[(ka, kb)] is None:
-                #k = &#x27;&lt;%s|%s&gt;&#x27; % (ka[1:-1], kb[1:-1])
-                if ka not in indistinguished: indistinguished[ka] = []
-                indistinguished[ka].extend([ka, kb])
-                if kb not in indistinguished: indistinguished[kb] = []
-                indistinguished[kb].extend([ka, kb])
-
-        new_g = {}
-        for k in self.g:
-            ik = self.to_name(k, indistinguished)
-            if ik not in new_g:
-                new_g[ik] = []
-            new_rules = new_g[ik]
-
-            for r in self.g[k]:
-                new_r = [self.to_name(t, indistinguished)
-                         for t in r]
-                if new_r not in new_rules:
-                    new_rules.append(new_r)
-
-        new_s = self.to_name(self.start, indistinguished)
-        return new_g, new_s
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Using it.
-
-<!--
-############
-g = {
-        '<A>' : [['a', '<B>'],
-                 ['b', '<D>']],
-        '<B>' : [['b', '<E>'],
-                 ['a', '<C>']],
-        '<C>' : [
-            ['a', '<B>'],
-            ['b', '<E>'],
-            []],
-        '<D>' : [['b', '<E>'],
-                 ['a', '<C>']],
-        '<E>' : [
-            ['a', '<E>'],
-            ['b', '<E>'],
-            []],
-        }
-s = '<A>'
-m = RGMinimize(g, s)
-newg, news = m.minimized_grammar()
-gatleast.display_grammar(newg, news)
-
-print()
-g = {
-        '<a>': [['0', '<b>'], ['1', '<c>']],
-        '<b>': [['1', '<d>'], ['0', '<a>']],
-        '<c>': [['1', '<f>'], ['0', '<e>'], []],
-        '<d>': [['1', '<f>'], ['0', '<e>'], []],
-        '<e>': [['1', '<f>'], ['0', '<e>'], []],
-        '<f>': [['1', '<f>'], ['0', '<f>']],
-        }
-s = '<a>'
-m = RGMinimize(g, s)
-g1, s1 = m.minimized_grammar()
-gatleast.display_grammar(g1, s1)
-
-print()
-g = {
-        '<A>' : [['a', '<C>'], ['b', '<B>']],
-        '<B>' : [['a', '<A>'], ['b', '<C>']],
-        '<C>' : [['a', '<A>'], ['b', '<D>']],
-        '<D>' : [['a', '<E>'], ['b', '<H>']],
-        '<E>' : [['a', '<E>'], ['b', '<F>']],
-        '<F>' : [['a', '<E>'], ['b', '<G>']],
-        '<G>' : [['a', '<E>'], ['b', '<H>']],
-        '<H>' : [['a', '<I>'], ['b', '<L>']],
-        '<I>' : [['a', '<I>'], ['b', '<J>']],
-        '<J>' : [['a', '<I>'], ['b', '<K>']],
-        '<K>' : [['a', '<I>'], ['b', '<L>']],
-        '<L>' : [['a', '<L>'], ['b', '<L>'], []],
-        }
-s = '<A>'
-m = RGMinimize(g, s)
-g1, s1 = m.minimized_grammar()
-gatleast.display_grammar(g1, s1)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-g = {
-        &#x27;&lt;A&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;],
-                 [&#x27;b&#x27;, &#x27;&lt;D&gt;&#x27;]],
-        &#x27;&lt;B&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-                 [&#x27;a&#x27;, &#x27;&lt;C&gt;&#x27;]],
-        &#x27;&lt;C&gt;&#x27; : [
-            [&#x27;a&#x27;, &#x27;&lt;B&gt;&#x27;],
-            [&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-            []],
-        &#x27;&lt;D&gt;&#x27; : [[&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-                 [&#x27;a&#x27;, &#x27;&lt;C&gt;&#x27;]],
-        &#x27;&lt;E&gt;&#x27; : [
-            [&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;],
-            [&#x27;b&#x27;, &#x27;&lt;E&gt;&#x27;],
-            []],
-        }
-s = &#x27;&lt;A&gt;&#x27;
-m = RGMinimize(g, s)
-newg, news = m.minimized_grammar()
-gatleast.display_grammar(newg, news)
-
-print()
-g = {
-        &#x27;&lt;a&gt;&#x27;: [[&#x27;0&#x27;, &#x27;&lt;b&gt;&#x27;], [&#x27;1&#x27;, &#x27;&lt;c&gt;&#x27;]],
-        &#x27;&lt;b&gt;&#x27;: [[&#x27;1&#x27;, &#x27;&lt;d&gt;&#x27;], [&#x27;0&#x27;, &#x27;&lt;a&gt;&#x27;]],
-        &#x27;&lt;c&gt;&#x27;: [[&#x27;1&#x27;, &#x27;&lt;f&gt;&#x27;], [&#x27;0&#x27;, &#x27;&lt;e&gt;&#x27;], []],
-        &#x27;&lt;d&gt;&#x27;: [[&#x27;1&#x27;, &#x27;&lt;f&gt;&#x27;], [&#x27;0&#x27;, &#x27;&lt;e&gt;&#x27;], []],
-        &#x27;&lt;e&gt;&#x27;: [[&#x27;1&#x27;, &#x27;&lt;f&gt;&#x27;], [&#x27;0&#x27;, &#x27;&lt;e&gt;&#x27;], []],
-        &#x27;&lt;f&gt;&#x27;: [[&#x27;1&#x27;, &#x27;&lt;f&gt;&#x27;], [&#x27;0&#x27;, &#x27;&lt;f&gt;&#x27;]],
-        }
-s = &#x27;&lt;a&gt;&#x27;
-m = RGMinimize(g, s)
-g1, s1 = m.minimized_grammar()
-gatleast.display_grammar(g1, s1)
-
-print()
-g = {
-        &#x27;&lt;A&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;C&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;]],
-        &#x27;&lt;B&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;C&gt;&#x27;]],
-        &#x27;&lt;C&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;D&gt;&#x27;]],
-        &#x27;&lt;D&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;H&gt;&#x27;]],
-        &#x27;&lt;E&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;F&gt;&#x27;]],
-        &#x27;&lt;F&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;G&gt;&#x27;]],
-        &#x27;&lt;G&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;E&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;H&gt;&#x27;]],
-        &#x27;&lt;H&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;I&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;L&gt;&#x27;]],
-        &#x27;&lt;I&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;I&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;J&gt;&#x27;]],
-        &#x27;&lt;J&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;I&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;K&gt;&#x27;]],
-        &#x27;&lt;K&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;I&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;L&gt;&#x27;]],
-        &#x27;&lt;L&gt;&#x27; : [[&#x27;a&#x27;, &#x27;&lt;L&gt;&#x27;], [&#x27;b&#x27;, &#x27;&lt;L&gt;&#x27;], []],
-        }
-s = &#x27;&lt;A&gt;&#x27;
-m = RGMinimize(g, s)
-g1, s1 = m.minimized_grammar()
-gatleast.display_grammar(g1, s1)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
