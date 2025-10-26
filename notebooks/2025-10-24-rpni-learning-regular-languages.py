@@ -31,7 +31,7 @@
 # algorithm that allows us to determine the input specification from a set
 # of positive and negative samples. It was introducd by Oncia and Garcia in
 # 1992 [^oncia1992]. The core idea of RPNI is to construct
-# a Prefix Tree Acceptor (PTA), then iteratively try and merge
+# a Prefix Tree Acceptor (PTA, also called a [Trie](https://en.wikipedia.org/wiki/Trie)), then iteratively try and merge
 # each state pair, and checking the resulting DFA against negative samples to
 # verify that the resulting DFA is not overgenaralizing. Because the new DFA is
 # produced by merging states within the DFA, it will continue to accept all
@@ -519,7 +519,9 @@ if __name__ == '__main__':
 # 
 # ## Extensions and Improvements
 # 
-# Some of the important extensions to RPNI include EDSM and RPNI2. 
+# Some of the important extensions to RPNI include EDSM [^lang1998] and RPNI2 [^dupont2005]. 
 # 
 # ---
 # [^oncia1992]: J Oncia and P Garcia, Inferring regular languages in polynomial update time, 1992
+# [^lang1998]: Kevin J. Lang, Barak A. Pearlmutter, and Rodney A. Price., Results of the Abbadingo One DFA Learning Competition and a New Evidence-Driven State Merging Algorithm,  1998
+# [^dupont2005]: Pierre Dupont, Incremental Regular Inference, 2005
