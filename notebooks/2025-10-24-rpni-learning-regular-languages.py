@@ -98,6 +98,8 @@
 import simplefuzzer as fuzzer
 import rxcanonical
 import rgtorx
+import gatleastsinglefault as gatleast
+
 
 # # Grammar Inference
 # 
@@ -281,16 +283,10 @@ class DFA(DFA):
 if __name__ == '__main__':
     positive = ['abcdefgh']
     pta = DFA().build_pta(positive)
-    for key in pta.grammar:
-        print(key)
-        for rule in pta.grammar[key]:
-            print('',rule)
+    gatleast.display_grammar(pta.grammar, '<start>')
     positive = [ "b", "ab", "bb", "aab", "abb", "bab" ]
     pta = DFA().build_pta(positive)
-    for key in pta.grammar:
-        print(key)
-        for rule in pta.grammar[key]:
-            print('',rule)
+    gatleast.display_grammar(pta.grammar, '<start>')
 
 # ### State Merging
 # 
@@ -357,10 +353,7 @@ if __name__ == '__main__':
     merged_nfa, ns = pta.merge_to_nfa('<1>', '<2>')
     start_key = '<start>'
     merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    for key in merged:
-        print(key)
-        for rule in merged[key]:
-            print('',rule)
+    gatleast.display_grammar(merged, start_key)
     print('All should be eaccepted')
     for example in positive:
         dfap = dfa_parse(merged)
@@ -401,17 +394,11 @@ if __name__ == '__main__':
     positive = [ "abd", "acd" ]
     negative = [ "ad" ]
     pta = DFA().build_pta(positive)
-    for key in pta.grammar:
-        print(key)
-        for rule in pta.grammar[key]:
-            print('',rule)
+    gatleast.display_grammar(pta.grammar, '<start>')
     print()
     merged_nfa, ns = pta.merge_to_nfa('<1>', '<3>')
     merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    for key in merged_g:
-        print(key)
-        for rule in merged_g[key]:
-            print('',rule)
+    gatleast.display_grammar(merged_g, start_symbol)
 
 # ### RPNI algorithm implementation
 
@@ -490,11 +477,7 @@ if __name__ == '__main__':
         print(f"{result} '{s}'")
 
     # What is the grammar learned?
-    print("start:", learned_dfa.start_symbol)
-    for k in learned_dfa.grammar:
-        print(k)
-        for r in learned_dfa.grammar[k]:
-            print("", r)
+    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
     # This looks intimidating, but let us convert this to a regular expression
     rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)

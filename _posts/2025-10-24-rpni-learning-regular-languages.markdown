@@ -162,6 +162,8 @@ sampling from grammars etc. Hence, we import all that.
 import simplefuzzer as fuzzer
 import rxcanonical
 import rgtorx
+import gatleastsinglefault as gatleast
+
 
 ############
 -->
@@ -170,6 +172,7 @@ import rgtorx
 import simplefuzzer as fuzzer
 import rxcanonical
 import rgtorx
+import gatleastsinglefault as gatleast
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -489,16 +492,10 @@ Let us test it out!
 ############
 positive = ['abcdefgh']
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print('',rule)
+gatleast.display_grammar(pta.grammar, '<start>')
 positive = [ "b", "ab", "bb", "aab", "abb", "bab" ]
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print('',rule)
+gatleast.display_grammar(pta.grammar, '<start>')
 
 ############
 -->
@@ -506,16 +503,10 @@ for key in pta.grammar:
 <textarea cols="40" rows="4" name='python_edit'>
 positive = [&#x27;abcdefgh&#x27;]
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print(&#x27;&#x27;,rule)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
 positive = [ &quot;b&quot;, &quot;ab&quot;, &quot;bb&quot;, &quot;aab&quot;, &quot;abb&quot;, &quot;bab&quot; ]
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print(&#x27;&#x27;,rule)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -634,10 +625,7 @@ for key in pta.grammar:
 merged_nfa, ns = pta.merge_to_nfa('<1>', '<2>')
 start_key = '<start>'
 merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-for key in merged:
-    print(key)
-    for rule in merged[key]:
-        print('',rule)
+gatleast.display_grammar(merged, start_key)
 print('All should be eaccepted')
 for example in positive:
     dfap = dfa_parse(merged)
@@ -659,10 +647,7 @@ for key in pta.grammar:
 merged_nfa, ns = pta.merge_to_nfa(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
 start_key = &#x27;&lt;start&gt;&#x27;
 merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-for key in merged:
-    print(key)
-    for rule in merged[key]:
-        print(&#x27;&#x27;,rule)
+gatleast.display_grammar(merged, start_key)
 print(&#x27;All should be eaccepted&#x27;)
 for example in positive:
     dfap = dfa_parse(merged)
@@ -726,17 +711,11 @@ KEY_COUNTER = 0
 positive = [ "abd", "acd" ]
 negative = [ "ad" ]
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print('',rule)
+gatleast.display_grammar(pta.grammar, '<start>')
 print()
 merged_nfa, ns = pta.merge_to_nfa('<1>', '<3>')
 merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-for key in merged_g:
-    print(key)
-    for rule in merged_g[key]:
-        print('',rule)
+gatleast.display_grammar(merged_g, start_symbol)
 
 ############
 -->
@@ -762,17 +741,11 @@ KEY_COUNTER = 0
 positive = [ &quot;abd&quot;, &quot;acd&quot; ]
 negative = [ &quot;ad&quot; ]
 pta = DFA().build_pta(positive)
-for key in pta.grammar:
-    print(key)
-    for rule in pta.grammar[key]:
-        print(&#x27;&#x27;,rule)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
 print()
 merged_nfa, ns = pta.merge_to_nfa(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;3&gt;&#x27;)
 merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-for key in merged_g:
-    print(key)
-    for rule in merged_g[key]:
-        print(&#x27;&#x27;,rule)
+gatleast.display_grammar(merged_g, start_symbol)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -897,11 +870,7 @@ for s in test_strings:
     print(f"{result} '{s}'")
 
 # What is the grammar learned?
-print("start:", learned_dfa.start_symbol)
-for k in learned_dfa.grammar:
-    print(k)
-    for r in learned_dfa.grammar[k]:
-        print("", r)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
 # This looks intimidating, but let us convert this to a regular expression
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
@@ -948,11 +917,7 @@ for s in test_strings:
     print(f&quot;{result} &#x27;{s}&#x27;&quot;)
 
 # What is the grammar learned?
-print(&quot;start:&quot;, learned_dfa.start_symbol)
-for k in learned_dfa.grammar:
-    print(k)
-    for r in learned_dfa.grammar[k]:
-        print(&quot;&quot;, r)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
 # This looks intimidating, but let us convert this to a regular expression
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
