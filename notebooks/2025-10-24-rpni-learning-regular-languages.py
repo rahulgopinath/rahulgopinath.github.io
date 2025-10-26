@@ -476,12 +476,29 @@ if __name__ == '__main__':
         result = "Y" if learned_dfa.accepts(s) else "X"
         print(f"{result} '{s}'")
 
-    # What is the grammar learned?
+    print('What is the grammar learned?')
     gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
-
-    # This looks intimidating, but let us convert this to a regular expression
+    print('This looks intimidating, but let us convert this to a regular expression')
     rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
     print(rx)
+
+# Let us attempt a larger example. Let us keep the negative strings, but use a
+# fuzzer to generate positive strings.
+
+if __name__ == '__main__':
+    my_s = '<A>'
+    my_g = {
+            '<A>': [['a', '<A>'],
+                    ['b', '<A>'],
+                    ['b']]
+            }
+    rgf = fuzzer.LimitFuzzer(my_g)
+    positive =[rgf.fuzz(my_s) for i in range(10)]
+    learned_dfa = rpni(positive, negative)
+    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+    rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+    print(rx)
+    
 
 # ## Complexity and Limitations
 # 

@@ -869,10 +869,9 @@ for s in test_strings:
     result = "Y" if learned_dfa.accepts(s) else "X"
     print(f"{result} '{s}'")
 
-# What is the grammar learned?
+print('What is the grammar learned?')
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
-
-# This looks intimidating, but let us convert this to a regular expression
+print('This looks intimidating, but let us convert this to a regular expression')
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
 print(rx)
 
@@ -916,10 +915,48 @@ for s in test_strings:
     result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
     print(f&quot;{result} &#x27;{s}&#x27;&quot;)
 
-# What is the grammar learned?
+print(&#x27;What is the grammar learned?&#x27;)
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+print(&#x27;This looks intimidating, but let us convert this to a regular expression&#x27;)
+rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+print(rx)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us attempt a larger example. Let us keep the negative strings, but use a
+fuzzer to generate positive strings.
 
-# This looks intimidating, but let us convert this to a regular expression
+<!--
+############
+my_s = '<A>'
+my_g = {
+        '<A>': [['a', '<A>'],
+                ['b', '<A>'],
+                ['b']]
+        }
+rgf = fuzzer.LimitFuzzer(my_g)
+positive =[rgf.fuzz(my_s) for i in range(10)]
+learned_dfa = rpni(positive, negative)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+print(rx)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+my_s = &#x27;&lt;A&gt;&#x27;
+my_g = {
+        &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;]]
+        }
+rgf = fuzzer.LimitFuzzer(my_g)
+positive =[rgf.fuzz(my_s) for i in range(10)]
+learned_dfa = rpni(positive, negative)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
 print(rx)
 </textarea><br />
