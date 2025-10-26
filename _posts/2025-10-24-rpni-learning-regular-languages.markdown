@@ -125,14 +125,14 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 
 <ol>
 <li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxcanonical-0.0.1-py2.py3-none-any.whl">rxcanonical-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/24/canonical-regular-grammar/">Converting a Regular Expression to DFA using Regular Grammar</a>".</li>
 </ol>
 
 <div style='display:none'>
 <form name='python_run_form'>
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rxcanonical-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -146,25 +146,13 @@ sampling from grammars etc. Hence, we import all that.
 <!--
 ############
 import simplefuzzer as fuzzer
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-import simplefuzzer as fuzzer
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-import rxfuzzer
-
-<!--
-############
 import rxcanonical
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+import simplefuzzer as fuzzer
 import rxcanonical
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -987,4 +975,6 @@ Some of the important extensions to RPNI include EDSM and RPNI2.
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2025-10-24-rpni-learning-regular-languages.py).
 
+
+The installable python wheel `rpni` is available [here](/py/rpni-0.0.1-py2.py3-none-any.whl).
 

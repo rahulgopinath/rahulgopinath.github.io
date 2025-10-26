@@ -20,7 +20,7 @@
 "notebooks/2021-11-13-regular-grammar-to-regular-expression.py":    ["rgtorx", "Regular Grammars to Regular Expressions", "0.0.1"],
 "notebooks/2022-07-02-generalized-ll-parser.py":                    ["gllparser", "GLL Parser", "0.0.1"],
 "notebooks/2023-01-10-cyk-parser.py":                               ["cykparser", "CYK Parser", "0.0.1"],
-"notebooks/2023-10-19-remove-left-recursion.py":                    ["removeleftrecursion", "Remove Left Recursion", "0.0.1"]
-"notebooks/2024-01-04-lstar-learning-regular-languages.py":         ["lstar", "L* Algorithm", "0.0.1"]
+"notebooks/2023-10-19-remove-left-recursion.py":                    ["removeleftrecursion", "Remove Left Recursion", "0.0.1"],
+"notebooks/2024-01-04-lstar-learning-regular-languages.py":         ["lstar", "L* Algorithm", "0.0.1"],
 "notebooks/2025-10-24-rpni-learning-regular-languages.py":          ["rpni", "RPNI Algorithm", "0.0.1"]
 }
