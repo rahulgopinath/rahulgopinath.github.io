@@ -488,7 +488,12 @@ if __name__ == '__main__':
     rx = rgtorx.rg_to_regex(newg, news)
     print(rx)
 
-# Let us attempt a larger example. Let us keep the negative strings, but use a
+# The result illustrates a limitation of both RPNI and the DFA minimization
+# algorithm. Effectively, we can't factor out complex loops from the DFA
+# because the DFA minimization is purely based on state equivalence. When
+# there are complex loops, simple pairwise state equivalence would fail.
+# 
+# Next, let us attempt a larger example. Let us keep the negative strings, but use a
 # fuzzer to generate positive strings.
 
 if __name__ == '__main__':
