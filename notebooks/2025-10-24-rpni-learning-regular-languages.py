@@ -489,8 +489,10 @@ if __name__ == '__main__':
 
 # ## Complexity and Limitations
 # 
-# Time Complexity: The RPNI algorithm is $ O(N) $ where $N$ is the size of input
-# samples.
+# Time Complexity: The RPNI algorithm is $ O(p^3 n) $ where p is the size (sum
+# of the lengths of all strings) of positive data, and n is the size of negative
+# data.
+# 
 # ## Extensions and Improvements
 # 
 # Some of the important extensions to RPNI include EDSM and RPNI2. 
