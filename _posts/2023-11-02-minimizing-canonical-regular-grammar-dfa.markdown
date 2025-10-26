@@ -124,8 +124,8 @@ import rxfuzzer
 
 We assume that we have a DFA that is represented as a grammar where the
 states in the DFA are nonterminal symbols in the grammar and terminals are
-the transitions. However, this DFA is not necessarily minimal. That is,
-thre could be duplicate nonterminal symbols that could behave exactly alike.
+the transitions. However, this DFA is not necessarily minimal.
+There could be duplicate nonterminal symbols that could behave exactly alike.
 That is, if we take two such states as start symbols of the grammar, then
 the strings accepted by such an grammars would be exactly the same. So, the
 idea behind minimizing a regular grammar is to identify nonterminals that are
@@ -138,13 +138,17 @@ exponential worst case complexity (but can be much faster in common patterns).
 Hence, we look at a more common algorithm for minimization.
 
 The idea is as follows:
+
+```
 1. Mark the start state and all final states
 2. Collect all pairs of nonterminals from the grammar
-2. while there are pairs to be marked 
-   a. for each nonmarked pairs p,q do
-      i. for each symbol a in alphabet do 
-         * if the pair delta(p, a) and delta(q, a) is marked, mark p,q
+2. while there are pairs to be marked,
+   for each nonmarked pairs p,q do:
+      for each symbol a in alphabet do:
+         if the pair delta(p, a) and delta(q, a) is marked, mark p,q
 3. Construct the reduced grammar by merging unmarked groups of pairs.
+```
+
 We start with a matrix nonterminals, and iteratively refine them. We start by
 initializing our data structure.
 
@@ -583,4 +587,6 @@ The runnable code for this post is available
 
 The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2023-11-02-minimizing-canonical-regular-grammar-dfa.py).
 
+
+The installable python wheel `minimizeregulargrammar` is available [here](/py/minimizeregulargrammar-0.0.1-py2.py3-none-any.whl).
 
