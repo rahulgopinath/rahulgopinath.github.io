@@ -81,6 +81,12 @@
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rxcanonical-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 
 # #### Prerequisites
 # 
