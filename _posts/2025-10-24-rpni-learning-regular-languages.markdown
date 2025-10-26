@@ -935,12 +935,23 @@ my_g = {
                 ['b', '<A>'],
                 ['b']]
         }
+my_ng = {
+        '<A>': [['a', '<A>'],
+                ['b', '<A>'],
+                ['a']]
+        }
 rgf = fuzzer.LimitFuzzer(my_g)
 positive =[rgf.fuzz(my_s) for i in range(10)]
+print(positive)
+nrgf = fuzzer.LimitFuzzer(my_ng)
+negative =[nrgf.fuzz(my_s) for i in range(10)]
+print(negative)
+
 learned_dfa = rpni(positive, negative)
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
 print(rx)
+
 
 
 ############
@@ -953,8 +964,18 @@ my_g = {
                 [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
                 [&#x27;b&#x27;]]
         }
+my_ng = {
+        &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;a&#x27;]]
+        }
 rgf = fuzzer.LimitFuzzer(my_g)
 positive =[rgf.fuzz(my_s) for i in range(10)]
+print(positive)
+nrgf = fuzzer.LimitFuzzer(my_ng)
+negative =[nrgf.fuzz(my_s) for i in range(10)]
+print(negative)
+
 learned_dfa = rpni(positive, negative)
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)

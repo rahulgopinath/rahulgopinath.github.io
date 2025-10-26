@@ -492,12 +492,23 @@ if __name__ == '__main__':
                     ['b', '<A>'],
                     ['b']]
             }
+    my_ng = {
+            '<A>': [['a', '<A>'],
+                    ['b', '<A>'],
+                    ['a']]
+            }
     rgf = fuzzer.LimitFuzzer(my_g)
     positive =[rgf.fuzz(my_s) for i in range(10)]
+    print(positive)
+    nrgf = fuzzer.LimitFuzzer(my_ng)
+    negative =[nrgf.fuzz(my_s) for i in range(10)]
+    print(negative)
+
     learned_dfa = rpni(positive, negative)
     gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
     rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
     print(rx)
+
     
 
 # ## Complexity and Limitations
