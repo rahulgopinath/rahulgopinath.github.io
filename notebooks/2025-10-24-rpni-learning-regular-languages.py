@@ -87,6 +87,7 @@
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/rgtorx-0.0.1-py2.py3-none-any.whl
 
 # #### Prerequisites
 # 
@@ -96,6 +97,7 @@
 
 import simplefuzzer as fuzzer
 import rxcanonical
+import rgtorx
 
 # # Grammar Inference
 # 
@@ -486,6 +488,17 @@ if __name__ == '__main__':
     for s in test_strings:
         result = "Y" if learned_dfa.accepts(s) else "X"
         print(f"{result} '{s}'")
+
+    # What is the grammar learned?
+    print("start:", learned_dfa.start_symbol)
+    for k in learned_dfa.grammar:
+        print(k)
+        for r in learned_dfa.grammar[k]:
+            print("", r)
+
+    # This looks intimidating, but let us convert this to a regular expression
+    rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+    print(rx)
 
 # ## Complexity and Limitations
 # 

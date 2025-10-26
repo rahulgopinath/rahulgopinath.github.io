@@ -132,6 +132,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl">rxregular-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/23/regular-expression-to-regular-grammar/">Regular Expression to Regular Grammar</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rgtorx-0.0.1-py2.py3-none-any.whl">rgtorx-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/11/13/regular-grammar-to-regular-expression/">Regular Grammars to Regular Expressions</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -145,6 +146,7 @@ https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/rgtorx-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -159,6 +161,7 @@ sampling from grammars etc. Hence, we import all that.
 ############
 import simplefuzzer as fuzzer
 import rxcanonical
+import rgtorx
 
 ############
 -->
@@ -166,6 +169,7 @@ import rxcanonical
 <textarea cols="40" rows="4" name='python_edit'>
 import simplefuzzer as fuzzer
 import rxcanonical
+import rgtorx
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -892,6 +896,17 @@ for s in test_strings:
     result = "Y" if learned_dfa.accepts(s) else "X"
     print(f"{result} '{s}'")
 
+# What is the grammar learned?
+print("start:", learned_dfa.start_symbol)
+for k in learned_dfa.grammar:
+    print(k)
+    for r in learned_dfa.grammar[k]:
+        print("", r)
+
+# This looks intimidating, but let us convert this to a regular expression
+rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+print(rx)
+
 ############
 -->
 <form name='python_run_form'>
@@ -931,6 +946,17 @@ test_strings = [&quot;aab&quot;, &quot;aba&quot;, &quot;bbb&quot;, &quot;aa&quot
 for s in test_strings:
     result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
     print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+
+# What is the grammar learned?
+print(&quot;start:&quot;, learned_dfa.start_symbol)
+for k in learned_dfa.grammar:
+    print(k)
+    for r in learned_dfa.grammar[k]:
+        print(&quot;&quot;, r)
+
+# This looks intimidating, but let us convert this to a regular expression
+rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+print(rx)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
