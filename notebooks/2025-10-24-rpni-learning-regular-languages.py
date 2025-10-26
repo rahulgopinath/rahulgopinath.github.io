@@ -88,6 +88,7 @@
 # https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/rgtorx-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/minimizeregulargrammar-0.0.1-py2.py3-none-any.whl
 
 # #### Prerequisites
 # 
@@ -99,7 +100,7 @@ import simplefuzzer as fuzzer
 import rxcanonical
 import rgtorx
 import gatleastsinglefault as gatleast
-
+import minimizeregulargrammar as mrg
 
 # # Grammar Inference
 # 
@@ -481,6 +482,11 @@ if __name__ == '__main__':
     print('This looks intimidating, but let us convert this to a regular expression')
     rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
     print(rx)
+    print('Does minimizing help?')
+    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+    newg, news = m.minimized_grammar()
+    rx = rgtorx.rg_to_regex(newg, news)
+    print(rx)
 
 # Let us attempt a larger example. Let us keep the negative strings, but use a
 # fuzzer to generate positive strings.
@@ -506,7 +512,12 @@ if __name__ == '__main__':
 
     learned_dfa = rpni(positive, negative)
     gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
-    rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
+
+    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+    newg, news = m.minimized_grammar()
+    gatleast.display_grammar(newg, news)
+
+    rx = rgtorx.rg_to_regex(newg, news)
     print(rx)
 
     
