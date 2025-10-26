@@ -944,7 +944,7 @@ samples.
 Some of the important extensions to RPNI include EDSM and RPNI2. 
 
 ---
-[^oncia1992]: Inferring regular languages in polynomial update time
+[^oncia1992]: J Oncia and P Garcia, Inferring regular languages in polynomial update time, 1992
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>

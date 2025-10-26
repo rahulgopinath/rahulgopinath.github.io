@@ -496,4 +496,4 @@ if __name__ == '__main__':
 # Some of the important extensions to RPNI include EDSM and RPNI2. 
 # 
 # ---
-# [^oncia1992]: Inferring regular languages in polynomial update time
+# [^oncia1992]: J Oncia and P Garcia, Inferring regular languages in polynomial update time, 1992
