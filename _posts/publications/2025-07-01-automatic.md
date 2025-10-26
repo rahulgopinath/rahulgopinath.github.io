@@ -22,4 +22,4 @@ This work presents a practical, robust, and flexible format-free data repair alt
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/issre2025/luo2025automatic.pdf "paper")
 [<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/issre2025/luo2025automatic.bib "reference")
-
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/automatic-data-repair-without-format-specifications)
