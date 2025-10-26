@@ -513,7 +513,7 @@ if __name__ == '__main__':
 
 # ## Complexity and Limitations
 # 
-# Time Complexity: The RPNI algorithm is $ O(p^3 n) $ where p is the size (sum
+# Time Complexity: The RPNI algorithm is $$ O(p^3 n) $$ where p is the size (sum
 # of the lengths of all strings) of positive data, and n is the size of negative
 # data.
 # 
