@@ -160,7 +160,9 @@ class dfa_parse:
 
     def unify_key(self, key, text, at=0):
         if key not in self.grammar:
-            return (at + len(key), (key, [])) if text[at:].startswith(key) else (at, None)
+            if text[at:].startswith(key):
+                return (at + len(key), (key, [])) 
+            else: return (at, None)
         rules = self.grammar[key]
         for rule in rules:
             if not rule: continue # we process [] separately
@@ -430,7 +432,8 @@ def rpni(positive_examples, negative_examples):
                 merged_nfa, new_state = dfa.merge_to_nfa(state_i, state_j)
                 if state_i == start or state_j == start: new_start = new_state
                 else: new_start = start
-                merged, new_start = rxcanonical.canonical_regular_grammar(merged_nfa, new_start)
+                merged, new_start = rxcanonical.canonical_regular_grammar(
+                        merged_nfa, new_start)
 
                 merged_dfa = DFA(start_symbol = new_start)
                 merged_dfa.grammar = merged
