@@ -70,7 +70,9 @@ def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
     for k in g:
         new_rules = []
         for rule in g[k]:
-            if len(rule) == 1:
+            if len(rule) == 0:
+                new_rules.append([empty_nt])
+            elif len(rule) == 1:
                 if fuzzer.is_nonterminal(rule[0]):
                     assert rule[0] == empty_nt
                     new_rules.append(rule)
