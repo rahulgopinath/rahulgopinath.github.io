@@ -854,8 +854,6 @@ def rpni(positive_examples, negative_examples):
 
 Let us use RPNI to learn a simple pattern: strings over {a, b} that end with 'b'.
 
-Positive examples: strings ending with `b`
-
 <!--
 ############
 positive = [
@@ -866,27 +864,6 @@ positive = [
     "abb",
     "bab"
 ]
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-positive = [
-    &quot;b&quot;,
-    &quot;ab&quot;,
-    &quot;bb&quot;,
-    &quot;aab&quot;,
-    &quot;abb&quot;,
-    &quot;bab&quot;
-]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Negative examples: strings not ending with `b`
-
-<!--
-############
 negative = [
     "",
     "a",
@@ -896,41 +873,7 @@ negative = [
     "bba"
 ]
 
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-negative = [
-    &quot;&quot;,
-    &quot;a&quot;,
-    &quot;aa&quot;,
-    &quot;ba&quot;,
-    &quot;aba&quot;,
-    &quot;bba&quot;
-]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Learn the DFA
-
-<!--
-############
 learned_dfa = rpni(positive, negative)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-learned_dfa = rpni(positive, negative)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Test the learned DFA
-
-<!--
-############
 print('should all be accepted', "Y" )
 for s in positive:
     result = "Y" if learned_dfa.accepts(s) else "X"
@@ -953,6 +896,24 @@ for s in test_strings:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+positive = [
+    &quot;b&quot;,
+    &quot;ab&quot;,
+    &quot;bb&quot;,
+    &quot;aab&quot;,
+    &quot;abb&quot;,
+    &quot;bab&quot;
+]
+negative = [
+    &quot;&quot;,
+    &quot;a&quot;,
+    &quot;aa&quot;,
+    &quot;ba&quot;,
+    &quot;aba&quot;,
+    &quot;bba&quot;
+]
+
+learned_dfa = rpni(positive, negative)
 print(&#x27;should all be accepted&#x27;, &quot;Y&quot; )
 for s in positive:
     result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;

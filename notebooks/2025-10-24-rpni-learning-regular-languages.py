@@ -449,51 +449,43 @@ def rpni(positive_examples, negative_examples):
 # ## A Simple Example
 # 
 # Let us use RPNI to learn a simple pattern: strings over {a, b} that end with 'b'.
-# 
-# Positive examples: strings ending with `b`
 
-positive = [
-    "b",
-    "ab",
-    "bb",
-    "aab",
-    "abb",
-    "bab"
-]
+if __name__ == '__main__':
+    positive = [
+        "b",
+        "ab",
+        "bb",
+        "aab",
+        "abb",
+        "bab"
+    ]
+    negative = [
+        "",
+        "a",
+        "aa",
+        "ba",
+        "aba",
+        "bba"
+    ]
 
-# Negative examples: strings not ending with `b`
+    learned_dfa = rpni(positive, negative)
+    print('should all be accepted', "Y" )
+    for s in positive:
+        result = "Y" if learned_dfa.accepts(s) else "X"
+        print(f"{result} '{s}'")
+    print()
+    print('should all be rejected', "X")
+    for s in negative:
+        result = "Y" if learned_dfa.accepts(s) else "X"
+        print(f"{result} '{s}'")
 
-negative = [
-    "",
-    "a",
-    "aa",
-    "ba",
-    "aba",
-    "bba"
-]
+    print()
+    print('others')
 
-# Learn the DFA
-
-learned_dfa = rpni(positive, negative)
-
-# Test the learned DFA
-print('should all be accepted', "Y" )
-for s in positive:
-    result = "Y" if learned_dfa.accepts(s) else "X"
-    print(f"{result} '{s}'")
-print()
-print('should all be rejected', "X")
-for s in negative:
-    result = "Y" if learned_dfa.accepts(s) else "X"
-    print(f"{result} '{s}'")
-
-print()
-print('others')
-
-test_strings = ["aab", "aba", "bbb", "aa"]
-for s in test_strings:
-    result = "Y" if learned_dfa.accepts(s) else "X"
-    print(f"{result} '{s}'")
+    test_strings = ["aab", "aba", "bbb", "aa"]
+    for s in test_strings:
+        result = "Y" if learned_dfa.accepts(s) else "X"
+        print(f"{result} '{s}'")
 
 # ## Complexity and Limitations
 # 
