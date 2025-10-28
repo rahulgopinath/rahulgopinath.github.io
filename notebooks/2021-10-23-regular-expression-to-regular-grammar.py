@@ -365,4 +365,11 @@ if __name__ == '__main__':
         print(repr(v))
         assert re.match(my_re, v), v 
 
-# The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)
+# ## Related techniques
+# The McNaughton–Yamada-Thompson algorithm [^aho2007] (very close to what we discussed) is
+# used to turn a regular expression to an NFA. An NFA can be turned to a regular
+# expression following Arden's Theorem [^arden1960]
+# 
+# --
+# [^aho2007]: Aho, Lam, Sethi, Ullman, Compilers : Principles, Techniques, & Tools, 2007
+# [^arden1960]: Dean N Arden, Delayed logic and finite state machines, 1960

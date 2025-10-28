@@ -103,7 +103,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">iFuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -821,7 +821,14 @@ for i in range(10):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The runnable code for this post is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2021-10-23-regular-expression-to-regular-grammar.py)
+## Related techniques
+The McNaughton–Yamada-Thompson algorithm [^aho2007] (very close to what we discussed) is
+used to turn a regular expression to an NFA. An NFA can be turned to a regular
+expression following Arden's Theorem [^arden1960]
+
+--
+[^aho2007]: Aho, Lam, Sethi, Ullman, Compilers : Principles, Techniques, & Tools, 2007
+[^arden1960]: Dean N Arden, Delayed logic and finite state machines, 1960
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
