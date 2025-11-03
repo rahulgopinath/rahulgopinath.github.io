@@ -167,7 +167,10 @@ def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
         new_rules = []
         for rule in g[k]:
             if len(rule) == 0:
-                new_rules.append([empty_nt])
+                if k == empty_nt:
+                    new_rules.append([])
+                else:
+                    new_rules.append([empty_nt])
             elif len(rule) == 1:
                 if fuzzer.is_nonterminal(rule[0]):
                     assert rule[0] == empty_nt
@@ -190,7 +193,10 @@ def fix_grammar(g, empty_nt=rxcanonical.NT_EMPTY):
         new_rules = []
         for rule in g[k]:
             if len(rule) == 0:
-                new_rules.append([empty_nt])
+                if k == empty_nt:
+                    new_rules.append([])
+                else:
+                    new_rules.append([empty_nt])
             elif len(rule) == 1:
                 if fuzzer.is_nonterminal(rule[0]):
                     assert rule[0] == empty_nt
