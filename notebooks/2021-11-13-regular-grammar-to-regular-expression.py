@@ -124,10 +124,10 @@ def add_single_accept_state(g, accept=rxcanonical.NT_EMPTY):
 # two phony states for these.
 
 def adjuscency_matrix(grammar, start, stop):
-    my_states = {k:i for i,k in enumerate(sorted(grammar.keys()))}
-    new_start, new_stop = len(my_states) + 1, len(my_states) + 2
+    my_states = {k:(i+1) for i,k in enumerate(sorted(grammar.keys()))}
+    new_start, new_stop = 0, len(my_states) + 1
     states = set(my_states.values()) | {new_start, new_stop}
-    regex = {(i, j): None for i in states for j in states}
+    adj_matrix = {(i, j): None for i in states for j in states}
 
     for k in grammar:
         for r in grammar[k]:
@@ -136,19 +136,28 @@ def adjuscency_matrix(grammar, start, stop):
             elif len(r) == 1:
                 assert r[0] == rxcanonical.NT_EMPTY
                 src, dst, trans  = my_states[k], my_states[r[0]], []
-                regex[(src, dst)] = union(regex[(src, dst)], [])
+                adj_matrix[(src, dst)] = union(adj_matrix[(src, dst)], [])
             else:
                 src, dst, trans  = my_states[k], my_states[r[1]], r[0]
-                regex[(src, dst)] = union(regex[(src, dst)], [trans])
-    regex[(new_start, my_states[start])] = [] # empty transition
-    regex[(my_states[stop], new_stop)] = [] # empty transition
-    return regex, states, new_start, new_stop
+                adj_matrix[(src, dst)] = union(adj_matrix[(src, dst)], [trans])
+    adj_matrix[(new_start, my_states[start])] = [] # empty transition
+    adj_matrix[(my_states[stop], new_stop)] = [] # empty transition
+    return adj_matrix, my_states, new_start, new_stop
+
+# Let us also define a helper function to display adjuscency matrix
+
+def display_adjmatrix(matrix, orig_states=None):
+    final_states = sorted(list({k[0] for k in matrix}))
+    for i in final_states:
+        print(' '.join(['%s,%s: %s' % (i, j, adj_matrix[(i,j)]) for j in final_states]))
+    if orig_states is not None:
+        print('states: ', ' '.join(["%s: %s" % (k, orig_states[k]) for k in orig_states]))
+        print('new_start:', 0, 'new_stop:', len(orig_states) + 1)
 
 # Using it.
 if __name__ == '__main__':
-    regex,states, start, stop = adjuscency_matrix(G_1, S_1, rxcanonical.NT_EMPTY)
-    for i in states:
-        print(' '.join(['%s,%s: %s' % (i, j, regex[(i,j)]) for j in states]))
+    adj_matrix, states, start, stop = adjuscency_matrix(G_1, S_1, rxcanonical.NT_EMPTY)
+    display_adjmatrix(adj_matrix, states)
 
 # We can now define our conversion routine. The idea is very simple,
 # remove one state at a time. For any pair of states such that
@@ -156,18 +165,22 @@ if __name__ == '__main__':
 # `<src> -> (ab) -> <dst>
 
 def rg_to_regex(grammar, start, stop=rxcanonical.NT_EMPTY):
-    regex, states, new_start, new_stop = adjuscency_matrix(grammar, start, stop)
+    adj_matrix, my_states, new_start, new_stop = adjuscency_matrix(grammar, start, stop)
+    original_states = sorted(list(my_states.values()))
+    full_states = original_states + [new_start, new_stop]
 
-    for q in sorted(states - {new_start, new_stop}):
-        for i in states - {q}:
-            for j in states - {q}:
-                r_iq, r_qq, r_qj, r_ij = regex[(i, q)], regex[(q, q)], \
-                        regex[(q, j)], regex[(i, j)]
+    for q in original_states:
+        for i in full_states:
+            if i == q: continue
+            for j in full_states:
+                if j == q: continue
+                r_iq, r_qq, r_qj, r_ij = adj_matrix[(i, q)], adj_matrix[(q, q)], \
+                        adj_matrix[(q, j)], adj_matrix[(i, j)]
                 if r_iq is None or r_qj is None: continue
                 new_part = r_iq + star(r_qq) + r_qj
-                regex[(i, j)] = union(r_ij, new_part)
+                adj_matrix[(i, j)] = union(r_ij, new_part)
 
-    return regex[(new_start, new_stop)]
+    return adj_matrix[(new_start, new_stop)]
 
 # Using it.
 
