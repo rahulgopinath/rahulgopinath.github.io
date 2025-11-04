@@ -133,7 +133,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rxregular-0.0.1-py2.py3-none-any.whl">rxregular-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/23/regular-expression-to-regular-grammar/">Regular Expression to Regular Grammar</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rgtorx-0.0.1-py2.py3-none-any.whl">rgtorx-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/11/13/regular-grammar-to-regular-expression/">Regular Grammars to Regular Expressions</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/minimizeregulargrammar-0.0.1-py2.py3-none-any.whl">minimizeregulargrammar-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2023/11/02/minimizing-canonical-regular-grammar-dfa/">Minimize Regular Grammar</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/minimizeregulargrammar-0.0.1-py2.py3-none-any.whl">minimizeregulargrammar-0.0.1-py2.py3-none-any.whl</a></li>
 </ol>
 
 <div style='display:none'>
@@ -875,13 +875,15 @@ for s in test_strings:
 print('What is the grammar learned?')
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 print('This looks intimidating, but let us convert this to a regular expression')
-rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
-print(rx)
+fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
+rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
+print(rgtorx.convert_rexs(rx))
 print('Does minimizing help?')
 m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
 newg, news = m.minimized_grammar()
-rx = rgtorx.rg_to_regex(newg, news)
-print(rx)
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 
 ############
 -->
@@ -926,13 +928,15 @@ for s in test_strings:
 print(&#x27;What is the grammar learned?&#x27;)
 gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 print(&#x27;This looks intimidating, but let us convert this to a regular expression&#x27;)
-rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
-print(rx)
+fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
+rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
+print(rgtorx.convert_rexs(rx))
 print(&#x27;Does minimizing help?&#x27;)
 m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
 newg, news = m.minimized_grammar()
-rx = rgtorx.rg_to_regex(newg, news)
-print(rx)
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -972,9 +976,9 @@ m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
 newg, news = m.minimized_grammar()
 gatleast.display_grammar(newg, news)
 
-rx = rgtorx.rg_to_regex(newg, news)
-print(rx)
-
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 
 
 ############
@@ -1006,8 +1010,9 @@ m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
 newg, news = m.minimized_grammar()
 gatleast.display_grammar(newg, news)
 
-rx = rgtorx.rg_to_regex(newg, news)
-print(rx)
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

@@ -524,9 +524,9 @@ if __name__ == '__main__':
     newg, news = m.minimized_grammar()
     gatleast.display_grammar(newg, news)
 
-    rx = rgtorx.rg_to_regex(newg, news)
-    print(rx)
-
+    fixed = rgtorx.add_single_accept_state(newg)
+    rx = rgtorx.rg_to_regex(fixed, news)
+    print(rgtorx.convert_rexs(rx))
     
 
 # ## Complexity and Limitations
