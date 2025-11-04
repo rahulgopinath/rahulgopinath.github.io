@@ -83,6 +83,38 @@ def convert_rexs(rexs):
         r += convert_rex(rex)
     return r
 
+# We require grammars in a particular format. In particular,
+# we reqire that we have only one nonterminal symbol `<_>: []`
+# as the accept state. If the grammar doesn't conform, we can
+# make it conform with `fix_grammar()` which adds the necessary
+# definitions. Essentially,
+# if the grammar already contains `<_>`, then it is kept, else
+# a new defintion `<_>: []` is created. For any rule that contains
+# a single terminal, we add `<_>` as the ending nonterminal symbol.
+# if it is a single nonterminal, we assert that it is <_> which
+# is one epsilon transition away from `k`.
+def add_single_accept_state(g, accept=rxcanonical.NT_EMPTY):
+    new_g = {}
+    new_g[empty_nt] = [[]]
+    for k in g:
+        new_rules = []
+        for rule in g[k]:
+            if len(rule) == 0:
+                if k == empty_nt:
+                    new_rules.append([])
+                else:
+                    new_rules.append([empty_nt])
+            elif len(rule) == 1:
+                if fuzzer.is_nonterminal(rule[0]):
+                    assert rule[0] == empty_nt
+                    new_rules.append(rule)
+                else:
+                    new_rules.append([rule[0], empty_nt])
+            else:
+                new_rules.append(rule)
+        new_g[k] = new_rules
+    return new_g
+
 # ## Adjuscency Matrix
 # 
 # Using the regular grammar directly is too unwieldy.
