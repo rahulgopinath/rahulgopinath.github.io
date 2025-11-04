@@ -480,13 +480,15 @@ if __name__ == '__main__':
     print('What is the grammar learned?')
     gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
     print('This looks intimidating, but let us convert this to a regular expression')
-    rx = rgtorx.rg_to_regex(learned_dfa.grammar, learned_dfa.start_symbol)
-    print(rx)
+    fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
+    rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
+    print(rgtorx.convert_rexs(rx))
     print('Does minimizing help?')
     m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
     newg, news = m.minimized_grammar()
-    rx = rgtorx.rg_to_regex(newg, news)
-    print(rx)
+    fixed = rgtorx.add_single_accept_state(newg)
+    rx = rgtorx.rg_to_regex(fixed, news)
+    print(rgtorx.convert_rexs(rx))
 
 # The result illustrates a limitation of both RPNI and the DFA minimization
 # algorithm. Effectively, we can't factor out complex loops from the DFA
