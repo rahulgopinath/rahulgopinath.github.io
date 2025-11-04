@@ -95,21 +95,21 @@ def convert_rexs(rexs):
 # is one epsilon transition away from `k`.
 def add_single_accept_state(g, accept=rxcanonical.NT_EMPTY):
     new_g = {}
-    new_g[empty_nt] = [[]]
+    new_g[accept] = [[]]
     for k in g:
         new_rules = []
         for rule in g[k]:
             if len(rule) == 0:
-                if k == empty_nt:
+                if k == accept:
                     new_rules.append([])
                 else:
-                    new_rules.append([empty_nt])
+                    new_rules.append([accept])
             elif len(rule) == 1:
                 if fuzzer.is_nonterminal(rule[0]):
-                    assert rule[0] == empty_nt
+                    assert rule[0] == accept
                     new_rules.append(rule)
                 else:
-                    new_rules.append([rule[0], empty_nt])
+                    new_rules.append([rule[0], accept])
             else:
                 new_rules.append(rule)
         new_g[k] = new_rules
