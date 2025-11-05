@@ -101,6 +101,7 @@ import rxcanonical
 import rgtorx
 import gatleastsinglefault as gatleast
 import minimizeregulargrammar as mrg
+import re
 
 # # Grammar Inference
 # 
@@ -195,7 +196,7 @@ class dfa_parse:
         return False
 
 # Let us test the reg parse.
-if __name__ == '__main__':
+if __name__ == '__main__1':
     rgrammar = { '<A>': [['b', '<B>'], ['c', '<C>']],
                  '<B>': [['b', '<B>'], []],
                  '<C>': [[]] }
@@ -281,7 +282,7 @@ class DFA(DFA):
         return self
 
 # Let us test it out!
-if __name__ == '__main__':
+if __name__ == '__main__1':
     positive = ['abcdefgh']
     pta = DFA().build_pta(positive)
     gatleast.display_grammar(pta.grammar, '<start>')
@@ -316,33 +317,32 @@ def unique_rules(rules):
 # Nondeterministic Finite Automaton. We will need to reduce this back to
 # a DFA later.
 
-class DFA(DFA):
-    def merge_to_nfa(self, state1, state2):
-        defs1, defs2 = self.grammar[state1], self.grammar[state2]
-        new_state = '<or(%s,%s)>' % (state1[1:-1], state2[1:-1])
-        # copy the grammar over. The defs are copied later
-        new_grammar = {k:self.grammar[k] for k in self.grammar
-                       if k not in [state1, state2]}
-        new_grammar[new_state] = unique_rules(defs1+defs2)
-        # replace usage of state1 or state2 with new_state
-        for k in new_grammar:
-            new_def = []
-            for r in new_grammar[k]:
-                if not(r):
-                    new_def.append(r)
-                    continue
-                assert len(r) > 1
-                if state1 == r[1]: new_def.append([r[0], new_state])
-                elif state2 == r[1]: new_def.append([r[0], new_state])
-                else: new_def.append([r[0], r[1]])
-            new_grammar[k] = new_def
-        return new_grammar, new_state
+def merge_to_nfa(grammar, state1, state2):
+    defs1, defs2 = grammar[state1], grammar[state2]
+    new_state = '<%s|%s>' % (state1[1:-1], state2[1:-1])
+    # copy the grammar over. The defs are copied later
+    new_grammar = {k:grammar[k] for k in grammar
+                   if k not in [state1, state2]}
+    new_grammar[new_state] = unique_rules(defs1+defs2)
+    # replace usage of state1 or state2 with new_state
+    for k in new_grammar:
+        new_def = []
+        for r in new_grammar[k]:
+            if not(r):
+                new_def.append(r)
+                continue
+            assert len(r) > 1
+            if state1 == r[1]: new_def.append([r[0], new_state])
+            elif state2 == r[1]: new_def.append([r[0], new_state])
+            else: new_def.append([r[0], r[1]])
+        new_grammar[k] = new_def
+    return new_grammar, new_state
 
 # Let us test it. We can make an NFA to a DFA by calling
 # `canonical_regular_grammar()` from earlier posts. We need a DFA to
 # parse the input using `dfa_parse`. So we do that.
 
-if __name__ == '__main__':
+if __name__ == '__main__1':
     KEY_COUNTER = 0
     positive = [ "ab", "ac" ]
     negative = [ "", ]
@@ -351,7 +351,7 @@ if __name__ == '__main__':
         print(key)
         for rule in pta.grammar[key]:
             print('',rule)
-    merged_nfa, ns = pta.merge_to_nfa('<1>', '<2>')
+    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
     start_key = '<start>'
     merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
     gatleast.display_grammar(merged, start_key)
@@ -374,7 +374,7 @@ class DFA(DFA):
         return True
 
 # Let us test it.
-if __name__ == '__main__':
+if __name__ == '__main__1':
     KEY_COUNTER = 0
     positive = [
             "ab",
@@ -385,7 +385,7 @@ if __name__ == '__main__':
     ]
     pta = DFA().build_pta(positive)
     start_key = '<start>'
-    merged_nfa, ns = pta.merge_to_nfa('<1>', '<2>')
+    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
     merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
     merged_dfa = DFA(start_symbol = start_key)
     merged_dfa.grammar = merged_g
@@ -397,7 +397,7 @@ if __name__ == '__main__':
     pta = DFA().build_pta(positive)
     gatleast.display_grammar(pta.grammar, '<start>')
     print()
-    merged_nfa, ns = pta.merge_to_nfa('<1>', '<3>')
+    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<3>')
     merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
     gatleast.display_grammar(merged_g, start_symbol)
 
@@ -419,7 +419,7 @@ def rpni(positive_examples, negative_examples):
                 state_i, state_j = keys[i], keys[j]
                 
                 # Check if merge is compatible
-                merged_nfa, new_state = dfa.merge_to_nfa(state_i, state_j)
+                merged_nfa, new_state = merge_to_nfa(dfa, state_i, state_j)
                 if state_i == start or state_j == start: new_start = new_state
                 else: new_start = start
                 merged, new_start = rxcanonical.canonical_regular_grammar(
@@ -440,7 +440,7 @@ def rpni(positive_examples, negative_examples):
 # 
 # Let us use RPNI to learn a simple pattern: strings over {a, b} that end with 'b'.
 
-if __name__ == '__main__':
+if __name__ == '__main__1':
     positive = [
         "b",
         "ab",
@@ -498,7 +498,7 @@ if __name__ == '__main__':
 # Next, let us attempt a larger example. Let us keep the negative strings, but use a
 # fuzzer to generate positive strings.
 
-if __name__ == '__main__':
+if __name__ == '__main__1':
     my_s = '<A>'
     my_g = {
             '<A>': [['a', '<A>'],
@@ -528,6 +528,105 @@ if __name__ == '__main__':
     rx = rgtorx.rg_to_regex(fixed, news)
     print(rgtorx.convert_rexs(rx))
     
+
+# ## Modified RPNI with NFA
+# 
+# Do we actually need DFA conversion as in the classical RPNI?
+# State elimination is far easier if we are working with
+# NFAs. NFAs are also smaller than corresponding DFAs, and
+# the regular expression resulting from NFAs are likely to be
+# correspondingly smaller. Finally, regular expression matching
+# is quite fast in modern machines.
+# 
+# We now do not reduce the NFA to a DFA. The intuition is as follows:
+# 1. We can directly convert the regular grammar (an NFA) to a regular
+#    expression, and quickly match.
+# 2. We can keep merging the states in the NFA, and it should not affect
+#    correctness.
+# 3. It should afford more repair opportunities by keeping as NFA.
+# 4. The size should be exponentially smaller.
+
+def rpni_nfa(positive_examples, negative_examples):
+    # Step 1: Build PTA
+    dfa = DFA().build_pta(positive)
+    start = dfa.start_symbol
+    nfa = dfa.grammar
+    
+    changed = True
+    while changed:
+        changed = False
+        keys = list(nfa.keys())
+        for i in range(1, len(keys)):
+            for j in range(i):
+                bad = False
+                state_i, state_j = keys[i], keys[j]
+                
+                # Check if merge is compatible
+                merged_nfa, new_state = merge_to_nfa(nfa, state_i, state_j)
+                if state_i == start or state_j == start: new_start = new_state
+                else: new_start = start
+                fixed = rgtorx.add_single_accept_state(merged_nfa)
+                regex = rgtorx.rg_to_regex(fixed, new_start)
+                pattern = re.compile('^(' + rgtorx.convert_rexs(regex)+ ')$')
+                for neg_example in negative_examples:
+                    if pattern.match(neg_example):
+                        bad = True
+                        break
+                if bad: continue
+                for pos_example in positive_examples:
+                    assert pattern.match(pos_example)
+                nfa = merged_nfa
+                start = new_start
+                changed = True
+                break
+            if changed: break
+
+    fixed = rgtorx.add_single_accept_state(nfa)
+    regex = rgtorx.rg_to_regex(fixed, start)
+    return rgtorx.convert_rexs(regex), nfa, start
+
+# Let us test it.
+if __name__ == '__main__':
+    positive = [
+        "b",
+        "ab",
+        "bb",
+        "aab",
+        "abb",
+        "bab"
+    ]
+    negative = [
+        "",
+        "a",
+        "aa",
+        "ba",
+        "aba",
+        "bba"
+    ]
+
+    rex, learned_g, learned_s = rpni_nfa(positive, negative)
+    pattern = re.compile('^(' + rex + ')$')
+    print('should all be accepted', "Y" )
+    for s in positive:
+        result = "Y" if pattern.match(s) else "X"
+        print(f"{result} '{s}'")
+    print()
+    print('should all be rejected', "X")
+    for s in negative:
+        result = "Y" if pattern.match(s) else "X"
+        print(f"{result} '{s}'")
+
+    print()
+    print('others')
+
+    test_strings = ["aab", "aba", "bbb", "aa"]
+    for s in test_strings:
+        result = "Y" if pattern.match(s) else "X"
+        print(f"{result} '{s}'")
+
+    print('What is the grammar learned?')
+    gatleast.display_grammar(learned_g, learned_s)
+    print('regex:', rex)
 
 # ## Complexity and Limitations
 # 
