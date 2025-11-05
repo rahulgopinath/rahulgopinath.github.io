@@ -351,7 +351,7 @@ if __name__ == '__main__':
         print(key)
         for rule in pta.grammar[key]:
             print('',rule)
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+    merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<2>')
     start_key = '<start>'
     merged, start_key = rxcanonical.canonical_regular_grammar(
             merged_nfa, start_key)
@@ -386,7 +386,7 @@ if __name__ == '__main__':
     ]
     pta = DFA().build_pta(positive)
     start_key = '<start>'
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+    merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<2>')
     merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
     merged_dfa = DFA(start_symbol = start_key)
     merged_dfa.grammar = merged_g
@@ -398,7 +398,7 @@ if __name__ == '__main__':
     pta = DFA().build_pta(positive)
     gatleast.display_grammar(pta.grammar, '<start>')
     print()
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<3>')
+    merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<3>')
     merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
     gatleast.display_grammar(merged_g, start_symbol)
 
@@ -420,7 +420,7 @@ def rpni(positive_examples, negative_examples):
                 state_i, state_j = keys[i], keys[j]
                 
                 # Check if merge is compatible
-                merged_nfa, new_state = merge_to_nfa(dfa, state_i, state_j)
+                merged_nfa, new_state = merge_to_nfa(dfa.grammar, state_i, state_j)
                 if state_i == start or state_j == start: new_start = new_state
                 else: new_start = start
                 merged, new_start = rxcanonical.canonical_regular_grammar(

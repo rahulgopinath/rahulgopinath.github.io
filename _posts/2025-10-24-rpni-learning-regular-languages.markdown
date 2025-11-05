@@ -625,7 +625,7 @@ for key in pta.grammar:
     print(key)
     for rule in pta.grammar[key]:
         print('',rule)
-merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<2>')
 start_key = '<start>'
 merged, start_key = rxcanonical.canonical_regular_grammar(
         merged_nfa, start_key)
@@ -648,7 +648,7 @@ for key in pta.grammar:
     print(key)
     for rule in pta.grammar[key]:
         print(&#x27;&#x27;,rule)
-merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
+merged_nfa, ns = merge_to_nfa(pta.grammar, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
 start_key = &#x27;&lt;start&gt;&#x27;
 merged, start_key = rxcanonical.canonical_regular_grammar(
         merged_nfa, start_key)
@@ -706,7 +706,7 @@ negative = [
 ]
 pta = DFA().build_pta(positive)
 start_key = '<start>'
-merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<2>')
 merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
 merged_dfa = DFA(start_symbol = start_key)
 merged_dfa.grammar = merged_g
@@ -718,7 +718,7 @@ negative = [ "ad" ]
 pta = DFA().build_pta(positive)
 gatleast.display_grammar(pta.grammar, '<start>')
 print()
-merged_nfa, ns = merge_to_nfa(pta, '<1>', '<3>')
+merged_nfa, ns = merge_to_nfa(pta.grammar, '<1>', '<3>')
 merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
 gatleast.display_grammar(merged_g, start_symbol)
 
@@ -736,7 +736,7 @@ negative = [
 ]
 pta = DFA().build_pta(positive)
 start_key = &#x27;&lt;start&gt;&#x27;
-merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
+merged_nfa, ns = merge_to_nfa(pta.grammar, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
 merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
 merged_dfa = DFA(start_symbol = start_key)
 merged_dfa.grammar = merged_g
@@ -748,7 +748,7 @@ negative = [ &quot;ad&quot; ]
 pta = DFA().build_pta(positive)
 gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
 print()
-merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;3&gt;&#x27;)
+merged_nfa, ns = merge_to_nfa(pta.grammar, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;3&gt;&#x27;)
 merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
 gatleast.display_grammar(merged_g, start_symbol)
 </textarea><br />
@@ -775,7 +775,7 @@ def rpni(positive_examples, negative_examples):
                 state_i, state_j = keys[i], keys[j]
 
                 # Check if merge is compatible
-                merged_nfa, new_state = merge_to_nfa(dfa, state_i, state_j)
+                merged_nfa, new_state = merge_to_nfa(dfa.grammar, state_i, state_j)
                 if state_i == start or state_j == start: new_start = new_state
                 else: new_start = start
                 merged, new_start = rxcanonical.canonical_regular_grammar(
@@ -812,7 +812,7 @@ def rpni(positive_examples, negative_examples):
                 state_i, state_j = keys[i], keys[j]
 
                 # Check if merge is compatible
-                merged_nfa, new_state = merge_to_nfa(dfa, state_i, state_j)
+                merged_nfa, new_state = merge_to_nfa(dfa.grammar, state_i, state_j)
                 if state_i == start or state_j == start: new_start = new_state
                 else: new_start = start
                 merged, new_start = rxcanonical.canonical_regular_grammar(
