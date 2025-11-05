@@ -196,7 +196,7 @@ class dfa_parse:
         return False
 
 # Let us test the reg parse.
-if __name__ == '__main__1':
+if __name__ == '__main__':
     rgrammar = { '<A>': [['b', '<B>'], ['c', '<C>']],
                  '<B>': [['b', '<B>'], []],
                  '<C>': [[]] }
@@ -282,7 +282,7 @@ class DFA(DFA):
         return self
 
 # Let us test it out!
-if __name__ == '__main__1':
+if __name__ == '__main__':
     positive = ['abcdefgh']
     pta = DFA().build_pta(positive)
     gatleast.display_grammar(pta.grammar, '<start>')
@@ -342,7 +342,7 @@ def merge_to_nfa(grammar, state1, state2):
 # `canonical_regular_grammar()` from earlier posts. We need a DFA to
 # parse the input using `dfa_parse`. So we do that.
 
-if __name__ == '__main__1':
+if __name__ == '__main__':
     KEY_COUNTER = 0
     positive = [ "ab", "ac" ]
     negative = [ "", ]
@@ -353,7 +353,8 @@ if __name__ == '__main__1':
             print('',rule)
     merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
     start_key = '<start>'
-    merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
+    merged, start_key = rxcanonical.canonical_regular_grammar(
+            merged_nfa, start_key)
     gatleast.display_grammar(merged, start_key)
     print('All should be eaccepted')
     for example in positive:
@@ -374,7 +375,7 @@ class DFA(DFA):
         return True
 
 # Let us test it.
-if __name__ == '__main__1':
+if __name__ == '__main__':
     KEY_COUNTER = 0
     positive = [
             "ab",
@@ -440,7 +441,7 @@ def rpni(positive_examples, negative_examples):
 # 
 # Let us use RPNI to learn a simple pattern: strings over {a, b} that end with 'b'.
 
-if __name__ == '__main__1':
+if __name__ == '__main__':
     positive = [
         "b",
         "ab",
@@ -498,7 +499,7 @@ if __name__ == '__main__1':
 # Next, let us attempt a larger example. Let us keep the negative strings, but use a
 # fuzzer to generate positive strings.
 
-if __name__ == '__main__1':
+if __name__ == '__main__':
     my_s = '<A>'
     my_g = {
             '<A>': [['a', '<A>'],

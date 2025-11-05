@@ -324,37 +324,35 @@ Let us test the reg parse.
 
 <!--
 ############
-if __name__ == '__main__1':
-    rgrammar = { '<A>': [['b', '<B>'], ['c', '<C>']],
-                 '<B>': [['b', '<B>'], []],
-                 '<C>': [[]] }
-    rparser = dfa_parse(rgrammar)
-    print('All should be accepted')
-    for example in ['bbb', 'c', 'bbbb']:
-        res = rparser.accept('<A>', example)
-        print(res)
-    print('All should be rejectd')
-    for example in ['abb', 'bc', 'cb']:
-        res = rparser.accept('<A>', example)
-        print(res)
+rgrammar = { '<A>': [['b', '<B>'], ['c', '<C>']],
+             '<B>': [['b', '<B>'], []],
+             '<C>': [[]] }
+rparser = dfa_parse(rgrammar)
+print('All should be accepted')
+for example in ['bbb', 'c', 'bbbb']:
+    res = rparser.accept('<A>', example)
+    print(res)
+print('All should be rejectd')
+for example in ['abb', 'bc', 'cb']:
+    res = rparser.accept('<A>', example)
+    print(res)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    rgrammar = { &#x27;&lt;A&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;C&gt;&#x27;]],
-                 &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], []],
-                 &#x27;&lt;C&gt;&#x27;: [[]] }
-    rparser = dfa_parse(rgrammar)
-    print(&#x27;All should be accepted&#x27;)
-    for example in [&#x27;bbb&#x27;, &#x27;c&#x27;, &#x27;bbbb&#x27;]:
-        res = rparser.accept(&#x27;&lt;A&gt;&#x27;, example)
-        print(res)
-    print(&#x27;All should be rejectd&#x27;)
-    for example in [&#x27;abb&#x27;, &#x27;bc&#x27;, &#x27;cb&#x27;]:
-        res = rparser.accept(&#x27;&lt;A&gt;&#x27;, example)
-        print(res)
+rgrammar = { &#x27;&lt;A&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], [&#x27;c&#x27;, &#x27;&lt;C&gt;&#x27;]],
+             &#x27;&lt;B&gt;&#x27;: [[&#x27;b&#x27;, &#x27;&lt;B&gt;&#x27;], []],
+             &#x27;&lt;C&gt;&#x27;: [[]] }
+rparser = dfa_parse(rgrammar)
+print(&#x27;All should be accepted&#x27;)
+for example in [&#x27;bbb&#x27;, &#x27;c&#x27;, &#x27;bbbb&#x27;]:
+    res = rparser.accept(&#x27;&lt;A&gt;&#x27;, example)
+    print(res)
+print(&#x27;All should be rejectd&#x27;)
+for example in [&#x27;abb&#x27;, &#x27;bc&#x27;, &#x27;cb&#x27;]:
+    res = rparser.accept(&#x27;&lt;A&gt;&#x27;, example)
+    print(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -497,25 +495,23 @@ Let us test it out!
 
 <!--
 ############
-if __name__ == '__main__1':
-    positive = ['abcdefgh']
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, '<start>')
-    positive = [ "b", "ab", "bb", "aab", "abb", "bab" ]
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, '<start>')
+positive = ['abcdefgh']
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, '<start>')
+positive = [ "b", "ab", "bb", "aab", "abb", "bab" ]
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, '<start>')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    positive = [&#x27;abcdefgh&#x27;]
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
-    positive = [ &quot;b&quot;, &quot;ab&quot;, &quot;bb&quot;, &quot;aab&quot;, &quot;abb&quot;, &quot;bab&quot; ]
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
+positive = [&#x27;abcdefgh&#x27;]
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
+positive = [ &quot;b&quot;, &quot;ab&quot;, &quot;bb&quot;, &quot;aab&quot;, &quot;abb&quot;, &quot;bab&quot; ]
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -621,47 +617,47 @@ parse the input using `dfa_parse`. So we do that.
 
 <!--
 ############
-if __name__ == '__main__1':
-    KEY_COUNTER = 0
-    positive = [ "ab", "ac" ]
-    negative = [ "", ]
-    pta = DFA().build_pta(positive)
-    for key in pta.grammar:
-        print(key)
-        for rule in pta.grammar[key]:
-            print('',rule)
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
-    start_key = '<start>'
-    merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    gatleast.display_grammar(merged, start_key)
-    print('All should be eaccepted')
-    for example in positive:
-        dfap = dfa_parse(merged)
-        res = dfap.accept(start_key, example)
-        print(res)
+KEY_COUNTER = 0
+positive = [ "ab", "ac" ]
+negative = [ "", ]
+pta = DFA().build_pta(positive)
+for key in pta.grammar:
+    print(key)
+    for rule in pta.grammar[key]:
+        print('',rule)
+merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+start_key = '<start>'
+merged, start_key = rxcanonical.canonical_regular_grammar(
+        merged_nfa, start_key)
+gatleast.display_grammar(merged, start_key)
+print('All should be eaccepted')
+for example in positive:
+    dfap = dfa_parse(merged)
+    res = dfap.accept(start_key, example)
+    print(res)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    KEY_COUNTER = 0
-    positive = [ &quot;ab&quot;, &quot;ac&quot; ]
-    negative = [ &quot;&quot;, ]
-    pta = DFA().build_pta(positive)
-    for key in pta.grammar:
-        print(key)
-        for rule in pta.grammar[key]:
-            print(&#x27;&#x27;,rule)
-    merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
-    start_key = &#x27;&lt;start&gt;&#x27;
-    merged, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    gatleast.display_grammar(merged, start_key)
-    print(&#x27;All should be eaccepted&#x27;)
-    for example in positive:
-        dfap = dfa_parse(merged)
-        res = dfap.accept(start_key, example)
-        print(res)
+KEY_COUNTER = 0
+positive = [ &quot;ab&quot;, &quot;ac&quot; ]
+negative = [ &quot;&quot;, ]
+pta = DFA().build_pta(positive)
+for key in pta.grammar:
+    print(key)
+    for rule in pta.grammar[key]:
+        print(&#x27;&#x27;,rule)
+merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
+start_key = &#x27;&lt;start&gt;&#x27;
+merged, start_key = rxcanonical.canonical_regular_grammar(
+        merged_nfa, start_key)
+gatleast.display_grammar(merged, start_key)
+print(&#x27;All should be eaccepted&#x27;)
+for example in positive:
+    dfap = dfa_parse(merged)
+    res = dfap.accept(start_key, example)
+    print(res)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -700,63 +696,61 @@ Let us test it.
 
 <!--
 ############
-if __name__ == '__main__1':
-    KEY_COUNTER = 0
-    positive = [
-            "ab",
-            "ac"
-            ]
-    negative = [
-        "",
-    ]
-    pta = DFA().build_pta(positive)
-    start_key = '<start>'
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
-    merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    merged_dfa = DFA(start_symbol = start_key)
-    merged_dfa.grammar = merged_g
-    res = merged_dfa.is_consistent(negative, positive)
-    print(res)
-    KEY_COUNTER = 0
-    positive = [ "abd", "acd" ]
-    negative = [ "ad" ]
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, '<start>')
-    print()
-    merged_nfa, ns = merge_to_nfa(pta, '<1>', '<3>')
-    merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    gatleast.display_grammar(merged_g, start_symbol)
+KEY_COUNTER = 0
+positive = [
+        "ab",
+        "ac"
+        ]
+negative = [
+    "",
+]
+pta = DFA().build_pta(positive)
+start_key = '<start>'
+merged_nfa, ns = merge_to_nfa(pta, '<1>', '<2>')
+merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
+merged_dfa = DFA(start_symbol = start_key)
+merged_dfa.grammar = merged_g
+res = merged_dfa.is_consistent(negative, positive)
+print(res)
+KEY_COUNTER = 0
+positive = [ "abd", "acd" ]
+negative = [ "ad" ]
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, '<start>')
+print()
+merged_nfa, ns = merge_to_nfa(pta, '<1>', '<3>')
+merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
+gatleast.display_grammar(merged_g, start_symbol)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    KEY_COUNTER = 0
-    positive = [
-            &quot;ab&quot;,
-            &quot;ac&quot;
-            ]
-    negative = [
-        &quot;&quot;,
-    ]
-    pta = DFA().build_pta(positive)
-    start_key = &#x27;&lt;start&gt;&#x27;
-    merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
-    merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    merged_dfa = DFA(start_symbol = start_key)
-    merged_dfa.grammar = merged_g
-    res = merged_dfa.is_consistent(negative, positive)
-    print(res)
-    KEY_COUNTER = 0
-    positive = [ &quot;abd&quot;, &quot;acd&quot; ]
-    negative = [ &quot;ad&quot; ]
-    pta = DFA().build_pta(positive)
-    gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
-    print()
-    merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;3&gt;&#x27;)
-    merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
-    gatleast.display_grammar(merged_g, start_symbol)
+KEY_COUNTER = 0
+positive = [
+        &quot;ab&quot;,
+        &quot;ac&quot;
+        ]
+negative = [
+    &quot;&quot;,
+]
+pta = DFA().build_pta(positive)
+start_key = &#x27;&lt;start&gt;&#x27;
+merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;2&gt;&#x27;)
+merged_g, start_key = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
+merged_dfa = DFA(start_symbol = start_key)
+merged_dfa.grammar = merged_g
+res = merged_dfa.is_consistent(negative, positive)
+print(res)
+KEY_COUNTER = 0
+positive = [ &quot;abd&quot;, &quot;acd&quot; ]
+negative = [ &quot;ad&quot; ]
+pta = DFA().build_pta(positive)
+gatleast.display_grammar(pta.grammar, &#x27;&lt;start&gt;&#x27;)
+print()
+merged_nfa, ns = merge_to_nfa(pta, &#x27;&lt;1&gt;&#x27;, &#x27;&lt;3&gt;&#x27;)
+merged_g, start_symbol = rxcanonical.canonical_regular_grammar(merged_nfa, start_key)
+gatleast.display_grammar(merged_g, start_symbol)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -844,109 +838,107 @@ Let us use RPNI to learn a simple pattern: strings over {a, b} that end with 'b'
 
 <!--
 ############
-if __name__ == '__main__1':
-    positive = [
-        "b",
-        "ab",
-        "bb",
-        "aab",
-        "abb",
-        "bab"
-    ]
-    negative = [
-        "",
-        "a",
-        "aa",
-        "ba",
-        "aba",
-        "bba"
-    ]
+positive = [
+    "b",
+    "ab",
+    "bb",
+    "aab",
+    "abb",
+    "bab"
+]
+negative = [
+    "",
+    "a",
+    "aa",
+    "ba",
+    "aba",
+    "bba"
+]
 
-    learned_dfa = rpni(positive, negative)
-    print('should all be accepted', "Y" )
-    for s in positive:
-        result = "Y" if learned_dfa.accepts(s) else "X"
-        print(f"{result} '{s}'")
-    print()
-    print('should all be rejected', "X")
-    for s in negative:
-        result = "Y" if learned_dfa.accepts(s) else "X"
-        print(f"{result} '{s}'")
+learned_dfa = rpni(positive, negative)
+print('should all be accepted', "Y" )
+for s in positive:
+    result = "Y" if learned_dfa.accepts(s) else "X"
+    print(f"{result} '{s}'")
+print()
+print('should all be rejected', "X")
+for s in negative:
+    result = "Y" if learned_dfa.accepts(s) else "X"
+    print(f"{result} '{s}'")
 
-    print()
-    print('others')
+print()
+print('others')
 
-    test_strings = ["aab", "aba", "bbb", "aa"]
-    for s in test_strings:
-        result = "Y" if learned_dfa.accepts(s) else "X"
-        print(f"{result} '{s}'")
+test_strings = ["aab", "aba", "bbb", "aa"]
+for s in test_strings:
+    result = "Y" if learned_dfa.accepts(s) else "X"
+    print(f"{result} '{s}'")
 
-    print('What is the grammar learned?')
-    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
-    print('This looks intimidating, but let us convert this to a regular expression')
-    fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
-    rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
-    print(rgtorx.convert_rexs(rx))
-    print('Does minimizing help?')
-    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
-    newg, news = m.minimized_grammar()
-    fixed = rgtorx.add_single_accept_state(newg)
-    rx = rgtorx.rg_to_regex(fixed, news)
-    print(rgtorx.convert_rexs(rx))
+print('What is the grammar learned?')
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+print('This looks intimidating, but let us convert this to a regular expression')
+fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
+rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
+print(rgtorx.convert_rexs(rx))
+print('Does minimizing help?')
+m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+newg, news = m.minimized_grammar()
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    positive = [
-        &quot;b&quot;,
-        &quot;ab&quot;,
-        &quot;bb&quot;,
-        &quot;aab&quot;,
-        &quot;abb&quot;,
-        &quot;bab&quot;
-    ]
-    negative = [
-        &quot;&quot;,
-        &quot;a&quot;,
-        &quot;aa&quot;,
-        &quot;ba&quot;,
-        &quot;aba&quot;,
-        &quot;bba&quot;
-    ]
+positive = [
+    &quot;b&quot;,
+    &quot;ab&quot;,
+    &quot;bb&quot;,
+    &quot;aab&quot;,
+    &quot;abb&quot;,
+    &quot;bab&quot;
+]
+negative = [
+    &quot;&quot;,
+    &quot;a&quot;,
+    &quot;aa&quot;,
+    &quot;ba&quot;,
+    &quot;aba&quot;,
+    &quot;bba&quot;
+]
 
-    learned_dfa = rpni(positive, negative)
-    print(&#x27;should all be accepted&#x27;, &quot;Y&quot; )
-    for s in positive:
-        result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
-        print(f&quot;{result} &#x27;{s}&#x27;&quot;)
-    print()
-    print(&#x27;should all be rejected&#x27;, &quot;X&quot;)
-    for s in negative:
-        result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
-        print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+learned_dfa = rpni(positive, negative)
+print(&#x27;should all be accepted&#x27;, &quot;Y&quot; )
+for s in positive:
+    result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
+    print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+print()
+print(&#x27;should all be rejected&#x27;, &quot;X&quot;)
+for s in negative:
+    result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
+    print(f&quot;{result} &#x27;{s}&#x27;&quot;)
 
-    print()
-    print(&#x27;others&#x27;)
+print()
+print(&#x27;others&#x27;)
 
-    test_strings = [&quot;aab&quot;, &quot;aba&quot;, &quot;bbb&quot;, &quot;aa&quot;]
-    for s in test_strings:
-        result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
-        print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+test_strings = [&quot;aab&quot;, &quot;aba&quot;, &quot;bbb&quot;, &quot;aa&quot;]
+for s in test_strings:
+    result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
+    print(f&quot;{result} &#x27;{s}&#x27;&quot;)
 
-    print(&#x27;What is the grammar learned?&#x27;)
-    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
-    print(&#x27;This looks intimidating, but let us convert this to a regular expression&#x27;)
-    fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
-    rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
-    print(rgtorx.convert_rexs(rx))
-    print(&#x27;Does minimizing help?&#x27;)
-    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
-    newg, news = m.minimized_grammar()
-    fixed = rgtorx.add_single_accept_state(newg)
-    rx = rgtorx.rg_to_regex(fixed, news)
-    print(rgtorx.convert_rexs(rx))
+print(&#x27;What is the grammar learned?&#x27;)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+print(&#x27;This looks intimidating, but let us convert this to a regular expression&#x27;)
+fixed = rgtorx.add_single_accept_state(learned_dfa.grammar)
+rx = rgtorx.rg_to_regex(fixed, learned_dfa.start_symbol)
+print(rgtorx.convert_rexs(rx))
+print(&#x27;Does minimizing help?&#x27;)
+m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+newg, news = m.minimized_grammar()
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -961,70 +953,68 @@ fuzzer to generate positive strings.
 
 <!--
 ############
-if __name__ == '__main__1':
-    my_s = '<A>'
-    my_g = {
-            '<A>': [['a', '<A>'],
-                    ['b', '<A>'],
-                    ['b']]
-            }
-    my_ng = {
-            '<A>': [['a', '<A>'],
-                    ['b', '<A>'],
-                    ['a']]
-            }
-    rgf = fuzzer.LimitFuzzer(my_g)
-    positive =[rgf.fuzz(my_s) for i in range(10)]
-    print(positive)
-    nrgf = fuzzer.LimitFuzzer(my_ng)
-    negative =[nrgf.fuzz(my_s) for i in range(10)]
-    print(negative)
+my_s = '<A>'
+my_g = {
+        '<A>': [['a', '<A>'],
+                ['b', '<A>'],
+                ['b']]
+        }
+my_ng = {
+        '<A>': [['a', '<A>'],
+                ['b', '<A>'],
+                ['a']]
+        }
+rgf = fuzzer.LimitFuzzer(my_g)
+positive =[rgf.fuzz(my_s) for i in range(10)]
+print(positive)
+nrgf = fuzzer.LimitFuzzer(my_ng)
+negative =[nrgf.fuzz(my_s) for i in range(10)]
+print(negative)
 
-    learned_dfa = rpni(positive, negative)
-    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+learned_dfa = rpni(positive, negative)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
-    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
-    newg, news = m.minimized_grammar()
-    gatleast.display_grammar(newg, news)
+m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+newg, news = m.minimized_grammar()
+gatleast.display_grammar(newg, news)
 
-    fixed = rgtorx.add_single_accept_state(newg)
-    rx = rgtorx.rg_to_regex(fixed, news)
-    print(rgtorx.convert_rexs(rx))
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-if __name__ == &#x27;__main__1&#x27;:
-    my_s = &#x27;&lt;A&gt;&#x27;
-    my_g = {
-            &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
-                    [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
-                    [&#x27;b&#x27;]]
-            }
-    my_ng = {
-            &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
-                    [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
-                    [&#x27;a&#x27;]]
-            }
-    rgf = fuzzer.LimitFuzzer(my_g)
-    positive =[rgf.fuzz(my_s) for i in range(10)]
-    print(positive)
-    nrgf = fuzzer.LimitFuzzer(my_ng)
-    negative =[nrgf.fuzz(my_s) for i in range(10)]
-    print(negative)
+my_s = &#x27;&lt;A&gt;&#x27;
+my_g = {
+        &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;]]
+        }
+my_ng = {
+        &#x27;&lt;A&gt;&#x27;: [[&#x27;a&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;b&#x27;, &#x27;&lt;A&gt;&#x27;],
+                [&#x27;a&#x27;]]
+        }
+rgf = fuzzer.LimitFuzzer(my_g)
+positive =[rgf.fuzz(my_s) for i in range(10)]
+print(positive)
+nrgf = fuzzer.LimitFuzzer(my_ng)
+negative =[nrgf.fuzz(my_s) for i in range(10)]
+print(negative)
 
-    learned_dfa = rpni(positive, negative)
-    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+learned_dfa = rpni(positive, negative)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
-    m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
-    newg, news = m.minimized_grammar()
-    gatleast.display_grammar(newg, news)
+m =  mrg.DRGMinimize(learned_dfa.grammar, learned_dfa.start_symbol)
+newg, news = m.minimized_grammar()
+gatleast.display_grammar(newg, news)
 
-    fixed = rgtorx.add_single_accept_state(newg)
-    rx = rgtorx.rg_to_regex(fixed, news)
-    print(rgtorx.convert_rexs(rx))
+fixed = rgtorx.add_single_accept_state(newg)
+rx = rgtorx.rg_to_regex(fixed, news)
+print(rgtorx.convert_rexs(rx))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
