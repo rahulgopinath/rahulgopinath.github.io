@@ -74,6 +74,7 @@ Construct validity is about whether you are measuring the thing you are trying t
 
 * Use the `cleveref` package and `\Cref{<label>}` to make cross-references.
 * Prefix labels with sec:, fig:, tab:, alg:, line:.  No subsec: or subsubsec:.
+* Use `camalCase` for references. I and many of my collaborators use vi and vi modes for editing. Using camalCase allows me to bounce on the lael and find the usage of reference in other parts of the paper.
 
 ### Todos.
 
