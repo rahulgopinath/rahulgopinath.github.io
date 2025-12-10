@@ -20,7 +20,7 @@ exclude: true
 
 * I typically work on several papers at once, so make your paper name unique.
 * One single LaTeX file, named `<venue>-<keyword>.tex`, say `fse2019-ddmax.tex`.
-* No `\includes`, no other .tex files unless coming from a third party or program.
+* No `\includes`, no other .tex files unless coming from a third party or program (exception --- large tikz diagrams. In this case, keep the label and caption in the main tex).
 * Bibliography goes into `<venue>-<keyword>.bib`.
 * Pictures go into `PICS/`. include sources.
 
