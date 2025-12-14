@@ -1,29 +1,81 @@
 ---
-layout: post
-categories : Lecturer
-tagline: "."
-tags : [lecturer softwaredevelopment 2025]
-
-e: Software Construction and Design 1
+layout: page
+title : Academics
+header : Academics
+group: navigation
+weight: 7
+menu: Academics
 ---
+<h3> Coordinator </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'coordinator' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
-# Software Construction and Design 1 [COMP9201](https://www.sydney.edu.au/units/COMP9201/2025-S1C-ND-CC)/[SOFT2201](https://www.sydney.edu.au/units/SOFT2201/2025-S2C-ND-CC) Autumn 2025
+<h3> Lecturer </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'lecturer' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
-## Matrix:
 
-|           |F2F          | F2F      |
-|-----------|-------------|-------------|
-| Postgrad  | COMP9201 CC | COMP9201 RE |
-| Undergrad | SOFT2201 CC | SOFT2201 RE |
+<h3> Instructor </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'instructor' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
+<h3> Teaching Assistant </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'ta' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url  }}">{{ post.title }}</a> {{ post.e }}</li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
+<h3> Graduated Students </h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'student' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; {{ post.title }} <br/> Thesis: <a href="{{ BASE_PATH }}{{ post.url  }}"> {{ post.e }} </a></li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
-##  Unit Outline
-
-* LO1. explain processes and elements in object-oriented design
-* LO2. apply object-oriented design approaches to software design
-* LO3. apply object-oriented design principles to implementation using an OO programming language
-* LO4. demonstrate an understanding of object oriented theory including inheritance, polymorphism, dynamic binding, sub-typing and generics
-* LO5. discuss and apply basic testing techniques and code review to software systems
-
+<h3>Ph.D. Member of Examination Board</h3>
+<div class="posts">
+  <ul>
+  {% for post in site.posts %}
+  {% capture mytags%}{{ post.tags | first | split:" " | first }}{% endcapture %}
+  {% if mytags == 'phdcommittee' %}
+  <li><span>{{ post.date | date_to_string }}</span> &raquo; {{ post.title }} <br/> Thesis: <a href="{{ BASE_PATH }}{{ post.url  }}"> {{ post.e }} </a></li>
+  {% endif %}
+  {% endfor %}
+  </ul>
+</div>
 
