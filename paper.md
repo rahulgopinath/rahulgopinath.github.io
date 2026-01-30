@@ -76,6 +76,60 @@ Construct validity is about whether you are measuring the thing you are trying t
 * Prefix labels with sec:, fig:, tab:, alg:, line:.  No subsec: or subsubsec:.
 * Use `camalCase` for references. I and many of my collaborators use vi and vi modes for editing. Using camalCase allows me to bounce on the lael and find the usage of reference in other parts of the paper.
 
+### Results
+* Have a results environment. Here are two options:
+
+```
+\usepackage{framed}          
+\setlength{\FrameSep}{4pt}    
+\setlength{\fboxrule}{0.4pt}  
+
+\newenvironment{result}{%
+  \begin{center}              
+    \begin{minipage}{0.95\linewidth}  
+      \begin{framed}
+        \centering
+        \small\itshape        
+}{%
+      \end{framed}
+    \end{minipage}
+  \end{center}
+}
+```
+or
+```
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{result}{
+  colback=blue!3,           % very light blue tint
+  colframe=blue!40!gray,    % blue-gray border
+  boxrule=0.5pt,
+  arc=4pt,
+  left=8pt, right=8pt,
+  top=6pt, bottom=6pt,
+  center,
+  width=0.95\linewidth,
+  fontupper=\small\itshape\centering,
+  shadow={1pt}{-1pt}{0pt}{gray!20}  % subtle shadow
+}
+```
+or 
+```
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{result}{
+  colback=gray!5,           % light gray background
+  colframe=gray!50,         % medium gray border
+  boxrule=0.4pt,
+  arc=3pt,                  % rounded corners
+  left=6pt, right=6pt,
+  top=4pt, bottom=4pt,
+  center,
+  width=0.95\linewidth,
+  fontupper=\small\itshape\centering
+}
+```
+
 ### Todos.
 
 * Have a `\todo{}` command such that I can leave hints. The following is the
