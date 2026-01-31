@@ -108,19 +108,17 @@ def remove_check_each_fragment(instr, part_len, causal):
 # fragment succeeds, we change the current string to the string without that
 # fragment. So, we remove all fragments that can be removed in that partition
 # size.
-# If none of the fragments could be removed, then we reduce the partition length
-# by half.
+# <!--If none of the fragments could be removed, then we reduce the partition length
+# by half. -->
+# Next, we reduce the partition length by half and try again.
 # If the partition cannot be halved again (i.e, the last partition length was
 # one) or the string has become empty, we stop the iteration.
 
 def ddmin(cur_str, causal_fn):
     part_len = len(cur_str) // 2
     while part_len and cur_str:
-        _str = remove_check_each_fragment(cur_str, part_len, causal_fn)
-        if _str == cur_str:
-            part_len = part_len // 2
-        cur_str = _str
-
+        cur_str = remove_check_each_fragment(cur_str, part_len, causal_fn)
+        part_len = part_len // 2
     return cur_str
 
 # The driver.
