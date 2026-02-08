@@ -25,3 +25,43 @@
 5. Add the mixed ingrediants + some water + bring to boil
 
 ## Notes
+
+# Sambar
+സാമ്പാർ 
+
+**Serves:** 4 | **Time:** 
+
+## Ingredients
+- 1 cup tuvarapparippu (wet)
+- 6 shallots
+- 1 sawala
+- 1 potato
+- 2 piece muringa, small takkali, vendakka
+
+-- vevikkuka with  1/2tSP turmeric + 1/2 tbsp salt -- 3 vistles
+
+5 kolla mulaku (if powder, 2 tbspoon)
+2 tb spoon malli (if powder 1 tb spoon enough)
+1/2 table spoon fenugreek (uluva) (if powder, 1/2 tSP)
+1/2 tSP kayappodi (asefotida) -- can be reduced
+8 currileaves
+
+1/4 tbsp  coconut oil (add everything, brown)
+- 4 pepper
+then mix, make into paste. (Should be powder)
+
++ 1 tSP tamarind paste
+
+Mix well,  and season.
+
+
+
+## Instructions
+- 1 tablespoon salt
+- 1 tsp turmeric
+- 1 grampoo (clove)
+- 2 pieces of garlic
+- 1 cinnamon skin
+- 1 tsp Fennel seeds (പെരുംജീരകം)
+
+## Notes
