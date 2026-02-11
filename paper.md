@@ -32,9 +32,6 @@ permalink: /paper/
 * Use math mode only for formula.  Numbers need not go into math mode.  The year is `2019`, not `$2019$`.
 * Numbers 2–12 are typeset as words, unless they reference something.  It is the next three sections, not the next 3 (and not the next `$3$` either).
 * Multi-letter identifiers in math mode go into `\textit`.  `$foo$` is `$f \times o \times o$`.  You probably want `$\textit{foo}$`.
-
-### Line breaks.
-
 * Use tildes (`~`) to tie numbers to text.  It’s `Line~2`, `Rules 3~to~4`, and the next `42~seconds`,
 
 ### Hyphen, double hyphen (en dash), and tripple hyphen (em dash)
@@ -70,7 +67,12 @@ permalink: /paper/
 ### Breaking text in latex.
 
 * In latex, a double newline produces paragraph breaks.
-* When writing text, use semantic line breaks https://sembr.org/
+* When writing text, use semantic line breaks https://sembr.org/ 
+  To quote Brian Kernighan
+  Most documents go through several versions (always more than you expected) before they are finally finished. Accordingly, you should do whatever possible to make the job of changing them easy.
+
+  First, when you do the purely mechanical operations of typing, type so subsequent editing will be easy. Start each sentence on a new line. Make lines short, and break lines at natural places, such as after commas and semicolons, rather than randomly. Since most people change documents by rewriting phrases and adding, deleting and rearranging sentences, these precautions simplify any editing you have to do later.
+  
 * Do not second guess latex. Avoid the use of \vspace{} unless it is the last thing you do before submission.
 
 ### Tables
