@@ -24,8 +24,8 @@ permalink: /paper/
 * I typically work on several papers at once, so make your paper name unique.
 * One single LaTeX file, named `<venue>-<keyword>.tex`, say `fse2019-ddmax.tex`.
 * No `\includes`, no other .tex files unless coming from a third party or program (exception --- large tikz diagrams. In this case, keep the label and caption in the main tex).
-* Bibliography goes into `<venue>-<keyword>.bib`.
-* Pictures go into `PICS/`. include sources.
+* Bibliography goes into `references.bib`.
+* Pictures go into `PICS/`. As far as possible, checkin only sources, and have `make` rule to generate them when needed. Prefer inline tikz to other forms of pictures.
 
 ### Math mode and numbers.  
 
@@ -48,7 +48,21 @@ permalink: /paper/
 * In the bibliography use the following format for keys:
   authorlastnameYYYYfirstword For ``Learning Input Tokens for Effective Fuzzing'' by Bjoern Mathis, Rahul Gopinath and Andreas Zeller, the bib key is *mathis2020learning*.
 * Cleanup the bibliography. Do not leave the abstract and other extra tags which come when copying from other sources. Indent it properly.
+* Make sure to use strings for consistency in bibliography.
 
+```
+@String{TOSEM= "ACM Transactions on Software Engineering and Methodology"}
+...
+@inproceedings{dutra2023format,
+  author = {Dutra, Rafael and Gopinath, Rahul and Zeller, Andreas},
+  title = {Format Fuzzer: Effective Fuzzing of Binary File Formats},
+  year = {2023},
+  booktitle = TOSEM,
+  publisher = {ACM}
+}
+```
+
+  
 ### Indentation.
 
 * Do not indent regular text.
