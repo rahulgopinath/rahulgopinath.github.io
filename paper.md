@@ -67,8 +67,10 @@ permalink: /paper/
 ### Breaking text in latex.
 
 * In latex, a double newline produces paragraph breaks.
-* When writing text, use semantic line breaks https://sembr.org/ 
-  To quote Brian Kernighan
+* When writing text, use semantic line breaks https://sembr.org/
+  
+  To quote Brian Kernighan:
+  
   Most documents go through several versions (always more than you expected) before they are finally finished. Accordingly, you should do whatever possible to make the job of changing them easy.
 
   First, when you do the purely mechanical operations of typing, type so subsequent editing will be easy. Start each sentence on a new line. Make lines short, and break lines at natural places, such as after commas and semicolons, rather than randomly. Since most people change documents by rewriting phrases and adding, deleting and rearranging sentences, these precautions simplify any editing you have to do later.
