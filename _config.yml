@@ -31,7 +31,6 @@ exclude:
   - Gemfile.lock
   - LICENSE
   - README.md
-  - paper.md
   - recipes.md
   - Vagrantfile
   
