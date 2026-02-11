@@ -5,6 +5,7 @@ title : Writing a paper with me
 header : Writing a paper with me
 group: navigation
 exclude: true
+sitemap: false
 ---
 
 ## Writing a paper with me
