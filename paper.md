@@ -6,6 +6,8 @@ header : Writing a paper with me
 group: navigation
 exclude: true
 sitemap: false
+show_in_nav: false
+permalink: /paper/
 ---
 
 ## Writing a paper with me
