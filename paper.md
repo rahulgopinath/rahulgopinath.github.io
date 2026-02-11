@@ -67,6 +67,12 @@ permalink: /paper/
 
 * Do not indent regular text.
 
+### Breaking text in latex.
+
+* In latex, a double newline produces paragraph breaks.
+* When writing text, use semantic line breaks https://sembr.org/
+* Do not second guess latex. Avoid the use of \vspace{} unless it is the last thing you do before submission.
+
 ### Tables
 
 * Columns of numbers should be right justified, and text should be left justified.
