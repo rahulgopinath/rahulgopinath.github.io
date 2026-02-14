@@ -65,3 +65,20 @@ Mix well,  and season.
 - 1 tsp Fennel seeds (പെരുംജീരകം)
 
 ## Notes
+Preparation notes: on the job
+- 3 or 5 grams of malli
+- 4 kolla mulaku
+- 3 or 5 grams of fenugreek/uluva
+- 8 curry leaves
+- 3 shallots
+
+Roast it all together
+- 1/2 small tsp kayam (asefoetida -- less than 1 gm together with turmeric -- 1/2 tsp should have both together) and turmeric (if block, get only 1/4 kayam -- asefotida)
+
+- 50 gms tuvara pparippu + 2 piece drumstick + 1 savala + 1 potato (180 g) + 1 tomato (100 g)
++ 1/2 tsp tamarind
++2 kurumulak all on rice cooking temperature
+
++15 g salt
+- Add to the vegitables add all together, bring to boil.
+- Add seasoning: 2 spoons of coconut oil + 1 kollamulaku split into three, with mustard seeds and 8 curry leaves. heat until mustard pops.
