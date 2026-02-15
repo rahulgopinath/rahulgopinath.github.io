@@ -102,3 +102,9 @@ Start seasoning mix
 
 Add 2g salt, 1/2 tsp tamarind paste
 boil
+
+# Dosa/Idaly
+- Wash 1 cup of uzunnnu parippu + 2 cups of white rice, remove all starch
+- Sock both together for 6 hours. Remove the water
+- Add 1 tumbler of cooked rice, put all together in a mixer, add sufficient water just to cover the ingradiants, mix very well (3 times) until no parts can be felt by finger. Maximum 1/2 glass of water can be used to wash the mixer back into the mixed ingredients
+- Keep for 18 hours (noon to next day morning)
