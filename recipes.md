@@ -108,3 +108,8 @@ boil
 - Sock both together for 6 hours. Remove the water
 - Add 1 tumbler of cooked rice, put all together in a mixer, add sufficient water just to cover the ingradiants, mix very well (3 times) until no parts can be felt by finger. Maximum 1/2 glass of water can be used to wash the mixer back into the mixed ingredients
 - Keep for 18 hours (noon to next day morning)
+- Next day morning, use 1.5 tumbler of water, start heating
+- Use seseme oil to wet the iddly container
+- pour one thavi of batter in each
+- Steam for 10 mts, open and check
+- Typically ready after 15 mts.
