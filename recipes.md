@@ -82,3 +82,23 @@ Roast it all together
 +15 g salt
 - Add to the vegitables add all together, bring to boil.
 - Add seasoning: 2 spoons of coconut oil + 1 kollamulaku split into three, with mustard seeds and 8 curry leaves. heat until mustard pops.
+
+# Ulli theyal
+
+1 glass water
+
+4 g malli
+4 cheriyulli
+20 curry leaves (2 ethal)
+2 sp coconut oil
+60g grated coconut
+stir fry for 5 mts (until browns)
+After it dark browns, add turmeric 1/2 tsp, mix it well
+
+150 g shallots for main, cut each 3 vertically
+they can be fried in air fryer (with coconut oil) to remove water if frozen
+
+Start seasoning mix
+
+Add 2g salt, 1/2 tsp tamarind paste
+boil
