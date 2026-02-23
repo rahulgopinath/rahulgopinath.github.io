@@ -113,3 +113,14 @@ boil
 - pour one thavi of batter in each
 - Steam for 10 mts, open and check
 - Typically ready after 15 mts.
+
+# Puttu
+- Take 1 glass of raw white rice
+- sock this in water in sufficient quantity of water for 1 hours
+- After socking, dry out for 2/3 hours until it dries
+- Once dried, mix it in mixie to an even consistency to broken rice. Not as much as dosa/idly, but sufficiently enough
+- Once mixed, store it in an air-tight container (away from ants etc.) it will keep for a day or two
+- When taking out, mix it with 1 tsp of salt, 1/2 glass of water to an even consistency
+- keep for 30 minutes for the water to spread
+- Place grated coconut first on a steamer, spread the broken rice in layers
+- steam for 15 minutes until it solidifies
