@@ -406,7 +406,7 @@ if __name__ == '__main__':
 
 def rpni(positive_examples, negative_examples):
     # Step 1: Build PTA
-    dfa = DFA().build_pta(positive)
+    dfa = DFA().build_pta(positive_examples)
     start = dfa.start_symbol
     
     # Step 2: Try to merge states
