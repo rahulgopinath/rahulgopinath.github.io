@@ -6,7 +6,7 @@ tags : publication
 e:  Revisiting the Relationship Between Fault Detection, Test Adequacy Criteria, and Test Set Size
 title: Revisiting the Relationship Between Fault Detection, Test Adequacy Criteria, and Test Set Size
 authors: Yiqun T. Chen, Rahul Gopinath, Anita Tadakamalla, Michael D. Ernst, Reid Holmes, Gordon Fraser, Paul Ammann, Rene Just
-venue: ACM/IEEE International Conference on Software Engineering (ICSE) 
+venue: ACM/IEEE International Conference on Automated Software Engineering (ASE) 
 kind: conference
 thesort: peerreviewed
 peerreviewed: yes
