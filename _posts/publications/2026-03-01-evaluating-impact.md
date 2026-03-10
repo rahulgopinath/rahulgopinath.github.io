@@ -6,7 +6,7 @@ tags : publication
 e:  Evaluating Impact of Coverage Feedback on Estimators for Maximum Reachability in Fuzzing (Registered Report)
 title: Evaluating Impact of Coverage Feedback on Estimators for Maximum Reachability in Fuzzing (Registered Report)
 authors: Nelum Attanayake, Danushka Liyanage, Clement Canonne, Suranga Seneviratne, Rahul Gopinath
-venue: NDSS
+venue: NDSS Fuzzing Workshop
 kind: workshop
 thesort: peerreviewed
 peerreviewed: yes
@@ -19,5 +19,5 @@ Objective: This work evaluates whether maximum reachable coverage estimates are 
 Results: These complementary studies will determine whether maximum reachable coverage estimates are reliable when the singleton-doubleton equilibrium criterion is satisfied, validating or refuting its use as a stopping criterion for fuzzing campaigns.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fuzzing2024/attanayake2026evaluating.pdf "paper")
-<!-- [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/an-empirical-evaluation-of-frequency-based-statistical-models-for-estimating-killable-mutants "presentation") -->
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/evaluating-impact-of-coverage-feedback-on-estimators-for-maximum-reachability-in-fuzzing-registered-report)
 
