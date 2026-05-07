@@ -79,18 +79,19 @@ import string
 
 # ### remove_check_each_fragment()
 
-# Given a partition length, we want to split the string into
+# Given a partition count, we want to split the string into
 # that many partitions, remove each partition one at a time from the
 # string, and check if for any of them, the `causal()` succeeds. If it
 # succeeds for any, then we can skip that section of the string.
- 
-def remove_check_each_fragment(instr, part_len, causal):
-    pre = ''
-    for i in range(0, len(instr), part_len):
-        removed, remaining = instr[i:i+part_len], instr[i+part_len:]
-        if not causal(pre+remaining):
-             pre = pre + removed
-    return pre
+
+def remove_check_each_fragment(cur_str, part_count, causal_fn):
+    start = 0
+    subset_len = len(cur_str) // part_count
+    while start < len(cur_str):
+        complement = cur_str[:start] + cur_str[start + subset_len:]
+        if causal_fn(complement): return complement
+        start += subset_len
+    return cur_str
 
 # There is a reason this function is split from the main function unlike in the
 # original implementation of `ddmin`. The function `remove_check_each_fragment`
@@ -106,21 +107,30 @@ def remove_check_each_fragment(instr, part_len, causal):
 # The main function. We start by the smallest number of partitions -- 2.
 # Then, we check by removing each fragment for success. If removing one
 # fragment succeeds, we change the current string to the string without that
-# fragment. So, we remove all fragments that can be removed in that partition
-# size.
-# <!--If none of the fragments could be removed, then we reduce the partition length
-# by half. -->
-# Next, we reduce the partition length by half and try again.
+# fragment.
+# We can then attempt to remove all partitions at that size;
+# However, classical ddmin includes a small change. It decreases the number of
+# partitions by one, increasing the partition length slightly. The idea is that
+# in structured text, certain alignments to the partition boundary may be
+# preferable. So, by changing the boundary slightly, we improve our chances of
+# hitting the right boundary.
+# 
+# If none of the fragments could be removed, then we reduce the partition length
+# by half.
 # If the partition cannot be halved again (i.e, the last partition length was
-# one) or the string has become empty, we stop the iteration.
+# one), we stop the iteration.
 
 def ddmin(cur_str, causal_fn):
-    part_len = len(cur_str) // 2
-    while part_len and cur_str:
-        cur_str = remove_check_each_fragment(cur_str, part_len, causal_fn)
-        part_len = part_len // 2
+    n = 2 
+    while len(cur_str) >= 2:
+        cur_str_ = remove_check_each_fragment(cur_str, n, causal_fn)
+        if cur_str_ != cur_str:
+            cur_str = cur_str_
+            n = max(n - 1, 2)
+        else:
+            if n >= len(cur_str): break
+            n = min(n * 2, len(cur_str))
     return cur_str
-
 # The driver.
 
 def test(s):
@@ -181,22 +191,25 @@ def ddrmin(cur_str, causal_fn, n=2):
  
 # ## Recursive2
 # But, is all that work necessary?
-# The basic idea is that given a string, we can split it into parts, and check if either
-# part reproduces the failure. If either one does, then call `ddrmin()` on the part that
-# reproduced the failure.
+# The basic idea is that given a string, we can split it into parts, and check
+# if either part reproduces the failure. If either one does, then call
+# `ddrmin()` on the part that reproduced the failure.
 # 
-# If neither one did, then it means that there is some part in the first partition that
-# is required for failure, and there is some part in the second partition too that is required
-# for failure. All that we need to do now, is to isolate these parts. How should we do that?
+# If neither one did, then it means that there is some part in the first
+# partition that is required for failure, and there is some part in the second
+# partition too that is required for failure.
+# All that we need to do now, is to isolate these parts. How should we do that?
 # 
-# Call `ddrmin()` but with an updated check. For example, for the first part, rather than
-# checking if some portion of the first part alone produces the failure, check if some part of
-# first, when combined with the second will cause the failure.
+# Call `ddrmin()` but with an updated check. For example, for the first part,
+# rather than checking if some portion of the first part alone produces the
+# failure, check if some part of first, when combined with the second will cause
+# the failure.
 # 
-# All we have left to do, is to define the base case. In our case, a character of length one
-# can not be partitioned to strictly smaller parts. Further, we already know that any string
-# passed into `ddrmin()` was required for reproducing the failure. So, we do not have to
-# worry about empty string. Hence, we can return it as is.
+# All we have left to do, is to define the base case. In our case, a character
+ #of length one can not be partitioned to strictly smaller parts. Further,
+# we already know that any string passed into `ddrmin()` was required for
+# reproducing the failure. So, we do not have to worry about empty string.
+# Hence, we can return it as is.
 # 
 # Here is the implementation.
 # 
@@ -220,6 +233,22 @@ def ddrmin(cur_str, causal_fn, pre='', post=''):
 if __name__ == '__main__':
     ddmin = ddrmin
 
+# This is far simpler than the original ddmin. Are they equivalent? The answer
+# is **no**. The issue is that there can be input sections such as below.
+# Consider this fragment that causes an error in a compiler.
+# 
+# ```
+# a = 1
+# b = a
+# e = e
+# ```
+# Let us assume that `e = e` is the cause of the failure. The issue is
+# that we can't remove always `a = 1` eventhough it is unrelated to `e = e`
+# because when removal is attempted, `b = a` may still exist, and it *depends*
+# on `a`. So, `a = 1` can be removed only after `b = a` is removed. That is,
+# we need to recheck after reduction that no new fragments have become
+# removable.
+# 
 # Given that it is a recursive procedure, one may worry about stack exhaustion, especially
 # in languages such as Python which allocates just the bare minimum stack by default. Here
 # is the direct conversion to iteration with own stack management.
