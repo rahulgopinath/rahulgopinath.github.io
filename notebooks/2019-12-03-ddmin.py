@@ -206,7 +206,7 @@ def ddrmin(cur_str, causal_fn, n=2):
 # the failure.
 # 
 # All we have left to do, is to define the base case. In our case, a character
- #of length one can not be partitioned to strictly smaller parts. Further,
+# of length one can not be partitioned to strictly smaller parts. Further,
 # we already know that any string passed into `ddrmin()` was required for
 # reproducing the failure. So, we do not have to worry about empty string.
 # Hence, we can return it as is.

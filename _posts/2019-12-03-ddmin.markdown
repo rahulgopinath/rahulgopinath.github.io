@@ -374,19 +374,7 @@ failure, check if some part of first, when combined with the second will cause
 the failure.
 
 All we have left to do, is to define the base case. In our case, a character
-
-<!--
-############
-#of length one can not be partitioned to strictly smaller parts. Further,
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-#of length one can not be partitioned to strictly smaller parts. Further,
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
+of length one can not be partitioned to strictly smaller parts. Further,
 we already know that any string passed into `ddrmin()` was required for
 reproducing the failure. So, we do not have to worry about empty string.
 Hence, we can return it as is.
