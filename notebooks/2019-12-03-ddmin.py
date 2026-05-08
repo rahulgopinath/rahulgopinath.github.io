@@ -124,7 +124,7 @@ def ddmin(cur_str, causal_fn):
     n = 2 
     while len(cur_str) >= 2:
         cur_str_ = remove_check_each_fragment(cur_str, n, causal_fn)
-        if cur_str_ != cur_str:
+        if len(cur_str_) != len(cur_str):
             cur_str = cur_str_
             n = max(n - 1, 2)
         else:
