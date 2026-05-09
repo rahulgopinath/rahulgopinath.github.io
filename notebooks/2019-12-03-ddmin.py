@@ -23,7 +23,10 @@
 # removed without removing the observed failure. If any of these can be
 # removed, we remove all such parts of the given length. Once no such
 # parts of the given length can be removed, we reduce the partition
-# length by two, and do the same process again. This obtains us the
+# we reduce the granularity (number of partitions),
+# typically adapting it multiplicatively or decrementally depending
+# on whether reductions succeed,
+# and do the same process again. This obtains us the
 # *1-minimal* failure causing string where removal of even a single
 # character will remove the observed failure.
 # 
