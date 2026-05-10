@@ -57,7 +57,8 @@ INPUTS = [
 
 def traceit(frame, event, arg):
     if (event != 'call'): return traceit
-    strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) >= 2}
+    strings = {k:v for k,v in frame.f_locals.items()
+               if isinstance(v, str) and len(v) >= 2}
     for var, value in strings.items():
         if value not in the_input: continue
         if var in the_values: continue
@@ -126,20 +127,23 @@ def refine_tree(tree, fvar, fval):
 
     return (node_name, new_children)
 
-# We use the `to_tree()` in the following fashion.
+# We use the `to_tree()` as follows; First some helpers
+
+import simplefuzzer
+def format_node(node):
+    if isinstance(node, str): return node
+    key = node[0]
+    if key and (key[0], key[-1]) ==  ('<', '>'): return key
+    return repr(key)
+
+def get_children(node):
+    if not isinstance(node, tuple):
+        return []
+    return node[1]
+
+# Now the tree.
 
 if __name__ == '__main__':
-    import simplefuzzer
-    def format_node(node):
-        if isinstance(node, str): return node
-        key = node[0]
-        if key and (key[0], key[-1]) ==  ('<', '>'): return key
-        return repr(key)
-
-    def get_children(node):
-        if not isinstance(node, tuple):
-            return []
-        return node[1]
     trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
     for tree in trees:
         print(repr(tree))

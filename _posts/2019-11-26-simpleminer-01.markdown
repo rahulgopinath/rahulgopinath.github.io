@@ -137,7 +137,8 @@ reassignments.
 ############
 def traceit(frame, event, arg):
     if (event != 'call'): return traceit
-    strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) >= 2}
+    strings = {k:v for k,v in frame.f_locals.items()
+               if isinstance(v, str) and len(v) >= 2}
     for var, value in strings.items():
         if value not in the_input: continue
         if var in the_values: continue
@@ -151,7 +152,8 @@ def traceit(frame, event, arg):
 <textarea cols="40" rows="4" name='python_edit'>
 def traceit(frame, event, arg):
     if (event != &#x27;call&#x27;): return traceit
-    strings = {k:v for k,v in frame.f_locals.items() if isinstance(v, str) and len(v) &gt;= 2}
+    strings = {k:v for k,v in frame.f_locals.items()
+               if isinstance(v, str) and len(v) &gt;= 2}
     for var, value in strings.items():
         if value not in the_input: continue
         if var in the_values: continue
@@ -294,7 +296,7 @@ def refine_tree(tree, fvar, fval):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-We use the `to_tree()` in the following fashion.
+We use the `to_tree()` as follows; First some helpers
 
 <!--
 ############
@@ -309,12 +311,6 @@ def get_children(node):
     if not isinstance(node, tuple):
         return []
     return node[1]
-trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
-for tree in trees:
-    print(repr(tree))
-    simplefuzzer.display_tree(tree, get_children=get_children,
-            format_node=format_node)
-
 
 ############
 -->
@@ -331,6 +327,25 @@ def get_children(node):
     if not isinstance(node, tuple):
         return []
     return node[1]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now the tree.
+
+<!--
+############
+trees = [to_tree(('<START>', [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
+for tree in trees:
+    print(repr(tree))
+    simplefuzzer.display_tree(tree, get_children=get_children,
+            format_node=format_node)
+
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 trees = [to_tree((&#x27;&lt;START&gt;&#x27;, [inpt]), tvars[i]) for i,inpt in enumerate(INPUTS)]
 for tree in trees:
     print(repr(tree))
