@@ -359,7 +359,7 @@ if __name__ == '__main__':
 # In this alternating-node representation, popping `k` grammar symbols
 # means following `2k` edges in the GSS (alternating symbol→state,
 # `k` times).
-#
+#  
 # ### GSSNode
 
 class GSSNode:
@@ -465,7 +465,7 @@ if __name__ == '__main__':
 #
 # The loop at position `i` is: run actor + reducer until quiescent, then
 # run the shifter once to advance to position `i+1`.
-#
+#  
 # ### Initialization
 
 class GLRRecognizer:
