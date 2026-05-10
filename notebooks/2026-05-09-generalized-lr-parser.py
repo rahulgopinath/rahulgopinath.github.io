@@ -169,14 +169,14 @@ def to_graph(dfa_table):
         shape = 'rectangle'
         peripheries = '1'
         for k in state:
-            if 'accept' in state[k]: peripheries = '2'
+            if any('accept' in str(a).lower() for a in state[k]): peripheries = '2'
         G.add_node(pydot.Node(str(i), label=str(i), shape=shape,
                               peripheries=peripheries))
         for transition in state:
             cell = state[transition]
             if not cell: continue
             for action in cell:
-                if not action or action == 'accept': continue
+                if not action or 'accept' in str(action).lower(): continue
                 color = 'black'
                 if action[0] == 'g':   color = 'blue'
                 elif action[0] == 'r': continue   # reductions are not edges
@@ -281,13 +281,13 @@ class G2TraditionalLR:
     def s_B(self, stack, tokens):
         stack.pop()                        # pop 'b'
         lhs = '<B>'
-        stack.pop()                        # pop '<A>'
         stack.append((lhs, 'sAB'))
         return self.s_AB(stack, tokens)    # S -> <A> <B> .
 
     # State after S -> <A> <B> . : reduce by S -> <A> <B>
     def s_AB(self, stack, tokens):
         stack.pop()                        # pop '<B>'
+        stack.pop()                        # pop '<A>'
         lhs = '<S>'
         stack.append((lhs, 'gS'))
         return self.s_accept(stack, tokens)
@@ -497,12 +497,16 @@ class GLRRecognizer(GLRRecognizer):
         for operation in actions:
             if not operation:
                 continue
-            if operation == 'Accept':
-                self.accepted = True
-            elif operation[0] == 's':
-                Q.append((v, int(operation[1:])))
+            if operation[0] == 's':
+                target = int(operation[1:])
+                Q.append((v, target))
+                # Acceptance: shifting '$' into a state with no further
+                # actions means <> -> <start> $ is complete.
+                if symbol == '$' and all(
+                        not acts for acts in self.parse_table[target].values()):
+                    self.accepted = True
             elif operation[0] == 'r':
-                rule_num    = int(operation[2:])    # 'r:N'
+                rule_num    = operation    # production_rules is keyed by 'r:N'
                 _lhs, rhs   = self.production_rules[rule_num]
                 if len(rhs) == 0:
                     # Epsilon rule: no symbol node to traverse.
@@ -570,7 +574,7 @@ class GLRRecognizer(GLRRecognizer):
                 if u not in A:
                     for op in self.parse_table[u.state].get(symbol, []):
                         if op and op[0] == 'r':
-                            R.append((u, z, int(op[2:])))
+                            R.append((u, z, op))
             else:
                 # Create a fresh state node and connect it.
                 u = self.gss.create_node(is_state=True, state=s)
@@ -682,7 +686,8 @@ if __name__ == '__main__':
 class GSSNodeP(GSSNode):
     def __init__(self, is_state, state=-1, symbol='', tree=None):
         super().__init__(is_state, state, symbol)
-        self.tree = tree    # parse tree fragment (symbol nodes only)
+        # A sym node can carry multiple trees (one per distinct derivation).
+        self.trees = [] if tree is None else [tree]
 
 # ### GSSP — GSS that creates GSSNodeP nodes
 
@@ -698,6 +703,10 @@ class GSSP(GSS):
 # (state→symbol→state). Each symbol node along the way carries one child
 # tree. We collect all such paths from a given state node, yielding every
 # `(bottom_state_node, [child_trees])` pair.
+# 
+# Invariant: the GSS strictly alternates state nodes and symbol nodes.
+# Every edge created by shifter() and reducer() respects this structure,
+# which is what makes collect_paths correct without additional checking.
 
 def collect_paths(node, k, memo=None):
     """
@@ -715,8 +724,9 @@ def collect_paths(node, k, memo=None):
     result = []
     for sym_node in node.successors:          # state  -> symbol
         for state_node in sym_node.successors: # symbol -> state
-            for (bottom, frags) in collect_paths(state_node, k - 1, memo):
-                result.append((bottom, [sym_node.tree] + frags))
+            for tree in sym_node.trees:        # each distinct derivation
+                for (bottom, frags) in collect_paths(state_node, k - 1, memo):
+                    result.append((bottom, [tree] + frags))
     memo[key] = result
     return result
 
@@ -762,15 +772,16 @@ class GLRParser(GLRParser):
         for operation in actions:
             if not operation:
                 continue
-            if operation == 'Accept':
-                self.accepted = True
-                for sym_node in v.successors:
-                    if sym_node.tree is not None:
-                        self.parse_trees.append(sym_node.tree)
-            elif operation[0] == 's':
-                Q.append((v, int(operation[1:])))
+            if operation[0] == 's':
+                target = int(operation[1:])
+                Q.append((v, target))
+                if symbol == '$' and all(
+                        not acts for acts in self.parse_table[target].values()):
+                    self.accepted = True
+                    # Trees are collected after the full loop in parse_on,
+                    # once all reductions at position n are complete.
             elif operation[0] == 'r':
-                rule_num  = int(operation[2:])
+                rule_num  = operation    # production_rules is keyed by 'r:N'
                 _lhs, rhs = self.production_rules[rule_num]
                 if len(rhs) == 0:
                     R.append((v, None, rule_num))
@@ -797,9 +808,9 @@ class GLRParser(GLRParser):
             all_paths = collect_paths(v, k)
 
         for (w, children) in all_paths:
-            # `children` comes out outermost-first from collect_paths,
-            # which is already left-to-right for the rule's RHS.
-            new_tree = (lhs, children)
+            # collect_paths returns children rightmost-first (top-of-stack
+            # first); reverse to get the left-to-right order of the RHS.
+            new_tree = (lhs, list(reversed(children)))
 
             goto_actions = self.parse_table[w.state].get(lhs, [])
             s = None
@@ -817,16 +828,26 @@ class GLRParser(GLRParser):
 
             if existing_u is not None:
                 u = existing_u
-                if self.gss.path_exists(u, w, 2):
-                    continue
-                z = self.gss.create_node(is_state=False, symbol=lhs,
-                                         tree=new_tree)
-                self.gss.add_edge(u, z)
-                self.gss.add_edge(z, w)
-                if u not in A:
-                    for op in self.parse_table[u.state].get(symbol, []):
-                        if op and op[0] == 'r':
-                            R.append((u, z, int(op[2:])))
+                # Find an existing sym node on the path u -> ? -> w.
+                z_existing = next(
+                    (z for z in u.successors if w in z.successors), None)
+                if z_existing is not None:
+                    # Path exists; add this tree if it is a new derivation.
+                    if new_tree not in z_existing.trees:
+                        z_existing.trees.append(new_tree)
+                        if u not in A:
+                            for op in self.parse_table[u.state].get(symbol, []):
+                                if op and op[0] == 'r':
+                                    R.append((u, z_existing, op))
+                else:
+                    z = self.gss.create_node(is_state=False, symbol=lhs,
+                                             tree=new_tree)
+                    self.gss.add_edge(u, z)
+                    self.gss.add_edge(z, w)
+                    if u not in A:
+                        for op in self.parse_table[u.state].get(symbol, []):
+                            if op and op[0] == 'r':
+                                R.append((u, z, op))
             else:
                 u = self.gss.create_node(is_state=True, state=s)
                 z = self.gss.create_node(is_state=False, symbol=lhs,
@@ -881,6 +902,18 @@ class GLRParser(GLRParser):
                     self.reducer(v, x, rule_num, i, A, R)
             if i < n:
                 self.shifter(Q, i)
+        # Collect all trees from every accepting state node at position n.
+        # This is done after the loop so all reductions are complete and
+        # every sym node has its full trees list populated.
+        for v in self.U.get(n, []):
+            for op in self.parse_table[v.state].get('$', []):
+                if op and op[0] == 's':
+                    target = int(op[1:])
+                    if all(not acts for acts in self.parse_table[target].values()):
+                        for sym_node in v.successors:
+                            for tree in sym_node.trees:
+                                if tree not in self.parse_trees:
+                                    self.parse_trees.append(tree)
         return self.parse_trees
 
 # ### Testing the parser
@@ -1030,6 +1063,15 @@ def format_parsetree(t):
 #
 # For LR(1) grammars there are no parse-table conflicts, so GLR behaves
 # similarly to ordinary LR parsing and is typically linear-time.
+#
+# Note on implementation discipline: this implementation uses worklists
+# (A, R, Q, U) for duplicate suppression rather than the explicit
+# descriptor sets of the form (state, input_position, node) used in
+# production GLR implementations (Tomita; Scott & Johnstone). The result
+# is correct and polynomial, but termination and idempotence guarantees
+# are implicit in the worklist membership checks rather than structurally
+# enforced by a descriptor memo.
+
 
 # ## References
 #
