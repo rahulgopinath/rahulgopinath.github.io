@@ -235,6 +235,8 @@ if __name__ == '__main__':
 # A shift pushes the symbol and target state. A reduce pops as many entries
 # as there are symbols on the rule's right-hand side, then looks up the
 # goto entry for the exposed state and the rule's nonterminal.
+# 
+# Hand-unrolled LR parser corresponding to the DFA of grammar g2
 
 class G2TraditionalLR:
     def recognize_on(self, text):
