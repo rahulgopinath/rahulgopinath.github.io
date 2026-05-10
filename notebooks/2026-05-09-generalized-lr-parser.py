@@ -1076,16 +1076,6 @@ def format_parsetree(t):
 
 
 # ## References
-#
-# [^tomita1984lr]: Masaru Tomita. LR parsers for natural languages. In
-# 22nd Annual Meeting of the ACL, pages 354–357, 1984.
-#
+#  
 # [^tomita1986efficient]: Masaru Tomita. Efficient Parsing for Natural
 # Language. Kluwer Academic Publishers, Boston, 1986.
-#
-# [^scott2013glr]: Elizabeth Scott, Adrian Johnstone. Structuring the
-# GLL parsing algorithm for performance. Science of Computer Programming,
-# 78(10):1828–1844, 2013.
-#
-# [^grune2008parsing]: Dick Grune and Ceriel J.H. Jacobs. Parsing
-# Techniques: A Practical Guide. Springer, 2008.
