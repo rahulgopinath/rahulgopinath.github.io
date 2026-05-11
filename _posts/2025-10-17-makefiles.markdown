@@ -9,6 +9,41 @@ categories: post
 
 This is a summary of best practices when using `Makefiles`. This post is primarily intended for my students building tools in our lab. Much of this post is based on the Make bestpractices that I learned during my stint at Sun Microsystems, updated to reflect GNU Make since it is the most common make flavour at this point by a significant margin.
 
+
+## Contents
+{:.no_toc}
+
+1. TOC
+{:toc}
+
+<script src="/resources/js/graphviz/index.min.js"></script>
+<script>
+// From https://github.com/hpcc-systems/hpcc-js-wasm
+// Hosted for teaching.
+var hpccWasm = window["@hpcc-js/wasm"];
+function display_dot(dot_txt, div) {
+    hpccWasm.graphviz.layout(dot_txt, "svg", "dot").then(svg => {
+        div.innerHTML = svg;
+    });
+}
+window.display_dot = display_dot
+// from js import display_dot
+</script>
+
+<script src="/resources/pyodide/full/3.9/pyodide.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/codemirror.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/solarized.css">
+<link rel="stylesheet" type="text/css" media="all" href="/resources/skulpt/css/env/editor.css">
+
+<script src="/resources/skulpt/js/codemirrorepl.js" type="text/javascript"></script>
+<script src="/resources/skulpt/js/python.js" type="text/javascript"></script>
+<script src="/resources/pyodide/js/env/editor.js" type="text/javascript"></script>
+
+**Important:** [Pyodide](https://pyodide.readthedocs.io/en/latest/) takes time to initialize.
+Initialization completion is indicated by a red border around *Run all* button.
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
 ### (GNU) Makefiles best practices
 
 
@@ -44,7 +79,7 @@ a.exe: a.c
 	@mv _a.exe a.exe
 ```
 
-**Note:**  *the use of `@` at the beginning of the command line to hide command invocation echo here.*
+**Note:** *the use of `@` at the beginning of the command line to hide command invocation echo here.*
 
 Or even better:
 
@@ -149,7 +184,7 @@ $(OBJDIR):; mkdir $(OBJDIR)
 
 ```
 
-**Note:**  *the use of `;` to indicate ending of target and beginning of recipe*
+**Note:** *the use of `;` to indicate ending of target and beginning of recipe*
 
 Here, `OBJDIR` will be created if it does not exist. If you forget the `|`, the dependents of `OBJDIR` will be recreated each time a file inside `OBJDIR` changes. That is, ideally,
 
@@ -353,12 +388,19 @@ all:
 .SHELLFLAGS := -eu -o pipefail -c
 
 ```
-```
 
 Other best practices:
 
 * Always include all and clean targets
 * Use variables for compiler settings
 
----
+
+<form name='python_run_form'>
+<button type="button" name="python_run_all">Run all</button>
+</form>
+
+## Artifacts
+
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2025-10-17-makefiles.py).
+
 
