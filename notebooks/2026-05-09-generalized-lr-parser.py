@@ -1,5 +1,5 @@
 # ---
-# published: true
+# published: false
 # title: Generalized LR (GLR) Parser
 # layout: post
 # comments: true
@@ -14,11 +14,11 @@
 # A GLR parser is a generalization of LR parsers. We
 # [previously discussed](/post/2024/07/01/lr-parsing/) LR(0), SLR(1),
 # LALR(1), and LR(1) parsers. These are deterministic bottom-up parsers
-# that are fast and powerful, but require conflict-free parse tables. They
-# require conflict-free parse tables. Ambiguous grammars, and many
-# grammars that produce shift/reduce or reduce/reduce conflicts, therefore
-# cannot be parsed deterministically without additional conflict-resolution
-# mechanisms such as precedence or associativity declarations.
+# that are fast and powerful, but require conflict-free parse tables.
+# Ambiguous grammars, and many grammars that produce shift/reduce or
+# reduce/reduce conflicts, therefore cannot be parsed deterministically
+# without additional conflict-resolution mechanisms such as precedence or
+# associativity declarations.
 #
 # The Generalized LR (GLR) parser, introduced by Tomita
 # [^tomita1986efficient], solves this by pursuing *all* possible parse
@@ -33,6 +33,17 @@
 # for GLR parsing is $$ O(n^3) $$. For LR(1) grammars there are no
 # conflicts, and the parse time is $$ O(n) $$.
 #
+# This post implements an extended version of what Tomita calls
+# *Algorithm 1*. The original Algorithm 1 fails on grammars with *hidden
+# right recursion* — a class of epsilon-rule grammars where a recursive
+# nonterminal sits to the left of nullable nonterminals on a rule's
+# right-hand side. We add a small extension (in the spirit of
+# Nozohoor-Farshi [^nozohoor1991]) that handles those grammars correctly
+# while keeping the rest of the algorithm intact. A different and more
+# efficient solution called RNGLR (Right-Nulled GLR), which short-circuits
+# nullable suffixes at parse-table construction time, is described by
+# Scott and Johnstone [^scott2006rnglr]; we do not implement RNGLR here.
+
 # ## Synopsis
 #
 # ```python
@@ -112,9 +123,8 @@ import pydot
 
 # Since this notebook serves both as a web notebook as well as a script
 # that can be run on the command line, we redefine canvas if it is not
-# defined already. The `__canvas__` function is defined externally when it is
-# used as a web notebook.
-
+# defined already. The `__canvas__` function is defined externally when
+# it is used as a web notebook.
 
 if __name__ == '__main__':
     if '__canvas__' not in globals(): __canvas__ = print
@@ -141,7 +151,11 @@ g1_start = '<E>'
 # * `sN`     — shift and go to state N
 # * `r:N`    — reduce by production rule N
 # * `gN`     — goto state N after a reduction (for nonterminals)
-# * `Accept` — accept the input
+#
+# Acceptance is encoded structurally: the augmented start rule is
+# `<> -> <start> $`, so when the parser shifts `$` into the state that
+# completes this rule and that state has no further outgoing actions, the
+# input has been accepted.
 #
 # Let us build the table for our ambiguous grammar and observe the conflict.
 
@@ -161,22 +175,21 @@ if __name__ == '__main__':
 
 # ## Visualizing the Parse Table
 # We can visualize the parse table as a graph. Shift transitions are black,
-# goto transitions (after reductions) are blue.
+# goto transitions (after reductions) are blue. (Reductions themselves are
+# not transitions and are not drawn as edges.)
 
 def to_graph(dfa_table):
     G = pydot.Dot("my_graph", graph_type="digraph")
     for i, state in enumerate(dfa_table):
         shape = 'rectangle'
         peripheries = '1'
-        for k in state:
-            if any('accept' in str(a).lower() for a in state[k]): peripheries = '2'
         G.add_node(pydot.Node(str(i), label=str(i), shape=shape,
                               peripheries=peripheries))
         for transition in state:
             cell = state[transition]
             if not cell: continue
             for action in cell:
-                if not action or 'accept' in str(action).lower(): continue
+                if not action: continue
                 color = 'black'
                 if action[0] == 'g':   color = 'blue'
                 elif action[0] == 'r': continue   # reductions are not edges
@@ -186,7 +199,7 @@ def to_graph(dfa_table):
                                       label=transition))
     return G
 
-# test
+# Drawing it.
 
 if __name__ == '__main__':
     g1a, g1a_start = add_start_state(g1, g1_start)
@@ -235,8 +248,8 @@ if __name__ == '__main__':
 # A shift pushes the symbol and target state. A reduce pops as many entries
 # as there are symbols on the rule's right-hand side, then looks up the
 # goto entry for the exposed state and the rule's nonterminal.
-# 
-# Hand-unrolled LR parser corresponding to the DFA of grammar g2
+#
+# Hand-unrolled LR parser corresponding to the DFA of grammar g2.
 
 class G2TraditionalLR:
     def recognize_on(self, text):
@@ -253,7 +266,7 @@ class G2TraditionalLR:
         symbol = tokens[0]
         if symbol == 'a':
             tokens.pop(0)
-            stack.append(('a', 'sA'))   # shift, go to state for A->a.
+            stack.append(('a', 'sA'))
             return self.s_A(stack, tokens)
         elif symbol == 'c':
             tokens.pop(0)
@@ -261,16 +274,11 @@ class G2TraditionalLR:
             return self.s_C(stack, tokens)
         return False
 
-    # State after shifting 'a': A -> a .  (reduce by A -> a)
     def s_A(self, stack, tokens):
         stack.pop()                        # pop 'a'
-        lhs = '<A>'
-        _, prev = stack[-1]
-        stack.append((lhs, 'gA'))
-        return self.s_gA(stack, tokens)    # goto after reducing <A>
+        stack.append(('<A>', 'gA'))
+        return self.s_gA(stack, tokens)
 
-    # State after goto <A> from state 0: S -> <A> . <B>
-    #                                    <B> -> . b
     def s_gA(self, stack, tokens):
         symbol = tokens[0]
         if symbol == 'b':
@@ -279,36 +287,27 @@ class G2TraditionalLR:
             return self.s_B(stack, tokens)
         return False
 
-    # State after shifting 'b': B -> b .  (reduce by B -> b)
     def s_B(self, stack, tokens):
         stack.pop()                        # pop 'b'
-        lhs = '<B>'
-        stack.append((lhs, 'sAB'))
-        return self.s_AB(stack, tokens)    # S -> <A> <B> .
+        stack.append(('<B>', 'sAB'))
+        return self.s_AB(stack, tokens)
 
-    # State after S -> <A> <B> . : reduce by S -> <A> <B>
     def s_AB(self, stack, tokens):
         stack.pop()                        # pop '<B>'
         stack.pop()                        # pop '<A>'
-        lhs = '<S>'
-        stack.append((lhs, 'gS'))
+        stack.append(('<S>', 'gS'))
         return self.s_accept(stack, tokens)
 
-    # State after shifting 'c': C -> c .  (reduce by C -> c)
     def s_C(self, stack, tokens):
         stack.pop()                        # pop 'c'
-        lhs = '<C>'
-        stack.append((lhs, 'sC_done'))
+        stack.append(('<C>', 'sC_done'))
         return self.s_C_done(stack, tokens)
 
-    # State after C -> c . : reduce by C -> c, then S -> <C>
     def s_C_done(self, stack, tokens):
         stack.pop()                        # pop '<C>'
-        lhs = '<S>'
-        stack.append((lhs, 'gS'))
+        stack.append(('<S>', 'gS'))
         return self.s_accept(stack, tokens)
 
-    # Accept state
     def s_accept(self, stack, tokens):
         return tokens[0] == '$'
 
@@ -336,14 +335,24 @@ if __name__ == '__main__':
 #
 # A traditional LR parser picks one and can fail. The GLR parser picks
 # *both* and explores them in parallel using the Graph Structured Stack.
-#  
+
 # ## The Graph Structured Stack
 #
 # The key challenge in running multiple LR parse stacks in parallel is
 # efficiency. Maintaining fully independent stacks would lead to
 # exponentially many of them on ambiguous grammars. The *Graph Structured
-# Stack* (GSS) solves this by merging any two stacks that reach the same
-# LR state at the same input position into a single shared node.
+# Stack* (GSS) solves this by sharing stack prefixes wherever possible.
+#
+# Two complementary sharing rules operate on the GSS:
+#
+# 1. Whenever two parse stacks reach the same LR state at the same input
+#    position, the algorithm merges them into a single GSS node. This is
+#    why the GSS is a graph rather than a tree of stacks.
+#
+# 2. When a reduction at one input position would produce an edge into a
+#    state that already exists, the new edge is added to the existing
+#    node — possibly making the GSS cyclic. We will see exactly when this
+#    happens, in the section on hidden left recursion below.
 #
 # The GSS is a directed graph. Its nodes alternate between two kinds:
 #
@@ -358,8 +367,11 @@ if __name__ == '__main__':
 # arrived at state `u` after recognising `z` on top of state `v`."
 # In this alternating-node representation, popping `k` grammar symbols
 # means following `2k` edges in the GSS (alternating symbol→state,
-# `k` times).
-#  
+# `k` times). Because the GSS may have multiple parallel edges leaving a
+# single state node, "popping `k` symbols" is not a single sequence — it
+# is a search for all paths of length `2k`. This search is the central
+# expensive operation of the algorithm.
+
 # ### GSSNode
 
 class GSSNode:
@@ -412,6 +424,8 @@ if __name__ == '__main__':
 # reachable by following exactly `depth` successor edges. This is how we
 # "pop" the stack during a reduction — if the rule has `k` symbols on its
 # right-hand side, we follow `2k` edges (symbol then state, `k` times).
+# Because the GSS may be cyclic, we memoize by `(node, remaining-depth)`
+# so we never expand the same subproblem twice.
 
 class GSS(GSS):
     def dfs(self, node, depth, memo=None):
@@ -465,7 +479,7 @@ if __name__ == '__main__':
 #
 # The loop at position `i` is: run actor + reducer until quiescent, then
 # run the shifter once to advance to position `i+1`.
-#  
+
 # ### Initialization
 
 class GLRRecognizer:
@@ -480,6 +494,12 @@ class GLRRecognizer:
         root = self.gss.create_node(is_state=True, state=0)
         self.U            = {0: [root]}
         self.accepted     = False
+        # Track per-reduction reach: maps (id(v), id(x), rule_num) to the
+        # set of `w` nodes that the reduction has already processed.
+        # This is what allows us to safely re-fire reductions after the
+        # GSS grows new edges, while still terminating on hidden left
+        # recursion. See "Hidden Right Recursion" below for details.
+        self.last_fired_reach = {}
 
 # ### Actor
 # The actor examines active state node `v` against the current input symbol.
@@ -491,6 +511,10 @@ class GLRRecognizer:
 # `v`'s successors. Because multiple GSS nodes may share the same LR
 # state (merged stacks from earlier positions), we search all nodes with
 # `state == v.state` and queue all of their outgoing symbol edges.
+#
+# Acceptance is detected by checking, on a shift of `$`, whether the
+# target state has no further actions. That target state corresponds to
+# the augmented rule `<> -> <start> $ .` being complete.
 
 class GLRRecognizer(GLRRecognizer):
     def actor(self, v, symbol, i, Q, R):
@@ -502,20 +526,16 @@ class GLRRecognizer(GLRRecognizer):
             if operation[0] == 's':
                 target = int(operation[1:])
                 Q.append((v, target))
-                # Acceptance: shifting '$' into a state with no further
-                # actions means <> -> <start> $ is complete.
                 if symbol == '$' and all(
                         not acts for acts in self.parse_table[target].values()):
                     self.accepted = True
             elif operation[0] == 'r':
-                rule_num    = operation    # production_rules is keyed by 'r:N'
-                _lhs, rhs   = self.production_rules[rule_num]
+                rule_num = operation
+                _lhs, rhs = self.production_rules[rule_num]
                 if len(rhs) == 0:
                     # Epsilon rule: no symbol node to traverse.
                     R.append((v, None, rule_num))
                 else:
-                    # Queue (node, first_symbol_edge, rule) for every
-                    # active state node at position i sharing this LR state.
                     for node in self.U[i]:
                         if node.is_state and node.state == state:
                             for x in node.successors:
@@ -530,9 +550,20 @@ class GLRRecognizer(GLRRecognizer):
 #
 # For each such `w`, we compute `goto(w.state, lhs)` to find the new
 # state `s`, then either reuse an existing node for `(s, i)` or create a
-# new one. When we add a new GSS edge to an *existing* node, reductions
-# pending on that node must be re-queued with the new edge in case they
-# produce a new derivation path.
+# new one. There are two subtleties:
+#
+# 1. We may have already processed some `w` nodes in a previous firing
+#    of this same `(v, x, rule_num)` triple. We track those in
+#    `last_fired_reach` and only process newly-reachable `w` nodes.
+#
+# 2. When we add a new GSS edge between two existing nodes, that edge
+#    may enable previously-impossible reductions in *other* active state
+#    nodes. We re-enqueue every applicable reduction in `U[i]`; the
+#    reach tracker from (1) prevents us from doing duplicate work.
+#
+# Together these two rules make the algorithm correct on grammars with
+# hidden right recursion. The section "Hidden Right Recursion" below
+# walks through why both are necessary.
 
 class GLRRecognizer(GLRRecognizer):
     def reducer(self, v, x, rule_num, i, A, R):
@@ -542,11 +573,22 @@ class GLRRecognizer(GLRRecognizer):
 
         # Find all state nodes below the k-symbol right-hand side.
         if k == 0:
-            all_w = {v}           # epsilon: w is v itself
+            all_w = frozenset({v})       # epsilon: w is v itself
         else:
             all_w = self.gss.find_nodes_at_depth(x, 2 * k - 1)
 
-        for w in all_w:
+        # Skip if we've already processed this exact set of w nodes for
+        # this (v, x, rule) triple. If the set has grown, only process
+        # the new w's.
+        key = (id(v), id(x), rule_num)
+        prev = self.last_fired_reach.get(key)
+        if prev is not None and all_w <= prev:
+            return
+        self.last_fired_reach[key] = all_w if prev is None else (prev | all_w)
+        new_ws = all_w if prev is None else (all_w - prev)
+
+        edge_added = False
+        for w in new_ws:
             # Compute goto(w.state, lhs).
             goto_actions = self.parse_table[w.state].get(lhs, [])
             s = None
@@ -572,11 +614,7 @@ class GLRRecognizer(GLRRecognizer):
                 z = self.gss.create_node(is_state=False, symbol=lhs)
                 self.gss.add_edge(u, z)
                 self.gss.add_edge(z, w)
-                # Re-queue reductions triggered from u via this new edge.
-                if u not in A:
-                    for op in self.parse_table[u.state].get(symbol, []):
-                        if op and op[0] == 'r':
-                            R.append((u, z, op))
+                edge_added = True
             else:
                 # Create a fresh state node and connect it.
                 u = self.gss.create_node(is_state=True, state=s)
@@ -585,6 +623,24 @@ class GLRRecognizer(GLRRecognizer):
                 self.gss.add_edge(z, w)
                 A.append(u)
                 self.U[i].append(u)
+
+        if edge_added:
+            # A new GSS edge has been added between existing nodes. Any
+            # reduction in U[i] whose pop path could now go through this
+            # new edge must be re-enqueued. The reach tracker above will
+            # discard duplicates and only do work for newly-reachable w's.
+            for t in list(self.U[i]):
+                if not t.is_state:
+                    continue
+                for op in self.parse_table[t.state].get(symbol, []):
+                    if not op or op[0] != 'r':
+                        continue
+                    _lhs2, rhs2 = self.production_rules[op]
+                    if len(rhs2) == 0:
+                        R.append((t, None, op))
+                    else:
+                        for x2 in t.successors:
+                            R.append((t, x2, op))
 
 # ### Shifter
 # Once all reductions at position `i` are done, we consume input symbol
@@ -619,6 +675,8 @@ class GLRRecognizer(GLRRecognizer):
         n = len(text)
         for i in range(n + 1):
             symbol = self.input_string[i]
+            # Reset the per-position reach tracker.
+            self.last_fired_reach = {}
             A = list(self.U.get(i, []))
             Q = []
             R = []
@@ -643,7 +701,8 @@ class GLRRecognizer(GLRRecognizer):
 def make_parse_table(dfa_table):
     return {i: row for i, row in enumerate(dfa_table)}
 
-# test
+# Testing on our ambiguous grammar.
+
 if __name__ == '__main__':
     g1a, g1a_start = add_start_state(g1, g1_start)
     my_dfa = SLR1DFA(g1a, g1a_start)
@@ -656,7 +715,7 @@ if __name__ == '__main__':
     assert not recognizer.recognize_on('1+',      g1a_start)
     assert not recognizer.recognize_on('+1',      g1a_start)
     assert not recognizer.recognize_on('',        g1a_start)
-    print('recognizer ok')
+    print('recognizer on ambiguous grammar ok')
 
 # Let us also verify with an unambiguous grammar.
 
@@ -674,7 +733,69 @@ if __name__ == '__main__':
     assert     rec2.recognize_on('1+1',   g2a_start)
     assert     rec2.recognize_on('1+1+1', g2a_start)
     assert not rec2.recognize_on('1+',    g2a_start)
-    print('unambiguous recognizer ok')
+    print('recognizer on unambiguous grammar ok')
+
+# ### A worked example: a different shift/reduce conflict
+# Following Smits[^smits2025glr] (his adaptation of grammar 4.1 from
+# Economopoulos's dissertation[^economopoulos2006glr]), here is a small
+# grammar that exhibits a shift/reduce conflict without left recursion:
+#
+# ```
+# <E> -> a b <C>
+# <E> -> a <B> <C>
+# <B> -> b
+# <C> -> d e
+# ```
+#
+# After reading `a b`, the parser is at a state where `b` can either be
+# shifted as the literal `b` of the first rule, or reduced to `<B>` for
+# the second rule. The input `abde` has *two* parse trees — one where
+# `b` is a literal, and one where `b` is the body of `<B>`.
+
+if __name__ == '__main__':
+    g_smits_41 = {
+        '<E>': [['a', 'b', '<C>'], ['a', '<B>', '<C>']],
+        '<B>': [['b']],
+        '<C>': [['d', 'e']],
+    }
+    aug_g, aug_start = add_start_state(g_smits_41, '<E>')
+    dfa = SLR1DFA(aug_g, aug_start)
+    rec = GLRRecognizer(aug_g, make_parse_table(dfa.build_dfa()),
+                        dfa.production_rules)
+    assert     rec.recognize_on('abde', aug_start)
+    assert not rec.recognize_on('ab',   aug_start)
+    print('Smits grammar 4.1 recognizer ok')
+
+# ### A worked example: hidden left recursion
+# Hidden left recursion arises when a rule's first non-terminal is
+# nullable, so the rule can reach itself without consuming input. The
+# canonical small example is:
+#
+# ```
+# <E> -> <B> <E> a
+# <E> -> b
+# <B> -> ε
+# ```
+#
+# The language is `b a*`. Parsing this in GLR requires the GSS to grow a
+# self-loop on the state that completes `<E>` from `<B> <E> a`, because
+# the reducer keeps re-entering the same configuration. Our recognizer
+# handles this correctly:
+
+if __name__ == '__main__':
+    g_hidden_left = {
+        '<E>': [['<B>', '<E>', 'a'], ['b']],
+        '<B>': [[]],
+    }
+    aug_g, aug_start = add_start_state(g_hidden_left, '<E>')
+    dfa = SLR1DFA(aug_g, aug_start)
+    rec = GLRRecognizer(aug_g, make_parse_table(dfa.build_dfa()),
+                        dfa.production_rules)
+    for s in ['b', 'ba', 'baa', 'baaa']:
+        assert rec.recognize_on(s, aug_start), 'should accept %r' % s
+    assert not rec.recognize_on('a',  aug_start)
+    assert not rec.recognize_on('',   aug_start)
+    print('hidden-left-recursion recognizer ok')
 
 # ## GLR Parser
 # A recognizer tells us only whether a string is in the language. To
@@ -683,6 +804,12 @@ if __name__ == '__main__':
 # represents. Terminals carry leaf nodes; nonterminals carry the tree
 # built during the reduction that created them.
 #
+# When the same symbol edge connects the same pair of state nodes via
+# more than one derivation (as happens in genuinely ambiguous grammars),
+# the symbol node carries multiple tree fragments — one per distinct
+# derivation. The reducer collects all of them when assembling new
+# parse trees.
+
 # ### GSSNodeP — GSS node with a tree payload
 
 class GSSNodeP(GSSNode):
@@ -702,13 +829,15 @@ class GSSP(GSS):
 
 # ### Collecting trees along a pop path
 # When the reducer pops `k` symbols, it traverses `k` pairs of edges
-# (state→symbol→state). Each symbol node along the way carries one child
-# tree. We collect all such paths from a given state node, yielding every
-# `(bottom_state_node, [child_trees])` pair.
-# 
+# (state→symbol→state). Each symbol node along the way carries one or
+# more child trees. We collect all such paths from a given state node,
+# yielding every `(bottom_state_node, [child_trees])` pair across all
+# combinations of stored derivations.
+#
 # Invariant: the GSS strictly alternates state nodes and symbol nodes.
-# Every edge created by shifter() and reducer() respects this structure,
-# which is what makes collect_paths correct without additional checking.
+# Every edge created by `shifter()` and `reducer()` respects this
+# structure, which is what makes `collect_paths` correct without
+# additional checking.
 
 def collect_paths(node, k, memo=None):
     """
@@ -762,10 +891,12 @@ class GLRParser(GLRRecognizer):
         self.U            = {0: [root]}
         self.accepted     = False
         self.parse_trees  = []
+        self.last_fired_reach = {}
 
 # ### Actor (parser version)
-# When we detect Accept, we harvest the tree from the top-of-stack symbol
-# node. Otherwise, the actor is identical to the recognizer's version.
+# Identical to the recognizer's version, except that we use `GSSP` nodes
+# (which carry tree payloads on their symbol edges) implicitly via the
+# superclass.
 
 class GLRParser(GLRParser):
     def actor(self, v, symbol, i, Q, R):
@@ -780,10 +911,10 @@ class GLRParser(GLRParser):
                 if symbol == '$' and all(
                         not acts for acts in self.parse_table[target].values()):
                     self.accepted = True
-                    # Trees are collected after the full loop in parse_on,
-                    # once all reductions at position n are complete.
+                    # Trees are harvested at the end of parse_on, once all
+                    # reductions at position n have completed.
             elif operation[0] == 'r':
-                rule_num  = operation    # production_rules is keyed by 'r:N'
+                rule_num  = operation
                 _lhs, rhs = self.production_rules[rule_num]
                 if len(rhs) == 0:
                     R.append((v, None, rule_num))
@@ -796,7 +927,15 @@ class GLRParser(GLRParser):
 # ### Reducer (parser version)
 # The reducer is the same as the recognizer's version except that it
 # assembles a parse tree node from the children collected along the pop
-# path, and attaches that tree to every new symbol node it creates.
+# path, and attaches that tree to every new symbol node it creates. When
+# an existing symbol edge would receive a new derivation, we append the
+# new tree to that symbol node's list of trees rather than creating a
+# duplicate edge.
+#
+# Like the recognizer, the parser must handle hidden right recursion.
+# We track which `(v, x, rule_num)` triples have already processed which
+# pop paths (identified by bottom node + sequence of tree fragment ids),
+# and re-fire all applicable reductions whenever a new GSS edge appears.
 
 class GLRParser(GLRParser):
     def reducer(self, v, x, rule_num, i, A, R):
@@ -809,8 +948,21 @@ class GLRParser(GLRParser):
         else:
             all_paths = collect_paths(v, k)
 
+        # Track which paths we have already processed for this triple.
+        # Each path is keyed by (bottom-node-id, tuple of tree-fragment ids).
+        key = (id(v), id(x), rule_num)
+        prev_keys = self.last_fired_reach.setdefault(key, set())
+        new_paths = []
         for (w, children) in all_paths:
-            # collect_paths returns children rightmost-first (top-of-stack
+            path_key = (id(w), tuple(id(t) for t in children))
+            if path_key in prev_keys:
+                continue
+            prev_keys.add(path_key)
+            new_paths.append((w, children))
+
+        edge_added = False
+        for (w, children) in new_paths:
+            # collect_paths returns children outermost-first (top-of-stack
             # first); reverse to get the left-to-right order of the RHS.
             new_tree = (lhs, list(reversed(children)))
 
@@ -834,22 +986,16 @@ class GLRParser(GLRParser):
                 z_existing = next(
                     (z for z in u.successors if w in z.successors), None)
                 if z_existing is not None:
-                    # Path exists; add this tree if it is a new derivation.
+                    # Path exists; record a new derivation on the same edge.
                     if new_tree not in z_existing.trees:
                         z_existing.trees.append(new_tree)
-                        if u not in A:
-                            for op in self.parse_table[u.state].get(symbol, []):
-                                if op and op[0] == 'r':
-                                    R.append((u, z_existing, op))
+                        edge_added = True
                 else:
                     z = self.gss.create_node(is_state=False, symbol=lhs,
                                              tree=new_tree)
                     self.gss.add_edge(u, z)
                     self.gss.add_edge(z, w)
-                    if u not in A:
-                        for op in self.parse_table[u.state].get(symbol, []):
-                            if op and op[0] == 'r':
-                                R.append((u, z, op))
+                    edge_added = True
             else:
                 u = self.gss.create_node(is_state=True, state=s)
                 z = self.gss.create_node(is_state=False, symbol=lhs,
@@ -858,6 +1004,23 @@ class GLRParser(GLRParser):
                 self.gss.add_edge(z, w)
                 A.append(u)
                 self.U[i].append(u)
+
+        if edge_added:
+            # A new GSS edge or new tree has been recorded. Re-enqueue
+            # every applicable reduction in U[i]; the reach tracker
+            # above will discard duplicate work.
+            for t in list(self.U[i]):
+                if not t.is_state:
+                    continue
+                for op in self.parse_table[t.state].get(symbol, []):
+                    if not op or op[0] != 'r':
+                        continue
+                    _lhs2, rhs2 = self.production_rules[op]
+                    if len(rhs2) == 0:
+                        R.append((t, None, op))
+                    else:
+                        for x2 in t.successors:
+                            R.append((t, x2, op))
 
 # ### Shifter (parser version)
 # The shifter creates terminal leaf nodes as tree fragments when it
@@ -892,6 +1055,8 @@ class GLRParser(GLRParser):
         n = len(text)
         for i in range(n + 1):
             symbol = self.input_string[i]
+            # Reset the per-position reach tracker.
+            self.last_fired_reach = {}
             A = list(self.U.get(i, []))
             Q = []
             R = []
@@ -943,6 +1108,23 @@ if __name__ == '__main__':
         assert fuzzer.tree_to_string(t) == '1+1+1'
         ep.display_tree(t)
     assert len(trees) == 2
+
+# And on Smits's grammar 4.1, the input `abde` should produce two trees:
+
+if __name__ == '__main__':
+    g_smits_41 = {
+        '<E>': [['a', 'b', '<C>'], ['a', '<B>', '<C>']],
+        '<B>': [['b']],
+        '<C>': [['d', 'e']],
+    }
+    aug_g, aug_start = add_start_state(g_smits_41, '<E>')
+    dfa = SLR1DFA(aug_g, aug_start)
+    parser = GLRParser(aug_g, make_parse_table(dfa.build_dfa()),
+                       dfa.production_rules)
+    trees = parser.parse_on('abde', aug_start)
+    assert len(trees) == 2
+    for t in trees: assert fuzzer.tree_to_string(t) == 'abde'
+    print('Smits grammar 4.1 parser ok, %d tree(s) for "abde"' % len(trees))
 
 # ## Compiling a Grammar
 # To match the interface used in the GLL post, we provide a
@@ -1047,35 +1229,272 @@ if __name__ == '__main__':
 def format_parsetree(t):
     return ep.format_parsetree(t)
 
-# ## Notes on Complexity
-# The GSS ensures that whenever two parse stacks reach the same LR state
-# at the same input position they share a single node. This sharing is
-# what keeps the underlying stack representation polynomial in size.
+# ## Hidden Right Recursion
 #
-# In the worst case, generalized LR parsing has cubic-time recognition
-# complexity, matching other general context-free parsing algorithms such
-# as Earley and GLL parsing. The shared graph structures used by GLR also
-# remain polynomial in size in the worst case.
+# Earlier we mentioned that the `reducer` does two things to keep the
+# algorithm correct on grammars with hidden right recursion:
 #
-# However, the number of distinct parse trees for an ambiguous grammar may
-# still be exponential in the length of the input. Since this tutorial
-# materializes explicit parse trees rather than a shared packed parse
-# forest (SPPF), the total output size may therefore also become
-# exponential.
+# 1. It tracks which `(v, x, rule_num)` triples have already processed
+#    which `w` nodes, and only does work on newly-reachable `w`s.
+# 2. When it adds a new GSS edge between existing nodes, it re-enqueues
+#    every applicable reduction in `U[i]`.
 #
+# This subsection explains *why* both rules are necessary, using the
+# canonical example from Smits [^smits2025glr] (his adaptation of
+# grammar 4.2 from Economopoulos [^economopoulos2006glr]):
+#
+# ```
+# <E> -> a <E> <B> <B>
+# <E> -> b
+# <B> -> ε
+# <B> -> c
+# ```
+#
+# This grammar describes the language `{ a^n b c^k : 0 ≤ k ≤ 2n }`.
+# Recursion is *hidden* in the first rule because the recursive call to
+# `<E>` sits to the left of two nullable `<B>` occurrences. On input
+# `aab`, the parse must reduce `<E> -> a <E> <B> <B>` *twice in a row*,
+# first popping back to the inner `a`, then again popping back to the
+# outermost state.
+#
+# Without rule (2), the second reduction never fires. Here is the
+# sequence: after shifting `a`, `a`, `b`, the parser reduces `<E> -> b`
+# (producing a new state node for the goto of `<E>` from the second
+# `a`'s state), then reduces `<B> -> ε` twice in succession (anticipating
+# the trailing two `<B>`s). It now reaches a state where `<E> -> a<E>BB`
+# completes. This reduction pops 7 GSS edges and lands at the GSS node
+# for the *inner* `a`'s state. Goto on `<E>` from there is the same
+# state as the one we are currently in — so a *new GSS edge* is added
+# between two existing nodes. Without rule (2), we never re-fire the
+# reductions that would now find a longer pop path through this new
+# edge. With rule (2), we re-enqueue `<E> -> a<E>BB` on the topmost
+# state, and rule (1) ensures we only do new work (the longer pop path
+# is a new `w`).
+#
+# Without rule (1), the algorithm does not terminate on hidden *left*
+# recursion. The hidden-left grammar `<E> -> <B><E>a | b; <B> -> ε`
+# requires the GSS to grow a cycle through the `<B>` epsilon reduction.
+# Every time we re-fire `<B> -> ε`, rule (2) would add another copy of
+# the same edge. Rule (1) prevents that, because `w = v` for an epsilon
+# rule and the reach tracker remembers `v` was processed.
+#
+# Let us verify that the implementation handles all of these correctly.
+
+if __name__ == '__main__':
+    # Hidden right recursion: aab requires two consecutive E -> aEBB
+    # reductions and Algorithm 1 alone fails on this.
+    g_hidden_right = {
+        '<E>': [['a', '<E>', '<B>', '<B>'], ['b']],
+        '<B>': [[], ['c']],
+    }
+    p = compile_grammar(g_hidden_right, '<E>')
+    for s in ['b', 'ab', 'abc', 'abcc', 'aab', 'aabc', 'aabcc',
+              'aaab', 'aaabcc']:
+        trees = p.parse_on(s, '<E>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    # Not in the language: too many c's (k > 2n).
+    assert not p.parse_on('abccc',    '<E>')
+    assert not p.parse_on('aabccccc', '<E>')
+    print('hidden right recursion ok')
+
+# An efficient and well-studied alternative to the runtime fix above is
+# *Right-Nulled GLR* (RNGLR) [^scott2006rnglr][^scott2003rnglr], in
+# which "right-nulled" prefixes of rules are short-circuited as extra
+# reduce actions at parse-table construction time. RNGLR avoids most
+# of the re-fire work the runtime fix does, at the cost of more complex
+# table construction. The runtime fix here is simpler to implement and
+# correct on all the same grammars.
+
+# ## More Hidden-Recursion Examples
+# A few more grammars exercising the hidden-recursion edge cases.
+
+# ### Nullable nonterminals on both sides
+
+if __name__ == '__main__':
+    # E -> X E Y a | b; X, Y -> ε. Both X and Y are nullable, hiding
+    # both left and right recursion in the first rule.
+    g_both = {
+        '<E>': [['<X>', '<E>', '<Y>', 'a'], ['b']],
+        '<X>': [[]],
+        '<Y>': [[]],
+    }
+    p = compile_grammar(g_both, '<E>')
+    for s in ['b', 'ba', 'baa', 'baaa']:
+        trees = p.parse_on(s, '<E>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    assert not p.parse_on('a',  '<E>')
+    assert not p.parse_on('',   '<E>')
+    print('hidden-recursion both sides ok')
+
+# ### Multiple nullable suffixes
+
+if __name__ == '__main__':
+    # E -> a E B B B | b; B -> ε | c. Like the canonical example but
+    # with three trailing B's instead of two.
+    g_three = {
+        '<E>': [['a', '<E>', '<B>', '<B>', '<B>'], ['b']],
+        '<B>': [[], ['c']],
+    }
+    p = compile_grammar(g_three, '<E>')
+    for s in ['b', 'ab', 'aab', 'abc', 'aabccc', 'aabcccccc']:
+        trees = p.parse_on(s, '<E>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    print('hidden right recursion (3 nullable suffixes) ok')
+
+# ### Indirect hidden recursion
+
+if __name__ == '__main__':
+    # E -> a F B B | b; F -> E; B -> ε. The recursion is hidden through
+    # an intermediate nonterminal F.
+    g_indirect = {
+        '<E>': [['a', '<F>', '<B>', '<B>'], ['b']],
+        '<F>': [['<E>']],
+        '<B>': [[]],
+    }
+    p = compile_grammar(g_indirect, '<E>')
+    for s in ['b', 'ab', 'aab', 'aaab']:
+        trees = p.parse_on(s, '<E>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    print('indirect hidden right recursion ok')
+
+# ### The cyclic grammar
+# Cycles in the grammar (rules where a nonterminal derives itself
+# without consuming input) push on a different part of the algorithm.
+
+if __name__ == '__main__':
+    # E -> EE | a | ε. Highly ambiguous; produces many parse trees for
+    # short strings. We only verify recognition here because the number
+    # of trees grows quickly.
+    g_cyc = {
+        '<E>': [['<E>', '<E>'], ['a'], []],
+    }
+    aug_g, aug_start = add_start_state(g_cyc, '<E>')
+    dfa = SLR1DFA(aug_g, aug_start)
+    rec = GLRRecognizer(aug_g, make_parse_table(dfa.build_dfa()),
+                        dfa.production_rules)
+    for s in ['', 'a', 'aa', 'aaa', 'aaaa']:
+        assert rec.recognize_on(s, aug_start), 'should accept %r' % s
+    print('cyclic grammar recognition ok')
+
+# ### Dyck-style nested parentheses
+# We use the variant without an explicit epsilon rule so that the
+# grammar is finitely ambiguous on each input (the standard Dyck rule
+# `<S> -> ε` combined with `<S> -> <S><S>` yields infinitely many
+# distinct derivations for any well-formed string, and our parser
+# materializes every derivation as a separate tree).
+
+if __name__ == '__main__':
+    g_dyck = {
+        '<S>': [['(', ')'], ['(', '<S>', ')'], ['<S>', '<S>']],
+    }
+    p = compile_grammar(g_dyck, '<S>')
+    for s in ['()', '(())', '()()', '((()))', '(()())', '()()()']:
+        trees = p.parse_on(s, '<S>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    assert not p.parse_on('(',   '<S>')
+    assert not p.parse_on(')',   '<S>')
+    assert not p.parse_on('()(', '<S>')
+    print('Dyck grammar ok')
+
+# ### The non-regular language a^n b^n
+# `a^n b^n c^n` is famously not context-free, but `a^n b^n` is — and
+# it exercises hidden right recursion through the recursive call to
+# `<S>` sitting before terminal `b`. (No nullable nonterminal hides
+# the recursion, so this is straightforward right recursion; we include
+# it to show classic context-free examples still work.)
+
+if __name__ == '__main__':
+    g_anbn = {
+        '<S>': [['a', '<S>', 'b'], []],
+    }
+    p = compile_grammar(g_anbn, '<S>')
+    for n in range(5):
+        s = 'a' * n + 'b' * n
+        p_fresh = compile_grammar(g_anbn, '<S>')
+        trees = p_fresh.parse_on(s, '<S>')
+        assert trees, 'should accept %r' % s
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+    p_fresh = compile_grammar(g_anbn, '<S>')
+    assert not p_fresh.parse_on('abab',  '<S>')
+    p_fresh = compile_grammar(g_anbn, '<S>')
+    assert not p_fresh.parse_on('aabbb', '<S>')
+    p_fresh = compile_grammar(g_anbn, '<S>')
+    assert not p_fresh.parse_on('aaabb', '<S>')
+    print('a^n b^n grammar ok')
+
+# ### Highly ambiguous PP-attachment grammar
+
+if __name__ == '__main__':
+    # Classic Tomita-style highly ambiguous: noun-verb-noun with optional
+    # PP-attachment. We model it as: S -> NP VP; VP -> V NP | V NP PP;
+    # NP -> n | NP PP; PP -> p NP.
+    # The string `n v n p n` has two parses (PP attaches to first NP or
+    # VP); each extra `p n` roughly doubles the count.
+    g_pp = {
+        '<S>':  [['<NP>', '<VP>']],
+        '<VP>': [['v', '<NP>'], ['v', '<NP>', '<PP>']],
+        '<NP>': [['n'], ['<NP>', '<PP>']],
+        '<PP>': [['p', '<NP>']],
+    }
+    p = compile_grammar(g_pp, '<S>')
+    for s, expected in [('nvn', 1), ('nvnpn', 2), ('nvnpnpn', 4),
+                        ('nvnpnpnpn', 10)]:
+        trees = p.parse_on(s, '<S>')
+        assert len(trees) == expected, \
+            'expected %d trees for %r, got %d' % (expected, s, len(trees))
+        for t in trees:
+            assert fuzzer.tree_to_string(t) == s
+        print('%s -> %d tree(s)' % (s, len(trees)))
+
+# ## Notes on Implementation
+# This implementation uses worklists (`A`, `R`, `Q`, `U`) for duplicate
+# suppression rather than the explicit descriptor sets of the form
+# `(state, input_position, node)` used in production GLR implementations
+# (Tomita; Scott & Johnstone). The result is correct and polynomial in
+# time and space, but termination and idempotence guarantees are implicit
+# in the worklist membership checks and the `last_fired_reach` map rather
+# than structurally enforced by a descriptor memo.
+#
+# The GSS sharing rules ensure that whenever two parse stacks reach the
+# same LR state at the same input position they share a single node.
+# This sharing keeps the underlying stack representation polynomial.
+# However, the number of distinct parse trees for an ambiguous grammar
+# may still be exponential in the length of the input. Since this
+# tutorial materializes explicit parse trees rather than a shared packed
+# parse forest (SPPF), the total output size may also become exponential.
 # For LR(1) grammars there are no parse-table conflicts, so GLR behaves
 # similarly to ordinary LR parsing and is typically linear-time.
-#
-# Note on implementation discipline: this implementation uses worklists
-# (A, R, Q, U) for duplicate suppression rather than the explicit
-# descriptor sets of the form (state, input_position, node) used in
-# production GLR implementations (Tomita; Scott & Johnstone). The result
-# is correct and polynomial, but termination and idempotence guarantees
-# are implicit in the worklist membership checks rather than structurally
-# enforced by a descriptor memo.
-
 
 # ## References
-#  
+#
 # [^tomita1986efficient]: Masaru Tomita. Efficient Parsing for Natural
 # Language. Kluwer Academic Publishers, Boston, 1986.
+#
+# [^nozohoor1991]: Rahman Nozohoor-Farshi. GLR parsing for ε-grammars.
+# In *Generalized LR Parsing*, Springer, 1991.
+#
+# [^economopoulos2006glr]: Rob Economopoulos. *Generalised LR Parsing
+# Algorithms.* PhD dissertation, Royal Holloway, University of London, 2006.
+#
+# [^smits2025glr]: Jeffrey Smits. "(Right-Nulled) Generalised LR Parsing."
+# *Whatever* blog, 12 Jan 2025.
+# `https://blog.jeffsmits.net/generalised-lr-parsing/`
+#
+# [^scott2003rnglr]: Elizabeth Scott and Adrian Johnstone.
+# "Right nulled GLR parsers." *ACM Transactions on Programming
+# Languages and Systems*, 28(4):577–618, 2006.
+#
+# [^scott2006rnglr]: Elizabeth Scott and Adrian Johnstone.
+# "Recognition is not parsing — SPPF-style parsing from cubic recognisers."
+# *Science of Computer Programming*, 75:55–70, 2010.
