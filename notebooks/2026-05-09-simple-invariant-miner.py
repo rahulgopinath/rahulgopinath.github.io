@@ -1264,11 +1264,6 @@ if __name__ == '__main__':
 #  
 # ## References
 #  
-# [^ernst2001daikon]: Michael D. Ernst, Jake Cockrell, William G. Griswold,
-# David Notkin. "Dynamically Discovering Likely Program Invariants to
-# Support Program Evolution." IEEE Transactions on Software Engineering,
-# 27(2):99–123, 2001.
+# [^ernst2001daikon]: Michael D. Ernst, Jake Cockrell, William G. Griswold, David Notkin. "Dynamically Discovering Likely Program Invariants to Support Program Evolution." IEEE Transactions on Software Engineering, 27(2):99–123, 2001.
 #  
-# [^ernst2007daikon]: Michael D. Ernst et al. "The Daikon system for
-# dynamic detection of likely invariants." Science of Computer
-# Programming, 69(1–3):35–45, 2007.
+# [^ernst2007daikon]: Michael D. Ernst et al. "The Daikon system for dynamic detection of likely invariants." Science of Computer Programming, 69(1–3):35–45, 2007.
