@@ -160,11 +160,12 @@
 # $(CXX) $(CXXFLAGS) -c -o $@ $< -MMD -MP -MF .deps/$*.d
 # .deps:
 # 	mkdir .deps
+# ```
 # 
-# # subtle: directories are listed as changed when entries are
+# subtle: directories are listed as changed when entries are
+# created, leading to spurious rebuilds.
 # 
-# # created, leading to spurious rebuilds.
-# 
+# ```
 # .deps/stamp:
 # mkdir .deps && touch .deps/stamp
 # -include .deps/*.d
@@ -185,7 +186,6 @@
 # Do not rely on the ordering of recipes in the Makefile to ensure that the targets are built in a particular order. For example, if you have
 # 
 # ```
-# 
 # a:
 # 	touch a
 # b:
@@ -198,7 +198,6 @@
 # Do not assume that the targets will be built in the order `a`, `b`, `c`. If you want that order, explicitly specify it using dependencies:
 # 
 # ```
-# 
 # a:
 # 	touch a
 # b: a
@@ -217,9 +216,7 @@
 # #### Make it a practice to explicitly use .PHONY
 # 
 # ```
-# 
 # .PHONY: all clean extract preprocess
-# 
 # ```
 # 
 # Phony targets are those targets that provide entry points to make invocations and are not file-based.
@@ -227,14 +224,12 @@
 # #### Remove implicit rules
 # 
 # ```
-# 
 # .SUFFIXES:
 # 
 # ```
+# 
 # ```
-# 
 # MAKEFLAGS += --no-builtin-rules
-# 
 # ```
 # 
 # #### Disable automatic removal of intermediate files
@@ -267,72 +262,58 @@
 # There are various ways to accomplish this. The most fine-grained approach is to use `@` in front of a recipe line:
 # 
 # ```
-# 
 # dont_echo:
 # 	@echo hi
 # 	echo hello
-# 
 # ```
 # 
 # Another is to use the `.SILENT` target to silence specific targets:
 # 
 # ```
-# 
 # .SILENT: dont_echo
 # 
 # dont_echo:
 # 	echo hi
-# 
 # ```
 # 
 # The `.SILENT` target, if defined without dependencies, will silence all targets:
 # 
 # ```
-# 
 # .SILENT:
 # 
 # dont_echo:
 # 	echo hi
-# 
 # ```
 # 
 # You can, of course, make it dependent on a variable `V`:
 # 
 # ```
-# 
 # ifndef V
 # .SILENT:
 # endif
-# 
-# ```
 # ```
 # 
+# ```
 # $ make V=1
-# 
 # ```
 # 
 # Or achieve the same effect more easily:
 # 
 # ```
-# 
 # dont_echo:
 # 	echo hi
 # 
 # $(V).SILENT:
-# 
-# ```
 # ```
 # 
+# ```
 # $ make V=1
-# 
 # ```
 # 
 # `make` itself accepts the command-line option `--silent`:
 # 
 # ```
-# 
 # $ make --silent
-# 
 # ```
 # 
 # #### Recommendation from [here](https://tech.davis-hansson.com/p/make/)
@@ -340,20 +321,16 @@
 # Change the `.RECIPEPREFIX` if you are starting a new project where you do not have to interact with other projects. I recommend `;` over `>` as the former lets you join multiple command lines together or split a command line into multiple parts with little effort.
 # 
 # ```
-# 
 # .RECIPEPREFIX = ;
 # 
 # all:
 # ; echo hello world
-# 
 # ```
 # 
 # #### Ensure that a failure in a pipe stage kills the build
 # 
 # ```
-# 
 # .SHELLFLAGS := -eu -o pipefail -c
-# 
 # ```
 # 
 # Other best practices:
