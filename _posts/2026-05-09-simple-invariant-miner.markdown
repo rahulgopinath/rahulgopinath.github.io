@@ -1333,25 +1333,71 @@ observation — something we will use in the next section.
 <!--
 ############
 START_SYMBOL = '<start>'
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+START_SYMBOL = &#x27;&lt;start&gt;&#x27;
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The root sentinel (seq == 0) marks the bottom of the stack
+before any function has been entered.
 
+<!--
+############
 class CallStack:
-    def __init__(self):
-        # The root sentinel (seq == 0) marks the bottom of the stack
-        # before any function has been entered.
+    def __init__(self, start_symbol=START_SYMBOL):
         self.method_id       = (START_SYMBOL, 0)
         self.method_register = 0
         self.mstack          = [self.method_id]
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack:
+    def __init__(self, start_symbol=START_SYMBOL):
+        self.method_id       = (START_SYMBOL, 0)
+        self.method_register = 0
+        self.mstack          = [self.method_id]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Assign the next id, push onto the stack, and return the new
+method_id so the caller can use it to name the ENTER point.
+
+<!--
+############
+class CallStack(CallStack):
     def enter(self, method):
-        # Assign the next id, push onto the stack, and return the new
-        # method_id so the caller can use it to name the ENTER point.
         self.method_register += 1
         self.method_id = (method, self.method_register)
         self.mstack.append(self.method_id)
         return self.method_id
 
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class CallStack(CallStack):
+    def enter(self, method):
+        self.method_register += 1
+        self.method_id = (method, self.method_register)
+        self.mstack.append(self.method_id)
+        return self.method_id
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Pop the current frame and restore the caller's method_id.
+
+<!--
+############
+class CallStack(CallStack):
     def leave(self):
-        # Pop the current frame and restore the caller's method_id.
         self.mstack.pop()
         self.method_id = self.mstack[-1]
 
@@ -1362,26 +1408,8 @@ class CallStack:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-START_SYMBOL = &#x27;&lt;start&gt;&#x27;
-
-class CallStack:
-    def __init__(self):
-        # The root sentinel (seq == 0) marks the bottom of the stack
-        # before any function has been entered.
-        self.method_id       = (START_SYMBOL, 0)
-        self.method_register = 0
-        self.mstack          = [self.method_id]
-
-    def enter(self, method):
-        # Assign the next id, push onto the stack, and return the new
-        # method_id so the caller can use it to name the ENTER point.
-        self.method_register += 1
-        self.method_id = (method, self.method_register)
-        self.mstack.append(self.method_id)
-        return self.method_id
-
+class CallStack(CallStack):
     def leave(self):
-        # Pop the current frame and restore the caller&#x27;s method_id.
         self.mstack.pop()
         self.method_id = self.mstack[-1]
 
