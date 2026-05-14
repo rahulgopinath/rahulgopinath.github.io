@@ -11,14 +11,14 @@
 # invariant miner in Python, including instrumentation, trace collection,
 # candidate invariant checking, and implication-based suppression.
 #
-# ## The Oracle Problem and "Likely" Invariants
+# ## The Oracle Problem and Likely Invariants
 #  
-# A central challenge in software testing is the "Oracle Problem": how do we 
+# A central challenge in software testing is the **Oracle Problem**: how do we 
 # programmatically determine if the output of a test is correct? Manually 
 # writing assertions (the "oracle") is tedious and often incomplete.
 #  
 # Daikon-style mining provides an **Approximate Oracle**. By observing 
-# "gold" runs of a program, we can treat the resulting invariants as a 
+# *gold* runs of a program, we can treat the resulting invariants as a 
 # specification of correct behavior. 
 #  
 # There are two critical nuances to keep in mind:
@@ -349,7 +349,7 @@ if __name__ == '__main__':
 # A library user can restrict or extend what gets recorded by passing a
 # custom `interesting` predicate. Here we pass one that accepts only
 # integers, which means string return values and non-integer locals are
-# excluded. Note the predicate receives both name and value — a user
+# excluded. Note the predicate receives both name and value. A user
 # could, for example, include private variables by ignoring the name
 # filter entirely.
 
@@ -364,15 +364,14 @@ if __name__ == '__main__':
 # ### Collecting traces over multiple inputs
 #  
 # We run the function once per input and accumulate all observations in
-# the same store. Each element of `inputs` is a tuple of arguments —
-# a single-argument function wraps its argument in a one-tuple:
+# the same store. Each element of `inputs` is a tuple of arguments.
+# A single-argument function wraps its argument in a one-tuple:
 # `([1, 2, 3],)`. The `interesting` predicate is forwarded to
 # `Instrumentor` so callers can control what gets recorded without
 # touching the collection loop.
 
 def collect_traces(fn, inputs, store=None, interesting=default_interesting):
-    if store is None:
-        store = TraceStore()
+    if store is None: store = TraceStore()
     instr = Instrumentor(store, interesting)
     for args in inputs:
         instr.run(fn, *args)
@@ -412,8 +411,7 @@ class Invariant:
         self.alive = True
 
     def test(self, state):
-        if not self.alive:
-            return
+        if not self.alive: return
         try:
             if not self.check(state):
                 self.alive = False
@@ -422,6 +420,9 @@ class Invariant:
 
     def __repr__(self):
         return self.name
+
+    def status(self):
+        return "%s: %s" % (self.name, self.alive)
 
 # ### Unary templates
 #  
@@ -461,6 +462,8 @@ if __name__ == '__main__':
     assert not invs[1].alive  # x >= 0 now dead
     assert invs[0].alive      # x is not None still alive
     print('unary invariants ok')
+    for inv in invs:
+        print(inv.status())
 
 # ### Binary templates
 #  
@@ -495,6 +498,8 @@ if __name__ == '__main__':
     assert not invs[0].alive         # x == y falsified
     assert invs[1].alive             # x <= y survived
     print('binary invariants ok')
+    for inv in invs:
+        print(inv.status())
 
 # ## Invariant Engine
 #  
@@ -1234,7 +1239,7 @@ if __name__ == '__main__':
 # highly efficient for standard functions but computationally expensive as the
 # variable count grows.
 #  
-# ## Conclusion: The Value of "Good Enough" Oracles
+# ## Conclusion: The Value of *Good Enough* Oracles
 #  
 # We have built a system that moves from raw execution traces to structured
 # logical properties. While our implementation is a simplified version of 

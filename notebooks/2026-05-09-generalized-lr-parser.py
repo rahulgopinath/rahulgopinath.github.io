@@ -1478,23 +1478,14 @@ if __name__ == '__main__':
 
 # ## References
 #
-# [^tomita1986efficient]: Masaru Tomita. Efficient Parsing for Natural
-# Language. Kluwer Academic Publishers, Boston, 1986.
+# [^tomita1986efficient]: Masaru Tomita. Efficient Parsing for Natural Language. Kluwer Academic Publishers, Boston, 1986.
 #
-# [^nozohoor1991]: Rahman Nozohoor-Farshi. GLR parsing for ε-grammars.
-# In *Generalized LR Parsing*, Springer, 1991.
+# [^nozohoor1991]: Rahman Nozohoor-Farshi. GLR parsing for ε-grammars.  In *Generalized LR Parsing*, Springer, 1991.
 #
-# [^economopoulos2006glr]: Rob Economopoulos. *Generalised LR Parsing
-# Algorithms.* PhD dissertation, Royal Holloway, University of London, 2006.
+# [^economopoulos2006glr]: Rob Economopoulos. *Generalised LR Parsing Algorithms.* PhD dissertation, Royal Holloway, University of London, 2006.
 #
-# [^smits2025glr]: Jeffrey Smits. "(Right-Nulled) Generalised LR Parsing."
-# *Whatever* blog, 12 Jan 2025.
-# `https://blog.jeffsmits.net/generalised-lr-parsing/`
+# [^smits2025glr]: Jeffrey Smits. "(Right-Nulled) Generalised LR Parsing." *Whatever* blog, 12 Jan 2025.  `https://blog.jeffsmits.net/generalised-lr-parsing/`
 #
-# [^scott2003rnglr]: Elizabeth Scott and Adrian Johnstone.
-# "Right nulled GLR parsers." *ACM Transactions on Programming
-# Languages and Systems*, 28(4):577–618, 2006.
+# [^scott2003rnglr]: Elizabeth Scott and Adrian Johnstone. "Right nulled GLR parsers." *ACM Transactions on Programming Languages and Systems*, 28(4):577–618, 2006.
 #
-# [^scott2006rnglr]: Elizabeth Scott and Adrian Johnstone.
-# "Recognition is not parsing — SPPF-style parsing from cubic recognisers."
-# *Science of Computer Programming*, 75:55–70, 2010.
+# [^scott2006rnglr]: Elizabeth Scott and Adrian Johnstone.  "Recognition is not parsing — SPPF-style parsing from cubic recognisers." *Science of Computer Programming*, 75:55–70, 2010.
