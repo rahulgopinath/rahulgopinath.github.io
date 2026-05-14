@@ -371,12 +371,12 @@ We wrap our grammar in a simple class.
 
 <!--
 ############
-KEY_COUNTER = 1
 class DFA:
-    def __init__(self, start_symbol='<start>'):
+    def __init__(self, start_symbol='<start>', key_counter=0):
         self.grammar = {}
         self.start_symbol = start_symbol
         self.grammar[self.start_symbol] = []
+        self.key_counter = key_counter
 
     def transition(self, key, char):
         rules = self.grammar[key]
@@ -393,22 +393,21 @@ class DFA:
                 self.start_symbol, string)
 
     def new_state(self):
-        global KEY_COUNTER
-        key = '<%s>' % KEY_COUNTER
+        key = '<%s>' % self.key_counter
         self.grammar[key] = []
-        KEY_COUNTER += 1
+        self.key_counter += 1
         return key
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-KEY_COUNTER = 1
 class DFA:
-    def __init__(self, start_symbol=&#x27;&lt;start&gt;&#x27;):
+    def __init__(self, start_symbol=&#x27;&lt;start&gt;&#x27;, key_counter=0):
         self.grammar = {}
         self.start_symbol = start_symbol
         self.grammar[self.start_symbol] = []
+        self.key_counter = key_counter
 
     def transition(self, key, char):
         rules = self.grammar[key]
@@ -425,10 +424,9 @@ class DFA:
                 self.start_symbol, string)
 
     def new_state(self):
-        global KEY_COUNTER
-        key = &#x27;&lt;%s&gt;&#x27; % KEY_COUNTER
+        key = &#x27;&lt;%s&gt;&#x27; % self.key_counter
         self.grammar[key] = []
-        KEY_COUNTER += 1
+        self.key_counter += 1
         return key
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -617,7 +615,6 @@ parse the input using `dfa_parse`. So we do that.
 
 <!--
 ############
-KEY_COUNTER = 0
 positive = [ "ab", "ac" ]
 negative = [ "", ]
 pta = DFA().build_pta(positive)
@@ -640,7 +637,6 @@ for example in positive:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-KEY_COUNTER = 0
 positive = [ &quot;ab&quot;, &quot;ac&quot; ]
 negative = [ &quot;&quot;, ]
 pta = DFA().build_pta(positive)
@@ -696,7 +692,6 @@ Let us test it.
 
 <!--
 ############
-KEY_COUNTER = 0
 positive = [
         "ab",
         "ac"
@@ -712,7 +707,6 @@ merged_dfa = DFA(start_symbol = start_key)
 merged_dfa.grammar = merged_g
 res = merged_dfa.is_consistent(negative, positive)
 print(res)
-KEY_COUNTER = 0
 positive = [ "abd", "acd" ]
 negative = [ "ad" ]
 pta = DFA().build_pta(positive)
@@ -726,7 +720,6 @@ gatleast.display_grammar(merged_g, start_symbol)
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-KEY_COUNTER = 0
 positive = [
         &quot;ab&quot;,
         &quot;ac&quot;
@@ -742,7 +735,6 @@ merged_dfa = DFA(start_symbol = start_key)
 merged_dfa.grammar = merged_g
 res = merged_dfa.is_consistent(negative, positive)
 print(res)
-KEY_COUNTER = 0
 positive = [ &quot;abd&quot;, &quot;acd&quot; ]
 negative = [ &quot;ad&quot; ]
 pta = DFA().build_pta(positive)
@@ -761,7 +753,7 @@ gatleast.display_grammar(merged_g, start_symbol)
 ############
 def rpni(positive_examples, negative_examples):
     # Step 1: Build PTA
-    dfa = DFA().build_pta(positive)
+    dfa = DFA().build_pta(positive_examples)
     start = dfa.start_symbol
 
     # Step 2: Try to merge states
@@ -798,7 +790,7 @@ def rpni(positive_examples, negative_examples):
 <textarea cols="40" rows="4" name='python_edit'>
 def rpni(positive_examples, negative_examples):
     # Step 1: Build PTA
-    dfa = DFA().build_pta(positive)
+    dfa = DFA().build_pta(positive_examples)
     start = dfa.start_symbol
 
     # Step 2: Try to merge states
