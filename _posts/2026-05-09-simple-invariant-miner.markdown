@@ -1,6 +1,6 @@
 ---
 published: true
-title: A simple runtime invariant miner
+title: A Simple Runtime Invariant Miner
 layout: post
 comments: true
 tags: invariants, dynamic-analysis, mining
@@ -2512,6 +2512,16 @@ Dynamic analysis doesn't replace formal proof or manual testing, but
 it provides a remarkably low-effort way to document behavior and 
 catch regressions in complex systems.
  
+**Note:** Dynamic invariant mining is the dual of Static analysis for
+invariant (we can also call these oracles in testing parlance) inference.
+The main difference is that the invariants being inferred is **approximate**
+but **precise**, while static analysis invariants are **sound** but
+**imprecise**. Briding the gap is impossible if arbitrary programs are the
+subjects.
+
+Dynamic invariant mining is also a whitebox dual of blackbox specification
+inference similar to how (code) path coverage is a whitebox dual of input
+coverage using k-paths.
  
 ## References
  
