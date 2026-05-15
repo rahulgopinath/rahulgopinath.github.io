@@ -28,22 +28,19 @@
 # Schapire [^rivest1993] independently contributed binary search
 # counterexample analysis, which finds the single relevant suffix in a
 # counterexample in $$ O(\log k) $$ queries rather than adding all $$ k $$
-# suffixes. Howar [^howar2012] combined these two ideas into the Observation
-# Pack algorithm.
+# suffixes.
 # 
-# TTT — the algorithm by Isberner, Howar and Steffen [^isberner2014] 
+# TTT — the algorithm by Isberner, Howar and Steffen [^isberner2014] —
 # adds two further refinements: *prefix transformation*,
-# which keeps access sequences minimal, and *discriminator
-# finalization*, which keeps the discrimination tree shallow. Together these
-# make TTT provably redundancy-free — it never makes a membership query
-# whose answer could have been derived from earlier queries.
+# which keeps access sequences minimal, and *discriminator finalization*,
+# which keeps the discrimination tree shallow. Together these make TTT
+# provably redundancy-free — it never makes a membership query whose answer
+# could have been derived from earlier queries.
 # 
 # TTT is the algorithm of choice in practical automata learning tools such
-# as LearnLib [^learnlib]. Understanding it also gives you a solid foundation
-# for more recent algorithms such as ADT [^adt], which extends TTT with
-# adaptive distinguishing sequences, which can reduce resets in hardware
-# settings. The performance differences from ADT are modest in more software
-# engineering settings.
+# as LearnLib [^learnlib]. ADT [^adt] extends TTT with adaptive
+# distinguishing sequences, which can reduce resets in hardware settings,
+# though performance differences in software engineering settings are modest.
 # 
 # ## Definitions
 # 
@@ -103,7 +100,6 @@ from lstar import Teacher, Oracle
 if __name__ == '__main__':
     if '__canvas__' not in globals(): __canvas__ = print
 
-# 
 # ## The Road from L* to TTT
 # 
 # In L*, when the equivalence oracle returns a counterexample $$ ce $$ of
@@ -128,13 +124,15 @@ if __name__ == '__main__':
 #   with *prefix transformation* (keeping access sequences minimal) and
 #   *discriminator finalization* (keeping the DT shallow), producing TTT —
 #   the first algorithm that is provably redundancy-free.
-#  
+
 # ## The DFA Representation
 # 
 # We copy over the `DFA` class from the
 # [RPNI post](/post/2025/10/24/rpni-learning-regular-languages/).
-# We add a `run()` method which returns the state reached
-# after consuming a string.
+# We add a `run()` method which returns the state reached after consuming
+# a string, and `ensure_state()` which registers a state in the grammar
+# without allocating a new key — needed when manually constructing DFAs
+# in tests and when `close_transitions` discovers states from the DT.
 
 class DFA:
     def __init__(self, start_symbol='<start>', key_counter=0):
@@ -156,6 +154,10 @@ class DFA:
     def set_accepting(self, key):
         if [] not in self.grammar[key]:
             self.grammar[key].append([])
+
+    def ensure_state(self, key):
+        if key not in self.grammar:
+            self.grammar[key] = []
 
     def new_state(self):
         key = '<%s>' % self.key_counter
@@ -345,19 +347,25 @@ def is_open(dfa, state, char, st):
     if rule is None: return True
     return rule[1] not in st.acc
 
-# We close all open transitions by sifting.
+# We close all open transitions by sifting. We use an index-based loop
+# so that newly discovered states are appended to `states` and processed
+# in the same pass — a snapshot copy would miss them.
 
 def close_transitions(dfa, dt, st, oracle, alphabet):
-    # iterate over a copy — we may add states during the loop
     states = list(st.acc.keys())
-    for state in states:
+    i = 0
+    while i < len(states):
+        state = states[i]
+        i += 1
+        dfa.ensure_state(state)
         for char in alphabet:
             if not is_open(dfa, state, char, st): continue
             target_leaf = sift(dt, st.access(state) + char, oracle)
             target_state = target_leaf.state
             if target_state not in st.acc:
-                # new state discovered — the sift already placed it in the DT
+                # new state discovered — register and queue for processing
                 st.add_state(target_state, state, char)
+                states.append(target_state)
             if dfa.transition(state, char) is None:
                 dfa.add_transition(state, char, target_state)
 
@@ -367,6 +375,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet):
 
 def build_hypothesis(dfa, dt, st, oracle, alphabet):
     for state in list(st.acc.keys()):
+        dfa.ensure_state(state)
         if oracle.is_member(st.access(state)):
             dfa.set_accepting(state)
     close_transitions(dfa, dt, st, oracle, alphabet)
@@ -610,6 +619,7 @@ if __name__ == '__main__':
     st2 = SpanningTree()
     st2.add_state('<1>', '<start>', 'a')
     dfa2 = DFA()
+    dfa2.ensure_state('<1>')
     dfa2.set_accepting('<start>')
     dfa2.add_transition('<start>', 'a', '<1>')
     dfa2.add_transition('<start>', 'b', '<start>')
@@ -676,8 +686,8 @@ def ttt(oracle, alphabet):
         build_hypothesis(dfa, dt, st, oracle, alphabet)
 
         # equivalence query — PAC oracle from Teacher
-        ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if ce is None:
+        is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
+        if is_eq:
             return dfa   # done — hypothesis matches target
 
         # one counterexample → one new state → one new discriminator
@@ -689,27 +699,20 @@ def ttt(oracle, alphabet):
 
 if __name__ == '__main__':
     # target 1: strings over {a, b} with an even number of a's
-
-    class EvenATeacher(Teacher):
-        def is_member(self, w):
-            return w.count('a') % 2 == 0
-
-    result = ttt(EvenATeacher(), ['a', 'b'])
+    teacher = Teacher('(b*ab*a)*b*') # even a
+    result = ttt(teacher, ['a', 'b'])
     assert result.accepts('')
     assert result.accepts('aa')
     assert result.accepts('bb')
     assert not result.accepts('a')
     assert not result.accepts('aaa')
-    print('test 1 passed: even a\'s')
+    print("test 1 passed: even a's")
 
 if __name__ == '__main__':
     # target 2: strings over {a, b} that end in 'b'
 
-    class EndsInBTeacher(Teacher):
-        def is_member(self, w):
-            return len(w) > 0 and w[-1] == 'b'
-
-    result = ttt(EndsInBTeacher(), ['a', 'b'])
+    teacher = Teacher('(a|b)*b')
+    result = ttt(teacher, ['a', 'b'])
     assert result.accepts('b')
     assert result.accepts('ab')
     assert result.accepts('aab')
@@ -720,13 +723,30 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     # target 3: binary strings whose value is divisible by 3
-
     class DivBy3Teacher(Teacher):
+        def __init__(self, delta=0.5, epsilon=0.5):
+            super().__init__('0', delta=delta, epsilon=epsilon)
+
         def is_member(self, w):
             if not w: return True
             return int(w, 2) % 3 == 0
 
-    result = ttt(DivBy3Teacher(), ['0', '1'])
+        def is_equivalent(self, grammar, start):
+            self.equivalence_query_counter += 1
+            num_calls = math.ceil(1.0/self.epsilon *
+                      (math.log(1.0/self.delta +
+                                  self.equivalence_query_counter * math.log(2))))
+            dfa = DFA(start_symbol=start)
+            dfa.grammar = grammar
+            for _ in range(num_calls):
+                # sample a random binary string up to length 10
+                length = random.randint(0, 10)
+                w = ''.join(random.choice(['0', '1']) for _ in range(length))
+                if bool(self.is_member(w)) != bool(dfa.accepts(w)):
+                    return False, w
+            return True, None
+
+    result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
     assert result.accepts('')
     assert result.accepts('0')
     assert result.accepts('11')    # 3 in binary
@@ -739,9 +759,10 @@ if __name__ == '__main__':
 # 
 # | | L* | TTT |
 # |---|---|---|
-# | Data structure | Flat observation table | Discrimination tree |
-# | Queries per counterexample | $$ O(n \cdot k) $$ | $$ O(n + \log k) $$ |
-# | Counterexample processing | Add all $$ k $$ suffixes | Add exactly 1 discriminator |
+# | Data structure | Flat observation table | Discrimination tree (Kearns-Vazirani) |
+# | Counterexample processing | Add all $$ k $$ suffixes | Binary search for 1 suffix (Rivest-Schapire) |
+# | Prefix transformation | No | Yes — minimal access sequences (TTT) |
+# | Discriminator finalization | No | Yes — shallow DT (TTT) |
 # | Redundant queries | Many | None by construction |
 # | Closedness check | Explicit global scan | Lazy, local (open transitions) |
 # | Consistency check | Explicit global scan | Structurally prevented by DT |
@@ -750,7 +771,7 @@ if __name__ == '__main__':
 # becomes expensive. This makes TTT the preferred algorithm when membership
 # queries are costly — which is typical when learning protocol implementations
 # or library APIs through testing.
-# 
+
 # ## Notes on Implementation
 # 
 # Our implementation makes one simplification relative to the paper: we
@@ -760,18 +781,14 @@ if __name__ == '__main__':
 # of membership queries per iteration from $$ O(n \cdot |A| \cdot depth(DT)) $$
 # to $$ O(|affected| \cdot depth(DT)) $$, but requires tracking which
 # transitions point to each leaf. We leave this as an exercise.
-# 
-
 
 # ## References
 # 
-# [^kearns1994]: Michael Kearns and Umesh Vazirani. An Introduction to Computational Learning Theory. MIT Press, 1994. pp. 44–58.
+# [^kearns1994]: Michael Kearns and Umesh Vazirani. An Introduction to Computational Learning Theory. MIT Press, 1994. pp. 44-58.
 # 
-# [^rivest1993]: Ronald L. Rivest and Robert E. Schapire. Inference of Finite Automata Using Homing Sequences. Information and Computation
+# [^rivest1993]: Ronald L. Rivest and Robert E. Schapire. Inference of Finite Automata Using Homing Sequences. Information and Computation, 103(2):51-73, 1993.
 # 
-# [^howar2012]: Falk Howar. Active Learning of Interface Programs. PhD Dissertation, TU Dortmund, 2012.
-# 
-# [^isberner2014]: Malte Isberner, Falk Howar, and Bernhard Steffen. The TTT Algorithm: A Redundancy-Free Approach to Active Automata Learning. RV 2014.  # https://www.researchgate.net/publication/281438727_The_TTT_Algorithm_A_Redundancy-Free_Approach_to_Active_Automata_Learning
+# [^isberner2014]: Malte Isberner, Falk Howar, and Bernhard Steffen. The TTT Algorithm: A Redundancy-Free Approach to Active Automata Learning. RV 2014. https://www.researchgate.net/publication/281438727_The_TTT_Algorithm_A_Redundancy-Free_Approach_to_Active_Automata_Learning
 # 
 # [^isberner_phd]: Malte Isberner. Foundations of Active Automata Learning: An Algorithmic Perspective. PhD Dissertation, TU Dortmund, 2015. http://129.217.131.68:8080/bitstream/2003/34282/1/Dissertation.pdf
 # 
@@ -779,7 +796,4 @@ if __name__ == '__main__':
 # 
 # [^learnlib]: Falk Howar and Bernhard Steffen. Active Automata Learning in Practice. Springer, 2022.
 # 
-# [^lsharp]: Wouter Smeenk et al. A New Approach for Active Automata Learning Based on Apartness. TACAS 2023.
-# 
-# [^adt]: Loes Kruger et al. Active Automata Learning with Adaptive Distinguishing Sequences. TACAS 2023.
-# 
+# [^adt]: Markus Frohme. Active Automata Learning with Adaptive Distinguishing Sequences. Master Thesis, TU Dortmund, 2015. https://arxiv.org/abs/1902.01139
