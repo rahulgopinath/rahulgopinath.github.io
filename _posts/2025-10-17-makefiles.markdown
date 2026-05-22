@@ -370,6 +370,8 @@ Other best practices:
 
 * Always include all and clean targets
 * Use variables for compiler settings
+  
+  
 #### Exporting a variable to the environment for specific targets
 Define the variable at the top of the Makefile:
 ```
