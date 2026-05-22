@@ -370,7 +370,29 @@ Other best practices:
 
 * Always include all and clean targets
 * Use variables for compiler settings
-
+#### Exporting a variable to the environment for specific targets
+Define the variable at the top of the Makefile:
+```
+LD_LIBRARY_PATH := my/path
+```
+For each target that needs it exported into the shell environment, add a
+target-specific `export` line before the rule:
+```
+a.exe: export LD_LIBRARY_PATH = my/path
+b.exe: export LD_LIBRARY_PATH = my/path
+a.exe: a.c
+	$(CC) -o _$@ $^
+	@mv _$@ $@
+b.exe: b.c
+	$(CC) -o _$@ $^
+	@mv _$@ $@
+```
+This exports `LD_LIBRARY_PATH` into every shell command in those recipes
+without affecting any other target.
+**Note:** *A top-level `VAR := value` is visible to Make expressions
+(`$(VAR)`) but is not passed to child shells unless explicitly exported.
+A bare `export VAR` would export it globally to all targets; the
+target-specific form shown here limits the export to the targets you choose.*
 
 <form name='python_run_form'>
 <button type="button" name="python_run_all">Run all</button>
