@@ -561,9 +561,10 @@ class GLRRecognizer(GLRRecognizer):
 #    nodes. We re-enqueue every applicable reduction in `U[i]`; the
 #    reach tracker from (1) prevents us from doing duplicate work.
 #
-# Together these two rules make the algorithm correct on grammars with
-# hidden right recursion. The section "Hidden Right Recursion" below
-# walks through why both are necessary.
+# Together these two rules implement the extension due to
+# Nozohoor-Farshi [^nozohoor1991] and make the algorithm correct on
+# grammars with hidden right recursion. The section "Hidden Right
+# Recursion" below walks through why both are necessary.
 
 class GLRRecognizer(GLRRecognizer):
     def reducer(self, v, x, rule_num, i, A, R):
@@ -1232,7 +1233,10 @@ def format_parsetree(t):
 # ## Hidden Right Recursion
 #
 # Earlier we mentioned that the `reducer` does two things to keep the
-# algorithm correct on grammars with hidden right recursion:
+# algorithm correct on grammars with hidden right recursion. These two
+# rules together constitute the fix described by Nozohoor-Farshi
+# [^nozohoor1991] for extending Tomita's Algorithm 1 to handle
+# ε-grammars:
 #
 # 1. It tracks which `(v, x, rule_num)` triples have already processed
 #    which `w` nodes, and only does work on newly-reachable `w`s.
@@ -1299,12 +1303,13 @@ if __name__ == '__main__':
     assert not p.parse_on('aabccccc', '<E>')
     print('hidden right recursion ok')
 
-# An efficient and well-studied alternative to the runtime fix above is
-# *Right-Nulled GLR* (RNGLR) [^scott2006rnglr][^scott2003rnglr], in
-# which "right-nulled" prefixes of rules are short-circuited as extra
-# reduce actions at parse-table construction time. RNGLR avoids most
-# of the re-fire work the runtime fix does, at the cost of more complex
-# table construction. The runtime fix here is simpler to implement and
+# An efficient and well-studied alternative to the Nozohoor-Farshi
+# runtime fix [^nozohoor1991] is *Right-Nulled GLR* (RNGLR)
+# [^scott2006rnglr][^scott2003rnglr], in which "right-nulled" prefixes
+# of rules are short-circuited as extra reduce actions at parse-table
+# construction time. RNGLR avoids most of the re-fire work the runtime
+# fix does, at the cost of more complex table construction. The
+# Nozohoor-Farshi runtime fix used here is simpler to implement and
 # correct on all the same grammars.
 
 # ## More Hidden-Recursion Examples
