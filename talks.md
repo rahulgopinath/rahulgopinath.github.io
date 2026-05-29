@@ -6,6 +6,9 @@ group: navigation
 weight: 3
 menu: Talks
 ---
+##### 2026
+* [_Specification for Free:  Behavior-Driven Fuzzing with Inferred Specifications_](#gopinath2026fuzzing)<br/>
+  *Gopinath* - Fuzzing Summer School'26, NUS, Singapore, May 28, 2026
 
 ##### 2025
 * [_Fuzzing Without Specifications: Learning Structure from Behaviour_](#gopinath2025fuzzing)<br/>
@@ -115,6 +118,17 @@ menu: Talks
 * [_Code Coverage is a Strong Predictor of Test suite Effectiveness in the Real World_](#gopinath2016code)<br/>
   *Gopinath* - GTAC, 2016
 
+#### <a id='gopinath2026fuzzing'></a> [Gopinath: _Specification for Free:  Behavior-Driven Fuzzing with Inferred Specifications_, NUS, 2026]()
+
+A bug uncovered by fuzzing is seldom the product of a single input. More often, it's a family of inputs that reliably triggers the same underlying flaw. Validating a fix means testing against that entire family, not just the one input that happened to surface the problem. In this lecture, I'll show how to capture these families as specialized grammars that encode specific program behaviors, particularly faulty ones. You'll learn how to extract and merge such patterns into targeted grammars, and how to use them to focus your fuzzing efforts. These grammars compose naturally with smart fuzzers, giving you fine-grained control over input generation and making tests consistent and reproducible.
+
+A persistent challenge in fuzzing is that leveraging input structure requires accurate specifications, which aren't always on hand. I'll show how to sidestep this by deriving input grammars directly from the program. When source code is available, static and dynamic analysis can trace input-handling logic from first principles. Without it, we can infer structure by observing how the program responds to inputs and iteratively refining our model through feedback.
+
+Together, these techniques make specification-free fuzzing practical and lay the foundation for the behavior-driven strategies we'll develop throughout the session.
+
+[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/specification-for-free-behavior-driven-fuzzing-with-inferred-specifications)
+
+
 #### <a id='gopinath2025fuzzing'></a> [Gopinath: _Fuzzing Without Specifications: Learning Structure from Behaviour_, NUS, 2025]()
 
 When fuzzing uncovers a bug, it’s rarely caused by a single input—it’s usually a pattern of inputs that consistently triggers the same underlying issue. Validating a fix, therefore, means testing against that broader pattern, not just the one input that happened to expose the bug.
@@ -124,9 +138,7 @@ I’ll demonstrate how to automatically derive input grammars from the program i
 
 Together, these techniques enable powerful, specification-free fuzzing and lay the groundwork for the behaviour-driven strategies we’ll explore throughout the session.
  
-[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-i)
-
-[<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-ii)
+Part I [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-i) and II [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/fuzzing-without-specifications-learning-structure-from-behaviour-part-ii)
 
 ---
 #### <a id='gopinath2024how'></a> [Gopinath: _How to Compare Fuzzers_ SAPLING, ANU, 2024]()
