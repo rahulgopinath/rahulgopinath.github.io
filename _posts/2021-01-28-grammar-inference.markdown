@@ -124,6 +124,27 @@ $$ \left[ \left(FN (TP) FP \right) TN \right] $$
 
 We can now see that precision is $$ \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|} $$ and recall
 is $$\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$$.
+
+From these definitions, the F1 score can be expressed directly in terms of the
+two languages:
+
+$$F_1 = \frac{2PR}{P+R}$$
+
+Substituting the definitions of precision and recall:
+
+$$P = \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}$$
+
+$$R = \frac{|L(Gl) \cap L(Gb)|}{|L(Gb)|}$$
+
+gives
+
+$$F_1 = \frac{2|L(Gl) \cap L(Gb)|}{|L(Gl)| + |L(Gb)|}$$
+
+Hence, F1 is simply the Dice coefficient between the original and learned
+languages. It measures the size of the overlap relative to the total size of
+the two languages. An F1 score of 1 indicates language equivalence, while an F1
+score of 0 indicates disjoint languages.
+
 That is, we can now sample from the particular grammars exclusively to
 approximate precision and recall using the second grammar as an acceptor.
 To accomplish $$|L(Gl) \cap L(Gb)|$$ we use $$L(Gl)$$ as the generator, and
@@ -135,6 +156,61 @@ Again, because $$L(Gb)$$ is the generator in the numerator, we can use
 $$L(Gb)$$ in the denominator.
 This allows us to ignore the fact that precision and recall are generated using two
 different processes.
+
+### Interpreting F1
+
+Using the language-theoretic definitions above,
+
+$$
+P = \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}
+$$
+
+and
+
+$$
+R = \frac{|L(Gl) \cap L(Gb)|}{|L(Gb)|},
+$$
+
+the F1 score can be rewritten directly in terms of the two languages:
+
+$$
+F_1 = \frac{2PR}{P + R}
+$$
+
+Substituting the definitions of precision and recall gives
+
+$$
+F_1 = \frac{2|L(Gl) \cap L(Gb)|}
+           {|L(Gl)| + |L(Gb)|}.
+$$
+
+That is, the F1 score is simply the Dice coefficient between the language
+represented by the original grammar and the language represented by the learned
+grammar. An F1 score of 1 indicates that the two languages are identical, while
+an F1 score of 0 indicates that they are disjoint.
+
+There is one caveat. Most context-free grammars represent infinite languages,
+which means that quantities such as $$|L(Gl)|$$ and $$|L(Gb)|$$ are often
+infinite. In practice, what we actually estimate is
+
+$$
+P = \Pr_{s \sim L(Gl)}[s \in L(Gb)]
+$$
+
+and
+
+$$
+R = \Pr_{s \sim L(Gb)}[s \in L(Gl)],
+$$
+
+where the probability distribution is induced by the sampling procedure used to
+generate strings from the grammar. Precision and recall are then approximated
+by
+Monte Carlo sampling. This is why random sampling is not merely an
+implementation
+detail; it defines the measure over the language. Different sampling procedures
+may induce different distributions over the same language and therefore produce
+different empirical estimates of precision, recall, and F1.
 
 <!-- Now, there is a complication here. For some of the programs such as Perl, or
 even [URLS as defined by WhatWG](https://url.spec.whatwg.org/#concept-basic-url-parser),
