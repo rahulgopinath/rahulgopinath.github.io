@@ -292,23 +292,22 @@ to learn the classifier.
 ### PAC Learning of Regular Grammars
 
 To make the comparison between learning cost and evaluation cost precise, it
-helps to look at the PAC model for regular grammars, where the theory is clean.
+helps to look at the PAC model for regular grammars.
 
 In this model, the learning algorithm interacts with the blackbox through two
 types of queries:
 
-- **Membership query**: "does the blackbox accept this string $$ s $$?"
+- **Membership query**: does the blackbox accept this string $$ s $$?
   The blackbox already acts as a membership oracle — this is exactly how we
   use it when estimating precision and recall.
 
-- **Equivalence query**: "is my current hypothesis grammar $$ Gl $$ exactly
-  equivalent to $$ Gb $$?" If yes, the algorithm is done. If no, the oracle
-  returns a *counterexample* — a string that is in one language but not the
-  other — which the algorithm uses to refine $$ Gl $$.
+- **Equivalence query**: is my current hypothesis grammar $$ Gl $$ exactly
+  equivalent to $$ Gb $$? If yes, the algorithm is done. If no, the oracle
+  returns a *counterexample*, a string that is in one language but not the
+  other, which the algorithm uses to refine $$ Gl $$.
 
-In the blackbox software engineering setting, a true equivalence oracle is not
-available: we have no way to ask a program whether our grammar is exactly
-correct. Instead, equivalence queries must be *approximated* by random
+In the software engineering setting, equivalence queries are impossible.
+Instead, equivalence queries must be *approximated* by random
 sampling. We draw strings and check whether any of them exposes a disagreement
 between $$ Gl $$ and $$ Gb $$.
 
@@ -339,7 +338,7 @@ $$
 
 Per query, evaluation requires more samples than a single equivalence query by
 a factor of $$ 1/\varepsilon $$. However, the learning algorithm may need many
-equivalence queries — for a DFA with $$ m $$ states, up to $$ m $$ queries are
+equivalence queries. For a DFA with $$ m $$ states, up to $$ m $$ queries are
 needed, giving a total equivalence query cost of
 $$ O(m \cdot \ln(1/\delta)/\varepsilon) $$.
 
@@ -348,29 +347,6 @@ only needs a binary answer — *found a counterexample or not* — and a single
 bad string suffices. Precision and recall estimation needs a *quantitative*
 answer — *what fraction* of strings are accepted — which requires many more
 samples to pin down accurately.
-
-<!-- Now, there is a complication here. For some of the programs such as Perl, or
-even [URLS as defined by WhatWG](https://url.spec.whatwg.org/#concept-basic-url-parser),
-there is no accepted program specification. Rather, the specification is the
-program itself. So, what do you do if you want to check the accuracy of your
-inferred grammar? In such a case, you have no other option but to rely on a
-handwritten golden grammar. However, you then need to verify that your golden
-grammar matches the program in question. To do that, use the golden grammar
-to [generate random inputs to a fixed depth](/post/2021/07/27/random-sampling-from-context-free-grammar/).
-**Important:** Use [random sampling](/post/2021/07/27/random-sampling-from-context-free-grammar/)
-to make sure that you are not biased by the way the golden grammar is written.
-Next, verify that all these inputs are accepted by the program from which you
-are trying to mine the grammar. Once you have ensured that your golden grammar
-is accurate, you can then use this as a proxy input generator for your program.
-However, when computing the precision of the synthesized grammar, report the
-percentage of inputs that were accepted by both the blackbox program from which
-you were trying to learn the grammar, as well as the percentage of inputs that
-were accepted by the golden grammar. You have to keep in mind that this will not
-protect you from an overly strict golden grammar. That is, if the golden grammar
-as well as the synthesized grammar is overly strict -- in the extreme, only
-accepts empty strings, it is still possible to get 100% here. So, for a general
-evaluation, there is no choice but to start with grammars.
--->
 
 A nice result that I should mention here is that even though comparison of context-free
 grammars in general is undecidable[^ginsburg1966the], comparison of deterministic context-free
