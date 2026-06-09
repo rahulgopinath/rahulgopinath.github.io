@@ -289,6 +289,66 @@ The analogy: Hoeffding tells you how many test examples you need to estimate a
 classifier's accuracy; it does not tell you how many training examples were needed
 to learn the classifier.
 
+### PAC Learning of Regular Grammars
+
+To make the comparison between learning cost and evaluation cost precise, it
+helps to look at the PAC model for regular grammars, where the theory is clean.
+
+In this model, the learning algorithm interacts with the blackbox through two
+types of queries:
+
+- **Membership query**: "does the blackbox accept this string $$ s $$?"
+  The blackbox already acts as a membership oracle — this is exactly how we
+  use it when estimating precision and recall.
+
+- **Equivalence query**: "is my current hypothesis grammar $$ Gl $$ exactly
+  equivalent to $$ Gb $$?" If yes, the algorithm is done. If no, the oracle
+  returns a *counterexample* — a string that is in one language but not the
+  other — which the algorithm uses to refine $$ Gl $$.
+
+In the blackbox software engineering setting, a true equivalence oracle is not
+available: we have no way to ask a program whether our grammar is exactly
+correct. Instead, equivalence queries must be *approximated* by random
+sampling. We draw strings and check whether any of them exposes a disagreement
+between $$ Gl $$ and $$ Gb $$.
+
+How many samples does an approximate equivalence query need? If $$ Gl $$ is
+$$ \varepsilon $$-wrong — that is, it disagrees with $$ Gb $$ on at least a
+fraction $$ \varepsilon $$ of strings under the sampling distribution — then
+each drawn string has probability $$ \geq \varepsilon $$ of being a
+counterexample. The probability of *missing* a counterexample in $$ n $$ draws
+is:
+
+$$
+(1 - \varepsilon)^n \leq e^{-\varepsilon n}
+$$
+
+Setting this at most $$ \delta $$ gives:
+
+$$
+n \geq \frac{\ln(1/\delta)}{\varepsilon}
+$$
+
+per approximate equivalence query.
+
+Compare this to the Hoeffding bound for evaluating precision or recall:
+
+$$
+n \geq \frac{\ln(2/\delta)}{2\varepsilon^2}
+$$
+
+Per query, evaluation requires more samples than a single equivalence query by
+a factor of $$ 1/\varepsilon $$. However, the learning algorithm may need many
+equivalence queries — for a DFA with $$ m $$ states, up to $$ m $$ queries are
+needed, giving a total equivalence query cost of
+$$ O(m \cdot \ln(1/\delta)/\varepsilon) $$.
+
+The reason the per-query costs differ is fundamental: an equivalence query
+only needs a binary answer — *found a counterexample or not* — and a single
+bad string suffices. Precision and recall estimation needs a *quantitative*
+answer — *what fraction* of strings are accepted — which requires many more
+samples to pin down accurately.
+
 <!-- Now, there is a complication here. For some of the programs such as Perl, or
 even [URLS as defined by WhatWG](https://url.spec.whatwg.org/#concept-basic-url-parser),
 there is no accepted program specification. Rather, the specification is the
