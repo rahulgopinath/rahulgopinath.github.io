@@ -32,7 +32,7 @@ We need three definitions before we proceed.
   accepted by the synthesized grammar. That is, synthesized grammar acts as a acceptor.
 
 * F1 score: The F1 score is the harmonic mean of precision and recall, and is
-  given by $$ 2 \times \frac{P R}{P + R} $$.
+  given by $2 \times \frac{PR}{P + R}$.
 
 Now, how does one verify their approach? One approach that recent research has taken
 is to try and recover the context free grammar from one of the blackbox programs, then
@@ -90,9 +90,9 @@ That is, given this set of samples, and the learned model, we have:
 3. TN: Number of samples correctly predicted as *negative.*
 4. FN: Number of samples wrongly predicted as *negative.*
 
-Precision = $$ \frac{TP}{TP + FP} $$
+Precision = $\frac{TP}{TP + FP}$
 
-Recall = $$ \frac{TP}{TP + FN} $$
+Recall = $\frac{TP}{TP + FN}$
 
 In grammar induction, we do not actually have a set of samples to classify. In
 particular, the process for generation of strings from original and learned
@@ -122,8 +122,8 @@ The universe is then given by
 
 $$ \left[ \left(FN (TP) FP \right) TN \right] $$
 
-We can now see that precision is $$ \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|} $$ and recall
-is $$\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$$.
+We can now see that precision is $\frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}$ and recall
+is $\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$.
 
 From these definitions, the F1 score can be expressed directly in terms of the
 two languages:
@@ -147,13 +147,13 @@ score of 0 indicates disjoint languages.
 
 That is, we can now sample from the particular grammars exclusively to
 approximate precision and recall using the second grammar as an acceptor.
-To accomplish $$|L(Gl) \cap L(Gb)|$$ we use $$L(Gl)$$ as the generator, and
-count all the successfully recognized strings by $$L(Gb)$$. Since $$L(Gl)$$ is
-the generator in the numerator, the denominator of $$L(Gl)$$ is OK.
-To accomplish $$|L(Gb) \cap L(Gl)|$$ we use $$L(Gb)$$ as the generator, and
-count all the successfully recognized strings by $$L(Gl)$$.
-Again, because $$L(Gb)$$ is the generator in the numerator, we can use
-$$L(Gb)$$ in the denominator.
+To accomplish $|L(Gl) \cap L(Gb)|$ we use $L(Gl)$ as the generator, and
+count all the successfully recognized strings by $L(Gb)$. Since $L(Gl)$ is
+the generator in the numerator, the denominator of $L(Gl)$ is OK.
+To accomplish $|L(Gb) \cap L(Gl)|$ we use $L(Gb)$ as the generator, and
+count all the successfully recognized strings by $L(Gl)$.
+Again, because $L(Gb)$ is the generator in the numerator, we can use
+$L(Gb)$ in the denominator.
 This allows us to ignore the fact that precision and recall are generated using two
 different processes.
 
@@ -190,7 +190,7 @@ grammar. An F1 score of 1 indicates that the two languages are identical, while
 an F1 score of 0 indicates that they are disjoint.
 
 There is one caveat. Most context-free grammars represent infinite languages,
-which means that quantities such as $$|L(Gl)|$$ and $$|L(Gb)|$$ are often
+which means that quantities such as $|L(Gl)|$ and $|L(Gb)|$ are often
 infinite. In practice, what we actually estimate is
 
 $$
