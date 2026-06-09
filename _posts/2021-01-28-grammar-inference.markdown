@@ -245,8 +245,12 @@ The empirical precision is then the fraction of accepted strings,
 $$ \hat{P} = \frac{1}{n}\sum_i X_i $$, and the true precision $$ P $$
 is the expected value $$ \mathbb{E}[X_i] $$ — that is, the probability that
 a randomly drawn string from $$ Gl $$ is accepted by $$ Gb $$.
-[Hoeffding's
-inequality](https://en.wikipedia.org/wiki/Hoeffding%27s_inequality) gives:
+Since each $$ X_i \in \{0,1\} \subseteq [0,1] $$, the variables are bounded,
+and [Hoeffding's inequality](https://en.wikipedia.org/wiki/Hoeffding%27s_inequality)
+applies. It says: for a chosen tolerance $$ \varepsilon $$ (how close we want
+$$ \hat{P} $$ to be to $$ P $$) and confidence parameter $$ \delta $$ (the
+acceptable probability of the estimate being further than $$ \varepsilon $$
+away from the truth):
 
 $$
 \Pr\!\left[|\hat{P} - P| \geq \varepsilon\right] \leq 2\exp(-2n\varepsilon^2)
