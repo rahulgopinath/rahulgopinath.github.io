@@ -124,38 +124,8 @@ $$ \left[ \left(FN (TP) FP \right) TN \right] $$
 
 We can now see that precision is $\frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}$ and recall
 is $\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$.
-
-From these definitions, the F1 score can be expressed directly in terms of the
-two languages:
-
-$$F_1 = \frac{2PR}{P+R}$$
-
-Substituting the definitions of precision and recall:
-
-$$P = \frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}$$
-
-$$R = \frac{|L(Gl) \cap L(Gb)|}{|L(Gb)|}$$
-
-gives
-
-$$F_1 = \frac{2|L(Gl) \cap L(Gb)|}{|L(Gl)| + |L(Gb)|}$$
-
-Hence, F1 is simply the Dice coefficient between the original and learned
-languages. It measures the size of the overlap relative to the total size of
-the two languages. An F1 score of 1 indicates language equivalence, while an F1
-score of 0 indicates disjoint languages.
-
-That is, we can now sample from the particular grammars exclusively to
-approximate precision and recall using the second grammar as an acceptor.
-To accomplish $|L(Gl) \cap L(Gb)|$ we use $L(Gl)$ as the generator, and
-count all the successfully recognized strings by $L(Gb)$. Since $L(Gl)$ is
-the generator in the numerator, the denominator of $L(Gl)$ is OK.
-To accomplish $|L(Gb) \cap L(Gl)|$ we use $L(Gb)$ as the generator, and
-count all the successfully recognized strings by $L(Gl)$.
-Again, because $L(Gb)$ is the generator in the numerator, we can use
-$L(Gb)$ in the denominator.
-This allows us to ignore the fact that precision and recall are generated using two
-different processes.
+We can sample from each grammar exclusively to approximate precision and recall,
+using the other grammar as an acceptor.
 
 ### Interpreting F1
 
