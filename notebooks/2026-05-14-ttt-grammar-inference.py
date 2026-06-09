@@ -18,7 +18,7 @@
 # In my [previous post](/post/2024/01/04/lstar-learning-regular-languages/),
 # I implemented Angluin's L* algorithm for learning regular languages from
 # a blackbox oracle. L* uses a flat observation table to track state
-# distinctions, which leads to redundant membership queries — when a
+# distinctions, which leads to redundant membership queries: when a
 # counterexample arrives, all its suffixes are added as columns even though
 # most distinguish no new states.
 # 
@@ -30,12 +30,12 @@
 # counterexample in $$ O(\log k) $$ queries rather than adding all $$ k $$
 # suffixes.
 # 
-# TTT — the algorithm by Isberner, Howar and Steffen [^isberner2014] —
+# TTT by Isberner, Howar and Steffen [^isberner2014]
 # adds two further refinements: *prefix transformation*,
 # which keeps access sequences minimal, and *discriminator finalization*,
 # which keeps the discrimination tree shallow. Together these make TTT
-# provably redundancy-free — it never makes a membership query whose answer
-# could have been derived from earlier queries.
+# provably redundancy-free. That is, it never makes a membership query whose
+# answer could have been derived from earlier queries.
 # 
 # TTT is the algorithm of choice in practical automata learning tools such
 # as LearnLib [^learnlib]. ADT [^adt] extends TTT with adaptive
@@ -71,9 +71,9 @@
 
 # ## Prerequisites
 # 
-# We import `Teacher` and `Oracle` from the L* post, and use them unchanged.
-# The PAC equivalence oracle in `Teacher` is a direct drop-in for TTT —
-# the rest of the algorithm is completely independent of how equivalence
+# We import the `Teacher` and `Oracle` from the L* post, and use them unchanged.
+# The PAC equivalence oracle in `Teacher` is a direct drop-in for TTT.
+# The rest of the algorithm is completely independent of how equivalence
 # queries are answered.
 
 #@
@@ -101,37 +101,39 @@ if __name__ == '__main__':
     if '__canvas__' not in globals(): __canvas__ = print
 
 # ## The Road from L* to TTT
-# 
+#  
 # In L*, when the equivalence oracle returns a counterexample $$ ce $$ of
-# length $$ k $$, the algorithm adds *all* $$ k $$ suffixes of $$ ce $$ as
+# length $$ k $$, the algorithm adds all $$ k $$ suffixes of $$ ce $$ as
 # new columns. For each new column, it must re-query every existing row.
-# Most of these new columns turn out to be redundant — they do not
-# distinguish any new pair of states — but you pay for the queries anyway.
+# Many of these new columns are, however, redundant. They do not
+# distinguish any new pair of states, but given that they exist, the cells
+# need to be filled, and hence you pay the price in queries.
 # 
-# The key insight is that **a counterexample only ever witnesses one new
-# distinction** — one pair of states was wrongly merged — so you should add
-# exactly one new discriminator, not $$ k $$. Getting to this point required
+# The key insight in TTT is that
+# **a counterexample only ever witnesses one new distinction**:
+# one pair of states was wrongly merged. Hence, exactly **one** new
+# discriminator is sufficient---not $$ k $$. Getting to this point required
 # three independent contributions:
 # 
 # * **Kearns and Vazirani (1994)** [^kearns1994] replaced the observation
-#   table with a *discrimination tree* — a binary tree of discriminator
-#   suffixes. Each leaf is a state; sifting a string down the tree classifies
-#   it in $$ O(depth) $$ queries rather than $$ O(|suffixes|) $$.
+#   table with a *discrimination tree*. A binary tree of discriminator
+#   suffixes where each leaf is a state.
+#   Sifting a string down the tree classifies it in $$ O(depth) $$ queries
+#   rather than $$ O(|suffixes|) $$.
 # * **Rivest and Schapire (1993)** [^rivest1993] showed that binary search
 #   over the counterexample finds the single relevant split point in
 #   $$ O(\log k) $$ queries, rather than adding all $$ k $$ suffixes.
 # * **Isberner, Howar and Steffen (2014)** [^isberner2014] combined these
 #   with *prefix transformation* (keeping access sequences minimal) and
-#   *discriminator finalization* (keeping the DT shallow), producing TTT —
-#   the first algorithm that is provably redundancy-free.
-
+#   *discriminator finalization* (keeping the DT shallow), producing TTT.
+# 
 # ## The DFA Representation
 # 
-# We copy over the `DFA` class from the
+# The `DFA` class is similar to the one from the
 # [RPNI post](/post/2025/10/24/rpni-learning-regular-languages/).
-# We add a `run()` method which returns the state reached after consuming
+# We also add a `run()` method which returns the state reached after consuming
 # a string, and `ensure_state()` which registers a state in the grammar
-# without allocating a new key — needed when manually constructing DFAs
+# without allocating a new key, which is needed when manually constructing DFAs
 # in tests and when `close_transitions` discovers states from the DT.
 
 class DFA:
@@ -178,7 +180,8 @@ class DFA:
         if state is None: return False
         return [] in self.grammar[state]
 
-# Let us test the DFA class.
+# The DFA class can now model a deterministic finite state machine. So, let us
+# test it thoroughly.
 
 if __name__ == '__main__':
     dfa = DFA()
@@ -199,8 +202,9 @@ if __name__ == '__main__':
 
 # ## The Oracle
 # 
-# We use a simple mock oracle for testing the components in isolation.
-# The `Teacher` imported from L* is the full oracle used in the main loop.
+# Let us define a simple mock oracle for testing the components in isolation.
+# The `Teacher` imported from L* is the full oracle, and will be used in the
+# main loop.
 
 class MockOracle(Oracle):
     def __init__(self, fn):
@@ -215,7 +219,7 @@ class MockOracle(Oracle):
 # **if I append suffix $$ d $$ to this string, does the target accept it?**
 # and routes left (no) or right (yes). Each leaf is a known state.
 # 
-# There are exactly two kinds of nodes.
+# There are exactly two kinds of nodes: Leaf and Inner.
 
 class DTNode:
     def is_leaf(self): return False
@@ -330,13 +334,15 @@ if __name__ == '__main__':
 # This is closely related to L*'s closedness and consistency checks, but
 # handled in a single pass:
 # 
-# * **Closedness** in L* means every reachable state has a row in the table.
-#   In TTT, the equivalent is *open transitions* — transitions where sifting
-#   lands on a leaf with no access sequence yet. We call these open and close
-#   them immediately, adding the new state as we go.
-# * **Consistency** in L* means no two identical rows have different
-#   successors. In TTT, consistency is *structurally maintained* by the DT —
-#   two strings share a leaf only if no discriminator in the tree separates
+# * **Closedness** In L*, closedness means that every reachable state has a row
+#   in the table. In TTT, the equivalent is *open transitions*. Theae are
+#   transitions where sifting lands on a leaf with no access sequence yet.
+#   When an open transitions is added, we close them immediately,
+#   adding the new state as we go.
+# * **Consistency** In L*, consistency means that no two identical rows have
+#   different successors. In TTT, consistency is *structurally maintained* by
+#   the DT.
+#   Two strings share a leaf only if no discriminator in the tree separates
 #   them. A counterexample split is the consistency repair, done once per
 #   counterexample rather than checked globally.
 # 
@@ -349,7 +355,7 @@ def is_open(dfa, state, char, st):
 
 # We close all open transitions by sifting. We use an index-based loop
 # so that newly discovered states are appended to `states` and processed
-# in the same pass — a snapshot copy would miss them.
+# in the same pass.
 
 def close_transitions(dfa, dt, st, oracle, alphabet):
     states = list(st.acc.keys())
@@ -404,15 +410,15 @@ if __name__ == '__main__':
 # ## Counterexample Decomposition
 # 
 # When the equivalence oracle returns a counterexample $$ ce $$, we know the
-# hypothesis is wrong on $$ ce $$ — but *where exactly* does it go wrong?
+# hypothesis is wrong on $$ ce $$. But *where exactly* does it go wrong?
 # 
 # ### The Split Point
 # 
 # Walk $$ ce $$ through the hypothesis. At position 0, both hypothesis and
 # target are in $$ \langle start \rangle $$ — they agree. At position
 # $$ |ce| $$, they disagree (that is what the counterexample means). So
-# somewhere in between is the *first point of disagreement* — the position
-# $$ i $$ where the hypothesis first takes a wrong transition.
+# somewhere in between is the *first point of disagreement*. That is, the
+# position $$ i $$ where the hypothesis first takes a wrong transition.
 # 
 # We find this by binary search in $$ O(\log|ce|) $$ queries. At each
 # midpoint $$ m $$, we check whether $$ acc(q_m) \cdot ce[m:] $$ gives the
@@ -494,8 +500,8 @@ if __name__ == '__main__':
 # which reduces sifting costs in all future iterations.
 # 
 # We try suffixes from shortest to longest, stopping at the first one that
-# distinguishes the two states. Note the `break` — once a candidate fails,
-# all shorter suffixes will also fail, so we stop early.
+# distinguishes the two states.
+# Once a candidate fails, all shorter suffixes will also fail, so we stop early.
 
 def finalize_discriminator(old_state, new_state, ce_suffix, st, oracle):
     best = ce_suffix
@@ -531,13 +537,13 @@ if __name__ == '__main__':
 # 
 # We now have all the pieces. `decompose` finds the split point by binary
 # search, applies the prefix transformation, finalizes the discriminator,
-# and splits the leaf. One counterexample → one new state → one new
+# and splits the leaf. One counterexample -> one new state -> one new
 # discriminator. This is the tightest possible refinement.
 # 
 # Note: decompose uses hypothesis transitions only to *find* the split point.
 # The actual split uses $$ acc(q_i) $$, which is always correct with respect
 # to the target. This means decompose is correct even if the hypothesis is
-# partially stale — the access sequences in the spanning tree are ground
+# partially stale. The access sequences in the spanning tree are ground
 # truth, independent of hypothesis quality.
 
 def decompose(dfa, dt, st, oracle, ce):
@@ -643,10 +649,10 @@ if __name__ == '__main__':
 #   proven necessary by the counterexample.
 # * **Closing is non-redundant.** Each transition is sifted exactly once per
 #   iteration. Newly discovered states come with their DT position already
-#   established by the sift that found them — no extra queries needed.
+#   established by the sift that found them. That is, no extra queries are needed.
 # 
 # This contrasts with L*, where adding all $$ k $$ suffixes of a counterexample
-# forces re-querying every existing row against every new column — most of
+# forces re-querying every existing row against every new column, most of
 # which add no new information.
 
 # ## DT Coherence After Split
@@ -654,7 +660,7 @@ if __name__ == '__main__':
 # After `split_leaf` turns a leaf into an inner node, some transitions in the
 # old hypothesis may point to states that were in that leaf. Those transitions
 # are now stale. TTT handles this by rebuilding the hypothesis from scratch
-# each iteration — we throw away the old DFA and call `build_hypothesis`
+# each iteration. We throw away the old DFA and call `build_hypothesis`
 # again. This is correct because the DT and spanning tree are always the
 # ground truth; the hypothesis is reconstructed from them.
 # 
