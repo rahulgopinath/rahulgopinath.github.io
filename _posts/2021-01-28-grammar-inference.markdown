@@ -14,8 +14,10 @@ of the input specification can improve the efficiency, effectiveness, and genera
 of a fuzzer by leaps and bounds[^stevenson2014a].
 
 The best way to go about it is to look for a general solution with proofs. However,
-a fully general solution to the problem is impossible, and is as hard as reversing
-the RSA encryption[^angluin1995when]. However, this has not stopped researchers from
+a fully general solution to the problem is at least as hard as RSA inversion
+and, under standard cryptographic assumptions, no efficient learning algorithm
+exists[^angluin1995when].
+However, this has not stopped researchers from
 attempting to look for heuristics which are applicable to context-free grammars that
 are found in real-world software. The idea being that, the theoretical limitation
 could be about pathological grammars. Even if one could recover the grammar of a
@@ -69,11 +71,11 @@ the original grammar will accept all generated inputs, resulting in 100% accurac
 the inferred grammar was bad. Hence, both tests are equally important.
 
 The TLDR; is that **if you are doing blackbox grammar inference, please start
- with a grammar rather than a program. Use a parser to turn the grammar into an
- acceptor, and infer the grammar of that acceptor. Then verify both grammars
- against each other** .
- Extracting the grammar from a program is not a useful proof for the
- effectiveness of your technique unless you are doing whitebox grammar mining.
+with a grammar rather than a program. Use a parser to turn the grammar into an
+acceptor, and infer the grammar of that acceptor. Then verify both grammars
+against each other** .
+Extracting the grammar from a program is not a useful proof for the
+effectiveness of your technique unless you are doing whitebox grammar mining.
 
 
 A secondary issue is that it is not immediately clear what F1 actually means in
@@ -142,6 +144,10 @@ use the other as an acceptor.
 
 ### Interpreting F1
 
+**Note:** The cardinality-based expressions below should therefore be viewed as
+intuition. For infinite languages we replace them with probabilities induced by
+sampling.
+
 Using the language-theoretic definitions above,
 
 $$
@@ -153,6 +159,7 @@ and
 $$
 R = \frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|},
 $$
+
 
 the F1 score can be rewritten directly in terms of the two languages:
 
@@ -168,12 +175,20 @@ F_1 = \frac{2|L(Gl) \cap L(Gb)|}
            {|L(Gl)| + |L(Gb)|}.
 $$
 
-But this is uninterpretable. There is no indication of which grammar is the
-generator and which is the recognizer. Hence, compute the F1 score from
-precision and recall.
+But this simplification breaks down once we switch from counting strings to
+sampling strings.
+There is no indication of which grammar is the
+generator and which is the recognizer.
+In particular, under the probabilistic interpretation used here, the
+intersection is measured under two different distributions.
+Since these measures are not symmetric, the cardinality-based Dice formulation
+does not apply.
+
+Hence, compute the F1 score from precision and recall.
 
 
-That is, the F1 score is simply the Dice coefficient between the language
+That is, in the finite language case, the F1 score is simply the [Dice
+coefficient](https://en.wikipedia.org/wiki/Dice-S%C3%B8rensen_coefficient) between the language
 represented by the original grammar and the language represented by the learned
 grammar. An F1 score of 1 indicates that the two languages are identical, while
 an F1 score of 0 indicates that they are disjoint.
@@ -198,6 +213,56 @@ Monte Carlo sampling. This is why random sampling is not merely an implementatio
 detail; it defines the measure over the language. Different sampling procedures
 may induce different distributions over the same language and therefore produce
 different empirical estimates of precision, recall, and F1.
+
+This framing connects naturally to the
+**PAC (Probably Approximately Correct)** framework for language
+learning[^valiant1984theory].
+In PAC learning, a hypothesis $Gl$ is considered $$ \varepsilon $$-accurate if
+the probability of disagreement with the target Gb is at most $$ \varepsilon $$
+under some fixed distribution.
+Here, $$ 1 - P $$ and $$ 1 - R $$ are exactly the disagreement rates under Gl's
+and Gb's own sampling distributions respectively.
+Requiring high F1 therefore resembles a **two-sided PAC condition**: $$Gl$$ must be
+$$ \varepsilon $$ -close to$$ Gb $$under both distributions simultaneously, which is
+strictly stronger than the one-sided version.
+
+This also explains why starting with a known grammar $Gb$ rather than a
+blackbox program is not merely a convenience: a PAC guarantee requires a
+well-defined sampling distribution, and a blackbox program provides none.
+
+Finally, the Monte Carlo estimation of precision and recall has a direct
+sample-complexity interpretation:
+
+Let $$ X_i = \mathbf{1}[\text{recognize}(Gb, s_i)] $$ for strings
+$$ s_i \overset{\text{iid}}{\sim} L(Gl) $$, so each $$ X_i \in \{0,1\} $$.
+The empirical precision is $$ \hat{P} = \frac{1}{n}\sum_i X_i $$ and the
+true precision is $$ P = \mathbb{E}[X_i] $$.
+Hoeffding's inequality gives:
+
+$$
+\Pr\!\left[|\hat{P} - P| \geq \varepsilon\right] \leq 2\exp(-2n\varepsilon^2)
+$$
+
+Setting this at most $$ \delta $$ and solving for $$ n $$:
+
+$$
+2\exp(-2n\varepsilon^2) \leq \delta
+\;\Longrightarrow\;
+n \geq \frac{\ln(2/\delta)}{2\varepsilon^2}
+$$
+
+The same bound holds for $$ \hat{R} $$.
+Applying the union bound so that both estimates hold simultaneously
+(each allowed failure probability $$ \delta/2 $$) gives:
+
+$$
+n \geq \frac{\ln(4/\delta)}{2\varepsilon^2}
+$$
+
+samples from each grammar, for a total of $$ N = O(\log(1/\delta)/\varepsilon^2) $$.
+Note that $$ \varepsilon $$ here is the tolerance on the *estimates* of $$ P $$
+and $$ R $$, not a direct bound on how well $$ Gl $$ approximates $$ Gb $$ —
+this is the estimation cost, not the learning cost.
 
 <!-- Now, there is a complication here. For some of the programs such as Perl, or
 even [URLS as defined by WhatWG](https://url.spec.whatwg.org/#concept-basic-url-parser),
@@ -224,7 +289,7 @@ evaluation, there is no choice but to start with grammars.
 
 A nice result that I should mention here is that even though comparison of context-free
 grammars in general is undecidable[^ginsburg1966the], comparison of deterministic context-free
-grammars is decidable![^senizergues2001l]. Géraud Sénizerguese was awarded the Gödel Prize in
+grammars is decidable![^senizergues2001l]. Géraud Sénizergues was awarded the Gödel Prize in
 2002 for this discovery. What this means is that if the grammars are
 deterministic (these are the LR(k) grammars), you can even compare them directly.
 
@@ -235,6 +300,8 @@ The main communities working on grammar inference are
 
 
 [^1]: We note here that the grammar derived by [GLADE](https://github.com/obastani/glade) is not in the usual format, and hence, we could not verify that their parser is correct. Unfortunately, general context-free parsers are notoriously difficult to get right as shown by the history of the Earley parser.
+
+[^valiant1984theory]: Valiant, L. G. (1984). A theory of the learnable. Communications of the ACM, 27(11), 1134–1142.
 
 [^stevenson2014a]: Stevenson, A., & Cordy, J. R. (2014). A survey of grammatical inference in software engineering. Science of Computer Programming, 96, 444-459.
 
