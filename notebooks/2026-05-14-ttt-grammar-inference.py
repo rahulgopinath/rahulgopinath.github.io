@@ -703,8 +703,8 @@ def ttt(oracle, alphabet):
 # 
 # We test TTT on three targets of increasing complexity.
 
+# target 1: strings over {a, b} with an even number of a's
 if __name__ == '__main__':
-    # target 1: strings over {a, b} with an even number of a's
     teacher = Teacher('(b*ab*a)*b*') # even a
     result = ttt(teacher, ['a', 'b'])
     assert result.accepts('')
@@ -714,9 +714,8 @@ if __name__ == '__main__':
     assert not result.accepts('aaa')
     print("test 1 passed: even a's")
 
+# target 2: strings over {a, b} that end in 'b'
 if __name__ == '__main__':
-    # target 2: strings over {a, b} that end in 'b'
-
     teacher = Teacher('(a|b)*b')
     result = ttt(teacher, ['a', 'b'])
     assert result.accepts('b')
@@ -727,8 +726,8 @@ if __name__ == '__main__':
     assert not result.accepts('ba')
     print('test 2 passed: ends in b')
 
+# target 3: binary strings whose value is divisible by 3
 if __name__ == '__main__':
-    # target 3: binary strings whose value is divisible by 3
     class DivBy3Teacher(Teacher):
         def __init__(self, delta=0.5, epsilon=0.5):
             super().__init__('0', delta=delta, epsilon=epsilon)

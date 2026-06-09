@@ -1316,126 +1316,137 @@ def ttt(oracle, alphabet):
 ## Examples
 
 We test TTT on three targets of increasing complexity.
+target 1: strings over {a, b} with an even number of a's
 
 <!--
 ############
-    # target 1: strings over {a, b} with an even number of a's
-    teacher = Teacher('(b*ab*a)*b*') # even a
-    result = ttt(teacher, ['a', 'b'])
-    assert result.accepts('')
-    assert result.accepts('aa')
-    assert result.accepts('bb')
-    assert not result.accepts('a')
-    assert not result.accepts('aaa')
-    print("test 1 passed: even a's")
-
-if __name__ == '__main__':
-    # target 2: strings over {a, b} that end in 'b'
-
-    teacher = Teacher('(a|b)*b')
-    result = ttt(teacher, ['a', 'b'])
-    assert result.accepts('b')
-    assert result.accepts('ab')
-    assert result.accepts('aab')
-    assert not result.accepts('')
-    assert not result.accepts('a')
-    assert not result.accepts('ba')
-    print('test 2 passed: ends in b')
-
-if __name__ == '__main__':
-    # target 3: binary strings whose value is divisible by 3
-    class DivBy3Teacher(Teacher):
-        def __init__(self, delta=0.5, epsilon=0.5):
-            super().__init__('0', delta=delta, epsilon=epsilon)
-
-        def is_member(self, w):
-            if not w: return True
-            return int(w, 2) % 3 == 0
-
-        def is_equivalent(self, grammar, start):
-            self.equivalence_query_counter += 1
-            num_calls = math.ceil(1.0/self.epsilon *
-                      (math.log(1.0/self.delta +
-                                  self.equivalence_query_counter * math.log(2))))
-            dfa = DFA(start_symbol=start)
-            dfa.grammar = grammar
-            for _ in range(num_calls):
-                # sample a random binary string up to length 10
-                length = random.randint(0, 10)
-                w = ''.join(random.choice(['0', '1']) for _ in range(length))
-                if bool(self.is_member(w)) != bool(dfa.accepts(w)):
-                    return False, w
-            return True, None
-
-    result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
-    assert result.accepts('')
-    assert result.accepts('0')
-    assert result.accepts('11')    # 3 in binary
-    assert result.accepts('110')   # 6 in binary
-    assert not result.accepts('1')
-    assert not result.accepts('10') # 2 in binary
-    print('test 3 passed: divisible by 3 in binary')
+teacher = Teacher('(b*ab*a)*b*') # even a
+result = ttt(teacher, ['a', 'b'])
+assert result.accepts('')
+assert result.accepts('aa')
+assert result.accepts('bb')
+assert not result.accepts('a')
+assert not result.accepts('aaa')
+print("test 1 passed: even a's")
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# target 1: strings over {a, b} with an even number of a&#x27;s
-    teacher = Teacher(&#x27;(b*ab*a)*b*&#x27;) # even a
-    result = ttt(teacher, [&#x27;a&#x27;, &#x27;b&#x27;])
-    assert result.accepts(&#x27;&#x27;)
-    assert result.accepts(&#x27;aa&#x27;)
-    assert result.accepts(&#x27;bb&#x27;)
-    assert not result.accepts(&#x27;a&#x27;)
-    assert not result.accepts(&#x27;aaa&#x27;)
-    print(&quot;test 1 passed: even a&#x27;s&quot;)
+teacher = Teacher(&#x27;(b*ab*a)*b*&#x27;) # even a
+result = ttt(teacher, [&#x27;a&#x27;, &#x27;b&#x27;])
+assert result.accepts(&#x27;&#x27;)
+assert result.accepts(&#x27;aa&#x27;)
+assert result.accepts(&#x27;bb&#x27;)
+assert not result.accepts(&#x27;a&#x27;)
+assert not result.accepts(&#x27;aaa&#x27;)
+print(&quot;test 1 passed: even a&#x27;s&quot;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+target 2: strings over {a, b} that end in 'b'
 
-if __name__ == &#x27;__main__&#x27;:
-    # target 2: strings over {a, b} that end in &#x27;b&#x27;
+<!--
+############
+teacher = Teacher('(a|b)*b')
+result = ttt(teacher, ['a', 'b'])
+assert result.accepts('b')
+assert result.accepts('ab')
+assert result.accepts('aab')
+assert not result.accepts('')
+assert not result.accepts('a')
+assert not result.accepts('ba')
+print('test 2 passed: ends in b')
 
-    teacher = Teacher(&#x27;(a|b)*b&#x27;)
-    result = ttt(teacher, [&#x27;a&#x27;, &#x27;b&#x27;])
-    assert result.accepts(&#x27;b&#x27;)
-    assert result.accepts(&#x27;ab&#x27;)
-    assert result.accepts(&#x27;aab&#x27;)
-    assert not result.accepts(&#x27;&#x27;)
-    assert not result.accepts(&#x27;a&#x27;)
-    assert not result.accepts(&#x27;ba&#x27;)
-    print(&#x27;test 2 passed: ends in b&#x27;)
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+teacher = Teacher(&#x27;(a|b)*b&#x27;)
+result = ttt(teacher, [&#x27;a&#x27;, &#x27;b&#x27;])
+assert result.accepts(&#x27;b&#x27;)
+assert result.accepts(&#x27;ab&#x27;)
+assert result.accepts(&#x27;aab&#x27;)
+assert not result.accepts(&#x27;&#x27;)
+assert not result.accepts(&#x27;a&#x27;)
+assert not result.accepts(&#x27;ba&#x27;)
+print(&#x27;test 2 passed: ends in b&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+target 3: binary strings whose value is divisible by 3
 
-if __name__ == &#x27;__main__&#x27;:
-    # target 3: binary strings whose value is divisible by 3
-    class DivBy3Teacher(Teacher):
-        def __init__(self, delta=0.5, epsilon=0.5):
-            super().__init__(&#x27;0&#x27;, delta=delta, epsilon=epsilon)
+<!--
+############
+class DivBy3Teacher(Teacher):
+    def __init__(self, delta=0.5, epsilon=0.5):
+        super().__init__('0', delta=delta, epsilon=epsilon)
 
-        def is_member(self, w):
-            if not w: return True
-            return int(w, 2) % 3 == 0
+    def is_member(self, w):
+        if not w: return True
+        return int(w, 2) % 3 == 0
 
-        def is_equivalent(self, grammar, start):
-            self.equivalence_query_counter += 1
-            num_calls = math.ceil(1.0/self.epsilon *
-                      (math.log(1.0/self.delta +
-                                  self.equivalence_query_counter * math.log(2))))
-            dfa = DFA(start_symbol=start)
-            dfa.grammar = grammar
-            for _ in range(num_calls):
-                # sample a random binary string up to length 10
-                length = random.randint(0, 10)
-                w = &#x27;&#x27;.join(random.choice([&#x27;0&#x27;, &#x27;1&#x27;]) for _ in range(length))
-                if bool(self.is_member(w)) != bool(dfa.accepts(w)):
-                    return False, w
-            return True, None
+    def is_equivalent(self, grammar, start):
+        self.equivalence_query_counter += 1
+        num_calls = math.ceil(1.0/self.epsilon *
+                  (math.log(1.0/self.delta +
+                              self.equivalence_query_counter * math.log(2))))
+        dfa = DFA(start_symbol=start)
+        dfa.grammar = grammar
+        for _ in range(num_calls):
+            # sample a random binary string up to length 10
+            length = random.randint(0, 10)
+            w = ''.join(random.choice(['0', '1']) for _ in range(length))
+            if bool(self.is_member(w)) != bool(dfa.accepts(w)):
+                return False, w
+        return True, None
 
-    result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), [&#x27;0&#x27;, &#x27;1&#x27;])
-    assert result.accepts(&#x27;&#x27;)
-    assert result.accepts(&#x27;0&#x27;)
-    assert result.accepts(&#x27;11&#x27;)    # 3 in binary
-    assert result.accepts(&#x27;110&#x27;)   # 6 in binary
-    assert not result.accepts(&#x27;1&#x27;)
-    assert not result.accepts(&#x27;10&#x27;) # 2 in binary
-    print(&#x27;test 3 passed: divisible by 3 in binary&#x27;)
+result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
+assert result.accepts('')
+assert result.accepts('0')
+assert result.accepts('11')    # 3 in binary
+assert result.accepts('110')   # 6 in binary
+assert not result.accepts('1')
+assert not result.accepts('10') # 2 in binary
+print('test 3 passed: divisible by 3 in binary')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class DivBy3Teacher(Teacher):
+    def __init__(self, delta=0.5, epsilon=0.5):
+        super().__init__(&#x27;0&#x27;, delta=delta, epsilon=epsilon)
+
+    def is_member(self, w):
+        if not w: return True
+        return int(w, 2) % 3 == 0
+
+    def is_equivalent(self, grammar, start):
+        self.equivalence_query_counter += 1
+        num_calls = math.ceil(1.0/self.epsilon *
+                  (math.log(1.0/self.delta +
+                              self.equivalence_query_counter * math.log(2))))
+        dfa = DFA(start_symbol=start)
+        dfa.grammar = grammar
+        for _ in range(num_calls):
+            # sample a random binary string up to length 10
+            length = random.randint(0, 10)
+            w = &#x27;&#x27;.join(random.choice([&#x27;0&#x27;, &#x27;1&#x27;]) for _ in range(length))
+            if bool(self.is_member(w)) != bool(dfa.accepts(w)):
+                return False, w
+        return True, None
+
+result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), [&#x27;0&#x27;, &#x27;1&#x27;])
+assert result.accepts(&#x27;&#x27;)
+assert result.accepts(&#x27;0&#x27;)
+assert result.accepts(&#x27;11&#x27;)    # 3 in binary
+assert result.accepts(&#x27;110&#x27;)   # 6 in binary
+assert not result.accepts(&#x27;1&#x27;)
+assert not result.accepts(&#x27;10&#x27;) # 2 in binary
+print(&#x27;test 3 passed: divisible by 3 in binary&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
