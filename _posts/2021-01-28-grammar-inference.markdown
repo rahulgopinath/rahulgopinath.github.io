@@ -155,8 +155,8 @@ $$
 F_1 = \frac{2PR}{P + R}
 $$
 
-A note: Resist the temptation to simplify this further. For example,
-you can simplify it as follows:
+**Note:** Resist the temptation to simplify this further. For example,
+given the commutativity of intersection, it is tempting to simplify it as:
 
 $$
 F_1 = \frac{2|L(Gl) \cap L(Gb)|}
