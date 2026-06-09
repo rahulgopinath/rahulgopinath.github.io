@@ -174,7 +174,7 @@ grammar. An F1 score of 1 indicates that the two languages are identical, while
 an F1 score of 0 indicates that they are disjoint.
 
 There is one caveat. Most context-free grammars represent infinite languages,
-which means that quantities such as |L(Gl)| and |L(Gb)| are often
+which means that quantities such as $$ |L(Gl)| $$ and $$ |L(Gb)| $$ are often
 infinite. In practice, what we actually estimate is
 
 $$
