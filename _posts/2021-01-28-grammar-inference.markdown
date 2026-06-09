@@ -122,11 +122,18 @@ The universe is then given by
 
 $$ \left[ \left(FN (TP) FP \right) TN \right] $$
 
-We can now see that precision is $\frac{|L(Gl) \cap L(Gb)|}{|L(Gl)|}$ and recall
-is $\frac{|L(Gb) \cap L(Gl)|}{|L(Gb)|}$.
+We can now see that:
 
-We can sample from each grammar exclusively to approximate precision and recall,
-using the other grammar as an acceptor.
+```python
+Gl_samples = generate(Gl) # Generate strings from Gl
+precision  = sum(recognize(Gb, s) for s in Gl_samples) / len(Gl_samples)
+
+Gb_samples = generate(Gb) # Generate strings from Gb
+recall     = sum(recognize(Gl, s) for s in Gb_samples) / len(Gb_samples)
+```
+
+That is, to estimate each measure we sample exclusively from one grammar and
+use the other as an acceptor.
 
 ### Interpreting F1
 
