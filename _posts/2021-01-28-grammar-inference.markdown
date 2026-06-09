@@ -233,15 +233,20 @@ well-defined sampling distribution, and a blackbox program provides none.
 Finally, the Monte Carlo estimation of precision and recall has a direct
 sample-complexity interpretation:
 
-Let $$ s_i \overset{\text{iid}}{\sim} L(Gl) $$ and define:
+Draw $$ n $$ strings independently from $$ Gl $$, calling them
+$$ s_1, s_2, \ldots, s_n $$, and run $$ Gb $$ on each one.
+Define the outcome of the $$ i $$-th string as:
 
 $$
 X_i = \begin{cases} 1 & \text{if } Gb \text{ accepts } s_i \\ 0 & \text{otherwise} \end{cases}
 $$
 
-The empirical precision is $$ \hat{P} = \frac{1}{n}\sum_i X_i $$ and the
-true precision is $$ P = \mathbb{E}[X_i] $$.
-Hoeffding's inequality gives:
+The empirical precision is then the fraction of accepted strings,
+$$ \hat{P} = \frac{1}{n}\sum_i X_i $$, and the true precision $$ P $$
+is the expected value $$ \mathbb{E}[X_i] $$ — that is, the probability that
+a randomly drawn string from $$ Gl $$ is accepted by $$ Gb $$.
+[Hoeffding's
+inequality](https://en.wikipedia.org/wiki/Hoeffding%27s_inequality) gives:
 
 $$
 \Pr\!\left[|\hat{P} - P| \geq \varepsilon\right] \leq 2\exp(-2n\varepsilon^2)
