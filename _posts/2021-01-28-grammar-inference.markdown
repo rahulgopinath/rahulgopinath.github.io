@@ -32,7 +32,7 @@ We need three definitions before we proceed.
   accepted by the synthesized grammar. That is, the synthesized grammar acts as an acceptor.
 
 * F1 score: The F1 score is the harmonic mean of precision and recall, and is
-  given by $2 \times \frac{PR}{P + R}$.
+  given by $$ 2 \times \frac{PR}{P + R} $$ .
 
 Now, how does one verify their approach? One approach that recent research has taken
 is to try and recover the context free grammar from one of the blackbox programs, then
@@ -90,9 +90,9 @@ That is, given this set of samples, and the learned model, we have:
 3. TN: Number of samples correctly predicted as *negative.*
 4. FN: Number of samples wrongly predicted as *negative.*
 
-Precision = $\frac{TP}{TP + FP}$
+Precision = $$ \frac{TP}{TP + FP} $$
 
-Recall = $\frac{TP}{TP + FN}$
+Recall = $$ \frac{TP}{TP + FN} $$
 
 In grammar induction, we do not actually have a set of samples to classify. In
 particular, the process for generation of strings from original and learned
@@ -155,12 +155,18 @@ $$
 F_1 = \frac{2PR}{P + R}
 $$
 
-Substituting the definitions of precision and recall gives
+A note: Resist the temptation to simplify this further. For example,
+you can simplify it as follows:
 
 $$
 F_1 = \frac{2|L(Gl) \cap L(Gb)|}
            {|L(Gl)| + |L(Gb)|}.
 $$
+
+But this is uninterpretable. There is no indication of which grammar is the
+generator and which is the recognizer. Hence, compute the F1 score from
+precision and recall.
+
 
 That is, the F1 score is simply the Dice coefficient between the language
 represented by the original grammar and the language represented by the learned
