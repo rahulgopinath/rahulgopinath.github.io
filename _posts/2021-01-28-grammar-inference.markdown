@@ -233,8 +233,12 @@ well-defined sampling distribution, and a blackbox program provides none.
 Finally, the Monte Carlo estimation of precision and recall has a direct
 sample-complexity interpretation:
 
-Let $$ X_i = \mathbf{1}[\text{recognize}(Gb, s_i)] $$ for strings
-$$ s_i \overset{\text{iid}}{\sim} L(Gl) $$, so each $$ X_i \in \{0,1\} $$.
+Let $$ s_i \overset{\text{iid}}{\sim} L(Gl) $$ and define:
+
+$$
+X_i = \begin{cases} 1 & \text{if } Gb \text{ accepts } s_i \\ 0 & \text{otherwise} \end{cases}
+$$
+
 The empirical precision is $$ \hat{P} = \frac{1}{n}\sum_i X_i $$ and the
 true precision is $$ P = \mathbb{E}[X_i] $$.
 Hoeffding's inequality gives:
