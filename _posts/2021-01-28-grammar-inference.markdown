@@ -233,7 +233,9 @@ well-defined sampling distribution, and a blackbox program provides none.
 Finally, the Monte Carlo estimation of precision and recall has a direct
 sample-complexity interpretation:
 
-Draw $$ n $$ strings independently from $$ Gl $$, calling them
+We treat precision and recall separately, one at a time.
+
+**Precision.** Draw $$ n $$ strings independently from $$ Gl $$, calling them
 $$ s_1, s_2, \ldots, s_n $$, and run $$ Gb $$ on each one.
 Define the outcome of the $$ i $$-th string as:
 
@@ -264,7 +266,11 @@ $$
 n \geq \frac{\ln(2/\delta)}{2\varepsilon^2}
 $$
 
-The same bound holds for $$ \hat{R} $$.
+**Recall.** The argument is symmetric: draw $$ n $$ strings independently
+from $$ Gb $$, run $$ Gl $$ on each one, and define $$ Y_i = 1 $$ if $$ Gl $$
+accepts the $$ i $$-th string and $$ 0 $$ otherwise.
+The empirical recall is $$ \hat{R} = \frac{1}{n}\sum_i Y_i $$, and the same
+Hoeffding bound gives the same sample requirement.
 Applying the union bound so that both estimates hold simultaneously
 (each allowed failure probability $$ \delta/2 $$) gives:
 
