@@ -217,7 +217,7 @@ different empirical estimates of precision, recall, and F1.
 This framing connects naturally to the
 **PAC (Probably Approximately Correct)** framework for language
 learning[^valiant1984theory].
-In PAC learning, a hypothesis $Gl$ is considered $$ \varepsilon $$-accurate if
+In PAC learning, a hypothesis Gl is considered $$ \varepsilon $$-accurate if
 the probability of disagreement with the target Gb is at most $$ \varepsilon $$
 under some fixed distribution.
 Here, $$ 1 - P $$ and $$ 1 - R $$ are exactly the disagreement rates under Gl's
@@ -226,7 +226,7 @@ Requiring high F1 therefore resembles a **two-sided PAC condition**: $$Gl$$ must
 $$ \varepsilon $$ -close to$$ Gb $$under both distributions simultaneously, which is
 strictly stronger than the one-sided version.
 
-This also explains why starting with a known grammar $Gb$ rather than a
+This also explains why starting with a known grammar Gb rather than a
 blackbox program is not merely a convenience: a PAC guarantee requires a
 well-defined sampling distribution, and a blackbox program provides none.
 
