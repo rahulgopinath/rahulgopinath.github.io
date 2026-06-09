@@ -105,7 +105,6 @@ Say we have the original grammar Gb. The language represented by Gb
 when seen through the lens of learned grammar Gl would have the following
 structure:
 
-![Venn diagram of L(Gb) and L(Gl)](/resources/posts/grammar-inference-venn.svg)
 
 $$ L(Gb) = \left[ (FN (TP)) \right] $$
 
@@ -123,6 +122,8 @@ That is, it was falsely labeled as positive.
 The universe is then given by
 
 $$ \left[ \left(FN (TP) FP \right) TN \right] $$
+
+![Venn diagram of L(Gb) and L(Gl)](/resources/posts/grammar-inference-venn.svg)
 
 We can now see that:
 
