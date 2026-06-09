@@ -103,7 +103,9 @@ The intuition here is as follows:
 
 Say we have the original grammar Gb. The language represented by Gb
 when seen through the lens of learned grammar Gl would have the following
-structure (the below is a crude representation of a Venn Diagram):
+structure:
+
+![Venn diagram of L(Gb) and L(Gl)](/resources/posts/grammar-inference-venn.svg)
 
 $$ L(Gb) = \left[ (FN (TP)) \right] $$
 
