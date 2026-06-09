@@ -279,9 +279,15 @@ n \geq \frac{\ln(4/\delta)}{2\varepsilon^2}
 $$
 
 samples from each grammar, for a total of $$ N = O(\log(1/\delta)/\varepsilon^2) $$.
-Note that $$ \varepsilon $$ here is the tolerance on the *estimates* of $$ P $$
-and $$ R $$, not a direct bound on how well $$ Gl $$ approximates $$ Gb $$ —
-this is the estimation cost, not the learning cost.
+
+**A word of caution.** This bound answers the question: *given a fixed learned
+grammar $$ Gl $$, how many test strings do we need to measure its precision and
+recall accurately?* It says nothing about how many oracle queries the inference
+algorithm itself needed to *produce* $$ Gl $$ in the first place. Those are two
+separate questions — this is the **evaluation cost**, not the **learning cost**.
+The analogy: Hoeffding tells you how many test examples you need to estimate a
+classifier's accuracy; it does not tell you how many training examples were needed
+to learn the classifier.
 
 <!-- Now, there is a complication here. For some of the programs such as Perl, or
 even [URLS as defined by WhatWG](https://url.spec.whatwg.org/#concept-basic-url-parser),
