@@ -886,7 +886,8 @@ if __name__ == '__main__':
         if (precision + recall):
             f1 = 2 * precision * recall / (precision + recall) 
         else: f1 = 0
-        print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f' % (e, precision, recall, f1))
+        print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f'
+              % (e, precision, recall, f1))
 
 # ## Comparison with L*
 # 

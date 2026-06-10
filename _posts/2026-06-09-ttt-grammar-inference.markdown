@@ -1647,7 +1647,8 @@ for e, alphabet in cases:
     if (precision + recall):
         f1 = 2 * precision * recall / (precision + recall)
     else: f1 = 0
-    print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f' % (e, precision, recall, f1))
+    print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f'
+          % (e, precision, recall, f1))
 
 ############
 -->
@@ -1683,7 +1684,8 @@ for e, alphabet in cases:
     if (precision + recall):
         f1 = 2 * precision * recall / (precision + recall)
     else: f1 = 0
-    print(&#x27;expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f&#x27; % (e, precision, recall, f1))
+    print(&#x27;expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f&#x27;
+          % (e, precision, recall, f1))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
