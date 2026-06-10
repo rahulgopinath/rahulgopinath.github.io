@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # USAGE: ./make_post.py notebooks/2021-02-21-python-pipes.py > _posts/2021-02-21-python-pipes.markdown
 import sys
+import os
 import json
 import itertools as I
 from html import escape
@@ -43,14 +44,50 @@ def get_post_name(pkg):
         return ' from "<a href="%s">%s</a>".' % (notebook_to_post(notebook), PKGS[pkg][0])
     else: return ''
 
+def _scan_triple_state(line, state):
+    """Walk one line updating triple-quote string state ('', \"\"\" or None=outside)."""
+    i = 0
+    while i < len(line):
+        if state is None:
+            if line[i:i+3] in ("'''", '"""'):
+                state = line[i:i+3]
+                i += 3
+            else:
+                i += 1
+        else:
+            if line[i:i+3] == state:
+                state = None
+                i += 3
+            else:
+                i += 1
+    return state
+
 def split_data(data):
-    chunks = [list(g) for k,g in I.groupby(data, key=lambda line: line[0] == '#')]
+    # Group lines into comment/code runs, but never split inside a triple-quoted string.
+    triple_state = None
+    raw_chunks = []          # list of (is_comment, [lines])
+    cur_lines = []
+    cur_is_comment = None
+
+    for line in data:
+        is_comment = (triple_state is None) and len(line) > 0 and line[0] == '#'
+        triple_state = _scan_triple_state(line, triple_state)
+
+        if cur_is_comment is None:
+            cur_is_comment = is_comment
+        if is_comment != cur_is_comment:
+            raw_chunks.append((cur_is_comment, cur_lines))
+            cur_lines = []
+            cur_is_comment = is_comment
+        cur_lines.append(line)
+
+    if cur_lines:
+        raw_chunks.append((cur_is_comment, cur_lines))
 
     processed_data = []
-    for chunk in chunks:
-        if chunk[0][0] == '#': # comment chunk
+    for is_comment, chunk in raw_chunks:
+        if is_comment:
             if chunk[0][1] == ' ':
-                # remove extra newlines.
                 comment = ''.join([line[2:] for line in chunk])
                 processed_data.append(('comment', comment))
             elif chunk[0][1] == '@':
@@ -63,7 +100,7 @@ def split_data(data):
                 comment = ''.join([line[2:] for line in chunk])
                 processed_data.append(('comment', comment))
             else:
-                assert False
+                assert False, repr(chunk[0])
         else:
             skip_empty = True
             lines = []
@@ -76,29 +113,55 @@ def split_data(data):
             if lines:
                 if lines[0] == "if __name__ == '__main__':":
                     lines = lines[1:]
-                # find empty of first line
-                e_l = 0
-                for c in lines[0]:
-                    if c == ' ': e_l += 1
-                    else: break
-                code = '\n'.join([l[e_l:] for l in lines])
+                import textwrap as _textwrap
+                code = _textwrap.dedent('\n'.join(lines))
                 processed_data.append(('code', code))
     return processed_data
+
+# Grammar blocks that exceed this line count are folded into a <details> element.
+FOLD_LINES = 15
+import re as _re
+# Matches a fuzzingbook-style grammar dict entry: '<nonterminal>': [
+_GRAMMAR_DICT = _re.compile(r"'<[A-Za-z0-9_-]+>':\s*\[|\"<[A-Za-z0-9_-]+>\":\s*\[")
+
+def _should_fold(code):
+    """Return True for large blocks that are grammar data definitions."""
+    lines = [l for l in code.split('\n') if l.strip()]
+    if len(lines) < FOLD_LINES:
+        return False
+    # Never fold function/class definitions — they're core content
+    if lines and _re.match(r'\s*(def |class )', lines[0]):
+        return False
+    # Only fold blocks that contain grammar dict entries like '<nt>': [...]
+    return bool(_GRAMMAR_DICT.search(code))
+
+def process_pkg_name(name):
+    baselen = len('https://rahul.gopinath.org/py/')
+    if os.getenv('LOCAL'):
+        return '/py/%s' %  name[baselen:]
+    else:
+        return name
 
 def get_pkg_desc(name):
     # , VALS[fn][1], notebook_to_post(fn) See the post "[%s](%s)" for further information.
     # https://rahul.gopinath.org/py/pydot-1.4.1-py2.py3-none-any.whl
-    wheel_name = name[len('https://rahul.gopinath.org/py/'):]
+    baselen = len('https://rahul.gopinath.org/py/')
+    wheel_name = name[baselen:]
     pkg_name, *rest = wheel_name.split('-')
     post_name = get_post_name(pkg_name)
     # we don't want to do this because students may run the page from somewhere else.
     # return '<li><a href="%s">%s</a>%s</li>' % (name[len('https://rahul.gopinath.org'):], wheel_name, post_name)
-    return '<li><a href="%s">%s</a>%s</li>' % (name, wheel_name, post_name)
+    if os.getenv('LOCAL'):
+        return '<li><a href="/py/%s">%s</a>%s</li>' %  (name[baselen:] , wheel_name, post_name)
+    else:
+        return '<li><a href="%s">%s</a>%s</li>' % (name, wheel_name, post_name)
 
 def print_data(processed_data):
     first_comment = True
     for kind, chunk in processed_data:
         if kind == 'comment':
+            # Escape Liquid-special sequences so Jekyll doesn't misparse prose
+            chunk = chunk.replace('{{', '{{ "{{" }}').replace('{%', '{{ "{%" }}')
             p(chunk)
             if first_comment:
                 p('''
@@ -163,7 +226,7 @@ installed if you are attempting to run the program directly on the machine.
         if kind == 'wheel':
             items = [get_pkg_desc(l) for l in chunk]
             pkg_desc = '\n'.join(items)
-            pkg_names = '\n'.join(['%s' % l for l in chunk])
+            pkg_names = '\n'.join(['%s' % process_pkg_name(l) for l in chunk])
             p('''
 <details>
 <summary>Available Packages </summary>
@@ -190,6 +253,12 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 ''' % ( pkg_desc, pkg_names))
         elif kind == 'code':
             scraped_chunk = escape(chunk)
+            fold = _should_fold(chunk)
+            if fold:
+                first_line = chunk.split('\n')[0][:60]
+                nlines = len([l for l in chunk.split('\n') if l.strip()])
+                p('<details><summary><code>%s</code> &nbsp;(%d lines)</summary>\n'
+                  % (escape(first_line), nlines))
             p('''
 <!--
 ############
@@ -208,6 +277,8 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <div name='python_canvas'></div>
 </form>
 ''')
+            if fold:
+                p('</details>\n')
 import os.path
 from contextlib import redirect_stdout
 
