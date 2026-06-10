@@ -129,6 +129,7 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/lstar-0.0.1-py2.py3-none-any.whl">lstar-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2024/01/04/lstar-learning-regular-languages/">L* Algorithm</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -142,6 +143,7 @@ https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/lstar-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>

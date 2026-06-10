@@ -85,6 +85,7 @@
 # https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 # https://rahul.gopinath.org/py/lstar-0.0.1-py2.py3-none-any.whl
+# https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 
 import simplefuzzer as fuzzer
 import rxfuzzer
