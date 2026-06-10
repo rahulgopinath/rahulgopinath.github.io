@@ -1599,37 +1599,6 @@ def match(p, start, text):
     except SyntaxError: return False
     return True
 
-if __name__ == '__main__':
-    # We reuse the first two targets from the examples above.
-    # Each pair is (regex, alphabet).
-    cases = [
-        ('(b*ab*a)*b*', ['a', 'b']),
-        ('(a|b)*b',     ['a', 'b']),
-    ]
-    for e, alphabet in cases:
-        teacher = Teacher(e, delta=0.2, epsilon=0.2)
-        t_g, t_s = teacher.g, teacher.s
-        t_f = fuzzer.LimitFuzzer(t_g)
-
-        result = ttt(teacher, alphabet)
-        i_p = earleyparser.EarleyParser(result.grammar)
-        i_f = fuzzer.LimitFuzzer(result.grammar)
-
-        lgi = lgi_lgb = lgb = lgb_lgi = 0
-        for _ in range(100):
-            val = i_f.iter_fuzz(key=result.start_symbol, max_depth=20)
-            if match(teacher.parser, t_s, val): lgi_lgb += 1
-            lgi += 1
-
-            val = t_f.iter_fuzz(key=t_s, max_depth=20)
-            if match(i_p, result.start_symbol, val): lgb_lgi += 1
-            lgb += 1
-
-        precision = lgi_lgb / lgi
-        recall = lgb_lgi / lgb
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
-        print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f' % (e, precision, recall, f1))
-
 ############
 -->
 <form name='python_run_form'>
@@ -1638,37 +1607,81 @@ def match(p, start, text):
     try: p.recognize_on(text, start)
     except SyntaxError: return False
     return True
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
 
-if __name__ == &#x27;__main__&#x27;:
-    # We reuse the first two targets from the examples above.
-    # Each pair is (regex, alphabet).
-    cases = [
-        (&#x27;(b*ab*a)*b*&#x27;, [&#x27;a&#x27;, &#x27;b&#x27;]),
-        (&#x27;(a|b)*b&#x27;,     [&#x27;a&#x27;, &#x27;b&#x27;]),
-    ]
-    for e, alphabet in cases:
-        teacher = Teacher(e, delta=0.2, epsilon=0.2)
-        t_g, t_s = teacher.g, teacher.s
-        t_f = fuzzer.LimitFuzzer(t_g)
+<!--
+############
+# We reuse the first two targets from the examples above.
+# Each pair is (regex, alphabet).
+cases = [
+    ('(b*ab*a)*b*', ['a', 'b']),
+    ('(a|b)*b',     ['a', 'b']),
+]
+for e, alphabet in cases:
+    teacher = Teacher(e, delta=0.2, epsilon=0.2)
+    t_g, t_s = teacher.g, teacher.s
+    t_f = fuzzer.LimitFuzzer(t_g)
 
-        result = ttt(teacher, alphabet)
-        i_p = earleyparser.EarleyParser(result.grammar)
-        i_f = fuzzer.LimitFuzzer(result.grammar)
+    result = ttt(teacher, alphabet)
+    i_p = earleyparser.EarleyParser(result.grammar)
+    i_f = fuzzer.LimitFuzzer(result.grammar)
 
-        lgi = lgi_lgb = lgb = lgb_lgi = 0
-        for _ in range(100):
-            val = i_f.iter_fuzz(key=result.start_symbol, max_depth=20)
-            if match(teacher.parser, t_s, val): lgi_lgb += 1
-            lgi += 1
+    lgi = lgi_lgb = lgb = lgb_lgi = 0
+    for _ in range(100):
+        val = i_f.iter_fuzz(key=result.start_symbol, max_depth=20)
+        if match(teacher.parser, t_s, val): lgi_lgb += 1
+        lgi += 1
 
-            val = t_f.iter_fuzz(key=t_s, max_depth=20)
-            if match(i_p, result.start_symbol, val): lgb_lgi += 1
-            lgb += 1
+        val = t_f.iter_fuzz(key=t_s, max_depth=20)
+        if match(i_p, result.start_symbol, val): lgb_lgi += 1
+        lgb += 1
 
-        precision = lgi_lgb / lgi
-        recall = lgb_lgi / lgb
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
-        print(&#x27;expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f&#x27; % (e, precision, recall, f1))
+    precision = lgi_lgb / lgi
+    recall = lgb_lgi / lgb
+    if (precision + recall):
+        f1 = 2 * precision * recall / (precision + recall)
+    else: f1 = 0
+    print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f' % (e, precision, recall, f1))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+# We reuse the first two targets from the examples above.
+# Each pair is (regex, alphabet).
+cases = [
+    (&#x27;(b*ab*a)*b*&#x27;, [&#x27;a&#x27;, &#x27;b&#x27;]),
+    (&#x27;(a|b)*b&#x27;,     [&#x27;a&#x27;, &#x27;b&#x27;]),
+]
+for e, alphabet in cases:
+    teacher = Teacher(e, delta=0.2, epsilon=0.2)
+    t_g, t_s = teacher.g, teacher.s
+    t_f = fuzzer.LimitFuzzer(t_g)
+
+    result = ttt(teacher, alphabet)
+    i_p = earleyparser.EarleyParser(result.grammar)
+    i_f = fuzzer.LimitFuzzer(result.grammar)
+
+    lgi = lgi_lgb = lgb = lgb_lgi = 0
+    for _ in range(100):
+        val = i_f.iter_fuzz(key=result.start_symbol, max_depth=20)
+        if match(teacher.parser, t_s, val): lgi_lgb += 1
+        lgi += 1
+
+        val = t_f.iter_fuzz(key=t_s, max_depth=20)
+        if match(i_p, result.start_symbol, val): lgb_lgi += 1
+        lgb += 1
+
+    precision = lgi_lgb / lgi
+    recall = lgb_lgi / lgb
+    if (precision + recall):
+        f1 = 2 * precision * recall / (precision + recall)
+    else: f1 = 0
+    print(&#x27;expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f&#x27; % (e, precision, recall, f1))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>

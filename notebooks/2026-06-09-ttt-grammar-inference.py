@@ -852,6 +852,8 @@ def match(p, start, text):
     except SyntaxError: return False
     return True
 
+# Testing
+
 if __name__ == '__main__':
     # We reuse the first two targets from the examples above.
     # Each pair is (regex, alphabet).
@@ -880,7 +882,9 @@ if __name__ == '__main__':
 
         precision = lgi_lgb / lgi
         recall = lgb_lgi / lgb
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
+        if (precision + recall):
+            f1 = 2 * precision * recall / (precision + recall) 
+        else: f1 = 0
         print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f' % (e, precision, recall, f1))
 
 # ## Comparison with L*
