@@ -387,18 +387,20 @@ if __name__ == '__main__':
     assert sift(dt, '', oracle).state == '<start>'
     __canvas__(dt_to_dot(dt, 'DT_single'))
 
-# two-level tree:  `[''] / <1> (odd) \ <start> (even)`
+# two-level tree: discriminator ε separates `<odd>` (rejects ε) from `<even>` (accepts ε).
+# We use descriptive names here purely to make the example readable;
+# the algorithm assigns numeric names like `<0>` at runtime.
 if __name__ == '__main__':
     dt = DTInner('')
-    dt.left = DTLeaf('<1>')
-    dt.right = DTLeaf('<start>')
-    assert sift(dt, 'aa', oracle).state == '<start>'
-    assert sift(dt, 'a', oracle).state == '<1>'
-    assert sift(dt, '', oracle).state == '<start>'
-    assert sift(dt, 'b', oracle).state == '<start>'
+    dt.left = DTLeaf('<odd>')
+    dt.right = DTLeaf('<even>')
+    assert sift(dt, 'aa', oracle).state == '<even>'
+    assert sift(dt, 'a', oracle).state == '<odd>'
+    assert sift(dt, '', oracle).state == '<even>'
+    assert sift(dt, 'b', oracle).state == '<even>'
     __canvas__(dt_to_dot(dt, 'DT_even_a'))
 
-# Sifting `'a'` (odd a's) goes left to `<1>`; sifting `'aa'` (even a's) goes right to `<start>`.
+# Sifting `'a'` (odd a's) goes left to `<odd>`; sifting `'aa'` (even a's) goes right to `<even>`.
 
 if __name__ == '__main__':
     _tr = DTTracer(dt)
@@ -412,51 +414,11 @@ if __name__ == '__main__':
     sift(_tr, 'aa', oracle)
     __canvas__(dt_to_dot(dt, 'DT_sift_aa', tracer=_tr))
 
-# The even-a's DT always uses ε as its discriminator because membership of
-# the access sequence alone is enough to tell states apart. Most targets
-# produce non-empty discriminators. Consider strings over `{a, b}` that end
-# in `ba`. After two counterexamples the DT has two levels: the root asks
-# `member(w + 'a')` (discriminator `'a'`), and the left subtree then asks
-# `member(w + ε)` to separate `<start>` from the accepting state `<2>`.
-
-if __name__ == '__main__':
-    oracle_ba = MockOracle(lambda w: w.endswith('ba'))
-    # three-state DT for (a|b)*ba:
-    #   root:  d='a'  -> right: <1> (state after reading 'b', access='b')
-    #                 -> left:  d=ε -> left:  <start>  (rejects ε)
-    #                                -> right: <2>     (accepts ε, i.e. ends in ba)
-    dt_ba = DTInner('a')
-    dt_ba.right = DTLeaf('<1>')
-    dt_ba_left  = DTInner('')
-    dt_ba_left.left  = DTLeaf('<start>')
-    dt_ba_left.right = DTLeaf('<2>')
-    dt_ba.left = dt_ba_left
-    __canvas__(dt_to_dot(dt_ba, 'DT_ends_ba'))
-
-# Sifting `'b'` (access of `<1>`): `member('b'+'a')` = `member('ba')` = True
-# so go right -> leaf `<1>`.
-
-if __name__ == '__main__':
-    _tr = DTTracer(dt_ba)
-    sift(_tr, 'b', oracle_ba)
-    __canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_b', tracer=_tr))
-
-# Sifting `'ba'` (access of `<2>`): `member('ba'+'a')` = `member('baa')` = False
-# so go left; then `member('ba'+ε)` = `member('ba')` = True -> go right -> leaf `<2>`.
-
-if __name__ == '__main__':
-    _tr = DTTracer(dt_ba)
-    sift(_tr, 'ba', oracle_ba)
-    __canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_ba', tracer=_tr))
-
-# Sifting `''` (access of `<start>`): `member(''+a)` = `member('a')` = False
-# so go left; then `member(''+ε)` = `member('')` = False -> go left -> leaf `<start>`.
-
-if __name__ == '__main__':
-    _tr = DTTracer(dt_ba)
-    sift(_tr, '', oracle_ba)
-    __canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_empty', tracer=_tr))
-
+# The even-a's DT uses ε as its discriminator because membership of the
+# access sequence alone distinguishes all states. Most targets produce
+# non-empty discriminators — we will see this concretely in the
+# Counterexample Decomposition section and in the full worklist walkthrough.
+# 
 # ## The Spanning Tree
 # 
 # If you have read the
@@ -531,18 +493,18 @@ if __name__ == '__main__':
 # lands on is the state we assign as the target.
 # 
 # Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
-# left = `<1>`, right = `<start>`), and spanning tree
-# `{<start>: '', <1>: 'a'}`, we sift each transition in turn.
+# left = `<odd>`, right = `<start>`), and spanning tree
+# `{<start>: '', <odd>: 'a'}`, we sift each transition in turn.
 # The blue path shows the route taken through the DT.
 # 
 # $$ \langle start \rangle \xrightarrow{a} ? $$: sift `'' + 'a'` = `'a'`.
-# Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
-# So `<start> -a-> <1>`.
+# Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+# So `<start> -a-> <odd>`.
 
 if __name__ == '__main__':
     _oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
     _dt_walk = DTInner('')
-    _dt_walk.left  = DTLeaf('<1>')
+    _dt_walk.left  = DTLeaf('<odd>')
     _dt_walk.right = DTLeaf('<start>')
     _tr = DTTracer(_dt_walk)
     sift(_tr, 'a', _oracle_ea)
@@ -557,23 +519,23 @@ if __name__ == '__main__':
     sift(_tr, 'b', _oracle_ea)
     __canvas__(dt_to_dot(_dt_walk, 'sift_start_b', tracer=_tr))
 
-# $$ \langle 1 \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
+# $$ \langle odd \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
 # Is `'aa' + ''` accepted? Yes (even a's) — go right — leaf `<start>`.
-# So `<1> -a-> <start>`.
+# So `<odd> -a-> <start>`.
 
 if __name__ == '__main__':
     _tr = DTTracer(_dt_walk)
     sift(_tr, 'aa', _oracle_ea)
-    __canvas__(dt_to_dot(_dt_walk, 'sift_1_a', tracer=_tr))
+    __canvas__(dt_to_dot(_dt_walk, 'sift_odd_a', tracer=_tr))
 
-# $$ \langle 1 \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
-# Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
-# So `<1> -b-> <1>`.
+# $$ \langle odd \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
+# Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+# So `<odd> -b-> <odd>`.
 
 if __name__ == '__main__':
     _tr = DTTracer(_dt_walk)
     sift(_tr, 'ab', _oracle_ea)
-    __canvas__(dt_to_dot(_dt_walk, 'sift_1_b', tracer=_tr))
+    __canvas__(dt_to_dot(_dt_walk, 'sift_odd_b', tracer=_tr))
 
 # A transition is *open* if we have not yet determined its target: either the
 # transition is missing from the DFA entirely, or its recorded target has no
@@ -653,15 +615,15 @@ if __name__ == '__main__':
 
 # After the first counterexample (say `'a'`) is processed, `decompose` splits
 # the DT: a new inner node with discriminator `''` separates `<start>` (goes
-# right: accepts `''`) from new state `<1>` (goes left: rejects `''`).
-# Re-sifting now correctly routes `'a'` to `<1>` and `'b'` back to `<start>`.
+# right: accepts `''`) from new state `<odd>` (goes left: rejects `''`).
+# Re-sifting now correctly routes `'a'` to `<odd>` and `'b'` back to `<start>`.
 
 if __name__ == '__main__':
     dt_post = DTInner('')
-    dt_post.left  = DTLeaf('<1>')
+    dt_post.left  = DTLeaf('<odd>')
     dt_post.right = DTLeaf('<start>')
     st_post = SpanningTree()
-    st_post.add_state('<1>', '<start>', 'a')
+    st_post.add_state('<odd>', '<start>', 'a')
     dfa_post = DFA()
     build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'])
     __canvas__(dt_to_dot(dt_post,  'DT_after_split'))
@@ -721,20 +683,20 @@ if __name__ == '__main__':
     oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
     alphabet = ['a', 'b']
     dt = DTInner('')
-    dt.left  = DTLeaf('<1>')
+    dt.left  = DTLeaf('<odd>')
     dt.right = DTLeaf('<start>')
     st = SpanningTree()
     dfa = DFA()
     leaf_index = {}
     build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
-    assert dfa.transition('<start>', 'a')[1] == '<1>'
+    assert dfa.transition('<start>', 'a')[1] == '<odd>'
     assert dfa.transition('<start>', 'b')[1] == '<start>'
-    assert dfa.transition('<1>', 'a')[1] == '<start>'
-    assert dfa.transition('<1>', 'b')[1] == '<1>'
+    assert dfa.transition('<odd>', 'a')[1] == '<start>'
+    assert dfa.transition('<odd>', 'b')[1] == '<odd>'
     assert dfa.accepts('')
     assert dfa.accepts('aa')
     assert not dfa.accepts('a')
-    assert st.access('<1>') == 'a'
+    assert st.access('<odd>') == 'a'
     print('build_hypothesis tests passed')
 
 # ## Counterexample Decomposition
@@ -1014,17 +976,17 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     dt2 = DTInner('')
-    dt2.left  = DTLeaf('<1>')
+    dt2.left  = DTLeaf('<odd>')
     dt2.right = DTLeaf('<start>')
     st2 = SpanningTree()
-    st2.add_state('<1>', '<start>', 'a')
+    st2.add_state('<odd>', '<start>', 'a')
     dfa2 = DFA()
-    dfa2.ensure_state('<1>')
+    dfa2.ensure_state('<odd>')
     dfa2.set_accepting('<start>')
-    dfa2.add_transition('<start>', 'a', '<1>')
+    dfa2.add_transition('<start>', 'a', '<odd>')
     dfa2.add_transition('<start>', 'b', '<start>')
-    dfa2.add_transition('<1>', 'a', '<1>')   # wrong
-    dfa2.add_transition('<1>', 'b', '<1>')
+    dfa2.add_transition('<odd>', 'a', '<odd>')   # wrong
+    dfa2.add_transition('<odd>', 'b', '<odd>')
     new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
     assert st2.access(new_state2) == 'aa'
     print('decompose test 3 passed')

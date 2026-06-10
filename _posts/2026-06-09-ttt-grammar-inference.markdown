@@ -769,17 +769,19 @@ __canvas__(dt_to_dot(dt, &#x27;DT_single&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-two-level tree:  `[''] / <1> (odd) \ <start> (even)`
+two-level tree: discriminator ε separates `<odd>` (rejects ε) from `<even>` (accepts ε).
+We use descriptive names here purely to make the example readable;
+the algorithm assigns numeric names like `<0>` at runtime.
 
 <!--
 ############
 dt = DTInner('')
-dt.left = DTLeaf('<1>')
-dt.right = DTLeaf('<start>')
-assert sift(dt, 'aa', oracle).state == '<start>'
-assert sift(dt, 'a', oracle).state == '<1>'
-assert sift(dt, '', oracle).state == '<start>'
-assert sift(dt, 'b', oracle).state == '<start>'
+dt.left = DTLeaf('<odd>')
+dt.right = DTLeaf('<even>')
+assert sift(dt, 'aa', oracle).state == '<even>'
+assert sift(dt, 'a', oracle).state == '<odd>'
+assert sift(dt, '', oracle).state == '<even>'
+assert sift(dt, 'b', oracle).state == '<even>'
 __canvas__(dt_to_dot(dt, 'DT_even_a'))
 
 ############
@@ -787,18 +789,18 @@ __canvas__(dt_to_dot(dt, 'DT_even_a'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 dt = DTInner(&#x27;&#x27;)
-dt.left = DTLeaf(&#x27;&lt;1&gt;&#x27;)
-dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-assert sift(dt, &#x27;a&#x27;, oracle).state == &#x27;&lt;1&gt;&#x27;
-assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-assert sift(dt, &#x27;b&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
+dt.left = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
+dt.right = DTLeaf(&#x27;&lt;even&gt;&#x27;)
+assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
+assert sift(dt, &#x27;a&#x27;, oracle).state == &#x27;&lt;odd&gt;&#x27;
+assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
+assert sift(dt, &#x27;b&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
 __canvas__(dt_to_dot(dt, &#x27;DT_even_a&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Sifting `'a'` (odd a's) goes left to `<1>`; sifting `'aa'` (even a's) goes right to `<start>`.
+Sifting `'a'` (odd a's) goes left to `<odd>`; sifting `'aa'` (even a's) goes right to `<even>`.
 
 <!--
 ############
@@ -836,108 +838,11 @@ __canvas__(dt_to_dot(dt, &#x27;DT_sift_aa&#x27;, tracer=_tr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The even-a's DT always uses ε as its discriminator because membership of
-the access sequence alone is enough to tell states apart. Most targets
-produce non-empty discriminators. Consider strings over `{a, b}` that end
-in `ba`. After two counterexamples the DT has two levels: the root asks
-`member(w + 'a')` (discriminator `'a'`), and the left subtree then asks
-`member(w + ε)` to separate `<start>` from the accepting state `<2>`.
+The even-a's DT uses ε as its discriminator because membership of the
+access sequence alone distinguishes all states. Most targets produce
+non-empty discriminators — we will see this concretely in the
+Counterexample Decomposition section and in the full worklist walkthrough.
 
-<!--
-############
-oracle_ba = MockOracle(lambda w: w.endswith('ba'))
-# three-state DT for (a|b)*ba:
-#   root:  d='a'  -> right: <1> (state after reading 'b', access='b')
-#                 -> left:  d=ε -> left:  <start>  (rejects ε)
-#                                -> right: <2>     (accepts ε, i.e. ends in ba)
-dt_ba = DTInner('a')
-dt_ba.right = DTLeaf('<1>')
-dt_ba_left  = DTInner('')
-dt_ba_left.left  = DTLeaf('<start>')
-dt_ba_left.right = DTLeaf('<2>')
-dt_ba.left = dt_ba_left
-__canvas__(dt_to_dot(dt_ba, 'DT_ends_ba'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-oracle_ba = MockOracle(lambda w: w.endswith(&#x27;ba&#x27;))
-# three-state DT for (a|b)*ba:
-#   root:  d=&#x27;a&#x27;  -&gt; right: &lt;1&gt; (state after reading &#x27;b&#x27;, access=&#x27;b&#x27;)
-#                 -&gt; left:  d=ε -&gt; left:  &lt;start&gt;  (rejects ε)
-#                                -&gt; right: &lt;2&gt;     (accepts ε, i.e. ends in ba)
-dt_ba = DTInner(&#x27;a&#x27;)
-dt_ba.right = DTLeaf(&#x27;&lt;1&gt;&#x27;)
-dt_ba_left  = DTInner(&#x27;&#x27;)
-dt_ba_left.left  = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-dt_ba_left.right = DTLeaf(&#x27;&lt;2&gt;&#x27;)
-dt_ba.left = dt_ba_left
-__canvas__(dt_to_dot(dt_ba, &#x27;DT_ends_ba&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Sifting `'b'` (access of `<1>`): `member('b'+'a')` = `member('ba')` = True
-so go right -> leaf `<1>`.
-
-<!--
-############
-_tr = DTTracer(dt_ba)
-sift(_tr, 'b', oracle_ba)
-__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_b', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(dt_ba)
-sift(_tr, &#x27;b&#x27;, oracle_ba)
-__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_b&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Sifting `'ba'` (access of `<2>`): `member('ba'+'a')` = `member('baa')` = False
-so go left; then `member('ba'+ε)` = `member('ba')` = True -> go right -> leaf `<2>`.
-
-<!--
-############
-_tr = DTTracer(dt_ba)
-sift(_tr, 'ba', oracle_ba)
-__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_ba', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(dt_ba)
-sift(_tr, &#x27;ba&#x27;, oracle_ba)
-__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_ba&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Sifting `''` (access of `<start>`): `member(''+a)` = `member('a')` = False
-so go left; then `member(''+ε)` = `member('')` = False -> go left -> leaf `<start>`.
-
-<!--
-############
-_tr = DTTracer(dt_ba)
-sift(_tr, '', oracle_ba)
-__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_empty', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(dt_ba)
-sift(_tr, &#x27;&#x27;, oracle_ba)
-__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_empty&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 ## The Spanning Tree
 
 If you have read the
@@ -1078,19 +983,19 @@ string $$ acc(q) \cdot a $$ and sift it through the DT. Whatever leaf it
 lands on is the state we assign as the target.
 
 Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
-left = `<1>`, right = `<start>`), and spanning tree
-`{<start>: '', <1>: 'a'}`, we sift each transition in turn.
+left = `<odd>`, right = `<start>`), and spanning tree
+`{<start>: '', <odd>: 'a'}`, we sift each transition in turn.
 The blue path shows the route taken through the DT.
 
 $$ \langle start \rangle \xrightarrow{a} ? $$: sift `'' + 'a'` = `'a'`.
-Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
-So `<start> -a-> <1>`.
+Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+So `<start> -a-> <odd>`.
 
 <!--
 ############
 _oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
 _dt_walk = DTInner('')
-_dt_walk.left  = DTLeaf('<1>')
+_dt_walk.left  = DTLeaf('<odd>')
 _dt_walk.right = DTLeaf('<start>')
 _tr = DTTracer(_dt_walk)
 sift(_tr, 'a', _oracle_ea)
@@ -1102,7 +1007,7 @@ __canvas__(dt_to_dot(_dt_walk, 'sift_start_a', tracer=_tr))
 <textarea cols="40" rows="4" name='python_edit'>
 _oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 _dt_walk = DTInner(&#x27;&#x27;)
-_dt_walk.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
+_dt_walk.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 _dt_walk.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 _tr = DTTracer(_dt_walk)
 sift(_tr, &#x27;a&#x27;, _oracle_ea)
@@ -1132,15 +1037,15 @@ __canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_b&#x27;, tracer=_tr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-$$ \langle 1 \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
+$$ \langle odd \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
 Is `'aa' + ''` accepted? Yes (even a's) — go right — leaf `<start>`.
-So `<1> -a-> <start>`.
+So `<odd> -a-> <start>`.
 
 <!--
 ############
 _tr = DTTracer(_dt_walk)
 sift(_tr, 'aa', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_1_a', tracer=_tr))
+__canvas__(dt_to_dot(_dt_walk, 'sift_odd_a', tracer=_tr))
 
 ############
 -->
@@ -1148,20 +1053,20 @@ __canvas__(dt_to_dot(_dt_walk, 'sift_1_a', tracer=_tr))
 <textarea cols="40" rows="4" name='python_edit'>
 _tr = DTTracer(_dt_walk)
 sift(_tr, &#x27;aa&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_1_a&#x27;, tracer=_tr))
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_odd_a&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-$$ \langle 1 \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
-Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
-So `<1> -b-> <1>`.
+$$ \langle odd \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
+Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+So `<odd> -b-> <odd>`.
 
 <!--
 ############
 _tr = DTTracer(_dt_walk)
 sift(_tr, 'ab', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_1_b', tracer=_tr))
+__canvas__(dt_to_dot(_dt_walk, 'sift_odd_b', tracer=_tr))
 
 ############
 -->
@@ -1169,7 +1074,7 @@ __canvas__(dt_to_dot(_dt_walk, 'sift_1_b', tracer=_tr))
 <textarea cols="40" rows="4" name='python_edit'>
 _tr = DTTracer(_dt_walk)
 sift(_tr, &#x27;ab&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_1_b&#x27;, tracer=_tr))
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_odd_b&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1348,16 +1253,16 @@ __canvas__(dfa_to_dot(dfa_pre, &#x27;DFA_before_split&#x27;))
 </form>
 After the first counterexample (say `'a'`) is processed, `decompose` splits
 the DT: a new inner node with discriminator `''` separates `<start>` (goes
-right: accepts `''`) from new state `<1>` (goes left: rejects `''`).
-Re-sifting now correctly routes `'a'` to `<1>` and `'b'` back to `<start>`.
+right: accepts `''`) from new state `<odd>` (goes left: rejects `''`).
+Re-sifting now correctly routes `'a'` to `<odd>` and `'b'` back to `<start>`.
 
 <!--
 ############
 dt_post = DTInner('')
-dt_post.left  = DTLeaf('<1>')
+dt_post.left  = DTLeaf('<odd>')
 dt_post.right = DTLeaf('<start>')
 st_post = SpanningTree()
-st_post.add_state('<1>', '<start>', 'a')
+st_post.add_state('<odd>', '<start>', 'a')
 dfa_post = DFA()
 build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'])
 __canvas__(dt_to_dot(dt_post,  'DT_after_split'))
@@ -1367,10 +1272,10 @@ __canvas__(dt_to_dot(dt_post,  'DT_after_split'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 dt_post = DTInner(&#x27;&#x27;)
-dt_post.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
+dt_post.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt_post.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st_post = SpanningTree()
-st_post.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+st_post.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dfa_post = DFA()
 build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;])
 __canvas__(dt_to_dot(dt_post,  &#x27;DT_after_split&#x27;))
@@ -1482,20 +1387,20 @@ We test hypothesis construction on the even-a's example.
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
 alphabet = ['a', 'b']
 dt = DTInner('')
-dt.left  = DTLeaf('<1>')
+dt.left  = DTLeaf('<odd>')
 dt.right = DTLeaf('<start>')
 st = SpanningTree()
 dfa = DFA()
 leaf_index = {}
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
-assert dfa.transition('<start>', 'a')[1] == '<1>'
+assert dfa.transition('<start>', 'a')[1] == '<odd>'
 assert dfa.transition('<start>', 'b')[1] == '<start>'
-assert dfa.transition('<1>', 'a')[1] == '<start>'
-assert dfa.transition('<1>', 'b')[1] == '<1>'
+assert dfa.transition('<odd>', 'a')[1] == '<start>'
+assert dfa.transition('<odd>', 'b')[1] == '<odd>'
 assert dfa.accepts('')
 assert dfa.accepts('aa')
 assert not dfa.accepts('a')
-assert st.access('<1>') == 'a'
+assert st.access('<odd>') == 'a'
 print('build_hypothesis tests passed')
 
 ############
@@ -1505,20 +1410,20 @@ print('build_hypothesis tests passed')
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 alphabet = [&#x27;a&#x27;, &#x27;b&#x27;]
 dt = DTInner(&#x27;&#x27;)
-dt.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
+dt.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st = SpanningTree()
 dfa = DFA()
 leaf_index = {}
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
-assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;1&gt;&#x27;
+assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;odd&gt;&#x27;
 assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
-assert dfa.transition(&#x27;&lt;1&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
-assert dfa.transition(&#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;)[1] == &#x27;&lt;1&gt;&#x27;
+assert dfa.transition(&#x27;&lt;odd&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
+assert dfa.transition(&#x27;&lt;odd&gt;&#x27;, &#x27;b&#x27;)[1] == &#x27;&lt;odd&gt;&#x27;
 assert dfa.accepts(&#x27;&#x27;)
 assert dfa.accepts(&#x27;aa&#x27;)
 assert not dfa.accepts(&#x27;a&#x27;)
-assert st.access(&#x27;&lt;1&gt;&#x27;) == &#x27;a&#x27;
+assert st.access(&#x27;&lt;odd&gt;&#x27;) == &#x27;a&#x27;
 print(&#x27;build_hypothesis tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2089,17 +1994,17 @@ The DT gains a second level; the new state gets access sequence 'aa'.
 <!--
 ############
 dt2 = DTInner('')
-dt2.left  = DTLeaf('<1>')
+dt2.left  = DTLeaf('<odd>')
 dt2.right = DTLeaf('<start>')
 st2 = SpanningTree()
-st2.add_state('<1>', '<start>', 'a')
+st2.add_state('<odd>', '<start>', 'a')
 dfa2 = DFA()
-dfa2.ensure_state('<1>')
+dfa2.ensure_state('<odd>')
 dfa2.set_accepting('<start>')
-dfa2.add_transition('<start>', 'a', '<1>')
+dfa2.add_transition('<start>', 'a', '<odd>')
 dfa2.add_transition('<start>', 'b', '<start>')
-dfa2.add_transition('<1>', 'a', '<1>')   # wrong
-dfa2.add_transition('<1>', 'b', '<1>')
+dfa2.add_transition('<odd>', 'a', '<odd>')   # wrong
+dfa2.add_transition('<odd>', 'b', '<odd>')
 new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
 assert st2.access(new_state2) == 'aa'
 print('decompose test 3 passed')
@@ -2110,17 +2015,17 @@ __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 dt2 = DTInner(&#x27;&#x27;)
-dt2.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
+dt2.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt2.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st2 = SpanningTree()
-st2.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+st2.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dfa2 = DFA()
-dfa2.ensure_state(&#x27;&lt;1&gt;&#x27;)
+dfa2.ensure_state(&#x27;&lt;odd&gt;&#x27;)
 dfa2.set_accepting(&#x27;&lt;start&gt;&#x27;)
-dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;1&gt;&#x27;)
+dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;odd&gt;&#x27;)
 dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-dfa2.add_transition(&#x27;&lt;1&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;1&gt;&#x27;)   # wrong
-dfa2.add_transition(&#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;1&gt;&#x27;)
+dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;odd&gt;&#x27;)   # wrong
+dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;odd&gt;&#x27;)
 new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
 assert st2.access(new_state2) == &#x27;aa&#x27;
 print(&#x27;decompose test 3 passed&#x27;)
