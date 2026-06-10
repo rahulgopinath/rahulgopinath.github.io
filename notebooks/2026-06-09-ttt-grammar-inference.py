@@ -1030,6 +1030,100 @@ if __name__ == '__main__':
     print('decompose test 3 passed')
     __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
+# ### Worklist Growth in `close_transitions`
+# 
+# We now trace the full `(a|b)*ba` learning run to show how state names
+# emerge from the algorithm and how the worklist grows during
+# `close_transitions`. No states are pre-declared — they are created by
+# `dfa.new_state()` inside `decompose` as each counterexample is processed.
+# 
+# **Step 1.** Single-leaf DT, only `<start>` in the spanning tree.
+# `close_transitions` sifts `'' + 'a'` and `'' + 'b'`. Both land on the
+# only leaf `<start>`, so no new states are discovered.
+
+if __name__ == '__main__':
+    oracle_ba = MockOracle(lambda w: w.endswith('ba'))
+    dt_cl = DTLeaf('<start>')
+    st_cl = SpanningTree()
+    dfa_cl = DFA()
+    leaf_index_cl = {}
+    build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'], leaf_index_cl)
+    print('step 1 states:', list(st_cl.acc.keys()))
+    __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
+
+# Spanning tree and DFA after step 1.
+
+if __name__ == '__main__':
+    __canvas__(st_to_dot(st_cl, 'cl_st_step1'))
+
+# DFA step 1 — everything loops back to `<start>`.
+
+if __name__ == '__main__':
+    __canvas__(dfa_to_dot(dfa_cl, 'cl_dfa_step1'))
+
+# **Step 2.** Counterexample `'ba'`: the hypothesis accepts it as `<start>`
+# (which is accepting) but shouldn't — `<start>` should only accept `''`.
+# `decompose` creates a fresh state (call it `s1`) and splits the DT leaf
+# with discriminator `'a'`. `update_hypothesis` re-sifts stale transitions;
+# sifting `'' + 'b'` now lands on `s1` — new, so it is appended to the
+# worklist and its transitions are closed immediately. Worklist grows from
+# `['<start>']` to `['<start>', s1]`.
+
+if __name__ == '__main__':
+    new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba')
+    update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
+                      ['a', 'b'], leaf_index_cl, split_id, new_s1)
+    print('step 2 states:', list(st_cl.acc.keys()), '  new state:', new_s1)
+    __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
+
+# Spanning tree after step 2 — `s1` now has access sequence `'b'`.
+
+if __name__ == '__main__':
+    __canvas__(st_to_dot(st_cl, 'cl_st_step2'))
+
+# DFA after step 2.
+
+if __name__ == '__main__':
+    __canvas__(dfa_to_dot(dfa_cl, 'cl_dfa_step2'))
+
+# **Step 3.** Counterexample `'ba'` again — now the hypothesis rejects it
+# because `s1 -a-> <start>` is wrong (should reach an accepting state).
+# `decompose` creates `s2` and splits the `<start>` leaf with discriminator
+# `ε`. `update_hypothesis` re-sifts; sifting `acc(s1) + 'a'` = `'ba'`
+# lands on `s2` — new, appended. Worklist grows to include `s2`.
+# Here is that sift path — the one that grows the worklist:
+
+if __name__ == '__main__':
+    new_s2, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba')
+    _tr = DTTracer(dt_cl)
+    sift(_tr, 'ba', oracle_ba)
+    __canvas__(dt_to_dot(dt_cl, 'cl_worklist_grow', tracer=_tr))
+
+# And sifting `acc(s1) + 'b'` = `'bb'` lands on `<start>` — known, no append.
+
+if __name__ == '__main__':
+    _tr = DTTracer(dt_cl)
+    sift(_tr, 'bb', oracle_ba)
+    __canvas__(dt_to_dot(dt_cl, 'cl_worklist_no_grow', tracer=_tr))
+
+# After `update_hypothesis` finishes, all three states are wired up.
+
+if __name__ == '__main__':
+    update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
+                      ['a', 'b'], leaf_index_cl, split_id, new_s2)
+    print('step 3 states:', list(st_cl.acc.keys()), '  new state:', new_s2)
+    __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
+
+# Spanning tree after step 3 — three states, all access sequences minimal.
+
+if __name__ == '__main__':
+    __canvas__(st_to_dot(st_cl, 'cl_st_step3'))
+
+# Final DFA — states named by the algorithm as they were discovered.
+
+if __name__ == '__main__':
+    __canvas__(dfa_to_dot(dfa_cl, 'cl_dfa_step3'))
+
 # ## Non-Redundancy
 # 
 # The central claim of the TTT is that it never makes a membership
