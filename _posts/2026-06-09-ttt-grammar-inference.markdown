@@ -390,7 +390,6 @@ assert dfa.run('x') is None
 assert dfa.accepts('')
 assert dfa.accepts('aa')
 assert not dfa.accepts('a')
-print('DFA tests passed')
 __canvas__(dfa_to_dot(dfa, 'DFA_even_a'))
 
 ############
@@ -411,7 +410,6 @@ assert dfa.run(&#x27;x&#x27;) is None
 assert dfa.accepts(&#x27;&#x27;)
 assert dfa.accepts(&#x27;aa&#x27;)
 assert not dfa.accepts(&#x27;a&#x27;)
-print(&#x27;DFA tests passed&#x27;)
 __canvas__(dfa_to_dot(dfa, &#x27;DFA_even_a&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -517,7 +515,6 @@ leaf = DTLeaf('<start>')
 assert leaf.is_leaf() == True
 inner = DTInner('a')
 assert inner.is_leaf() == False
-print('DTNode tests passed')
 
 ############
 -->
@@ -527,7 +524,6 @@ leaf = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 assert leaf.is_leaf() == True
 inner = DTInner(&#x27;a&#x27;)
 assert inner.is_leaf() == False
-print(&#x27;DTNode tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1556,7 +1552,6 @@ assert dfa.accepts('')
 assert dfa.accepts('aa')
 assert not dfa.accepts('a')
 assert st.access('<odd>') == 'a'
-print('build_hypothesis tests passed')
 
 ############
 -->
@@ -1579,7 +1574,6 @@ assert dfa.accepts(&#x27;&#x27;)
 assert dfa.accepts(&#x27;aa&#x27;)
 assert not dfa.accepts(&#x27;a&#x27;)
 assert st.access(&#x27;&lt;odd&gt;&#x27;) == &#x27;a&#x27;
-print(&#x27;build_hypothesis tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1797,14 +1791,11 @@ st.add_state('<1>', '<start>', 'a')
 # '' is already minimal
 d = finalize_discriminator('<start>', '<1>', '', st, oracle)
 assert d == ''
-print('finalize test 1 passed')
 # 'ba' can be shortened to 'a'
 # acc('<start>') + 'a' = 'a'   -> False (odd)
 # acc('<1>')     + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
 d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
 assert d == 'a'
-print('finalize test 2 passed')
-print('finalize_discriminator tests passed')
 
 ############
 -->
@@ -1816,14 +1807,11 @@ st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 # &#x27;&#x27; is already minimal
 d = finalize_discriminator(&#x27;&lt;start&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;&#x27;, st, oracle)
 assert d == &#x27;&#x27;
-print(&#x27;finalize test 1 passed&#x27;)
 # &#x27;ba&#x27; can be shortened to &#x27;a&#x27;
 # acc(&#x27;&lt;start&gt;&#x27;) + &#x27;a&#x27; = &#x27;a&#x27;   -&gt; False (odd)
 # acc(&#x27;&lt;1&gt;&#x27;)     + &#x27;a&#x27; = &#x27;aa&#x27;  -&gt; True  (even), so &#x27;a&#x27; distinguishes them
 d = finalize_discriminator(&#x27;&lt;start&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;ba&#x27;, st, oracle)
 assert d == &#x27;a&#x27;
-print(&#x27;finalize test 2 passed&#x27;)
-print(&#x27;finalize_discriminator tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1909,7 +1897,6 @@ assert i == 0, i
 # counterexample 'aab': split should be at position 0 (first divergence)
 i2, _ = find_split_point(dfa_sp, st_sp, oracle, 'aab')
 assert i2 == 0, i2
-print('find_split_point tests passed')
 
 ############
 -->
@@ -1928,7 +1915,6 @@ assert i == 0, i
 # counterexample &#x27;aab&#x27;: split should be at position 0 (first divergence)
 i2, _ = find_split_point(dfa_sp, st_sp, oracle, &#x27;aab&#x27;)
 assert i2 == 0, i2
-print(&#x27;find_split_point tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2032,7 +2018,6 @@ assert not dt.is_leaf()
 assert st.access(new_state) == 'a'
 assert sift(dt, '', oracle).state == '<start>'
 assert sift(dt, 'a', oracle).state == new_state
-print('decompose test 1 passed')
 __canvas__(dt_to_dot(dt, 'DT_decompose1'))
 
 ############
@@ -2050,7 +2035,6 @@ assert not dt.is_leaf()
 assert st.access(new_state) == &#x27;a&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 assert sift(dt, &#x27;a&#x27;, oracle).state == new_state
-print(&#x27;decompose test 1 passed&#x27;)
 __canvas__(dt_to_dot(dt, &#x27;DT_decompose1&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2070,7 +2054,6 @@ dfa.add_transition('<start>', 'b', '<start>')
 new_state, _ = decompose(dfa, dt, st, oracle, 'aab')
 assert not dt.is_leaf()
 assert st.access(new_state) == 'a'
-print('decompose test 2 passed')
 __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 
 ############
@@ -2086,7 +2069,6 @@ dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;
 new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
 assert not dt.is_leaf()
 assert st.access(new_state) == &#x27;a&#x27;
-print(&#x27;decompose test 2 passed&#x27;)
 __canvas__(dt_to_dot(dt, &#x27;DT_decompose2&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2111,7 +2093,6 @@ dfa2.add_transition('<odd>', 'a', '<odd>')   # wrong
 dfa2.add_transition('<odd>', 'b', '<odd>')
 new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
 assert st2.access(new_state2) == 'aa'
-print('decompose test 3 passed')
 __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
 ############
@@ -2132,7 +2113,6 @@ dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;odd&gt;&#x
 dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;odd&gt;&#x27;)
 new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
 assert st2.access(new_state2) == &#x27;aa&#x27;
-print(&#x27;decompose test 3 passed&#x27;)
 __canvas__(dt_to_dot(dt2, &#x27;DT_decompose3&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

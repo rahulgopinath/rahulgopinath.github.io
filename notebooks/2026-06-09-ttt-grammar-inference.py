@@ -214,7 +214,6 @@ if __name__ == '__main__':
     assert dfa.accepts('')
     assert dfa.accepts('aa')
     assert not dfa.accepts('a')
-    print('DFA tests passed')
     __canvas__(dfa_to_dot(dfa, 'DFA_even_a'))
 
 # ## The Oracle
@@ -277,7 +276,6 @@ if __name__ == '__main__':
     assert leaf.is_leaf() == True
     inner = DTInner('a')
     assert inner.is_leaf() == False
-    print('DTNode tests passed')
 
 # ## The Spanning Tree
 # 
@@ -789,7 +787,6 @@ if __name__ == '__main__':
     assert dfa.accepts('aa')
     assert not dfa.accepts('a')
     assert st.access('<odd>') == 'a'
-    print('build_hypothesis tests passed')
 
 # ## Counterexample Decomposition
 # 
@@ -912,14 +909,11 @@ if __name__ == '__main__':
     # '' is already minimal
     d = finalize_discriminator('<start>', '<1>', '', st, oracle)
     assert d == ''
-    print('finalize test 1 passed')
     # 'ba' can be shortened to 'a'
     # acc('<start>') + 'a' = 'a'   -> False (odd)
     # acc('<1>')     + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
     d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
     assert d == 'a'
-    print('finalize test 2 passed')
-    print('finalize_discriminator tests passed')
 
 # ### Finding the Split Point
 # 
@@ -970,7 +964,6 @@ if __name__ == '__main__':
     # counterexample 'aab': split should be at position 0 (first divergence)
     i2, _ = find_split_point(dfa_sp, st_sp, oracle, 'aab')
     assert i2 == 0, i2
-    print('find_split_point tests passed')
 
 # ### Putting Decomposition Together
 # 
@@ -1026,7 +1019,6 @@ if __name__ == '__main__':
     assert st.access(new_state) == 'a'
     assert sift(dt, '', oracle).state == '<start>'
     assert sift(dt, 'a', oracle).state == new_state
-    print('decompose test 1 passed')
     __canvas__(dt_to_dot(dt, 'DT_decompose1'))
 
 # test 2: longer counterexample 'aab'; binary search finds split at position 0,
@@ -1042,7 +1034,6 @@ if __name__ == '__main__':
     new_state, _ = decompose(dfa, dt, st, oracle, 'aab')
     assert not dt.is_leaf()
     assert st.access(new_state) == 'a'
-    print('decompose test 2 passed')
     __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 
 # test 3: two states, counterexample 'aa' reveals a third state.
@@ -1063,7 +1054,6 @@ if __name__ == '__main__':
     dfa2.add_transition('<odd>', 'b', '<odd>')
     new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
     assert st2.access(new_state2) == 'aa'
-    print('decompose test 3 passed')
     __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
 # ### Worklist Growth in `close_transitions`
