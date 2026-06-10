@@ -334,12 +334,12 @@ if __name__ == '__main__':
 # This is closely related to L*'s closedness and consistency checks, but
 # handled in a single pass:
 # 
-# * **Closedness** In L*, closedness means that every reachable state has a row
+# * **Closedness** In L\*, closedness means that every reachable state has a row
 #   in the table. In TTT, the equivalent is *open transitions*. These are
 #   transitions where sifting lands on a leaf with no access sequence yet.
 #   When an open transition is found, we close it immediately,
 #   adding the new state as we go.
-# * **Consistency** In L*, consistency means that no two identical rows have
+# * **Consistency** In L\*, consistency means that no two identical rows have
 #   different successors. In TTT, consistency is *structurally maintained* by
 #   the DT.
 #   Two strings share a leaf only if no discriminator in the tree separates
