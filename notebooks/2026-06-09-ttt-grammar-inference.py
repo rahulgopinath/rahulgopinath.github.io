@@ -70,7 +70,7 @@
 
 # ## Prerequisites
 # 
-# We import the `Teacher` and `Oracle` from the L* post, and use them unchanged.
+# We use the `Teacher` and `Oracle` from the L* post unchanged.
 # The PAC equivalence oracle in `Teacher` is a direct drop-in for TTT.
 # The rest of the algorithm is completely independent of how equivalence
 # queries are answered.
@@ -91,7 +91,7 @@ import rxfuzzer
 import earleyparser
 import math
 import random
-from lstar import Teacher, Oracle  # PAC oracle and base class from the L* post
+import lstar
 
 # Since this notebook serves both as a web notebook as well as a script
 # that can be run on the command line, we redefine canvas if it is not
@@ -116,15 +116,15 @@ if __name__ == '__main__':
 # discriminator is sufficient, not $$ k $$. Getting to this point required
 # three independent contributions:
 # 
-# * **Kearns and Vazirani (1994)** [^kearns1994] replaced the observation
+# * **Kearns and Vazirani (1994)**[^kearns1994] replaced the observation
 #   table with a *discrimination tree*. A binary tree of discriminator
 #   suffixes where each leaf is a state.
 #   Sifting a string down the tree classifies it in $$ O(depth) $$ queries
 #   rather than $$ O(|suffixes|) $$.
-# * **Rivest and Schapire (1993)** [^rivest1993] showed that binary search
+# * **Rivest and Schapire (1993)**[^rivest1993] showed that binary search
 #   over the counterexample finds the single relevant split point in
 #   $$ O(\log k) $$ queries, rather than adding all $$ k $$ suffixes.
-# * **Isberner, Howar and Steffen (2014)** [^isberner2014] combined these
+# * **Isberner, Howar and Steffen (2014)**[^isberner2014] combined these
 #   with *prefix transformation* (keeping access sequences minimal) and
 #   *discriminator finalization* (keeping the DT shallow), producing TTT.
 # 
@@ -132,11 +132,6 @@ if __name__ == '__main__':
 # 
 # The `DFA` class is similar to the one from the
 # [RPNI post](/post/2025/10/24/rpni-learning-regular-languages/).
-# We also add a `run()` method which returns the state reached after consuming
-# a string, and `ensure_state()` which registers a state in the grammar
-# without allocating a new key, which is needed when manually constructing DFAs
-# in tests and when `close_transitions` discovers states from the DT.
-
 class DFA:
     def __init__(self, start_symbol='<start>', key_counter=0):
         self.grammar = {}
@@ -168,6 +163,13 @@ class DFA:
         self.key_counter += 1
         return key
 
+
+# We also add a `run()` method which returns the state reached after consuming
+# a string, and `ensure_state()` which registers a state in the grammar
+# without allocating a new key, which is needed when manually constructing DFAs
+# in tests and when `close_transitions` (defined later) discovers states from the DT.
+
+class DFA(DFA):
     def run(self, string):
         state = self.start_symbol
         for char in string:
@@ -181,8 +183,27 @@ class DFA:
         if state is None: return False
         return [] in self.grammar[state]
 
-# The DFA class can now model a deterministic finite state machine. So, let us
-# test it thoroughly.
+# The DFA class can now model a deterministic finite state machine.
+# We also add a helper to render any DFA as a Graphviz dot diagram.
+
+def dfa_to_dot(dfa, name='DFA'):
+    lines = ['digraph %s {' % name,
+             '  rankdir=LR;',
+             '  node [shape = circle];',
+             '  __start__ [shape = point, label = ""];',
+             '  __start__ -> "%s";' % dfa.start_symbol]
+    for state, rules in dfa.grammar.items():
+        accepting = [] in rules
+        shape = 'doublecircle' if accepting else 'circle'
+        lines.append('  "%s" [shape = %s];' % (state, shape))
+        for rule in rules:
+            if not rule: continue
+            char, target = rule[0], rule[1]
+            lines.append('  "%s" -> "%s" [label = "%s"];' % (state, target, char))
+    lines.append('}')
+    return '\n'.join(lines)
+
+# Let us test it thoroughly.
 
 if __name__ == '__main__':
     dfa = DFA()
@@ -200,6 +221,7 @@ if __name__ == '__main__':
     assert dfa.accepts('aa')
     assert not dfa.accepts('a')
     print('DFA tests passed')
+    __canvas__(dfa_to_dot(dfa, 'DFA_even_a'))
 
 # ## The Oracle
 # 
@@ -207,7 +229,7 @@ if __name__ == '__main__':
 # The `Teacher` imported from L* is the full oracle, and will be used in the
 # main loop.
 
-class MockOracle(Oracle):
+class MockOracle(lstar.Oracle):
     def __init__(self, fn):
         self.fn = fn
     def is_member(self, q):
@@ -263,16 +285,97 @@ def sift(root, w, oracle):
             node = node.left
     return node   # always a DTLeaf
 
+# We also add a helper to render a DT as a Graphviz dot diagram.
+# Inner nodes show their discriminator; leaves show the state name.
+# Left edges (membership query returned False) are labelled "no";
+# right edges (True) are labelled "yes".
+
+def dt_to_dot(root, name='DT'):
+    lines = ['digraph %s {' % name,
+             '  rankdir=TB;',
+             '  node [shape = rectangle];']
+    counter = [0]
+    def node_id():
+        counter[0] += 1
+        return 'n%d' % counter[0]
+    def walk(node, nid):
+        if node.is_leaf():
+            lines.append('  %s [shape = ellipse, label = "%s"];' % (nid, node.state))
+        else:
+            disc = node.discriminator if node.discriminator != '' else '(empty)'
+            lines.append('  %s [label = "d: %s"];' % (nid, disc))
+            left_id  = node_id()
+            right_id = node_id()
+            walk(node.left,  left_id)
+            walk(node.right, right_id)
+            lines.append('  %s -> %s [label = "no"];'  % (nid, left_id))
+            lines.append('  %s -> %s [label = "yes"];' % (nid, right_id))
+    root_id = node_id()
+    walk(root, root_id)
+    lines.append('}')
+    return '\n'.join(lines)
+
+# To show a sift path through the DT, we add a variant that accepts a string
+# `w` and an oracle, walks the tree collecting the visited node ids and edges,
+# and colours them blue in the rendered diagram.
+
+def dt_to_dot_path(root, w, oracle, name='DT'):
+    # First pass: record which DT nodes lie on the sift path for string w.
+    path_nodes = set()
+    path_edges = set()  # (id(parent), id(child))
+    node = root
+    while not node.is_leaf():
+        path_nodes.add(id(node))
+        child = node.right if oracle.is_member(w + node.discriminator) else node.left
+        path_edges.add((id(node), id(child)))
+        node = child
+    path_nodes.add(id(node))
+    # Second pass: emit dot, colouring nodes/edges on the path blue.
+    lines = ['digraph %s {' % name, '  rankdir=TB;', '  node [shape = rectangle];']
+    counter = [0]
+    def node_id():
+        counter[0] += 1
+        return 'n%d' % counter[0]
+    def blue(attrs):
+        return attrs + ', color=blue, fontcolor=blue'
+    def walk(node, nid):
+        on_path = id(node) in path_nodes
+        if node.is_leaf():
+            attrs = 'shape = ellipse, label = "%s"' % node.state
+            if on_path: attrs = blue(attrs)
+            lines.append('  %s [%s];' % (nid, attrs))
+        else:
+            disc = node.discriminator if node.discriminator != '' else '(empty)'
+            attrs = 'label = "d: %s"' % disc
+            if on_path: attrs = blue(attrs)
+            lines.append('  %s [%s];' % (nid, attrs))
+            left_id  = node_id()
+            right_id = node_id()
+            walk(node.left,  left_id)
+            walk(node.right, right_id)
+            no_attrs  = 'label = "no"'
+            yes_attrs = 'label = "yes"'
+            if (id(node), id(node.left))  in path_edges: no_attrs  += ', color=blue, fontcolor=blue, penwidth=2'
+            if (id(node), id(node.right)) in path_edges: yes_attrs += ', color=blue, fontcolor=blue, penwidth=2'
+            lines.append('  %s -> %s [%s];' % (nid, left_id,  no_attrs))
+            lines.append('  %s -> %s [%s];' % (nid, right_id, yes_attrs))
+    walk(root, node_id())
+    lines.append('}')
+    return '\n'.join(lines)
+
 # We test sifting on the even-a's example: the DT has one discriminator
 # (the empty string) that separates even-a states from odd-a states.
 
+# single leaf: everything maps to start
 if __name__ == '__main__':
     oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-    # single leaf: everything maps to start
     dt = DTLeaf('<start>')
     assert sift(dt, 'aa', oracle).state == '<start>'
     assert sift(dt, '', oracle).state == '<start>'
-    # two-level tree:  [''] / <1> (odd) \ <start> (even)
+    __canvas__(dt_to_dot(dt, 'DT_single'))
+
+# two-level tree:  [''] / <1> (odd) \ <start> (even)
+if __name__ == '__main__':
     dt = DTInner('')
     dt.left = DTLeaf('<1>')
     dt.right = DTLeaf('<start>')
@@ -280,7 +383,17 @@ if __name__ == '__main__':
     assert sift(dt, 'a', oracle).state == '<1>'
     assert sift(dt, '', oracle).state == '<start>'
     assert sift(dt, 'b', oracle).state == '<start>'
-    print('sift tests passed')
+    __canvas__(dt_to_dot(dt, 'DT_even_a'))
+
+# Sifting `'a'` (odd a's) goes left to `<1>`; sifting `'aa'` (even a's) goes right to `<start>`.
+
+if __name__ == '__main__':
+    __canvas__(dt_to_dot_path(dt, 'a',  oracle, 'DT_sift_a'))
+
+# Sifting `'aa'` goes right.
+
+if __name__ == '__main__':
+    __canvas__(dt_to_dot_path(dt, 'aa', oracle, 'DT_sift_aa'))
 
 # ## The Spanning Tree
 # 
@@ -309,6 +422,31 @@ class SpanningTree:
     def access(self, state):
         return self.acc[state]
 
+# We add a helper to render a spanning tree as a Graphviz dot diagram.
+# Each node shows its state name and access sequence.
+# Edges are labelled with the character that extends the parent's access
+# sequence to reach the child.
+
+def st_to_dot(st, name='ST'):
+    acc_to_state = {v: k for k, v in st.acc.items()}
+    lines = ['digraph %s {' % name,
+             '  rankdir=LR;',
+             '  node [shape = rectangle];']
+    for state, acc in st.acc.items():
+        if acc:
+            label = '%s\\naccess: %s' % (state, acc)
+        else:
+            label = state
+        lines.append('  "%s" [label = "%s"];' % (state, label))
+        if acc:  # has a parent
+            parent_acc = acc[:-1]
+            char = acc[-1]
+            parent = acc_to_state.get(parent_acc)
+            if parent is not None:
+                lines.append('  "%s" -> "%s" [label = "%s"];' % (parent, state, char))
+    lines.append('}')
+    return '\n'.join(lines)
+
 # We test the spanning tree.
 
 if __name__ == '__main__':
@@ -320,47 +458,73 @@ if __name__ == '__main__':
     assert st.access('<2>') == 'ab'
     st.add_state('<3>', '<start>', 'b')
     assert st.access('<3>') == 'b'
-    print('SpanningTree tests passed')
+    __canvas__(st_to_dot(st, 'ST_example'))
 
 # ## Hypothesis Construction
 # 
-# The DT and spanning tree together define all transitions of the hypothesis
-# DFA. For each state $$ q $$ and symbol $$ a $$:
+# At any point during learning, we have a DT and a spanning tree. Together
+# they are enough to construct a complete hypothesis DFA. The idea is simple:
+# to find the target state of transition $$ q \xrightarrow{a} ? $$, form the
+# string $$ acc(q) \cdot a $$ and sift it through the DT. Whatever leaf it
+# lands on is the state we assign as the target.
 # 
-# 1. Form $$ acc(q) \cdot a $$, the string that reaches $$ q $$ and then reads $$ a $$.
-# 2. Sift it through the DT. The oracle queries at each node ask:
-#    *"which known state does this string belong to?"*
-# 3. The leaf returned is the target state $$ \delta(q, a) $$.
+# Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
+# left = `<1>`, right = `<start>`), and spanning tree
+# `{<start>: '', <1>: 'a'}`, we sift each transition in turn.
+# The blue path shows the route taken through the DT.
 # 
-# This is closely related to L*'s closedness and consistency checks, but
-# handled in a single pass:
-# 
-# * **Closedness** In L\*, closedness means that every reachable state has a row
-#   in the table. In TTT, the equivalent is *open transitions*. These are
-#   transitions where sifting lands on a leaf with no access sequence yet.
-#   When an open transition is found, we close it immediately,
-#   adding the new state as we go.
-# * **Consistency** In L\*, consistency means that no two identical rows have
-#   different successors. In TTT, consistency is *structurally maintained* by
-#   the DT.
-#   Two strings share a leaf only if no discriminator in the tree separates
-#   them. A counterexample split is the consistency repair, done once per
-#   counterexample rather than checked globally.
-# 
-# A transition is *open* if its target has no access sequence yet.
+# $$ \langle start \rangle \xrightarrow{a} ? $$: sift `'' + 'a'` = `'a'`.
+# Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
+# So `<start> -a-> <1>`.
+
+if __name__ == '__main__':
+    _oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
+    _dt_walk = DTInner('')
+    _dt_walk.left  = DTLeaf('<1>')
+    _dt_walk.right = DTLeaf('<start>')
+    __canvas__(dt_to_dot_path(_dt_walk, 'a', _oracle_ea, 'sift_start_a'))
+
+# $$ \langle start \rangle \xrightarrow{b} ? $$: sift `'' + 'b'` = `'b'`.
+# Is `'b' + ''` accepted? Yes (zero a's) — go right — leaf `<start>`.
+# So `<start> -b-> <start>`.
+
+if __name__ == '__main__':
+    __canvas__(dt_to_dot_path(_dt_walk, 'b', _oracle_ea, 'sift_start_b'))
+
+# $$ \langle 1 \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
+# Is `'aa' + ''` accepted? Yes (even a's) — go right — leaf `<start>`.
+# So `<1> -a-> <start>`.
+
+if __name__ == '__main__':
+    __canvas__(dt_to_dot_path(_dt_walk, 'aa', _oracle_ea, 'sift_1_a'))
+
+# $$ \langle 1 \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
+# Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<1>`.
+# So `<1> -b-> <1>`.
+
+if __name__ == '__main__':
+    __canvas__(dt_to_dot_path(_dt_walk, 'ab', _oracle_ea, 'sift_1_b'))
+
+# A transition is *open* if we have not yet determined its target: either the
+# transition is missing from the DFA entirely, or its recorded target has no
+# access sequence in the spanning tree. The second case arises when a sift
+# landed on a leaf whose state is not yet in the spanning tree, meaning a new
+# state was just discovered and needs to be registered.
 
 def is_open(dfa, state, char, st):
     rule = dfa.transition(state, char)
     if rule is None: return True
     return rule[1] not in st.acc
 
-# We close all open transitions by sifting. We use an index-based loop
-# so that newly discovered states are appended to `states` and processed
-# in the same pass.
-#
-# `leaf_index` maps each `DTLeaf` object to the list of `(state, char)` pairs
-# whose transition was established by sifting to that leaf. This is the index
-# that the incremental update needs to find stale transitions after a split.
+# `close_transitions` works through all known states, sifting each open
+# transition. When sifting discovers a state not yet in the spanning tree,
+# that state is added and appended to the work list so its own transitions
+# are processed in the same pass. This means the loop may grow as it runs:
+# starting with one state, it may end with the full set.
+# 
+# `leaf_index` records, for each DT leaf, which `(state, char)` transitions
+# were routed there. After a split, we use this index to find and re-sift
+# only the transitions that are now stale, rather than re-sifting everything.
 
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
     states = list(st.acc.keys())
@@ -393,20 +557,75 @@ def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
             dfa.set_accepting(state)
     close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 
+# To see what closing looks like step by step, consider the even-a's target
+# with alphabet {a, b}. We start with one state `<start>` and a single-leaf
+# DT. Every transition is open because no target state has been determined yet.
+# Closing sifts `acc(<start>) + 'a'` = `'a'` and `acc(<start>) + 'b'` = `'b'`
+# through the single-leaf DT. Both land on `<start>`, so both transitions
+# point back to `<start>` -- the hypothesis says everything loops.
+# We visualise the DT, spanning tree, and resulting DFA at this stage.
+
+if __name__ == '__main__':
+    oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
+    dt_pre = DTLeaf('<start>')
+    st_pre = SpanningTree()
+    dfa_pre = DFA()
+    build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'])
+    __canvas__(dt_to_dot(dt_pre,  'DT_before_split'))
+
+# The spanning tree
+if __name__ == '__main__':
+    __canvas__(st_to_dot(st_pre,  'ST_before_split'))
+
+# DFA before the split.
+if __name__ == '__main__':
+    __canvas__(dfa_to_dot(dfa_pre, 'DFA_before_split'))
+
+# After the first counterexample (say `'a'`) is processed, `decompose` splits
+# the DT: a new inner node with discriminator `''` separates `<start>` (goes
+# right: accepts `''`) from new state `<1>` (goes left: rejects `''`).
+# Re-sifting now correctly routes `'a'` to `<1>` and `'b'` back to `<start>`.
+
+if __name__ == '__main__':
+    dt_post = DTInner('')
+    dt_post.left  = DTLeaf('<1>')
+    dt_post.right = DTLeaf('<start>')
+    st_post = SpanningTree()
+    st_post.add_state('<1>', '<start>', 'a')
+    dfa_post = DFA()
+    build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'])
+    __canvas__(dt_to_dot(dt_post,  'DT_after_split'))
+
+# Spanning tree
+if __name__ == '__main__':
+    __canvas__(st_to_dot(st_post,  'ST_after_split'))
+
+# DFA after split
+if __name__ == '__main__':
+    __canvas__(dfa_to_dot(dfa_post, 'DFA_after_split'))
+
 # ### Incremental Hypothesis Update
-#
-# After `split_leaf` turns leaf $$ \ell $$ into an inner node, every transition
-# that previously targeted $$ \ell $$ may now belong to either child.
-# We find those transitions via `leaf_index`, remove the old entry from
-# the DFA, re-sift to the correct child, and update the DFA in place.
-# Every other transition is unaffected.
-#
-# Newly discovered states (from re-sifting or from the new state itself) are
-# handled by a targeted call to `close_transitions` restricted to those states.
-# Accepting status for any new state is set immediately.
-#
+#  
+# When `decompose` splits a leaf $$ \ell $$ into an inner node, every
+# transition that was previously routed to $$ \ell $$ is now stale: it
+# pointed to a single state, but the DT now says some of those strings
+# belong to the left child and some to the right.
+#  
+# We could re-sift every transition in the hypothesis from scratch, but that
+# is wasteful. Instead, `leaf_index` tells us exactly which `(state, char)`
+# pairs were routed to $$ \ell $$. We remove only those transitions from the
+# DFA and re-sift only them. Every other transition remains correct.
+#  
+# Concretely, continuing the even-a's example: after the DT is split on `''`
+# and state `<1>` is created, the stale transitions are those that sifted to
+# the old single leaf -- all of them, since there was only one leaf. Each is
+# removed and re-sifted through the new two-node DT. The transition
+# `<start> -a-> <start>` becomes `<start> -a-> <1>`, and all others stay the
+# same. We show the DFA before and after the update.
+
 # `split_id` is the Python `id()` of the leaf *before* it was mutated; the
-# caller must capture it before calling `split_leaf`.
+# caller must capture it before calling `split_leaf`, since the mutation
+# changes the object in place and the old id is the key in `leaf_index`.
 
 def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state):
     # record the new state's accepting status and ensure it exists in the DFA
@@ -523,6 +742,11 @@ if __name__ == '__main__':
     st = SpanningTree()
     st.add_state('<1>', '<start>', 'a')
     leaf = DTLeaf('<start>')
+    __canvas__(dt_to_dot(leaf, 'DT_before_split_leaf'))
+
+# After the split, the single leaf becomes an inner node separating `<start>` and `<1>`.
+
+if __name__ == '__main__':
     # '' distinguishes <start> (even, True) from <1> (odd, False)
     split_leaf(leaf, '', '<1>', oracle, st)
     assert leaf.is_leaf() == False
@@ -533,6 +757,45 @@ if __name__ == '__main__':
     assert sift(leaf, 'a', oracle).state == '<1>'
     assert sift(leaf, 'aa', oracle).state == '<start>'
     print('split_leaf tests passed')
+    __canvas__(dt_to_dot(leaf, 'DT_after_split_leaf'))
+
+# We now show `update_hypothesis` in action. We build the stale hypothesis
+# (single-leaf DT, everything loops to `<start>`), then split the leaf and
+# call `update_hypothesis`. The stale transition `<start> -a-> <start>` is
+# removed and re-sifted to `<1>`.
+
+if __name__ == '__main__':
+    oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
+    dt_stale = DTLeaf('<start>')
+    st_stale = SpanningTree()
+    dfa_stale = DFA()
+    leaf_index_stale = {}
+    build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, ['a', 'b'], leaf_index_stale)
+    __canvas__(dfa_to_dot(dfa_stale, 'DFA_stale'))
+
+# Capture split_id before mutating the leaf, then split it.
+
+if __name__ == '__main__':
+    split_id = id(dt_stale)
+    st_stale.add_state('<1>', '<start>', 'a')
+    split_leaf(dt_stale, '', '<1>', oracle_ea, st_stale)
+    __canvas__(dt_to_dot(dt_stale, 'DT_after_split2'))
+
+# Now update: stale transitions are removed and re-sifted.
+
+if __name__ == '__main__':
+    update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea,
+                      ['a', 'b'], leaf_index_stale, split_id, '<1>')
+    __canvas__(st_to_dot(st_stale, 'ST_after_update'))
+
+# DFA after update: <start> -a-> <1>, all other transitions unchanged.
+
+if __name__ == '__main__':
+    assert dfa_stale.transition('<start>', 'a')[1] == '<1>'
+    assert dfa_stale.transition('<start>', 'b')[1] == '<start>'
+    assert dfa_stale.transition('<1>', 'a')[1] == '<start>'
+    assert dfa_stale.transition('<1>', 'b')[1] == '<1>'
+    __canvas__(dfa_to_dot(dfa_stale, 'DFA_after_update'))
 
 # ### Discriminator Finalization
 # 
@@ -658,8 +921,11 @@ if __name__ == '__main__':
     assert sift(dt, '', oracle).state == '<start>'
     assert sift(dt, 'a', oracle).state == new_state
     print('decompose test 1 passed')
+    __canvas__(dt_to_dot(dt, 'DT_decompose1'))
 
-# test 2: longer counterexample 'aab'
+# test 2: longer counterexample 'aab' — binary search finds split at position 0,
+# so the new state still gets access sequence 'a' and discriminator is 'b'.
+
 if __name__ == '__main__':
     dt = DTLeaf('<start>')
     st = SpanningTree()
@@ -671,8 +937,11 @@ if __name__ == '__main__':
     assert not dt.is_leaf()
     assert st.access(new_state) == 'a'
     print('decompose test 2 passed')
+    __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 
-# test 3: two states, counterexample reveals a third
+# test 3: two states, counterexample 'aa' reveals a third state.
+# The DT gains a second level; the new state gets access sequence 'aa'.
+
 if __name__ == '__main__':
     dt2 = DTInner('')
     dt2.left  = DTLeaf('<1>')
@@ -689,6 +958,7 @@ if __name__ == '__main__':
     new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
     assert st2.access(new_state2) == 'aa'
     print('decompose test 3 passed')
+    __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
 # ## Non-Redundancy
 # 
@@ -700,7 +970,7 @@ if __name__ == '__main__':
 # wasted. TTT avoids this by extracting exactly one new suffix per
 # counterexample and routing all future classification through the DT. This
 # holds at every level:
-#
+# 
 # * **Sifting is non-redundant.** Every query is $$ w \cdot d $$ where $$ d $$
 #   was placed in the DT by a previous split that proved it necessary.
 # * **Splitting is non-redundant.** Each split adds exactly one discriminator,
@@ -708,18 +978,18 @@ if __name__ == '__main__':
 # * **Closing is non-redundant.** Each transition is sifted exactly once per
 #   iteration. Newly discovered states come with their DT position already
 #   established by the sift that found them, so no extra queries are needed.
-#
+# 
 # This contrasts with L*, where adding all $$ k $$ suffixes of a counterexample
 # forces re-querying every existing row against every new column, most of
 # which add no new information.
 
 # ## A Note on the Equivalence Oracle
-#
+# 
 # TTT assumes the equivalence oracle is *exact*: if it says the hypothesis is
 # wrong, it returns a string the hypothesis genuinely misclassifies. The
 # `Teacher` we use is a PAC oracle: it samples a finite set of strings and
 # declares equivalence if none expose a mistake. This is an approximation.
-#
+# 
 # In principle, a false counterexample from a PAC oracle could cause TTT to
 # create a redundant state: one that could have been merged with an existing
 # state without changing the language the DFA accepts. The DFA would still be
@@ -731,11 +1001,11 @@ if __name__ == '__main__':
 # parameters, and the language accepted by the DFA is unaffected either way.
 
 # ## DT Coherence After Split
-#
+# 
 # After `split_leaf` turns a leaf into an inner node, some transitions in the
 # hypothesis that targeted the old leaf are now stale, because the DT now
 # routes some of those strings to the new child instead.
-#
+# 
 # The incremental strategy finds exactly those stale transitions via
 # `leaf_index`, removes them from the DFA, and re-sifts only them. Every
 # other transition remains valid and costs no queries. New states discovered
@@ -743,16 +1013,16 @@ if __name__ == '__main__':
 # same pass.
 
 # ## The Main Loop
-#
+# 
 # The main loop orchestrates everything:
-#
+# 
 # 1. Build the initial hypothesis: one state, all transitions open.
 # 2. Ask the equivalence oracle. If it says yes, we are done.
 # 3. If not, decompose the counterexample to find one new state and one new
 #    discriminator.
 # 4. Incrementally update the hypothesis: re-sift only the stale transitions.
 # 5. Repeat from step 2.
-#
+# 
 # The loop runs exactly $$ n - 1 $$ times where $$ n $$ is the number of
 # states in the minimal DFA, one counterexample per new state discovered.
 
@@ -785,7 +1055,7 @@ def ttt(oracle, alphabet):
 # 
 # target 1: strings over {a, b} with an even number of a's
 if __name__ == '__main__':
-    teacher = Teacher('(b*ab*a)*b*') # even a
+    teacher = lstar.Teacher('(b*ab*a)*b*') # even a
     result = ttt(teacher, ['a', 'b'])
     assert result.accepts('')
     assert result.accepts('aa')
@@ -793,10 +1063,11 @@ if __name__ == '__main__':
     assert not result.accepts('a')
     assert not result.accepts('aaa')
     print("test 1 passed: even a's")
+    __canvas__(dfa_to_dot(result, 'DFA_even_a_ttt'))
 
 # target 2: strings over {a, b} that end in 'b'
 if __name__ == '__main__':
-    teacher = Teacher('(a|b)*b')
+    teacher = lstar.Teacher('(a|b)*b')
     result = ttt(teacher, ['a', 'b'])
     assert result.accepts('b')
     assert result.accepts('ab')
@@ -805,9 +1076,10 @@ if __name__ == '__main__':
     assert not result.accepts('a')
     assert not result.accepts('ba')
     print('test 2 passed: ends in b')
+    __canvas__(dfa_to_dot(result, 'DFA_ends_b_ttt'))
 
 # target 3: binary strings whose value is divisible by 3
-#
+# 
 # This target has no convenient regex, so we write a custom teacher.
 # It is a good stress test: the minimal DFA has exactly 3 states (one per
 # remainder mod 3), the alphabet is {0, 1}, and transitions are determined
@@ -815,7 +1087,7 @@ if __name__ == '__main__':
 # TTT on a target where the states correspond to arithmetic structure rather
 # than string patterns.
 
-class DivBy3Teacher(Teacher):
+class DivBy3Teacher(lstar.Teacher):
     def __init__(self, delta=0.5, epsilon=0.5):
         super().__init__('0', delta=delta, epsilon=epsilon)
 
@@ -848,14 +1120,15 @@ if __name__ == '__main__':
     assert not result.accepts('1')
     assert not result.accepts('10') # 2 in binary
     print('test 3 passed: divisible by 3 in binary')
+    __canvas__(dfa_to_dot(result, 'DFA_divby3_ttt'))
 
 # ## Evaluating Model Accuracy
-#
+# 
 # We measure precision and recall by cross-fuzzing the target grammar and the
 # inferred grammar. Precision is the fraction of strings generated by the
 # inferred DFA that the target accepts. Recall is the fraction of strings
 # generated by the target that the inferred DFA accepts.
-#
+# 
 # The inferred DFA may contain a dead/sink state: a non-accepting state with
 # no exit, representing strings the target permanently rejects. Such a state
 # causes `LimitFuzzer` to loop, because the grammar has no finite derivation
@@ -918,7 +1191,7 @@ if __name__ == '__main__':
         ('(a|b)*ab(a|b)*',    ['a', 'b']),   # must contain substring ab
     ]
     for e, alphabet in cases:
-        teacher = Teacher(e, delta=0.2, epsilon=0.2)
+        teacher = lstar.Teacher(e, delta=0.2, epsilon=0.2)
         t_g, t_s = teacher.g, teacher.s
         t_f = fuzzer.LimitFuzzer(t_g)
 
