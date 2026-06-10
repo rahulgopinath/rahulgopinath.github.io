@@ -1400,11 +1400,13 @@ def ttt(oracle, alphabet):
     while True:
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if is_eq: return dfa   # done: hypothesis matches target
+        if is_eq: break   # done: hypothesis matches target
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
         # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
+
+    return dfa
 
 ############
 -->
@@ -1422,11 +1424,13 @@ def ttt(oracle, alphabet):
     while True:
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if is_eq: return dfa   # done: hypothesis matches target
+        if is_eq: break   # done: hypothesis matches target
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
         # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
+
+    return dfa
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
