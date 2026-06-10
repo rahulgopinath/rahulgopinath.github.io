@@ -294,7 +294,11 @@ if __name__ == '__main__':
 # * **Spanning tree** maps *states -> strings*. You start with states
 #   (discovered by TTT) and record the string that reaches each one.
 # 
-# In TTT, we never traverse the spanning tree as a tree. We only ever look
+# It is called a tree because the states and their access sequences form an
+# implicit tree: `<start>` is the root, and each state is a child of the
+# state whose access sequence is one character shorter. If you drew it, every
+# path from root to a node would spell out that node's access sequence.
+# In TTT, we never traverse this tree structure. We only ever look
 # up $$ acc(q) $$ for a given state, or add a new state with its access
 # sequence. So the implementation reduces to a simple dict.
 
