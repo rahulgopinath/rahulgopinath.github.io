@@ -54,8 +54,9 @@
 #   discriminator suffixes and whose leaves are states. Sifting a string
 #   $$ w $$ through the tree classifies it to a state using one membership
 #   query per level.
-# * _Access sequence_ $$ acc(q) $$: the shortest known string that reaches
-#   state $$ q $$ in the target.
+# * _Access sequence_ $$ reach(q) $$: the shortest known string that reaches
+#   state $$ q $$ in the target. This is called $$ acc(q) $$ in TTT literature,
+#   but using $$ reach(q) $$ to avoid conflation with $$ accept $$ in DFA.
 # * _Spanning tree_: a mapping from each known state to its access sequence.
 #   A dict from state to the shortest string known to reach it.
 # * _Open transition_: a transition from state $$ q $$ on symbol $$ a $$ whose
@@ -299,18 +300,18 @@ if __name__ == '__main__':
 # state whose access sequence is one character shorter. If you drew it, every
 # path from root to a node would spell out that node's access sequence.
 # In TTT, we never traverse this tree structure. We only ever look
-# up $$ acc(q) $$ for a given state, or add a new state with its access
+# up $$ reach(q) $$ for a given state, or add a new state with its access
 # sequence. So the implementation reduces to a simple dict.
 
 class SpanningTree:
     def __init__(self, start_symbol='<start>'):
-        self.acc = { start_symbol: '' }
+        self._reach = { start_symbol: '' }
 
     def add_state(self, state, parent, char):
-        self.acc[state] = self.acc[parent] + char
+        self._reach[state] = self._reach[parent] + char
 
-    def access(self, state):
-        return self.acc[state]
+    def reach(self, state):
+        return self._reach[state]
 
 # We add a helper to render a spanning tree as a Graphviz dot diagram.
 # Each node shows its state name and access sequence.
@@ -318,20 +319,20 @@ class SpanningTree:
 # sequence to reach the child.
 
 def st_to_dot(st, name='ST'):
-    acc_to_state = {v: k for k, v in st.acc.items()}
+    reach_to_state = {v: k for k, v in st._reach.items()}
     lines = ['digraph %s {' % name,
              '  rankdir=LR;',
              '  node [shape = rectangle];']
-    for state, acc in st.acc.items():
-        if acc:
-            label = '%s\\naccess: %s' % (state, acc)
+    for state, reach in st._reach.items():
+        if reach:
+            label = '%s\\nreach: %s' % (state, reach)
         else:
             label = state
         lines.append('  "%s" [label = "%s"];' % (state, label))
-        if acc:  # has a parent
-            parent_acc = acc[:-1]
-            char = acc[-1]
-            parent = acc_to_state.get(parent_acc)
+        if reach:  # has a parent
+            parent_reach = reach[:-1]
+            char = reach[-1]
+            parent = reach_to_state.get(parent_reach)
             if parent is not None:
                 lines.append('  "%s" -> "%s" [label = "%s"];' % (parent, state, char))
     lines.append('}')
@@ -341,13 +342,13 @@ def st_to_dot(st, name='ST'):
 
 if __name__ == '__main__':
     st = SpanningTree()
-    assert st.access('<start>') == ''
+    assert st.reach('<start>') == ''
     st.add_state('<1>', '<start>', 'a')
-    assert st.access('<1>') == 'a'
+    assert st.reach('<1>') == 'a'
     st.add_state('<2>', '<1>', 'b')
-    assert st.access('<2>') == 'ab'
+    assert st.reach('<2>') == 'ab'
     st.add_state('<3>', '<start>', 'b')
-    assert st.access('<3>') == 'b'
+    assert st.reach('<3>') == 'b'
     __canvas__(st_to_dot(st, 'ST_example'))
 
 # ## Splitting a Leaf
@@ -362,7 +363,7 @@ if __name__ == '__main__':
 # and replaced with `discriminator`, `left`, and `right`.
 # 
 # `split_leaf` needs to know which side the old state goes on, so it queries
-# the oracle: if `acc(old_state) + discriminator` is accepted, `old_state`
+# the oracle: if `reach(old_state) + discriminator` is accepted, `old_state`
 # goes right; otherwise left. The new state takes the other side.
 
 def split_leaf(leaf, discriminator, new_state, oracle, st):
@@ -370,7 +371,7 @@ def split_leaf(leaf, discriminator, new_state, oracle, st):
     old_leaf = DTLeaf(old_state)
     new_leaf = DTLeaf(new_state)
     # ask the oracle which side old_state goes on
-    old_goes_right = oracle.is_member(st.access(old_state) + discriminator)
+    old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
     # mutate the leaf in place into an inner node
     leaf.__class__ = DTInner
     leaf.discriminator = discriminator
@@ -583,7 +584,7 @@ if __name__ == '__main__':
 # At any point during learning, we have a DT and a spanning tree. Together
 # they are enough to construct a complete hypothesis DFA. The idea is simple:
 # to find the target state of transition $$ q \xrightarrow{a} ? $$, form the
-# string $$ acc(q) \cdot a $$ and sift it through the DT. Whatever leaf it
+# string $$ reach(q) \cdot a $$ and sift it through the DT. Whatever leaf it
 # lands on is the state we assign as the target.
 # 
 # Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
@@ -640,7 +641,7 @@ if __name__ == '__main__':
 def is_open(dfa, state, char, st):
     rule = dfa.transition(state, char)
     if rule is None: return True
-    return rule[1] not in st.acc
+    return rule[1] not in st._reach
 
 # `close_transitions` works through all known states, sifting each open
 # transition. When sifting discovers a state not yet in the spanning tree,
@@ -653,7 +654,7 @@ def is_open(dfa, state, char, st):
 # only the transitions that are now stale, rather than re-sifting everything.
 
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
-    states = list(st.acc.keys())
+    states = list(st._reach.keys())
     i = 0
     while i < len(states):
         state = states[i]
@@ -661,9 +662,9 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
         dfa.ensure_state(state)
         for char in alphabet:
             if not is_open(dfa, state, char, st): continue
-            target_leaf = sift(dt, st.access(state) + char, oracle)
+            target_leaf = sift(dt, st.reach(state) + char, oracle)
             target_state = target_leaf.state
-            if target_state not in st.acc:
+            if target_state not in st._reach:
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
@@ -673,20 +674,20 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
                 leaf_index.setdefault(id(target_leaf), []).append((state, char))
 
 # Accepting states are determined by querying the oracle directly on each
-# access sequence. If $$ acc(q) $$ is accepted by the target, then $$ q $$
+# access sequence. If $$ reach(q) $$ is accepted by the target, then $$ q $$
 # is an accepting state.
 
 def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
-    for state in list(st.acc.keys()):
+    for state in list(st._reach.keys()):
         dfa.ensure_state(state)
-        if oracle.is_member(st.access(state)):
+        if oracle.is_member(st.reach(state)):
             dfa.set_accepting(state)
     close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 
 # To see what closing looks like step by step, consider the even-a's target
 # with alphabet {a, b}. We start with one state `<start>` and a single-leaf
 # DT. Every transition is open because no target state has been determined yet.
-# Closing sifts `acc(<start>) + 'a'` = `'a'` and `acc(<start>) + 'b'` = `'b'`
+# Closing sifts `reach(<start>) + 'a'` = `'a'` and `reach(<start>) + 'b'` = `'b'`
 # through the single-leaf DT. Both land on `<start>`, so both transitions
 # point back to `<start>` -- the hypothesis says everything loops.
 # We visualise the DT, spanning tree, and resulting DFA at this stage.
@@ -756,7 +757,7 @@ if __name__ == '__main__':
 def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state):
     # record the new state's accepting status and ensure it exists in the DFA
     dfa.ensure_state(new_state)
-    if oracle.is_member(st.access(new_state)):
+    if oracle.is_member(st.reach(new_state)):
         dfa.set_accepting(new_state)
 
     # collect transitions that pointed to the now-split leaf
@@ -790,7 +791,7 @@ if __name__ == '__main__':
     assert dfa.accepts('')
     assert dfa.accepts('aa')
     assert not dfa.accepts('a')
-    assert st.access('<odd>') == 'a'
+    assert st.reach('<odd>') == 'a'
 
 # ## Counterexample Decomposition
 # 
@@ -806,7 +807,7 @@ if __name__ == '__main__':
 # position $$ i $$ where the hypothesis first takes a wrong transition.
 # 
 # We find this by binary search in $$ O(\log|ce|) $$ queries. At each
-# midpoint $$ m $$, we check whether $$ acc(q_m) \cdot ce[m:] $$ gives the
+# midpoint $$ m $$, we check whether $$ reach(q_m) \cdot ce[m:] $$ gives the
 # same answer as the full counterexample. If yes, the split point is to the
 # right; if no, it is here or to the left.
 # 
@@ -814,21 +815,21 @@ if __name__ == '__main__':
 # 
 # After finding the split point $$ i $$, we need the string that reaches
 # state $$ q_i $$ and then reads $$ ce[i] $$. The raw counterexample prefix
-# $$ ce[:i+1] $$ would work, but we use $$ acc(q_i) \cdot ce[i] $$ instead.
+# $$ ce[:i+1] $$ would work, but we use $$ reach(q_i) \cdot ce[i] $$ instead.
 # This is the *prefix transformation*, and it gives two guarantees:
 # 
-# * **Correctness**: $$ acc(q_i) $$ traces a known path through the
+# * **Correctness**: $$ reach(q_i) $$ traces a known path through the
 #   hypothesis, so the sift is guaranteed to work even if the hypothesis
 #   is partially stale.
-# * **Minimality**: the new state gets access sequence $$ acc(q_i) \cdot
+# * **Minimality**: the new state gets access sequence $$ reach(q_i) \cdot
 #   ce[i] $$, which is the shortest possible. Using $$ ce[:i+1] $$ could
 #   produce a much longer access sequence, making future sifts more expensive.
 
 def prefix_transformation(states, st, ce, i):
-    # replace the raw prefix ce[:i+1] with acc(q_i) + ce[i]
+    # replace the raw prefix ce[:i+1] with reach(q_i) + ce[i]
     # states[i] is the hypothesis state reached after consuming ce[:i]
     q_i = states[i]
-    return st.access(q_i) + ce[i], q_i
+    return st.reach(q_i) + ce[i], q_i
 
 # ### Splitting a Leaf
 # 
@@ -896,8 +897,8 @@ def finalize_discriminator(old_state, new_state, ce_suffix, st, oracle):
     best = ce_suffix
     for j in range(len(ce_suffix) - 1, 0, -1):
         candidate = ce_suffix[j:]
-        old_answer = oracle.is_member(st.access(old_state) + candidate)
-        new_answer = oracle.is_member(st.access(new_state) + candidate)
+        old_answer = oracle.is_member(st.reach(old_state) + candidate)
+        new_answer = oracle.is_member(st.reach(new_state) + candidate)
         if old_answer != new_answer:
             best = candidate
         else:
@@ -914,8 +915,8 @@ if __name__ == '__main__':
     d = finalize_discriminator('<start>', '<1>', '', st, oracle)
     assert d == ''
     # 'ba' can be shortened to 'a'
-    # acc('<start>') + 'a' = 'a'   -> False (odd)
-    # acc('<1>')     + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
+    # reach('<start>') + 'a' = 'a'   -> False (odd)
+    # reach('<1>') + + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
     d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
     assert d == 'a'
 
@@ -923,7 +924,7 @@ if __name__ == '__main__':
 # 
 # `find_split_point` records the hypothesis states visited while reading
 # $$ ce $$, then binary-searches for the first position where
-# $$ acc(q_i) \cdot ce[i:] $$ disagrees with the target answer on $$ ce $$.
+# $$ reach(q_i) \cdot ce[i:] $$ disagrees with the target answer on $$ ce $$.
 # That position $$ i $$ is where the hypothesis first takes a wrong transition.
 # The search costs $$ O(\log|ce|) $$ membership queries.
 # 
@@ -939,12 +940,12 @@ def find_split_point(dfa, st, oracle, ce):
 
     target_answer = oracle.is_member(ce)
 
-    # binary search: find first index where acc(q_i)+ce[i:] disagrees with target
+    # binary search: find first index where reach(q_i)+ce[i:] disagrees with target
     lo, hi = 0, len(ce)
     while lo < hi:
         mid = (lo + hi) // 2
         q_mid = states[mid]
-        if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
+        if oracle.is_member(st.reach(q_mid) + ce[mid:]) == target_answer:
             lo = mid + 1   # mid agrees: split is to the right
         else:
             hi = mid       # mid disagrees: split is here or to the left
@@ -977,7 +978,7 @@ if __name__ == '__main__':
 # one new discriminator.
 # 
 # Note: `decompose` uses hypothesis transitions only to find the split point.
-# The actual split uses $$ acc(q_i) $$ from the spanning tree, which is always
+# The actual split uses $$ reach(q_i) $$ from the spanning tree, which is always
 # correct with respect to the target, so `decompose` is correct even if the
 # hypothesis is partially stale.
 
@@ -1020,7 +1021,7 @@ if __name__ == '__main__':
     dfa.add_transition('<start>', 'b', '<start>')
     new_state, _ = decompose(dfa, dt, st, oracle, 'a')
     assert not dt.is_leaf()
-    assert st.access(new_state) == 'a'
+    assert st.reach(new_state) == 'a'
     assert sift(dt, '', oracle).state == '<start>'
     assert sift(dt, 'a', oracle).state == new_state
     __canvas__(dt_to_dot(dt, 'DT_decompose1'))
@@ -1037,7 +1038,7 @@ if __name__ == '__main__':
     dfa.add_transition('<start>', 'b', '<start>')
     new_state, _ = decompose(dfa, dt, st, oracle, 'aab')
     assert not dt.is_leaf()
-    assert st.access(new_state) == 'a'
+    assert st.reach(new_state) == 'a'
     __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 
 # test 3: two states, counterexample 'aa' reveals a third state.
@@ -1057,7 +1058,7 @@ if __name__ == '__main__':
     dfa2.add_transition('<odd>', 'a', '<odd>')   # wrong
     dfa2.add_transition('<odd>', 'b', '<odd>')
     new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
-    assert st2.access(new_state2) == 'aa'
+    assert st2.reach(new_state2) == 'aa'
     __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
 # ### Worklist Growth in `close_transitions`
@@ -1078,7 +1079,7 @@ if __name__ == '__main__':
     dfa_cl = DFA()
     leaf_index_cl = {}
     build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'], leaf_index_cl)
-    print('step 1 states:', list(st_cl.acc.keys()))
+    print('step 1 states:', list(st_cl._reach.keys()))
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
 
 # Spanning tree and DFA after step 1.
@@ -1103,7 +1104,7 @@ if __name__ == '__main__':
     new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba')
     update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
                       ['a', 'b'], leaf_index_cl, split_id, new_s1)
-    print('step 2 states:', list(st_cl.acc.keys()), '  new state:', new_s1)
+    print('step 2 states:', list(st_cl._reach.keys()), '  new state:', new_s1)
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 
 # Spanning tree after step 2: `s1` now has access sequence `'b'`.
@@ -1119,7 +1120,7 @@ if __name__ == '__main__':
 # **Step 3.** Counterexample `'ba'` again; now the hypothesis rejects it
 # because `s1 -a-> <start>` is wrong (should reach an accepting state).
 # `decompose` creates `s2` and splits the `<start>` leaf with discriminator
-# `ε`. `update_hypothesis` re-sifts; sifting `acc(s1) + 'a'` = `'ba'`
+# `ε`. `update_hypothesis` re-sifts; sifting `reach(s1) + 'a'` = `'ba'`
 # lands on `s2`, which is new and appended. Worklist grows to include `s2`.
 # Here is that sift path, the one that grows the worklist:
 
@@ -1129,7 +1130,7 @@ if __name__ == '__main__':
     sift(_tr, 'ba', oracle_ba)
     __canvas__(dt_to_dot(dt_cl, 'cl_worklist_grow', tracer=_tr))
 
-# And sifting `acc(s1) + 'b'` = `'bb'` lands on `<start>`, which is already known; no append.
+# And sifting `reach(s1) + 'b'` = `'bb'` lands on `<start>`, which is already known; no append.
 
 if __name__ == '__main__':
     _tr = DTTracer(dt_cl)
@@ -1141,7 +1142,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
                       ['a', 'b'], leaf_index_cl, split_id, new_s2)
-    print('step 3 states:', list(st_cl.acc.keys()), '  new state:', new_s2)
+    print('step 3 states:', list(st_cl._reach.keys()), '  new state:', new_s2)
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 
 # Spanning tree after step 3: three states, all access sequences minimal.
