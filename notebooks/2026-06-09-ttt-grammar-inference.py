@@ -22,25 +22,22 @@
 # counterexample arrives, all its suffixes are added as columns even though
 # most distinguish no new states.
 # 
-# The key insight that the discrimination tree is a better data structure
-# for this job was due to Kearns and Vazirani [^kearns1994], who replaced
-# L*'s observation table with a binary tree of discriminators. Rivest and
-# Schapire [^rivest1993] independently contributed binary search
+# Several independent contributions are incorporated in the TTT algorithm.
+# Rivest and Schapire [^rivest1993] contributed the binary search
 # counterexample analysis, which finds the single relevant suffix in a
-# counterexample in $$ O(\log k) $$ queries rather than adding all $$ k $$
-# suffixes.
+# counterexample in $$ O(\log k) $$ queries (rather than $$ k $$ queries).
+# The introduction of discrimination tree as a replacement for the observation
+# table is due Kearns and Vazirani [^kearns1994].
 # 
 # TTT by Isberner, Howar and Steffen [^isberner2014]
 # adds two further refinements: *prefix transformation*,
 # which keeps access sequences minimal, and *discriminator finalization*,
-# which keeps the discrimination tree shallow. Together these make TTT
-# provably redundancy-free. That is, it never makes a membership query whose
-# answer could have been derived from earlier queries.
+# which keeps the discrimination tree shallow.
+# TTT is provably redundancy-free. That is, it never makes a membership query
+# whose answer could have been derived from earlier queries.
 # 
-# TTT is the algorithm of choice in practical automata learning tools such
-# as LearnLib [^learnlib]. ADT [^adt] extends TTT with adaptive
-# distinguishing sequences, which can reduce resets in hardware settings,
-# though performance differences in software engineering settings are modest.
+# A notable extension is ADT [^adt], which extends TTT with adaptive
+# distinguishing sequences, which can reduce resets in hardware settings.
 # 
 # ## Definitions
 # 
@@ -71,9 +68,7 @@
 # ## Prerequisites
 # 
 # We use the `Teacher` and `Oracle` from the L* post unchanged.
-# The PAC equivalence oracle in `Teacher` is a direct drop-in for TTT.
-# The rest of the algorithm is completely independent of how equivalence
-# queries are answered.
+# The rest of the algorithm is independent of L*
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
@@ -101,21 +96,20 @@ import lstar
 if __name__ == '__main__':
     if '__canvas__' not in globals(): __canvas__ = print
 
-# ## The Road from L* to TTT
-#  
+# ## From L* to TTT
+#
 # In L*, when the equivalence oracle returns a counterexample $$ ce $$ of
 # length $$ k $$, the algorithm adds all $$ k $$ suffixes of $$ ce $$ as
-# new columns. For each new column, it must re-query every existing row.
-# Many of these new columns are, however, redundant. They do not
-# distinguish any new pair of states, but given that they exist, the cells
-# need to be filled, and hence you pay the price in queries.
-# 
-# The key insight in TTT is that
-# **a counterexample only ever witnesses one new distinction**:
-# one pair of states was wrongly merged. Hence, exactly **one** new
-# discriminator is sufficient, not $$ k $$. Getting to this point required
-# three independent contributions:
-# 
+# new columns (i.e. discriminators for states).
+# For each new column, it must re-query every existing row.
+# However, many of these new columns are redundant because they do not
+# distinguish any new pair of states.
+#
+# The key insight that distinguishes TTT from L* is that
+# **a counterexample identifies only one pair of states** that was wrongly
+# merged. Hence, exactly **one** new discriminator is sufficient, not $$ k $$.
+# TTT incorporates the following independent contributions:
+#
 # * **Kearns and Vazirani (1994)**[^kearns1994] replaced the observation
 #   table with a *discrimination tree*. A binary tree of discriminator
 #   suffixes where each leaf is a state.
