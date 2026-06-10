@@ -187,16 +187,19 @@ if &#x27;__canvas__&#x27; not in globals(): __canvas__ = print
 <div name='python_canvas'></div>
 </form>
 ## From L* to TTT
+
 In L*, when the equivalence oracle returns a counterexample $$ ce $$ of
 length $$ k $$, the algorithm adds all $$ k $$ suffixes of $$ ce $$ as
 new columns (i.e. discriminators for states).
 For each new column, it must re-query every existing row.
 However, many of these new columns are redundant because they do not
 distinguish any new pair of states.
+
 The key insight that distinguishes TTT from L* is that
 **a counterexample identifies only one pair of states** that was wrongly
 merged. Hence, exactly **one** new discriminator is sufficient, not $$ k $$.
 TTT incorporates the following independent contributions:
+
 * **Kearns and Vazirani (1994)**[^kearns1994] replaced the observation
   table with a *discrimination tree*. A binary tree of discriminator
   suffixes where each leaf is a state.
@@ -468,69 +471,77 @@ every other known state. Early in learning the tree is shallow; each
 counterexample adds exactly one new inner node, splitting one existing leaf
 into two children.
 
-There are exactly two kinds of nodes: Leaf and Inner.
+A node starts life as a leaf holding a state name. When a counterexample
+proves that two strings were wrongly merged, the leaf is *split in place*
+into an inner node: it forgets its state name and gains a discriminator and
+two children. We mutate in place because other nodes in the tree already
+hold references to this object; replacing it with a new object would leave
+those references stale. The `split` method (called `split` in the TTT paper)
+encapsulates this mutation.
 
 <!--
 ############
 class DTNode:
-    def is_leaf(self): return False
-
-class DTInner(DTNode):
-    def __init__(self, discriminator):
-        self.discriminator = discriminator
-        self.left = None    # membership query returned False
-        self.right = None   # membership query returned True
-
-class DTLeaf(DTNode):
     def __init__(self, state):
-        self.state = state
+        self.state = state          # non-None iff this is a leaf
+        self.discriminator = None
+        self.left  = None           # branch taken when oracle returns False
+        self.right = None           # branch taken when oracle returns True
 
-    def is_leaf(self): return True
+    def is_leaf(self):
+        return self.state is not None
+
+    def split(self, discriminator, new_state, oracle, st):
+        # TTT paper: splitLeaf(leaf, discriminator, new_state)
+        old_state = self.state
+        old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
+        self.state = None
+        self.discriminator = discriminator
+        old_child = DTNode(old_state)
+        new_child = DTNode(new_state)
+        if old_goes_right:
+            self.right = old_child
+            self.left  = new_child
+        else:
+            self.left  = old_child
+            self.right = new_child
+        return old_child, new_child
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class DTNode:
-    def is_leaf(self): return False
-
-class DTInner(DTNode):
-    def __init__(self, discriminator):
-        self.discriminator = discriminator
-        self.left = None    # membership query returned False
-        self.right = None   # membership query returned True
-
-class DTLeaf(DTNode):
     def __init__(self, state):
-        self.state = state
+        self.state = state          # non-None iff this is a leaf
+        self.discriminator = None
+        self.left  = None           # branch taken when oracle returns False
+        self.right = None           # branch taken when oracle returns True
 
-    def is_leaf(self): return True
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We test the node types before proceeding.
+    def is_leaf(self):
+        return self.state is not None
 
-<!--
-############
-leaf = DTLeaf('<start>')
-assert leaf.is_leaf() == True
-inner = DTInner('a')
-assert inner.is_leaf() == False
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-leaf = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-assert leaf.is_leaf() == True
-inner = DTInner(&#x27;a&#x27;)
-assert inner.is_leaf() == False
+    def split(self, discriminator, new_state, oracle, st):
+        # TTT paper: splitLeaf(leaf, discriminator, new_state)
+        old_state = self.state
+        old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
+        self.state = None
+        self.discriminator = discriminator
+        old_child = DTNode(old_state)
+        new_child = DTNode(new_state)
+        if old_goes_right:
+            self.right = old_child
+            self.left  = new_child
+        else:
+            self.left  = old_child
+            self.right = new_child
+        return old_child, new_child
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
 ## The Spanning Tree
+
 Each state in the hypothesis has an *access sequence*: the shortest known
 string that reaches it from `<start>`. The TTT paper calls this structure
 a *spanning tree* because, conceptually, the states form a tree: `<start>`
@@ -573,60 +584,31 @@ class StateTable:
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-## Splitting a Leaf
-
-The DT starts as a single leaf `<start>`. Each counterexample causes exactly
-one leaf to be *split*: it is mutated in place into an inner node, and two
-new leaves are attached as its children.
-
-We mutate the leaf in place because other parts of the code hold references
-to the same object. Replacing it with a new object would leave those
-references stale. After the split, the leaf's `state` attribute is removed
-and replaced with `discriminator`, `left`, and `right`.
-
-`split_leaf` needs to know which side the old state goes on, so it queries
-the oracle: if `reach(old_state) + discriminator` is accepted, `old_state`
-goes right; otherwise left. The new state takes the other side.
+We test the node types before proceeding.
 
 <!--
 ############
-def split_leaf(leaf, discriminator, new_state, oracle, st):
-    old_state = leaf.state
-    old_leaf = DTLeaf(old_state)
-    new_leaf = DTLeaf(new_state)
-    # ask the oracle which side old_state goes on
-    old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
-    # mutate the leaf in place into an inner node
-    leaf.__class__ = DTInner
-    leaf.discriminator = discriminator
-    if old_goes_right:
-        leaf.right = old_leaf
-        leaf.left  = new_leaf
-    else:
-        leaf.left  = old_leaf
-        leaf.right = new_leaf
-    del leaf.state
+leaf = DTNode('<start>')
+assert leaf.is_leaf() == True
+st_t = StateTable()
+st_t.add_state('<1>', '<start>', 'a')
+oracle_t = MockOracle(lambda w: w.count('a') % 2 == 0)
+leaf.split('', '<1>', oracle_t, st_t)
+assert leaf.is_leaf() == False
+assert leaf.discriminator == ''
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def split_leaf(leaf, discriminator, new_state, oracle, st):
-    old_state = leaf.state
-    old_leaf = DTLeaf(old_state)
-    new_leaf = DTLeaf(new_state)
-    # ask the oracle which side old_state goes on
-    old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
-    # mutate the leaf in place into an inner node
-    leaf.__class__ = DTInner
-    leaf.discriminator = discriminator
-    if old_goes_right:
-        leaf.right = old_leaf
-        leaf.left  = new_leaf
-    else:
-        leaf.left  = old_leaf
-        leaf.right = new_leaf
-    del leaf.state
+leaf = DTNode(&#x27;&lt;start&gt;&#x27;)
+assert leaf.is_leaf() == True
+st_t = StateTable()
+st_t.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+oracle_t = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
+leaf.split(&#x27;&#x27;, &#x27;&lt;1&gt;&#x27;, oracle_t, st_t)
+assert leaf.is_leaf() == False
+assert leaf.discriminator == &#x27;&#x27;
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -651,27 +633,25 @@ discriminators with shorter, permanent ones.
 
 <!--
 ############
-def sift(root, w, oracle):
-    node = root
+def sift(node, w, oracle):
     while not node.is_leaf():
         if oracle.is_member(w + node.discriminator):
             node = node.right
         else:
             node = node.left
-    return node   # always a DTLeaf
+    return node
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def sift(root, w, oracle):
-    node = root
+def sift(node, w, oracle):
     while not node.is_leaf():
         if oracle.is_member(w + node.discriminator):
             node = node.right
         else:
             node = node.left
-    return node   # always a DTLeaf
+    return node
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -681,8 +661,8 @@ Inner nodes show their discriminator suffix; leaves show the state name.
 Left edges (membership query returned False) are labelled "no";
 right edges (True) are labelled "yes".
 An empty discriminator is shown as ε (epsilon), meaning the string itself
-is queried directly with nothing appended.
-An optional `tracer` argument (a DTTracer, defined below) colours the
+is queried with nothing appended.
+An optional `tracer` argument (a `DTTracer`, defined below) colours the
 recorded sift path blue.
 
 <!--
@@ -868,7 +848,7 @@ We test sifting on the even-a's example: the DT has one discriminator
 <!--
 ############
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-dt = DTLeaf('<start>')
+dt = DTNode('<start>')
 assert sift(dt, 'aa', oracle).state == '<start>'
 assert sift(dt, '', oracle).state == '<start>'
 __canvas__(dt_to_dot(dt, 'DT_single'))
@@ -878,7 +858,7 @@ __canvas__(dt_to_dot(dt, 'DT_single'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt = DTNode(&#x27;&lt;start&gt;&#x27;)
 assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 __canvas__(dt_to_dot(dt, &#x27;DT_single&#x27;))
@@ -896,8 +876,8 @@ recording that `<odd>` is reached via `'a'`.
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
 st_ea = StateTable()
 st_ea.add_state('<odd>', '<start>', 'a')
-dt = DTLeaf('<start>')
-split_leaf(dt, '', '<odd>', oracle, st_ea)
+dt = DTNode('<start>')
+dt.split('', '<odd>', oracle, st_ea)
 assert sift(dt, 'aa', oracle).state == '<start>'
 assert sift(dt, 'a', oracle).state == '<odd>'
 assert sift(dt, '', oracle).state == '<start>'
@@ -911,8 +891,8 @@ __canvas__(dt_to_dot(dt, 'DT_even_a'))
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 st_ea = StateTable()
 st_ea.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-split_leaf(dt, &#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
+dt = DTNode(&#x27;&lt;start&gt;&#x27;)
+dt.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
 assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 assert sift(dt, &#x27;a&#x27;, oracle).state == &#x27;&lt;odd&gt;&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
@@ -970,10 +950,10 @@ sifting takes two steps before reaching a leaf.
 <!--
 ############
 st_ea.add_state('<even2>', '<start>', 'aaa')
-dt3 = DTLeaf('<start>')
-split_leaf(dt3, '', '<odd>', oracle, st_ea)
+dt3 = DTNode('<start>')
+dt3.split('', '<odd>', oracle, st_ea)
 # dt3.right is now the <start> leaf; split it on 'aa'
-split_leaf(dt3.right, 'aa', '<even2>', oracle, st_ea)
+dt3.right.split('aa', '<even2>', oracle, st_ea)
 __canvas__(dt_to_dot(dt3, 'DT_three_state'))
 
 ############
@@ -981,10 +961,10 @@ __canvas__(dt_to_dot(dt3, 'DT_three_state'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 st_ea.add_state(&#x27;&lt;even2&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;aaa&#x27;)
-dt3 = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-split_leaf(dt3, &#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
+dt3 = DTNode(&#x27;&lt;start&gt;&#x27;)
+dt3.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
 # dt3.right is now the &lt;start&gt; leaf; split it on &#x27;aa&#x27;
-split_leaf(dt3.right, &#x27;aa&#x27;, &#x27;&lt;even2&gt;&#x27;, oracle, st_ea)
+dt3.right.split(&#x27;aa&#x27;, &#x27;&lt;even2&gt;&#x27;, oracle, st_ea)
 __canvas__(dt_to_dot(dt3, &#x27;DT_three_state&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1055,9 +1035,10 @@ So `<start> -a-> <odd>`.
 <!--
 ############
 _oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
-_dt_walk = DTInner('')
-_dt_walk.left  = DTLeaf('<odd>')
-_dt_walk.right = DTLeaf('<start>')
+_dt_walk = DTNode('<start>')
+_st_walk = StateTable()
+_st_walk.add_state('<odd>', '<start>', 'a')
+_dt_walk.split('', '<odd>', _oracle_ea, _st_walk)
 _tr = DTTracer(_dt_walk)
 sift(_tr, 'a', _oracle_ea)
 __canvas__(dt_to_dot(_dt_walk, 'sift_start_a', tracer=_tr))
@@ -1067,9 +1048,10 @@ __canvas__(dt_to_dot(_dt_walk, 'sift_start_a', tracer=_tr))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 _oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-_dt_walk = DTInner(&#x27;&#x27;)
-_dt_walk.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
-_dt_walk.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+_dt_walk = DTNode(&#x27;&lt;start&gt;&#x27;)
+_st_walk = StateTable()
+_st_walk.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+_dt_walk.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, _oracle_ea, _st_walk)
 _tr = DTTracer(_dt_walk)
 sift(_tr, &#x27;a&#x27;, _oracle_ea)
 __canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_a&#x27;, tracer=_tr))
@@ -1166,18 +1148,18 @@ def is_open(dfa, state, char, st):
 <div name='python_canvas'></div>
 </form>
 `close_transitions` works through all known states, sifting each open
-transition. When sifting discovers a state not yet in the spanning tree,
+transition. When sifting discovers a state not yet in the state table,
 that state is added and appended to the work list so its own transitions
 are processed in the same pass. This means the loop may grow as it runs:
 starting with one state, it may end with the full set.
 
-`leaf_index` records, for each DT leaf, which `(state, char)` transitions
-were routed there. After a split, we use this index to find and re-sift
-only the transitions that are now stale, rather than re-sifting everything.
+`leaf_index` maps `id(leaf)` to the list of `(state, char)` transitions
+that sifted to that leaf. It is passed in explicitly so its contents are
+visible to callers — `update_hypothesis` reads it to find stale transitions.
 
 <!--
 ############
-def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
+def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
     states = list(st._reach.keys())
     i = 0
     while i < len(states):
@@ -1194,14 +1176,14 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
                 states.append(target_state)
             if dfa.transition(state, char) is None:
                 dfa.add_transition(state, char, target_state)
-            if leaf_index is not None:
-                leaf_index.setdefault(id(target_leaf), []).append((state, char))
+            # record which leaf this transition landed on, for stale detection
+            leaf_index.setdefault(id(target_leaf), []).append((state, char))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
+def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
     states = list(st._reach.keys())
     i = 0
     while i &lt; len(states):
@@ -1218,8 +1200,8 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
                 states.append(target_state)
             if dfa.transition(state, char) is None:
                 dfa.add_transition(state, char, target_state)
-            if leaf_index is not None:
-                leaf_index.setdefault(id(target_leaf), []).append((state, char))
+            # record which leaf this transition landed on, for stale detection
+            leaf_index.setdefault(id(target_leaf), []).append((state, char))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1230,7 +1212,7 @@ is an accepting state.
 
 <!--
 ############
-def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
+def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
     for state in list(st._reach.keys()):
         dfa.ensure_state(state)
         if oracle.is_member(st.reach(state)):
@@ -1241,7 +1223,7 @@ def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
+def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
     for state in list(st._reach.keys()):
         dfa.ensure_state(state)
         if oracle.is_member(st.reach(state)):
@@ -1262,22 +1244,24 @@ We visualise the DT, spanning tree, and resulting DFA at this stage.
 <!--
 ############
 oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
-dt_pre = DTLeaf('<start>')
+dt_pre = DTNode('<start>')
 st_pre = StateTable()
 dfa_pre = DFA()
-build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'])
-__canvas__(dt_to_dot(dt_pre,  'DT_before_split'))
+leaf_index_pre = {}
+build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'], leaf_index_pre)
+__canvas__(dt_to_dot(dt_pre, 'DT_before_split'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-dt_pre = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt_pre = DTNode(&#x27;&lt;start&gt;&#x27;)
 st_pre = StateTable()
 dfa_pre = DFA()
-build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;])
-__canvas__(dt_to_dot(dt_pre,  &#x27;DT_before_split&#x27;))
+leaf_index_pre = {}
+build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_pre)
+__canvas__(dt_to_dot(dt_pre, &#x27;DT_before_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1304,27 +1288,25 @@ Re-sifting now correctly routes `'a'` to `<odd>` and `'b'` back to `<start>`.
 
 <!--
 ############
-dt_post = DTInner('')
-dt_post.left  = DTLeaf('<odd>')
-dt_post.right = DTLeaf('<start>')
 st_post = StateTable()
 st_post.add_state('<odd>', '<start>', 'a')
+dt_post = DTNode('<start>')
+dt_post.split('', '<odd>', oracle_ea, st_post)
 dfa_post = DFA()
-build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'])
-__canvas__(dt_to_dot(dt_post,  'DT_after_split'))
+build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'], {})
+__canvas__(dt_to_dot(dt_post, 'DT_after_split'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-dt_post = DTInner(&#x27;&#x27;)
-dt_post.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
-dt_post.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st_post = StateTable()
 st_post.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+dt_post = DTNode(&#x27;&lt;start&gt;&#x27;)
+dt_post.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle_ea, st_post)
 dfa_post = DFA()
-build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;])
-__canvas__(dt_to_dot(dt_post,  &#x27;DT_after_split&#x27;))
+build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], {})
+__canvas__(dt_to_dot(dt_post, &#x27;DT_after_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1352,8 +1334,8 @@ pointed to a single state, but the DT now says some of those strings
 belong to the left child and some to the right.
  
 We could re-sift every transition in the hypothesis from scratch, but that
-is wasteful. Instead, `leaf_index` tells us exactly which `(state, char)`
-pairs were routed to $$ \ell $$. We remove only those transitions from the
+is wasteful. Instead, `leaf_index` records exactly which `(state, char)`
+pairs were routed to each leaf. We remove only those transitions from the
 DFA and re-sift only them. Every other transition remains correct.
  
 Concretely, continuing the even-a's example: after the DT is split on `''`
@@ -1362,9 +1344,10 @@ the old single leaf -- all of them, since there was only one leaf. Each is
 removed and re-sifted through the new two-node DT. The transition
 `<start> -a-> <start>` becomes `<start> -a-> <1>`, and all others stay the
 same. We show the DFA before and after the update.
-`split_id` is the Python `id()` of the leaf *before* it was mutated; the
-caller must capture it before calling `split_leaf`, since the mutation
-changes the object in place and the old id is the key in `leaf_index`.
+`update_hypothesis` is called after a leaf split. It pops the stale
+transitions from `leaf_index`, removes them from the DFA, then re-closes
+to re-sift only those transitions plus the new state's open transitions.
+This corresponds to TTT's incremental hypothesis update step.
 
 <!--
 ############
@@ -1374,16 +1357,15 @@ def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_s
     if oracle.is_member(st.reach(new_state)):
         dfa.set_accepting(new_state)
 
-    # collect transitions that pointed to the now-split leaf
+    # collect transitions that pointed to the now-split leaf, then clear them
     stale = leaf_index.pop(split_id, [])
 
-    # remove the stale transitions from the DFA grammar and re-sift them
+    # remove the stale transitions from the DFA grammar
     for (from_state, char) in stale:
         rules = dfa.grammar[from_state]
         dfa.grammar[from_state] = [r for r in rules if not (r and r[0] == char)]
 
-    # re-close just the stale transitions (plus any new open ones from new_state)
-    # mark new_state as needing closure by ensuring its transitions are absent
+    # re-close: re-sift the stale transitions and close new_state's transitions
     close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 
 ############
@@ -1396,16 +1378,15 @@ def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_s
     if oracle.is_member(st.reach(new_state)):
         dfa.set_accepting(new_state)
 
-    # collect transitions that pointed to the now-split leaf
+    # collect transitions that pointed to the now-split leaf, then clear them
     stale = leaf_index.pop(split_id, [])
 
-    # remove the stale transitions from the DFA grammar and re-sift them
+    # remove the stale transitions from the DFA grammar
     for (from_state, char) in stale:
         rules = dfa.grammar[from_state]
         dfa.grammar[from_state] = [r for r in rules if not (r and r[0] == char)]
 
-    # re-close just the stale transitions (plus any new open ones from new_state)
-    # mark new_state as needing closure by ensuring its transitions are absent
+    # re-close: re-sift the stale transitions and close new_state&#x27;s transitions
     close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1417,12 +1398,12 @@ We test hypothesis construction on the even-a's example.
 ############
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
 alphabet = ['a', 'b']
-dt = DTInner('')
-dt.left  = DTLeaf('<odd>')
-dt.right = DTLeaf('<start>')
 st = StateTable()
-dfa = DFA()
+st.add_state('<odd>', '<start>', 'a')
+dt = DTNode('<start>')
+dt.split('', '<odd>', oracle, st)
 leaf_index = {}
+dfa = DFA()
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 assert dfa.transition('<start>', 'a')[1] == '<odd>'
 assert dfa.transition('<start>', 'b')[1] == '<start>'
@@ -1439,12 +1420,12 @@ assert st.reach('<odd>') == 'a'
 <textarea cols="40" rows="4" name='python_edit'>
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 alphabet = [&#x27;a&#x27;, &#x27;b&#x27;]
-dt = DTInner(&#x27;&#x27;)
-dt.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
-dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st = StateTable()
-dfa = DFA()
+st.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+dt = DTNode(&#x27;&lt;start&gt;&#x27;)
+dt.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st)
 leaf_index = {}
+dfa = DFA()
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;odd&gt;&#x27;
 assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
@@ -1520,8 +1501,8 @@ Once we have the split point, we know:
   but the counterexample proves they are different
 * The discriminator $$ ce[i+1:] $$ is the suffix that tells them apart
 
-`split_leaf` was introduced in the Splitting a Leaf section above and is
-used directly here. `decompose` calls it with the leaf found by sifting
+`DTNode.split` was introduced in the Discrimination Tree section above and
+is used directly here. `decompose` calls it with the leaf found by sifting
 the transformed prefix, the new discriminator, and the fresh state.
 
 We now show `update_hypothesis` in action. We build the stale hypothesis
@@ -1532,11 +1513,12 @@ removed and re-sifted to `<1>`.
 <!--
 ############
 oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
-dt_stale = DTLeaf('<start>')
+dt_stale = DTNode('<start>')
 st_stale = StateTable()
 dfa_stale = DFA()
 leaf_index_stale = {}
-build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, ['a', 'b'], leaf_index_stale)
+build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, ['a', 'b'],
+                 leaf_index_stale)
 __canvas__(dfa_to_dot(dfa_stale, 'DFA_stale'))
 
 ############
@@ -1544,32 +1526,37 @@ __canvas__(dfa_to_dot(dfa_stale, 'DFA_stale'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-dt_stale = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt_stale = DTNode(&#x27;&lt;start&gt;&#x27;)
 st_stale = StateTable()
 dfa_stale = DFA()
 leaf_index_stale = {}
-build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_stale)
+build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;],
+                 leaf_index_stale)
 __canvas__(dfa_to_dot(dfa_stale, &#x27;DFA_stale&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Capture split_id before mutating the leaf, then split it.
+Split the DT: add state `<1>` reached via `'a'`, then split the `<start>` leaf.
 
 <!--
 ############
-split_id = id(dt_stale)
 st_stale.add_state('<1>', '<start>', 'a')
-split_leaf(dt_stale, '', '<1>', oracle_ea, st_stale)
+# sift finds the current leaf for <start>; capture its id before mutating
+start_leaf = sift(dt_stale, st_stale.reach('<start>'), MockOracle(lambda w: w.count('a') % 2 == 0))
+split_id = id(start_leaf)
+start_leaf.split('', '<1>', oracle_ea, st_stale)
 __canvas__(dt_to_dot(dt_stale, 'DT_after_split2'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-split_id = id(dt_stale)
 st_stale.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-split_leaf(dt_stale, &#x27;&#x27;, &#x27;&lt;1&gt;&#x27;, oracle_ea, st_stale)
+# sift finds the current leaf for &lt;start&gt;; capture its id before mutating
+start_leaf = sift(dt_stale, st_stale.reach(&#x27;&lt;start&gt;&#x27;), MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0))
+split_id = id(start_leaf)
+start_leaf.split(&#x27;&#x27;, &#x27;&lt;1&gt;&#x27;, oracle_ea, st_stale)
 __canvas__(dt_to_dot(dt_stale, &#x27;DT_after_split2&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1579,15 +1566,15 @@ Now update: stale transitions are removed and re-sifted.
 
 <!--
 ############
-update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea,
-                  ['a', 'b'], leaf_index_stale, split_id, '<1>')
+update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, ['a', 'b'],
+                  leaf_index_stale, split_id, '<1>')
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea,
-                  [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_stale, split_id, &#x27;&lt;1&gt;&#x27;)
+update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;],
+                  leaf_index_stale, split_id, &#x27;&lt;1&gt;&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1800,7 +1787,7 @@ assert i2 == 0, i2
 ### Putting Decomposition Together
 
 With `find_split_point`, `prefix_transformation`, `finalize_discriminator`,
-and `split_leaf` all in place, `decompose` is a straightforward
+and `DTNode.split` all in place, `decompose` is a straightforward
 four-step sequence. One counterexample yields exactly one new state and
 one new discriminator.
 
@@ -1811,25 +1798,26 @@ hypothesis is partially stale.
 
 <!--
 ############
-def decompose(dfa, dt, st, oracle, ce):
-    # step 1: find split point by binary search
+def decompose(dfa, dt, st, oracle, ce, leaf_index):
+    # step 1: find split point by binary search (TTT: findSplitPoint)
     i, states = find_split_point(dfa, st, oracle, ce)
     lo = i + 1
 
-    # step 2: prefix transformation
+    # step 2: prefix transformation (TTT: prefixTransformation)
     transformed, q_i = prefix_transformation(states, st, ce, i)
 
-    # step 3: sift the transformed prefix to find the leaf, create the new state
-    leaf = sift(dt, transformed, oracle)
-    old_state = leaf.state
-    split_id = id(leaf)
+    # step 3: sift to find which leaf the transformed prefix lands on,
+    # then create the new state (TTT: sift + newState)
+    old_leaf = sift(dt, transformed, oracle)
+    old_state = old_leaf.state
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[i])
 
-    # step 4: finalize discriminator and split the leaf
+    # step 4: finalize discriminator and split the leaf (TTT: splitLeaf)
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-    split_leaf(leaf, new_discriminator, new_state, oracle, st)
+    split_id = id(old_leaf)
+    old_leaf.split(new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
 
@@ -1837,25 +1825,26 @@ def decompose(dfa, dt, st, oracle, ce):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def decompose(dfa, dt, st, oracle, ce):
-    # step 1: find split point by binary search
+def decompose(dfa, dt, st, oracle, ce, leaf_index):
+    # step 1: find split point by binary search (TTT: findSplitPoint)
     i, states = find_split_point(dfa, st, oracle, ce)
     lo = i + 1
 
-    # step 2: prefix transformation
+    # step 2: prefix transformation (TTT: prefixTransformation)
     transformed, q_i = prefix_transformation(states, st, ce, i)
 
-    # step 3: sift the transformed prefix to find the leaf, create the new state
-    leaf = sift(dt, transformed, oracle)
-    old_state = leaf.state
-    split_id = id(leaf)
+    # step 3: sift to find which leaf the transformed prefix lands on,
+    # then create the new state (TTT: sift + newState)
+    old_leaf = sift(dt, transformed, oracle)
+    old_state = old_leaf.state
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[i])
 
-    # step 4: finalize discriminator and split the leaf
+    # step 4: finalize discriminator and split the leaf (TTT: splitLeaf)
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-    split_leaf(leaf, new_discriminator, new_state, oracle, st)
+    split_id = id(old_leaf)
+    old_leaf.split(new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
 </textarea><br />
@@ -1885,13 +1874,14 @@ test 1: single symbol counterexample 'a'
 
 <!--
 ############
-dt = DTLeaf('<start>')
+dt = DTNode('<start>')
 st = StateTable()
+leaf_index = {}
 dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
 dfa.add_transition('<start>', 'b', '<start>')
-new_state, _ = decompose(dfa, dt, st, oracle, 'a')
+new_state, _ = decompose(dfa, dt, st, oracle, 'a', leaf_index)
 assert not dt.is_leaf()
 assert st.reach(new_state) == 'a'
 assert sift(dt, '', oracle).state == '<start>'
@@ -1902,13 +1892,14 @@ __canvas__(dt_to_dot(dt, 'DT_decompose1'))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt = DTNode(&#x27;&lt;start&gt;&#x27;)
 st = StateTable()
+leaf_index = {}
 dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state, _ = decompose(dfa, dt, st, oracle, &#x27;a&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;a&#x27;, leaf_index)
 assert not dt.is_leaf()
 assert st.reach(new_state) == &#x27;a&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
@@ -1923,13 +1914,14 @@ so the new state still gets access sequence 'a' and discriminator is 'b'.
 
 <!--
 ############
-dt = DTLeaf('<start>')
+dt = DTNode('<start>')
 st = StateTable()
+leaf_index = {}
 dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
 dfa.add_transition('<start>', 'b', '<start>')
-new_state, _ = decompose(dfa, dt, st, oracle, 'aab')
+new_state, _ = decompose(dfa, dt, st, oracle, 'aab', leaf_index)
 assert not dt.is_leaf()
 assert st.reach(new_state) == 'a'
 __canvas__(dt_to_dot(dt, 'DT_decompose2'))
@@ -1938,13 +1930,14 @@ __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt = DTNode(&#x27;&lt;start&gt;&#x27;)
 st = StateTable()
+leaf_index = {}
 dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;, leaf_index)
 assert not dt.is_leaf()
 assert st.reach(new_state) == &#x27;a&#x27;
 __canvas__(dt_to_dot(dt, &#x27;DT_decompose2&#x27;))
@@ -1957,11 +1950,10 @@ The DT gains a second level; the new state gets access sequence 'aa'.
 
 <!--
 ############
-dt2 = DTInner('')
-dt2.left  = DTLeaf('<odd>')
-dt2.right = DTLeaf('<start>')
 st2 = StateTable()
 st2.add_state('<odd>', '<start>', 'a')
+dt2 = DTNode('<start>')
+dt2.split('', '<odd>', oracle, st2)
 dfa2 = DFA()
 dfa2.ensure_state('<odd>')
 dfa2.set_accepting('<start>')
@@ -1969,7 +1961,7 @@ dfa2.add_transition('<start>', 'a', '<odd>')
 dfa2.add_transition('<start>', 'b', '<start>')
 dfa2.add_transition('<odd>', 'a', '<odd>')   # wrong
 dfa2.add_transition('<odd>', 'b', '<odd>')
-new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
+new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa', {})
 assert st2.reach(new_state2) == 'aa'
 __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 
@@ -1977,11 +1969,10 @@ __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-dt2 = DTInner(&#x27;&#x27;)
-dt2.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
-dt2.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st2 = StateTable()
 st2.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+dt2 = DTNode(&#x27;&lt;start&gt;&#x27;)
+dt2.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st2)
 dfa2 = DFA()
 dfa2.ensure_state(&#x27;&lt;odd&gt;&#x27;)
 dfa2.set_accepting(&#x27;&lt;start&gt;&#x27;)
@@ -1989,7 +1980,7 @@ dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;odd&gt;&
 dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;odd&gt;&#x27;)   # wrong
 dfa2.add_transition(&#x27;&lt;odd&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;odd&gt;&#x27;)
-new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
+new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;, {})
 assert st2.reach(new_state2) == &#x27;aa&#x27;
 __canvas__(dt_to_dot(dt2, &#x27;DT_decompose3&#x27;))
 </textarea><br />
@@ -2010,7 +2001,7 @@ only leaf `<start>`, so no new states are discovered.
 <!--
 ############
 oracle_ba = MockOracle(lambda w: w.endswith('ba'))
-dt_cl = DTLeaf('<start>')
+dt_cl = DTNode('<start>')
 st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
@@ -2023,7 +2014,7 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ba = MockOracle(lambda w: w.endswith(&#x27;ba&#x27;))
-dt_cl = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt_cl = DTNode(&#x27;&lt;start&gt;&#x27;)
 st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
@@ -2059,9 +2050,9 @@ worklist and its transitions are closed immediately. Worklist grows from
 
 <!--
 ############
-new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba')
-update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
-                  ['a', 'b'], leaf_index_cl, split_id, new_s1)
+new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba', leaf_index_cl)
+update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
+                  leaf_index_cl, split_id, new_s1)
 print('step 2 states:', list(st_cl._reach.keys()), '  new state:', new_s1)
 __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 
@@ -2069,9 +2060,9 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, &#x27;ba&#x27;)
-update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
-                  [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl, split_id, new_s1)
+new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, &#x27;ba&#x27;, leaf_index_cl)
+update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;],
+                  leaf_index_cl, split_id, new_s1)
 print(&#x27;step 2 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s1)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step2&#x27;))
 </textarea><br />
@@ -2102,7 +2093,7 @@ Here is that sift path, the one that grows the worklist:
 
 <!--
 ############
-new_s2, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba')
+new_s2, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba', leaf_index_cl)
 _tr = DTTracer(dt_cl)
 sift(_tr, 'ba', oracle_ba)
 __canvas__(dt_to_dot(dt_cl, 'cl_worklist_grow', tracer=_tr))
@@ -2111,7 +2102,7 @@ __canvas__(dt_to_dot(dt_cl, 'cl_worklist_grow', tracer=_tr))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-new_s2, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, &#x27;ba&#x27;)
+new_s2, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, &#x27;ba&#x27;, leaf_index_cl)
 _tr = DTTracer(dt_cl)
 sift(_tr, &#x27;ba&#x27;, oracle_ba)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_worklist_grow&#x27;, tracer=_tr))
@@ -2142,8 +2133,8 @@ After `update_hypothesis` finishes, all three states are wired up.
 
 <!--
 ############
-update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
-                  ['a', 'b'], leaf_index_cl, split_id, new_s2)
+update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
+                  leaf_index_cl, split_id, new_s2)
 print('step 3 states:', list(st_cl._reach.keys()), '  new state:', new_s2)
 __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 
@@ -2151,8 +2142,8 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
-                  [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl, split_id, new_s2)
+update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;],
+                  leaf_index_cl, split_id, new_s2)
 print(&#x27;step 3 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s2)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step3&#x27;))
 </textarea><br />
@@ -2214,13 +2205,13 @@ oracle is unlikely to produce false counterexamples with reasonable
 parameters, and the language accepted by the DFA is unaffected either way.
 ## DT Coherence After Split
 
-After `split_leaf` turns a leaf into an inner node, some transitions in the
+After `DTNode.split` turns a leaf into an inner node, some transitions in the
 hypothesis that targeted the old leaf are now stale, because the DT now
 routes some of those strings to the new child instead.
 
 The incremental strategy finds exactly those stale transitions via
-`leaf_index`, removes them from the DFA, and re-sifts only them. Every
-other transition remains valid and costs no queries. New states discovered
+`leaf_index.pop(split_id)`, removes them from the DFA, and re-sifts only them.
+Every other transition remains valid and costs no queries. New states discovered
 during re-sifting are registered and their own transitions are closed in the
 same pass.
 ## The Main Loop
@@ -2240,7 +2231,7 @@ states in the minimal DFA, one counterexample per new state discovered.
 <!--
 ############
 def ttt(oracle, alphabet):
-    dt = DTLeaf('<start>')
+    dt = DTNode('<start>')
     st = StateTable()
     leaf_index = {}
 
@@ -2254,7 +2245,7 @@ def ttt(oracle, alphabet):
         if is_eq: break   # done: hypothesis matches target
 
         # one counterexample yields one new state and one new discriminator
-        new_state, split_id = decompose(dfa, dt, st, oracle, ce)
+        new_state, split_id = decompose(dfa, dt, st, oracle, ce, leaf_index)
 
         # incremental update: re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet,
@@ -2267,7 +2258,7 @@ def ttt(oracle, alphabet):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def ttt(oracle, alphabet):
-    dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+    dt = DTNode(&#x27;&lt;start&gt;&#x27;)
     st = StateTable()
     leaf_index = {}
 
@@ -2281,7 +2272,7 @@ def ttt(oracle, alphabet):
         if is_eq: break   # done: hypothesis matches target
 
         # one counterexample yields one new state and one new discriminator
-        new_state, split_id = decompose(dfa, dt, st, oracle, ce)
+        new_state, split_id = decompose(dfa, dt, st, oracle, ce, leaf_index)
 
         # incremental update: re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet,
