@@ -630,10 +630,12 @@ def decompose(dfa, dt, st, oracle, ce):
 # We test decompose.
 
 if __name__ == '__main__':
+    # preparation.
     oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
     alphabet = ['a', 'b']
 
-    # test 1: single symbol counterexample 'a'
+# test 1: single symbol counterexample 'a'
+if __name__ == '__main__':
     dt = DTLeaf('<start>')
     st = SpanningTree()
     dfa = DFA()
@@ -647,7 +649,8 @@ if __name__ == '__main__':
     assert sift(dt, 'a', oracle).state == new_state
     print('decompose test 1 passed')
 
-    # test 2: longer counterexample 'aab'
+# test 2: longer counterexample 'aab'
+if __name__ == '__main__':
     dt = DTLeaf('<start>')
     st = SpanningTree()
     dfa = DFA()
@@ -659,7 +662,8 @@ if __name__ == '__main__':
     assert st.access(new_state) == 'a'
     print('decompose test 2 passed')
 
-    # test 3: two states, counterexample reveals a third
+# test 3: two states, counterexample reveals a third
+if __name__ == '__main__':
     dt2 = DTInner('')
     dt2.left  = DTLeaf('<1>')
     dt2.right = DTLeaf('<start>')
@@ -675,8 +679,6 @@ if __name__ == '__main__':
     new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
     assert st2.access(new_state2) == 'aa'
     print('decompose test 3 passed')
-
-    print('all decompose tests passed')
 
 # ## Non-Redundancy
 # 
@@ -726,21 +728,20 @@ def ttt(oracle, alphabet):
     dt = DTLeaf('<start>')
     st = SpanningTree()
     leaf_index = {}
-
+     
     # initial hypothesis: one state, no transitions yet
     dfa = DFA()
     build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
-
+    
     while True:
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if is_eq:
-            return dfa   # done: hypothesis matches target
-
+        if is_eq: return dfa   # done: hypothesis matches target
+         
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
-
-        # incremental update: re-sift only the stale transitions
+         
+        # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 
 # ## Examples
@@ -771,30 +772,33 @@ if __name__ == '__main__':
     print('test 2 passed: ends in b')
 
 # target 3: binary strings whose value is divisible by 3
+# Let us define a new teacher.
+
+class DivBy3Teacher(Teacher):
+    def __init__(self, delta=0.5, epsilon=0.5):
+        super().__init__('0', delta=delta, epsilon=epsilon)
+
+    def is_member(self, w):
+        if not w: return True
+        return int(w, 2) % 3 == 0
+
+    def is_equivalent(self, grammar, start):
+        self.equivalence_query_counter += 1
+        num_calls = math.ceil(1.0/self.epsilon *
+                  (math.log(1.0/self.delta +
+                              self.equivalence_query_counter * math.log(2))))
+        dfa = DFA(start_symbol=start)
+        dfa.grammar = grammar
+        for _ in range(num_calls):
+            # sample a random binary string up to length 10
+            length = random.randint(0, 10)
+            w = ''.join(random.choice(['0', '1']) for _ in range(length))
+            if bool(self.is_member(w)) != bool(dfa.accepts(w)):
+                return False, w
+        return True, None
+
+# Test this.
 if __name__ == '__main__':
-    class DivBy3Teacher(Teacher):
-        def __init__(self, delta=0.5, epsilon=0.5):
-            super().__init__('0', delta=delta, epsilon=epsilon)
-
-        def is_member(self, w):
-            if not w: return True
-            return int(w, 2) % 3 == 0
-
-        def is_equivalent(self, grammar, start):
-            self.equivalence_query_counter += 1
-            num_calls = math.ceil(1.0/self.epsilon *
-                      (math.log(1.0/self.delta +
-                                  self.equivalence_query_counter * math.log(2))))
-            dfa = DFA(start_symbol=start)
-            dfa.grammar = grammar
-            for _ in range(num_calls):
-                # sample a random binary string up to length 10
-                length = random.randint(0, 10)
-                w = ''.join(random.choice(['0', '1']) for _ in range(length))
-                if bool(self.is_member(w)) != bool(dfa.accepts(w)):
-                    return False, w
-            return True, None
-
     result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
     assert result.accepts('')
     assert result.accepts('0')
@@ -820,7 +824,7 @@ if __name__ == '__main__':
 # becomes expensive. This makes TTT the preferred algorithm when membership
 # queries are costly, as is typical when learning protocol implementations
 # or library APIs through testing.
-
+# 
 # ## References
 # 
 # [^kearns1994]: Michael Kearns and Umesh Vazirani. An Introduction to Computational Learning Theory. MIT Press, 1994. pp. 44-58.

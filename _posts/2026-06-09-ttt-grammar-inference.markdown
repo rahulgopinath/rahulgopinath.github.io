@@ -1192,10 +1192,25 @@ We test decompose.
 
 <!--
 ############
+# preparation.
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
 alphabet = ['a', 'b']
 
-# test 1: single symbol counterexample 'a'
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+# preparation.
+oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
+alphabet = [&#x27;a&#x27;, &#x27;b&#x27;]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+test 1: single symbol counterexample 'a'
+
+<!--
+############
 dt = DTLeaf('<start>')
 st = SpanningTree()
 dfa = DFA()
@@ -1209,7 +1224,30 @@ assert sift(dt, '', oracle).state == '<start>'
 assert sift(dt, 'a', oracle).state == new_state
 print('decompose test 1 passed')
 
-# test 2: longer counterexample 'aab'
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+st = SpanningTree()
+dfa = DFA()
+dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
+dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
+dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;a&#x27;)
+assert not dt.is_leaf()
+assert st.access(new_state) == &#x27;a&#x27;
+assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
+assert sift(dt, &#x27;a&#x27;, oracle).state == new_state
+print(&#x27;decompose test 1 passed&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+test 2: longer counterexample 'aab'
+
+<!--
+############
 dt = DTLeaf('<start>')
 st = SpanningTree()
 dfa = DFA()
@@ -1221,7 +1259,28 @@ assert not dt.is_leaf()
 assert st.access(new_state) == 'a'
 print('decompose test 2 passed')
 
-# test 3: two states, counterexample reveals a third
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+st = SpanningTree()
+dfa = DFA()
+dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
+dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
+dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
+assert not dt.is_leaf()
+assert st.access(new_state) == &#x27;a&#x27;
+print(&#x27;decompose test 2 passed&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+test 3: two states, counterexample reveals a third
+
+<!--
+############
 dt2 = DTInner('')
 dt2.left  = DTLeaf('<1>')
 dt2.right = DTLeaf('<start>')
@@ -1238,42 +1297,10 @@ new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
 assert st2.access(new_state2) == 'aa'
 print('decompose test 3 passed')
 
-print('all decompose tests passed')
-
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-alphabet = [&#x27;a&#x27;, &#x27;b&#x27;]
-
-# test 1: single symbol counterexample &#x27;a&#x27;
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st = SpanningTree()
-dfa = DFA()
-dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
-dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
-dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state, _ = decompose(dfa, dt, st, oracle, &#x27;a&#x27;)
-assert not dt.is_leaf()
-assert st.access(new_state) == &#x27;a&#x27;
-assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-assert sift(dt, &#x27;a&#x27;, oracle).state == new_state
-print(&#x27;decompose test 1 passed&#x27;)
-
-# test 2: longer counterexample &#x27;aab&#x27;
-dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st = SpanningTree()
-dfa = DFA()
-dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
-dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
-dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
-assert not dt.is_leaf()
-assert st.access(new_state) == &#x27;a&#x27;
-print(&#x27;decompose test 2 passed&#x27;)
-
-# test 3: two states, counterexample reveals a third
 dt2 = DTInner(&#x27;&#x27;)
 dt2.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
 dt2.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
@@ -1289,8 +1316,6 @@ dfa2.add_transition(&#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;1&gt;&#x27;)
 new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
 assert st2.access(new_state2) == &#x27;aa&#x27;
 print(&#x27;decompose test 3 passed&#x27;)
-
-print(&#x27;all decompose tests passed&#x27;)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1346,13 +1371,12 @@ def ttt(oracle, alphabet):
     while True:
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if is_eq:
-            return dfa   # done: hypothesis matches target
+        if is_eq: return dfa   # done: hypothesis matches target
 
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
 
-        # incremental update: re-sift only the stale transitions
+        # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 
 ############
@@ -1371,13 +1395,12 @@ def ttt(oracle, alphabet):
     while True:
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
-        if is_eq:
-            return dfa   # done: hypothesis matches target
+        if is_eq: return dfa   # done: hypothesis matches target
 
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
 
-        # incremental update: re-sift only the stale transitions
+        # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1447,6 +1470,7 @@ print(&#x27;test 2 passed: ends in b&#x27;)
 <div name='python_canvas'></div>
 </form>
 target 3: binary strings whose value is divisible by 3
+Let us define a new teacher.
 
 <!--
 ############
@@ -1472,15 +1496,6 @@ class DivBy3Teacher(Teacher):
             if bool(self.is_member(w)) != bool(dfa.accepts(w)):
                 return False, w
         return True, None
-
-result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
-assert result.accepts('')
-assert result.accepts('0')
-assert result.accepts('11')    # 3 in binary
-assert result.accepts('110')   # 6 in binary
-assert not result.accepts('1')
-assert not result.accepts('10') # 2 in binary
-print('test 3 passed: divisible by 3 in binary')
 
 ############
 -->
@@ -1508,7 +1523,27 @@ class DivBy3Teacher(Teacher):
             if bool(self.is_member(w)) != bool(dfa.accepts(w)):
                 return False, w
         return True, None
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Test this.
 
+<!--
+############
+result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), ['0', '1'])
+assert result.accepts('')
+assert result.accepts('0')
+assert result.accepts('11')    # 3 in binary
+assert result.accepts('110')   # 6 in binary
+assert not result.accepts('1')
+assert not result.accepts('10') # 2 in binary
+print('test 3 passed: divisible by 3 in binary')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
 result = ttt(DivBy3Teacher(delta=0.2, epsilon=0.2), [&#x27;0&#x27;, &#x27;1&#x27;])
 assert result.accepts(&#x27;&#x27;)
 assert result.accepts(&#x27;0&#x27;)
@@ -1537,6 +1572,7 @@ The DT depth is bounded by $$ n $$ (one split per state), so sifting never
 becomes expensive. This makes TTT the preferred algorithm when membership
 queries are costly, as is typical when learning protocol implementations
 or library APIs through testing.
+
 ## References
 
 [^kearns1994]: Michael Kearns and Umesh Vazirani. An Introduction to Computational Learning Theory. MIT Press, 1994. pp. 44-58.
