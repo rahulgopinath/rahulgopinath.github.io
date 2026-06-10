@@ -1372,10 +1372,8 @@ def ttt(oracle, alphabet):
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
         if is_eq: return dfa   # done: hypothesis matches target
-
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
-
         # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 
@@ -1396,10 +1394,8 @@ def ttt(oracle, alphabet):
         # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
         if is_eq: return dfa   # done: hypothesis matches target
-
         # one counterexample yields one new state and one new discriminator
         new_state, split_id = decompose(dfa, dt, st, oracle, ce)
-
         # incremental update. re-sift only the stale transitions
         update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 </textarea><br />
@@ -1409,6 +1405,7 @@ def ttt(oracle, alphabet):
 ## Examples
 
 We test TTT on three targets of increasing complexity.
+
 target 1: strings over {a, b} with an even number of a's
 
 <!--
