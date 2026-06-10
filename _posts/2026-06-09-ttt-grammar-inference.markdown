@@ -460,6 +460,23 @@ Think of it as a game of 20 questions: each inner node asks:
 **if I append suffix $$ d $$ to this string, does the target accept it?**
 and routes left (no) or right (yes). Each leaf is a known state.
 
+The discriminator suffixes at different nodes are **independent strings**
+with no linguistic relationship to each other. The tree structure is not a
+trie; a parent's suffix is not a prefix of its children's suffixes, and
+there is no requirement that sibling suffixes share anything in common.
+The tree is purely a *decision structure*: each node's suffix is the
+question that splits the states reachable at that point, chosen only
+because it distinguishes some pair of states that would otherwise be merged.
+Two nodes at different depths may share a suffix, or their suffixes may be
+completely unrelated; what matters is only the binary answer at each step.
+
+Both children of an inner node can themselves be inner nodes, and the tree
+can be arbitrarily deep. A leaf appears only when we have fully classified
+a state: we know exactly which discriminator suffix distinguishes it from
+every other known state. Early in learning the tree is shallow; each
+counterexample adds exactly one new inner node, splitting one existing leaf
+into two children.
+
 There are exactly two kinds of nodes: Leaf and Inner.
 
 <!--
@@ -524,6 +541,199 @@ print(&#x27;DTNode tests passed&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## The Spanning Tree
+
+Each state in the hypothesis has an *access sequence*: the shortest known
+string that reaches it from `<start>`. The spanning tree is simply a dict
+from state to access sequence.
+
+If you have read the
+[RPNI post](/post/2025/10/24/rpni-learning-regular-languages/),
+the spanning tree will look familiar. The RPNI Prefix Tree Acceptor (PTA)
+is a tree-shaped DFA where every path from root to a node spells out the
+string that reaches that state. The spanning tree is the *dual* of the PTA:
+
+* **PTA** maps *strings -> states*. You start with examples and build
+  states to match them.
+* **Spanning tree** maps *states -> strings*. You start with states
+  (discovered by TTT) and record the string that reaches each one.
+
+In TTT, we never traverse the spanning tree as a tree. We only ever look
+up $$ acc(q) $$ for a given state, or add a new state with its access
+sequence. So the implementation reduces to a simple dict.
+
+<!--
+############
+class SpanningTree:
+    def __init__(self, start_symbol='<start>'):
+        self.acc = { start_symbol: '' }
+
+    def add_state(self, state, parent, char):
+        self.acc[state] = self.acc[parent] + char
+
+    def access(self, state):
+        return self.acc[state]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class SpanningTree:
+    def __init__(self, start_symbol=&#x27;&lt;start&gt;&#x27;):
+        self.acc = { start_symbol: &#x27;&#x27; }
+
+    def add_state(self, state, parent, char):
+        self.acc[state] = self.acc[parent] + char
+
+    def access(self, state):
+        return self.acc[state]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We add a helper to render a spanning tree as a Graphviz dot diagram.
+Each node shows its state name and access sequence.
+Edges are labelled with the character that extends the parent's access
+sequence to reach the child.
+
+<!--
+############
+def st_to_dot(st, name='ST'):
+    acc_to_state = {v: k for k, v in st.acc.items()}
+    lines = ['digraph %s {' % name,
+             '  rankdir=LR;',
+             '  node [shape = rectangle];']
+    for state, acc in st.acc.items():
+        if acc:
+            label = '%s\\naccess: %s' % (state, acc)
+        else:
+            label = state
+        lines.append('  "%s" [label = "%s"];' % (state, label))
+        if acc:  # has a parent
+            parent_acc = acc[:-1]
+            char = acc[-1]
+            parent = acc_to_state.get(parent_acc)
+            if parent is not None:
+                lines.append('  "%s" -> "%s" [label = "%s"];' % (parent, state, char))
+    lines.append('}')
+    return '\n'.join(lines)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def st_to_dot(st, name=&#x27;ST&#x27;):
+    acc_to_state = {v: k for k, v in st.acc.items()}
+    lines = [&#x27;digraph %s {&#x27; % name,
+             &#x27;  rankdir=LR;&#x27;,
+             &#x27;  node [shape = rectangle];&#x27;]
+    for state, acc in st.acc.items():
+        if acc:
+            label = &#x27;%s\\naccess: %s&#x27; % (state, acc)
+        else:
+            label = state
+        lines.append(&#x27;  &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (state, label))
+        if acc:  # has a parent
+            parent_acc = acc[:-1]
+            char = acc[-1]
+            parent = acc_to_state.get(parent_acc)
+            if parent is not None:
+                lines.append(&#x27;  &quot;%s&quot; -&gt; &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (parent, state, char))
+    lines.append(&#x27;}&#x27;)
+    return &#x27;\n&#x27;.join(lines)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We test the spanning tree.
+
+<!--
+############
+st = SpanningTree()
+assert st.access('<start>') == ''
+st.add_state('<1>', '<start>', 'a')
+assert st.access('<1>') == 'a'
+st.add_state('<2>', '<1>', 'b')
+assert st.access('<2>') == 'ab'
+st.add_state('<3>', '<start>', 'b')
+assert st.access('<3>') == 'b'
+__canvas__(st_to_dot(st, 'ST_example'))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+st = SpanningTree()
+assert st.access(&#x27;&lt;start&gt;&#x27;) == &#x27;&#x27;
+st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+assert st.access(&#x27;&lt;1&gt;&#x27;) == &#x27;a&#x27;
+st.add_state(&#x27;&lt;2&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;)
+assert st.access(&#x27;&lt;2&gt;&#x27;) == &#x27;ab&#x27;
+st.add_state(&#x27;&lt;3&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)
+assert st.access(&#x27;&lt;3&gt;&#x27;) == &#x27;b&#x27;
+__canvas__(st_to_dot(st, &#x27;ST_example&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+## Splitting a Leaf
+
+The DT starts as a single leaf `<start>`. Each counterexample causes exactly
+one leaf to be *split*: it is mutated in place into an inner node, and two
+new leaves are attached as its children.
+
+We mutate the leaf in place because other parts of the code hold references
+to the same object. Replacing it with a new object would leave those
+references stale. After the split, the leaf's `state` attribute is removed
+and replaced with `discriminator`, `left`, and `right`.
+
+`split_leaf` needs to know which side the old state goes on, so it queries
+the oracle: if `acc(old_state) + discriminator` is accepted, `old_state`
+goes right; otherwise left. The new state takes the other side.
+
+<!--
+############
+def split_leaf(leaf, discriminator, new_state, oracle, st):
+    old_state = leaf.state
+    old_leaf = DTLeaf(old_state)
+    new_leaf = DTLeaf(new_state)
+    # ask the oracle which side old_state goes on
+    old_goes_right = oracle.is_member(st.access(old_state) + discriminator)
+    # mutate the leaf in place into an inner node
+    leaf.__class__ = DTInner
+    leaf.discriminator = discriminator
+    if old_goes_right:
+        leaf.right = old_leaf
+        leaf.left  = new_leaf
+    else:
+        leaf.left  = old_leaf
+        leaf.right = new_leaf
+    del leaf.state
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def split_leaf(leaf, discriminator, new_state, oracle, st):
+    old_state = leaf.state
+    old_leaf = DTLeaf(old_state)
+    new_leaf = DTLeaf(new_state)
+    # ask the oracle which side old_state goes on
+    old_goes_right = oracle.is_member(st.access(old_state) + discriminator)
+    # mutate the leaf in place into an inner node
+    leaf.__class__ = DTInner
+    leaf.discriminator = discriminator
+    if old_goes_right:
+        leaf.right = old_leaf
+        leaf.left  = new_leaf
+    else:
+        leaf.left  = old_leaf
+        leaf.right = new_leaf
+    del leaf.state
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ### Sifting
 
 To classify any string $$ w $$ to a state, we walk the DT from root to
@@ -531,6 +741,16 @@ leaf. At each inner node labeled $$ d $$, we query $$ member(w \cdot d) $$
 and go right (yes) or left (no). The leaf we land on is the state $$ w $$
 belongs to. Each step is one membership query, so sifting costs at most
 $$ depth(DT) $$ queries, far fewer than L*'s $$ O(|suffixes|) $$.
+
+At any inner node, either child may itself be another inner node. This is
+not like a trie where deeper nodes share a common prefix with their parent —
+the suffix at a deeper node is simply a different, independent question
+that separates states the shallower question could not. The tree gets deeper
+only when a pair of states survive all questions asked so far and a new
+discriminator must be introduced to tell them apart. Keeping the tree
+shallow therefore reduces the query cost of every future sift, which is why
+TTT's discriminator finalization step aggressively replaces long, incidental
+discriminators with shorter, permanent ones.
 
 <!--
 ############
@@ -746,7 +966,7 @@ class DTTracer:
 We test sifting on the even-a's example: the DT has one discriminator
 (the empty string) that separates even-a states from odd-a states.
 
-single leaf: everything maps to start
+**Single leaf:** every string sifts to `<start>`.
 
 <!--
 ############
@@ -769,38 +989,43 @@ __canvas__(dt_to_dot(dt, &#x27;DT_single&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-two-level tree: discriminator ε separates `<odd>` (rejects ε) from `<even>` (accepts ε).
-We use descriptive names here purely to make the example readable;
-the algorithm assigns numeric names like `<0>` at runtime.
+**Two-level tree:** a single split on discriminator ε separates `<odd>`
+(rejects ε) from `<start>` (accepts ε, since `''` has zero a's).
+We start from a single-leaf DT rooted at `<start>` and split it,
+recording that `<odd>` is reached via `'a'`.
 
 <!--
 ############
-dt = DTInner('')
-dt.left = DTLeaf('<odd>')
-dt.right = DTLeaf('<even>')
-assert sift(dt, 'aa', oracle).state == '<even>'
+oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
+st_ea = SpanningTree()
+st_ea.add_state('<odd>', '<start>', 'a')
+dt = DTLeaf('<start>')
+split_leaf(dt, '', '<odd>', oracle, st_ea)
+assert sift(dt, 'aa', oracle).state == '<start>'
 assert sift(dt, 'a', oracle).state == '<odd>'
-assert sift(dt, '', oracle).state == '<even>'
-assert sift(dt, 'b', oracle).state == '<even>'
+assert sift(dt, '', oracle).state == '<start>'
+assert sift(dt, 'b', oracle).state == '<start>'
 __canvas__(dt_to_dot(dt, 'DT_even_a'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-dt = DTInner(&#x27;&#x27;)
-dt.left = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
-dt.right = DTLeaf(&#x27;&lt;even&gt;&#x27;)
-assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
+oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
+st_ea = SpanningTree()
+st_ea.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
+dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+split_leaf(dt, &#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
+assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 assert sift(dt, &#x27;a&#x27;, oracle).state == &#x27;&lt;odd&gt;&#x27;
-assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
-assert sift(dt, &#x27;b&#x27;, oracle).state == &#x27;&lt;even&gt;&#x27;
+assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
+assert sift(dt, &#x27;b&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 __canvas__(dt_to_dot(dt, &#x27;DT_even_a&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Sifting `'a'` (odd a's) goes left to `<odd>`; sifting `'aa'` (even a's) goes right to `<even>`.
+Sifting `'a'` (odd a's) goes left to `<odd>`; sifting `'aa'` (even a's) goes right to `<start>`.
 
 <!--
 ############
@@ -838,142 +1063,81 @@ __canvas__(dt_to_dot(dt, &#x27;DT_sift_aa&#x27;, tracer=_tr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+The two examples above only ever have one inner node at the root. To see
+both children being inner nodes, consider what happens after a second split.
+We split the `<start>` leaf again: discriminator `'aa'` separates `<start>`
+(accepts `'aa'`) from a new state `<even2>` (rejects `'aa'`, e.g. reached
+via `'aaa'`). The right child of the root is now itself an inner node, and
+sifting takes two steps before reaching a leaf.
+
+<!--
+############
+st_ea.add_state('<even2>', '<start>', 'aaa')
+dt3 = DTLeaf('<start>')
+split_leaf(dt3, '', '<odd>', oracle, st_ea)
+# dt3.right is now the <start> leaf; split it on 'aa'
+split_leaf(dt3.right, 'aa', '<even2>', oracle, st_ea)
+__canvas__(dt_to_dot(dt3, 'DT_three_state'))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+st_ea.add_state(&#x27;&lt;even2&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;aaa&#x27;)
+dt3 = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+split_leaf(dt3, &#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
+# dt3.right is now the &lt;start&gt; leaf; split it on &#x27;aa&#x27;
+split_leaf(dt3.right, &#x27;aa&#x27;, &#x27;&lt;even2&gt;&#x27;, oracle, st_ea)
+__canvas__(dt_to_dot(dt3, &#x27;DT_three_state&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Sifting `'aa'`: `member('aa'+ε)` = True, go right to inner node `d='aa'`;
+`member('aa'+'aa')` = `member('aaaa')` = True, go right to leaf `<start>`.
+
+<!--
+############
+_tr = DTTracer(dt3)
+sift(_tr, 'aa', oracle)
+__canvas__(dt_to_dot(dt3, 'DT_sift_three_aa', tracer=_tr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+_tr = DTTracer(dt3)
+sift(_tr, &#x27;aa&#x27;, oracle)
+__canvas__(dt_to_dot(dt3, &#x27;DT_sift_three_aa&#x27;, tracer=_tr))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Sifting `'aaa'`: goes right at root, then `member('aaa'+'aa')` = False,
+go left to leaf `<even2>`.
+
+<!--
+############
+_tr = DTTracer(dt3)
+sift(_tr, 'aaa', oracle)
+__canvas__(dt_to_dot(dt3, 'DT_sift_three_aaa', tracer=_tr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+_tr = DTTracer(dt3)
+sift(_tr, &#x27;aaa&#x27;, oracle)
+__canvas__(dt_to_dot(dt3, &#x27;DT_sift_three_aaa&#x27;, tracer=_tr))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 The even-a's DT uses ε as its discriminator because membership of the
 access sequence alone distinguishes all states. Most targets produce
-non-empty discriminators — we will see this concretely in the
+non-empty discriminators; we will see this concretely in the
 Counterexample Decomposition section and in the full worklist walkthrough.
 
-## The Spanning Tree
-
-If you have read the
-[RPNI post](/post/2025/10/24/rpni-learning-regular-languages/),
-the spanning tree will look familiar. The RPNI Prefix Tree Acceptor (PTA)
-is a tree-shaped DFA where every path from root to a node spells out the
-string that reaches that state. The spanning tree is the *dual* of the PTA:
-
-* **PTA** maps *strings -> states*. You start with examples and build
-  states to match them.
-* **Spanning tree** maps *states -> strings*. You start with states
-  (discovered by TTT) and record the string that reaches each one.
-
-In TTT, we never traverse the spanning tree as a tree. We only ever look
-up $$ acc(q) $$ for a given state, or add a new state with its access
-sequence. So the implementation reduces to a simple dict.
-
-<!--
-############
-class SpanningTree:
-    def __init__(self, start_symbol='<start>'):
-        self.acc = { start_symbol: '' }
-
-    def add_state(self, state, parent, char):
-        self.acc[state] = self.acc[parent] + char
-
-    def access(self, state):
-        return self.acc[state]
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-class SpanningTree:
-    def __init__(self, start_symbol=&#x27;&lt;start&gt;&#x27;):
-        self.acc = { start_symbol: &#x27;&#x27; }
-
-    def add_state(self, state, parent, char):
-        self.acc[state] = self.acc[parent] + char
-
-    def access(self, state):
-        return self.acc[state]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We add a helper to render a spanning tree as a Graphviz dot diagram.
-Each node shows its state name and access sequence.
-Edges are labelled with the character that extends the parent's access
-sequence to reach the child.
-
-<!--
-############
-def st_to_dot(st, name='ST'):
-    acc_to_state = {v: k for k, v in st.acc.items()}
-    lines = ['digraph %s {' % name,
-             '  rankdir=LR;',
-             '  node [shape = rectangle];']
-    for state, acc in st.acc.items():
-        if acc:
-            label = '%s\\naccess: %s' % (state, acc)
-        else:
-            label = state
-        lines.append('  "%s" [label = "%s"];' % (state, label))
-        if acc:  # has a parent
-            parent_acc = acc[:-1]
-            char = acc[-1]
-            parent = acc_to_state.get(parent_acc)
-            if parent is not None:
-                lines.append('  "%s" -> "%s" [label = "%s"];' % (parent, state, char))
-    lines.append('}')
-    return '\n'.join(lines)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def st_to_dot(st, name=&#x27;ST&#x27;):
-    acc_to_state = {v: k for k, v in st.acc.items()}
-    lines = [&#x27;digraph %s {&#x27; % name,
-             &#x27;  rankdir=LR;&#x27;,
-             &#x27;  node [shape = rectangle];&#x27;]
-    for state, acc in st.acc.items():
-        if acc:
-            label = &#x27;%s\\naccess: %s&#x27; % (state, acc)
-        else:
-            label = state
-        lines.append(&#x27;  &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (state, label))
-        if acc:  # has a parent
-            parent_acc = acc[:-1]
-            char = acc[-1]
-            parent = acc_to_state.get(parent_acc)
-            if parent is not None:
-                lines.append(&#x27;  &quot;%s&quot; -&gt; &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (parent, state, char))
-    lines.append(&#x27;}&#x27;)
-    return &#x27;\n&#x27;.join(lines)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We test the spanning tree.
-
-<!--
-############
-st = SpanningTree()
-assert st.access('<start>') == ''
-st.add_state('<1>', '<start>', 'a')
-assert st.access('<1>') == 'a'
-st.add_state('<2>', '<1>', 'b')
-assert st.access('<2>') == 'ab'
-st.add_state('<3>', '<start>', 'b')
-assert st.access('<3>') == 'b'
-__canvas__(st_to_dot(st, 'ST_example'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-st = SpanningTree()
-assert st.access(&#x27;&lt;start&gt;&#x27;) == &#x27;&#x27;
-st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-assert st.access(&#x27;&lt;1&gt;&#x27;) == &#x27;a&#x27;
-st.add_state(&#x27;&lt;2&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;)
-assert st.access(&#x27;&lt;2&gt;&#x27;) == &#x27;ab&#x27;
-st.add_state(&#x27;&lt;3&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)
-assert st.access(&#x27;&lt;3&gt;&#x27;) == &#x27;b&#x27;
-__canvas__(st_to_dot(st, &#x27;ST_example&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 ## Hypothesis Construction
 
 At any point during learning, we have a DT and a spanning tree. Together
@@ -988,7 +1152,7 @@ left = `<odd>`, right = `<start>`), and spanning tree
 The blue path shows the route taken through the DT.
 
 $$ \langle start \rangle \xrightarrow{a} ? $$: sift `'' + 'a'` = `'a'`.
-Is `'a' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+Is `'a' + ''` accepted? No (odd a's), so go left; leaf `<odd>`.
 So `<start> -a-> <odd>`.
 
 <!--
@@ -1017,7 +1181,7 @@ __canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_a&#x27;, tracer=_tr))
 <div name='python_canvas'></div>
 </form>
 $$ \langle start \rangle \xrightarrow{b} ? $$: sift `'' + 'b'` = `'b'`.
-Is `'b' + ''` accepted? Yes (zero a's) — go right — leaf `<start>`.
+Is `'b' + ''` accepted? Yes (zero a's), so go right; leaf `<start>`.
 So `<start> -b-> <start>`.
 
 <!--
@@ -1038,7 +1202,7 @@ __canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_b&#x27;, tracer=_tr))
 <div name='python_canvas'></div>
 </form>
 $$ \langle odd \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
-Is `'aa' + ''` accepted? Yes (even a's) — go right — leaf `<start>`.
+Is `'aa' + ''` accepted? Yes (even a's), so go right; leaf `<start>`.
 So `<odd> -a-> <start>`.
 
 <!--
@@ -1059,7 +1223,7 @@ __canvas__(dt_to_dot(_dt_walk, &#x27;sift_odd_a&#x27;, tracer=_tr))
 <div name='python_canvas'></div>
 </form>
 $$ \langle odd \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
-Is `'ab' + ''` accepted? No (odd a's) — go left — leaf `<odd>`.
+Is `'ab' + ''` accepted? No (odd a's), so go left; leaf `<odd>`.
 So `<odd> -b-> <odd>`.
 
 <!--
@@ -1491,111 +1655,10 @@ Once we have the split point, we know:
   but the counterexample proves they are different
 * The discriminator $$ ce[i+1:] $$ is the suffix that tells them apart
 
-We *mutate the leaf in place* into an inner node. This is essential because
-other parts of the tree already hold references to $$ \ell $$, so replacing
-it with a new object would leave those references stale.
+`split_leaf` was introduced in the Splitting a Leaf section above and is
+used directly here. `decompose` calls it with the leaf found by sifting
+the transformed prefix, the new discriminator, and the fresh state.
 
-<!--
-############
-def split_leaf(leaf, discriminator, new_state, oracle, st):
-    old_state = leaf.state
-    old_leaf = DTLeaf(old_state)
-    new_leaf = DTLeaf(new_state)
-    # ask the oracle which side old_state goes on
-    old_goes_right = oracle.is_member(st.access(old_state) + discriminator)
-    # mutate the leaf in place into an inner node
-    leaf.__class__ = DTInner
-    leaf.discriminator = discriminator
-    if old_goes_right:
-        leaf.right = old_leaf
-        leaf.left  = new_leaf
-    else:
-        leaf.left  = old_leaf
-        leaf.right = new_leaf
-    del leaf.state
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def split_leaf(leaf, discriminator, new_state, oracle, st):
-    old_state = leaf.state
-    old_leaf = DTLeaf(old_state)
-    new_leaf = DTLeaf(new_state)
-    # ask the oracle which side old_state goes on
-    old_goes_right = oracle.is_member(st.access(old_state) + discriminator)
-    # mutate the leaf in place into an inner node
-    leaf.__class__ = DTInner
-    leaf.discriminator = discriminator
-    if old_goes_right:
-        leaf.right = old_leaf
-        leaf.left  = new_leaf
-    else:
-        leaf.left  = old_leaf
-        leaf.right = new_leaf
-    del leaf.state
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We test split_leaf.
-
-<!--
-############
-oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-st = SpanningTree()
-st.add_state('<1>', '<start>', 'a')
-leaf = DTLeaf('<start>')
-__canvas__(dt_to_dot(leaf, 'DT_before_split_leaf'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-st = SpanningTree()
-st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-leaf = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-__canvas__(dt_to_dot(leaf, &#x27;DT_before_split_leaf&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-After the split, the single leaf becomes an inner node separating `<start>` and `<1>`.
-
-<!--
-############
-# '' distinguishes <start> (even, True) from <1> (odd, False)
-split_leaf(leaf, '', '<1>', oracle, st)
-assert leaf.is_leaf() == False
-assert leaf.discriminator == ''
-assert leaf.right.state == '<start>'   # <start> answered True
-assert leaf.left.state == '<1>'        # <1> answered False
-assert sift(leaf, '', oracle).state == '<start>'
-assert sift(leaf, 'a', oracle).state == '<1>'
-assert sift(leaf, 'aa', oracle).state == '<start>'
-print('split_leaf tests passed')
-__canvas__(dt_to_dot(leaf, 'DT_after_split_leaf'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-# &#x27;&#x27; distinguishes &lt;start&gt; (even, True) from &lt;1&gt; (odd, False)
-split_leaf(leaf, &#x27;&#x27;, &#x27;&lt;1&gt;&#x27;, oracle, st)
-assert leaf.is_leaf() == False
-assert leaf.discriminator == &#x27;&#x27;
-assert leaf.right.state == &#x27;&lt;start&gt;&#x27;   # &lt;start&gt; answered True
-assert leaf.left.state == &#x27;&lt;1&gt;&#x27;        # &lt;1&gt; answered False
-assert sift(leaf, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-assert sift(leaf, &#x27;a&#x27;, oracle).state == &#x27;&lt;1&gt;&#x27;
-assert sift(leaf, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-print(&#x27;split_leaf tests passed&#x27;)
-__canvas__(dt_to_dot(leaf, &#x27;DT_after_split_leaf&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 We now show `update_hypothesis` in action. We build the stale hypothesis
 (single-leaf DT, everything loops to `<start>`), then split the leaf and
 call `update_hypothesis`. The stale transition `<start> -a-> <start>` is
@@ -1774,24 +1837,21 @@ print(&#x27;finalize_discriminator tests passed&#x27;)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-### Putting Decomposition Together
+### Finding the Split Point
 
-We now have all the pieces. `decompose` finds the split point by binary
-search, applies the prefix transformation, finalizes the discriminator,
-and splits the leaf. One counterexample yields one new state and one new
-discriminator. This is the tightest possible refinement.
+`find_split_point` records the hypothesis states visited while reading
+$$ ce $$, then binary-searches for the first position where
+$$ acc(q_i) \cdot ce[i:] $$ disagrees with the target answer on $$ ce $$.
+That position $$ i $$ is where the hypothesis first takes a wrong transition.
+The search costs $$ O(\log|ce|) $$ membership queries.
 
-Note: decompose uses hypothesis transitions only to *find* the split point.
-The actual split uses $$ acc(q_i) $$, which is always correct with respect
-to the target. This means decompose is correct even if the hypothesis is
-partially stale. The access sequences in the spanning tree are ground
-truth, independent of hypothesis quality.
+The function returns both the split index and the full states list, since
+`decompose` needs the states list for the prefix transformation.
 
 <!--
 ############
-def decompose(dfa, dt, st, oracle, ce):
-    # record hypothesis states along ce
-    # note: we use these only to find the split point, not for the split itself
+def find_split_point(dfa, st, oracle, ce):
+    # walk the hypothesis along ce
     states = [dfa.start_symbol]
     for char in ce:
         rule = dfa.transition(states[-1], char)
@@ -1799,41 +1859,121 @@ def decompose(dfa, dt, st, oracle, ce):
 
     target_answer = oracle.is_member(ce)
 
-    # binary search for split point: O(log|ce|) queries.
-    # Invariant: position lo-1 agrees with target_answer; position lo disagrees.
-    # We search for the first index where acc(q_i)+ce[i:] disagrees with target.
+    # binary search: find first index where acc(q_i)+ce[i:] disagrees with target
     lo, hi = 0, len(ce)
     while lo < hi:
         mid = (lo + hi) // 2
         q_mid = states[mid]
         if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # mid agrees: split point is to the right
+            lo = mid + 1   # mid agrees: split is to the right
         else:
-            hi = mid       # mid disagrees: split point is here or to the left
+            hi = mid       # mid disagrees: split is here or to the left
 
-    # lo is now the first disagreeing position.
-    # The split is at i = lo-1 (last agreeing position):
-    #   acc(q_{lo-1}) + ce[lo-1:] agrees with target
-    #   acc(q_lo)     + ce[lo:]   disagrees
-    i = lo - 1
+    # lo-1 is the last agreeing position; lo is the first disagreeing position
+    return lo - 1, states
 
-    # prefix transformation: use acc(q_i) + ce[i] instead of ce[:i+1]
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def find_split_point(dfa, st, oracle, ce):
+    # walk the hypothesis along ce
+    states = [dfa.start_symbol]
+    for char in ce:
+        rule = dfa.transition(states[-1], char)
+        states.append(rule[1])
+
+    target_answer = oracle.is_member(ce)
+
+    # binary search: find first index where acc(q_i)+ce[i:] disagrees with target
+    lo, hi = 0, len(ce)
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        q_mid = states[mid]
+        if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
+            lo = mid + 1   # mid agrees: split is to the right
+        else:
+            hi = mid       # mid disagrees: split is here or to the left
+
+    # lo-1 is the last agreeing position; lo is the first disagreeing position
+    return lo - 1, states
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We test find_split_point on a simple case.
+
+<!--
+############
+oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
+# hypothesis: single state <start>, everything loops back, <start> is accepting
+dfa_sp = DFA()
+dfa_sp.set_accepting('<start>')
+dfa_sp.add_transition('<start>', 'a', '<start>')
+dfa_sp.add_transition('<start>', 'b', '<start>')
+st_sp = SpanningTree()
+# counterexample 'a': hypothesis accepts, target rejects
+i, states = find_split_point(dfa_sp, st_sp, oracle, 'a')
+assert i == 0, i
+# counterexample 'aab': split should be at position 0 (first divergence)
+i2, _ = find_split_point(dfa_sp, st_sp, oracle, 'aab')
+assert i2 == 0, i2
+print('find_split_point tests passed')
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
+# hypothesis: single state &lt;start&gt;, everything loops back, &lt;start&gt; is accepting
+dfa_sp = DFA()
+dfa_sp.set_accepting(&#x27;&lt;start&gt;&#x27;)
+dfa_sp.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
+dfa_sp.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
+st_sp = SpanningTree()
+# counterexample &#x27;a&#x27;: hypothesis accepts, target rejects
+i, states = find_split_point(dfa_sp, st_sp, oracle, &#x27;a&#x27;)
+assert i == 0, i
+# counterexample &#x27;aab&#x27;: split should be at position 0 (first divergence)
+i2, _ = find_split_point(dfa_sp, st_sp, oracle, &#x27;aab&#x27;)
+assert i2 == 0, i2
+print(&#x27;find_split_point tests passed&#x27;)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Putting Decomposition Together
+
+With `find_split_point`, `prefix_transformation`, `finalize_discriminator`,
+and `split_leaf` all in place, `decompose` is a straightforward
+four-step sequence. One counterexample yields exactly one new state and
+one new discriminator.
+
+Note: `decompose` uses hypothesis transitions only to find the split point.
+The actual split uses $$ acc(q_i) $$ from the spanning tree, which is always
+correct with respect to the target, so `decompose` is correct even if the
+hypothesis is partially stale.
+
+<!--
+############
+def decompose(dfa, dt, st, oracle, ce):
+    # step 1: find split point by binary search
+    i, states = find_split_point(dfa, st, oracle, ce)
+    lo = i + 1
+
+    # step 2: prefix transformation
     transformed, q_i = prefix_transformation(states, st, ce, i)
 
-    # find the leaf to split; capture its id before mutation
+    # step 3: sift the transformed prefix to find the leaf, create the new state
     leaf = sift(dt, transformed, oracle)
     old_state = leaf.state
     split_id = id(leaf)
-
-    # create the new state with its access sequence
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[i])
 
-    # discriminator finalization: find shortest distinguishing suffix
+    # step 4: finalize discriminator and split the leaf
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-
-    # split the leaf (mutates leaf in place; id(leaf) is still split_id)
     split_leaf(leaf, new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
@@ -1843,50 +1983,23 @@ def decompose(dfa, dt, st, oracle, ce):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def decompose(dfa, dt, st, oracle, ce):
-    # record hypothesis states along ce
-    # note: we use these only to find the split point, not for the split itself
-    states = [dfa.start_symbol]
-    for char in ce:
-        rule = dfa.transition(states[-1], char)
-        states.append(rule[1])
+    # step 1: find split point by binary search
+    i, states = find_split_point(dfa, st, oracle, ce)
+    lo = i + 1
 
-    target_answer = oracle.is_member(ce)
-
-    # binary search for split point: O(log|ce|) queries.
-    # Invariant: position lo-1 agrees with target_answer; position lo disagrees.
-    # We search for the first index where acc(q_i)+ce[i:] disagrees with target.
-    lo, hi = 0, len(ce)
-    while lo &lt; hi:
-        mid = (lo + hi) // 2
-        q_mid = states[mid]
-        if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # mid agrees: split point is to the right
-        else:
-            hi = mid       # mid disagrees: split point is here or to the left
-
-    # lo is now the first disagreeing position.
-    # The split is at i = lo-1 (last agreeing position):
-    #   acc(q_{lo-1}) + ce[lo-1:] agrees with target
-    #   acc(q_lo)     + ce[lo:]   disagrees
-    i = lo - 1
-
-    # prefix transformation: use acc(q_i) + ce[i] instead of ce[:i+1]
+    # step 2: prefix transformation
     transformed, q_i = prefix_transformation(states, st, ce, i)
 
-    # find the leaf to split; capture its id before mutation
+    # step 3: sift the transformed prefix to find the leaf, create the new state
     leaf = sift(dt, transformed, oracle)
     old_state = leaf.state
     split_id = id(leaf)
-
-    # create the new state with its access sequence
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[i])
 
-    # discriminator finalization: find shortest distinguishing suffix
+    # step 4: finalize discriminator and split the leaf
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-
-    # split the leaf (mutates leaf in place; id(leaf) is still split_id)
     split_leaf(leaf, new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
@@ -1952,7 +2065,7 @@ __canvas__(dt_to_dot(dt, &#x27;DT_decompose1&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-test 2: longer counterexample 'aab' — binary search finds split at position 0,
+test 2: longer counterexample 'aab'; binary search finds split at position 0,
 so the new state still gets access sequence 'a' and discriminator is 'b'.
 
 <!--
@@ -2038,7 +2151,7 @@ __canvas__(dt_to_dot(dt2, &#x27;DT_decompose3&#x27;))
 
 We now trace the full `(a|b)*ba` learning run to show how state names
 emerge from the algorithm and how the worklist grows during
-`close_transitions`. No states are pre-declared — they are created by
+`close_transitions`. No states are pre-declared; they are created by
 `dfa.new_state()` inside `decompose` as each counterexample is processed.
 
 **Step 1.** Single-leaf DT, only `<start>` in the spanning tree.
@@ -2087,7 +2200,7 @@ __canvas__(st_to_dot(st_cl, &#x27;cl_st_step1&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-DFA step 1 — everything loops back to `<start>`.
+DFA after step 1: everything loops back to `<start>`.
 
 <!--
 ############
@@ -2103,10 +2216,10 @@ __canvas__(dfa_to_dot(dfa_cl, &#x27;cl_dfa_step1&#x27;))
 <div name='python_canvas'></div>
 </form>
 **Step 2.** Counterexample `'ba'`: the hypothesis accepts it as `<start>`
-(which is accepting) but shouldn't — `<start>` should only accept `''`.
+(which is accepting) but shouldn't, since `<start>` should only accept `''`.
 `decompose` creates a fresh state (call it `s1`) and splits the DT leaf
 with discriminator `'a'`. `update_hypothesis` re-sifts stale transitions;
-sifting `'' + 'b'` now lands on `s1` — new, so it is appended to the
+sifting `'' + 'b'` now lands on `s1`, which is new, so it is appended to the
 worklist and its transitions are closed immediately. Worklist grows from
 `['<start>']` to `['<start>', s1]`.
 
@@ -2131,7 +2244,7 @@ __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step2&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Spanning tree after step 2 — `s1` now has access sequence `'b'`.
+Spanning tree after step 2: `s1` now has access sequence `'b'`.
 
 <!--
 ############
@@ -2161,12 +2274,12 @@ __canvas__(dfa_to_dot(dfa_cl, &#x27;cl_dfa_step2&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-**Step 3.** Counterexample `'ba'` again — now the hypothesis rejects it
+**Step 3.** Counterexample `'ba'` again; now the hypothesis rejects it
 because `s1 -a-> <start>` is wrong (should reach an accepting state).
 `decompose` creates `s2` and splits the `<start>` leaf with discriminator
 `ε`. `update_hypothesis` re-sifts; sifting `acc(s1) + 'a'` = `'ba'`
-lands on `s2` — new, appended. Worklist grows to include `s2`.
-Here is that sift path — the one that grows the worklist:
+lands on `s2`, which is new and appended. Worklist grows to include `s2`.
+Here is that sift path, the one that grows the worklist:
 
 <!--
 ############
@@ -2187,7 +2300,7 @@ __canvas__(dt_to_dot(dt_cl, &#x27;cl_worklist_grow&#x27;, tracer=_tr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-And sifting `acc(s1) + 'b'` = `'bb'` lands on `<start>` — known, no append.
+And sifting `acc(s1) + 'b'` = `'bb'` lands on `<start>`, which is already known; no append.
 
 <!--
 ############
@@ -2227,7 +2340,7 @@ __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step3&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Spanning tree after step 3 — three states, all access sequences minimal.
+Spanning tree after step 3: three states, all access sequences minimal.
 
 <!--
 ############
@@ -2242,7 +2355,7 @@ __canvas__(st_to_dot(st_cl, &#x27;cl_st_step3&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Final DFA — states named by the algorithm as they were discovered.
+Final DFA, with states named by the algorithm as they were discovered.
 
 <!--
 ############
