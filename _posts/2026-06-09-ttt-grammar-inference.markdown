@@ -60,8 +60,8 @@ though performance differences in software engineering settings are modest.
 * _Access sequence_ $$ acc(q) $$: the shortest known string that reaches
   state $$ q $$ in the target.
 * _Spanning tree_: a mapping from each known state to its access sequence.
-  The dual of the PTA from RPNI — where PTA maps strings to states, the
-  spanning tree maps states to strings.
+  The dual of the PTA from RPNI (where PTA maps strings to states, the
+  spanning tree maps states to strings).
 * _Open transition_: a transition $$ \delta(q, a) $$ whose target state
   has no access sequence yet. The TTT equivalent of L*'s closedness
   violation.
@@ -198,7 +198,7 @@ need to be filled, and hence you pay the price in queries.
 The key insight in TTT is that
 **a counterexample only ever witnesses one new distinction**:
 one pair of states was wrongly merged. Hence, exactly **one** new
-discriminator is sufficient---not $$ k $$. Getting to this point required
+discriminator is sufficient, not $$ k $$. Getting to this point required
 three independent contributions:
 
 * **Kearns and Vazirani (1994)** [^kearns1994] replaced the observation
@@ -467,7 +467,7 @@ To classify any string $$ w $$ to a state, we walk the DT from root to
 leaf. At each inner node labeled $$ d $$, we query $$ member(w \cdot d) $$
 and go right (yes) or left (no). The leaf we land on is the state $$ w $$
 belongs to. Each step is one membership query, so sifting costs at most
-$$ depth(DT) $$ queries — far fewer than L*'s $$ O(|suffixes|) $$.
+$$ depth(DT) $$ queries, far fewer than L*'s $$ O(|suffixes|) $$.
 
 <!--
 ############
@@ -502,11 +502,11 @@ We test sifting on the even-a's example: the DT has one discriminator
 <!--
 ############
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-# single leaf — everything maps to start
+# single leaf: everything maps to start
 dt = DTLeaf('<start>')
 assert sift(dt, 'aa', oracle).state == '<start>'
 assert sift(dt, '', oracle).state == '<start>'
-# two-level tree:  [ε] / <1> (odd) \ <start> (even)
+# two-level tree:  [''] / <1> (odd) \ <start> (even)
 dt = DTInner('')
 dt.left = DTLeaf('<1>')
 dt.right = DTLeaf('<start>')
@@ -521,11 +521,11 @@ print('sift tests passed')
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-# single leaf — everything maps to start
+# single leaf: everything maps to start
 dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 assert sift(dt, &#x27;aa&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
-# two-level tree:  [ε] / &lt;1&gt; (odd) \ &lt;start&gt; (even)
+# two-level tree:  [&#x27;&#x27;] / &lt;1&gt; (odd) \ &lt;start&gt; (even)
 dt = DTInner(&#x27;&#x27;)
 dt.left = DTLeaf(&#x27;&lt;1&gt;&#x27;)
 dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
@@ -620,8 +620,8 @@ print(&#x27;SpanningTree tests passed&#x27;)
 The DT and spanning tree together define all transitions of the hypothesis
 DFA. For each state $$ q $$ and symbol $$ a $$:
 
-1. Form $$ acc(q) \cdot a $$ — the string that gets to $$ q $$ then reads $$ a $$.
-2. Sift it through the DT — the oracle queries at each node ask
+1. Form $$ acc(q) \cdot a $$, the string that reaches $$ q $$ and then reads $$ a $$.
+2. Sift it through the DT. The oracle queries at each node ask:
    *"which known state does this string belong to?"*
 3. The leaf returned is the target state $$ \delta(q, a) $$.
 
@@ -629,9 +629,9 @@ This is closely related to L*'s closedness and consistency checks, but
 handled in a single pass:
 
 * **Closedness** In L*, closedness means that every reachable state has a row
-  in the table. In TTT, the equivalent is *open transitions*. Theae are
+  in the table. In TTT, the equivalent is *open transitions*. These are
   transitions where sifting lands on a leaf with no access sequence yet.
-  When an open transitions is added, we close them immediately,
+  When an open transition is found, we close it immediately,
   adding the new state as we go.
 * **Consistency** In L*, consistency means that no two identical rows have
   different successors. In TTT, consistency is *structurally maintained* by
@@ -664,10 +664,13 @@ def is_open(dfa, state, char, st):
 We close all open transitions by sifting. We use an index-based loop
 so that newly discovered states are appended to `states` and processed
 in the same pass.
+`leaf_index` maps each `DTLeaf` object to the list of `(state, char)` pairs
+whose transition was established by sifting to that leaf. This is the index
+that the incremental update needs to find stale transitions after a split.
 
 <!--
 ############
-def close_transitions(dfa, dt, st, oracle, alphabet):
+def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
     states = list(st.acc.keys())
     i = 0
     while i < len(states):
@@ -679,17 +682,19 @@ def close_transitions(dfa, dt, st, oracle, alphabet):
             target_leaf = sift(dt, st.access(state) + char, oracle)
             target_state = target_leaf.state
             if target_state not in st.acc:
-                # new state discovered — register and queue for processing
+                # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
             if dfa.transition(state, char) is None:
                 dfa.add_transition(state, char, target_state)
+            if leaf_index is not None:
+                leaf_index.setdefault(id(target_leaf), []).append((state, char))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def close_transitions(dfa, dt, st, oracle, alphabet):
+def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index=None):
     states = list(st.acc.keys())
     i = 0
     while i &lt; len(states):
@@ -701,11 +706,13 @@ def close_transitions(dfa, dt, st, oracle, alphabet):
             target_leaf = sift(dt, st.access(state) + char, oracle)
             target_state = target_leaf.state
             if target_state not in st.acc:
-                # new state discovered — register and queue for processing
+                # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
             if dfa.transition(state, char) is None:
                 dfa.add_transition(state, char, target_state)
+            if leaf_index is not None:
+                leaf_index.setdefault(id(target_leaf), []).append((state, char))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -716,23 +723,80 @@ is an accepting state.
 
 <!--
 ############
-def build_hypothesis(dfa, dt, st, oracle, alphabet):
+def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
     for state in list(st.acc.keys()):
         dfa.ensure_state(state)
         if oracle.is_member(st.access(state)):
             dfa.set_accepting(state)
-    close_transitions(dfa, dt, st, oracle, alphabet)
+    close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def build_hypothesis(dfa, dt, st, oracle, alphabet):
+def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index=None):
     for state in list(st.acc.keys()):
         dfa.ensure_state(state)
         if oracle.is_member(st.access(state)):
             dfa.set_accepting(state)
-    close_transitions(dfa, dt, st, oracle, alphabet)
+    close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+### Incremental Hypothesis Update
+After `split_leaf` turns leaf $$ \ell $$ into an inner node, every transition
+that previously targeted $$ \ell $$ may now belong to either child.
+We find those transitions via `leaf_index`, remove the old entry from
+the DFA, re-sift to the correct child, and update the DFA in place.
+Every other transition is unaffected.
+Newly discovered states (from re-sifting or from the new state itself) are
+handled by a targeted call to `close_transitions` restricted to those states.
+Accepting status for any new state is set immediately.
+`split_id` is the Python `id()` of the leaf *before* it was mutated; the
+caller must capture it before calling `split_leaf`.
+
+<!--
+############
+def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state):
+    # record the new state's accepting status and ensure it exists in the DFA
+    dfa.ensure_state(new_state)
+    if oracle.is_member(st.access(new_state)):
+        dfa.set_accepting(new_state)
+
+    # collect transitions that pointed to the now-split leaf
+    stale = leaf_index.pop(split_id, [])
+
+    # remove the stale transitions from the DFA grammar and re-sift them
+    for (from_state, char) in stale:
+        rules = dfa.grammar[from_state]
+        dfa.grammar[from_state] = [r for r in rules if not (r and r[0] == char)]
+
+    # re-close just the stale transitions (plus any new open ones from new_state)
+    # mark new_state as needing closure by ensuring its transitions are absent
+    close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state):
+    # record the new state&#x27;s accepting status and ensure it exists in the DFA
+    dfa.ensure_state(new_state)
+    if oracle.is_member(st.access(new_state)):
+        dfa.set_accepting(new_state)
+
+    # collect transitions that pointed to the now-split leaf
+    stale = leaf_index.pop(split_id, [])
+
+    # remove the stale transitions from the DFA grammar and re-sift them
+    for (from_state, char) in stale:
+        rules = dfa.grammar[from_state]
+        dfa.grammar[from_state] = [r for r in rules if not (r and r[0] == char)]
+
+    # re-close just the stale transitions (plus any new open ones from new_state)
+    # mark new_state as needing closure by ensuring its transitions are absent
+    close_transitions(dfa, dt, st, oracle, alphabet, leaf_index)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -748,7 +812,8 @@ dt.left  = DTLeaf('<1>')
 dt.right = DTLeaf('<start>')
 st = SpanningTree()
 dfa = DFA()
-build_hypothesis(dfa, dt, st, oracle, alphabet)
+leaf_index = {}
+build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 assert dfa.transition('<start>', 'a')[1] == '<1>'
 assert dfa.transition('<start>', 'b')[1] == '<start>'
 assert dfa.transition('<1>', 'a')[1] == '<start>'
@@ -770,7 +835,8 @@ dt.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
 dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 st = SpanningTree()
 dfa = DFA()
-build_hypothesis(dfa, dt, st, oracle, alphabet)
+leaf_index = {}
+build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;1&gt;&#x27;
 assert dfa.transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
 assert dfa.transition(&#x27;&lt;1&gt;&#x27;, &#x27;a&#x27;)[1] == &#x27;&lt;start&gt;&#x27;
@@ -792,7 +858,7 @@ hypothesis is wrong on $$ ce $$. But *where exactly* does it go wrong?
 ### The Split Point
 
 Walk $$ ce $$ through the hypothesis. At position 0, both hypothesis and
-target are in $$ \langle start \rangle $$ — they agree. At position
+target are in $$ \langle start \rangle $$, so they agree. At position
 $$ |ce| $$, they disagree (that is what the counterexample means). So
 somewhere in between is the *first point of disagreement*. That is, the
 position $$ i $$ where the hypothesis first takes a wrong transition.
@@ -846,7 +912,7 @@ Once we have the split point, we know:
 * The discriminator $$ ce[i+1:] $$ separates them
 
 We *mutate the leaf in place* into an inner node. This is essential because
-other parts of the tree already hold references to $$ \ell $$ — replacing
+other parts of the tree already hold references to $$ \ell $$, so replacing
 it with a new object would leave those references stale.
 
 <!--
@@ -989,8 +1055,8 @@ d = finalize_discriminator('<start>', '<1>', '', st, oracle)
 assert d == ''
 print('finalize test 1 passed')
 # 'ba' can be shortened to 'a'
-# acc('<start>') + 'a' = 'a'   → False (odd)
-# acc('<1>')     + 'a' = 'aa'  → True  (even) — distinguished!
+# acc('<start>') + 'a' = 'a'   -> False (odd)
+# acc('<1>')     + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
 d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
 assert d == 'a'
 print('finalize test 2 passed')
@@ -1008,8 +1074,8 @@ d = finalize_discriminator(&#x27;&lt;start&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x
 assert d == &#x27;&#x27;
 print(&#x27;finalize test 1 passed&#x27;)
 # &#x27;ba&#x27; can be shortened to &#x27;a&#x27;
-# acc(&#x27;&lt;start&gt;&#x27;) + &#x27;a&#x27; = &#x27;a&#x27;   → False (odd)
-# acc(&#x27;&lt;1&gt;&#x27;)     + &#x27;a&#x27; = &#x27;aa&#x27;  → True  (even) — distinguished!
+# acc(&#x27;&lt;start&gt;&#x27;) + &#x27;a&#x27; = &#x27;a&#x27;   -&gt; False (odd)
+# acc(&#x27;&lt;1&gt;&#x27;)     + &#x27;a&#x27; = &#x27;aa&#x27;  -&gt; True  (even), so &#x27;a&#x27; distinguishes them
 d = finalize_discriminator(&#x27;&lt;start&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;ba&#x27;, st, oracle)
 assert d == &#x27;a&#x27;
 print(&#x27;finalize test 2 passed&#x27;)
@@ -1022,7 +1088,7 @@ print(&#x27;finalize_discriminator tests passed&#x27;)
 
 We now have all the pieces. `decompose` finds the split point by binary
 search, applies the prefix transformation, finalizes the discriminator,
-and splits the leaf. One counterexample -> one new state -> one new
+and splits the leaf. One counterexample yields one new state and one new
 discriminator. This is the tightest possible refinement.
 
 Note: decompose uses hypothesis transitions only to *find* the split point.
@@ -1043,35 +1109,36 @@ def decompose(dfa, dt, st, oracle, ce):
 
     target_answer = oracle.is_member(ce)
 
-    # binary search for split point — O(log|ce|) queries
+    # binary search for split point: O(log|ce|) queries
     lo, hi = 0, len(ce) - 1
     while lo < hi:
         mid = (lo + hi) // 2
         q_mid = states[mid]
         if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # still correct at mid — split point is to the right
+            lo = mid + 1   # still correct at mid: split point is to the right
         else:
-            hi = mid       # already wrong at mid — split point is here or left
+            hi = mid       # already wrong at mid: split point is here or left
 
     # prefix transformation: use acc(q_i) + ce[i] instead of ce[:i+1]
     transformed, q_i = prefix_transformation(states, st, ce, lo)
 
-    # find the leaf to split
+    # find the leaf to split; capture its id before mutation
     leaf = sift(dt, transformed, oracle)
     old_state = leaf.state
+    split_id = id(leaf)
 
     # create the new state with its access sequence
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[lo])
 
-    # discriminator finalization — find shortest distinguishing suffix
+    # discriminator finalization: find shortest distinguishing suffix
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo+1:], st, oracle)
 
-    # split the leaf
+    # split the leaf (mutates leaf in place; id(leaf) is still split_id)
     split_leaf(leaf, new_discriminator, new_state, oracle, st)
 
-    return new_state
+    return new_state, split_id
 
 ############
 -->
@@ -1087,35 +1154,36 @@ def decompose(dfa, dt, st, oracle, ce):
 
     target_answer = oracle.is_member(ce)
 
-    # binary search for split point — O(log|ce|) queries
+    # binary search for split point: O(log|ce|) queries
     lo, hi = 0, len(ce) - 1
     while lo &lt; hi:
         mid = (lo + hi) // 2
         q_mid = states[mid]
         if oracle.is_member(st.access(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # still correct at mid — split point is to the right
+            lo = mid + 1   # still correct at mid: split point is to the right
         else:
-            hi = mid       # already wrong at mid — split point is here or left
+            hi = mid       # already wrong at mid: split point is here or left
 
     # prefix transformation: use acc(q_i) + ce[i] instead of ce[:i+1]
     transformed, q_i = prefix_transformation(states, st, ce, lo)
 
-    # find the leaf to split
+    # find the leaf to split; capture its id before mutation
     leaf = sift(dt, transformed, oracle)
     old_state = leaf.state
+    split_id = id(leaf)
 
     # create the new state with its access sequence
     new_state = dfa.new_state()
     st.add_state(new_state, q_i, ce[lo])
 
-    # discriminator finalization — find shortest distinguishing suffix
+    # discriminator finalization: find shortest distinguishing suffix
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo+1:], st, oracle)
 
-    # split the leaf
+    # split the leaf (mutates leaf in place; id(leaf) is still split_id)
     split_leaf(leaf, new_discriminator, new_state, oracle, st)
 
-    return new_state
+    return new_state, split_id
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1134,7 +1202,7 @@ dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
 dfa.add_transition('<start>', 'b', '<start>')
-new_state = decompose(dfa, dt, st, oracle, 'a')
+new_state, _ = decompose(dfa, dt, st, oracle, 'a')
 assert not dt.is_leaf()
 assert st.access(new_state) == 'a'
 assert sift(dt, '', oracle).state == '<start>'
@@ -1148,7 +1216,7 @@ dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
 dfa.add_transition('<start>', 'b', '<start>')
-new_state = decompose(dfa, dt, st, oracle, 'aab')
+new_state, _ = decompose(dfa, dt, st, oracle, 'aab')
 assert not dt.is_leaf()
 assert st.access(new_state) == 'a'
 print('decompose test 2 passed')
@@ -1166,7 +1234,7 @@ dfa2.add_transition('<start>', 'a', '<1>')
 dfa2.add_transition('<start>', 'b', '<start>')
 dfa2.add_transition('<1>', 'a', '<1>')   # wrong
 dfa2.add_transition('<1>', 'b', '<1>')
-new_state2 = decompose(dfa2, dt2, st2, oracle, 'aa')
+new_state2, _ = decompose(dfa2, dt2, st2, oracle, 'aa')
 assert st2.access(new_state2) == 'aa'
 print('decompose test 3 passed')
 
@@ -1186,7 +1254,7 @@ dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state = decompose(dfa, dt, st, oracle, &#x27;a&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;a&#x27;)
 assert not dt.is_leaf()
 assert st.access(new_state) == &#x27;a&#x27;
 assert sift(dt, &#x27;&#x27;, oracle).state == &#x27;&lt;start&gt;&#x27;
@@ -1200,7 +1268,7 @@ dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-new_state = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
+new_state, _ = decompose(dfa, dt, st, oracle, &#x27;aab&#x27;)
 assert not dt.is_leaf()
 assert st.access(new_state) == &#x27;a&#x27;
 print(&#x27;decompose test 2 passed&#x27;)
@@ -1218,7 +1286,7 @@ dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;1&gt;&#x
 dfa2.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa2.add_transition(&#x27;&lt;1&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;1&gt;&#x27;)   # wrong
 dfa2.add_transition(&#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;1&gt;&#x27;)
-new_state2 = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
+new_state2, _ = decompose(dfa2, dt2, st2, oracle, &#x27;aa&#x27;)
 assert st2.access(new_state2) == &#x27;aa&#x27;
 print(&#x27;decompose test 3 passed&#x27;)
 
@@ -1245,49 +1313,47 @@ This contrasts with L*, where adding all $$ k $$ suffixes of a counterexample
 forces re-querying every existing row against every new column, most of
 which add no new information.
 ## DT Coherence After Split
-
 After `split_leaf` turns a leaf into an inner node, some transitions in the
-old hypothesis may point to states that were in that leaf. Those transitions
-are now stale. TTT handles this by rebuilding the hypothesis from scratch
-each iteration. We throw away the old DFA and call `build_hypothesis`
-again. This is correct because the DT and spanning tree are always the
-ground truth; the hypothesis is reconstructed from them.
-
-The paper describes a more efficient incremental approach where only
-transitions that pointed to the split leaf are re-sifted. For clarity we
-use the simpler rebuild approach here.
+hypothesis that targeted the old leaf are now stale, because the DT now
+routes some of those strings to the new child instead.
+The incremental strategy finds exactly those stale transitions via
+`leaf_index`, removes them from the DFA, and re-sifts only them. Every
+other transition remains valid and costs no queries. New states discovered
+during re-sifting are registered and their own transitions are closed in the
+same pass.
 ## The Main Loop
-
 The main loop orchestrates everything:
-
-1. Build the hypothesis from the DT and spanning tree.
-2. Ask the equivalence oracle — are we done?
-3. If not, decompose the counterexample — one new state, one new
+1. Build the hypothesis from the DT and spanning tree (first iteration only).
+2. Ask the equivalence oracle. If it says yes, we are done.
+3. If not, decompose the counterexample to find one new state and one new
    discriminator.
-4. Rebuild the hypothesis (the split may have staled some transitions).
+4. Incrementally update the hypothesis by re-sifting only the stale transitions.
 5. Repeat.
-
 The loop runs exactly $$ n - 1 $$ times where $$ n $$ is the number of
-states in the minimal DFA — one counterexample per new state discovered.
+states in the minimal DFA, one counterexample per new state discovered.
 
 <!--
 ############
 def ttt(oracle, alphabet):
     dt = DTLeaf('<start>')
     st = SpanningTree()
+    leaf_index = {}
+
+    # initial hypothesis: one state, no transitions yet
+    dfa = DFA()
+    build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 
     while True:
-        # rebuild hypothesis from scratch each iteration
-        dfa = DFA()
-        build_hypothesis(dfa, dt, st, oracle, alphabet)
-
-        # equivalence query — PAC oracle from Teacher
+        # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
         if is_eq:
-            return dfa   # done — hypothesis matches target
+            return dfa   # done: hypothesis matches target
 
-        # one counterexample → one new state → one new discriminator
-        decompose(dfa, dt, st, oracle, ce)
+        # one counterexample yields one new state and one new discriminator
+        new_state, split_id = decompose(dfa, dt, st, oracle, ce)
+
+        # incremental update: re-sift only the stale transitions
+        update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 
 ############
 -->
@@ -1296,19 +1362,23 @@ def ttt(oracle, alphabet):
 def ttt(oracle, alphabet):
     dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
     st = SpanningTree()
+    leaf_index = {}
+
+    # initial hypothesis: one state, no transitions yet
+    dfa = DFA()
+    build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
 
     while True:
-        # rebuild hypothesis from scratch each iteration
-        dfa = DFA()
-        build_hypothesis(dfa, dt, st, oracle, alphabet)
-
-        # equivalence query — PAC oracle from Teacher
+        # equivalence query via PAC oracle from Teacher
         is_eq, ce = oracle.is_equivalent(dfa.grammar, dfa.start_symbol)
         if is_eq:
-            return dfa   # done — hypothesis matches target
+            return dfa   # done: hypothesis matches target
 
-        # one counterexample → one new state → one new discriminator
-        decompose(dfa, dt, st, oracle, ce)
+        # one counterexample yields one new state and one new discriminator
+        new_state, split_id = decompose(dfa, dt, st, oracle, ce)
+
+        # incremental update: re-sift only the stale transitions
+        update_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index, split_id, new_state)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1457,25 +1527,16 @@ print(&#x27;test 3 passed: divisible by 3 in binary&#x27;)
 |---|---|---|
 | Data structure | Flat observation table | Discrimination tree (Kearns-Vazirani) |
 | Counterexample processing | Add all $$ k $$ suffixes | Binary search for 1 suffix (Rivest-Schapire) |
-| Prefix transformation | No | Yes — minimal access sequences (TTT) |
-| Discriminator finalization | No | Yes — shallow DT (TTT) |
+| Prefix transformation | No | Yes (minimal access sequences, TTT) |
+| Discriminator finalization | No | Yes (shallow DT, TTT) |
 | Redundant queries | Many | None by construction |
 | Closedness check | Explicit global scan | Lazy, local (open transitions) |
 | Consistency check | Explicit global scan | Structurally prevented by DT |
 
 The DT depth is bounded by $$ n $$ (one split per state), so sifting never
 becomes expensive. This makes TTT the preferred algorithm when membership
-queries are costly — which is typical when learning protocol implementations
+queries are costly, as is typical when learning protocol implementations
 or library APIs through testing.
-## Notes on Implementation
-
-Our implementation makes one simplification relative to the paper: we
-rebuild the hypothesis DFA from scratch after each counterexample. The
-paper describes an incremental approach where only transitions pointing to
-the split leaf are re-sifted. The incremental approach reduces the number
-of membership queries per iteration from $$ O(n \cdot |A| \cdot depth(DT)) $$
-to $$ O(|affected| \cdot depth(DT)) $$, but requires tracking which
-transitions point to each leaf. We leave this as an exercise.
 ## References
 
 [^kearns1994]: Michael Kearns and Umesh Vazirani. An Introduction to Computational Learning Theory. MIT Press, 1994. pp. 44-58.
@@ -1498,6 +1559,6 @@ transitions point to each leaf. We leave this as an exercise.
 
 ## Artifacts
 
-The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2026-05-14-ttt-grammar-inference.py).
+The runnable Python source for this notebook is available [here](https://github.com/rahulgopinath/rahulgopinath.github.io/blob/master/notebooks/2026-06-09-ttt-grammar-inference.py).
 
 
