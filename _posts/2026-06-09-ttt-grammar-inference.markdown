@@ -58,7 +58,8 @@ distinguishing sequences, which can reduce resets in hardware settings.
   state $$ q $$ in the target. This is called $$ acc(q) $$ in TTT literature,
   but using $$ reach(q) $$ to avoid conflation with $$ accept $$ in DFA.
 * _Spanning tree_: a mapping from each known state to its access sequence.
-  A dict from state to the shortest string known to reach it.
+  In this implementation we use a dict (called State Table) rather than
+  a tree.
 * _Open transition_: a transition from state $$ q $$ on symbol $$ a $$ whose
   target state has no access sequence yet, meaning TTT has not yet
   determined which state it leads to.
@@ -530,33 +531,22 @@ assert inner.is_leaf() == False
 <div name='python_canvas'></div>
 </form>
 ## The Spanning Tree
-
 Each state in the hypothesis has an *access sequence*: the shortest known
-string that reaches it from `<start>`. The spanning tree is simply a dict
-from state to access sequence.
-
-If you have read the
-[RPNI post](/post/2025/10/24/rpni-learning-regular-languages/),
-the spanning tree will look familiar. The RPNI Prefix Tree Acceptor (PTA)
-is a tree-shaped DFA where every path from root to a node spells out the
-string that reaches that state. The spanning tree is the *dual* of the PTA:
-
-* **PTA** maps *strings -> states*. You start with examples and build
-  states to match them.
-* **Spanning tree** maps *states -> strings*. You start with states
-  (discovered by TTT) and record the string that reaches each one.
-
-It is called a tree because the states and their access sequences form an
-implicit tree: `<start>` is the root, and each state is a child of the
-state whose access sequence is one character shorter. If you drew it, every
-path from root to a node would spell out that node's access sequence.
-In TTT, we never traverse this tree structure. We only ever look
-up $$ reach(q) $$ for a given state, or add a new state with its access
-sequence. So the implementation reduces to a simple dict.
+string that reaches it from `<start>`. The TTT paper calls this structure
+a *spanning tree* because, conceptually, the states form a tree: `<start>`
+is the root, each state is a child of the state whose access sequence is one
+character shorter, and walking from root to any node spells out that node's
+access sequence. In the original Kearns-Vazirani algorithm this tree was
+traversed explicitly: to find a state's access sequence you'd walk up to the
+root collecting edge labels. TTT's prefix transformation makes traversal
+unnecessary by storing the full access string directly against each state.
+The tree structure is therefore implicit, and the implementation reduces to
+a plain dict. We call the class `StateTable` to reflect what it actually is,
+while keeping the section title for continuity with the paper.
 
 <!--
 ############
-class SpanningTree:
+class StateTable:
     def __init__(self, start_symbol='<start>'):
         self._reach = { start_symbol: '' }
 
@@ -570,7 +560,7 @@ class SpanningTree:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-class SpanningTree:
+class StateTable:
     def __init__(self, start_symbol=&#x27;&lt;start&gt;&#x27;):
         self._reach = { start_symbol: &#x27;&#x27; }
 
@@ -579,91 +569,6 @@ class SpanningTree:
 
     def reach(self, state):
         return self._reach[state]
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We add a helper to render a spanning tree as a Graphviz dot diagram.
-Each node shows its state name and access sequence.
-Edges are labelled with the character that extends the parent's access
-sequence to reach the child.
-
-<!--
-############
-def st_to_dot(st, name='ST'):
-    reach_to_state = {v: k for k, v in st._reach.items()}
-    lines = ['digraph %s {' % name,
-             '  rankdir=LR;',
-             '  node [shape = rectangle];']
-    for state, reach in st._reach.items():
-        if reach:
-            label = '%s\\nreach: %s' % (state, reach)
-        else:
-            label = state
-        lines.append('  "%s" [label = "%s"];' % (state, label))
-        if reach:  # has a parent
-            parent_reach = reach[:-1]
-            char = reach[-1]
-            parent = reach_to_state.get(parent_reach)
-            if parent is not None:
-                lines.append('  "%s" -> "%s" [label = "%s"];' % (parent, state, char))
-    lines.append('}')
-    return '\n'.join(lines)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def st_to_dot(st, name=&#x27;ST&#x27;):
-    reach_to_state = {v: k for k, v in st._reach.items()}
-    lines = [&#x27;digraph %s {&#x27; % name,
-             &#x27;  rankdir=LR;&#x27;,
-             &#x27;  node [shape = rectangle];&#x27;]
-    for state, reach in st._reach.items():
-        if reach:
-            label = &#x27;%s\\nreach: %s&#x27; % (state, reach)
-        else:
-            label = state
-        lines.append(&#x27;  &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (state, label))
-        if reach:  # has a parent
-            parent_reach = reach[:-1]
-            char = reach[-1]
-            parent = reach_to_state.get(parent_reach)
-            if parent is not None:
-                lines.append(&#x27;  &quot;%s&quot; -&gt; &quot;%s&quot; [label = &quot;%s&quot;];&#x27; % (parent, state, char))
-    lines.append(&#x27;}&#x27;)
-    return &#x27;\n&#x27;.join(lines)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-We test the spanning tree.
-
-<!--
-############
-st = SpanningTree()
-assert st.reach('<start>') == ''
-st.add_state('<1>', '<start>', 'a')
-assert st.reach('<1>') == 'a'
-st.add_state('<2>', '<1>', 'b')
-assert st.reach('<2>') == 'ab'
-st.add_state('<3>', '<start>', 'b')
-assert st.reach('<3>') == 'b'
-__canvas__(st_to_dot(st, 'ST_example'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-st = SpanningTree()
-assert st.reach(&#x27;&lt;start&gt;&#x27;) == &#x27;&#x27;
-st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-assert st.reach(&#x27;&lt;1&gt;&#x27;) == &#x27;a&#x27;
-st.add_state(&#x27;&lt;2&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;b&#x27;)
-assert st.reach(&#x27;&lt;2&gt;&#x27;) == &#x27;ab&#x27;
-st.add_state(&#x27;&lt;3&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;)
-assert st.reach(&#x27;&lt;3&gt;&#x27;) == &#x27;b&#x27;
-__canvas__(st_to_dot(st, &#x27;ST_example&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -989,7 +894,7 @@ recording that `<odd>` is reached via `'a'`.
 <!--
 ############
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-st_ea = SpanningTree()
+st_ea = StateTable()
 st_ea.add_state('<odd>', '<start>', 'a')
 dt = DTLeaf('<start>')
 split_leaf(dt, '', '<odd>', oracle, st_ea)
@@ -1004,7 +909,7 @@ __canvas__(dt_to_dot(dt, 'DT_even_a'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-st_ea = SpanningTree()
+st_ea = StateTable()
 st_ea.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
 split_leaf(dt, &#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle, st_ea)
@@ -1358,7 +1263,7 @@ We visualise the DT, spanning tree, and resulting DFA at this stage.
 ############
 oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
 dt_pre = DTLeaf('<start>')
-st_pre = SpanningTree()
+st_pre = StateTable()
 dfa_pre = DFA()
 build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'])
 __canvas__(dt_to_dot(dt_pre,  'DT_before_split'))
@@ -1369,25 +1274,10 @@ __canvas__(dt_to_dot(dt_pre,  'DT_before_split'))
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 dt_pre = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st_pre = SpanningTree()
+st_pre = StateTable()
 dfa_pre = DFA()
 build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;])
 __canvas__(dt_to_dot(dt_pre,  &#x27;DT_before_split&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-The spanning tree
-
-<!--
-############
-__canvas__(st_to_dot(st_pre,  'ST_before_split'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(st_to_dot(st_pre,  &#x27;ST_before_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1417,7 +1307,7 @@ Re-sifting now correctly routes `'a'` to `<odd>` and `'b'` back to `<start>`.
 dt_post = DTInner('')
 dt_post.left  = DTLeaf('<odd>')
 dt_post.right = DTLeaf('<start>')
-st_post = SpanningTree()
+st_post = StateTable()
 st_post.add_state('<odd>', '<start>', 'a')
 dfa_post = DFA()
 build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'])
@@ -1430,26 +1320,11 @@ __canvas__(dt_to_dot(dt_post,  'DT_after_split'))
 dt_post = DTInner(&#x27;&#x27;)
 dt_post.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt_post.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st_post = SpanningTree()
+st_post = StateTable()
 st_post.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dfa_post = DFA()
 build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;])
 __canvas__(dt_to_dot(dt_post,  &#x27;DT_after_split&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Spanning tree
-
-<!--
-############
-__canvas__(st_to_dot(st_post,  'ST_after_split'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(st_to_dot(st_post,  &#x27;ST_after_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1545,7 +1420,7 @@ alphabet = ['a', 'b']
 dt = DTInner('')
 dt.left  = DTLeaf('<odd>')
 dt.right = DTLeaf('<start>')
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 leaf_index = {}
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
@@ -1567,7 +1442,7 @@ alphabet = [&#x27;a&#x27;, &#x27;b&#x27;]
 dt = DTInner(&#x27;&#x27;)
 dt.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 leaf_index = {}
 build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index)
@@ -1658,7 +1533,7 @@ removed and re-sifted to `<1>`.
 ############
 oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
 dt_stale = DTLeaf('<start>')
-st_stale = SpanningTree()
+st_stale = StateTable()
 dfa_stale = DFA()
 leaf_index_stale = {}
 build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, ['a', 'b'], leaf_index_stale)
@@ -1670,7 +1545,7 @@ __canvas__(dfa_to_dot(dfa_stale, 'DFA_stale'))
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 dt_stale = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st_stale = SpanningTree()
+st_stale = StateTable()
 dfa_stale = DFA()
 leaf_index_stale = {}
 build_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_stale)
@@ -1706,7 +1581,6 @@ Now update: stale transitions are removed and re-sifted.
 ############
 update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea,
                   ['a', 'b'], leaf_index_stale, split_id, '<1>')
-__canvas__(st_to_dot(st_stale, 'ST_after_update'))
 
 ############
 -->
@@ -1714,7 +1588,6 @@ __canvas__(st_to_dot(st_stale, 'ST_after_update'))
 <textarea cols="40" rows="4" name='python_edit'>
 update_hypothesis(dfa_stale, dt_stale, st_stale, oracle_ea,
                   [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_stale, split_id, &#x27;&lt;1&gt;&#x27;)
-__canvas__(st_to_dot(st_stale, &#x27;ST_after_update&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1791,7 +1664,7 @@ We test discriminator finalization.
 <!--
 ############
 oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-st = SpanningTree()
+st = StateTable()
 st.add_state('<1>', '<start>', 'a')
 # '' is already minimal
 d = finalize_discriminator('<start>', '<1>', '', st, oracle)
@@ -1807,7 +1680,7 @@ assert d == 'a'
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 oracle = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-st = SpanningTree()
+st = StateTable()
 st.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 # &#x27;&#x27; is already minimal
 d = finalize_discriminator(&#x27;&lt;start&gt;&#x27;, &#x27;&lt;1&gt;&#x27;, &#x27;&#x27;, st, oracle)
@@ -1895,7 +1768,7 @@ dfa_sp = DFA()
 dfa_sp.set_accepting('<start>')
 dfa_sp.add_transition('<start>', 'a', '<start>')
 dfa_sp.add_transition('<start>', 'b', '<start>')
-st_sp = SpanningTree()
+st_sp = StateTable()
 # counterexample 'a': hypothesis accepts, target rejects
 i, states = find_split_point(dfa_sp, st_sp, oracle, 'a')
 assert i == 0, i
@@ -1913,7 +1786,7 @@ dfa_sp = DFA()
 dfa_sp.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa_sp.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
 dfa_sp.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;b&#x27;, &#x27;&lt;start&gt;&#x27;)
-st_sp = SpanningTree()
+st_sp = StateTable()
 # counterexample &#x27;a&#x27;: hypothesis accepts, target rejects
 i, states = find_split_point(dfa_sp, st_sp, oracle, &#x27;a&#x27;)
 assert i == 0, i
@@ -2013,7 +1886,7 @@ test 1: single symbol counterexample 'a'
 <!--
 ############
 dt = DTLeaf('<start>')
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
@@ -2030,7 +1903,7 @@ __canvas__(dt_to_dot(dt, 'DT_decompose1'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
@@ -2051,7 +1924,7 @@ so the new state still gets access sequence 'a' and discriminator is 'b'.
 <!--
 ############
 dt = DTLeaf('<start>')
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 dfa.set_accepting('<start>')
 dfa.add_transition('<start>', 'a', '<start>')
@@ -2066,7 +1939,7 @@ __canvas__(dt_to_dot(dt, 'DT_decompose2'))
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st = SpanningTree()
+st = StateTable()
 dfa = DFA()
 dfa.set_accepting(&#x27;&lt;start&gt;&#x27;)
 dfa.add_transition(&#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;, &#x27;&lt;start&gt;&#x27;)
@@ -2087,7 +1960,7 @@ The DT gains a second level; the new state gets access sequence 'aa'.
 dt2 = DTInner('')
 dt2.left  = DTLeaf('<odd>')
 dt2.right = DTLeaf('<start>')
-st2 = SpanningTree()
+st2 = StateTable()
 st2.add_state('<odd>', '<start>', 'a')
 dfa2 = DFA()
 dfa2.ensure_state('<odd>')
@@ -2107,7 +1980,7 @@ __canvas__(dt_to_dot(dt2, 'DT_decompose3'))
 dt2 = DTInner(&#x27;&#x27;)
 dt2.left  = DTLeaf(&#x27;&lt;odd&gt;&#x27;)
 dt2.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st2 = SpanningTree()
+st2 = StateTable()
 st2.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dfa2 = DFA()
 dfa2.ensure_state(&#x27;&lt;odd&gt;&#x27;)
@@ -2138,7 +2011,7 @@ only leaf `<start>`, so no new states are discovered.
 ############
 oracle_ba = MockOracle(lambda w: w.endswith('ba'))
 dt_cl = DTLeaf('<start>')
-st_cl = SpanningTree()
+st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
 build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'], leaf_index_cl)
@@ -2151,27 +2024,12 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
 <textarea cols="40" rows="4" name='python_edit'>
 oracle_ba = MockOracle(lambda w: w.endswith(&#x27;ba&#x27;))
 dt_cl = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-st_cl = SpanningTree()
+st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
 build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl)
 print(&#x27;step 1 states:&#x27;, list(st_cl._reach.keys()))
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step1&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Spanning tree and DFA after step 1.
-
-<!--
-############
-__canvas__(st_to_dot(st_cl, 'cl_st_step1'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(st_to_dot(st_cl, &#x27;cl_st_step1&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2216,21 +2074,6 @@ update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
                   [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl, split_id, new_s1)
 print(&#x27;step 2 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s1)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step2&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Spanning tree after step 2: `s1` now has access sequence `'b'`.
-
-<!--
-############
-__canvas__(st_to_dot(st_cl, 'cl_st_step2'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(st_to_dot(st_cl, &#x27;cl_st_step2&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2312,21 +2155,6 @@ update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba,
                   [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl, split_id, new_s2)
 print(&#x27;step 3 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s2)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step3&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-Spanning tree after step 3: three states, all access sequences minimal.
-
-<!--
-############
-__canvas__(st_to_dot(st_cl, 'cl_st_step3'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-__canvas__(st_to_dot(st_cl, &#x27;cl_st_step3&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -2413,7 +2241,7 @@ states in the minimal DFA, one counterexample per new state discovered.
 ############
 def ttt(oracle, alphabet):
     dt = DTLeaf('<start>')
-    st = SpanningTree()
+    st = StateTable()
     leaf_index = {}
 
     # initial hypothesis: one state, no transitions yet
@@ -2440,7 +2268,7 @@ def ttt(oracle, alphabet):
 <textarea cols="40" rows="4" name='python_edit'>
 def ttt(oracle, alphabet):
     dt = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-    st = SpanningTree()
+    st = StateTable()
     leaf_index = {}
 
     # initial hypothesis: one state, no transitions yet
