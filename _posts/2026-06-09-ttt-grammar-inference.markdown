@@ -60,11 +60,10 @@ though performance differences in software engineering settings are modest.
 * _Access sequence_ $$ acc(q) $$: the shortest known string that reaches
   state $$ q $$ in the target.
 * _Spanning tree_: a mapping from each known state to its access sequence.
-  The dual of the PTA from RPNI (where PTA maps strings to states, the
-  spanning tree maps states to strings).
-* _Open transition_: a transition $$ \delta(q, a) $$ whose target state
-  has no access sequence yet. The TTT equivalent of L*'s closedness
-  violation.
+  A dict from state to the shortest string known to reach it.
+* _Open transition_: a transition from state $$ q $$ on symbol $$ a $$ whose
+  target state has no access sequence yet, meaning TTT has not yet
+  determined which state it leads to.
 * _Counterexample decomposition_: the process of finding the split point
   in a counterexample, extracting a new discriminator, and splitting a
   leaf in the DT.
@@ -123,13 +122,13 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <ol>
 <li><a href="https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl">simplefuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/05/28/simplefuzzer-01/">The simplest grammar fuzzer in the world</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl">rxfuzzer-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/10/22/fuzzing-with-regular-expressions/">Fuzzing With Regular Expressions</a>".</li>
+<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl">cfgrandomsample-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/07/27/random-sampling-from-context-free-grammar/">Uniform Random Sampling of Strings from Context-Free Grammar</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl">cfgremoveepsilon-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/09/29/remove-epsilons/">Remove Empty (Epsilon) Rules From a Context-Free Grammar.</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl">gatleastsinglefault-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/09/09/fault-inducing-grammar/">Specializing Context-Free Grammars for Inducing Faults</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl">hdd-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2019/12/04/hdd/">Hierarchical Delta Debugging</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl">ddset-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2020/08/03/simple-ddset/">Simple DDSet</a>".</li>
 <li><a href="https://rahul.gopinath.org/py/lstar-0.0.1-py2.py3-none-any.whl">lstar-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2024/01/04/lstar-learning-regular-languages/">L* Algorithm</a>".</li>
-<li><a href="https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl">earleyparser-0.0.1-py2.py3-none-any.whl</a> from "<a href="/post/2021/02/06/earley-parsing/">Earley Parser</a>".</li>
 </ol>
 
 <div style='display:none'>
@@ -137,13 +136,13 @@ To install, simply download the wheel file (`pkg.whl`) and install using
 <textarea cols="40" rows="4" id='python_pre_edit' name='python_edit'>
 https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/rxfuzzer-0.0.1-py2.py3-none-any.whl
+https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/cfgrandomsample-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/cfgremoveepsilon-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/gatleastsinglefault-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/hdd-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/ddset-0.0.1-py2.py3-none-any.whl
 https://rahul.gopinath.org/py/lstar-0.0.1-py2.py3-none-any.whl
-https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 </textarea>
 </form>
 </div>
@@ -153,9 +152,10 @@ https://rahul.gopinath.org/py/earleyparser-0.0.1-py2.py3-none-any.whl
 ############
 import simplefuzzer as fuzzer
 import rxfuzzer
+import earleyparser
 import math
 import random
-from lstar import Teacher, Oracle
+from lstar import Teacher, Oracle  # PAC oracle and base class from the L* post
 
 ############
 -->
@@ -163,9 +163,10 @@ from lstar import Teacher, Oracle
 <textarea cols="40" rows="4" name='python_edit'>
 import simplefuzzer as fuzzer
 import rxfuzzer
+import earleyparser
 import math
 import random
-from lstar import Teacher, Oracle
+from lstar import Teacher, Oracle  # PAC oracle and base class from the L* post
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -910,8 +911,9 @@ def prefix_transformation(states, st, ce, i):
 Once we have the split point, we know:
 
 * A leaf $$ \ell $$ currently represents `old_state`
-* A `new_state` was hiding inside it
-* The discriminator $$ ce[i+1:] $$ separates them
+* `old_state` and `new_state` were treated as identical by the hypothesis,
+  but the counterexample proves they are different
+* The discriminator $$ ce[i+1:] $$ is the suffix that tells them apart
 
 We *mutate the leaf in place* into an inner node. This is essential because
 other parts of the tree already hold references to $$ \ell $$, so replacing
@@ -1340,37 +1342,38 @@ print(&#x27;decompose test 3 passed&#x27;)
 </form>
 ## Non-Redundancy
 
-The central claim of the TTT paper is that it never makes a membership
-query whose answer could have been derived from earlier queries. This holds
-at every level:
-
+The central claim of the TTT is that it never makes a membership
+query whose answer could have been derived from earlier queries. To see
+what this means concretely: in L*, if the counterexample is `ba`, the
+algorithm adds both `a` and `ba` as new suffix columns and re-queries every
+existing state against both. If `a` was already a column, that work is
+wasted. TTT avoids this by extracting exactly one new suffix per
+counterexample and routing all future classification through the DT. This
+holds at every level:
 * **Sifting is non-redundant.** Every query is $$ w \cdot d $$ where $$ d $$
   was placed in the DT by a previous split that proved it necessary.
 * **Splitting is non-redundant.** Each split adds exactly one discriminator,
   proven necessary by the counterexample.
 * **Closing is non-redundant.** Each transition is sifted exactly once per
   iteration. Newly discovered states come with their DT position already
-  established by the sift that found them. That is, no extra queries are needed.
-
+  established by the sift that found them, so no extra queries are needed.
 This contrasts with L*, where adding all $$ k $$ suffixes of a counterexample
 forces re-querying every existing row against every new column, most of
 which add no new information.
 ## A Note on the Equivalence Oracle
 TTT assumes the equivalence oracle is *exact*: if it says the hypothesis is
 wrong, it returns a string the hypothesis genuinely misclassifies. The
-`Teacher` we use is a PAC oracle: it tests a finite sample of strings and
-declares equivalence if none expose a mistake. This is a practical
-approximation.
-The approximation matters because TTT extracts exactly one discriminator per
-counterexample and bets that it separates two distinct Myhill-Nerode classes.
-If the oracle is exact, this is guaranteed. If the oracle is approximate, a
-rare false counterexample could produce a discriminator that does not
-actually distinguish two states, leading to a redundant split. L* is more
-forgiving: it adds all suffixes of a counterexample and merges any states
-that become indistinguishable, so a false counterexample wastes a few
-queries but leaves the table consistent.
-For the targets in this post the PAC oracle with the parameters shown is
-accurate enough that this does not arise in practice.
+`Teacher` we use is a PAC oracle: it samples a finite set of strings and
+declares equivalence if none expose a mistake. This is an approximation.
+In principle, a false counterexample from a PAC oracle could cause TTT to
+create a redundant state: one that could have been merged with an existing
+state without changing the language the DFA accepts. The DFA would still be
+correct, just slightly larger than necessary. Neither TTT nor L* guarantees
+a globally minimal DFA under a PAC oracle: both can acquire spurious states
+or columns from false counterexamples, and neither performs a global
+minimization pass afterward. In practice this is a minor concern: the PAC
+oracle is unlikely to produce false counterexamples with reasonable
+parameters, and the language accepted by the DFA is unaffected either way.
 ## DT Coherence After Split
 After `split_leaf` turns a leaf into an inner node, some transitions in the
 hypothesis that targeted the old leaf are now stale, because the DT now
@@ -1511,7 +1514,12 @@ print(&#x27;test 2 passed: ends in b&#x27;)
 <div name='python_canvas'></div>
 </form>
 target 3: binary strings whose value is divisible by 3
-Let us define a new teacher.
+This target has no convenient regex, so we write a custom teacher.
+It is a good stress test: the minimal DFA has exactly 3 states (one per
+remainder mod 3), the alphabet is {0, 1}, and transitions are determined
+by how reading a bit updates the current value modulo 3. This exercises
+TTT on a target where the states correspond to arithmetic structure rather
+than string patterns.
 
 <!--
 ############
@@ -1602,33 +1610,113 @@ We measure precision and recall by cross-fuzzing the target grammar and the
 inferred grammar. Precision is the fraction of strings generated by the
 inferred DFA that the target accepts. Recall is the fraction of strings
 generated by the target that the inferred DFA accepts.
-Testing
+The inferred DFA may contain a dead/sink state: a non-accepting state with
+no exit, representing strings the target permanently rejects. Such a state
+causes `LimitFuzzer` to loop, because the grammar has no finite derivation
+from it. We remove dead states before fuzzing using `fuzzer.compute_cost`,
+which assigns each nonterminal the minimum number of steps needed to reach
+a terminal string. Any nonterminal with infinite cost is a dead state;
+we remove it and all rules that reference it.
 
 <!--
 ############
-# Each pair is (regex, alphabet).
-# Cases are chosen to stress the binary search:
-# - patterns with a dead/sink state reachable only after a specific suffix
-#   (e.g. a*b*, ab*) tend to produce counterexamples where all intermediate
-#   positions agree with the target, pushing lo to len(ce) and producing an
-#   empty discriminator under the off-by-one bug
-# - multi-segment patterns (a*b*c*) chain several such transitions
-# - anchored-suffix patterns ((a|b)*ba) require reading to the end before
-#   rejecting, again stressing the last-position case
+def remove_infinite_loops(g, start):
+    rule_cost = fuzzer.compute_cost(g)
+    remove_keys = []
+    for k in rule_cost:
+        if k == start: continue
+        res = [rule_cost[k][r] for r in rule_cost[k]
+               if rule_cost[k][r] != math.inf]
+        if not res: remove_keys.append(k)
+    cont = True
+    while cont:
+        cont = False
+        new_g = {}
+        for k in g:
+            if k in remove_keys: continue
+            new_g[k] = []
+            for r in g[k]:
+                if [t for t in r if t in remove_keys]: continue
+                new_g[k].append(r)
+            if not new_g[k]:
+                if k == start: continue
+                remove_keys.append(k)
+                cont = True
+    return new_g, start
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def remove_infinite_loops(g, start):
+    rule_cost = fuzzer.compute_cost(g)
+    remove_keys = []
+    for k in rule_cost:
+        if k == start: continue
+        res = [rule_cost[k][r] for r in rule_cost[k]
+               if rule_cost[k][r] != math.inf]
+        if not res: remove_keys.append(k)
+    cont = True
+    while cont:
+        cont = False
+        new_g = {}
+        for k in g:
+            if k in remove_keys: continue
+            new_g[k] = []
+            for r in g[k]:
+                if [t for t in r if t in remove_keys]: continue
+                new_g[k].append(r)
+            if not new_g[k]:
+                if k == start: continue
+                remove_keys.append(k)
+                cont = True
+    return new_g, start
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+We define a `match` helper that wraps the Earley parser in a boolean check.
+
+<!--
+############
+def match(p, start, text):
+    try: p.recognize_on(text, start)
+    except SyntaxError: return False
+    return True
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def match(p, start, text):
+    try: p.recognize_on(text, start)
+    except SyntaxError: return False
+    return True
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Testing
+Each pair is (regex, alphabet). Cases cover a range of DFA shapes:
+two-segment and three-segment chains, prefix-anchored, suffix-anchored,
+substring-containment, exact-alternation, and disjoint finite sets.
+
+<!--
+############
 cases = [
     ('(b*ab*a)*b*',       ['a', 'b']),
     ('(a|b)*b',           ['a', 'b']),
-    ('a*b*',              ['a', 'b']),   # two-segment: original failing case
+    ('a*b*',              ['a', 'b']),
     ('ab*',               ['a', 'b']),   # must start with a, then any b's
-    ('(a|b)*ba',          ['a', 'b']),   # suffix-anchored: ends in ba
+    ('(a|b)*ba',          ['a', 'b']),   # must end with ba
     ('(ab)*',             ['a', 'b']),   # strictly alternating
-    ('a*b*c*',            ['a', 'b', 'c']),  # three-segment chain
+    ('a*b*c*',            ['a', 'b', 'c']),
     ('a(a|b)*a',          ['a', 'b']),   # must start and end with a
     ('(aab)*',            ['a', 'b']),   # period-3 repetition
     ('(a|b)*aba(a|b)*',   ['a', 'b']),   # must contain substring aba
-    ('(a|b)*abb',         ['a', 'b']),   # suffix-anchored: ends in abb
-    ('aa|bb',             ['a', 'b']),   # two disjoint two-char words
-    ('(ab|ba)*',          ['a', 'b']),   # alternating pairs, either order
+    ('(a|b)*abb',         ['a', 'b']),   # must end with abb
+    ('aa|bb',             ['a', 'b']),   # exactly aa or exactly bb
+    ('(ab|ba)*',          ['a', 'b']),   # even-length, alternating pairs
     ('(a|b)*ab(a|b)*',    ['a', 'b']),   # must contain substring ab
 ]
 for e, alphabet in cases:
@@ -1637,33 +1725,23 @@ for e, alphabet in cases:
     t_f = fuzzer.LimitFuzzer(t_g)
 
     result = ttt(teacher, alphabet)
+    i_g, i_s = remove_infinite_loops(result.grammar, result.start_symbol)
+    i_p = earleyparser.EarleyParser(i_g)
+    i_f = fuzzer.LimitFuzzer(i_g)
 
-    # We measure precision and recall over random strings up to length 8.
-    # Using the DFA's accepts() method avoids fuzzing through dead states
-    # in the inferred grammar (which would loop LimitFuzzer).
-    # Precision: of strings the DFA accepts, what fraction does the target accept?
-    # Recall:    of strings the target accepts (from target fuzzer), what
-    #            fraction does the DFA accept?
     lgi = lgi_lgb = lgb = lgb_lgi = 0
-    random.seed(0)
-    for _ in range(200):
-        length = random.randint(0, 8)
-        val = ''.join(random.choice(alphabet) for _ in range(length))
-        dfa_ans = result.accepts(val)
-        tgt_ans = teacher.is_member(val)
-        if dfa_ans:
-            lgi_lgb += tgt_ans   # DFA accepted: did target agree?
-            lgi += 1
-        if tgt_ans:
-            lgb_lgi += dfa_ans   # target accepted: did DFA agree?
-            lgb += 1
+    for _ in range(100):
+        val = i_f.iter_fuzz(key=i_s, max_depth=100)
+        if match(teacher.parser, t_s, val): lgi_lgb += 1
+        lgi += 1
+
+        val = t_f.iter_fuzz(key=t_s, max_depth=100)
+        if match(i_p, i_s, val): lgb_lgi += 1
+        lgb += 1
 
     precision = lgi_lgb / lgi if lgi else 1.0
     recall    = lgb_lgi / lgb if lgb else 1.0
-    if (precision + recall):
-        f1 = 2 * precision * recall / (precision + recall)
-    else:
-        f1 = 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
     print('expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f'
           % (e, precision, recall, f1))
 
@@ -1671,29 +1749,20 @@ for e, alphabet in cases:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-# Each pair is (regex, alphabet).
-# Cases are chosen to stress the binary search:
-# - patterns with a dead/sink state reachable only after a specific suffix
-#   (e.g. a*b*, ab*) tend to produce counterexamples where all intermediate
-#   positions agree with the target, pushing lo to len(ce) and producing an
-#   empty discriminator under the off-by-one bug
-# - multi-segment patterns (a*b*c*) chain several such transitions
-# - anchored-suffix patterns ((a|b)*ba) require reading to the end before
-#   rejecting, again stressing the last-position case
 cases = [
     (&#x27;(b*ab*a)*b*&#x27;,       [&#x27;a&#x27;, &#x27;b&#x27;]),
     (&#x27;(a|b)*b&#x27;,           [&#x27;a&#x27;, &#x27;b&#x27;]),
-    (&#x27;a*b*&#x27;,              [&#x27;a&#x27;, &#x27;b&#x27;]),   # two-segment: original failing case
+    (&#x27;a*b*&#x27;,              [&#x27;a&#x27;, &#x27;b&#x27;]),
     (&#x27;ab*&#x27;,               [&#x27;a&#x27;, &#x27;b&#x27;]),   # must start with a, then any b&#x27;s
-    (&#x27;(a|b)*ba&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # suffix-anchored: ends in ba
+    (&#x27;(a|b)*ba&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # must end with ba
     (&#x27;(ab)*&#x27;,             [&#x27;a&#x27;, &#x27;b&#x27;]),   # strictly alternating
-    (&#x27;a*b*c*&#x27;,            [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]),  # three-segment chain
+    (&#x27;a*b*c*&#x27;,            [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]),
     (&#x27;a(a|b)*a&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # must start and end with a
     (&#x27;(aab)*&#x27;,            [&#x27;a&#x27;, &#x27;b&#x27;]),   # period-3 repetition
     (&#x27;(a|b)*aba(a|b)*&#x27;,   [&#x27;a&#x27;, &#x27;b&#x27;]),   # must contain substring aba
-    (&#x27;(a|b)*abb&#x27;,         [&#x27;a&#x27;, &#x27;b&#x27;]),   # suffix-anchored: ends in abb
-    (&#x27;aa|bb&#x27;,             [&#x27;a&#x27;, &#x27;b&#x27;]),   # two disjoint two-char words
-    (&#x27;(ab|ba)*&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # alternating pairs, either order
+    (&#x27;(a|b)*abb&#x27;,         [&#x27;a&#x27;, &#x27;b&#x27;]),   # must end with abb
+    (&#x27;aa|bb&#x27;,             [&#x27;a&#x27;, &#x27;b&#x27;]),   # exactly aa or exactly bb
+    (&#x27;(ab|ba)*&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # even-length, alternating pairs
     (&#x27;(a|b)*ab(a|b)*&#x27;,    [&#x27;a&#x27;, &#x27;b&#x27;]),   # must contain substring ab
 ]
 for e, alphabet in cases:
@@ -1702,33 +1771,23 @@ for e, alphabet in cases:
     t_f = fuzzer.LimitFuzzer(t_g)
 
     result = ttt(teacher, alphabet)
+    i_g, i_s = remove_infinite_loops(result.grammar, result.start_symbol)
+    i_p = earleyparser.EarleyParser(i_g)
+    i_f = fuzzer.LimitFuzzer(i_g)
 
-    # We measure precision and recall over random strings up to length 8.
-    # Using the DFA&#x27;s accepts() method avoids fuzzing through dead states
-    # in the inferred grammar (which would loop LimitFuzzer).
-    # Precision: of strings the DFA accepts, what fraction does the target accept?
-    # Recall:    of strings the target accepts (from target fuzzer), what
-    #            fraction does the DFA accept?
     lgi = lgi_lgb = lgb = lgb_lgi = 0
-    random.seed(0)
-    for _ in range(200):
-        length = random.randint(0, 8)
-        val = &#x27;&#x27;.join(random.choice(alphabet) for _ in range(length))
-        dfa_ans = result.accepts(val)
-        tgt_ans = teacher.is_member(val)
-        if dfa_ans:
-            lgi_lgb += tgt_ans   # DFA accepted: did target agree?
-            lgi += 1
-        if tgt_ans:
-            lgb_lgi += dfa_ans   # target accepted: did DFA agree?
-            lgb += 1
+    for _ in range(100):
+        val = i_f.iter_fuzz(key=i_s, max_depth=100)
+        if match(teacher.parser, t_s, val): lgi_lgb += 1
+        lgi += 1
+
+        val = t_f.iter_fuzz(key=t_s, max_depth=100)
+        if match(i_p, i_s, val): lgb_lgi += 1
+        lgb += 1
 
     precision = lgi_lgb / lgi if lgi else 1.0
     recall    = lgb_lgi / lgb if lgb else 1.0
-    if (precision + recall):
-        f1 = 2 * precision * recall / (precision + recall)
-    else:
-        f1 = 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
     print(&#x27;expr: %-20s  precision: %.2f  recall: %.2f  F1: %.2f&#x27;
           % (e, precision, recall, f1))
 </textarea><br />
@@ -1743,7 +1802,7 @@ for e, alphabet in cases:
 | Counterexample processing | Add all $$ k $$ suffixes | Binary search for 1 suffix (Rivest-Schapire) |
 | Prefix transformation | No | Yes (minimal access sequences, TTT) |
 | Discriminator finalization | No | Yes (shallow DT, TTT) |
-| Redundant queries | Many | None by construction |
+| Redundant queries | Many | None: the DT structure prevents re-querying known distinctions |
 | Closedness check | Explicit global scan | Lazy, local (open transitions) |
 | Consistency check | Explicit global scan | Structurally prevented by DT |
 
