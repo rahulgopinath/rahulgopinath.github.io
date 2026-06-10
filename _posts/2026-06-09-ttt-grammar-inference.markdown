@@ -560,87 +560,19 @@ def sift(root, w, oracle):
 <div name='python_canvas'></div>
 </form>
 We also add a helper to render a DT as a Graphviz dot diagram.
-Inner nodes show their discriminator; leaves show the state name.
+Inner nodes show their discriminator suffix; leaves show the state name.
 Left edges (membership query returned False) are labelled "no";
 right edges (True) are labelled "yes".
+An empty discriminator is shown as ε (epsilon), meaning the string itself
+is queried directly with nothing appended.
+An optional `tracer` argument (a DTTracer, defined below) colours the
+recorded sift path blue.
 
 <!--
 ############
-def dt_to_dot(root, name='DT'):
-    lines = ['digraph %s {' % name,
-             '  rankdir=TB;',
-             '  node [shape = rectangle];']
-    counter = [0]
-    def node_id():
-        counter[0] += 1
-        return 'n%d' % counter[0]
-    def walk(node, nid):
-        if node.is_leaf():
-            lines.append('  %s [shape = ellipse, label = "%s"];' % (nid, node.state))
-        else:
-            disc = node.discriminator if node.discriminator != '' else '(empty)'
-            lines.append('  %s [label = "d: %s"];' % (nid, disc))
-            left_id  = node_id()
-            right_id = node_id()
-            walk(node.left,  left_id)
-            walk(node.right, right_id)
-            lines.append('  %s -> %s [label = "no"];'  % (nid, left_id))
-            lines.append('  %s -> %s [label = "yes"];' % (nid, right_id))
-    root_id = node_id()
-    walk(root, root_id)
-    lines.append('}')
-    return '\n'.join(lines)
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-def dt_to_dot(root, name=&#x27;DT&#x27;):
-    lines = [&#x27;digraph %s {&#x27; % name,
-             &#x27;  rankdir=TB;&#x27;,
-             &#x27;  node [shape = rectangle];&#x27;]
-    counter = [0]
-    def node_id():
-        counter[0] += 1
-        return &#x27;n%d&#x27; % counter[0]
-    def walk(node, nid):
-        if node.is_leaf():
-            lines.append(&#x27;  %s [shape = ellipse, label = &quot;%s&quot;];&#x27; % (nid, node.state))
-        else:
-            disc = node.discriminator if node.discriminator != &#x27;&#x27; else &#x27;(empty)&#x27;
-            lines.append(&#x27;  %s [label = &quot;d: %s&quot;];&#x27; % (nid, disc))
-            left_id  = node_id()
-            right_id = node_id()
-            walk(node.left,  left_id)
-            walk(node.right, right_id)
-            lines.append(&#x27;  %s -&gt; %s [label = &quot;no&quot;];&#x27;  % (nid, left_id))
-            lines.append(&#x27;  %s -&gt; %s [label = &quot;yes&quot;];&#x27; % (nid, right_id))
-    root_id = node_id()
-    walk(root, root_id)
-    lines.append(&#x27;}&#x27;)
-    return &#x27;\n&#x27;.join(lines)
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-To show a sift path through the DT, we add a variant that accepts a string
-`w` and an oracle, walks the tree collecting the visited node ids and edges,
-and colours them blue in the rendered diagram.
-
-<!--
-############
-def dt_to_dot_path(root, w, oracle, name='DT'):
-    # First pass: record which DT nodes lie on the sift path for string w.
-    path_nodes = set()
-    path_edges = set()  # (id(parent), id(child))
-    node = root
-    while not node.is_leaf():
-        path_nodes.add(id(node))
-        child = node.right if oracle.is_member(w + node.discriminator) else node.left
-        path_edges.add((id(node), id(child)))
-        node = child
-    path_nodes.add(id(node))
-    # Second pass: emit dot, colouring nodes/edges on the path blue.
+def dt_to_dot(root, name='DT', tracer=None):
+    path_nodes = tracer.path_nodes if tracer else set()
+    path_edges = tracer.path_edges if tracer else set()
     lines = ['digraph %s {' % name, '  rankdir=TB;', '  node [shape = rectangle];']
     counter = [0]
     def node_id():
@@ -655,7 +587,7 @@ def dt_to_dot_path(root, w, oracle, name='DT'):
             if on_path: attrs = blue(attrs)
             lines.append('  %s [%s];' % (nid, attrs))
         else:
-            disc = node.discriminator if node.discriminator != '' else '(empty)'
+            disc = node.discriminator if node.discriminator != '' else 'ε'
             attrs = 'label = "d: %s"' % disc
             if on_path: attrs = blue(attrs)
             lines.append('  %s [%s];' % (nid, attrs))
@@ -665,8 +597,10 @@ def dt_to_dot_path(root, w, oracle, name='DT'):
             walk(node.right, right_id)
             no_attrs  = 'label = "no"'
             yes_attrs = 'label = "yes"'
-            if (id(node), id(node.left))  in path_edges: no_attrs  += ', color=blue, fontcolor=blue, penwidth=2'
-            if (id(node), id(node.right)) in path_edges: yes_attrs += ', color=blue, fontcolor=blue, penwidth=2'
+            if (id(node), id(node.left))  in path_edges:
+                no_attrs  += ', color=blue, fontcolor=blue, penwidth=2'
+            if (id(node), id(node.right)) in path_edges:
+                yes_attrs += ', color=blue, fontcolor=blue, penwidth=2'
             lines.append('  %s -> %s [%s];' % (nid, left_id,  no_attrs))
             lines.append('  %s -> %s [%s];' % (nid, right_id, yes_attrs))
     walk(root, node_id())
@@ -677,18 +611,9 @@ def dt_to_dot_path(root, w, oracle, name='DT'):
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-def dt_to_dot_path(root, w, oracle, name=&#x27;DT&#x27;):
-    # First pass: record which DT nodes lie on the sift path for string w.
-    path_nodes = set()
-    path_edges = set()  # (id(parent), id(child))
-    node = root
-    while not node.is_leaf():
-        path_nodes.add(id(node))
-        child = node.right if oracle.is_member(w + node.discriminator) else node.left
-        path_edges.add((id(node), id(child)))
-        node = child
-    path_nodes.add(id(node))
-    # Second pass: emit dot, colouring nodes/edges on the path blue.
+def dt_to_dot(root, name=&#x27;DT&#x27;, tracer=None):
+    path_nodes = tracer.path_nodes if tracer else set()
+    path_edges = tracer.path_edges if tracer else set()
     lines = [&#x27;digraph %s {&#x27; % name, &#x27;  rankdir=TB;&#x27;, &#x27;  node [shape = rectangle];&#x27;]
     counter = [0]
     def node_id():
@@ -703,7 +628,7 @@ def dt_to_dot_path(root, w, oracle, name=&#x27;DT&#x27;):
             if on_path: attrs = blue(attrs)
             lines.append(&#x27;  %s [%s];&#x27; % (nid, attrs))
         else:
-            disc = node.discriminator if node.discriminator != &#x27;&#x27; else &#x27;(empty)&#x27;
+            disc = node.discriminator if node.discriminator != &#x27;&#x27; else &#x27;ε&#x27;
             attrs = &#x27;label = &quot;d: %s&quot;&#x27; % disc
             if on_path: attrs = blue(attrs)
             lines.append(&#x27;  %s [%s];&#x27; % (nid, attrs))
@@ -713,8 +638,10 @@ def dt_to_dot_path(root, w, oracle, name=&#x27;DT&#x27;):
             walk(node.right, right_id)
             no_attrs  = &#x27;label = &quot;no&quot;&#x27;
             yes_attrs = &#x27;label = &quot;yes&quot;&#x27;
-            if (id(node), id(node.left))  in path_edges: no_attrs  += &#x27;, color=blue, fontcolor=blue, penwidth=2&#x27;
-            if (id(node), id(node.right)) in path_edges: yes_attrs += &#x27;, color=blue, fontcolor=blue, penwidth=2&#x27;
+            if (id(node), id(node.left))  in path_edges:
+                no_attrs  += &#x27;, color=blue, fontcolor=blue, penwidth=2&#x27;
+            if (id(node), id(node.right)) in path_edges:
+                yes_attrs += &#x27;, color=blue, fontcolor=blue, penwidth=2&#x27;
             lines.append(&#x27;  %s -&gt; %s [%s];&#x27; % (nid, left_id,  no_attrs))
             lines.append(&#x27;  %s -&gt; %s [%s];&#x27; % (nid, right_id, yes_attrs))
     walk(root, node_id())
@@ -724,8 +651,101 @@ def dt_to_dot_path(root, w, oracle, name=&#x27;DT&#x27;):
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+`DTTracer` wraps a real DT node and records every step taken during a sift.
+It proxies `is_leaf`, `discriminator`, `left`, `right`, and `state` to the
+wrapped node, but intercepts the `left`/`right` accesses to record which
+edge was taken. After `sift(DTTracer(root), w, oracle)` returns, the tracer
+holds `path_nodes` and `path_edges` as sets of `id()`s referencing the
+*unwrapped* nodes, so they match what `dt_to_dot` sees.
+
+<!--
+############
+class DTTracer:
+    def __init__(self, node):
+        self._node = node
+        self.path_nodes = set()
+        self.path_edges = set()
+
+    def is_leaf(self):
+        self.path_nodes.add(id(self._node))
+        return self._node.is_leaf()
+
+    @property
+    def discriminator(self):
+        return self._node.discriminator
+
+    @property
+    def state(self):
+        return self._node.state
+
+    @property
+    def left(self):
+        child = self._node.left
+        self.path_edges.add((id(self._node), id(child)))
+        return DTTracer._transfer(self, child)
+
+    @property
+    def right(self):
+        child = self._node.right
+        self.path_edges.add((id(self._node), id(child)))
+        return DTTracer._transfer(self, child)
+
+    @staticmethod
+    def _transfer(tracer, node):
+        # Return a new DTTracer for the child that shares the same recording sets.
+        t = DTTracer(node)
+        t.path_nodes = tracer.path_nodes
+        t.path_edges = tracer.path_edges
+        return t
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+class DTTracer:
+    def __init__(self, node):
+        self._node = node
+        self.path_nodes = set()
+        self.path_edges = set()
+
+    def is_leaf(self):
+        self.path_nodes.add(id(self._node))
+        return self._node.is_leaf()
+
+    @property
+    def discriminator(self):
+        return self._node.discriminator
+
+    @property
+    def state(self):
+        return self._node.state
+
+    @property
+    def left(self):
+        child = self._node.left
+        self.path_edges.add((id(self._node), id(child)))
+        return DTTracer._transfer(self, child)
+
+    @property
+    def right(self):
+        child = self._node.right
+        self.path_edges.add((id(self._node), id(child)))
+        return DTTracer._transfer(self, child)
+
+    @staticmethod
+    def _transfer(tracer, node):
+        # Return a new DTTracer for the child that shares the same recording sets.
+        t = DTTracer(node)
+        t.path_nodes = tracer.path_nodes
+        t.path_edges = tracer.path_edges
+        return t
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 We test sifting on the even-a's example: the DT has one discriminator
 (the empty string) that separates even-a states from odd-a states.
+
 single leaf: everything maps to start
 
 <!--
@@ -749,7 +769,7 @@ __canvas__(dt_to_dot(dt, &#x27;DT_single&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-two-level tree:  [''] / <1> (odd) \ <start> (even)
+two-level tree:  `[''] / <1> (odd) \ <start> (even)`
 
 <!--
 ############
@@ -782,13 +802,17 @@ Sifting `'a'` (odd a's) goes left to `<1>`; sifting `'aa'` (even a's) goes right
 
 <!--
 ############
-__canvas__(dt_to_dot_path(dt, 'a',  oracle, 'DT_sift_a'))
+_tr = DTTracer(dt)
+sift(_tr, 'a', oracle)
+__canvas__(dt_to_dot(dt, 'DT_sift_a', tracer=_tr))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dt_to_dot_path(dt, &#x27;a&#x27;,  oracle, &#x27;DT_sift_a&#x27;))
+_tr = DTTracer(dt)
+sift(_tr, &#x27;a&#x27;, oracle)
+__canvas__(dt_to_dot(dt, &#x27;DT_sift_a&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -797,13 +821,119 @@ Sifting `'aa'` goes right.
 
 <!--
 ############
-__canvas__(dt_to_dot_path(dt, 'aa', oracle, 'DT_sift_aa'))
+_tr = DTTracer(dt)
+sift(_tr, 'aa', oracle)
+__canvas__(dt_to_dot(dt, 'DT_sift_aa', tracer=_tr))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dt_to_dot_path(dt, &#x27;aa&#x27;, oracle, &#x27;DT_sift_aa&#x27;))
+_tr = DTTracer(dt)
+sift(_tr, &#x27;aa&#x27;, oracle)
+__canvas__(dt_to_dot(dt, &#x27;DT_sift_aa&#x27;, tracer=_tr))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+The even-a's DT always uses ε as its discriminator because membership of
+the access sequence alone is enough to tell states apart. Most targets
+produce non-empty discriminators. Consider strings over `{a, b}` that end
+in `ba`. After two counterexamples the DT has two levels: the root asks
+`member(w + 'a')` (discriminator `'a'`), and the left subtree then asks
+`member(w + ε)` to separate `<start>` from the accepting state `<2>`.
+
+<!--
+############
+oracle_ba = MockOracle(lambda w: w.endswith('ba'))
+# three-state DT for (a|b)*ba:
+#   root:  d='a'  -> right: <1> (state after reading 'b', access='b')
+#                 -> left:  d=ε -> left:  <start>  (rejects ε)
+#                                -> right: <2>     (accepts ε, i.e. ends in ba)
+dt_ba = DTInner('a')
+dt_ba.right = DTLeaf('<1>')
+dt_ba_left  = DTInner('')
+dt_ba_left.left  = DTLeaf('<start>')
+dt_ba_left.right = DTLeaf('<2>')
+dt_ba.left = dt_ba_left
+__canvas__(dt_to_dot(dt_ba, 'DT_ends_ba'))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+oracle_ba = MockOracle(lambda w: w.endswith(&#x27;ba&#x27;))
+# three-state DT for (a|b)*ba:
+#   root:  d=&#x27;a&#x27;  -&gt; right: &lt;1&gt; (state after reading &#x27;b&#x27;, access=&#x27;b&#x27;)
+#                 -&gt; left:  d=ε -&gt; left:  &lt;start&gt;  (rejects ε)
+#                                -&gt; right: &lt;2&gt;     (accepts ε, i.e. ends in ba)
+dt_ba = DTInner(&#x27;a&#x27;)
+dt_ba.right = DTLeaf(&#x27;&lt;1&gt;&#x27;)
+dt_ba_left  = DTInner(&#x27;&#x27;)
+dt_ba_left.left  = DTLeaf(&#x27;&lt;start&gt;&#x27;)
+dt_ba_left.right = DTLeaf(&#x27;&lt;2&gt;&#x27;)
+dt_ba.left = dt_ba_left
+__canvas__(dt_to_dot(dt_ba, &#x27;DT_ends_ba&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Sifting `'b'` (access of `<1>`): `member('b'+'a')` = `member('ba')` = True
+so go right -> leaf `<1>`.
+
+<!--
+############
+_tr = DTTracer(dt_ba)
+sift(_tr, 'b', oracle_ba)
+__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_b', tracer=_tr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+_tr = DTTracer(dt_ba)
+sift(_tr, &#x27;b&#x27;, oracle_ba)
+__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_b&#x27;, tracer=_tr))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Sifting `'ba'` (access of `<2>`): `member('ba'+'a')` = `member('baa')` = False
+so go left; then `member('ba'+ε)` = `member('ba')` = True -> go right -> leaf `<2>`.
+
+<!--
+############
+_tr = DTTracer(dt_ba)
+sift(_tr, 'ba', oracle_ba)
+__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_ba', tracer=_tr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+_tr = DTTracer(dt_ba)
+sift(_tr, &#x27;ba&#x27;, oracle_ba)
+__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_ba&#x27;, tracer=_tr))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Sifting `''` (access of `<start>`): `member(''+a)` = `member('a')` = False
+so go left; then `member(''+ε)` = `member('')` = False -> go left -> leaf `<start>`.
+
+<!--
+############
+_tr = DTTracer(dt_ba)
+sift(_tr, '', oracle_ba)
+__canvas__(dt_to_dot(dt_ba, 'DT_sift_ba_empty', tracer=_tr))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+_tr = DTTracer(dt_ba)
+sift(_tr, &#x27;&#x27;, oracle_ba)
+__canvas__(dt_to_dot(dt_ba, &#x27;DT_sift_ba_empty&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -962,7 +1092,9 @@ _oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
 _dt_walk = DTInner('')
 _dt_walk.left  = DTLeaf('<1>')
 _dt_walk.right = DTLeaf('<start>')
-__canvas__(dt_to_dot_path(_dt_walk, 'a', _oracle_ea, 'sift_start_a'))
+_tr = DTTracer(_dt_walk)
+sift(_tr, 'a', _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, 'sift_start_a', tracer=_tr))
 
 ############
 -->
@@ -972,7 +1104,9 @@ _oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
 _dt_walk = DTInner(&#x27;&#x27;)
 _dt_walk.left  = DTLeaf(&#x27;&lt;1&gt;&#x27;)
 _dt_walk.right = DTLeaf(&#x27;&lt;start&gt;&#x27;)
-__canvas__(dt_to_dot_path(_dt_walk, &#x27;a&#x27;, _oracle_ea, &#x27;sift_start_a&#x27;))
+_tr = DTTracer(_dt_walk)
+sift(_tr, &#x27;a&#x27;, _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_a&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -983,13 +1117,17 @@ So `<start> -b-> <start>`.
 
 <!--
 ############
-__canvas__(dt_to_dot_path(_dt_walk, 'b', _oracle_ea, 'sift_start_b'))
+_tr = DTTracer(_dt_walk)
+sift(_tr, 'b', _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, 'sift_start_b', tracer=_tr))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dt_to_dot_path(_dt_walk, &#x27;b&#x27;, _oracle_ea, &#x27;sift_start_b&#x27;))
+_tr = DTTracer(_dt_walk)
+sift(_tr, &#x27;b&#x27;, _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_b&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1000,13 +1138,17 @@ So `<1> -a-> <start>`.
 
 <!--
 ############
-__canvas__(dt_to_dot_path(_dt_walk, 'aa', _oracle_ea, 'sift_1_a'))
+_tr = DTTracer(_dt_walk)
+sift(_tr, 'aa', _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, 'sift_1_a', tracer=_tr))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dt_to_dot_path(_dt_walk, &#x27;aa&#x27;, _oracle_ea, &#x27;sift_1_a&#x27;))
+_tr = DTTracer(_dt_walk)
+sift(_tr, &#x27;aa&#x27;, _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_1_a&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1017,13 +1159,17 @@ So `<1> -b-> <1>`.
 
 <!--
 ############
-__canvas__(dt_to_dot_path(_dt_walk, 'ab', _oracle_ea, 'sift_1_b'))
+_tr = DTTracer(_dt_walk)
+sift(_tr, 'ab', _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, 'sift_1_b', tracer=_tr))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
-__canvas__(dt_to_dot_path(_dt_walk, &#x27;ab&#x27;, _oracle_ea, &#x27;sift_1_b&#x27;))
+_tr = DTTracer(_dt_walk)
+sift(_tr, &#x27;ab&#x27;, _oracle_ea)
+__canvas__(dt_to_dot(_dt_walk, &#x27;sift_1_b&#x27;, tracer=_tr))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
