@@ -15,6 +15,23 @@
 # interpreter is embedded so that you can work through the implementation
 # steps.
 # 
+# Why learn an input language?
+# 
+# Suppose you are given a piece of software. For example,  a network protocol
+# implementation, a parser, or a security filter. You want to understand what
+# inputs it accepts. You have no access to the source code, and can only run it
+# and observe whether it accepts or rejects a given input.
+# This is the blackbox setting.
+# 
+# A naive answer is to try to test it exhaustively. But the set of all strings
+# accepted by even simple grammars is infinite.
+# A better approach is to infer a finite model, that is a DFA, that captures the
+# input behaviour exactly. Such a model is useful on its own. You can inspect
+# it, verify properties, generate tests from it, or compare it against a
+# specification to find discrepancies.
+# Active automata learning is the discipline of constructing this model
+# efficiently, using as few queries as possible.
+#  
 # In my [previous post](/post/2024/01/04/lstar-learning-regular-languages/),
 # I implemented Angluin's L* algorithm for learning regular languages from
 # a blackbox oracle. L* uses a flat observation table to track state
@@ -63,9 +80,8 @@
 # * _Spanning tree_: a mapping from each known state to its access sequence.
 #   In this implementation we use a dict (called State Table) rather than
 #   a tree.
-# * _Open transition_: a transition from state $$ q $$ on symbol $$ a $$ whose
-#   target state has no access sequence yet, meaning TTT has not yet
-#   determined which state it leads to.
+# * _Open transition_: a transition from state $$ q $$ on symbol $$ a $$ that
+#   has not yet been sifted to determine its target state.
 # * _Counterexample decomposition_: the process of finding the split point
 #   in a counterexample, extracting a new discriminator, and splitting a
 #   leaf in the DT.
@@ -73,7 +89,7 @@
 # ## Prerequisites
 # 
 # We use the `Teacher` and `Oracle` from the L* post unchanged.
-# The rest of the algorithm is independent of L*
+# The rest of the algorithm is independent of L*.
 
 #@
 # https://rahul.gopinath.org/py/simplefuzzer-0.0.1-py2.py3-none-any.whl
@@ -167,10 +183,8 @@ class DFA:
         return key
 
 
-# We also add a `run()` method which returns the state reached after consuming
-# a string, and `ensure_state()` which registers a state in the grammar
-# without allocating a new key, which is needed when manually constructing DFAs
-# in tests and when `close_transitions` (defined later) discovers states from the DT.
+# We also add `run()`, which returns the state reached after consuming a string,
+# and `accepts()`, which checks whether that state is an accepting state.
 
 class DFA(DFA):
     def run(self, string):
@@ -278,6 +292,7 @@ class MockOracle(lstar.Oracle):
 # arbitrary string $$ w $$, the same node asks whether $$ w + discriminator $$
 # is accepted, and routes right on True, left on False. The direction encodes
 # agreement with the oracle, not acceptance of $$ w $$ itself.
+# 
 # We mutate in place because other nodes in the tree already
 # hold references to this object; replacing it with a new object would leave
 # those references stale. The `split` method (called `split_leaf` in TTT
@@ -307,7 +322,7 @@ class DTNode:
         self.state, self.discriminator = None, discriminator
         return old_child, new_child
 
-# ## The Spanning Tree
+# ## The State Table
 # 
 # Each state in the hypothesis has an *access sequence*: the shortest known
 # string that reaches it from `<start>`. The TTT paper calls this structure
@@ -617,7 +632,7 @@ def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
 # Closing sifts `reach(<start>) + 'a'` = `'a'` and `reach(<start>) + 'b'` = `'b'`
 # through the single-leaf DT. Both land on `<start>`, so both transitions
 # point back to `<start>` -- the hypothesis says everything loops.
-# We visualise the DT, spanning tree, and resulting DFA at this stage.
+# We visualise the DT and the resulting DFA at this stage.
 #  
 # DFA before the split.
 
@@ -670,9 +685,10 @@ if __name__ == '__main__':
 # In the even-a's example, the initial DT has a single leaf `<start>`. Every
 # transition sifted during `build_hypothesis` therefore landed on that leaf,
 # so every transition is stale after the first split. After splitting on `''`
-# and registering `<1>` (the odd-a's state), all transitions are removed and
-# re-sifted through the two-node DT. `<start> -a-> <start>` becomes
-# `<start> -a-> <1>`; the rest route to the same state as before.
+# and registering `<1>` (the odd-a's state, called `<odd>` in earlier examples),
+# all transitions are removed and re-sifted through the two-node DT.
+# `<start> -a-> <start>` becomes `<start> -a-> <1>`; the rest route to the
+# same state as before.
 
 # `update_hypothesis` is called after a leaf split. It pops the stale
 # transitions from `leaf_index`, removes them from the DFA, then re-closes
@@ -850,7 +866,7 @@ if __name__ == '__main__':
     assert d == ''
     # 'ba' can be shortened to 'a'
     # reach('<start>') + 'a' = 'a'   -> False (odd)
-    # reach('<1>') + + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
+    # reach('<1>') + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
     d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
     assert d == 'a'
 
@@ -1115,18 +1131,6 @@ if __name__ == '__main__':
 # minimization pass afterward. In practice this is a minor concern: the PAC
 # oracle is unlikely to produce false counterexamples with reasonable
 # parameters, and the language accepted by the DFA is unaffected either way.
-
-# ## DT Coherence After Split
-# 
-# After `DTNode.split` turns a leaf into an inner node, some transitions in the
-# hypothesis that targeted the old leaf are now stale, because the DT now
-# routes some of those strings to the new child instead.
-# 
-# The incremental strategy finds exactly those stale transitions via
-# `leaf_index.pop(split_id)`, removes them from the DFA, and re-sifts only them.
-# Every other transition remains valid and costs no queries. New states discovered
-# during re-sifting are registered and their own transitions are closed in the
-# same pass.
 
 # ## The Main Loop
 # 
