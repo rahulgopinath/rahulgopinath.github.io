@@ -580,6 +580,12 @@ class StateTable:
     def reach(self, state):
         return self._reach[state]
 
+    def is_reachable(self, state):
+        return state in self._reach
+
+    def states(self):
+        return list(self._reach.keys())
+
 ############
 -->
 <form name='python_run_form'>
@@ -593,6 +599,12 @@ class StateTable:
 
     def reach(self, state):
         return self._reach[state]
+
+    def is_reachable(self, state):
+        return state in self._reach
+
+    def states(self):
+        return list(self._reach.keys())
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1168,7 +1180,7 @@ visible to callers; `update_hypothesis` reads it to find stale transitions.
 <!--
 ############
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
-    states = list(st._reach.keys())
+    states = st.states()
     i = 0
     while i < len(states):
         state = states[i]
@@ -1178,7 +1190,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
             if not is_open(dfa, state, char): continue
             target_leaf = sift(dt, st.reach(state) + char, oracle)
             target_state = target_leaf.state
-            if target_state not in st._reach:
+            if not st.is_reachable(target_state):
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
@@ -1192,7 +1204,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
-    states = list(st._reach.keys())
+    states = st.states()
     i = 0
     while i &lt; len(states):
         state = states[i]
@@ -1202,7 +1214,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
             if not is_open(dfa, state, char): continue
             target_leaf = sift(dt, st.reach(state) + char, oracle)
             target_state = target_leaf.state
-            if target_state not in st._reach:
+            if not st.is_reachable(target_state):
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
@@ -1221,7 +1233,7 @@ is an accepting state.
 <!--
 ############
 def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
-    for state in list(st._reach.keys()):
+    for state in st.states():
         dfa.ensure_state(state)
         if oracle.is_member(st.reach(state)):
             dfa.set_accepting(state)
@@ -1232,7 +1244,7 @@ def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
-    for state in list(st._reach.keys()):
+    for state in st.states():
         dfa.ensure_state(state)
         if oracle.is_member(st.reach(state)):
             dfa.set_accepting(state)
@@ -2014,7 +2026,7 @@ st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
 build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'], leaf_index_cl)
-print('step 1 states:', list(st_cl._reach.keys()))
+print('step 1 states:', st_cl.states())
 __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
 
 ############
@@ -2027,7 +2039,7 @@ st_cl = StateTable()
 dfa_cl = DFA()
 leaf_index_cl = {}
 build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_cl)
-print(&#x27;step 1 states:&#x27;, list(st_cl._reach.keys()))
+print(&#x27;step 1 states:&#x27;, st_cl.states())
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step1&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2061,7 +2073,7 @@ worklist and its transitions are closed immediately. Worklist grows from
 new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba', leaf_index_cl)
 update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
                   leaf_index_cl, split_id, new_s1)
-print('step 2 states:', list(st_cl._reach.keys()), '  new state:', new_s1)
+print('step 2 states:', st_cl.states(), '  new state:', new_s1)
 __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 
 ############
@@ -2071,7 +2083,7 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, &#x27;ba&#x27;, leaf_index_cl)
 update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;],
                   leaf_index_cl, split_id, new_s1)
-print(&#x27;step 2 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s1)
+print(&#x27;step 2 states:&#x27;, st_cl.states(), &#x27;  new state:&#x27;, new_s1)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step2&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2143,7 +2155,7 @@ After `update_hypothesis` finishes, all three states are wired up.
 ############
 update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
                   leaf_index_cl, split_id, new_s2)
-print('step 3 states:', list(st_cl._reach.keys()), '  new state:', new_s2)
+print('step 3 states:', st_cl.states(), '  new state:', new_s2)
 __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 
 ############
@@ -2152,7 +2164,7 @@ __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 <textarea cols="40" rows="4" name='python_edit'>
 update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, [&#x27;a&#x27;, &#x27;b&#x27;],
                   leaf_index_cl, split_id, new_s2)
-print(&#x27;step 3 states:&#x27;, list(st_cl._reach.keys()), &#x27;  new state:&#x27;, new_s2)
+print(&#x27;step 3 states:&#x27;, st_cl.states(), &#x27;  new state:&#x27;, new_s2)
 __canvas__(dt_to_dot(dt_cl, &#x27;cl_dt_step3&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>

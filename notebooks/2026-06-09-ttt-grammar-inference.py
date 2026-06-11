@@ -330,6 +330,12 @@ class StateTable:
     def reach(self, state):
         return self._reach[state]
 
+    def is_reachable(self, state):
+        return state in self._reach
+
+    def states(self):
+        return list(self._reach.keys())
+
 # We test the node types before proceeding.
 
 if __name__ == '__main__':
@@ -610,7 +616,7 @@ def is_open(dfa, state, char):
 # visible to callers; `update_hypothesis` reads it to find stale transitions.
 
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
-    states = list(st._reach.keys())
+    states = st.states()
     i = 0
     while i < len(states):
         state = states[i]
@@ -620,7 +626,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
             if not is_open(dfa, state, char): continue
             target_leaf = sift(dt, st.reach(state) + char, oracle)
             target_state = target_leaf.state
-            if target_state not in st._reach:
+            if not st.is_reachable(target_state):
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
@@ -634,7 +640,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
 # is an accepting state.
 
 def build_hypothesis(dfa, dt, st, oracle, alphabet, leaf_index):
-    for state in list(st._reach.keys()):
+    for state in st.states():
         dfa.ensure_state(state)
         if oracle.is_member(st.reach(state)):
             dfa.set_accepting(state)
@@ -1031,7 +1037,7 @@ if __name__ == '__main__':
     dfa_cl = DFA()
     leaf_index_cl = {}
     build_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'], leaf_index_cl)
-    print('step 1 states:', list(st_cl._reach.keys()))
+    print('step 1 states:', st_cl.states())
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step1'))
 
 # DFA after step 1: everything loops back to `<start>`.
@@ -1051,7 +1057,7 @@ if __name__ == '__main__':
     new_s1, split_id = decompose(dfa_cl, dt_cl, st_cl, oracle_ba, 'ba', leaf_index_cl)
     update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
                       leaf_index_cl, split_id, new_s1)
-    print('step 2 states:', list(st_cl._reach.keys()), '  new state:', new_s1)
+    print('step 2 states:', st_cl.states(), '  new state:', new_s1)
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step2'))
 
 # DFA after step 2.
@@ -1084,7 +1090,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     update_hypothesis(dfa_cl, dt_cl, st_cl, oracle_ba, ['a', 'b'],
                       leaf_index_cl, split_id, new_s2)
-    print('step 3 states:', list(st_cl._reach.keys()), '  new state:', new_s2)
+    print('step 3 states:', st_cl.states(), '  new state:', new_s2)
     __canvas__(dt_to_dot(dt_cl, 'cl_dt_step3'))
 
 # Final DFA, with states named by the algorithm as they were discovered.
