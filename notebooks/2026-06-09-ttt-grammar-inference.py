@@ -39,6 +39,12 @@
 # counterexample arrives, all its suffixes are added as columns even though
 # most distinguish no new states.
 # 
+# TTT is the state-of-the art algorithm for regular language inference. Using
+# this algorithm, you can infer the input language of any blackbox program
+# up to its regular approximation. It is much more faster than L*, and the
+# number of membership queries it generates (that is, the number of inputs
+# it needs to test the blackbox with) is provably non-redundant.
+#  
 # Several independent contributions are incorporated in the TTT algorithm.
 # Rivest and Schapire[^rivest1993] contributed the binary search
 # counterexample analysis, which finds the single relevant suffix in a
@@ -334,8 +340,7 @@ class DTNode:
 # root collecting edge labels. TTT's prefix transformation makes traversal
 # unnecessary by storing the full access string directly against each state.
 # The tree structure is therefore implicit, and the implementation reduces to
-# a plain dict. We call the class `StateTable` to reflect what it actually is,
-# while keeping the section title for continuity with the paper.
+# a plain dict. We call the class `StateTable` to reflect what it actually is.
 
 class StateTable:
     def __init__(self, start_symbol='<start>'):
@@ -565,9 +570,9 @@ if __name__ == '__main__':
 # 
 # ## Hypothesis Construction
 # 
-# At any point during learning, we have a DT and a spanning tree. Together
+# At any point during learning, we have a DT and a state table. Together
 # they are enough to construct a complete hypothesis DFA. The states of the
-# DFA are exactly the states recorded in the spanning tree. The transitions
+# DFA are exactly the states recorded in the state table. The transitions
 # are derived by sifting: for each state $$ q $$ and each alphabet symbol
 # $$ a $$, form $$ reach(q) \cdot a $$ and sift it through the DT. The leaf
 # it lands on identifies the target state. Repeat for every $$ (q, a) $$ pair
@@ -928,7 +933,7 @@ if __name__ == '__main__':
 # one new discriminator.
 # 
 # Note: `decompose` uses hypothesis transitions only to find the split point.
-# The actual split uses $$ reach(q_i) $$ from the spanning tree, which is always
+# The actual split uses $$ reach(q_i) $$ from the state table, which is always
 # correct with respect to the target, so `decompose` is correct even if the
 # hypothesis is partially stale.
 
@@ -1020,7 +1025,7 @@ if __name__ == '__main__':
 # `close_transitions`. No states are pre-declared; they are created by
 # `dfa.new_state()` inside `decompose` as each counterexample is processed.
 # 
-# **Step 1.** Single-leaf DT, only `<start>` in the spanning tree.
+# **Step 1.** Single-leaf DT, only `<start>` in the state table.
 # `close_transitions` sifts `'' + 'a'` and `'' + 'b'`. Both land on the
 # only leaf `<start>`, so no new states are discovered.
 
