@@ -285,28 +285,24 @@ class MockOracle(lstar.Oracle):
 
 class DTNode:
     def __init__(self, state):
-        self.state = state          # non-None iff this is a leaf
-        self.discriminator = None
-        self.left  = None           # branch taken when oracle returns False
-        self.right = None           # branch taken when oracle returns True
+        self.state, self.discriminator = state, None
+        # self.right is the branch taken when oracle returns True
+        self.left, self.right = None, None
 
     def is_leaf(self):
         return self.state is not None
 
     def split(self, discriminator, new_state, oracle, st):
-        # TTT paper: splitLeaf(leaf, discriminator, new_state)
         old_state = self.state
+        self.state, self.discriminator = None, discriminator
+
+        old_child, new_child = DTNode(old_state), DTNode(new_state)
+
         old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
-        self.state = None
-        self.discriminator = discriminator
-        old_child = DTNode(old_state)
-        new_child = DTNode(new_state)
         if old_goes_right:
-            self.right = old_child
-            self.left  = new_child
+            self.left, self.right = new_child, old_child
         else:
-            self.left  = old_child
-            self.right = new_child
+            self.left, self.right  = old_child, new_child
         return old_child, new_child
 
 # ## The Spanning Tree
@@ -600,10 +596,8 @@ if __name__ == '__main__':
 # A transition is *open* if it is absent from the DFA entirely, meaning it has
 # not yet been sifted to determine its target state.
 
-def is_open(dfa, state, char, st):
-    rule = dfa.transition(state, char)
-    if rule is None: return True
-    return rule[1] not in st._reach
+def is_open(dfa, state, char):
+    return dfa.transition(state, char) is None
 
 # `close_transitions` works through all known states, sifting each open
 # transition. When sifting discovers a state not yet in the state table,
@@ -623,7 +617,7 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
         i += 1
         dfa.ensure_state(state)
         for char in alphabet:
-            if not is_open(dfa, state, char, st): continue
+            if not is_open(dfa, state, char): continue
             target_leaf = sift(dt, st.reach(state) + char, oracle)
             target_state = target_leaf.state
             if target_state not in st._reach:
