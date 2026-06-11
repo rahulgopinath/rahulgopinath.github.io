@@ -462,7 +462,7 @@ Think of it as a game of 20 questions: each inner node asks:
 and routes left (no) or right (yes). Each leaf is a known state.
 
 The discriminator suffixes at different nodes are **independent strings**
-with no relationship to each other — they play the same role as the suffix
+with no relationship to each other; they play the same role as the suffix
 columns in L*, but each counterexample adds exactly one, rather than all
 $$ k $$ suffixes of the counterexample at once.
  
@@ -481,12 +481,20 @@ discriminator. Early in learning the tree is shallow; each counterexample
 adds exactly one new inner node, splitting one existing leaf into two children.
 
 A node starts life as a leaf holding a state name. When the equivalence
-oracle returns a counterexample, `decompose` sifts the transformed prefix
-through the DT to locate the leaf whose state must be refined. That leaf is
-then *split in place*: it becomes an inner node, forgets its state name, and
-gains a discriminator and two child leaves, one for each of the two
-now-distinct states. Which child gets which state is determined by querying
-the oracle on `reach(old_state) + discriminator`.
+oracle returns a counterexample, it means the blackbox and the hypothesis DFA
+disagree on some string: two strings that reach different blackbox states are
+being routed to the same hypothesis state. `decompose` identifies which leaf
+is responsible and splits it.
+
+Splitting a leaf means it becomes an inner node: it forgets its state name,
+gains a discriminator suffix, and sprouts two child leaves, one for each of
+the two now-distinct states. Which child goes right and which goes left is
+determined by querying the oracle on `reach(old_state) + discriminator`. A
+right child means that query returned True; a left child means it returned
+False. Note that right does not mean "accepted": later, when sifting an
+arbitrary string $$ w $$, the same node asks whether $$ w + discriminator $$
+is accepted, and routes right on True, left on False. The direction encodes
+agreement with the oracle, not acceptance of $$ w $$ itself.
 We mutate in place because other nodes in the tree already
 hold references to this object; replacing it with a new object would leave
 those references stale. The `split` method (called `split_leaf` in TTT
@@ -635,7 +643,7 @@ belongs to. Each step is one membership query, so sifting costs at most
 $$ depth(DT) $$ queries, far fewer than L*'s $$ O(|suffixes|) $$.
 
 At any inner node, either child may itself be another inner node. This is
-not like a trie where deeper nodes share a common prefix with their parent —
+not like a trie where deeper nodes share a common prefix with their parent;
 the suffix at a deeper node is simply a different, independent question
 that separates states the shallower question could not. The tree gets deeper
 only when a pair of states survive all questions asked so far and a new
@@ -1168,7 +1176,7 @@ starting with one state, it may end with the full set.
 
 `leaf_index` maps `id(leaf)` to the list of `(state, char)` transitions
 that sifted to that leaf. It is passed in explicitly so its contents are
-visible to callers — `update_hypothesis` reads it to find stale transitions.
+visible to callers; `update_hypothesis` reads it to find stale transitions.
 
 <!--
 ############
