@@ -544,10 +544,12 @@ if __name__ == '__main__':
 # ## Hypothesis Construction
 # 
 # At any point during learning, we have a DT and a spanning tree. Together
-# they are enough to construct a complete hypothesis DFA. The idea is simple:
-# to find the target state of transition $$ q \xrightarrow{a} ? $$, form the
-# string $$ reach(q) \cdot a $$ and sift it through the DT. Whatever leaf it
-# lands on is the state we assign as the target.
+# they are enough to construct a complete hypothesis DFA. The states of the
+# DFA are exactly the states recorded in the spanning tree. The transitions
+# are derived by sifting: for each state $$ q $$ and each alphabet symbol
+# $$ a $$, form $$ reach(q) \cdot a $$ and sift it through the DT. The leaf
+# it lands on identifies the target state. Repeat for every $$ (q, a) $$ pair
+# and the full transition table is filled.
 # 
 # Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
 # left = `<odd>`, right = `<start>`), and spanning tree
@@ -595,11 +597,8 @@ if __name__ == '__main__':
     sift(_tr, 'ab', _oracle_ea)
     __canvas__(dt_to_dot(_dt_walk, 'sift_odd_b', tracer=_tr))
 
-# A transition is *open* if we have not yet determined its target: either the
-# transition is missing from the DFA entirely, or its recorded target has no
-# access sequence in the spanning tree. The second case arises when a sift
-# landed on a leaf whose state is not yet in the spanning tree, meaning a new
-# state was just discovered and needs to be registered.
+# A transition is *open* if it is absent from the DFA entirely, meaning it has
+# not yet been sifted to determine its target state.
 
 def is_open(dfa, state, char, st):
     rule = dfa.transition(state, char)
