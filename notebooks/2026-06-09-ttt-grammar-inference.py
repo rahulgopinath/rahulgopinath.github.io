@@ -127,6 +127,10 @@ if __name__ == '__main__':
 #   with *prefix transformation* (keeping access sequences minimal) and
 #   *discriminator finalization* (keeping the DT shallow), producing TTT.
 # 
+# The combination of a discrimination tree with a spanning tree of access
+# sequences is known as an *observation pack* [^howar2012]. This post does
+# not use that abstraction directly; we manage the two structures separately.
+# 
 # ## The DFA Representation
 # 
 # The `DFA` class is similar to the one from the
@@ -1371,6 +1375,8 @@ if __name__ == '__main__':
 # [^isbernerphd]: Malte Isberner. Foundations of Active Automata Learning: An Algorithmic Perspective. PhD Dissertation, TU Dortmund, 2015. http://129.217.131.68:8080/bitstream/2003/34282/1/Dissertation.pdf
 # 
 # [^isbernerce]: Malte Isberner and Bernhard Steffen. An Abstract Framework for Counterexample Analysis in Active Automata Learning. ICGI 2014. http://proceedings.mlr.press/v34/isberner14a.pdf
+# 
+# [^howar2012]: Falk Howar, Bernhard Steffen, and Maik Merten. Internalization of Observation Packs. ICFEM 2012.
 # 
 # [^learnlib]: Falk Howar and Bernhard Steffen. Active Automata Learning in Practice. Springer, 2022.
 # 
