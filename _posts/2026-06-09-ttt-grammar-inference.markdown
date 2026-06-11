@@ -23,21 +23,24 @@ counterexample arrives, all its suffixes are added as columns even though
 most distinguish no new states.
 
 Several independent contributions are incorporated in the TTT algorithm.
-Rivest and Schapire [^rivest1993] contributed the binary search
+Rivest and Schapire[^rivest1993] contributed the binary search
 counterexample analysis, which finds the single relevant suffix in a
 counterexample in $$ O(\log k) $$ queries (rather than $$ k $$ queries).
 The introduction of discrimination tree as a replacement for the observation
-table is due Kearns and Vazirani [^kearns1994].
+table is due Kearns and Vazirani[^kearns1994].
 
-TTT by Isberner, Howar and Steffen [^isberner2014]
+TTT by Isberner, Howar and Steffen[^isberner2014]
 adds two further refinements: *prefix transformation*,
 which keeps access sequences minimal, and *discriminator finalization*,
 which keeps the discrimination tree shallow.
 TTT is provably redundancy-free. That is, it never makes a membership query
 whose answer could have been derived from earlier queries.
 
-A notable extension is ADT [^adt], which extends TTT with adaptive
-distinguishing sequences, which can reduce resets in hardware settings.
+Language inference can also be applied to hardware. There are however,
+other considerations in such settings. For example, it may not be possible
+or even expensive to restart a system.
+ADT[^adt] is a notable extension of TTT, which uses adaptive
+distinguishing sequences, and can reduce resets in hardware settings.
 
 ## Definitions
 
@@ -455,29 +458,35 @@ Think of it as a game of 20 questions: each inner node asks:
 and routes left (no) or right (yes). Each leaf is a known state.
 
 The discriminator suffixes at different nodes are **independent strings**
-with no linguistic relationship to each other. The tree structure is not a
-trie; a parent's suffix is not a prefix of its children's suffixes, and
-there is no requirement that sibling suffixes share anything in common.
-The tree is purely a *decision structure*: each node's suffix is the
-question that splits the states reachable at that point, chosen only
-because it distinguishes some pair of states that would otherwise be merged.
-Two nodes at different depths may share a suffix, or their suffixes may be
-completely unrelated; what matters is only the binary answer at each step.
+with no relationship to each other — they play the same role as the suffix
+columns in L*, but each counterexample adds exactly one, rather than all
+$$ k $$ suffixes of the counterexample at once.
+ 
+The tree structure is not a trie; a parent's suffix is not a prefix of its
+children's suffixes, and there is no requirement that sibling suffixes share
+anything in common. The tree is purely a *decision structure*: each node's
+suffix is the question that splits the states reachable at that point, chosen
+only because it distinguishes some pair of states that would otherwise be
+merged. Two nodes at different depths may share a suffix, or their suffixes
+may be completely unrelated; what matters is only the binary answer at each
+step.
 
 Both children of an inner node can themselves be inner nodes, and the tree
-can be arbitrarily deep. A leaf appears only when we have fully classified
-a state: we know exactly which discriminator suffix distinguishes it from
-every other known state. Early in learning the tree is shallow; each
-counterexample adds exactly one new inner node, splitting one existing leaf
-into two children.
+can be arbitrarily deep. A leaf represents a known state; it has no
+discriminator. Early in learning the tree is shallow; each counterexample
+adds exactly one new inner node, splitting one existing leaf into two children.
 
-A node starts life as a leaf holding a state name. When a counterexample
-proves that two strings were wrongly merged, the leaf is *split in place*
-into an inner node: it forgets its state name and gains a discriminator and
-two children. We mutate in place because other nodes in the tree already
+A node starts life as a leaf holding a state name. When the equivalence
+oracle returns a counterexample, `decompose` sifts the transformed prefix
+through the DT to locate the leaf whose state must be refined. That leaf is
+then *split in place*: it becomes an inner node, forgets its state name, and
+gains a discriminator and two child leaves, one for each of the two
+now-distinct states. Which child gets which state is determined by querying
+the oracle on `reach(old_state) + discriminator`.
+We mutate in place because other nodes in the tree already
 hold references to this object; replacing it with a new object would leave
-those references stale. The `split` method (called `split` in the TTT paper)
-encapsulates this mutation.
+those references stale. The `split` method (called `split_leaf` in TTT
+literature) encapsulates this mutation.
 
 <!--
 ############
