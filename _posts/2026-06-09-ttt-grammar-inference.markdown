@@ -503,7 +503,11 @@ literature) encapsulates this mutation.
 <!--
 ############
 class DTNode:
+    _counter = 0
+
     def __init__(self, state):
+        DTNode._counter += 1
+        self.node_id = DTNode._counter
         self.state, self.discriminator = state, None
         # self.right is the branch taken when oracle returns True
         self.left, self.right = None, None
@@ -512,16 +516,14 @@ class DTNode:
         return self.state is not None
 
     def split(self, discriminator, new_state, oracle, st):
-        old_state = self.state
-        self.state, self.discriminator = None, discriminator
+        old_child, new_child = DTNode(self.state), DTNode(new_state)
 
-        old_child, new_child = DTNode(old_state), DTNode(new_state)
-
-        old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
-        if old_goes_right:
+        if oracle.is_member(st.reach(self.state) + discriminator):
             self.left, self.right = new_child, old_child
         else:
             self.left, self.right  = old_child, new_child
+
+        self.state, self.discriminator = None, discriminator
         return old_child, new_child
 
 ############
@@ -529,7 +531,11 @@ class DTNode:
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 class DTNode:
+    _counter = 0
+
     def __init__(self, state):
+        DTNode._counter += 1
+        self.node_id = DTNode._counter
         self.state, self.discriminator = state, None
         # self.right is the branch taken when oracle returns True
         self.left, self.right = None, None
@@ -538,16 +544,14 @@ class DTNode:
         return self.state is not None
 
     def split(self, discriminator, new_state, oracle, st):
-        old_state = self.state
-        self.state, self.discriminator = None, discriminator
+        old_child, new_child = DTNode(self.state), DTNode(new_state)
 
-        old_child, new_child = DTNode(old_state), DTNode(new_state)
-
-        old_goes_right = oracle.is_member(st.reach(old_state) + discriminator)
-        if old_goes_right:
+        if oracle.is_member(st.reach(self.state) + discriminator):
             self.left, self.right = new_child, old_child
         else:
             self.left, self.right  = old_child, new_child
+
+        self.state, self.discriminator = None, discriminator
         return old_child, new_child
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -685,7 +689,7 @@ We also add a helper to render a DT as a Graphviz dot diagram.
 Inner nodes show their discriminator suffix; leaves show the state name.
 Left edges (membership query returned False) are labelled "no";
 right edges (True) are labelled "yes".
-An empty discriminator is shown as ε (epsilon), meaning the string itself
+An empty discriminator is shown as $$\varepsilon$$ (epsilon), meaning the string itself
 is queried with nothing appended.
 An optional `tracer` argument (a `DTTracer`, defined below) colours the
 recorded sift path blue.
@@ -891,8 +895,8 @@ __canvas__(dt_to_dot(dt, &#x27;DT_single&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-**Two-level tree:** a single split on discriminator ε separates `<odd>`
-(rejects ε) from `<start>` (accepts ε, since `''` has zero a's).
+**Two-level tree:** a single split on discriminator $$\varepsilon$$ separates `<odd>`
+(rejects $$\varepsilon$$) from `<start>` (accepts $$\varepsilon$$, since `''` has zero a's).
 We start from a single-leaf DT rooted at `<start>` and split it,
 recording that `<odd>` is reached via `'a'`.
 
@@ -995,8 +999,11 @@ __canvas__(dt_to_dot(dt3, &#x27;DT_three_state&#x27;))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-Sifting `'aa'`: `member('aa'+ε)` = True, go right to inner node `d='aa'`;
-`member('aa'+'aa')` = `member('aaaa')` = True, go right to leaf `<start>`.
+Sifting `'aa'` through the three-state DT:
+
+    node d=''  : member('aa' + '') = member('aa') = True  -> go right
+    node d='aa': member('aa' + 'aa') = member('aaaa') = True -> go right
+    leaf <start>: done.
 
 <!--
 ############
@@ -1035,7 +1042,7 @@ __canvas__(dt_to_dot(dt3, &#x27;DT_sift_three_aaa&#x27;, tracer=_tr))
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-The even-a's DT uses ε as its discriminator because membership of the
+The even-a's DT uses $$ \varepsilon $$ as its discriminator because membership of the
 access sequence alone distinguishes all states. Most targets produce
 non-empty discriminators; we will see this concretely in the
 Counterexample Decomposition section and in the full worklist walkthrough.
@@ -1051,104 +1058,14 @@ it lands on identifies the target state. Repeat for every $$ (q, a) $$ pair
 and the full transition table is filled.
 
 Concretely, for the even-a's example with a two-leaf DT (discriminator `''`,
-left = `<odd>`, right = `<start>`), and spanning tree
-`{<start>: '', <odd>: 'a'}`, we sift each transition in turn.
-The blue path shows the route taken through the DT.
+left = `<odd>`, right = `<start>`), and state table
+`{<start>: '', <odd>: 'a'}`:
 
-$$ \langle start \rangle \xrightarrow{a} ? $$: sift `'' + 'a'` = `'a'`.
-Is `'a' + ''` accepted? No (odd a's), so go left; leaf `<odd>`.
-So `<start> -a-> <odd>`.
+    sift('a') : node d='': member('a' +'') = False -> left  => <start> -a-> <odd>
+    sift('b') : node d='': member('b' +'') = True  -> right => <start> -b-> <start>
+    sift('aa'): node d='': member('aa'+'') = True  -> right => <odd>   -a-> <start>
+    sift('ab'): node d='': member('ab'+'') = False -> left  => <odd>   -b-> <odd>
 
-<!--
-############
-_oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
-_dt_walk = DTNode('<start>')
-_st_walk = StateTable()
-_st_walk.add_state('<odd>', '<start>', 'a')
-_dt_walk.split('', '<odd>', _oracle_ea, _st_walk)
-_tr = DTTracer(_dt_walk)
-sift(_tr, 'a', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_start_a', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-_dt_walk = DTNode(&#x27;&lt;start&gt;&#x27;)
-_st_walk = StateTable()
-_st_walk.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
-_dt_walk.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, _oracle_ea, _st_walk)
-_tr = DTTracer(_dt_walk)
-sift(_tr, &#x27;a&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_a&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-$$ \langle start \rangle \xrightarrow{b} ? $$: sift `'' + 'b'` = `'b'`.
-Is `'b' + ''` accepted? Yes (zero a's), so go right; leaf `<start>`.
-So `<start> -b-> <start>`.
-
-<!--
-############
-_tr = DTTracer(_dt_walk)
-sift(_tr, 'b', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_start_b', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(_dt_walk)
-sift(_tr, &#x27;b&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_start_b&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-$$ \langle odd \rangle \xrightarrow{a} ? $$: sift `'a' + 'a'` = `'aa'`.
-Is `'aa' + ''` accepted? Yes (even a's), so go right; leaf `<start>`.
-So `<odd> -a-> <start>`.
-
-<!--
-############
-_tr = DTTracer(_dt_walk)
-sift(_tr, 'aa', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_odd_a', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(_dt_walk)
-sift(_tr, &#x27;aa&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_odd_a&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
-$$ \langle odd \rangle \xrightarrow{b} ? $$: sift `'a' + 'b'` = `'ab'`.
-Is `'ab' + ''` accepted? No (odd a's), so go left; leaf `<odd>`.
-So `<odd> -b-> <odd>`.
-
-<!--
-############
-_tr = DTTracer(_dt_walk)
-sift(_tr, 'ab', _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, 'sift_odd_b', tracer=_tr))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-_tr = DTTracer(_dt_walk)
-sift(_tr, &#x27;ab&#x27;, _oracle_ea)
-__canvas__(dt_to_dot(_dt_walk, &#x27;sift_odd_b&#x27;, tracer=_tr))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
 A transition is *open* if it is absent from the DFA entirely, meaning it has
 not yet been sifted to determine its target state.
 
@@ -1173,7 +1090,7 @@ that state is added and appended to the work list so its own transitions
 are processed in the same pass. This means the loop may grow as it runs:
 starting with one state, it may end with the full set.
 
-`leaf_index` maps `id(leaf)` to the list of `(state, char)` transitions
+`leaf_index` maps `leaf.node_id` to the list of `(state, char)` transitions
 that sifted to that leaf. It is passed in explicitly so its contents are
 visible to callers; `update_hypothesis` reads it to find stale transitions.
 
@@ -1181,10 +1098,8 @@ visible to callers; `update_hypothesis` reads it to find stale transitions.
 ############
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
     states = st.states()
-    i = 0
-    while i < len(states):
-        state = states[i]
-        i += 1
+    while states:
+        state, *states = states
         dfa.ensure_state(state)
         for char in alphabet:
             if not is_open(dfa, state, char): continue
@@ -1194,10 +1109,9 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
-            if dfa.transition(state, char) is None:
-                dfa.add_transition(state, char, target_state)
+            dfa.add_transition(state, char, target_state)
             # record which leaf this transition landed on, for stale detection
-            leaf_index.setdefault(id(target_leaf), []).append((state, char))
+            leaf_index.setdefault(target_leaf.node_id, []).append((state, char))
 
 ############
 -->
@@ -1205,10 +1119,8 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
 <textarea cols="40" rows="4" name='python_edit'>
 def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
     states = st.states()
-    i = 0
-    while i &lt; len(states):
-        state = states[i]
-        i += 1
+    while states:
+        state, *states = states
         dfa.ensure_state(state)
         for char in alphabet:
             if not is_open(dfa, state, char): continue
@@ -1218,10 +1130,9 @@ def close_transitions(dfa, dt, st, oracle, alphabet, leaf_index):
                 # new state discovered: register and queue for processing
                 st.add_state(target_state, state, char)
                 states.append(target_state)
-            if dfa.transition(state, char) is None:
-                dfa.add_transition(state, char, target_state)
+            dfa.add_transition(state, char, target_state)
             # record which leaf this transition landed on, for stale detection
-            leaf_index.setdefault(id(target_leaf), []).append((state, char))
+            leaf_index.setdefault(target_leaf.node_id, []).append((state, char))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1260,43 +1171,58 @@ Closing sifts `reach(<start>) + 'a'` = `'a'` and `reach(<start>) + 'b'` = `'b'`
 through the single-leaf DT. Both land on `<start>`, so both transitions
 point back to `<start>` -- the hypothesis says everything loops.
 We visualise the DT, spanning tree, and resulting DFA at this stage.
-
-<!--
-############
-oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
-dt_pre = DTNode('<start>')
-st_pre = StateTable()
-dfa_pre = DFA()
-leaf_index_pre = {}
-build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'], leaf_index_pre)
-__canvas__(dt_to_dot(dt_pre, 'DT_before_split'))
-
-############
--->
-<form name='python_run_form'>
-<textarea cols="40" rows="4" name='python_edit'>
-oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
-dt_pre = DTNode(&#x27;&lt;start&gt;&#x27;)
-st_pre = StateTable()
-dfa_pre = DFA()
-leaf_index_pre = {}
-build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_pre)
-__canvas__(dt_to_dot(dt_pre, &#x27;DT_before_split&#x27;))
-</textarea><br />
-<pre class='Output' name='python_output'></pre>
-<div name='python_canvas'></div>
-</form>
+ 
 DFA before the split.
 
 <!--
 ############
+oracle_ea = MockOracle(lambda w: w.count('a') % 2 == 0)
+dfa_pre = DFA()
 __canvas__(dfa_to_dot(dfa_pre, 'DFA_before_split'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+oracle_ea = MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0)
+dfa_pre = DFA()
 __canvas__(dfa_to_dot(dfa_pre, &#x27;DFA_before_split&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+DT before the split
+
+<!--
+############
+dt_pre = DTNode('<start>')
+__canvas__(dt_to_dot(dt_pre, 'DT_before_split'))
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+dt_pre = DTNode(&#x27;&lt;start&gt;&#x27;)
+__canvas__(dt_to_dot(dt_pre, &#x27;DT_before_split&#x27;))
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Build the hypothesis.
+
+<!--
+############
+leaf_index_pre = {}
+st_pre = StateTable()
+build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, ['a', 'b'], leaf_index_pre)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+leaf_index_pre = {}
+st_pre = StateTable()
+build_hypothesis(dfa_pre, dt_pre, st_pre, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], leaf_index_pre)
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
@@ -1312,8 +1238,6 @@ st_post = StateTable()
 st_post.add_state('<odd>', '<start>', 'a')
 dt_post = DTNode('<start>')
 dt_post.split('', '<odd>', oracle_ea, st_post)
-dfa_post = DFA()
-build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'], {})
 __canvas__(dt_to_dot(dt_post, 'DT_after_split'))
 
 ############
@@ -1324,23 +1248,25 @@ st_post = StateTable()
 st_post.add_state(&#x27;&lt;odd&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 dt_post = DTNode(&#x27;&lt;start&gt;&#x27;)
 dt_post.split(&#x27;&#x27;, &#x27;&lt;odd&gt;&#x27;, oracle_ea, st_post)
-dfa_post = DFA()
-build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], {})
 __canvas__(dt_to_dot(dt_post, &#x27;DT_after_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
-DFA after split
+DFA built from the two-leaf DT above.
 
 <!--
 ############
+dfa_post = DFA()
+build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, ['a', 'b'], {})
 __canvas__(dfa_to_dot(dfa_post, 'DFA_after_split'))
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+dfa_post = DFA()
+build_hypothesis(dfa_post, dt_post, st_post, oracle_ea, [&#x27;a&#x27;, &#x27;b&#x27;], {})
 __canvas__(dfa_to_dot(dfa_post, &#x27;DFA_after_split&#x27;))
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -1358,12 +1284,12 @@ is wasteful. Instead, `leaf_index` records exactly which `(state, char)`
 pairs were routed to each leaf. We remove only those transitions from the
 DFA and re-sift only them. Every other transition remains correct.
  
-Concretely, continuing the even-a's example: after the DT is split on `''`
-and state `<1>` is created, the stale transitions are those that sifted to
-the old single leaf -- all of them, since there was only one leaf. Each is
-removed and re-sifted through the new two-node DT. The transition
-`<start> -a-> <start>` becomes `<start> -a-> <1>`, and all others stay the
-same. We show the DFA before and after the update.
+In the even-a's example, the initial DT has a single leaf `<start>`. Every
+transition sifted during `build_hypothesis` therefore landed on that leaf,
+so every transition is stale after the first split. After splitting on `''`
+and registering `<1>` (the odd-a's state), all transitions are removed and
+re-sifted through the two-node DT. `<start> -a-> <start>` becomes
+`<start> -a-> <1>`; the rest route to the same state as before.
 `update_hypothesis` is called after a leaf split. It pops the stale
 transitions from `leaf_index`, removes them from the DFA, then re-closes
 to re-sift only those transitions plus the new state's open transitions.
@@ -1564,7 +1490,7 @@ Split the DT: add state `<1>` reached via `'a'`, then split the `<start>` leaf.
 st_stale.add_state('<1>', '<start>', 'a')
 # sift finds the current leaf for <start>; capture its id before mutating
 start_leaf = sift(dt_stale, st_stale.reach('<start>'), MockOracle(lambda w: w.count('a') % 2 == 0))
-split_id = id(start_leaf)
+split_id = start_leaf.node_id
 start_leaf.split('', '<1>', oracle_ea, st_stale)
 __canvas__(dt_to_dot(dt_stale, 'DT_after_split2'))
 
@@ -1575,7 +1501,7 @@ __canvas__(dt_to_dot(dt_stale, 'DT_after_split2'))
 st_stale.add_state(&#x27;&lt;1&gt;&#x27;, &#x27;&lt;start&gt;&#x27;, &#x27;a&#x27;)
 # sift finds the current leaf for &lt;start&gt;; capture its id before mutating
 start_leaf = sift(dt_stale, st_stale.reach(&#x27;&lt;start&gt;&#x27;), MockOracle(lambda w: w.count(&#x27;a&#x27;) % 2 == 0))
-split_id = id(start_leaf)
+split_id = start_leaf.node_id
 start_leaf.split(&#x27;&#x27;, &#x27;&lt;1&gt;&#x27;, oracle_ea, st_stale)
 __canvas__(dt_to_dot(dt_stale, &#x27;DT_after_split2&#x27;))
 </textarea><br />
@@ -1629,9 +1555,17 @@ necessary. A shorter suffix of $$ ce[i+1:] $$ may distinguish the two
 states just as well. Keeping discriminators short keeps the DT shallow,
 which reduces sifting costs in all future iterations.
 
-We try suffixes from shortest to longest, stopping at the first one that
-distinguishes the two states.
-Once a candidate fails, all shorter suffixes will also fail, so we stop early.
+A suffix $$ d $$ *distinguishes* two states when appending it to their
+access sequences gives different membership answers:
+`oracle(reach(old_state) + d) != oracle(reach(new_state) + d)`.
+This means the two states respond differently to $$ d $$, so they cannot
+be the same state in the target.
+
+Starting from the full suffix $$ ce[i+1:] $$, we try progressively shorter
+suffixes (by advancing the start index). We keep shrinking as long as the
+shorter suffix still distinguishes the two states. The moment a candidate
+fails to distinguish them, no further shortening can help, so we stop and
+return the shortest distinguishing suffix found so far.
 
 <!--
 ############
@@ -1836,7 +1770,7 @@ def decompose(dfa, dt, st, oracle, ce, leaf_index):
     # step 4: finalize discriminator and split the leaf (TTT: splitLeaf)
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-    split_id = id(old_leaf)
+    split_id = old_leaf.node_id
     old_leaf.split(new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
@@ -1863,7 +1797,7 @@ def decompose(dfa, dt, st, oracle, ce, leaf_index):
     # step 4: finalize discriminator and split the leaf (TTT: splitLeaf)
     new_discriminator = finalize_discriminator(
             old_state, new_state, ce[lo:], st, oracle)
-    split_id = id(old_leaf)
+    split_id = old_leaf.node_id
     old_leaf.split(new_discriminator, new_state, oracle, st)
 
     return new_state, split_id
@@ -2107,7 +2041,7 @@ __canvas__(dfa_to_dot(dfa_cl, &#x27;cl_dfa_step2&#x27;))
 **Step 3.** Counterexample `'ba'` again; now the hypothesis rejects it
 because `s1 -a-> <start>` is wrong (should reach an accepting state).
 `decompose` creates `s2` and splits the `<start>` leaf with discriminator
-`ε`. `update_hypothesis` re-sifts; sifting `reach(s1) + 'a'` = `'ba'`
+$$ \varepsilon $$. `update_hypothesis` re-sifts; sifting `reach(s1) + 'a'` = `'ba'`
 lands on `s2`, which is new and appended. Worklist grows to include `s2`.
 Here is that sift path, the one that grows the worklist:
 
