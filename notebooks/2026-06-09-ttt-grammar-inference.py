@@ -113,6 +113,7 @@ import rxfuzzer
 import earleyparser
 import math
 import random
+import string
 import lstar
 
 # Since this notebook serves both as a web notebook as well as a script
@@ -1325,21 +1326,24 @@ def match(p, start, text):
 # substring-containment, exact-alternation, and disjoint finite sets.
 
 if __name__ == '__main__':
+    alpha = list(string.ascii_letters)
     cases = [
-        ('(b*ab*a)*b*',       ['a', 'b']),
-        ('(a|b)*b',           ['a', 'b']),
-        ('a*b*',              ['a', 'b']),
-        ('ab*',               ['a', 'b']),   # must start with a, then any b's
-        ('(a|b)*ba',          ['a', 'b']),   # must end with ba
-        ('(ab)*',             ['a', 'b']),   # strictly alternating
-        ('a*b*c*',            ['a', 'b', 'c']),
-        ('a(a|b)*a',          ['a', 'b']),   # must start and end with a
-        ('(aab)*',            ['a', 'b']),   # period-3 repetition
-        ('(a|b)*aba(a|b)*',   ['a', 'b']),   # must contain substring aba
-        ('(a|b)*abb',         ['a', 'b']),   # must end with abb
-        ('aa|bb',             ['a', 'b']),   # exactly aa or exactly bb
-        ('(ab|ba)*',          ['a', 'b']),   # even-length, alternating pairs
-        ('(a|b)*ab(a|b)*',    ['a', 'b']),   # must contain substring ab
+        ('(b*ab*a)*b*',       alpha),
+        ('(a|b)*b',           alpha),
+        ('a*b*',              alpha),
+        ('ab*',               alpha),   # must start with a, then any b's
+        ('(a|b)*ba',          alpha),   # must end with ba
+        ('(ab)*',             alpha),   # strictly alternating
+        ('a*b*c*',            alpha),
+        ('a(a|b)*a',          alpha),   # must start and end with a
+        ('(aab)*',            alpha),   # period-3 repetition
+        ('(a|b)*aba(a|b)*',   alpha),   # must contain substring aba
+        ('(a|b)*abb',         alpha),   # must end with abb
+        ('aa|bb',             alpha),   # exactly aa or exactly bb
+        ('(ab|ba)*',          alpha),   # even-length, alternating pairs
+        ('(a|b)*ab(a|b)*',    alpha),   # must contain substring ab
+        ('(ab|cd)*',          alpha),
+        ('(ab|cd|ef)*',       alpha),
     ]
     for e, alphabet in cases:
         teacher = lstar.Teacher(e, delta=0.2, epsilon=0.2)

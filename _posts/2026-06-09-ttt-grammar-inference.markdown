@@ -177,6 +177,7 @@ import rxfuzzer
 import earleyparser
 import math
 import random
+import string
 import lstar
 
 ############
@@ -188,6 +189,7 @@ import rxfuzzer
 import earleyparser
 import math
 import random
+import string
 import lstar
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
@@ -2560,21 +2562,24 @@ substring-containment, exact-alternation, and disjoint finite sets.
 
 <!--
 ############
+alpha = list(string.ascii_letters)
 cases = [
-    ('(b*ab*a)*b*',       ['a', 'b']),
-    ('(a|b)*b',           ['a', 'b']),
-    ('a*b*',              ['a', 'b']),
-    ('ab*',               ['a', 'b']),   # must start with a, then any b's
-    ('(a|b)*ba',          ['a', 'b']),   # must end with ba
-    ('(ab)*',             ['a', 'b']),   # strictly alternating
-    ('a*b*c*',            ['a', 'b', 'c']),
-    ('a(a|b)*a',          ['a', 'b']),   # must start and end with a
-    ('(aab)*',            ['a', 'b']),   # period-3 repetition
-    ('(a|b)*aba(a|b)*',   ['a', 'b']),   # must contain substring aba
-    ('(a|b)*abb',         ['a', 'b']),   # must end with abb
-    ('aa|bb',             ['a', 'b']),   # exactly aa or exactly bb
-    ('(ab|ba)*',          ['a', 'b']),   # even-length, alternating pairs
-    ('(a|b)*ab(a|b)*',    ['a', 'b']),   # must contain substring ab
+    ('(b*ab*a)*b*',       alpha),
+    ('(a|b)*b',           alpha),
+    ('a*b*',              alpha),
+    ('ab*',               alpha),   # must start with a, then any b's
+    ('(a|b)*ba',          alpha),   # must end with ba
+    ('(ab)*',             alpha),   # strictly alternating
+    ('a*b*c*',            alpha),
+    ('a(a|b)*a',          alpha),   # must start and end with a
+    ('(aab)*',            alpha),   # period-3 repetition
+    ('(a|b)*aba(a|b)*',   alpha),   # must contain substring aba
+    ('(a|b)*abb',         alpha),   # must end with abb
+    ('aa|bb',             alpha),   # exactly aa or exactly bb
+    ('(ab|ba)*',          alpha),   # even-length, alternating pairs
+    ('(a|b)*ab(a|b)*',    alpha),   # must contain substring ab
+    ('(ab|cd)*',          alpha),
+    ('(ab|cd|ef)*',       alpha),
 ]
 for e, alphabet in cases:
     teacher = lstar.Teacher(e, delta=0.2, epsilon=0.2)
@@ -2606,21 +2611,24 @@ for e, alphabet in cases:
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+alpha = list(string.ascii_letters)
 cases = [
-    (&#x27;(b*ab*a)*b*&#x27;,       [&#x27;a&#x27;, &#x27;b&#x27;]),
-    (&#x27;(a|b)*b&#x27;,           [&#x27;a&#x27;, &#x27;b&#x27;]),
-    (&#x27;a*b*&#x27;,              [&#x27;a&#x27;, &#x27;b&#x27;]),
-    (&#x27;ab*&#x27;,               [&#x27;a&#x27;, &#x27;b&#x27;]),   # must start with a, then any b&#x27;s
-    (&#x27;(a|b)*ba&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # must end with ba
-    (&#x27;(ab)*&#x27;,             [&#x27;a&#x27;, &#x27;b&#x27;]),   # strictly alternating
-    (&#x27;a*b*c*&#x27;,            [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]),
-    (&#x27;a(a|b)*a&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # must start and end with a
-    (&#x27;(aab)*&#x27;,            [&#x27;a&#x27;, &#x27;b&#x27;]),   # period-3 repetition
-    (&#x27;(a|b)*aba(a|b)*&#x27;,   [&#x27;a&#x27;, &#x27;b&#x27;]),   # must contain substring aba
-    (&#x27;(a|b)*abb&#x27;,         [&#x27;a&#x27;, &#x27;b&#x27;]),   # must end with abb
-    (&#x27;aa|bb&#x27;,             [&#x27;a&#x27;, &#x27;b&#x27;]),   # exactly aa or exactly bb
-    (&#x27;(ab|ba)*&#x27;,          [&#x27;a&#x27;, &#x27;b&#x27;]),   # even-length, alternating pairs
-    (&#x27;(a|b)*ab(a|b)*&#x27;,    [&#x27;a&#x27;, &#x27;b&#x27;]),   # must contain substring ab
+    (&#x27;(b*ab*a)*b*&#x27;,       alpha),
+    (&#x27;(a|b)*b&#x27;,           alpha),
+    (&#x27;a*b*&#x27;,              alpha),
+    (&#x27;ab*&#x27;,               alpha),   # must start with a, then any b&#x27;s
+    (&#x27;(a|b)*ba&#x27;,          alpha),   # must end with ba
+    (&#x27;(ab)*&#x27;,             alpha),   # strictly alternating
+    (&#x27;a*b*c*&#x27;,            alpha),
+    (&#x27;a(a|b)*a&#x27;,          alpha),   # must start and end with a
+    (&#x27;(aab)*&#x27;,            alpha),   # period-3 repetition
+    (&#x27;(a|b)*aba(a|b)*&#x27;,   alpha),   # must contain substring aba
+    (&#x27;(a|b)*abb&#x27;,         alpha),   # must end with abb
+    (&#x27;aa|bb&#x27;,             alpha),   # exactly aa or exactly bb
+    (&#x27;(ab|ba)*&#x27;,          alpha),   # even-length, alternating pairs
+    (&#x27;(a|b)*ab(a|b)*&#x27;,    alpha),   # must contain substring ab
+    (&#x27;(ab|cd)*&#x27;,          alpha),
+    (&#x27;(ab|cd|ef)*&#x27;,       alpha),
 ]
 for e, alphabet in cases:
     teacher = lstar.Teacher(e, delta=0.2, epsilon=0.2)
