@@ -1444,49 +1444,46 @@ midpoint $$ m $$, ask whether $$ reach(q_m) \cdot ce[m:] $$ gives the same
 answer as the target answer on $$ ce $$. If yes, the first divergence is to
 the right of $$ m $$; if no, it is at $$ m $$ or to the left.
 
+binary search: return the last index in [lo, hi) where predicate holds.
+assumes predicate is True for some prefix of the range then False after.
+
 <!--
 ############
+def binary_search(lo, hi, predicate):
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if predicate(mid): lo = mid + 1
+        else: hi = mid
+    return lo - 1
+
 def find_split_point(dfa, st, oracle, ce):
     # trace the hypothesis along ce to record every state visited
     states = dfa.trace(ce)
-
     target_answer = oracle.is_member(ce)
-
-    # binary search: find first index where reach(q_i)+ce[i:] disagrees with target
-    lo, hi = 0, len(ce)
-    while lo < hi:
-        mid = (lo + hi) // 2
-        q_mid = states[mid]
-        if oracle.is_member(st.reach(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # mid agrees: split is to the right
-        else:
-            hi = mid       # mid disagrees: split is here or to the left
-
-    # lo-1 is the last agreeing position; lo is the first disagreeing position
-    return lo - 1, states
+    # find the last position where the hypothesis still agrees with the target
+    i = binary_search(0, len(ce), lambda m:
+          oracle.is_member(st.reach(states[m]) + ce[m:]) == target_answer)
+    return i, states
 
 ############
 -->
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
+def binary_search(lo, hi, predicate):
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if predicate(mid): lo = mid + 1
+        else: hi = mid
+    return lo - 1
+
 def find_split_point(dfa, st, oracle, ce):
     # trace the hypothesis along ce to record every state visited
     states = dfa.trace(ce)
-
     target_answer = oracle.is_member(ce)
-
-    # binary search: find first index where reach(q_i)+ce[i:] disagrees with target
-    lo, hi = 0, len(ce)
-    while lo &lt; hi:
-        mid = (lo + hi) // 2
-        q_mid = states[mid]
-        if oracle.is_member(st.reach(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # mid agrees: split is to the right
-        else:
-            hi = mid       # mid disagrees: split is here or to the left
-
-    # lo-1 is the last agreeing position; lo is the first disagreeing position
-    return lo - 1, states
+    # find the last position where the hypothesis still agrees with the target
+    i = binary_search(0, len(ce), lambda m:
+          oracle.is_member(st.reach(states[m]) + ce[m:]) == target_answer)
+    return i, states
 </textarea><br />
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
