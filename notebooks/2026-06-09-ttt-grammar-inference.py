@@ -743,19 +743,89 @@ if __name__ == '__main__':
 # When the equivalence oracle returns a counterexample $$ ce $$, we know the
 # hypothesis is wrong on $$ ce $$. But *where exactly* does it go wrong?
 # 
-# ### The Split Point
+# ### Finding the Split Point
 # 
 # Walk $$ ce $$ through the hypothesis. At position 0, both hypothesis and
 # target are in $$ \langle start \rangle $$, so they agree. At position
 # $$ |ce| $$, they disagree (that is what the counterexample means). So
-# somewhere in between is the *first point of disagreement*. That is, the
-# position $$ i $$ where the hypothesis first takes a wrong transition.
+# somewhere in between is the *first point of disagreement*: the position
+# $$ i $$ where the hypothesis first takes a wrong transition.
 # 
-# We find this by binary search in $$ O(\log|ce|) $$ queries. At each
-# midpoint $$ m $$, we check whether $$ reach(q_m) \cdot ce[m:] $$ gives the
-# same answer as the full counterexample. If yes, the split point is to the
-# right; if no, it is here or to the left.
-# 
+# We find $$ i $$ by binary search in $$ O(\log|ce|) $$ membership queries.
+# First walk $$ ce $$ through the hypothesis to record every state visited:
+# `states[k]` is the hypothesis state after reading `ce[:k]`. Then at each
+# midpoint $$ m $$, ask whether $$ reach(q_m) \cdot ce[m:] $$ gives the same
+# answer as the target answer on $$ ce $$. If yes, the first divergence is to
+# the right of $$ m $$; if no, it is at $$ m $$ or to the left.
+
+def find_split_point(dfa, st, oracle, ce):
+    # walk the hypothesis along ce
+    states = [dfa.start_symbol]
+    for char in ce:
+        rule = dfa.transition(states[-1], char)
+        states.append(rule[1])
+
+    target_answer = oracle.is_member(ce)
+
+    # binary search: find first index where reach(q_i)+ce[i:] disagrees with target
+    lo, hi = 0, len(ce)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        q_mid = states[mid]
+        if oracle.is_member(st.reach(q_mid) + ce[mid:]) == target_answer:
+            lo = mid + 1   # mid agrees: split is to the right
+        else:
+            hi = mid       # mid disagrees: split is here or to the left
+
+    # lo-1 is the last agreeing position; lo is the first disagreeing position
+    return lo - 1, states
+
+# Consider the two-state even-a's hypothesis (`<start>` accepting,
+# `<start> -a-> <odd>`, `<odd> -a-> <start>`, both loop on `b`) running
+# against a target that accepts strings *ending in* `'a'`. The equivalence
+# oracle returns `'bba'` (hypothesis rejects -- even a-count; target
+# accepts -- ends in `'a'`). Walking `'bba'` through the hypothesis visits
+# `[<start>, <start>, <start>, <odd>]`. The binary search first probes
+# mid=1: $$ reach(\langle start \rangle) \cdot \text{'ba'} = \text{'ba'} $$
+# (ends in `'a'`, True) -- agrees with target. So split is to the right.
+# Next probes mid=2: $$ reach(\langle start \rangle) \cdot \text{'a'} =
+# \text{'a'} $$ (ends in `'a'`, True) -- still agrees. Split point is
+# $$ i = 2 $$: the hypothesis first goes wrong on the third character.
+
+if __name__ == '__main__':
+    oracle_fsp = MockOracle(lambda w: w.endswith('a'))
+    dfa_fsp = DFA()
+    dfa_fsp.set_accepting('<start>')
+    dfa_fsp.add_transition('<start>', 'a', '<odd>')
+    dfa_fsp.add_transition('<start>', 'b', '<start>')
+    dfa_fsp.ensure_state('<odd>')
+    dfa_fsp.add_transition('<odd>', 'a', '<start>')
+    dfa_fsp.add_transition('<odd>', 'b', '<odd>')
+    st_fsp = StateTable()
+    st_fsp.add_state('<odd>', '<start>', 'a')
+    ce_fsp = 'bba'
+    i_fsp, states_fsp = find_split_point(dfa_fsp, st_fsp, oracle_fsp, ce_fsp)
+    assert i_fsp == 2, i_fsp
+    print('ce:', list(ce_fsp))
+    print('states visited:', states_fsp)
+    for k, q in enumerate(states_fsp[:-1]):
+        probe = st_fsp.reach(q) + ce_fsp[k:]
+        answer = oracle_fsp.is_member(probe)
+        marker = '<-- split point' if k == i_fsp else ''
+        print(f'  pos {k}: reach({q!r}) + {ce_fsp[k:]!r} = {probe!r}  -> {answer}  {marker}')
+    print('split point i =', i_fsp)
+
+# Two more cases on the same hypothesis. `'ba'`: hypothesis rejects (ends
+# in `<odd>`, not accepting), target accepts (ends in `'a'`). Split is at
+# $$ i = 1 $$. `'aab'`: hypothesis accepts (even a-count), target rejects
+# (ends in `'b'`). Split is at $$ i = 2 $$.
+
+if __name__ == '__main__':
+    i_ba, _ = find_split_point(dfa_fsp, st_fsp, oracle_fsp, 'ba')
+    assert i_ba == 1, i_ba
+    i_aab, _ = find_split_point(dfa_fsp, st_fsp, oracle_fsp, 'aab')
+    assert i_aab == 2, i_aab
+
 # ### Prefix Transformation
 # 
 # After finding the split point $$ i $$, we need the string that reaches
@@ -874,56 +944,6 @@ if __name__ == '__main__':
     # reach('<1>') + 'a' = 'aa'  -> True  (even), so 'a' distinguishes them
     d = finalize_discriminator('<start>', '<1>', 'ba', st, oracle)
     assert d == 'a'
-
-# ### Finding the Split Point
-# 
-# `find_split_point` records the hypothesis states visited while reading
-# $$ ce $$, then binary-searches for the first position where
-# $$ reach(q_i) \cdot ce[i:] $$ disagrees with the target answer on $$ ce $$.
-# That position $$ i $$ is where the hypothesis first takes a wrong transition.
-# The search costs $$ O(\log|ce|) $$ membership queries.
-# 
-# The function returns both the split index and the full states list, since
-# `decompose` needs the states list for the prefix transformation.
-
-def find_split_point(dfa, st, oracle, ce):
-    # walk the hypothesis along ce
-    states = [dfa.start_symbol]
-    for char in ce:
-        rule = dfa.transition(states[-1], char)
-        states.append(rule[1])
-
-    target_answer = oracle.is_member(ce)
-
-    # binary search: find first index where reach(q_i)+ce[i:] disagrees with target
-    lo, hi = 0, len(ce)
-    while lo < hi:
-        mid = (lo + hi) // 2
-        q_mid = states[mid]
-        if oracle.is_member(st.reach(q_mid) + ce[mid:]) == target_answer:
-            lo = mid + 1   # mid agrees: split is to the right
-        else:
-            hi = mid       # mid disagrees: split is here or to the left
-
-    # lo-1 is the last agreeing position; lo is the first disagreeing position
-    return lo - 1, states
-
-# We test find_split_point on a simple case.
-
-if __name__ == '__main__':
-    oracle = MockOracle(lambda w: w.count('a') % 2 == 0)
-    # hypothesis: single state <start>, everything loops back, <start> is accepting
-    dfa_sp = DFA()
-    dfa_sp.set_accepting('<start>')
-    dfa_sp.add_transition('<start>', 'a', '<start>')
-    dfa_sp.add_transition('<start>', 'b', '<start>')
-    st_sp = StateTable()
-    # counterexample 'a': hypothesis accepts, target rejects
-    i, states = find_split_point(dfa_sp, st_sp, oracle, 'a')
-    assert i == 0, i
-    # counterexample 'aab': split should be at position 0 (first divergence)
-    i2, _ = find_split_point(dfa_sp, st_sp, oracle, 'aab')
-    assert i2 == 0, i2
 
 # ### Putting Decomposition Together
 # 
