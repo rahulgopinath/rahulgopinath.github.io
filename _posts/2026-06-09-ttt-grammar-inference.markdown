@@ -332,6 +332,15 @@ class DFA(DFA):
             state = rule[1]
         return state
 
+    def trace(self, string):
+        # return the list of states visited while reading string,
+        # including the start state; len(result) == len(string) + 1
+        states = [self.start_symbol]
+        for char in string:
+            rule = self.transition(states[-1], char)
+            states.append(rule[1])
+        return states
+
     def accepts(self, string):
         state = self.run(string)
         if state is None: return False
@@ -349,6 +358,15 @@ class DFA(DFA):
             if rule is None: return None
             state = rule[1]
         return state
+
+    def trace(self, string):
+        # return the list of states visited while reading string,
+        # including the start state; len(result) == len(string) + 1
+        states = [self.start_symbol]
+        for char in string:
+            rule = self.transition(states[-1], char)
+            states.append(rule[1])
+        return states
 
     def accepts(self, string):
         state = self.run(string)
@@ -1429,11 +1447,8 @@ the right of $$ m $$; if no, it is at $$ m $$ or to the left.
 <!--
 ############
 def find_split_point(dfa, st, oracle, ce):
-    # walk the hypothesis along ce
-    states = [dfa.start_symbol]
-    for char in ce:
-        rule = dfa.transition(states[-1], char)
-        states.append(rule[1])
+    # trace the hypothesis along ce to record every state visited
+    states = dfa.trace(ce)
 
     target_answer = oracle.is_member(ce)
 
@@ -1455,11 +1470,8 @@ def find_split_point(dfa, st, oracle, ce):
 <form name='python_run_form'>
 <textarea cols="40" rows="4" name='python_edit'>
 def find_split_point(dfa, st, oracle, ce):
-    # walk the hypothesis along ce
-    states = [dfa.start_symbol]
-    for char in ce:
-        rule = dfa.transition(states[-1], char)
-        states.append(rule[1])
+    # trace the hypothesis along ce to record every state visited
+    states = dfa.trace(ce)
 
     target_answer = oracle.is_member(ce)
 
