@@ -2482,13 +2482,14 @@ print(format_results(results))
 The performance of this miner is dominated by the candidate checking phase,
 which scales at approximately $$O(T \times V^2)$$, where $$T$$ is the number
 of observed traces and $$V$$ is the number of variables in scope, making it
-fast enough for typical functions but slow as the variable count grows.
+reasonably fast for typical functions but computationally expensive as the
+variable count grows.
  
 ## Conclusion: The Value of *Good Enough* Oracles
  
 We have built a system that moves from raw execution traces to structured
 logical properties. While our implementation is a simplified version of 
-the full Daikon system, it shows the main ideas of dynamic 
+the full Daikon system, it contains the core ideas of dynamic 
 invariant mining:
  
 1. **The specification gap**: Most software has no formal 
@@ -2496,7 +2497,7 @@ invariant mining:
    that describes how the code actually behaves.
  
 2. **Templates are the Limit**: As seen with `newton_sqrt`, the miner 
-   can only "see" what we give it templates for. The trade-off is 
+   can only *see* what we give it templates for. The trade-off is 
    between computational cost (more templates = more checks) and 
    expressiveness.
  
@@ -2507,7 +2508,7 @@ invariant mining:
    execution.
  
 Dynamic analysis doesn't replace formal proof or manual testing, but 
-it provides a low-effort way to document behavior and
+provides an automated, and hence low-effort way to document behavior and
 catch regressions.
  
 **Note:** Dynamic invariant mining is the dual of Static analysis for
