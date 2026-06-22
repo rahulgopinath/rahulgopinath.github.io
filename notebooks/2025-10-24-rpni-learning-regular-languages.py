@@ -9,7 +9,7 @@
 # 
 # TLDR; This tutorial is a complete implementation of RPNI algorithm
 # which infers the input specification from positive and negative samples.
-# Such grammars are can be useful for identifying the specification
+# Such grammars can be useful for identifying the specification
 # of blackbox programs when it is impossible to query the program
 # directly, and only its behaviour on a limited set of samples is known.
 # The Python interpreter is embedded so that you
@@ -29,21 +29,21 @@
 # 
 # Regular Positive and Negative Inference, RPNI for short, is a classical
 # algorithm that allows us to determine the input specification from a set
-# of positive and negative samples. It was introducd by Oncia and Garcia in
+# of positive and negative samples. It was introduced by Oncia and Garcia in
 # 1992 [^oncia1992]. The core idea of RPNI is to construct
 # a Prefix Tree Acceptor (PTA, also called a [Trie](https://en.wikipedia.org/wiki/Trie)), then iteratively try and merge
 # each state pair, and checking the resulting DFA against negative samples to
-# verify that the resulting DFA is not overgenaralizing. Because the new DFA is
+# verify that the resulting DFA is not overgeneralizing. Because the new DFA is
 # produced by merging states within the DFA, it will continue to accept all
 # existing positive samples. The negative samples provide the defense against
 # overgeneralization. If any negative samples are accepted, the merging of the
 # state pair is rejected. Continuing in this fashion, RPNI will compute the
 # DFA that can accept all positive samples, and reject all negative samples.
 # 
-# To things to note: Every DFA has a characteristic set of samples including
+# Two things to note: Every DFA has a characteristic set of samples including
 # positive and negative samples, when given to the RPNI algorithm, will result
-# in the exact DFA of the blackbox. Secondly, RPNI will also infer the precise
-# DFA _in the limit_. Secondly, L* is called an active grammar inference
+# in the exact DFA of the blackbox. Further, RPNI will also infer the precise
+# DFA _in the limit_. Finally, L* is called an active grammar inference
 # algorithm because it is able to query the blackbox, while RPNI is called a
 # passive grammar inference algorithm because it cannot query the blackbox.
 # 
@@ -66,7 +66,7 @@
 # * Transition: A transition is a link between two states. A DFA transitions
 #   from one state to the next on consuming an input symbol.
 # * Terminal Symbol: A terminal symbol is a symbol in the alphabet of the
-#   language in a regular grammar. It is the equivalnt of DFA transition in the
+#   language in a regular grammar. It is the equivalent of DFA transition in the
 #   grammar.
 # * Nonterminal Symbol: A nonterminal symbol defines the rules of expansion
 #   in the grammar. A nonterminal symbol is associated with a definition in
@@ -134,7 +134,7 @@ import re
 # Before we go further, let us define a few helper functions. First,
 # we need to represent a DFA. A Deterministic Finite Automation can
 # be adequately represented by a right linear regular grammar. That is,
-# each onterminal is equivalent to a state in the DFA. The start symbol
+# each nonterminal is equivalent to a state in the DFA. The start symbol
 # of the grammar is the entry point for the DFA. Transitions from
 # a state `A` to another state `B` is indicated as a rule `<A> := b <B>`.
 # That is, state `A` transitions to state B on receiving the token `b`.
@@ -148,7 +148,7 @@ import re
 # }
 # ```
 # 
-# As you can noticce in the above representation, the accepting states are
+# As you can notice in the above representation, the accepting states are
 # indicated by adding `[]` to the state. In the above, both `<B>` and `<C>` are
 # accepting states. To make it easier to recognize, we insist that `[]` be only
 # added as the last rule.
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     for example in ['bbb', 'c', 'bbbb']:
         res = rparser.accept('<A>', example)
         print(res)
-    print('All should be rejectd')
+    print('All should be rejected')
     for example in ['abb', 'bc', 'cb']:
         res = rparser.accept('<A>', example)
         print(res)
@@ -354,7 +354,7 @@ if __name__ == '__main__':
     merged, start_key = rxcanonical.canonical_regular_grammar(
             merged_nfa, start_key)
     gatleast.display_grammar(merged, start_key)
-    print('All should be eaccepted')
+    print('All should be accepted')
     for example in positive:
         dfap = dfa_parse(merged)
         res = dfap.accept(start_key, example)
