@@ -16,7 +16,7 @@ A central challenge in software testing is the **Oracle Problem**: how do we
 programmatically determine if the output of a test is correct? Manually 
 writing assertions (the "oracle") is tedious and often incomplete.
  
-Daikon-style mining provides an **Approximate Oracle**. By observing 
+Daikon-style mining provides an _approximate oracle_. By observing 
 *gold* runs of a program, we can treat the resulting invariants as a 
 specification of correct behavior. 
  
@@ -32,8 +32,8 @@ Two caveats:
    If the "gold" version of the code has a bug, the miner will 
    faithfully promote that bug into a requirement.
  
-Despite being approximate, these oracles are effective for 
-**Regression Testing**. If a refactor causes a previously stable 
+Despite being approximate, these oracles are effective for
+regression testing. If a refactor causes a previously stable 
 invariant to fail, the invariants you have mined will flag it.
  
 The concept of _runtime invariant mining_ is as follows. Given a program
@@ -2485,27 +2485,24 @@ of observed traces and $$V$$ is the number of variables in scope, making it
 reasonably fast for typical functions but computationally expensive as the
 variable count grows.
  
-## Conclusion: The Value of *Good Enough* Oracles
+## Conclusion
  
-We have built a system that moves from raw execution traces to structured
-logical properties. While our implementation is a simplified version of 
-the full Daikon system, it contains the core ideas of dynamic 
-invariant mining:
+Our implementation is a simplified version of the full Daikon system,
+but it contains the core ideas of dynamic invariant mining:
  
 1. **The specification gap**: Most software has no formal 
    specification. By mining invariants, we create a "de facto" spec 
    that describes how the code actually behaves.
  
-2. **Templates are the Limit**: As seen with `newton_sqrt`, the miner 
+2. **Templates are the limit**: As seen with `newton_sqrt`, the miner 
    can only *see* what we give it templates for. The trade-off is 
    between computational cost (more templates = more checks) and 
    expressiveness.
  
 3. **Automated assertions**: These mined invariants can be
-   turned into `assert` statements. This creates an
-   **approximate oracle**—a suite of tests that ensures future 
-   changes don't violate the established "truth" of the program's 
-   execution.
+   turned into `assert` statements, giving you an approximate
+   oracle that flags when future changes break previously observed
+   behavior.
  
 Dynamic analysis doesn't replace formal proof or manual testing, but 
 provides an automated, and hence low-effort way to document behavior and
@@ -2515,7 +2512,7 @@ catch regressions.
 invariant (we can also call these oracles in testing parlance) inference.
 The main difference is that the invariants being inferred is **approximate**
 but **precise**, while static analysis invariants are **sound** but
-**imprecise**. Briding the gap is impossible if arbitrary programs are the
+**imprecise**. Bridging the gap is impossible if arbitrary programs are the
 subjects.
 
 Dynamic invariant mining is also a whitebox dual of blackbox specification
