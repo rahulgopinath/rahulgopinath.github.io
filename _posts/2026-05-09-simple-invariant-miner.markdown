@@ -44,7 +44,7 @@ under instrumentation. We capture the program state (the value of all
 variables in the program) at each key location in the program: For example, at
 entry and exit from a function, at entry and exit of loops, entry and exit
 of conditionals etc. (We use the line number as the unique identifier for
-a location.)
+a location. Such a named location is called a _program point_ in Daikon.)
 
 We then use a library of unary and binary relation templates for evaluating
 the relationship of each variable against known constants (unary relationship)
