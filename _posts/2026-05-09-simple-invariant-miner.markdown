@@ -7,49 +7,57 @@ tags: invariants, dynamic-analysis, mining
 categories: post
 ---
  
-TLDR; This post is a complete implementation of a Daikon-style runtime
-invariant miner in Python, including instrumentation, trace collection,
-candidate invariant checking, and implication-based suppression.
-## The Oracle Problem and Likely Invariants
+TLDR; This tutorial is a complete implementation of a Daikon-like runtime
+invariant miner in Python. It implements basic instrumentation,
+collection of execution traces, invariant checking, and suppression of
+redundandant invariants.
+## The Oracle Problem in Software Testing
  
-A central challenge in software testing is the **Oracle Problem**: how do we 
-programmatically determine if the output of a test is correct? Manually 
-writing assertions (the "oracle") is tedious and often incomplete.
+One of the key challenges in software testing is the **Oracle Problem**:
+That is, how do we determine if the output of a test is correct?
+Manually writing assertions (this is the oracle) is tedious and error prone.
  
 Daikon-style mining provides an _approximate oracle_. By observing 
-*gold* runs of a program, we can treat the resulting invariants as a 
-specification of correct behavior. 
+verified runs of the given program, we can treat the resulting invariants
+as an approximate specification of how the program should behave.
  
-Two caveats:
+Two things to note:
  
-1. **Likely, not Guaranteed**: Because these invariants are derived 
-   inductively from observations, they are hypotheses. If your inputs 
-   only contain positive integers, the miner might report `x > 0` as 
-   an invariant, even if the function is meant to handle negatives.
+1. The invariants are just _likely_: We derive thes invariants _inductively_
+   from observations, and not from a human specification. Hence they are
+   just hypotheses, not proven facts.
+   For example, if your inputs only contain positive `int`s,
+   one of the invariants reported could be `x > 0` even if the function is
+   can correctly handle negative ints.
  
-2. **Descriptive vs. Prescriptive**: A mined invariant describes what the 
-   code *currently does*, not necessarily what the programmer *intended*. 
-   If the "gold" version of the code has a bug, the miner will 
-   faithfully promote that bug into a requirement.
+2. The invariants are _descriptive_: That is, the mined invariants are an
+   approximation of the _current behaviour_. It may not be the correct
+   behaviour of the program. If the current version of the program has a
+   bug, the invariants mined will capture this bug as the expected behaviour.
  
-Despite being approximate, these oracles are effective for
-regression testing. If a refactor causes a previously stable 
-invariant to fail, the invariants you have mined will flag it.
+Eventhough these are approximate, they are useful in practice, for example,
+in regression testing, and in ensuring correct behaviour after a refactoring.
  
-The concept of _runtime invariant mining_ is as follows. Given a program
-and a set of inputs, we run the program under a tracer that records the
-values of all variables at key points in the execution — function entry,
-function exit, and so on. We then generate a large set of candidate
-invariants (e.g. `x >= 0`, `x == y`, `len(a) == n`) and check each one
-against every recorded state. A candidate that survives all observations
-is reported as a likely invariant.
-This idea was introduced by Ernst et al. in the Daikon system
-[^ernst2001daikon]. Daikon has been used to find real bugs, generate
-test oracles, and document program behaviour automatically.
-Like our [grammar miner](/post/2019/11/26/simpleminer-01/), this post
-hooks into `sys.settrace` and collects observations as the program runs.
-The difference is that instead of recovering the structure of input
-strings we recover logical properties of the program's variables.
+The concept of _dynamic invariant mining_ is as follows: Starting with the
+program, and a set of inputs that it works correctly on, we run the program
+under instrumentation. We capture the program state (the value of all
+variables in the program) at each key location in the program: For example, at
+entry and exit from a function, at entry and exit of loops, entry and exit
+of conditionals etc. (We use the line number as the unique identifier for
+a location.)
+
+We then use a library of unary and binary relation templates for evaluating
+the relationship of each variable against known constants (unary relationship)
+and against other variables at that instance (binary relationship). We then
+collect all relationships that evaluated to true at that location for every
+input. 
+For example, `x >= 0`, `x == y`, `len(a) == n` etc. are all potential
+relationships.
+Any relation that evaluated to true is reported as a likely invariant.
+The idea of mining runtime invariants was introduced by Ernst et al. in the
+Daikon system [^ernst2001daikon].
+Like our [grammar miner](/post/2019/11/26/simpleminer-01/), we
+hook into `sys.settrace`.
  
 ## Synopsis
  
