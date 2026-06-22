@@ -21,7 +21,7 @@
 # *gold* runs of a program, we can treat the resulting invariants as a 
 # specification of correct behavior. 
 #  
-# There are two critical nuances to keep in mind:
+# Two caveats:
 #  
 # 1. **Likely, not Guaranteed**: Because these invariants are derived 
 #    inductively from observations, they are hypotheses. If your inputs 
@@ -33,10 +33,9 @@
 #    If the "gold" version of the code has a bug, the miner will 
 #    faithfully promote that bug into a requirement.
 #  
-# Despite being approximate, these oracles are incredibly effective for 
+# Despite being approximate, these oracles are effective for 
 # **Regression Testing**. If a refactor causes a previously stable 
-# invariant to fail, your "automated oracle" has just flagged a breaking 
-# change that a human might have missed.
+# invariant to fail, the invariants you have mined will flag it.
 #  
 # The concept of _runtime invariant mining_ is as follows. Given a program
 # and a set of inputs, we run the program under a tracer that records the
@@ -1236,17 +1235,16 @@ if __name__ == '__main__':
 # The performance of this miner is dominated by the candidate checking phase,
 # which scales at approximately $$O(T \times V^2)$$, where $$T$$ is the number
 # of observed traces and $$V$$ is the number of variables in scope, making it
-# highly efficient for standard functions but computationally expensive as the
-# variable count grows.
+# fast enough for typical functions but slow as the variable count grows.
 #  
 # ## Conclusion: The Value of *Good Enough* Oracles
 #  
 # We have built a system that moves from raw execution traces to structured
 # logical properties. While our implementation is a simplified version of 
-# the full Daikon system, it illustrates the core power of dynamic 
+# the full Daikon system, it shows the main ideas of dynamic 
 # invariant mining:
 #  
-# 1. **Bridging the Specification Gap**: Most software has no formal 
+# 1. **The specification gap**: Most software has no formal 
 #    specification. By mining invariants, we create a "de facto" spec 
 #    that describes how the code actually behaves.
 #  
@@ -1255,15 +1253,15 @@ if __name__ == '__main__':
 #    between computational cost (more templates = more checks) and 
 #    expressiveness.
 #  
-# 3. **The Automated Guardrail**: These mined invariants can be 
-#    automatically turned into `assert` statements. This creates an 
+# 3. **Automated assertions**: These mined invariants can be
+#    turned into `assert` statements. This creates an
 #    **approximate oracle**—a suite of tests that ensures future 
 #    changes don't violate the established "truth" of the program's 
 #    execution.
 #  
 # Dynamic analysis doesn't replace formal proof or manual testing, but 
-# it provides a remarkably low-effort way to document behavior and 
-# catch regressions in complex systems.
+# it provides a low-effort way to document behavior and
+# catch regressions.
 #  
 # **Note:** Dynamic invariant mining is the dual of Static analysis for
 # invariant (we can also call these oracles in testing parlance) inference.
