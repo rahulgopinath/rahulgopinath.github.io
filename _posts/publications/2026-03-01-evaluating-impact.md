@@ -18,6 +18,6 @@ Objective: This work evaluates whether maximum reachable coverage estimates are 
 
 Results: These complementary studies will determine whether maximum reachable coverage estimates are reliable when the singleton-doubleton equilibrium criterion is satisfied, validating or refuting its use as a stopping criterion for fuzzing campaigns.
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/fuzzing2024/attanayake2026evaluating.pdf "paper")
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](/resources/ndss2026/attanayake2026evaluating.pdf "paper")
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/evaluating-impact-of-coverage-feedback-on-estimators-for-maximum-reachability-in-fuzzing-registered-report)
 
