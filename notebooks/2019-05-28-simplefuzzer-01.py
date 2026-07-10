@@ -102,10 +102,10 @@ if __name__ == '__main__':
 # can be used with `fuzzingbook.GrammarFuzzer.tree_to_string`
 
 def is_terminal(v):
-    return (v[0], v[-1]) != ('<', '>')
+    return not v or (v[0], v[-1]) != ('<', '>')
 
 def is_nonterminal(v):
-    return (v[0], v[-1]) == ('<', '>')
+    return v and (v[0], v[-1]) == ('<', '>')
 
 def tree_to_string(tree):
     symbol, children, *_ = tree
