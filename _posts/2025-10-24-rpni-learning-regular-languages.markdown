@@ -1210,6 +1210,237 @@ print(&#x27;regex:&#x27;, rex)
 <pre class='Output' name='python_output'></pre>
 <div name='python_canvas'></div>
 </form>
+## The Blue-Fringe algorithm.
+
+The state merging approach of naive RPNI is very simple. It first generates
+all possible state pairs, and tries merging each one by one. If we
+observe that two states could be merged, then we break the current sequence
+and restart merging with each state pairs again. This means that we may
+retry the same state pairs again and again.
+
+Blue-Fringe [^lang1998] is a solution to this problem. The idea is to
+have a constantly updating boundary of states that have been verified.
+Essentially, we colour our states into red and blue. Red states are
+verified to be distinct, and blue are states that are yet to be verified,
+but reachable directly from one of the red states.
+
+At each step, we take one blue state, and try to merge it with each of the
+red states. If a merge is possible (i.e. no negative example is accepted
+after the merge), then we keep the merge, by retaining the merged state
+as a red state. If no merge can be performed, then the blue state is
+verified to be distinct. So, we promote it to a red state.
+
+This allows the red/blue boundary (the blue fringe) to be expanded until
+all states have been verified, and the blue fringe disappears.
+
+Since merges are only ever attempted between red and blue states,
+redundant merges are avoided. This makes it more efficeint than naive RPNI.
+
+Note that which blue state to pick first is not specified. One of the best
+heuristics is EDSM [^lang1998] which scores candidate merges
+by shared evidence. We do not use EDSM in this post.
+We first need a helper to fetch the states directly reachable from a
+given state.
+
+<!--
+############
+def get_children(grammar, state):
+    return [rule[1] for rule in grammar[state] if rule]
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def get_children(grammar, state):
+    return [rule[1] for rule in grammar[state] if rule]
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Given the current DFA and the current red set, the blue fringe is simply
+the set of children of red states not already red.
+
+<!--
+############
+def blue_fringe(dfa, red):
+    blue = []
+    for r in red:
+        for c in get_children(dfa.grammar, r):
+            if c in red: continue
+            if c in blue: continue
+            blue.append(c)
+    return blue
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def blue_fringe(dfa, red):
+    blue = []
+    for r in red:
+        for c in get_children(dfa.grammar, r):
+            if c in red: continue
+            if c in blue: continue
+            blue.append(c)
+    return blue
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Now, the RPNI bluefringe algorithm
+
+<!--
+############
+def rpni_bluefringe(positive_examples, negative_examples):
+    # Step 1: Build PTA
+    dfa = DFA().build_pta(positive_examples)
+    start = dfa.start_symbol
+    red = [start]
+
+    # Step 2: Expand the red/blue boundary until no blue states remain
+    blue = blue_fringe(dfa, red)
+    while blue:
+        blue_state = blue[0]
+        merged = False
+        for red_state in red:
+            merged_nfa, new_state = merge_to_nfa(dfa.grammar,
+                                                 blue_state, red_state)
+            if start in (blue_state, red_state):
+                new_start = new_state
+            else:
+                new_start = start
+            merged_g, new_start = rxcanonical.canonical_regular_grammar(
+                    merged_nfa, new_start)
+
+            merged_dfa = DFA(start_symbol=new_start)
+            merged_dfa.grammar = merged_g
+            if merged_dfa.is_consistent(negative_examples, positive_examples):
+                dfa, start = merged_dfa, new_start
+                red = [r for r in red if r in dfa.grammar]
+                if new_state in dfa.grammar and new_state not in red:
+                    red.append(new_state)
+                merged = True
+                break
+        if not merged:
+            red.append(blue_state)
+        blue = blue_fringe(dfa, red)
+    return dfa
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+def rpni_bluefringe(positive_examples, negative_examples):
+    # Step 1: Build PTA
+    dfa = DFA().build_pta(positive_examples)
+    start = dfa.start_symbol
+    red = [start]
+
+    # Step 2: Expand the red/blue boundary until no blue states remain
+    blue = blue_fringe(dfa, red)
+    while blue:
+        blue_state = blue[0]
+        merged = False
+        for red_state in red:
+            merged_nfa, new_state = merge_to_nfa(dfa.grammar,
+                                                 blue_state, red_state)
+            if start in (blue_state, red_state):
+                new_start = new_state
+            else:
+                new_start = start
+            merged_g, new_start = rxcanonical.canonical_regular_grammar(
+                    merged_nfa, new_start)
+
+            merged_dfa = DFA(start_symbol=new_start)
+            merged_dfa.grammar = merged_g
+            if merged_dfa.is_consistent(negative_examples, positive_examples):
+                dfa, start = merged_dfa, new_start
+                red = [r for r in red if r in dfa.grammar]
+                if new_state in dfa.grammar and new_state not in red:
+                    red.append(new_state)
+                merged = True
+                break
+        if not merged:
+            red.append(blue_state)
+        blue = blue_fringe(dfa, red)
+    return dfa
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
+Let us try bluefringe on the same example as before
+
+<!--
+############
+positive = [
+    "b",
+    "ab",
+    "bb",
+    "aab",
+    "abb",
+    "bab"
+]
+negative = [
+    "",
+    "a",
+    "aa",
+    "ba",
+    "aba",
+    "bba"
+]
+
+learned_dfa = rpni_bluefringe(positive, negative)
+print('should all be accepted', "Y" )
+for s in positive:
+    result = "Y" if learned_dfa.accepts(s) else "X"
+    print(f"{result} '{s}'")
+print()
+print('should all be rejected', "X")
+for s in negative:
+    result = "Y" if learned_dfa.accepts(s) else "X"
+    print(f"{result} '{s}'")
+
+print('What is the grammar learned?')
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+
+############
+-->
+<form name='python_run_form'>
+<textarea cols="40" rows="4" name='python_edit'>
+positive = [
+    &quot;b&quot;,
+    &quot;ab&quot;,
+    &quot;bb&quot;,
+    &quot;aab&quot;,
+    &quot;abb&quot;,
+    &quot;bab&quot;
+]
+negative = [
+    &quot;&quot;,
+    &quot;a&quot;,
+    &quot;aa&quot;,
+    &quot;ba&quot;,
+    &quot;aba&quot;,
+    &quot;bba&quot;
+]
+
+learned_dfa = rpni_bluefringe(positive, negative)
+print(&#x27;should all be accepted&#x27;, &quot;Y&quot; )
+for s in positive:
+    result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
+    print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+print()
+print(&#x27;should all be rejected&#x27;, &quot;X&quot;)
+for s in negative:
+    result = &quot;Y&quot; if learned_dfa.accepts(s) else &quot;X&quot;
+    print(f&quot;{result} &#x27;{s}&#x27;&quot;)
+
+print(&#x27;What is the grammar learned?&#x27;)
+gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+</textarea><br />
+<pre class='Output' name='python_output'></pre>
+<div name='python_canvas'></div>
+</form>
 ## Complexity and Limitations
 
 Time Complexity: The RPNI algorithm is $$ O(p^3 n) $$ where p is the size (sum
@@ -1218,7 +1449,9 @@ data.
 
 ## Extensions and Improvements
 
-Some of the important extensions to RPNI include EDSM [^lang1998] and RPNI2 [^dupont2005]. 
+Some of the important extensions to RPNI include Blue-Fringe (implemented
+above) together with its EDSM [^lang1998] scoring heuristic, and RPNI2
+[^dupont2005].
 
 ---
 [^oncia1992]: J Oncia and P Garcia, Inferring regular languages in polynomial update time, 1992
