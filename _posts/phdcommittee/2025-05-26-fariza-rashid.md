@@ -6,6 +6,8 @@ tags : [phdcommittee phd farizarashid 2025]
 e: Robust Phishing URL Detection Through Deep Learning and Domain Shift Mitigation
 ---
 
+(Chair, not an examiner)
+
 #### Ph.D. Thesis
 
 Robust Phishing URL Detection Through Deep Learning and Domain Shift Mitigation
