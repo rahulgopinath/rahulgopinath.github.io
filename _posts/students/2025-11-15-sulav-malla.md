@@ -6,7 +6,7 @@ tags : [student sulavmalla 2025]
 e: "Learning Highly Recursive Input Grammars: A Replication Study"
 ---
 
-#### DEGREE_HERE
+#### BE Honours Thesis
 
 "Learning Highly Recursive Input Grammars": A Replication Study
 

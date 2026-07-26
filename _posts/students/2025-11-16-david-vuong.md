@@ -6,7 +6,7 @@ tags : [student davidvuong 2025]
 e: Evocative Expressions for Database System Fuzzing
 ---
 
-#### DEGREE_HERE
+#### BAC Honours Thesis
 
 Evocative Expressions for Database System Fuzzing
 

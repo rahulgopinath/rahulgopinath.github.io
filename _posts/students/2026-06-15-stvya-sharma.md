@@ -6,7 +6,7 @@ tags : [student stvyasharma 2026]
 e: Probing Symbolic Reasoning in Large Language Models with Perpetually Renewable, Contamination-Free Grammar Benchmarks
 ---
 
-#### DEGREE_HERE
+#### BAC Honours Thesis
 
 Probing Symbolic Reasoning in Large Language Models with Perpetually Renewable, Contamination-Free Grammar Benchmarks
 
