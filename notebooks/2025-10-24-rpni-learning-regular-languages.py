@@ -653,8 +653,8 @@ if __name__ == '__main__':
 # 
 # Note that which blue state to pick first is not specified. One of the best
 # heuristics is EDSM [^lang1998] which scores candidate merges
-# by shared evidence. We do not use EDSM in this post.
-#
+# by shared evidence. We implement EDSM next.
+# 
 # We first need a helper to fetch the states directly reachable from a
 # given state.
 
@@ -664,14 +664,14 @@ def get_children(grammar, state):
 # Given the current DFA and the current red set, the blue fringe is simply
 # the set of children of red states not already red.
 
-def blue_fringe(dfa, red):
-    blue = []
-    for r in red:
+def blue_fringe(dfa, red_states):
+    blue_states = []
+    for r in red_states:
         for c in get_children(dfa.grammar, r):
-            if c in red: continue
-            if c in blue: continue
-            blue.append(c)
-    return blue
+            if c in red_states: continue
+            if c in blue_states: continue
+            blue_states.append(c)
+    return blue_states
 
 # Now, the RPNI bluefringe algorithm
 
@@ -679,14 +679,14 @@ def rpni_bluefringe(positive_examples, negative_examples):
     # Step 1: Build PTA
     dfa = DFA().build_pta(positive_examples)
     start = dfa.start_symbol
-    red = [start]
+    red_states = [start]
 
     # Step 2: Expand the red/blue boundary until no blue states remain
-    blue = blue_fringe(dfa, red)
-    while blue:
-        blue_state = blue[0]
+    blue_states = blue_fringe(dfa, red_states)
+    while blue_states:
+        blue_state = blue_states[0]
         merged = False
-        for red_state in red:
+        for red_state in red_states:
             merged_nfa, new_state = merge_to_nfa(dfa.grammar,
                                                  blue_state, red_state)
             if start in (blue_state, red_state):
@@ -700,14 +700,14 @@ def rpni_bluefringe(positive_examples, negative_examples):
             merged_dfa.grammar = merged_g
             if merged_dfa.is_consistent(negative_examples, positive_examples):
                 dfa, start = merged_dfa, new_start
-                red = [r for r in red if r in dfa.grammar]
-                if new_state in dfa.grammar and new_state not in red:
-                    red.append(new_state)
+                red_states = [r for r in red_states if r in dfa.grammar]
+                if new_state in dfa.grammar and new_state not in red_states:
+                    red_states.append(new_state)
                 merged = True
                 break
         if not merged:
-            red.append(blue_state)
-        blue = blue_fringe(dfa, red)
+            red_states.append(blue_state)
+        blue_states = blue_fringe(dfa, red_states)
     return dfa
 
 # Let us try bluefringe on the same example as before
@@ -744,6 +744,105 @@ if __name__ == '__main__':
     print('What is the grammar learned?')
     gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
 
+# ## The EDSM Heuristic
+# 
+# While Blue-Fringe solves the unbounded evaluation of states, it leaves a
+# question unanswered: Which blue states should we try to merge with the red
+# states first? This has an impact on the final DFA produced, and the accuracy
+# obtained.
+# 
+# The Evidence-Driven State Merging (EDSM) [^lang1998] heuristic is one answer.
+# Rather than picking randomly, order all consistent merges at each step by the
+# evidence available that the two states are actually equivalent (and hence the
+# strongest available merge). Two states are likely equivalent if merging them
+# triggers a merge of the states that succeeds them. So, first, we compute the
+# score of a merge between two given states.
+
+def merge_score(dfa, start, state1, state2, neg_examples, pos_examples):
+    merged_nfa, new_state = merge_to_nfa(dfa.grammar, state1, state2)
+    if start in (state1, state2):
+        new_start = new_state
+    else:
+        new_start = start
+    merged_g, new_start = rxcanonical.canonical_regular_grammar(
+            merged_nfa, new_start)
+
+    merged_dfa = DFA(start_symbol=new_start)
+    merged_dfa.grammar = merged_g
+    if not merged_dfa.is_consistent(neg_examples, pos_examples):
+        return None
+
+    score = (len(dfa.grammar.keys()) - 1) - len(merged_g.keys())
+    return score, merged_dfa, new_start, new_state
+
+# Let us now use this score to pick the merge with the highest score.
+
+def rpni_edsm(positive_examples, negative_examples):
+    # Step 1: Build PTA
+    dfa = DFA().build_pta(positive_examples)
+    start = dfa.start_symbol
+    red = [start]
+
+    # Step 2: At each step, score every blue/red pair, and commit to the
+    # highest scoring consistent merge.
+    blue = blue_fringe(dfa, red)
+    while blue:
+        best = None
+        for blue_state in blue:
+            for red_state in red:
+                res = merge_score(dfa, start, blue_state, red_state,
+                                   negative_examples, positive_examples)
+                if res is None: continue
+                score, merged_dfa, new_start, new_state = res
+                if best is None or score > best[0]:
+                    best = (score, merged_dfa, new_start, new_state)
+        if best is None:
+            # None of the blue states could be merged. All of them are
+            # verified distinct.
+            red = red + [b for b in blue if b not in red]
+        else:
+            score, merged_dfa, new_start, new_state = best
+            dfa, start = merged_dfa, new_start
+            red = [r for r in red if r in dfa.grammar]
+            if new_state in dfa.grammar and new_state not in red:
+                red.append(new_state)
+        blue = blue_fringe(dfa, red)
+    return dfa
+
+# Let us try EDSM on the same example as before.
+
+if __name__ == '__main__':
+    positive = [
+        "b",
+        "ab",
+        "bb",
+        "aab",
+        "abb",
+        "bab"
+    ]
+    negative = [
+        "",
+        "a",
+        "aa",
+        "ba",
+        "aba",
+        "bba"
+    ]
+
+    learned_dfa = rpni_edsm(positive, negative)
+    print('should all be accepted', "Y" )
+    for s in positive:
+        result = "Y" if learned_dfa.accepts(s) else "X"
+        print(f"{result} '{s}'")
+    print()
+    print('should all be rejected', "X")
+    for s in negative:
+        result = "Y" if learned_dfa.accepts(s) else "X"
+        print(f"{result} '{s}'")
+
+    print('What is the grammar learned?')
+    gatleast.display_grammar(learned_dfa.grammar, learned_dfa.start_symbol)
+
 # ## Complexity and Limitations
 # 
 # Time Complexity: The RPNI algorithm is $$ O(p^3 n) $$ where p is the size (sum
@@ -752,9 +851,9 @@ if __name__ == '__main__':
 # 
 # ## Extensions and Improvements
 # 
-# Some of the important extensions to RPNI include Blue-Fringe (implemented
-# above) together with its EDSM [^lang1998] scoring heuristic, and RPNI2
-# [^dupont2005].
+# Some of the important extensions to RPNI include Blue-Fringe together with
+# its EDSM [^lang1998] scoring heuristic (both implemented above), and
+# RPNI2 [^dupont2005].
 # 
 # ---
 # [^oncia1992]: J Oncia and P Garcia, Inferring regular languages in polynomial update time, 1992
