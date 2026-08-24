@@ -6,6 +6,16 @@ header : Information for Potential Students
 group: navigation
 exclude: true
 ---
+
+> **Notice (August 2026): I am not taking on new students in any category
+> — undergraduate interns, Honours, Dalyell, Masters, MPhil, or Ph.D.**
+>
+> I am overextended with the students I already supervise,
+> and this will remain so until further notice.
+> The projects and application instructions below are kept for reference,
+> and will apply again when I reopen applications.
+> Until then, please do not send an application.
+
 # Important
 
 For all students, please work through, and make yourself familiar with [fuzzingbook](https://fuzzingbook.org) and [debuggingbook](https://debuggingbook.org) **before** you mail me or talk to me. Please explicitly note in your application that you have gone through both. My current research is based on the foundational ideas discussed in these introductory text books, and it helps to have a common understanding. If you have opensource contributions or previously published research, please include it in the application. **Please use to the specified subject format for applications. I use a script to identify and hence respond faster to student emails**.
