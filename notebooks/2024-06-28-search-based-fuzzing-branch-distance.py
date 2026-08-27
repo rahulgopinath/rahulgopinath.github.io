@@ -56,7 +56,7 @@ import textwrap as tw
 # |   a < b   | if a-b < 0 then 0 else (a-b) + K          |
 # |   a <= b  | if a-b <= 0 then 0 else (a-b) + K         |
 # |   a > b   | if b-a >  0 then 0 else (b-a) + K         |
-# |   a > b   | if b-a >= 0 then 0 else (b-a) + K         |
+# |   a => b   | if b-a >= 0 then 0 else (b-a) + K         |
 # |   a **or** b  | min(bdistance(a), bdistance(b))                     |
 # |   a **and** b  | bdistance(a) + bdistance(b)                         |
 # |   **not** a     | Negation is moved inward and propagated over a  |
