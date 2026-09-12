@@ -124,6 +124,16 @@ Mutation analysis — seeding artificial faults and counting how many the tests
 detect — is the best instrument we have, and my Ph.D. was devoted to making it
 usable on real systems.
 
+In dependability terms this is software fault injection,
+and fault injection does two jobs at once.
+It serves fault removal, by exposing tests that fail to detect what they should.
+It also serves fault forecasting:
+the estimation work above runs on mutation analysis,
+and the link between mutation score and residual defects is what makes that
+forecast possible at all.
+I treat the two separately here because an instrument has to be trusted before
+the estimates built on it mean anything.
+
 I first asked whether seeded faults resemble real ones.
 Examining over 5,371 projects in four languages,
 we found the faults used by mutation analysis are simplistic compared to
