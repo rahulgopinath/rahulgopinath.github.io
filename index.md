@@ -19,29 +19,31 @@ and did my postdoc at
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
 
-My research asks a single question:
+My research primarily on one single question:
 *how much confidence can we justify that a software system will not fail in operation?*
 
 Failures arrive by two routes.
 Most arrive by chance, through inputs nobody anticipated.
 Some arrive by design, through an adversary searching for precisely the input
 that breaks you.
-The engineering problem is the same either way —
+The engineering problem is the same either way:
 find the inputs that provoke failure,
 measure whether the search was thorough,
-and estimate what it missed —
-which is why the same techniques serve reliability engineering and security.
+and estimate what it missed.
+This also means that the same techniques serve both reliability engineering and security.
 Fuzzing is the clearest case:
 it is automated test generation,
 and it is also how most modern vulnerabilities are found.
-I treat security as the adversarial corner of reliability rather than as a
-separate discipline,
+I treat security as the adversarial corner of reliability,
 and the work below is organized accordingly.
 
 The question is most urgent where failure is expensive.
-In high-consequence software — industrial control, instrumentation, medical
-devices, critical infrastructure — what matters is not whether testing found
-bugs, but whether the evidence gathered justifies the confidence being claimed.
+In high-consequence software such as
+industrial control, instrumentation, medical
+devices, critical infrastructure, just finding bugs is not enough.
+We also need to have confidence in the reliability of the software,
+and hence we need to evaluate whether the evidence gathered justifies
+the confidence being claimed.
 That is a quantitative question, and it is largely unsolved.
 
 Dependability engineering names four means of getting there:
@@ -50,38 +52,46 @@ and forecasting what is left.
 My work covers the last three, in five parts that build on one another:
 
 * **What remains?** After a test campaign ends, how many faults are still there?
-* **Can we trust the measurement?** Is our estimate of test quality itself sound?
+* **Can we trust the measurement?** Is our estimate of software test quality, (and hence software that it tests) sound?
 * **How do we provoke the failures?** Reaching a fault requires inputs the system will accept, whether we are testing or attacking.
-* **How do we diagnose one?** A failure report is only useful if someone can act on it.
-* **What if the damage is already done?** Corrupted data has to be recovered, not discarded.
+* **How do we diagnose one?** A failure report is only useful if we can act on it.
+* **What if the damage is already done?** Corrupted data has to be recovered.
 
 <h3>Estimating what remains</h3>
 
 The oldest question in software reliability is when to stop.
 Classical software reliability growth models answer it by fitting a curve to the
 arrival of failures over time and extrapolating to the faults not yet seen.
-My group approaches the same question from a different direction,
-borrowing from ecology:
+A more recent proposal borrows from ecology:
 *species richness estimation*,
 which infers how many species exist in a population
-from how often each one has been observed.
-Coverage elements and killable faults behave, statistically, much like species.
+from how often each one has been observed,
+treating coverage elements and killable faults as the species.
+
+My interest is in whether these methods actually hold up.
+The field proposes metrics considerably faster than it validates them,
+and a reliability estimate that is wrong does more damage than no estimate at all,
+because someone will act on it.
+Many of my findings here have been negative,
+and my focus has been on establishing the credibility (or lack of credibility)
+these metrics.
 
 The thread starts with a result on residual defects.
 We were the first, and to date the only ones, to find evidence
-that mutation score and coverage are inversely related to the
+that mutation score (injected fault detection score) and coverage are inversely
+related to the
 *residual defect density* of a program
 [(FSE 2016)](/publications/2016/11/13/fse-can/):
 the number of live mutants remaining is related to the number of real bugs
 remaining.
 
-We then asked whether richness estimators could count the *killable* mutants in
-a program directly.
-Across twelve frequency-based models and ten mature projects, they could not —
-the estimators lacked the predictive power to be useful
+We then asked whether richness estimators could count the *killable* mutants
+(injected faults) in a program directly.
+Across twelve frequency-based models and ten mature projects, they could not.
+The estimators lacked the predictive power to be useful
 [(ESEM 2024)](/publications/2024/06/20/empirical-evaluation/).
-A negative result, but a load-bearing one:
-it told us the difficulty lies in the sampling process, not the estimator.
+While it is a negative result, it is impactful,
+as it told us the difficulty lies in the sampling process.
 
 Applied to coverage, the problem is harder still,
 because there is no ground truth to check an estimate against.
@@ -112,17 +122,22 @@ reliability cannot be quantified to the levels critical systems demand,
 and our results so far support the skeptical side of it:
 the estimators available today are not dependable enough to carry a confidence
 claim on their own.
-I would rather establish that clearly than overstate what the methods can do.
-Closing that gap — knowing when a campaign has genuinely saturated, and with what
-error bars — is the aim of this thread.
+Establishing that clearly is more useful to a practitioner than another
+proposed metric with an untested claim attached.
+This question: whether any estimator can tell us when a campaign has
+genuinely saturated, and with what confidence, remains open, and has been
+one of my focus areas.
 
 <h3>Trusting the measurement</h3>
 
 Any claim about residual risk rests on a measurement of test quality,
 so the measurement has to be sound.
-Mutation analysis — seeding artificial faults and counting how many the tests
-detect — is the best instrument we have, and my Ph.D. was devoted to making it
-usable on real systems.
+Checking whether the field's accepted measures survive examination
+has been a consistent thread in my work,
+and the answer has often been that they do not.
+Mutation analysis, which works by seeding artificial faults and counting how
+many the tests detect, is the best instrument we have.
+My Ph.D. was devoted to making it usable on real systems.
 
 In dependability terms this is software fault injection,
 and fault injection does two jobs at once.
@@ -318,7 +333,7 @@ Where the data can be regenerated, that is merely wasteful.
 Where it cannot — a one-off experiment, a monitoring record,
 an instrument stream that will never be replayed —
 discarding is not an acceptable answer,
-and repair stops being a convenience and becomes a reliability requirement.
+and repair becomes a reliability requirement.
 
 The obstacle is that established repair methods need a format specification,
 and frequently there is none to be had.
@@ -337,7 +352,6 @@ repair locations, and the parser properties they required
 [(ASE 2026)](/publications/2026/06/20/ase-maximal/).
 
 Repair of this kind is the fault tolerance half of reliability.
-It does not make the corruption less likely.
 It makes the consequence of corruption recoverable,
 which is the property that matters when the data is irreplaceable.
 
@@ -353,7 +367,7 @@ That experience continues to shape the work.
 The industrial protocol study above was run against a production system under
 real operational constraints,
 and the reduction and repair tools are built to be dropped into existing
-pipelines rather than to require them to be rebuilt.
+pipelines.
 
 <hr>
 <b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
