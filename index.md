@@ -44,12 +44,16 @@ devices, critical infrastructure — what matters is not whether testing found
 bugs, but whether the evidence gathered justifies the confidence being claimed.
 That is a quantitative question, and it is largely unsolved.
 
-The question decomposes into four, and they build on one another:
+Dependability engineering names four means of getting there:
+preventing faults, removing them, tolerating those that remain,
+and forecasting what is left.
+My work covers the last three, in five parts that build on one another:
 
 * **What remains?** After a test campaign ends, how many faults are still there?
 * **Can we trust the measurement?** Is our estimate of test quality itself sound?
 * **How do we provoke the failures?** Reaching a fault requires inputs the system will accept, whether we are testing or attacking.
-* **What do we do when it fails?** A failure must be diagnosed, and the damage contained.
+* **How do we diagnose one?** A failure report is only useful if someone can act on it.
+* **What if the damage is already done?** Corrupted data has to be recovered, not discarded.
 
 <h3>Estimating what remains</h3>
 
@@ -249,7 +253,7 @@ Blackbox conditions of this kind are the norm in industrial and security
 settings, where instrumentation is barred by legal, operational, or safety
 constraints.
 
-<h3>Diagnosing and containing failures</h3>
+<h3>Diagnosing failures</h3>
 
 A detected failure is only useful if someone can act on it,
 and generated inputs are typically enormous and unreadable.
@@ -290,18 +294,42 @@ redundant restarts, with a tunable restart budget trading minimality against
 linear worst-case behavior
 [(ISSRE 2026)](/publications/2026/07/11/drdd/).
 
-Containment is the other half.
-When data arrives corrupted, discarding it loses information,
-and repair techniques that need a format specification are useless when none
-exists.
-_εRepair_ uses parser feedback alone to locate and correct inconsistencies,
-producing substantially higher quality repairs than _ddmax_ while losing far less
-data
+<h3>Tolerating corrupt data</h3>
+
+Not every fault can be removed before deployment,
+and not every damaged input is the program's fault.
+Data arrives corrupted through entry error, truncated transmission,
+storage decay, inconsistent formatting,
+and specifications that changed underneath it.
+The usual response is to drop the affected records,
+which is a data loss decision dressed up as a correctness decision.
+
+Where the data can be regenerated, that is merely wasteful.
+Where it cannot — a one-off experiment, a monitoring record,
+an instrument stream that will never be replayed —
+discarding is not an acceptable answer,
+and repair stops being a convenience and becomes a reliability requirement.
+
+The obstacle is that established repair methods need a format specification,
+and frequently there is none to be had.
+Long-lived archives are the sharp case:
+formats drift across decades, tooling is retired,
+and the specification is often the first thing lost.
+_εRepair_ works without one,
+using parser feedback alone to locate and correct inconsistencies.
+It produces repairs 2.6 times higher in quality than _ddmax_,
+measured by the edits needed to restore the data,
+while losing 2.8 times less of it, at 1.4 times the runtime
 [(ISSRE 2025)](/publications/2025/07/01/automatic/).
 Our follow-up generalizes this to maximal format-free repair,
-lifting the restrictions on repair operations, repair locations, and the parser
-properties earlier methods required
+lifting the restrictions earlier methods imposed on repair operations,
+repair locations, and the parser properties they required
 [(ASE 2026)](/publications/2026/06/20/ase-maximal/).
+
+Repair of this kind is the fault tolerance half of reliability.
+It does not make the corruption less likely.
+It makes the consequence of corruption recoverable,
+which is the property that matters when the data is irreplaceable.
 
 <!--
 <h3>Implementation</h3>
