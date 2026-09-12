@@ -10,321 +10,298 @@ Theory of Computation*, [please drop me a note](/contact/). </b-->
 
 
 
-Rahul Gopinath is a lecturer at the [University of Sydney](https://www.sydney.edu.au/).
-His focus is static and dynamic analysis of software.
-He received his Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/),
-and did his postdoc at
+I am a lecturer at the [University of Sydney](https://www.sydney.edu.au/),
+where I work on **software reliability**, including its security-critical cases.
+I received my Ph.D. in 2017 from the [School of EECS at Oregon State University](http://eecs.oregonstate.edu/),
+and did my postdoc at
 [CISPA Helmholtz Center for Information Security](http://cispa.saarland), Germany.
- The following is a summary of his research.
 <!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
-<h3>Cybersecurity</h3>
 
-My work is focused on fuzzing software systems. Fuzzing is essentially about
-evaluating how a software system responds to unexpected and possibly invalid
-inputs. The question is, can you make the system under fuzzing behave in an
-unexpected or unforeseen manner?
-If a system correctly rejects all invalid inputs and behaves correctly under
-valid inputs, we say that the system is robust under fuzzing. Fuzzing a system
-requires relatively little manual input, and fuzzing a system before its release
-can help uncover vulnerabilities before it is exposed to the wider world.
+My research asks a single question:
+*how much confidence can we justify that a software system will not fail in operation?*
 
-Our work produced [the fuzzing book](https://www.fuzzingbook.org/) which is an
-accessible resource for students and practitioners new to fuzzing.
+Failures arrive by two routes.
+Most arrive by chance, through inputs nobody anticipated.
+Some arrive by design, through an adversary searching for precisely the input
+that breaks you.
+The engineering problem is the same either way —
+find the inputs that provoke failure,
+measure whether the search was thorough,
+and estimate what it missed —
+which is why the same techniques serve reliability engineering and security.
+Fuzzing is the clearest case:
+it is automated test generation,
+and it is also how most modern vulnerabilities are found.
+I treat security as the adversarial corner of reliability rather than as a
+separate discipline,
+and the work below is organized accordingly.
+
+The question is most urgent where failure is expensive.
+In high-consequence software — industrial control, instrumentation, medical
+devices, critical infrastructure — what matters is not whether testing found
+bugs, but whether the evidence gathered justifies the confidence being claimed.
+That is a quantitative question, and it is largely unsolved.
+
+The question decomposes into four, and they build on one another:
+
+* **What remains?** After a test campaign ends, how many faults are still there?
+* **Can we trust the measurement?** Is our estimate of test quality itself sound?
+* **How do we provoke the failures?** Reaching a fault requires inputs the system will accept, whether we are testing or attacking.
+* **What do we do when it fails?** A failure must be diagnosed, and the damage contained.
+
+<h3>Estimating what remains</h3>
+
+The oldest question in software reliability is when to stop.
+Classical software reliability growth models answer it by fitting a curve to the
+arrival of failures over time and extrapolating to the faults not yet seen.
+My group approaches the same question from a different direction,
+borrowing from ecology:
+*species richness estimation*,
+which infers how many species exist in a population
+from how often each one has been observed.
+Coverage elements and killable faults behave, statistically, much like species.
+
+The thread starts with a result on residual defects.
+We were the first, and to date the only ones, to find evidence
+that mutation score and coverage are inversely related to the
+*residual defect density* of a program
+[(FSE 2016)](/publications/2016/11/13/fse-can/):
+the number of live mutants remaining is related to the number of real bugs
+remaining.
+
+We then asked whether richness estimators could count the *killable* mutants in
+a program directly.
+Across twelve frequency-based models and ten mature projects, they could not —
+the estimators lacked the predictive power to be useful
+[(ESEM 2024)](/publications/2024/06/20/empirical-evaluation/).
+A negative result, but a load-bearing one:
+it told us the difficulty lies in the sampling process, not the estimator.
+
+Applied to coverage, the problem is harder still,
+because there is no ground truth to check an estimate against.
+We proposed an evaluation framework that synthesizes large programs with complex
+control flow and *known* reachability,
+paired with a reliability check that works on real programs without ground truth,
+by varying the size of the sampling unit
+[(ICSME 2025)](/publications/2025/09/11/assessing/).
+A further complication is that modern test generators use coverage feedback,
+which biases the sample adaptively.
+We are testing the hypothesis that this bias is minimized when singletons
+(coverage seen exactly once) equal doubletons (seen exactly twice),
+which would give a principled stopping criterion for a campaign
+[(NDSS Workshop 2026)](/publications/2026/03/01/evaluating-impact/).
+Most recently we asked whether parametric estimators would beat non-parametric
+ones by assuming a distribution for coverage discovery.
+Fitting Poisson, Exponential, Gamma, Gamma–Poisson, Negative Binomial, and
+Zipf–Mandelbrot models across seven benchmarks,
+we found that a better distributional fit does *not* yield better estimates
+[(ISSRE 2026)](/publications/2026/08/13/better/).
+
+This bears directly on assurance.
+A safety case or an assurance argument must justify a claimed level of confidence
+with evidence, and the usual evidence is a test campaign that has ended.
+If we cannot say what that campaign missed, we cannot say what the claim is worth.
+There is a long-running argument in the software safety literature that software
+reliability cannot be quantified to the levels critical systems demand,
+and our results so far support the skeptical side of it:
+the estimators available today are not dependable enough to carry a confidence
+claim on their own.
+I would rather establish that clearly than overstate what the methods can do.
+Closing that gap — knowing when a campaign has genuinely saturated, and with what
+error bars — is the aim of this thread.
+
+<h3>Trusting the measurement</h3>
+
+Any claim about residual risk rests on a measurement of test quality,
+so the measurement has to be sound.
+Mutation analysis — seeding artificial faults and counting how many the tests
+detect — is the best instrument we have, and my Ph.D. was devoted to making it
+usable on real systems.
+
+I first asked whether seeded faults resemble real ones.
+Examining over 5,371 projects in four languages,
+we found the faults used by mutation analysis are simplistic compared to
+real-world bugs in terms of the size of the code change
+[(ISSRE 2014)](/publications/2014/11/03/issre-mutations/).
+To reduce its cost I developed an algorithm exploiting execution redundancy
+between similar mutants
+[(ICSE 2016)](/publications/2016/05/14/icse-topsy/),
+and showed how combinatorial evaluation can identify equivalent mutants
+[(ISSRE 2015)](/publications/2015/11/05/issre-how/).
+
+I then tested the prevailing belief that mutants should be *selected* rather than
+sampled.
+Comparing the theoretical best selection methods against random sampling,
+I found that **even under oracular knowledge of test kills**,
+selection can be at best less than 20% better than random sampling,
+and is often much worse
+[(ICSE 2016)](/publications/2016/05/14/icse-on/).
+There is no such ceiling on the gains from *adding* operators,
+which says effort belongs in finding new operators rather than discarding
+existing ones.
+**This settled a long standing debate on mutation reduction strategies in favor
+of random sampling.**
+Finally, we proved the _coupling effect_ theoretically and quantified it
+empirically
+[(ICST 2017)](/publications/2017/03/13/icstw-the-theory/),
+clarifying how the simple faults mutants represent relate to the higher order
+faults common in real programs.
+
+Coverage is the other common instrument, and it is widely misread.
+Our work found that **statement coverage**, not *branch* or *path* coverage,
+is the better predictor of mutation score across more than 200 real-world
+projects
+[(ICSE 2014)](/publications/2014/05/31/icse-code/),
+contradicting the prevailing wisdom of the time.
+We later settled how test suite *size* should be accounted for in empirical
+evaluations
+[(ASE 2020)](/publications/2020/09/21/ase-revisiting/).
+
+These instruments now do work they were not built for.
+Automated test generators are judged almost entirely by coverage reached and
+crashes found, both of which saturate and invite overfitting.
+Mutation score is the better yardstick, but evaluating each mutant independently
+made it unaffordable.
+We set out the obstacles
+[(arXiv 2022)](/publications/2022/01/27/arxiv-mutation/),
+then showed that pooling multiple mutations into a single execution brings the
+cost down far enough to compare generators by mutation score for the first time
+[(Usenix Security 2023)](/publications/2023/04/26/systematic/).
+Mutants also serve as intermediate *targets*: splitting a generation budget
+between a program and its mutants explores more behavior than spending all of it
+on the program
+[(NDSS Workshop 2022)](/publications/2022/04/24/ndss-first-fuzz-the-mutants/).
+
+<h3>Provoking the failures: fuzzing</h3>
+
+None of the above is measurable without inputs that actually reach the code.
+Fuzzing — generating large volumes of unexpected and possibly invalid input,
+and watching for anomalous behavior — is the cheapest way to get them,
+and it is simultaneously the dominant technique in vulnerability discovery.
+A system that rejects every invalid input and behaves correctly on valid ones is
+robust under fuzzing, and fuzzing it before release finds the failures before
+users and attackers do.
+
+This work produced [the fuzzing book](https://www.fuzzingbook.org/),
+an open textbook now used by students and practitioners worldwide.
 [![Fuzzingbook Image](/resources/fuzzingbook_image.webp)](https://www.fuzzingbook.org/)
-It takes the student through writing simple fuzzers that generate random inputs
-without any information or feedback from the program to writing complex fuzzers
-that analyze the system under fuzzing for information about the expected inputs
-and incorporate the feedback from previous runs to guide further fuzzing.
+It takes a reader from simple random generators through fuzzers that analyze the
+system under test to infer its expected inputs and use feedback from earlier runs
+to steer later ones.
 
-One of the challenges in fuzzing is how to reach deep code paths. In particular,
-many systems accept multilayered inputs such as an HTTP request that wraps a
-JSON object, which in turn encodes an RPC call, which may, in turn, encode a
-custom data structure. For such inputs, traditional fuzzers rarely reach beyond
-the first layer. The problem is that traditional fuzzers rely on coverage to
-decide how to proceed. When a fuzzer is faced with a program with a complex
-input structure, coverage is of little help beyond producing simple values as
-the paths explored are the same for simple or complex inputs. This means that
-one needs a better way of producing complex inputs than traditional coverage
-guided fuzzing.
+The hard part is reaching deep code.
+Most systems accept only highly structured input,
+and a generator that cannot produce valid structure never gets past the parser.
+Real systems compound this: an HTTP request wrapping a JSON object encoding an
+RPC call encoding a custom structure defeats coverage-guided fuzzing entirely,
+because the paths explored are identical for simple and complex inputs.
 
-Our first research was toward generating complex *valid* inputs when faced with
-a parser so that we can get to the next level. We found that traditional
-approaches such as symbolic execution do not work well due to *path explosion*
-when faced with parsers. 
-We [invented](https://arxiv.org/abs/1810.08289) a fast and lightweight approach
-called [Pygmalion](https://github.com/vrthra/pygmalion) that iteratively
-corrects a generated input prefix which ultimately leads to valid inputs.
-Our approach is applicable both for
-single pass parsers [(PLDI 2019)](/publications/2019/06/22/pldi-parser/) as well
-as for parsers with a lexical analysis
-stage [(ISSTA 2020)](/publications/2020/07/18/issta-learning/). Our
-technique is applicable even for [instrumentation-less systems](https://arxiv.org/abs/2012.13516)
-such as embedded systems and remote systems.
+Our first approach generated valid inputs against an unmodified parser.
+Symbolic execution fails here through *path explosion*,
+so we [built](https://arxiv.org/abs/1810.08289) a lightweight alternative,
+[Pygmalion](https://github.com/vrthra/pygmalion),
+which iteratively corrects a generated prefix until it is accepted.
+It works for single pass parsers
+[(PLDI 2019)](/publications/2019/06/22/pldi-parser/),
+for parsers with a lexical stage
+[(ISSTA 2020)](/publications/2020/07/18/issta-learning/),
+and even for
+[systems that cannot be instrumented](https://arxiv.org/abs/2012.13516),
+such as embedded and remote systems — a common constraint in security testing,
+where the target is frequently a binary nobody can recompile.
 
-While *Pygmalion* can get us valid inputs faster than traditional methods, it is
-limited to overcoming the first layer parser. While *Pygmalion* is fast, it
-still needs to run the program under fuzzing once per input character, which is
-comparatively expensive if one wants to produce a large number of valid inputs.
-Hence, we [invented](https://github.com/vrthra/mimid) a technique called _Mimid_
-that can infer the input structure expected by a given parser as a
-*context-free grammar* from the dynamic analysis of the program run [(FSE 2020)](/publications/2020/11/08/fse-mining/).
-In particular, _Mimid_ covers the entire spectrum of parsers from ad hoc
-handwritten parsers to modern parser combinators, and represents a significant
-advancement in the field.
+Correcting one input at a time is still expensive.
+So we [built](https://github.com/vrthra/mimid) _Mimid_,
+which recovers the input structure a parser expects as a *context-free grammar*
+by dynamic analysis of program runs
+[(FSE 2020)](/publications/2020/11/08/fse-mining/),
+covering the full range from ad hoc handwritten parsers to parser combinators.
+With a grammar in hand the bottleneck moves to generation speed,
+so we [adapted](/publications/2019/11/18/arxiv-building/) ideas from language
+implementation and virtual machine optimization to build the
+[F1 fuzzer](https://github.com/vrthra/f1), which produces millions of inputs
+per second.
 
-Given such a grammar, the problem reduces to how one can generate inputs fast
-from a *context-free grammar*. The problem at this point was that the available
-grammar-based fuzzers were too slow.
-Hence, we [adapted](/publications/2019/11/18/arxiv-building/) ideas from
-programming language implementation, and virtual machine optimization to build
-our [F1 grammar fuzzer](https://github.com/vrthra/f1) which is effective and
-efficient and can produce millions of inputs per second.
+![Fuzzing pipeline](/resources/totalfuzz.webp)
 
-![Pygmalion Pipeline](/resources/totalfuzz.webp)
+Since then we have pushed inference in several directions.
+Reimplementing the GLADE algorithm, we found its reported effectiveness overly
+optimistic and in some cases measured against the wrong language
+[(PLDI 2022)](/publications/2022/04/04/pldi-synthesizing/) —
+replication matters here, because grammar inference results are easy to overstate.
+_CLIFuzzer_ mines the valid command-line invocations of a utility into a grammar
+[(FSE 2022)](/publications/2022/08/12/fse-clifuzzer/),
+and _FormatFuzzer_ compiles a binary template into a parser, mutator, and
+generator for structured binary formats such as MP4 and ZIP,
+finding previously unknown memory errors in ffmpeg and timidity
+[(TOSEM 2024)](/publications/2024/02/10/effective/).
 
-While fuzzers are effective in quickly identifying failure conditions using
-surprising inputs, the inputs produced by these tools can often be huge, and
-incomprehensible to the developer.
-Hence, test case reduction (often variants of _delta debugging_) is often used
-to reduce the test case to a minimal input, such strings still fail to inform the developer as to what went wrong.
-Even worse, a casual inspection of many such test cases can often suggest an
-incorrect hypothesis. We [invented](/publications/2020/07/18/issta-abstracting/)
-a technique called _DDSET_ that identifies the parts of the input that caused
-the failure, and abstracts away everything else.
-The failure representations (we call these
-_evocative patterns_) produced by _DDSET_ (e.g. `((<expr>))` when
-the error is caused due nested parenthesis)
-are precise and easy to understand.
-Our work was presented at [ISSTA 2020](/publications/2020/07/18/issta-abstracting/),
-and received the __ACM SIGSOFT Distinguished Paper__ award.
+The techniques hold up outside the lab.
+With an industrial partner we reverse-engineered the protocol accepted by a
+virtualized packet processing engine,
+with no access to source code or internal documentation,
+inferring its grammar at an F1 score of 0.94 and driving a full blackbox test
+campaign from it
+[(ISSRE 2025)](/publications/2025/07/01/from/).
+Blackbox conditions of this kind are the norm in industrial and security
+settings, where instrumentation is barred by legal, operational, or safety
+constraints.
 
-The evocative patterns thus produced represent a specialization of the base
-grammar of the input. In our paper at [ICSE 2021](/publications/2021/05/22/icse-input-algebras/),
-we show how, given the base grammar and the evocative pattern corresponding
-to a failure, one can produce the corresponding specialized context-free
-grammar which guarantees that the evocative fragment is present in all
-inputs produced from the specialized grammar at least once. We also show
-how to combine such evocative patterns using all logical connectives
---- conjunction, disjunction, and negation --- forming evocative expressions
-that represent a specialized _context-free_ grammar.
+<h3>Diagnosing and containing failures</h3>
+
+A detected failure is only useful if someone can act on it,
+and generated inputs are typically enormous and unreadable.
+Test case reduction shrinks them, but a minimal input still does not say *what*
+went wrong, and casual inspection often suggests the wrong hypothesis.
+We [built](/publications/2020/07/18/issta-abstracting/) _DDSET_,
+which identifies the parts of an input responsible for the failure and abstracts
+away the rest.
+The resulting _evocative patterns_ — for example `((<expr>))` when nested
+parentheses are the cause — are precise and readable.
+This work received the __ACM SIGSOFT Distinguished Paper__ award
+[(ISSTA 2020)](/publications/2020/07/18/issta-abstracting/).
+
+An evocative pattern is a specialization of the input grammar.
+At [ICSE 2021](/publications/2021/05/22/icse-input-algebras/) we showed how to
+turn a base grammar and a pattern into a specialized grammar guaranteed to
+produce the evocative fragment in every input,
+and how to combine patterns under conjunction, disjunction, and negation to form
+evocative *expressions*.
 
 ![Evocative Expressions](/resources/ewok.webp)
 
-The example above shows a simple evocative expression that specializes
-a base JSON grammar. The corresponding evocative grammar guarantees
-that the inputs produced will have at least one empty key (the first evocative
-pattern in the _where_ clause), and no _null_ key values (the second evocative
-pattern in the _where_ clause, negated). Second, it also guarantees that the
-evocative grammar produced will be able to successfully parse _any_ input
-that conforms to these specifications (or the grammar when used as a producer
-can produce any such input).
-While the evocative patterns can be written by hand,
-they can also be mined from existing bugs by simply using the DDSET
-algorithm.
-These evocative expressions can not only be used as precise generators
-but also as supercharged semantic pattern matchers similar to Semgrep.
+The expression above specializes a JSON grammar so that every input has at least
+one empty key and no null key values,
+while still parsing *any* input meeting that specification.
+Patterns can be written by hand or mined from existing bugs with DDSET,
+and the expressions serve both as precise generators and as semantic pattern
+matchers in the spirit of Semgrep.
 
-<h3>Mining input specifications</h3>
-
-Inferring the input language of a program is the thread that ties much of
-my recent work together,
-and we have pushed it in several directions since *Mimid*.
-
-Taking stock of the field, we reimplemented the GLADE algorithm — the first
-blackbox approach to claim context-free approximation of real input
-languages — and found that its reported effectiveness was overly optimistic
-[(PLDI 2022)](/publications/2022/04/04/pldi-synthesizing/).
-Replication of this kind matters:
-grammar inference results are easy to overstate and hard to compare.
-
-Not every input language is textual, and not every one is context-free.
-_CLIFuzzer_ mines the space of valid command-line invocations of a utility —
-its options, arguments, and argument types —
-and turns that into a grammar for fuzzing
-[(FSE 2022)](/publications/2022/08/12/fse-clifuzzer/).
-For structured binary formats such as MP4 and ZIP,
-_FormatFuzzer_ compiles a binary template into a C++ parser, mutator,
-and highly efficient generator,
-which found previously unknown memory errors in ffmpeg and timidity
-[(TOSEM 2024)](/publications/2024/02/10/effective/).
-
-These techniques also hold up outside the lab.
-Working with an industrial partner,
-we reverse-engineered the protocol accepted by a virtualized packet processing
-engine with no access to source code or internal documentation,
-inferring its grammar at an F1 score of 0.94 and driving a blackbox test
-campaign from it
-[(ISSRE 2025)](/publications/2025/07/01/from/).
-
-<h3>Reducing and repairing inputs</h3>
-
-Delta debugging guarantees 1-minimality but pays for it with quadratic
-worst-case behavior, caused by restarting the search at every partition level.
-Re-examining _ddmin_, we showed that restarts are only needed at the
-single-element level to preserve 1-minimality,
-and that the quadratic worst case arises from causal chains rather than from
-the restarts themselves.
-The resulting algorithm, _drdd_, is a drop-in replacement for _ddmin_
-that keeps the 1-minimality guarantee while skipping the redundant restarts,
-and exposes a restart budget that trades minimality against linear worst-case
-performance
+Reduction itself needed work.
+Delta debugging guarantees 1-minimality but pays quadratically for it,
+restarting at every partition level.
+Re-examining _ddmin_, we showed restarts are needed only at the single-element
+level to preserve 1-minimality,
+and that the quadratic worst case comes from causal chains rather than restarts.
+_drdd_ is a drop-in replacement keeping the guarantee while dropping the
+redundant restarts, with a tunable restart budget trading minimality against
+linear worst-case behavior
 [(ISSRE 2026)](/publications/2026/07/11/drdd/).
 
-A closely related question is what to do with input that is broken rather than
-merely large.
-Data-repair techniques that rely on a format specification are of no use when
-no specification exists.
+Containment is the other half.
+When data arrives corrupted, discarding it loses information,
+and repair techniques that need a format specification are useless when none
+exists.
 _εRepair_ uses parser feedback alone to locate and correct inconsistencies,
-producing repairs of substantially higher quality than _ddmax_ while losing far
-less of the original data
+producing substantially higher quality repairs than _ddmax_ while losing far less
+data
 [(ISSRE 2025)](/publications/2025/07/01/automatic/).
-Our follow-up work generalizes this to maximal format-free repair,
+Our follow-up generalizes this to maximal format-free repair,
 lifting the restrictions on repair operations, repair locations, and the parser
 properties earlier methods required
 [(ASE 2026)](/publications/2026/06/20/ase-maximal/).
-
-<h3>Knowing when a test campaign is done</h3>
-
-A fuzzing campaign is guided by coverage, but the total reachable coverage of a
-real program is unknown.
-Without it, there is no principled way to say how much of the program remains
-unexplored, or when to stop.
-This has become one of the main threads in my group,
-and it borrows its machinery from biostatistics:
-species richness estimators, which infer how many species exist in a population
-from how often each has been observed.
-
-We first applied this family of estimators to mutation analysis,
-asking whether they could estimate the number of *killable* mutants.
-Across twelve frequency-based models and ten mature projects,
-they could not: the estimators lacked the predictive power to be useful
-[(ESEM 2024)](/publications/2024/06/20/empirical-evaluation/).
-
-Applying them to coverage raises a harder problem —
-there is no ground truth to check an estimate against.
-We proposed an evaluation framework that synthesizes large programs with complex
-control flow and known reachability,
-together with a reliability check that works on real programs without ground
-truth, by varying the size of the sampling unit
-[(ICSME 2025)](/publications/2025/09/11/assessing/).
-A further complication is that modern fuzzers use coverage feedback,
-which introduces adaptive bias into the sample.
-We are testing the hypothesis that this bias is minimized when singletons
-(coverage observed exactly once) equal doubletons (observed exactly twice),
-which would make that equilibrium a usable stopping criterion
-[(NDSS Fuzzing Workshop 2026)](/publications/2026/03/01/evaluating-impact/).
-Most recently, we asked whether parametric estimators would do better than the
-non-parametric ones by assuming a distribution for coverage discovery.
-Fitting Poisson, Exponential, Gamma, Gamma–Poisson, Negative Binomial, and
-Zipf–Mandelbrot models across seven benchmarks,
-we found that a better distributional fit does *not* translate into better
-reachable coverage estimation
-[(ISSRE 2026)](/publications/2026/08/13/better/).
-
-<h3>Test suite and test case effectiveness</h3>
-
-I have also worked on empirical evaluation of the effectiveness of different
-coverage techniques. Our initial work [(ICSE 2014)](/publications/2014/05/31/icse-code/) towards addressing the
-shortcomings of mutation analysis found that **statement coverage**, rather
-than *branch* or *path* coverage is a better measure of mutation score,
-and hence the quality of a test suite. This was substantiated by extensive
-examination of over 200 real-world projects of various sizes, and this was
-notably different from the prevailing wisdom which claimed that *branch* and
-*path* coverage was obviously better.
-
-We were also the first (and to date, the only ones) to find evidence
-that  mutation score as well as coverage is inversely related to the
-*residual defect density* of the program [(FSE 2016)](/publications/2016/11/13/fse-can/).
-That is, the number of live mutants remaining is related to the actual bugs
-remaining in the program.
-Finally, our recent work [(ASE 2020)](/publications/2020/09/21/ase-revisiting/)
-clarifies the relationship between test suite size and coverage. It settles
-a long standing debate about how to interpret the effect of test suite size, and
-shows how to correctly account for the suite size in empirical evaluations.
-
-<!-- PhD Supervisors: [Prof. Dr. Carlos Jensen](http://dblp.uni-trier.de/pers/hd/j/Jensen:Carlos)
-and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/> 
-<h3>Research</h3> -->
-
-<h3>Mutation analysis</h3>
-My primary focus during my PhD was mutation analysis of programs, and especially how to make mutation analysis a workable technique for real-world developers and testers.
-
-<!--h5>Overview of publications</h5>
-[<img src="/resources/img-publications.svg" alt="Publications" title="Publications" width="550px" align='center'>](/publications) -->
-
-Mutation analysis is a method of evaluating the quality of software test suites
-by introducing simple faults into a program. A test suite's ability to detect
-these mutants, or artificial faults, is a reasonable proxy for the effectiveness
-of the test suite. While mutation analysis is the best technique for test suite
-evaluation we have, it is also rather computationally and time intensive,
-requiring millions of test suite runs for even a moderately large software project.
-This also means that mutation analysis is effectively impossible to use by
-developers and practicing testers working on real-world problems, and who need
-to evaluate whether their current test suites are adequate. Unfortunately, most
-of the research done in mutation analysis has been done on a small number of
-subject programs, small in size, and that have test suites with high coverage
-and adequacy -- something that is a rarity in real-world development
-(at least at early development stages).
-
-My research [(ISSRE 2014)](/publications/2014/11/03/issre-mutations/)
-evaluated whether the faults produced by mutation analysis were representative
-of real faults. Our examination of over 5,371 projects in four different
-programming languages found that the faults used by mutation analysis are rather
-simplistic in practice compared to real-world bugs (in terms of the size of code
-change).
-
-As an initial step towards reducing the computational requirements of mutation
-analysis, I investigated techniques used for mutation analysis, and invented a
-[new algorithm](/publications/2016/05/14/icse-topsy/) (ICSE 2016 abstract) for
-faster mutation analysis, taking advantage of redundancy in execution between
-similar mutants. Further, I was able to identify how combinatorial evaluation
-could be used for evaluating equivalent mutants [(ISSRE 2015)](/publications/2015/11/05/issre-how/).
-
-Next, I compared the effectiveness of current techniques for reducing mutants to
-be evaluated such as operator selection and stratum based sampling and found
-that they offer surprisingly little advantage (less than 10% for stratum
-sampling and negative for operator selection) compared to simple random sampling
-in multiple evaluation criteria.
-My research [(ICSE 2016)](/publications/2016/05/14/icse-on/) comparing the
-effectiveness of the theoretical best mutation selection methods with random
-sampling found that **even under oracular knowledge of test kills**, mutation
-selection methods can at best be less than
-20% better than random sampling, and are often much worse. Interestingly, there
-is no such limit on how the amount of efficiency that can be achieved by the
-addition of new operators. This discovery suggests that effort should be spent
-on finding newer and relevant mutation operators rather than removing the
-operators in the name of effectiveness. **This research also effectively settled
-the long standing debate on the utility of mutation reduction strategies such
-as operator selection in favor of random sampling**.
-
-Finally, we were able to conclusively prove the _coupling effect_ theoretically,
-as well as quantify its impact empirically [(ICST 2017)](/publications/2017/03/13/icstw-the-theory/).
-The *coupling effect* is one of the corner stones of *mutation analysis*, and
-our research provided the much needed clarification on
-the relation between simple faults that mutants represent and higher order
-faults that are common in real world programs.
-
-Mutation analysis has since come back into my work from an unexpected direction.
-Fuzzers are evaluated almost entirely by the coverage they reach and the crashes
-they find, both of which saturate and are easy to overfit to.
-Mutation score is the natural yardstick instead —
-it subsumes coverage measures and supplies a large, diverse set of faults —
-but the cost of evaluating each mutant independently made it unaffordable for
-fuzzing.
-We laid out the obstacles in the way
-[(arXiv 2022)](/publications/2022/01/27/arxiv-mutation/),
-then showed that modern techniques for pooling multiple mutations into a single
-execution bring the cost down far enough to evaluate and compare fuzzers with
-mutation analysis for the first time
-[(Usenix Security 2023)](/publications/2023/04/26/systematic/).
-Today's fuzzers detect only a small fraction of mutants,
-which we read as a challenge for the field rather than a verdict on the method.
-Mutants are also useful as fuzzing *targets*:
-splitting a fuzzing budget between the program and its mutants explores more
-behaviors than spending all of it on the program itself
-[(NDSS Fuzzing Workshop 2022)](/publications/2022/04/24/ndss-first-fuzz-the-mutants/).
 
 <!--
 <h3>Implementation</h3>
@@ -332,22 +309,15 @@ The ideas from my research have resulted in two practical implementations -- [Mu
 -->
 
 <h3>Practice</h3>
-My interest in the quality of programs is informed by a wealth of practical
-knowledge from the Industry. Before joining the Ph.D. program, I worked in the
-software industry as a developer for ten years, where I was part of the web and
-proxy server development teams at [Quark Media House](http://www.quark.com/),
-and [Sun Microsystems](http://www.sun.com/).
-My primary area of interest was the web caches,  particularly the distributed
-caching systems and protocols. I participated in the [OpenSolaris](https://www.openindiana.org/)
-effort, where I was the maintainer of multiple open source packages. I have
-also contributed to the Apache HTTPD project, in core and mod_proxy modules.
-During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I
-contributed extensively towards the functionalities in the Solaris Operating
-system, and at [Galois](https://galois.com/) where I contributed to the
-visualization of effectiveness of one of the vulnerability mitigation approaches.
+My interest in the reliability of programs is informed by a wealth of practical knowledge from the Industry. Before joining the Ph.D. program, I worked in the software industry as a developer for ten years, where I was part of the web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the [OpenSolaris](https://www.openindiana.org/) effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionalities in the Solaris Operating system, and at [Galois](https://galois.com/) where I contributed to the visualization of effectiveness of one of the vulnerability mitigation approaches.
+
+That experience continues to shape the work.
+The industrial protocol study above was run against a production system under
+real operational constraints,
+and the reduction and repair tools are built to be dropped into existing
+pipelines rather than to require them to be rebuilt.
 
 <hr>
 <b>IMPORTANT: If you are my student, and facing _any_ sort of difficulties, please
 do [contact me](/contact). I will be happy to talk to you, and help you in any way. </b>
-
 
