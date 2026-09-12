@@ -19,12 +19,12 @@ and did my postdoc at
 and [Prof. Dr. Alex Groce](http://dblp.uni-trier.de/pers/hd/g/Groce:Alex)<br/>
 -->
 
-My research primarily on one single question:
+My research centers on a single question:
 *how much confidence can we justify that a software system will not fail in operation?*
 
 Failures arrive by two routes.
 Most arrive by chance, through inputs nobody anticipated.
-Some arrive by design, through an adversary searching for precisely the input
+Some arrive by design, through an adversary searching for the input
 that breaks you.
 The engineering problem is the same either way:
 find the inputs that provoke failure,
@@ -38,9 +38,9 @@ I treat security as the adversarial corner of reliability,
 and the work below is organized accordingly.
 
 The question is most urgent where failure is expensive.
-In high-consequence software such as
-industrial control, instrumentation, medical
-devices, critical infrastructure, just finding bugs is not enough.
+In high-consequence software such as industrial control, instrumentation,
+medical devices, and critical infrastructure,
+just finding bugs is not enough.
 We also need to have confidence in the reliability of the software,
 and hence we need to evaluate whether the evidence gathered justifies
 the confidence being claimed.
@@ -52,12 +52,12 @@ and forecasting what is left.
 My work covers the last three, in five parts that build on one another:
 
 * **What remains?** After a test campaign ends, how many faults are still there?
-* **Can we trust the measurement?** Is our estimate of software test quality, (and hence software that it tests) sound?
+* **Can we trust the measurement?** Is our estimate of software test quality (and hence of the software it tests) sound?
 * **How do we provoke the failures?** Reaching a fault requires inputs the system will accept, whether we are testing or attacking.
 * **How do we diagnose one?** A failure report is only useful if we can act on it.
 * **What if the damage is already done?** Corrupted data has to be recovered.
 
-<h3>Estimating what remains</h3>
+<h3>Residual risk</h3>
 
 The oldest question in software reliability is when to stop.
 Classical software reliability growth models answer it by fitting a curve to the
@@ -68,13 +68,13 @@ which infers how many species exist in a population
 from how often each one has been observed,
 treating coverage elements and killable faults as the species.
 
-My interest is in whether these methods actually hold up.
-The field proposes metrics considerably faster than it validates them,
+My interest is in whether these methods hold up.
+The field proposes metrics faster than it validates them,
 and a reliability estimate that is wrong does more damage than no estimate at all,
 because someone will act on it.
 Many of my findings here have been negative,
-and my focus has been on establishing the credibility (or lack of credibility)
-these metrics.
+and my focus has been on establishing the credibility, or lack of it,
+of these metrics.
 
 The thread starts with a result on residual defects.
 We were the first, and to date the only ones, to find evidence
@@ -90,8 +90,8 @@ We then asked whether richness estimators could count the *killable* mutants
 Across twelve frequency-based models and ten mature projects, they could not.
 The estimators lacked the predictive power to be useful
 [(ESEM 2024)](/publications/2024/06/20/empirical-evaluation/).
-While it is a negative result, it is impactful,
-as it told us the difficulty lies in the sampling process.
+While the result is negative, it told us where the difficulty lies:
+in the sampling process.
 
 Applied to coverage, the problem is harder still,
 because there is no ground truth to check an estimate against.
@@ -124,11 +124,11 @@ the estimators available today are not dependable enough to carry a confidence
 claim on their own.
 Establishing that clearly is more useful to a practitioner than another
 proposed metric with an untested claim attached.
-This question: whether any estimator can tell us when a campaign has
-genuinely saturated, and with what confidence, remains open, and has been
-one of my focus areas.
+Whether any estimator can tell us when a campaign has genuinely saturated,
+and with what confidence, remains an open question,
+and one of my focus areas.
 
-<h3>Trusting the measurement</h3>
+<h3>Measurement validity</h3>
 
 Any claim about residual risk rests on a measurement of test quality,
 so the measurement has to be sound.
@@ -170,7 +170,7 @@ and is often much worse
 There is no such ceiling on the gains from *adding* operators,
 which says effort belongs in finding new operators rather than discarding
 existing ones.
-**This settled a long standing debate on mutation reduction strategies in favor
+**This settled a long-standing debate on mutation reduction strategies in favor
 of random sampling.**
 Finally, we proved the _coupling effect_ theoretically and quantified it
 empirically
@@ -203,12 +203,13 @@ between a program and its mutants explores more behavior than spending all of it
 on the program
 [(NDSS Workshop 2022)](/publications/2022/04/24/ndss-first-fuzz-the-mutants/).
 
-<h3>Provoking the failures: fuzzing</h3>
+<h3>Fuzzing and test generation</h3>
 
-None of the above is measurable without inputs that actually reach the code.
-Fuzzing — generating large volumes of unexpected and possibly invalid input,
-and watching for anomalous behavior — is the cheapest way to get them,
-and it is simultaneously the dominant technique in vulnerability discovery.
+None of the above is measurable without inputs that reach the code.
+Fuzzing generates large volumes of unexpected and possibly invalid input
+and watches for anomalous behavior.
+It is the cheapest way to get them,
+and it is also the dominant technique in vulnerability discovery.
 A system that rejects every invalid input and behaves correctly on valid ones is
 robust under fuzzing, and fuzzing it before release finds the failures before
 users and attackers do.
@@ -221,7 +222,7 @@ system under test to infer its expected inputs and use feedback from earlier run
 to steer later ones.
 
 The hard part is reaching deep code.
-Most systems accept only highly structured input,
+Most systems accept only structured input,
 and a generator that cannot produce valid structure never gets past the parser.
 Real systems compound this: an HTTP request wrapping a JSON object encoding an
 RPC call encoding a custom structure defeats coverage-guided fuzzing entirely,
@@ -238,7 +239,8 @@ for parsers with a lexical stage
 [(ISSTA 2020)](/publications/2020/07/18/issta-learning/),
 and even for
 [systems that cannot be instrumented](https://arxiv.org/abs/2012.13516),
-such as embedded and remote systems — a common constraint in security testing,
+such as embedded and remote systems.
+That constraint is common in security testing,
 where the target is frequently a binary nobody can recompile.
 
 Correcting one input at a time is still expensive.
@@ -258,8 +260,8 @@ per second.
 Since then we have pushed inference in several directions.
 Reimplementing the GLADE algorithm, we found its reported effectiveness overly
 optimistic and in some cases measured against the wrong language
-[(PLDI 2022)](/publications/2022/04/04/pldi-synthesizing/) —
-replication matters here, because grammar inference results are easy to overstate.
+[(PLDI 2022)](/publications/2022/04/04/pldi-synthesizing/).
+Replication matters here, because grammar inference results are easy to overstate.
 _CLIFuzzer_ mines the valid command-line invocations of a utility into a grammar
 [(FSE 2022)](/publications/2022/08/12/fse-clifuzzer/),
 and _FormatFuzzer_ compiles a binary template into a parser, mutator, and
@@ -278,7 +280,7 @@ Blackbox conditions of this kind are the norm in industrial and security
 settings, where instrumentation is barred by legal, operational, or safety
 constraints.
 
-<h3>Diagnosing failures</h3>
+<h3>Failure diagnosis</h3>
 
 A detected failure is only useful if someone can act on it,
 and generated inputs are typically enormous and unreadable.
@@ -319,7 +321,7 @@ redundant restarts, with a tunable restart budget trading minimality against
 linear worst-case behavior
 [(ISSRE 2026)](/publications/2026/07/11/drdd/).
 
-<h3>Tolerating corrupt data</h3>
+<h3>Data repair</h3>
 
 Not every fault can be removed before deployment,
 and not every damaged input is the program's fault.
@@ -361,7 +363,7 @@ The ideas from my research have resulted in two practical implementations -- [Mu
 -->
 
 <h3>Practice</h3>
-My interest in the reliability of programs is informed by a wealth of practical knowledge from the Industry. Before joining the Ph.D. program, I worked in the software industry as a developer for ten years, where I was part of the web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was the web caches,  particularly the distributed caching systems and protocols. I participated in the [OpenSolaris](https://www.openindiana.org/) effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionalities in the Solaris Operating system, and at [Galois](https://galois.com/) where I contributed to the visualization of effectiveness of one of the vulnerability mitigation approaches.
+My interest in the reliability of programs is informed by a wealth of practical knowledge from industry. Before joining the Ph.D. program, I worked in the software industry as a developer for ten years, where I was part of the web and proxy server development teams at [Quark Media House](http://www.quark.com/), and [Sun Microsystems](http://www.sun.com/). My primary area of interest was web caches, particularly distributed caching systems and protocols. I participated in the [OpenSolaris](https://www.openindiana.org/) effort, where I was the maintainer of multiple open source packages. I have also contributed to the Apache HTTPD project, in core and mod_proxy modules. During my Ph.D., I worked at [Puppet Labs](https://puppet.com/) where I contributed extensively towards the functionality of the Solaris operating system, and at [Galois](https://galois.com/) where I contributed to the visualization of effectiveness of one of the vulnerability mitigation approaches.
 
 That experience continues to shape the work.
 The industrial protocol study above was run against a production system under
