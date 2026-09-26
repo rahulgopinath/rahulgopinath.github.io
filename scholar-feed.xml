@@ -1,0 +1,24 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>{{ site.title | append: ' — Scholarly Posts' | xml_escape }}</title>
+    <description>{{ site.description | xml_escape }}</description>
+    <link>{{ '/' | absolute_url | xml_escape }}</link>
+    <atom:link href="{{ '/scholar-feed.xml' | absolute_url | xml_escape }}" rel="self" type="application/rss+xml" />
+    {% assign scholarly_posts = site.posts | where: 'rogue_scholar', true %}
+    {% for post in scholarly_posts %}
+    <item>
+      <title>{{ post.title | xml_escape }}</title>
+      <dc:creator>{{ post.authors | xml_escape }}</dc:creator>
+      <description>{{ post.content | xml_escape }}</description>
+      <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
+      <link>{{ post.url | absolute_url | xml_escape }}</link>
+      <guid isPermaLink="true">{{ post.url | absolute_url | xml_escape }}</guid>
+      <dc:rights>{{ post.license | xml_escape }}</dc:rights>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>
