@@ -3,8 +3,14 @@ published: true
 title: Version Control Systems
 layout: post
 comments: true
-tag: [vcs]
+tags: [vcs]
 categories : post
+authors: Rahul Gopinath
+rogue_scholar: true
+license: https://creativecommons.org/licenses/by/4.0/
+description: >-
+  A survey of version control systems, covering their history,
+  architectures, revision models, and approaches to merging.
 ---
 ## Introduction
 
@@ -125,6 +131,9 @@ Monticello[^bryant2004] [^nierstrasz2013] is a version control system that is fo
 * [Bazar](https://bazaar.canonical.com/en/) is a distributed version control system.
 * [Fossil](https://www.fossil-scm.org/home/doc/trunk/www/index.wiki) is a distributed version control system.
 * [Pijul](https://pijul.org/) is similar to Darcs, in that it has a sound theory of patches as its underlying model, but gets around problems in Darcs.
+
+© Rahul Gopinath. This article is licensed under
+[CC BY 4.0]({{ page.license }}).
 
 ## References
 
