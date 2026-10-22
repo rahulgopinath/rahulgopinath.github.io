@@ -23,5 +23,6 @@ Methods: (1) To address the challenge of labeled ground truth, we propose an eva
 Results: These two studies together will help answer the question of whether current reachability estimators are reliable, and defines a protocol to evaluate future improvements in reachability estimation.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2507.17093 "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2025/liyanage2025assessing.bib "reference")
 
 [<em class="fa fa-desktop" aria-hidden="true"></em>](https://speakerdeck.com/rahulgopinath/assessing-reliability-of-statistical-maximum-coverage-estimators-in-fuzzing "presentation")

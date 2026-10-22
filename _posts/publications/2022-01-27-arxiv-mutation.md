@@ -27,3 +27,4 @@ attempts to understand the main challenges in applying mutation analysis for
 evaluating fuzzers, so that researchers can focus on solving these challenges.
 
 [<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2201.11303)
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2022/gopinath2022mutation.bib "reference")

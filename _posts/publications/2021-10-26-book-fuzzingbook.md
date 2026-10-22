@@ -23,3 +23,5 @@ generation and software testing. They now are mature enough to be assembled in
 a book – even with executable code.
 
 The book can be found at [www.fuzzingbook.org](https://www.fuzzingbook.org/).
+
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/fuzzingbook/fuzzingbook2021.bib "reference")

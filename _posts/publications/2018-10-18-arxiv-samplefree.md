@@ -25,6 +25,6 @@ prototype took only a few minutes to infer grammars and generate thousands of
 valid high-quality inputs. 
 
 
-[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/2109.11277 "paper")
-[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2021/dutra2021formatfuzzer.bib "reference")
+[<em class="fa fa-book fa-lg" aria-hidden="true"></em>](https://arxiv.org/abs/1810.08289 "paper")
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/arxiv2018/gopinath2018learning.bib "reference")
 

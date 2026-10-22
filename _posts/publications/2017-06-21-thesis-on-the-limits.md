@@ -53,3 +53,5 @@ the potential benefit far outweighs the perceived drawbacks in terms of
 computational cost.
 
 The thesis can be found at [https://ir.library.oregonstate.edu/concern/graduate_thesis_or_dissertations/9306t349j](https://ir.library.oregonstate.edu/concern/graduate_thesis_or_dissertations/9306t349j).
+
+[<em class="fa fa-bookmark-o fa-lg" aria-hidden="true"></em>](https://raw.githubusercontent.com/rahulgopinath/rahulgopinath.github.io/master/resources/phd2017/gopinath2017on.bib "reference")

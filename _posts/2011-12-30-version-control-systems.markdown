@@ -3,14 +3,11 @@ published: true
 title: Version Control Systems
 layout: post
 comments: true
-tags: [vcs]
+tag: [vcs]
 categories : post
 authors: Rahul Gopinath
 rogue_scholar: true
 license: https://creativecommons.org/licenses/by/4.0/
-description: >-
-  A survey of version control systems, covering their history,
-  architectures, revision models, and approaches to merging.
 ---
 ## Introduction
 
